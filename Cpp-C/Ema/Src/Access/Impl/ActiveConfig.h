@@ -72,6 +72,7 @@
 #define DEFAULT_RECONNECT_MAX_DELAY					    5000
 #define DEFAULT_RECONNECT_MIN_DELAY					    1000
 #define DEFAULT_REQUEST_TIMEOUT						   15000
+#define DEFAULT_REST_REQUEST_TIMEOUT				   90
 #define DEFAULT_SERVICE_COUNT_HINT					   513
 #define DEFAULT_OBJECT_NAME							   EmaString( "" )
 #define DEFAULT_SSL_CA_STORE						   EmaString( "" )
@@ -439,6 +440,7 @@ public:
 	void setReconnectAttemptLimit(Int64 value);
 	void setReconnectMinDelay(Int64 value);
 	void setReconnectMaxDelay(Int64 value);
+	void setRestRequestTimeOut(UInt64 value);
 
 	ChannelConfig* findChannelConfig( const Channel* pChannel );
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
@@ -459,6 +461,7 @@ public:
 	bool			msgKeyInUpdates;
 	Int64			reissueTokenAttemptLimit;
 	Int64			reissueTokenAttemptInterval;
+	UInt32			restRequestTimeOut; // in seconds
 
 	DictionaryConfig		dictionaryConfig;
 

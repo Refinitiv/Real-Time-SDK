@@ -1,0 +1,4 @@
+# file,location
+,Applications/Examples
+Consumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/consumer
+ConsumerCmdLineParser.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/consumer

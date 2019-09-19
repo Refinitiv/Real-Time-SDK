@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.SessionMgntState;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
 
 abstract class RestClient implements Runnable, RestCallback {
@@ -27,7 +28,6 @@ abstract class RestClient implements Runnable, RestCallback {
 	static final String EDP_RT_SD_TRANSPORT = "transport";
 	
 	RestReactor _restReactor;
-	private boolean _failedAuthReRequest;
 	
 	private ReactorAuthTokenInfo _authTokenInfo = new ReactorAuthTokenInfo();
 	
@@ -44,9 +44,7 @@ abstract class RestClient implements Runnable, RestCallback {
     RestClient ( RestReactorOptions restReactorOpt, RestConnectOptions restConnOpt, 
     		RestAuthOptions restAuthOpt, 
     		ReactorErrorInfo errorInfo )
-    {
-    	_failedAuthReRequest = false;
-    	
+    {    	
     	_restReactorOptions = restReactorOpt;
     	_restConnectOptions = restConnOpt;
     	_restAuthRequest = restAuthOpt;    	
@@ -57,9 +55,6 @@ abstract class RestClient implements Runnable, RestCallback {
     	else
     		_location = _restConnectOptions.location();
     	
-    	_restReactorOptions.connectionOptions(_restConnectOptions);
-    	_restReactorOptions.connectTimeout(5000);
-    	_restReactorOptions.soTimeout(10000);
     	_restReactorOptions.defaultRespCallback(this);
 
     	_restReactorOptions.authorizationCallback(this);  
@@ -73,6 +68,8 @@ abstract class RestClient implements Runnable, RestCallback {
     
     void connect(ReactorErrorInfo errorInfo)
     {
+    	ReactorChannel reactorChannel = (ReactorChannel)_restConnectOptions.userSpecObject();
+    	
     	// Request access token
     	_restAuthRequest.username(_restConnectOptions.userName().toString());
     	_restAuthRequest.password(_restConnectOptions.password().toString());
@@ -92,7 +89,9 @@ abstract class RestClient implements Runnable, RestCallback {
     		_location = _restConnectOptions.location();
         
     	// submit auth request
-    	_restReactor.submitAuthRequest((ReactorChannel)_restConnectOptions.userSpecObject(), _restAuthRequest, _restConnectOptions, errorInfo);
+    	_restAuthRequest.grantType(RestReactor.AUTH_PASSWORD);
+    	reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD);
+    	_restReactor.submitAuthRequest(reactorChannel, _restAuthRequest, _restConnectOptions, errorInfo);
     	
     }
     
@@ -130,9 +129,9 @@ abstract class RestClient implements Runnable, RestCallback {
 	    	if (errorInfo.code() == ReactorReturnCodes.SUCCESS && requestServices)
 	    	{
 		    	// request list of services from EDP    	
-		    	RestRequest restRequest = createRestRequest();    	
+		    	RestRequest restRequest = createRestRequestForServiceDiscovery();    	
 				
-				_restReactor.submitRequestBlocking(restRequest, _restConnectOptions, errorInfo);
+				_restReactor.submitServiceDiscoveryRequestBlocking(restRequest, _restConnectOptions, errorInfo);
 	    	}    	
     	} 
     	catch (IOException e) 
@@ -145,7 +144,7 @@ abstract class RestClient implements Runnable, RestCallback {
     	}
     }
     
-    private void requestNewAuthTokenWithUserNameAndPassword(ReactorChannel reactorChannel)
+    void requestNewAuthTokenWithUserNameAndPassword(ReactorChannel reactorChannel)
     {
     	_restAuthRequest.grantType(RestReactor.AUTH_PASSWORD);
     	
@@ -155,8 +154,8 @@ abstract class RestClient implements Runnable, RestCallback {
     }
     
     void requestRefreshAuthToken (ReactorChannel reactorChannel, ReactorErrorInfo errorInfo) 
-    {	
-    	_restAuthRequest.refreshToken(_authTokenInfo.refreshToken());
+    {	 	
+    	_restAuthRequest.refreshToken(reactorChannel._reactorAuthTokenInfo.refreshToken());
 
     	_restConnectOptions.userSpecObject(reactorChannel);    	
     	
@@ -177,8 +176,6 @@ abstract class RestClient implements Runnable, RestCallback {
 		{
 			if (response.jsonObject() != null && response.jsonObject().has(RestReactor.AUTH_ACCESS_TOKEN))
 			{
-				_failedAuthReRequest = false;
-
 				event._reactorAuthTokenInfo.copy(_restConnectOptions.tokenInformation());
 				event._reactorAuthTokenInfo.copy(_authTokenInfo);
 
@@ -189,14 +186,31 @@ abstract class RestClient implements Runnable, RestCallback {
 					if (reactorChannel._reactorAuthTokenInfo == null)
 						reactorChannel._reactorAuthTokenInfo = new ReactorAuthTokenInfo();
 					event._reactorAuthTokenInfo.copy(reactorChannel._reactorAuthTokenInfo);
+					
+					/* Creates and sends worker event to get an access token */
+					reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_AUTH_TOKEN);
+					reactorChannel.resetTokenReissueAttempts();
+					reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
 				
 					// if reactor channel not null it means non blocking and if state set it means connection recovery
+					// 
 					if (reactorChannel.state() == State.EDP_RT)
 					{
-						RestRequest restRequest = createRestRequest();
-						_restConnectOptions.userSpecObject(reactorChannel);
+						ReactorConnectInfo reactorConnectInfo = reactorChannel.getReactorConnectInfo();
+						
+						/* Checks whether to get a host and port from the EDP-RT service discovery */
+						if(Reactor.requestServiceDiscovery(reactorConnectInfo))
+						{
+							RestRequest restRequest = createRestRequestForServiceDiscovery();
+							_restConnectOptions.userSpecObject(reactorChannel);
 
-						_restReactor.submitRequest(restRequest, reactorChannel, _errorInfo);
+							reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.QUERYING_SERVICE_DISCOVERY);
+							_restReactor.submitRequestForServiceDiscovery(restRequest, reactorChannel, _errorInfo);
+						}
+						else
+						{
+							reactorChannel.state(State.EDP_RT_DONE);
+						}
 					}
 				}
 				
@@ -241,42 +255,75 @@ abstract class RestClient implements Runnable, RestCallback {
 					_reactorServiceEndpointInfoList.add(serviceInfo);
 				}
 				
-				if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
+				if (reactorChannel != null)
 				{
-					reactorChannel.state(State.EDP_RT_DONE);
+					reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_ENDPOINT_INFO);
+					
+					if(reactorChannel.state() == State.EDP_RT)
+					{
+						reactorChannel.state(State.EDP_RT_DONE);
+					}
 				}
 			}			
 		}
 		break;	
-		case RestEventTypes.FAILED:	
-			if (!_failedAuthReRequest)
+		case RestEventTypes.FAILED:
+			
+			if(reactorChannel != null)
 			{
-				if (reactorChannel != null)
+				if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
+						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD)
 				{
-		            // send warning event to reactor channel
-					_errorInfo.error().text("Failed to request authentication token with refresh token for user: " + 
-							((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString() + 
-							". Will try again with user name and password.");
-		            reactorChannel.reactor().sendAndHandleChannelEventCallback("RestClient.RestResponseCallback",
-		                                              ReactorChannelEventTypes.WARNING,
-		                                              reactorChannel, _errorInfo);
+					String errorText = "failed to get an access token from the token service"; // Default error status text if data body is not defined
+					
+					if (response.jsonObject() != null)
+					{
+						errorText = response.jsonObject().toString();
+					}
+					
+					reactorChannel.reactor().populateErrorInfo(_errorInfo, ReactorReturnCodes.FAILURE, "RestClient.RestResponseCallback", 
+							"Failed REST request from HTTP status code " + response.statusCode() + " for user: " + ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString() + 
+							". Text: " + errorText);
+					
+					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, _errorInfo);
+
+					reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE);
+					
+					if (reactorChannel.state() != ReactorChannel.State.EDP_RT && reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED)
+					{
+						if (reactorChannel.handlesTokenReissueFailed() )
+						{
+							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorAuthTokenInfo());
+							return ReactorReturnCodes.SUCCESS;
+						}
+					}
+				}
+				else
+				{
+					String errorText = "failed to get endpoints from the service discovery"; // Default error status text if data body is not defined
+					
+					if (response.jsonObject() != null)
+					{
+						errorText = response.jsonObject().toString();
+					}
+					
+					event.errorInfo().error().text("Failed REST request from HTTP status code " + response.statusCode() + ". Text: " +  errorText);
+					
+					reactorChannel.reactor().populateErrorInfo(_errorInfo, ReactorReturnCodes.FAILURE, "RestClient.RestResponseCallback", 
+							"Failed REST request with text: " + errorText);
+					
+					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, _errorInfo);
 				}
 				
-				requestNewAuthTokenWithUserNameAndPassword(reactorChannel);
-				_failedAuthReRequest = true;
-			}
-			else
-			{
-				// re requesting second time, this time fail the request
-				if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
-				{			
+				if(reactorChannel.state() == State.EDP_RT)
+				{
 					reactorChannel.setEDPErrorInfo(event.errorInfo());
 					reactorChannel.state(State.EDP_RT_FAILED);
 				}
 				
-				_failedAuthReRequest = false;
 				return ReactorReturnCodes.FAILURE;
 			}
+		
 			break;
 		default:
 			break;
@@ -291,12 +338,24 @@ abstract class RestClient implements Runnable, RestCallback {
 
 		onError( reactorChannel, event.errorInfo() );
 		if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
+		{
+			if(reactorChannel.sessionMgntState() == SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
+					reactorChannel.sessionMgntState() == SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD)
+			{
+				reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE);
+			}
+			else
+			{
+				reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
+			}
+			
 			reactorChannel.state(State.EDP_RT_FAILED);
+		}
 		
 		return ReactorReturnCodes.SUCCESS;
 	}	
 	
-	private RestRequest createRestRequest()
+	private RestRequest createRestRequestForServiceDiscovery()
 	{
     	RestRequest restRequest = new RestRequest();    	
     	

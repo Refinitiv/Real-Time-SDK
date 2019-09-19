@@ -739,7 +739,10 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
                 break;
             }
             case ReactorChannelEventTypes.WARNING:
-                System.out.println("Received ReactorChannel WARNING event\n");
+                System.out.println("Received ReactorChannel WARNING event.");
+                if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+                	System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+                
                 break;
             default:
             {

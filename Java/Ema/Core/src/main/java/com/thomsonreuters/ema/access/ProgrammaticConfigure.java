@@ -978,6 +978,39 @@ class ProgrammaticConfigure
 												if (eentry.intValue() >= 0)
 													((ActiveConfig)activeConfig).dictionaryRequestTimeOut = convertToInt(eentry.intValue());
 											}
+											else if ( eentry.name().equals("ReissueTokenAttemptLimit"))
+											{
+												((ActiveConfig)activeConfig).reissueTokenAttemptLimit = convertToInt(eentry.intValue());
+												
+												if(((ActiveConfig)activeConfig).reissueTokenAttemptLimit < ActiveConfig.DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT)
+												{
+													((ActiveConfig)activeConfig).reissueTokenAttemptLimit = ActiveConfig.DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
+												}
+												
+											}
+											else if ( eentry.name().equals("ReissueTokenAttemptInterval"))
+											{
+												if (eentry.intValue() >= 0)
+													((ActiveConfig)activeConfig).reissueTokenAttemptInterval = convertToInt(eentry.intValue());
+												else
+													((ActiveConfig)activeConfig).reissueTokenAttemptInterval = 0;
+											}
+											break;
+										case DataTypes.UINT:
+											if ( eentry.name().equals("RestRequestTimeOut"))
+											{
+												if (eentry.uintValue() >= 0)
+													((ActiveConfig)activeConfig).restRequestTimeout = convertToInt(eentry.uintValue());
+												else
+													((ActiveConfig)activeConfig).restRequestTimeout = 0;
+											}
+											break;
+										case DataTypes.DOUBLE:
+											if ( eentry.name().equals("TokenReissueRatio"))
+											{
+												if(eentry.doubleValue() > 0)
+													((ActiveConfig)activeConfig).tokenReissueRatio = eentry.doubleValue();						
+											}
 											break;
 										default:
 											break;

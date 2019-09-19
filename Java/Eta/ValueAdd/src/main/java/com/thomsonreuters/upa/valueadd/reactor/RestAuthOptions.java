@@ -157,7 +157,7 @@ class RestAuthOptions {
 		return (_flags & RestAuthOptions.HAS_GRANT_TYPE) != 0;
 	}
 	
-	public boolean hasRefrehTokoen()
+	public boolean hasRefreshToken()
 	{
 		return (_flags & RestAuthOptions.HAS_REFRESH_TOKEN) != 0;
 	}

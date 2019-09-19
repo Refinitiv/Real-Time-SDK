@@ -13,7 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -265,6 +266,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	long cacheInterval;
     long statisticTime;
     long statisticInterval;
+    //APIQA
+    String statisticFilter;
+    //END APIQA
 	StringBuilder cacheDisplayStr;
 	Buffer cacheEntryBuffer;
 	
@@ -356,12 +360,62 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         statisticInterval = consumerCmdLineParser.statisticInterval();
         statisticTime = System.currentTimeMillis() + statisticInterval*1000;
         
+        //API QA
+        
+        // if identify tokenServiceUrl
+        if (consumerCmdLineParser.tokenServiceUrl() != null)
+        {
+        	//reactorOptions.tokenServiceURL().data(consumerCmdLineParser.tokenServiceUrl());
+        	Buffer tokenUrl = CodecFactory.createBuffer();                  
+   		    tokenUrl.data(consumerCmdLineParser.tokenServiceUrl());                  
+   		    reactorOptions.tokenServiceURL(tokenUrl);  
+        }
+        // if identify serviceDiscoveryUrl
+        if (consumerCmdLineParser.serviceDiscoveryUrl() != null)
+        {
+        	//reactorOptions.serviceDiscoveryURL().data(consumerCmdLineParser.serviceDiscoveryUrl());
+        	Buffer discoveryUrl = CodecFactory.createBuffer();                  
+   		    discoveryUrl.data(consumerCmdLineParser.serviceDiscoveryUrl());                  
+   		    reactorOptions.serviceDiscoveryURL(discoveryUrl);
+        }
+        if (consumerCmdLineParser.tokenReissueRatio() > 0)
+        {
+        	reactorOptions.tokenReissueRatio(consumerCmdLineParser.tokenReissueRatio());
+        }
+        if (consumerCmdLineParser.restRequestTimeout() > 0)
+        {
+        	reactorOptions.restRequestTimeout(consumerCmdLineParser.restRequestTimeout());
+        }
+        if (consumerCmdLineParser.reissueTokenAttemptLimit() > 0)
+        {
+        	reactorOptions.reissueTokenAttemptLimit(consumerCmdLineParser.reissueTokenAttemptLimit());
+        }
+        if (consumerCmdLineParser.reissueTokenAttemptInterval() > 0)
+        {
+        	reactorOptions.reissueTokenAttemptInterval(consumerCmdLineParser.reissueTokenAttemptInterval());
+        }
+              
+    	statisticFilter = consumerCmdLineParser.statisticFilter();
+        
         // Set reactor statistics to keep track of
         if(statisticInterval > 0)
         {
-        	reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	switch(statisticFilter) {
+        	case "READ":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ);
+        		break;
+        	case "WRITE":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.WRITE);
+        		break;
+        	case "PING":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.PING);
+        		break;
+        	default:
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	}      	
         }
-        
+        	
+        //END API QA
 		// create reactor
 	    reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 	    if (errorInfo.code() != ReactorReturnCodes.SUCCESS)

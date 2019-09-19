@@ -162,6 +162,20 @@ public class Reactor
         }
         else if (options != null)
         {
+        	if(options.tokenReissueRatio() < 0.05 || options.tokenReissueRatio() > 0.95)
+        	{
+        		populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.constructor",
+                        "The token reissue ratio must be in between 0.05 to 0.95.");
+        		return;
+        	}
+        	
+        	if(options.reissueTokenAttemptInterval() < 0)
+        	{
+        		populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.constructor",
+                        "The token reissue attempt interval is less than zero.");
+        		return;
+        	}
+        	
             _reactorOptions.copy(options);
         }
         else
@@ -701,6 +715,7 @@ public class Reactor
             if (sendAuthTokenEvent)
             {
 				sendAuthTokenEventCallback(reactorChannel, _restClient.reactorAuthTokenInfo(), errorInfo);
+				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_AUTH_TOKEN);
 				if (!sendAuthTokenWorkerEvent(reactorChannel, _restClient.reactorAuthTokenInfo()))
 				{
 	                return populateErrorInfo(errorInfo,
@@ -798,15 +813,12 @@ public class Reactor
             return ReactorReturnCodes.PARAMETER_INVALID;
     	}
 
-    	_restConnectOptions.clear();     	
-
     	if (reactorChannel != null && reactorChannel._loginRequestForEDP != null)
     		populateRestConnectOptions(reactorChannel._loginRequestForEDP, reactorConnectInfo, role);
     	else
     		populateRestConnectOptions(loginRequest, reactorConnectInfo, role);        		
 
     	_restConnectOptions.userSpecObject(reactorChannel);
-    	_restReactorOptions.connectionOptions(_restConnectOptions);
 
     	// if reactor channel is null, it means that this is the first time and we call blocking
     	if (reactorChannel == null)
@@ -817,7 +829,7 @@ public class Reactor
         return errorInfo.error().errorId();
     }
 
-	boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
+	static boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
 	{
     	// only use the EDP-RT connection information if not specified by the user
     	if((reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() == null &&
@@ -912,7 +924,7 @@ public class Reactor
     		}
 
     		if (_restClient == null)
-    			initRestClient(options, errorInfo);
+    			initRestClientForQueryServiceDiscovery(options, errorInfo);
     		else
     			_restClient.connectBlocking(options, true, errorInfo);
     		
@@ -940,15 +952,12 @@ public class Reactor
     private void setupRestClient()
     {
     	_restReactorOptions = new RestReactorOptions();
-    	_restConnectOptions = new RestConnectOptions();  	
+    	_restConnectOptions = new RestConnectOptions(_reactorOptions);  	
     	_restAuthOptions = new RestAuthOptions();    	
 
-    	_restReactorOptions.connectionOptions(_restConnectOptions);
-    	_restReactorOptions.connectTimeout(5000);
-    	_restReactorOptions.soTimeout(10000);
-    	
-    	_restConnectOptions.tokenServiceURL(_reactorOptions.tokenServiceURL().toString());
-    	_restConnectOptions.serviceDiscoveryURL(_reactorOptions.serviceDiscoveryURL().toString());
+
+    	_restReactorOptions.connectTimeout(0);
+    	_restReactorOptions.soTimeout(_reactorOptions.restRequestTimeout());
     }
     
     private void createRestClient(ReactorErrorInfo errorInfo)
@@ -968,15 +977,27 @@ public class Reactor
     		}
    			public void onError(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
    			{
-   				populateErrorInfo(errorInfo,
-   	                    ReactorReturnCodes.FAILURE,
-   	                    "RestClient.onError",
-   	                    "RestClient return an error");
+   				if(reactorChannel != null)
+   				{
+   					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, errorInfo);
+   					
+   					if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
+						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD)
+   					{
+   						if (reactorChannel.state() != ReactorChannel.State.EDP_RT && reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED)
+   						{
+   							if (reactorChannel.handlesTokenReissueFailed() )
+   							{
+   								reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorAuthTokenInfo());
+   							}
+   						}
+   					}
+   				}
    			}
     	};    	
     }
     
-    private int initRestClient(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
+    private int initRestClientForQueryServiceDiscovery(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
     {
 	    try
         {
@@ -1052,6 +1073,8 @@ public class Reactor
     
     private int populateRestConnectOptions(LoginRequest loginRequest, ReactorConnectInfo reactorConnectInfo, ReactorRole role)
     {
+    	_restConnectOptions.clear();
+    	
     	if (role.type() == ReactorRoleTypes.CONSUMER)
     	{
     		_restConnectOptions.userName(loginRequest.userName());
@@ -1184,6 +1207,22 @@ public class Reactor
         WorkerEvent event = ReactorFactory.createWorkerEvent();
         event.eventType(WorkerEventTypes.WATCHLIST_DISPATCH_NOW);
         event.reactorChannel(reactorChannel);
+        retVal = _workerQueue.remote().write(event);
+        
+        return retVal;
+    }
+    
+    /* This is used to send warning events for session management */
+    boolean sendChannelWarningEvent(ReactorChannel reactorChannel, ReactorErrorInfo reactorErrorInfo)
+    {
+        boolean retVal = true;
+        
+        WorkerEvent event = ReactorFactory.createWorkerEvent();
+        event._restClient = _restClient;
+        event.eventType(WorkerEventTypes.WARNING);
+        event.reactorChannel(reactorChannel);
+        populateErrorInfo(event.errorInfo(), reactorErrorInfo.code(), reactorErrorInfo.location(), reactorErrorInfo.error().text());
+        
         retVal = _workerQueue.remote().write(event);
         
         return retVal;
@@ -2568,6 +2607,15 @@ public class Reactor
                 /* Worker is done with channel. Safe to release it. */
                 reactorChannel.returnToPool();
                 break;
+               
+            case WARNING:
+            	/* Override the error code as this is not a failure */
+            	populateErrorInfo(errorInfo, ReactorReturnCodes.SUCCESS,
+                        "Reactor.processWorkerEvent",
+                        errorInfo.error().text()); 
+            	
+            	sendChannelEventCallback(ReactorChannelEventTypes.WARNING, event.reactorChannel(), errorInfo);
+            	break;
 
             case SHUTDOWN:
                 processWorkerShutdown(event, "Reactor.processWorkerEvent", errorInfo);

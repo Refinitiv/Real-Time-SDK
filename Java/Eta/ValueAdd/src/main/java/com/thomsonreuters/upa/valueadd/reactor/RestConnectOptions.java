@@ -2,25 +2,20 @@ package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.nio.ByteBuffer;
 
+import org.apache.http.HttpHost;
+
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 
 class RestConnectOptions {
 	
-	private String _scheme;
-	private String _host;
-	private int _port;
 	private Buffer _userName;
 	private Buffer _password;
 	private Buffer _clientId;
 	private int _transport;
 	private int _dataFormat;
     private Object _userSpecObject;
-    private int _bufferSize;
-    private int _fragmentSizeHint;
-    private String _tokenServiceURL;
-    private String _serviceDiscoveryURL;
     private ReactorAuthTokenInfo _reactorAuthTokenInfo = new ReactorAuthTokenInfo();
     private RestCallback _authCallback;
 	private RestCallback _defaultRespCallback;
@@ -32,25 +27,25 @@ class RestConnectOptions {
 	private String _proxyDomain;
 	private String _proxyLocalHostName;
 	private String _proxyKrb5ConfigFile;
+	private ReactorOptions _reactorOptions;
 
-    public RestConnectOptions()
+    public RestConnectOptions(ReactorOptions options)
     {
     	_userName = CodecFactory.createBuffer();
     	_password = CodecFactory.createBuffer();
-    	_clientId = CodecFactory.createBuffer();    	
+    	_clientId = CodecFactory.createBuffer();
+    	
+    	/* This member variable is set only once and it must not be cleared. */
+    	_reactorOptions = options;
+    	
     	clear();
     }
     
 	public void clear() 
 	{
-		_scheme = "https";
-		_host = "api.refinitiv.com";
-		_port = 443;
 		_userName.clear();
 		_password.clear();
 		_clientId.clear();
-		_bufferSize = 8 * 1024;
-		_fragmentSizeHint = -1;
 		_reactorAuthTokenInfo.clear();
 		_authCallback = null;
 		_defaultRespCallback = null;
@@ -79,36 +74,6 @@ class RestConnectOptions {
 	public Object userSpecObject()
 	{
 		return _userSpecObject;
-	}
-	
-	public void bufferSize(int bufferSize)
-	{
-		_bufferSize = bufferSize;
-	}
-	
-	public int bufferSize()
-	{
-		return _bufferSize;
-	}
-	
-	public void fragmentSizeHint(int fragmentSizeHint)
-	{
-		_bufferSize = fragmentSizeHint;
-	}
-	
-	public int fragmentSizeHint()
-	{
-		return _fragmentSizeHint;
-	}
-	
-	public void host(String host)
-	{
-		_host = host;
-	}
-	
-	public String host()
-	{
-		return _host;
 	}
 	
 	public void userName (Buffer username)
@@ -147,78 +112,6 @@ class RestConnectOptions {
 		return _clientId;
 	}	
 	
-	public void port(int port)
-	{
-		_port = port;
-	}
-	
-	public int port()
-	{
-		return _port;
-	}
-	
-	public void scheme(String scheme)
-	{
-		_scheme = scheme;
-	}
-	
-	public String scheme()
-	{
-		return _scheme;
-	}
-	
-	public void serviceDiscoveryURL(String url)
-	{
-		if (url == null)
-			return;
-		
-		_serviceDiscoveryURL = url;		
-	}
-	
-	public String serviceDiscoveryURL()
-	{
-		return _serviceDiscoveryURL;
-	}
-	
-	public String tokenServiceURL()
-	{
-		return _tokenServiceURL;
-	}
-	
-	public void tokenServiceURL(String url)
-	{
-		if (url == null)
-			return;
-		
-		_tokenServiceURL = url;
-		
-		String tmp = "//";
-		String[] result = url.split(":");
-		switch (result.length)
-		{
-		case 1:
-			_scheme = result[0];
-			break;
-		case 2:
-		case 3:
-			_scheme = result[0];
-			if (tmp.contentEquals(result[1].substring(0, 2)))
-				_host = result[1].substring(2, result[1].length());
-			else
-				_host = result[1];			
-			break;
-			
-		default:
-			break;
-		}
-		
-		if (_host.contains("/"))
-		{
-			result = _host.split("/");
-			_host = result[0];
-		}
-	}
-	
 	public void location(String location) {
 		_location = location;
 	}
@@ -226,19 +119,36 @@ class RestConnectOptions {
 	public String location()
 	{
 		return _location;
-	}	
+	}
+	
+	public String tokenServiceURL()
+	{
+		return _reactorOptions.tokenServiceURL().toString();
+	}
+	
+	public String serviceDiscoveryURL()
+	{
+		return _reactorOptions.serviceDiscoveryURL().toString();
+	}
+	
+	public HttpHost tokenServiceHost()
+	{
+		return _reactorOptions.tokenServiceHost();
+	}
+	
+	public HttpHost serviceDiscoveryHost()
+	{
+		return _reactorOptions.serviceDiscoveryHost();
+	}
 	
 	public String toString()
 	{
 		 return "RestConnectOptions" + "\n" + 
-	               "\tscheme: " + _scheme + "\n" +
-	               "\thost: " + _host + "\n" + 
-	               "\tport: " + _port + "\n" + 
+	               "\ttokenServiceURL: " + tokenServiceURL() + "\n" +
+	               "\tserviceDiscoveryURL: " + serviceDiscoveryURL() + "\n" + 
 	               "\tuserName: " + _userName + "\n" + 
 	               "\tpassword: " + _password + "\n" + 	               
 	               "\tuserSpecObject: " + _userSpecObject + "\n" + 
-	               "\tbufferSize: " + _bufferSize + "\n" + 
-	               "\tfragmentSizeHint: " + _fragmentSizeHint + "\n" + 
 	               "\tauthCallback: " + _authCallback + "\n" + 
 	               "\tdefaultRespCallback: " + _defaultRespCallback + 
 	               "\tlocation" + _location;
@@ -267,13 +177,9 @@ class RestConnectOptions {
         	destOpts._clientId.data(byteBuffer);        
         }        
         
-        destOpts._scheme = _scheme;
-        destOpts._host = _host;
-        destOpts._port = _port;
+        destOpts._reactorOptions = _reactorOptions;
         destOpts._password = _password;        
         destOpts._userSpecObject = _userSpecObject;
-        destOpts._fragmentSizeHint = _fragmentSizeHint;
-        destOpts._bufferSize = _bufferSize;
         destOpts._authCallback = _authCallback;
         destOpts._defaultRespCallback = _defaultRespCallback;
         destOpts._location = _location;

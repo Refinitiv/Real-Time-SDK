@@ -337,6 +337,9 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	if (pConfigImpl->get< UInt64 >(instanceNodeName + "LoginRequestTimeOut", tmp))
 		_activeConfig.loginRequestTimeOut = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
+	if (pConfigImpl->get< UInt64 >(instanceNodeName + "RestRequestTimeOut", tmp))
+		_activeConfig.restRequestTimeOut = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
 	pConfigImpl->get<Int64>(instanceNodeName + "DispatchTimeoutApiThread", _activeConfig.dispatchTimeoutApiThread);
 
 	pConfigImpl->get<Double>(instanceNodeName + "TokenReissueRatio", _activeConfig.tokenReissueRatio);
@@ -1212,6 +1215,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		if (_activeConfig.reissueTokenAttemptInterval != DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL)
 			reactorOpts.reissueTokenAttemptInterval = (Int32)_activeConfig.reissueTokenAttemptInterval;
+
+		if (_activeConfig.restRequestTimeOut != DEFAULT_REST_REQUEST_TIMEOUT)
+			reactorOpts.restRequestTimeOut = _activeConfig.restRequestTimeOut;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 

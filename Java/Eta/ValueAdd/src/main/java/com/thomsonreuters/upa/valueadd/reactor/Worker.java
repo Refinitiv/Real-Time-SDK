@@ -130,22 +130,26 @@ class Worker implements Runnable
                     	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
                     	{
                     		ReactorChannel reactorChannel = event.reactorChannel();
-                    		if (
-                    		reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
+                    		if (    reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
                             		&& reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
                             		&& reactorChannel.state() != ReactorChannel.State.DOWN
-                            		&& reactorChannel.state() != ReactorChannel.State.CLOSED 
-                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT 
-                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_DONE
-                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED )
+                            		&& reactorChannel.state() != ReactorChannel.State.CLOSED
+                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT )   
                     		{
-                    			// request new refresh auth token
-	                        	event._restClient.requestRefreshAuthToken( reactorChannel , event.errorInfo() );                            
+                    			if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
+                    			{
+                    				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD);
+                    				event._restClient.requestNewAuthTokenWithUserNameAndPassword(reactorChannel);
+                    			}
+                    			else
+                    			{
+                    				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN);
+                    				event._restClient.requestRefreshAuthToken( reactorChannel , event.errorInfo() );
+                    			}
                     		}
 
-	                        // Update the timer, do not remove it
-	                        reactorChannel.calculateNextAuthTokenRequestTime(0);           	
-	                        event.timeout(reactorChannel.nextAuthTokenRequestTime());                            
+                    		_timerEventQueue.remove(event);
+							event.returnToPool();
 	                    } 
                     	else
                     	{
@@ -312,8 +316,16 @@ class Worker implements Runnable
                 break;
             case TOKEN_MGNT:
             	// Setup a timer for token management 
-                reactorChannel.calculateNextAuthTokenRequestTime(((ReactorAuthTokenEvent) event)._reactorAuthTokenInfo.expiresIn());          	
-            	event.timeout(reactorChannel.nextAuthTokenRequestTime());
+            	if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
+            	{
+            		event.timeout(reactorChannel.nextTokenReissueAttemptReqTime());
+            	}
+            	else
+            	{
+            		reactorChannel.calculateNextAuthTokenRequestTime(((ReactorAuthTokenEvent) event)._reactorAuthTokenInfo.expiresIn());          	
+            		event.timeout(reactorChannel.nextAuthTokenRequestTime());	
+            	}
+            	
             	_timerEventQueue.add(event);
                 return;
             case START_DISPATCH_TIMER:

@@ -132,6 +132,9 @@ Series100Consumer112-ConsFunc-002
 Series100Consumer112-PConfig-001
     Alters consumer to specify programatic config for parameters related to EncryptedType connection: 
     Host,Port,ProxyHost,ProxyPort and ObjectName
+	
+Series100Consumer113-ConsFunc-001
+    Alters consumer to specify tokenServiceUrl and serviceDiscoveryUrl.
 
 Module: Series100Consumer113
 ----------------------------
@@ -536,6 +539,11 @@ Series400Consumer440-TsFrag-001
     this pattern of data up to the fillSize. The provider will then need to check 
     for the same pattern in the fully assembled message and print "TEST PASSED".
 
+
+Module:  Series400Consumer450
+-----------------------------
+Series400Consumer450-ConsFunc-001
+	Alters consumer to identify -tokenServiceUrl, -serviceDiscoveryUrl, -restRequestTimeout, -reissueTokenAttemptInterval, -reissueTokenAttemptLimit, -tokenReissueRatio
 
 Module:  Series100Provider100 
 -------------------------------

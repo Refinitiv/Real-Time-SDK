@@ -41,7 +41,11 @@ public class JUnitTestConnect
 	public static final int ReconnectAttemptLimit  = ConfigManager.ReconnectAttemptLimit; 
 	public static final int ReconnectMaxDelay  = ConfigManager.ReconnectMaxDelay; 
 	public static final int ReconnectMinDelay  = ConfigManager.ReconnectMinDelay; 
-	public static final int LoginRequestTimeOut  = ConfigManager.LoginRequestTimeOut; 
+	public static final int LoginRequestTimeOut  = ConfigManager.LoginRequestTimeOut;
+	public static final int RestRequestTimeout  = ConfigManager.RestRequestTimeout; 
+	public static final int ReissueTokenAttemptLimit  = ConfigManager.ReissueTokenAttemptLimit; 
+	public static final int ReissueTokenAttemptInterval  = ConfigManager.ReissueTokenAttemptInterval; 
+	public static final int TokenReissueRatio  = ConfigManager.TokenReissueRatio;
 
 	public static final int ConnectionPingTimeout  = ConfigManager.ConnectionPingTimeout; 
 	public static final int GuaranteedOutputBuffers  = ConfigManager.GuaranteedOutputBuffers; 
@@ -786,7 +790,27 @@ public class JUnitTestConnect
 		}
 	
 		return 0;
-	}	
+	}
+	
+	public static double configDoubleIntValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
+	{
+		ConfigAttributes attributes = null;
+		if(type == ConfigGroupTypeConsumer)
+			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
+		else if (type == ConfigGroupTypeChannel)
+			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
+		else if (type == ConfigGroupTypeDictionary)
+			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
+	
+		ConfigElement ce = null;
+		if (attributes != null)
+		{
+			if ((ce = attributes.getPrimitiveValue(configParam)) != null)
+				return (ce.doubleValue());
+		}
+	
+		return 0;
+	}
 
 	// used only for JUNIT tests
 	public static String configGetStringValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
@@ -947,6 +971,12 @@ public class JUnitTestConnect
 				return activeConfig.reconnectMinDelay;
 			else if (configParam == ReconnectMaxDelay)
 				return activeConfig.reconnectMaxDelay;
+			else if (configParam == RestRequestTimeout)
+				return activeConfig.restRequestTimeout;
+			else if (configParam == ReissueTokenAttemptLimit)
+				return activeConfig.reissueTokenAttemptLimit;
+			else if (configParam == ReissueTokenAttemptInterval)
+				return activeConfig.reissueTokenAttemptInterval;
 		
 			
 		}
@@ -1000,6 +1030,55 @@ public class JUnitTestConnect
 			if (configParam == DictionaryType)
 				return dictConfig.isLocalDictionary ? 1 : 0;
 			
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}
+	
+	public static double activeConfigGetDoubleValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmConsumerImpl consImpl = (OmmConsumerImpl) consumer;
+		
+		if (consImpl == null || consImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmConsumerImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);   
+		}
+		
+		ActiveConfig activeConfig = consImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeConsumer)
+		{
+			if (configParam == TokenReissueRatio )
+				return activeConfig.tokenReissueRatio;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);  
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+		}
+		else if (type == ConfigGroupTypeDictionary)
+		{
+			DictionaryConfig dictConfig = activeConfig.dictionaryConfig;
+			if (dictConfig == null)
+			{
+				_lastErrorText = "Unable to find the active dictionary config object ";
+				throw new NullPointerException(_lastErrorText);  
+			}			
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  

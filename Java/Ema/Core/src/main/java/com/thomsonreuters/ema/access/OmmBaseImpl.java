@@ -225,6 +225,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				_rsslReactorOpts.tokenServiceURL(config.tokenServiceUrl());
 			}
+			
+			/* Configuration parameters for handling token reissue and REST request timeout */
+			_rsslReactorOpts.reissueTokenAttemptLimit(_activeConfig.reissueTokenAttemptLimit);
+			_rsslReactorOpts.reissueTokenAttemptInterval(_activeConfig.reissueTokenAttemptInterval);
+			_rsslReactorOpts.restRequestTimeout(_activeConfig.restRequestTimeout);
+			_rsslReactorOpts.tokenReissueRatio(_activeConfig.tokenReissueRatio);
 
 			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
 			if (ReactorReturnCodes.SUCCESS != _rsslErrorInfo.code())
@@ -776,6 +782,29 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)
+			{
+				_activeConfig.reissueTokenAttemptLimit(ce.intValue());
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptInterval)) != null)
+			{
+				_activeConfig.reissueTokenAttemptInterval(ce.intValue());
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.RestRequestTimeout)) != null)
+			{
+				_activeConfig.restRequestTimeout(ce.intLongValue());
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.TokenReissueRatio)) != null)
+			{
+				double doubleValue = ce.doubleValue();
+				
+				if(doubleValue > 0)
+					_activeConfig.tokenReissueRatio = doubleValue;
 			}
 		}
 

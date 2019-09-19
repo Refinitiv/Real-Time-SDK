@@ -137,6 +137,10 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_TBCHOLD							= 3;
 	final static int DEFAULT_TPPHOLD							= 3;
 	final static int DEFAULT_USER_QLIMIT						= 65535;
+	final static int DEFAULT_REST_REQUEST_TIMEOUT				= 45000;
+	final static int DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT		= -1;
+	final static int DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL		= 5000;
+	final static double DEFAULT_TOKEN_REISSUE_RATIO				= 0.8;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	final static boolean DEFAULT_HTTP_PROXY					    = false;
@@ -163,6 +167,10 @@ abstract class ActiveConfig extends BaseConfig
 	DirectoryRefresh		rsslDirectoryRefresh;
 	DictionaryRequest		rsslFldDictRequest;
 	DictionaryRequest		rsslEnumDictRequest;
+	int						reissueTokenAttemptLimit;
+	int						reissueTokenAttemptInterval;
+	int						restRequestTimeout;
+	double					tokenReissueRatio;
 	String 					fldDictReqServiceName;
 	String 					enumDictReqServiceName;
 	DictionaryConfig		dictionaryConfig;
@@ -188,6 +196,10 @@ abstract class ActiveConfig extends BaseConfig
 		 reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
 		 msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
 		 ActiveConfig.defaultServiceName = defaultServiceName;
+		 reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
+		 reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
+		 restRequestTimeout = DEFAULT_REST_REQUEST_TIMEOUT;
+		 tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
 		 channelConfigSet = new ArrayList<>();
 	}
 
@@ -205,7 +217,11 @@ abstract class ActiveConfig extends BaseConfig
 		reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
 		reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
 		reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
-		msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
+		msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES;
+		reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
+		reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
+		restRequestTimeout = DEFAULT_REST_REQUEST_TIMEOUT;
+		tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
 		dictionaryConfig.clear();
 
 		rsslRDMLoginRequest = null;
@@ -227,6 +243,10 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t msgKeyInUpdates: ").append(msgKeyInUpdates)
 		.append("\n\t directoryRequestTimeOut: ").append(directoryRequestTimeOut)
 		.append("\n\t dictionaryRequestTimeOut: ").append(dictionaryRequestTimeOut)
+		.append("\n\t reissueTokenAttemptLimit: ").append(reissueTokenAttemptLimit)
+		.append("\n\t reissueTokenAttemptInterval: ").append(reissueTokenAttemptInterval)
+		.append("\n\t restRequestTimeOut: ").append(restRequestTimeout)
+		.append("\n\t tokenReissueRatio: ").append(tokenReissueRatio)
 		.append("\n\t loginRequestTimeOut: ").append(loginRequestTimeOut);
 		
 		return traceStr;
@@ -246,6 +266,28 @@ abstract class ActiveConfig extends BaseConfig
 	{
 		if ( value > 0 )
 			reconnectMaxDelay = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+	void reissueTokenAttemptLimit(long value) 
+	{
+		if (value >= 0)
+			reissueTokenAttemptLimit = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+		else
+			reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMPT_LIMIT;
+	}
+	void reissueTokenAttemptInterval(long value) 
+	{
+		if (value >= 0)
+			reissueTokenAttemptInterval = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+		else
+			reissueTokenAttemptInterval = 0;
+	}
+	
+	void restRequestTimeout(long value) 
+	{
+		if (value >= 0)
+			restRequestTimeout = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+		else
+			restRequestTimeout = 0;
 	}
 }
 

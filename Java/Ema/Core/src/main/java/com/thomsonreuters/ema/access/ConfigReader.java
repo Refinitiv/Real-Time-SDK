@@ -622,6 +622,12 @@ class ConfigReader
 				e = convertUInt(name, parent, value);
 				break;
 			}
+			
+			case ConfigElement.Type.Double:
+			{
+				e = convertDouble(name, parent, value);
+				break;
+			}
 
 			default:
 				errorTracker().append( "config element [")
@@ -673,6 +679,23 @@ class ConfigReader
 			{
 				errorTracker().append( "value [").append(value).append("] for config element [").append(name)
 				.append("] is not a signed integer; element ignored").create(Severity.ERROR);
+			}
+
+			return null;
+		}
+		
+		private ConfigElement convertDouble( String name,XMLnode parent, String value)
+		{
+			try
+			{
+				double convertedDouble = Double.parseDouble(value);
+				ConfigElement e = ConfigManager.acquire().new DoubleConfigElement( parent, ConfigElement.Type.Double, convertedDouble );
+				return e;
+			}
+			catch(NumberFormatException exception)
+			{
+				errorTracker().append( "value [").append(value).append("] for config element [").append(name)
+				.append("] is not a double; element ignored").create(Severity.ERROR);
 			}
 
 			return null;
@@ -953,6 +976,9 @@ class ConfigReader
 
 			for( int i = 0; i < ConfigManager.UInt64Values.length; i++ )
 				configkeyTypePair.put(ConfigManager.UInt64Values[i], ConfigElement.Type.UInt64);
+			
+			for( int i = 0; i < ConfigManager.DoubleValues.length; i++ )
+				configkeyTypePair.put(ConfigManager.DoubleValues[i], ConfigElement.Type.Double);
 
 			ConfigurationNode doc =  config.getRootNode();
 			level = 1;

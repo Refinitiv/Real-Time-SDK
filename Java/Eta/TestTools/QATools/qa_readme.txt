@@ -56,8 +56,18 @@ This adds the following into Consumer.java:
 chnlInfo.connectOptions.connectionList().get(0).connectOptions().tcpOpts().tcpNoDelay(true)
 
 vaconsumer-ChnlStats-001: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING.
+And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
 
-vaconsumer-ChnlStats-002: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, in order to test ReactorChannelStatistic and sessionMgnt for 2 connections.
+vaconsumer-ChnlStats-002: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, 
+in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+
+vaconsumer-ChnlStats-003: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING. 
+And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
+
+vaconsumer-ChnlStats-004: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, 
+in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
 
 Module:  Watchlist Consumer 
 ---------------------------

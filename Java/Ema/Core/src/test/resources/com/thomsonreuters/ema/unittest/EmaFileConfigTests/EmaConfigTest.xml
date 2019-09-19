@@ -41,6 +41,10 @@
 			<ReconnectMaxDelay value="456" />
 			<XmlTraceToStdout value="0" />
 			<MsgKeyInUpdates value="1"/>
+			<RestRequestTimeOut value="60000"/>
+			<ReissueTokenAttemptLimit value="5"/>
+			<ReissueTokenAttemptInterval value="7000"/>
+			<TokenReissueRatio value="0.5"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>

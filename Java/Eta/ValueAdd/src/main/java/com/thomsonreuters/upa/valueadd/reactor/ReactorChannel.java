@@ -62,6 +62,7 @@ public class ReactorChannel extends VaNode
     private long _nextRecoveryTime;
     private long _nextAuthTokenRequestTime;
     private long _authTokenExpiresIn;
+    private int _tokenReissueAttempts;
     private int _listIndex;
 
     // tunnel stream support
@@ -93,9 +94,9 @@ public class ReactorChannel extends VaNode
         DOWN_RECONNECTING,
         /** The ReactorChannel connection is closed and the channel is no longer usable. */
         CLOSED,
-        /** The ReactorChannel connection is waiting for authentication. */
+        /** The ReactorChannel connection is waiting for authentication and service discovery(if host and port are not specified). */
         EDP_RT,
-        /** The ReactorChannel connection is waiting for service discovery. */
+        /** The ReactorChannel connection is done for session management. */
         EDP_RT_DONE,
         EDP_RT_FAILED
     }
@@ -134,6 +135,29 @@ public class ReactorChannel extends VaNode
     {
         _state = state;
     }
+    
+    /** The internal session management's state for a channel. */
+    enum SessionMgntState 
+    {
+    	UNKNOWN,
+    	REQ_FAILURE_FOR_TOKEN_SERVICE,
+    	REQ_FAILURE_FOR_SERVICE_DISCOVERY,
+    	REQ_AUTH_TOKEN_USING_REFRESH_TOKEN,
+    	REQ_AUTH_TOKEN_USING_PASSWORD,
+    	RECEIVED_AUTH_TOKEN,
+    	QUERYING_SERVICE_DISCOVERY,
+    	RECEIVED_ENDPOINT_INFO
+    }
+    
+    private SessionMgntState _sessionMgntState = SessionMgntState.UNKNOWN;
+    
+	public SessionMgntState sessionMgntState() {
+		return _sessionMgntState;
+	}
+
+	public void sessionMgntState(SessionMgntState sessionMgntState) {
+		_sessionMgntState = sessionMgntState;
+	}
 
     void setEDPErrorInfo(ReactorErrorInfo errorInfo)
     {
@@ -143,7 +167,7 @@ public class ReactorChannel extends VaNode
     RestConnectOptions restConnectOptions()
     {
     	if (_restConnectOptions == null)
-    		_restConnectOptions = new RestConnectOptions();
+    		_restConnectOptions = new RestConnectOptions(_reactor._reactorOptions);
     	
     	_restConnectOptions.userSpecObject(this);
     	
@@ -155,9 +179,6 @@ public class ReactorChannel extends VaNode
     	_restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
     	_restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
     	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());    	
-    	
-    	_restConnectOptions.tokenServiceURL(_reactor._reactorOptions.tokenServiceURL().toString());
-    	_restConnectOptions.serviceDiscoveryURL(_reactor._reactorOptions.serviceDiscoveryURL().toString());
     	
     	return _restConnectOptions;
     }
@@ -206,6 +227,7 @@ public class ReactorChannel extends VaNode
     void clear()
     {
         _state = State.UNKNOWN;
+        _sessionMgntState = SessionMgntState.UNKNOWN;
         _reactor = null;
         _selectableChannel = null;
         _channel = null;
@@ -231,6 +253,7 @@ public class ReactorChannel extends VaNode
 		_reconnectDelay = 0;
 		_nextRecoveryTime = 0;
 		_nextAuthTokenRequestTime = 0;
+		_tokenReissueAttempts = 0;
 		
 		_reactorConnectOptions = null;
 		_listIndex = 0;
@@ -1291,8 +1314,7 @@ public class ReactorChannel extends VaNode
 	void calculateNextAuthTokenRequestTime(int expiresIn)
 	{
 		if (expiresIn > 0)
-			_authTokenExpiresIn = (long)(((double)expiresIn / 5) * 4 * 1000000000);
-		
+			_authTokenExpiresIn = (long)(((double)expiresIn * _reactor._reactorOptions.tokenReissueRatio()) * 1000000000);
 		_nextAuthTokenRequestTime = System.nanoTime() + _authTokenExpiresIn;
 	}	
 	
@@ -1336,7 +1358,9 @@ public class ReactorChannel extends VaNode
     {
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
         
-        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);		
+        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        
+        userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
 
 		// if done getting the auth token and service discovery
     	if (_state == State.EDP_RT_DONE)
@@ -1355,19 +1379,17 @@ public class ReactorChannel extends VaNode
     			return null;	
     		}
 
-    		// setup a timer
-			if (!_reactor.sendAuthTokenWorkerEvent(this, _reactorAuthTokenInfo))
-			{	
-				error.text("sendAuthTokenWorkerEvent() failed");
-				return null;
-			}
 			return reconnect(reactorConnectInfo, error);	
     	}
     	else if (_state == State.EDP_RT_FAILED)
     	{
-	        _reactor.sendAuthTokenEventCallback(this, _reactorAuthTokenInfo, _errorInfoEDP);	        
-	        
-			return reconnect(reactorConnectInfo, error);	
+    		if(sessionMgntState() != SessionMgntState.QUERYING_SERVICE_DISCOVERY)
+    		{
+    			_reactor.sendAuthTokenEventCallback(this, _reactorAuthTokenInfo, _errorInfoEDP);
+    		}   		
+    	
+    		return reconnect(reactorConnectInfo, error);
+   
     	}	
 		
     	return null;
@@ -1398,7 +1420,9 @@ public class ReactorChannel extends VaNode
     			return null;
     		}
     		
+    		/* Get access token from the token service */
     		_state = State.EDP_RT;
+    
     		return null;
     	}
 
@@ -1414,7 +1438,46 @@ public class ReactorChannel extends VaNode
     long nextAuthTokenRequestTime()
     {
         return _nextAuthTokenRequestTime;
-    }    
+    }
+    
+    long nextTokenReissueAttemptReqTime()
+    {
+    	long nextReqTime = ((long)_reactor._reactorOptions.reissueTokenAttemptInterval() * 1000000);
+    	
+    	return (System.nanoTime() + nextReqTime);
+    }
+    
+    /* This function is used to check whether to perform token reissue attempts. Returns true to send another token reissue otherwise false.*/
+    boolean handlesTokenReissueFailed()
+    {	/* Don't retry to send token reissue */
+    	if (_reactor._reactorOptions.reissueTokenAttemptLimit() == 0)
+    	{
+    		return false;
+    	} /* There is no retry limit */
+    	else if (_reactor._reactorOptions.reissueTokenAttemptLimit() == -1)
+    	{
+    		return true;
+    	}
+    	else
+    	{
+    		++_tokenReissueAttempts;
+    		
+    		/* Retry until reach the number of attempt limit */
+    		if(_tokenReissueAttempts > _reactor._reactorOptions.reissueTokenAttemptLimit())
+    		{
+    			return false;
+    		}
+    		else
+    		{
+    			return true;
+    		}
+    	}
+    }
+    
+    void resetTokenReissueAttempts()
+    {
+    	_tokenReissueAttempts = 0;
+    }
     
     /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
     boolean flushRequested()

@@ -102,6 +102,10 @@ class ConfigManager
 	public static final int ReconnectAttemptLimit = 42;
 	public static final int ReconnectMaxDelay = 43;	
 	public static final int ReconnectMinDelay = 44;
+	public static final int RestRequestTimeout = 45;
+	public static final int TokenReissueRatio = 46;
+	public static final int ReissueTokenAttemptLimit = 47;
+	public static final int ReissueTokenAttemptInterval = 48;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -285,8 +289,12 @@ class ConfigManager
 		ConsumerTagDict.add( "MaxOutstandingPosts",MaxOutstandingPosts );
 		ConsumerTagDict.add( "ObeyOpenWindow",ObeyOpenWindow );
 		ConsumerTagDict.add( "PostAckTimeout",PostAckTimeout );
+		ConsumerTagDict.add( "ReissueTokenAttemptLimit",ReissueTokenAttemptLimit );
+		ConsumerTagDict.add( "ReissueTokenAttemptInterval",ReissueTokenAttemptInterval );
 		ConsumerTagDict.add( "RequestTimeout",RequestTimeout );
+		ConsumerTagDict.add( "RestRequestTimeOut",RestRequestTimeout );
 		ConsumerTagDict.add( "ServiceCountHint",ServiceCountHint );
+		ConsumerTagDict.add( "TokenReissueRatio",TokenReissueRatio );
 		ConsumerTagDict.add( "MsgKeyInUpdates",MsgKeyInUpdates );
 		ConsumerTagDict.add( "ReconnectAttemptLimit",ReconnectAttemptLimit );		
 		ConsumerTagDict.add( "ReconnectMaxDelay",ReconnectMaxDelay );
@@ -619,6 +627,8 @@ class ConfigManager
 		"ReconnectAttemptLimit",
 		"ReconnectMaxDelay",
 		"ReconnectMinDelay",
+		"ReissueTokenAttemptLimit",
+		"ReissueTokenAttemptInterval",
 		"XmlTraceMaxFileSize"
 	};
 
@@ -665,6 +675,7 @@ class ConfigManager
 		"RefreshFirstRequired",
 		"RemoveItemsOnDisconnect",
 		"RequestTimeout",
+		"RestRequestTimeOut",
 		"ServiceCountHint",
 		"ServiceId",
 		"ServiceState",
@@ -689,6 +700,9 @@ class ConfigManager
 		"XmlTraceToMultipleFiles",
 		"XmlTraceToStdout",
 		"XmlTraceWrite"
+	};
+	public static String DoubleValues[] = {
+		"TokenReissueRatio"	
 	};
 	public static String NodesThatRequireName[] = {
 		"Channel",
@@ -1048,6 +1062,7 @@ class ConfigManager
 			 final static int Ascii = 2;
 			 final static int Enum = 3;
 			 final static int Boolean = 4;
+			 final static int Double = 5;
 		};
 
 		 ConfigElement( XMLnode  parent )
@@ -1100,7 +1115,7 @@ class ConfigManager
 			return null;
 		}
 
-		 boolean booleanValue() {
+		boolean booleanValue() {
 			try 
 			{
 				throw new Exception("booleanValue() not implemented");
@@ -1110,6 +1125,18 @@ class ConfigManager
 			
 			return false;
 		}
+		 
+		double doubleValue() {
+			try 
+			{
+				throw new Exception("doubleValue() not implemented");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return 0;
+		}
+		
 	}
 
 	class IntConfigElement extends ConfigElement
@@ -1213,6 +1240,38 @@ class ConfigManager
 		 void setAsciiValue(String value) 
 		{
 			asciiValue = value;
+		}
+	}
+	
+	class DoubleConfigElement extends ConfigElement
+	{
+		double doubleValue;
+		Double doubleObject;
+		
+		DoubleConfigElement(XMLnode parent, int type, double value) 
+		{
+			super( parent);
+			this._type = type;
+			doubleValue = value;
+		}
+		
+		 double doubleValue()
+		{
+			return doubleValue; 
+		}
+
+		@Override
+		 Object value() 
+		{
+			if( doubleObject == null )
+				doubleObject = Double.valueOf(doubleValue);
+			
+			return doubleObject;
+		}
+		
+		 void setDoubleValue(double value) 
+		{
+			 doubleValue = value;
 		}
 	}
 }

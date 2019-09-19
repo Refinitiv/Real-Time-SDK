@@ -125,6 +125,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"RefreshFirstRequired",
 	"RemoveItemsOnDisconnect",
 	"RequestTimeout",
+	"RestRequestTimeOut",
 	"ServiceCountHint",
 	"ServiceId",
 	"ServiceState",

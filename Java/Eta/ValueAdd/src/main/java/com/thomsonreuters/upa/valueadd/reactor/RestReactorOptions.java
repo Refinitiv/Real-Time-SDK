@@ -43,7 +43,10 @@ class RestReactorOptions {
     private int _rcvBufSize; //not use any more
     private boolean _soKeepAlive;
     private boolean _tcpNoDelay;
-    private RestConnectOptions _connectionOptions = new RestConnectOptions();
+    private int _bufferSize;
+    private int _fragmentSizeHint;
+    private RestCallback _authorizationCallback;
+    private RestCallback _defaultCallback;
 	
     public RestReactorOptions()
     {
@@ -63,16 +66,8 @@ class RestReactorOptions {
 	    _rcvBufSize = 0;
 	    _maxConnectTotal = 2;
 	    _defaultMaxPerRoute = 2;
-	}
-    
-    public void connectionOptions(RestConnectOptions connectionOptions)
-	{
-    	connectionOptions.copy(_connectionOptions);
-	}
-	
-	public RestConnectOptions connectionOptions()
-	{
-		return _connectionOptions;
+		_bufferSize = 8 * 1024;
+		_fragmentSizeHint = -1;
 	}
 
 	public void selectInterval(long selectInterval)
@@ -176,7 +171,9 @@ class RestReactorOptions {
 	               "\ttcpNoDelay: " + _tcpNoDelay + "\n" + 
 	               "\tconnectTimeout: " + _connectTimeout+ "\n" + 
 	               "\tsndBufSize: " + _sndBufSize + "\n" + 
-	               "\trcvBufSize: " + _rcvBufSize+ "\n" + 
+	               "\trcvBufSize: " + _rcvBufSize+ "\n" +
+	               "\tbufferSize: " + _bufferSize + "\n" + 
+	               "\tfragmentSizeHint: " + _fragmentSizeHint + "\n" +
 	               "\tdefaultMaxPerRoute: " + _defaultMaxPerRoute+ "\n" + 
 	               "\tmaxConnectTotal: " + _maxConnectTotal + "\n";
 	}
@@ -197,8 +194,8 @@ class RestReactorOptions {
         destOpts._rcvBufSize = _rcvBufSize;
         destOpts._defaultMaxPerRoute = _defaultMaxPerRoute;
         destOpts._maxConnectTotal = _maxConnectTotal;
-           
-        _connectionOptions.copy(destOpts.connectionOptions());
+        destOpts._authorizationCallback = _authorizationCallback;
+        destOpts._defaultCallback = _defaultCallback;
         
         return TransportReturnCodes.SUCCESS;
     }
@@ -211,7 +208,7 @@ class RestReactorOptions {
      */
     public void authorizationCallback(RestCallback callback)
     {
-    	_connectionOptions.authorizationCallback(callback);
+    	_authorizationCallback = callback;
     }
 
     /** A callback function for processing authorization response received. If not present,
@@ -221,7 +218,7 @@ class RestReactorOptions {
      */
     public RestCallback authorizationCallback()
     {
-        return _connectionOptions.authorizationCallback();
+        return _authorizationCallback;
     }
     
     /**
@@ -231,7 +228,7 @@ class RestReactorOptions {
      */
     public void defaultRespCallback(RestCallback callback)
     {
-    	_connectionOptions.defaultRespCallback(callback);
+    	_defaultCallback = callback;
     }
 
     /** A callback function for processing any response received.
@@ -240,7 +237,27 @@ class RestReactorOptions {
      */
     public RestCallback defaultRespCallback()
     {
-        return _connectionOptions.defaultRespCallback();
+        return _defaultCallback;
     }
+    
+	public void bufferSize(int bufferSize)
+	{
+		_bufferSize = bufferSize;
+	}
+	
+	public int bufferSize()
+	{
+		return _bufferSize;
+	}
+	
+	public void fragmentSizeHint(int fragmentSizeHint)
+	{
+		_bufferSize = fragmentSizeHint;
+	}
+	
+	public int fragmentSizeHint()
+	{
+		return _fragmentSizeHint;
+	}
 }
 

@@ -101,6 +101,14 @@ public class EmaFileConfigJunitTests extends TestCase
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates);
 		TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 		
+		intValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestRequestTimeout);
+		TestUtilities.checkResult("RestRequestTimeOut == 60000", intValue == 60000);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptLimit);
+		TestUtilities.checkResult("ReissueTokenAttemptLimit == 5", intValue == 5);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptInterval);
+		TestUtilities.checkResult("ReissueTokenAttemptInterval == 7000", intValue == 7000);
+		double doubleValue = JUnitTestConnect.configDoubleIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio);
+		TestUtilities.checkResult("TokenReissueRatio == 0.5", doubleValue == 0.5);
 		
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -580,6 +588,10 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 7777));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("RestRequestTimeOut", 65000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptLimit", 9));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
+			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -685,6 +697,15 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
+
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestRequestTimeout, -1);
+			TestUtilities.checkResult("RestRequestTimeout == 65000", intValue == 65000);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptLimit, -1);
+			TestUtilities.checkResult("ReissueTokenAttemptLimit == 9", intValue == 9);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptInterval, -1);
+			TestUtilities.checkResult("ReissueTokenAttemptInterval == 9000", intValue == 9000);
+			double doubleValue = JUnitTestConnect.activeConfigGetDoubleValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio, -1);
+			TestUtilities.checkResult("TokenReissueRatio == 0.9", doubleValue == 0.9);
 			
 			
 			// Check values of Consumer_1

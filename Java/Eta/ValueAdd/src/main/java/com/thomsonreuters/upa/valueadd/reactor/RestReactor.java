@@ -116,8 +116,8 @@ class RestReactor
     		 _restProxyAuthHandlerForNonBlocking = new RestProxyAuthHandler(this, _sslconSocketFactory);
     		
     		 final ConnectionConfig connectionConfig = ConnectionConfig.custom()
-    				 .setBufferSize(options.connectionOptions().bufferSize())
-    				 .setFragmentSizeHint(options.connectionOptions().fragmentSizeHint())
+    				 .setBufferSize(options.bufferSize())
+    				 .setFragmentSizeHint(options.fragmentSizeHint())
     				 .build();
     		 
     		 _ioEventDispatch = new DefaultHttpClientIODispatch<HttpAsyncRequestExecutor>(_protocolHandler, sslContext, connectionConfig);
@@ -185,8 +185,6 @@ class RestReactor
                      ReactorReturnCodes.FAILURE,
                      "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
     	}
-		
-    	final HttpHost target = new HttpHost(restConnectOptions.host(), restConnectOptions.port(), restConnectOptions.scheme()); 
 
 		final List<NameValuePair> params = new ArrayList<>(6);
 		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, options.grantType()));
@@ -201,8 +199,7 @@ class RestReactor
 		else
 			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  options.clientId().toString()));
 		
-		params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true")); //must set true here
-		if (options.hasRefrehTokoen() && options.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
+		if (options.hasRefreshToken() && options.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
 		{
 			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, reactorChannel._reactorAuthTokenInfo.refreshToken()));			
 			//must set for the first access_token, otherwise receive status code: 403 forbidden.
@@ -210,6 +207,7 @@ class RestReactor
 		}
 		else 
 		{
+			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true"));
 			params.add(new BasicNameValuePair(AUTH_SCOPE, options.tokenScope())); 
 			params.add(new BasicNameValuePair(AUTH_PASSWORD, reactorChannel._loginRequestForEDP.password().toString()));
 		}
@@ -237,7 +235,7 @@ class RestReactor
 	                .add(new RequestExpectContinue(true)).build());
 			
 			  requester.execute(
-		                 new BasicAsyncRequestProducer(target, httpRequest),
+		                 new BasicAsyncRequestProducer(restConnectOptions.tokenServiceHost(), httpRequest),
 		                 new BasicAsyncResponseConsumer(),
 		                 _pool,
 		                 HttpClientContext.create(),
@@ -279,7 +277,7 @@ class RestReactor
         return ReactorReturnCodes.SUCCESS;
    	}
     
-    public int submitRequest(RestRequest request, ReactorChannel reactorChannel, final ReactorErrorInfo errorInfo) 
+    public int submitRequestForServiceDiscovery(RestRequest request, ReactorChannel reactorChannel, final ReactorErrorInfo errorInfo) 
     {
     	if (!_reactorActive)
     	{
@@ -289,13 +287,11 @@ class RestReactor
     	}
     	
     	final RestConnectOptions restConnectOptions = reactorChannel.restConnectOptions();
-    	
-    	final HttpHost target = new HttpHost(restConnectOptions.host(), restConnectOptions.port(), restConnectOptions.scheme()); 
     	 		
     	URIBuilder uriBuilder = null;
     	
     	try {
-    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL() + "/");    		
+    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL());    		
     	}
     	catch (Exception e)
     	{
@@ -346,7 +342,7 @@ class RestReactor
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
 			requester.execute(
-	             new BasicAsyncRequestProducer(target, httpRequest),
+	             new BasicAsyncRequestProducer(restConnectOptions.serviceDiscoveryHost(), httpRequest),
 	             new BasicAsyncResponseConsumer(),
 	             _pool,
 	             HttpCoreContext.create(),
@@ -458,7 +454,7 @@ class RestReactor
 		params.add(new BasicNameValuePair(AUTH_PASSWORD, options.password()));
 		params.add(new BasicNameValuePair(AUTH_CLIENT_ID, options.clientId()));
 		params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true")); //must set true here
-		if (options.hasRefrehTokoen()) //for new refresh token
+		if (options.hasRefreshToken()) //for new refresh token
 			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, options.refreshToken()));
 		//must set for the first access_token, otherwise receive status code: 403 forbidden.
 		//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
@@ -483,13 +479,13 @@ class RestReactor
 
    			final HttpPost httppost = new HttpPost(url);
 
-   			httppost.setEntity(entity);	
+   			httppost.setEntity(entity);
    			
    			if( (restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
    			{
    				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 	   			RequestConfig config = RequestConfig.custom()
-	                    	.setProxy(proxy)
+	                    	.setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
 	                    	.build();
 	   			httppost.setConfig(config);
 	   			
@@ -498,6 +494,8 @@ class RestReactor
    			else
    			{
    				final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
+   				RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+   				httppost.setConfig(config);
    				try
    				{
 		   			final HttpResponse response = httpClient.execute(httppost);
@@ -536,20 +534,20 @@ class RestReactor
    		return ReactorReturnCodes.SUCCESS;
    	}
     
-    public int submitRequestBlocking(RestRequest request, 
+    public int submitServiceDiscoveryRequestBlocking(RestRequest request, 
     		RestConnectOptions restConnectOptions, ReactorErrorInfo errorInfo) throws IOException
    	{
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
                      ReactorReturnCodes.FAILURE,
-                     "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
+                     "RestReactor.submitServiceDiscoveryRequestBlocking", "RestReactor is not active, aborting");
     	}
     	
     	if (_sslconSocketFactory == null)
     		return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
+                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
     	
     	URIBuilder uriBuilder = null;
     	
@@ -560,7 +558,7 @@ class RestReactor
     	{
 	    	return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
     	}
     			
     	if (request.hasQueryParameter())
@@ -593,7 +591,7 @@ class RestReactor
    			{
    				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 	   			RequestConfig config = RequestConfig.custom()
-	                    .setProxy(proxy)
+	                    .setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
 	                    .build();
 	   			httpget.setConfig(config);
 	   			
@@ -602,6 +600,8 @@ class RestReactor
    			else
    			{
    				final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
+   				RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+	   			httpget.setConfig(config);
    				try
    				{
 	   				HttpResponse response = httpClient.execute(httpget);
@@ -610,7 +610,7 @@ class RestReactor
 					{
 		   				populateErrorInfo(errorInfo,   				
 		                        ReactorReturnCodes.FAILURE,
-		                        "RestReactor.submitRequestBlocking", 
+		                        "RestReactor.submitServiceDiscoveryRequestBlocking", 
 		                        "Failed to request service discovery information. Text: " 
 		                        + EntityUtils.toString(response.getEntity()));
 		   				
@@ -635,20 +635,20 @@ class RestReactor
 		{
 	    	return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
 		}
    		catch(ClientProtocolException e)
    		{
    			return populateErrorInfo(errorInfo,
                         ReactorReturnCodes.FAILURE,
-                        "RestReactor.submitRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+                        "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
    			
    		}
    		catch (IOException e)
    		{
    			return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
    		}
    		
    		return ReactorReturnCodes.SUCCESS;
@@ -683,19 +683,25 @@ class RestReactor
 
 		if (entity != null)
 		{
-			clientResponse.contentType(entity.getContentType().getValue());
+			Header contentType = entity.getContentType();
+			
+			if(contentType != null)
+			{
+				clientResponse.contentType(entity.getContentType().getValue());
+			}
+			
 			clientResponse.body(entityString, event.errorInfo());
 		}
 		
 		return ReactorReturnCodes.SUCCESS;
 	}
     
-    static int processResponse(RestReactor RestReactor, RestResponse response, RestEvent event)
+    static int processResponse(RestReactor restReactor, RestResponse response, RestEvent event)
     {
 		if (response.statusCode() == HttpStatus.SC_OK && response.jsonObject() != null && response.jsonObject().has(AUTH_ACCESS_TOKEN))
 		{
 			JSONObject body =  response.jsonObject();
-			ReactorAuthTokenInfo tokenInfo = RestReactor._restReactorOptions.connectionOptions().tokenInformation();
+			ReactorAuthTokenInfo tokenInfo = new ReactorAuthTokenInfo();
 			tokenInfo.clear();
 			tokenInfo.accessToken(body.getString(AUTH_ACCESS_TOKEN));
 			tokenInfo.refreshToken(body.getString(AUTH_REFRESH_TOKEN));
@@ -705,20 +711,20 @@ class RestReactor
 			
 			event._reactorAuthTokenInfo = tokenInfo;
 			
-			if (RestReactor._restReactorOptions.authorizationCallback() != null)
+			if (restReactor._restReactorOptions.authorizationCallback() != null)
 			{
-				RestReactor._restReactorOptions.authorizationCallback().RestResponseCallback(response, event);
+				restReactor._restReactorOptions.authorizationCallback().RestResponseCallback(response, event);
 			}
-			else if (RestReactor._restReactorOptions.defaultRespCallback() != null)
+			else if (restReactor._restReactorOptions.defaultRespCallback() != null)
 			{
-				RestReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
+				restReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
 			}
 			return ReactorReturnCodes.SUCCESS;
 		}
 		
-		if (RestReactor._restReactorOptions.defaultRespCallback() != null)
+		if (restReactor._restReactorOptions.defaultRespCallback() != null)
 		{
-			RestReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
+			restReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
 		}
 		
 		return ReactorReturnCodes.SUCCESS;

@@ -68,6 +68,7 @@ public class Consumer {
 	    		+ "  -krbfile KRB File location and name. Needed for Negotiate/Kerberos \r\n" 
 	    		+ "\tand Kerberos authentications (optional).\n"
 	    		+ "  -tokenServiceUrl \r\n" 
+	    		+ "  -serviceDiscoveryUrl \r\n" 
 	    		+ "\n");
 	}
 	
@@ -188,7 +189,7 @@ public class Consumer {
 			
 			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_3").username(userName).password(password));
 			
-			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("IBM.N"), appClient);
+			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("BBL.BK"), appClient);
 			
 			Thread.sleep(900000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

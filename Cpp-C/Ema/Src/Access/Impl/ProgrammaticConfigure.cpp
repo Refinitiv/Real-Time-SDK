@@ -1108,6 +1108,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.setLoginRequestTimeOut( eentry.getUInt() );
 												}
+												else if (eentry.getName() == "RestRequestTimeOut")
+												{
+													activeConfig.setRestRequestTimeOut( eentry.getUInt() );
+												}
 											
 												break;
 

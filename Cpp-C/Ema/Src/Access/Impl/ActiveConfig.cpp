@@ -297,7 +297,8 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	_defaultServiceName( defaultServiceName ),
 	dictionaryConfig(),
 	reissueTokenAttemptLimit(DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT),
-	reissueTokenAttemptInterval(DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL)
+	reissueTokenAttemptInterval(DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL),
+	restRequestTimeOut(DEFAULT_REST_REQUEST_TIMEOUT)
 {
 }
 
@@ -321,7 +322,8 @@ EmaString ActiveConfig::configTrace()
 		.append("\n\t dictionaryRequestTimeOut : ").append(dictionaryRequestTimeOut)
 		.append("\n\t loginRequestTimeOut : ").append(loginRequestTimeOut)
 		.append("\n\t reissueTokenAttemptLimit : ").append(reissueTokenAttemptLimit)
-		.append("\n\t reissueTokenAttemptInterval : ").append(reissueTokenAttemptInterval);
+		.append("\n\t reissueTokenAttemptInterval : ").append(reissueTokenAttemptInterval)
+		.append("\n\t restRequestTimeOut : ").append(restRequestTimeOut);
 	return traceStr;
 }
 
@@ -361,6 +363,7 @@ void ActiveConfig::clear()
 	pRsslEnumDefRequestMsg = 0;
 	reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 	reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL;
+	restRequestTimeOut = DEFAULT_REST_REQUEST_TIMEOUT;
 
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
@@ -439,6 +442,14 @@ void ActiveConfig::setReconnectMaxDelay(Int64 value)
 	{
 		reconnectMaxDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
 	}
+}
+
+void ActiveConfig::setRestRequestTimeOut(UInt64 value)
+{
+	if (value > 0xFFFFFFFF)
+		restRequestTimeOut = 0xFFFFFFFF;
+	else
+		restRequestTimeOut = (UInt32)value;
 }
 
 ChannelConfig* ActiveConfig::findChannelConfig( const Channel* pChannel )
