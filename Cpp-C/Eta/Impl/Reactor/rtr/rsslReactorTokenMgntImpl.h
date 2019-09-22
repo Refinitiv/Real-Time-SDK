@@ -59,6 +59,7 @@ typedef struct
 	RsslBool						resendFromFailure; /* Indicates to resend the request after a response failure */
 	rtr_atomic_val					sendTokenRequest;
 	RsslErrorInfo					tokenSessionWorkerCerr;
+	RsslInt							originalExpiresIn; /* The original expires in seconds from sending token request using the password grant type.*/
 
 	RsslQueue						reactorChannelList; /* Keeps a list of RsslReactorChannelImpl for notifying the access token */
 	RsslHashLink					hashLinkNameAndClientId; /* This is used for the sessionByNameAndClientId hash table */
@@ -67,6 +68,7 @@ typedef struct
 	RsslReactor						*pReactor; /* The reactor for the token management */
 	RsslMutex						accessTokenMutex; /* This is used to synchronized for requesting the token information from application's thread */
 	rtr_atomic_val					requestingAccessToken;
+	RsslBool						initialized; /* This is used to indicate that the token session has success fully initialized in  rsslReactorConnect() */
 
 	/* Use the proxy information from RsslReactorChannel if any */
 	RsslConnectOptions				proxyConnectOpts; /* The proxy options */

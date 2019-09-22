@@ -63,6 +63,7 @@ public class ReactorChannel extends VaNode
     private long _nextAuthTokenRequestTime;
     private long _authTokenExpiresIn;
     private int _tokenReissueAttempts;
+    private int _originalExpiresIn; /* Keeps the original expires in seconds from the password grant type. */
     private int _listIndex;
 
     // tunnel stream support
@@ -146,7 +147,8 @@ public class ReactorChannel extends VaNode
     	REQ_AUTH_TOKEN_USING_PASSWORD,
     	RECEIVED_AUTH_TOKEN,
     	QUERYING_SERVICE_DISCOVERY,
-    	RECEIVED_ENDPOINT_INFO
+    	RECEIVED_ENDPOINT_INFO,
+    	AUTHENTICATE_USING_PASSWD_GRANT
     }
     
     private SessionMgntState _sessionMgntState = SessionMgntState.UNKNOWN;
@@ -254,6 +256,7 @@ public class ReactorChannel extends VaNode
 		_nextRecoveryTime = 0;
 		_nextAuthTokenRequestTime = 0;
 		_tokenReissueAttempts = 0;
+		_originalExpiresIn = 0;
 		
 		_reactorConnectOptions = null;
 		_listIndex = 0;
@@ -1477,6 +1480,16 @@ public class ReactorChannel extends VaNode
     void resetTokenReissueAttempts()
     {
     	_tokenReissueAttempts = 0;
+    }
+    
+    void originalExpiresIn(int expiresIn)
+    {
+    	_originalExpiresIn = expiresIn;
+    }
+    
+    int originalExpiresIn()
+    {
+    	return _originalExpiresIn;
     }
     
     /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
