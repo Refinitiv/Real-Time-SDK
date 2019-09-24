@@ -117,7 +117,12 @@ public class ReactorOptions
     	try 
     	{
     		URI uri = new URIBuilder(serviceDiscoveryURL.toString()).build();
-    		_serviceDiscoveryHost = URIUtils.extractHost(uri);
+    		HttpHost serviceDiscoveryHost = URIUtils.extractHost(uri);
+    		
+    		if(serviceDiscoveryHost == null)
+    			return ReactorReturnCodes.PARAMETER_INVALID;
+    		
+    		_serviceDiscoveryHost = serviceDiscoveryHost;
     		
     		/* Checks whether the port is specified */
     		if(_serviceDiscoveryHost.getPort() == -1)
@@ -173,7 +178,12 @@ public class ReactorOptions
     	try 
     	{
     		URI uri = new URIBuilder(tokenServiceURL.toString()).build();
-    		_tokenServiceHost = URIUtils.extractHost(uri);
+    		HttpHost tokenServiceHost = URIUtils.extractHost(uri);
+    		
+    		if(tokenServiceHost == null)
+    			return ReactorReturnCodes.PARAMETER_INVALID;
+    		
+    		_tokenServiceHost = tokenServiceHost;
     		
     		/* Checks whether the port is specified */
     		if(_tokenServiceHost.getPort() == -1)
