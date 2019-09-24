@@ -6253,7 +6253,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 	if (ret == 0 || (ret == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
 	{
 		/* Nothing to read, just return from here */
-		return RSSL_RET_SUCCESS; /* assume the byte isnt ready yet, return success */
+		return RIPC_CONN_IN_PROGRESS; /* assume the byte isnt ready yet, return success */
 	}
 	else if (ret < 0)
 	{
