@@ -1252,6 +1252,7 @@ public class Reactor
         if (callback != null)
         {
     		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
+    		reactorAuthTokenEvent.eventType(WorkerEventTypes.TOKEN_MGNT);
     		reactorAuthTokenEvent.reactorChannel(reactorChannel);
     		reactorAuthTokenEvent.reactorAuthTokenInfo(authTokenInfo);
     		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)

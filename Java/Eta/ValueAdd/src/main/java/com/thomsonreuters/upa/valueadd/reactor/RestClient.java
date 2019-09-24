@@ -314,6 +314,7 @@ abstract class RestClient implements Runnable, RestCallback {
 					{
 						if (reactorChannel.handlesTokenReissueFailed() )
 						{
+							reactorChannel.setEDPErrorInfo(_errorInfo);
 							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
 							return ReactorReturnCodes.SUCCESS;
 						}
@@ -338,7 +339,7 @@ abstract class RestClient implements Runnable, RestCallback {
 				
 				if(reactorChannel.state() == State.EDP_RT)
 				{
-					reactorChannel.setEDPErrorInfo(event.errorInfo());
+					reactorChannel.setEDPErrorInfo(_errorInfo);
 					reactorChannel.state(State.EDP_RT_FAILED);
 				}
 				
