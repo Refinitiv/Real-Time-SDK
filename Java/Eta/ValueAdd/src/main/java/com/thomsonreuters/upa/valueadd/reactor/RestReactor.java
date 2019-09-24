@@ -210,6 +210,7 @@ class RestReactor
 			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true"));
 			params.add(new BasicNameValuePair(AUTH_SCOPE, options.tokenScope())); 
 			params.add(new BasicNameValuePair(AUTH_PASSWORD, reactorChannel._loginRequestForEDP.password().toString()));
+		   	reactorChannel.originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
 		}
 
 		final String url = restConnectOptions.tokenServiceURL();

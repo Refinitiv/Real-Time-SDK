@@ -177,9 +177,6 @@ abstract class RestClient implements Runnable, RestCallback {
 			if (response.jsonObject() != null && response.jsonObject().has(RestReactor.AUTH_ACCESS_TOKEN))
 			{
 				event._reactorAuthTokenInfo.copy(_restConnectOptions.tokenInformation());
-				event._reactorAuthTokenInfo.copy(_authTokenInfo);
-
-				onNewAuthToken(reactorChannel, event._reactorAuthTokenInfo, _errorInfo);
 				
 				if (reactorChannel != null)
 				{
@@ -190,6 +187,25 @@ abstract class RestClient implements Runnable, RestCallback {
 					/* Creates and sends worker event to get an access token */
 					reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_AUTH_TOKEN);
 					reactorChannel.resetTokenReissueAttempts();
+					
+					if(reactorChannel.originalExpiresIn() != 0)
+					{
+						if(reactorChannel.originalExpiresIn() != reactorChannel._reactorAuthTokenInfo.expiresIn())
+						{
+							/* Perform another authorization using the password grant type as the refresh token is about to expire. */
+							reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.AUTHENTICATE_USING_PASSWD_GRANT);
+							reactorChannel.originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
+							return ReactorReturnCodes.SUCCESS;
+						}
+					}
+					else
+					{
+						/* Set the original expires in seconds for the password grant. */
+						reactorChannel.originalExpiresIn(reactorChannel._reactorAuthTokenInfo.expiresIn());
+					}
+					
+					onNewAuthToken(reactorChannel, event._reactorAuthTokenInfo, _errorInfo);
 					reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
 				
 					// if reactor channel not null it means non blocking and if state set it means connection recovery
@@ -212,6 +228,11 @@ abstract class RestClient implements Runnable, RestCallback {
 							reactorChannel.state(State.EDP_RT_DONE);
 						}
 					}
+				}
+				else
+				{
+					onNewAuthToken(reactorChannel, event._reactorAuthTokenInfo, _errorInfo);
+					event._reactorAuthTokenInfo.copy(_authTokenInfo); // Copy the token info for the first authentication request only.
 				}
 				
 				return ReactorReturnCodes.SUCCESS;
@@ -293,7 +314,7 @@ abstract class RestClient implements Runnable, RestCallback {
 					{
 						if (reactorChannel.handlesTokenReissueFailed() )
 						{
-							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorAuthTokenInfo());
+							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
 							return ReactorReturnCodes.SUCCESS;
 						}
 					}

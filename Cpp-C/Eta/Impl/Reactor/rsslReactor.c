@@ -1334,7 +1334,10 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 	++pReactorImpl->channelCount;
 
-
+	if (pReactorChannel->pTokenSessionImpl)
+	{
+		pReactorChannel->pTokenSessionImpl->initialized = RSSL_TRUE;
+	}
 
 	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 
@@ -1353,7 +1356,12 @@ reactorConnectFail:
 		{
 			RsslReactorTokenSessionEvent *pEvent = NULL;
 			rsslClearBuffer(&pReactorChannel->pTokenSessionImpl->temporaryURL);
-			rsslHashTableRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt, &pReactorChannel->pTokenSessionImpl->hashLinkNameAndClientId);
+
+			/* Ensure that the token session hasn't been initialized before removing it from the hash table */
+			if (pReactorChannel->pTokenSessionImpl->initialized == RSSL_FALSE)
+			{
+				rsslHashTableRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt, &pReactorChannel->pTokenSessionImpl->hashLinkNameAndClientId);
+			}
 
 			pEvent = (RsslReactorTokenSessionEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
 			rsslClearReactorTokenSessionEvent(pEvent);
@@ -5657,6 +5665,9 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 							RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 							return RSSL_RET_FAILURE;
 						}
+
+						/* Set original expires in when sending request using password grant type*/
+						pTokenSessionImpl->originalExpiresIn = pTokenSessionImpl->tokenInformation.expiresIn;
 
 						break;
 					}

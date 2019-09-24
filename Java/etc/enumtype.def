@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.38
 !tag Build_RDMD  4.20.38
-!tag DT_Version  19.71
-!tag Date        12-Aug-2019
+!tag DT_Version  19.81
+!tag Date        16-Sep-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8657,6 +8657,8 @@ ORDER_EXID 13603
    1575        "NGI"   Natural Gas Intelligence
    1576        "SOB"   STEEL ORBIS
    1577        "FBL"   Financial Benchmarks India Private Limited
+   1578        "BLS"   US Bureau Of Labor Statistics
+   1579        "TON"   TonnEdge
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20623,6 +20625,7 @@ ORGN_PORT  13579
     499   "RU TAM  "   Taman
     500   "RU KZP  "   Kavkaz
     501   "RU SAB  "   Sabetta
+    502   "US CP6  "   Cove Point
 !
 ! ACRONYM    FID
 ! -------    ---

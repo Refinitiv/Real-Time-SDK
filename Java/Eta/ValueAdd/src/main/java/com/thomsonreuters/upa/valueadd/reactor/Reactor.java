@@ -668,6 +668,9 @@ public class Reactor
 
             	reactorChannel._reactorAuthTokenInfo = new ReactorAuthTokenInfo();
             	_restClient.reactorAuthTokenInfo().copy(reactorChannel._reactorAuthTokenInfo);
+            	
+            	/* Set original expires in when sending request using password grant type*/
+            	reactorChannel.originalExpiresIn(reactorChannel._reactorAuthTokenInfo.expiresIn());
 
             	if (requestServiceDiscovery(reactorConnectOptions.connectionList().get(0)))
             	{
@@ -714,9 +717,9 @@ public class Reactor
             
             if (sendAuthTokenEvent)
             {
-				sendAuthTokenEventCallback(reactorChannel, _restClient.reactorAuthTokenInfo(), errorInfo);
+				sendAuthTokenEventCallback(reactorChannel, reactorChannel._reactorAuthTokenInfo, errorInfo);
 				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_AUTH_TOKEN);
-				if (!sendAuthTokenWorkerEvent(reactorChannel, _restClient.reactorAuthTokenInfo()))
+				if (!sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo))
 				{
 	                return populateErrorInfo(errorInfo,
                             ReactorReturnCodes.FAILURE,
@@ -988,7 +991,7 @@ public class Reactor
    						{
    							if (reactorChannel.handlesTokenReissueFailed() )
    							{
-   								reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorAuthTokenInfo());
+   								reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
    							}
    						}
    					}

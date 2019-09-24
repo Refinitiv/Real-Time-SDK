@@ -841,6 +841,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 														pTokenSessionImpl->pRestHandle = pRsslRestHandle;
 
+														pTokenSessionImpl->originalExpiresIn = 0; /* Unset to indicate that the password grant is sent. */
+
 														/* Checks whether the token session has the initial token information */
 														if (pTokenSessionImpl->tokenInformation.accessToken.data == 0)
 														{
@@ -1407,6 +1409,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
 									&pTokenSessionImpl->rsslAccessTokenRespBuffer, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError)) != 0)
 								{
+									pTokenSessionImpl->originalExpiresIn = 0; /* Unset to indicate that the password grant is sent. */
 									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 									pTokenSessionImpl->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQ_INIT_AUTH_TOKEN;
 									pTokenSessionImpl->tokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
@@ -1728,6 +1731,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
 									&pTokenSession->rsslAccessTokenRespBuffer, &pTokenSession->tokenSessionWorkerCerr.rsslError)) != 0)
 								{
+									pTokenSession->originalExpiresIn = 0; /* Unset to indicate that the password grant is sent. */
 									pTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQ_AUTH_TOKEN_REISSUE;
 									pTokenSession->tokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH;
 
@@ -2263,7 +2267,8 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 	if (pReactorTokenSession->tokenSessionState != RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING)
 	{
 		/* Setting this flag to resend the authentication request with password */
-		if (pReactorTokenSession->tokenMgntEventType == RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH)
+		if (pReactorTokenSession->tokenMgntEventType == RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH ||
+			pReactorTokenSession->tokenMgntEventType == RSSL_RCIMPL_TKET_REISSUE)
 		{
 			if (pReactorTokenSession->reissueTokenAttemptLimit == -1) /* there is no limit. */
 			{
@@ -2709,6 +2714,19 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				goto RequestFailed;
 			}
 
+			if (pReactorTokenSession->originalExpiresIn != 0)
+			{
+				if (pReactorTokenSession->originalExpiresIn != pReactorTokenSession->tokenInformation.expiresIn)
+				{
+					goto ReAuthorization; /* Perform another authorization using the password grant type as the refresh token is about to expire. */
+				}
+			}
+			else
+			{
+				/* Set the original expires in seconds for the password grant. */
+				pReactorTokenSession->originalExpiresIn = pReactorTokenSession->tokenInformation.expiresIn;
+			}
+
 			pReactorTokenSession->lastTokenUpdatedTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 
 			if (pReactorTokenSession->tokenSessionState == RSSL_RC_TOKEN_SESSION_IMPL_REQ_INIT_AUTH_TOKEN)
@@ -2977,6 +2995,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 							}
 
+							pReactorTokenSession->originalExpiresIn = 0; /* Unset to indicate that the password grant is sent. */
 							pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQ_INIT_AUTH_TOKEN;
 							pReactorTokenSession->tokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
 							free(pRestRequestArgs);
@@ -3074,6 +3093,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 							}
 
+							pReactorTokenSession->originalExpiresIn = 0; /* Unset to indicate that the password grant is sent. */
 							pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQ_INIT_AUTH_TOKEN;
 							pReactorTokenSession->tokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
 							free(pRestRequestArgs);
@@ -3190,6 +3210,17 @@ RequestFailed:
 	handlingAuthRequestFailure(pReactorTokenSession, pReactorWorker);
 
 	pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQUEST_FAILURE;
+
+	return;
+
+ReAuthorization:
+
+	/* Send another request using password grant type */
+	pReactorTokenSession->resendFromFailure = 1;
+	RTR_ATOMIC_SET(pReactorTokenSession->sendTokenRequest, 1);
+	pReactorTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
+	pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQUEST_FAILURE;
+	pReactorTokenSession->originalExpiresIn = 0; /* Unset to indicate that the password grant will be sent. */
 }
 
 static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestResponseEvent* event)

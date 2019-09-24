@@ -102,14 +102,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.3.1.L1
+    libema.lib                ema3.3.1.G1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.3.1.L1
-    libema.dll                ema3.3.1.L1
+    libema.lib                ema3.3.1.G1
+    libema.dll                ema3.3.1.G1
 
 #### Linux
     
@@ -129,13 +129,13 @@ This will create all necessary soft links for example makefiles to link.  It is 
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.3.1.L1
+    libema.a                    ema3.3.1.G1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.3.1.0           libema.so.7          ema3.3.1.L1
+    libema.so.3.3.1.0           libema.so.7          ema3.3.1.G1
     
   
 # EMA C++ Issues and Workarounds
@@ -165,7 +165,7 @@ This will create all necessary soft links for example makefiles to link.  It is 
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-    Template Version Supported: v4.20.37_TREP_19.61 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

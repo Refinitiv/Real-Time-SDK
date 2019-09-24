@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.10.3)
 # guarantee of a successful build if changed.
 
 project (esdk
-		VERSION 1.3.1.0
+		VERSION 1.3.1.1
 		LANGUAGES C CXX)
 
 set(esdk_CMAKE_DIR "${esdk_SOURCE_DIR}/CMake")

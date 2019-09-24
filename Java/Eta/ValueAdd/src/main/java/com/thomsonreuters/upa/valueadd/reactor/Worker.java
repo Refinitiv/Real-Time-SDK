@@ -136,7 +136,8 @@ class Worker implements Runnable
                             		&& reactorChannel.state() != ReactorChannel.State.CLOSED
                             		&& reactorChannel.state() != ReactorChannel.State.EDP_RT )   
                     		{
-                    			if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
+                    			if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE ||
+                    			   reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.AUTHENTICATE_USING_PASSWD_GRANT	)
                     			{
                     				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD);
                     				event._restClient.requestNewAuthTokenWithUserNameAndPassword(reactorChannel);
@@ -319,6 +320,10 @@ class Worker implements Runnable
             	if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
             	{
             		event.timeout(reactorChannel.nextTokenReissueAttemptReqTime());
+            	}
+            	else if (reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.AUTHENTICATE_USING_PASSWD_GRANT)
+            	{
+            		event.timeout(System.nanoTime()); /* Sends a request to get an access token now */
             	}
             	else
             	{
