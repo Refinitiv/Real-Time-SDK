@@ -1686,8 +1686,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 	RsslUInt16		httpHeaderLen = 0;
 	RsslUInt16		tempLen;
 	rtr_msgb_t		*compressedmb1;
-	rtr_msgb_t		*ripcBuffer = NULL;
-	rtr_msgb_t		**msgb = NULL;
+	rtr_msgb_t		*msgb = NULL;
 	RsslUInt32		size = rsslBufferImpl->buffer.length;
 	RsslUInt32		fragId = rsslBufferImpl->fragId;
 	RsslQueueLink	*pLink = 0;
@@ -1735,8 +1734,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
                 return RSSL_RET_FAILURE;
         }
 
-	ripcBuffer = (rtr_msgb_t*)rsslBufferImpl->bufferInfo;
-	msgb = &ripcBuffer;
+	msgb = (rtr_msgb_t*)rsslBufferImpl->bufferInfo;
 	rsslSocketChannel->bytesOutLastMsg = 0;
 	IPC_header_size = rsslSocketChannel->version->dataHeaderLen;
 	footer_size = rsslSocketChannel->version->footerLen;
@@ -1757,9 +1755,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 	if (rsslBufferImpl->packingOffset > 0)
 		flags |= IPC_PACKING;
 
-	while (*msgb)
+	while (msgb)
 	{
-		if ((*msgb)->length > (*msgb)->maxLength)
+		if (msgb->length > msgb->maxLength)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -1770,14 +1768,14 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 			break;
 		}
 
-		nmb = (*msgb)->nextMsg;
-		(*msgb)->nextMsg = 0;
+		nmb = msgb->nextMsg;
+		msgb->nextMsg = 0;
 
-		if ((*msgb)->length > 0)
+		if (msgb->length > 0)
 		{
-			if ((nmb == 0) && ((*msgb)->length != (*msgb)->maxLength))
+			if ((nmb == 0) && (msgb->length != msgb->maxLength))
 			{
-				rtr_dfltcSetUsedLast(rsslSocketChannel->guarBufPool, (*msgb));
+				rtr_dfltcSetUsedLast(rsslSocketChannel->guarBufPool, msgb);
 			}
 			if (flags & IPC_EXTENDED_FLAGS)
 			{
@@ -1786,16 +1784,16 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				* else its not fragmented so there is no fragmentation header - just add 1 for extended header
 				*/
 				if (opCodes & IPC_FRAG_HEADER)
-					(*msgb)->buffer -= (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1);
+					msgb->buffer -= (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1);
 				else if (opCodes & IPC_FRAG)
-					(*msgb)->buffer -= (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1);
+					msgb->buffer -= (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1);
 				else
-					(*msgb)->buffer -= (IPC_header_size + 1);
+					msgb->buffer -= (IPC_header_size + 1);
 			}
 			else
-				(*msgb)->buffer -= IPC_header_size;
+				msgb->buffer -= IPC_header_size;
 
-			hdr = (caddr_t)(*msgb)->buffer;
+			hdr = (caddr_t)msgb->buffer;
 
 			/* if we are writing to a tunneling session we need the chunk length in here */
 			if (rsslSocketChannel->httpHeaders)
@@ -1820,9 +1818,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				* the message is greater or equal to than the minimum size
 				*/
 				if (((rsslSocketChannel->outCompFuncs != 0) &&
-					((rsslSocketChannel->compressQueue == -1) || (rsslSocketChannel->compressQueue == (*msgb)->priority))) &&
-					((*msgb)->length >= rsslSocketChannel->lowerCompressionThreshold) &&
-					((rsslSocketChannel->safeLZ4 == 0) || ((rsslSocketChannel->safeLZ4 == 1) && ((*msgb)->length <= rsslSocketChannel->upperCompressionThreshold))) &&
+					((rsslSocketChannel->compressQueue == -1) || (rsslSocketChannel->compressQueue == msgb->priority))) &&
+					(msgb->length >= rsslSocketChannel->lowerCompressionThreshold) &&
+					((rsslSocketChannel->safeLZ4 == 0) || ((rsslSocketChannel->safeLZ4 == 1) && (msgb->length <= rsslSocketChannel->upperCompressionThreshold))) &&
 					(!(wFlags & RIPC_WRITE_DO_NOT_COMPRESS)))
 				{
 					/* get first buffer to compress into */
@@ -1862,7 +1860,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					else
 						headerLength = IPC_header_size;
 
-					messageLength = (RsslUInt32)((*msgb)->length + headerLength);
+					messageLength = (RsslUInt32)(msgb->length + headerLength);
 					uncompBytes += messageLength;
 
 					/* add the chunking header if we are tunneling */
@@ -1880,7 +1878,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						IPC_ADD_CR_LF(chunkhdr, chunkLen);
 
 						/* messageLength includes httpHeaderLen */
-						footeraddr = (caddr_t)((*msgb)->buffer + messageLength);
+						footeraddr = (caddr_t)msgb->buffer + messageLength;
 						/* add the footer */
 					}
 
@@ -1929,10 +1927,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						IPC_ADD_CR_LF(footeraddr, index);
 					}
 
-					(*msgb)->length = totalSize = (messageLength + footer_size);
+					msgb->length = totalSize = (messageLength + footer_size);
 
 					if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
-						(*ripcDumpOutFunc)(__FUNCTION__, (*msgb)->buffer, (RsslUInt32)((*msgb)->length), rsslSocketChannel->stream);
+						(*ripcDumpOutFunc)(__FUNCTION__, msgb->buffer, (RsslUInt32)(msgb->length), rsslSocketChannel->stream);
 				}
 				else /* _conn_version_10/11/12/13 && compression */
 				{
@@ -1968,13 +1966,13 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 
 					/* If this is the first compressed message, store this queue in our list so we only compress with this queue */
 					if (rsslSocketChannel->compressQueue == -1)
-						rsslSocketChannel->compressQueue = (*msgb)->priority;
+						rsslSocketChannel->compressQueue = msgb->priority;
 
-					messageLength = (RsslUInt16)((*msgb)->length + headerLength);
+					messageLength = (RsslUInt16)(msgb->length + headerLength);
 					uncompBytes += messageLength;
 
 					/* map priority from msgb to compressedmb */
-					compressedmb1->priority = (*msgb)->priority;
+					compressedmb1->priority = msgb->priority;
 
 					flags |= IPC_COMP_DATA;
 
@@ -2017,7 +2015,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
 					{
 						hdr[2] = (char)0;           /* hdr.IPC_opcode */
-						(*ripcDumpOutFunc)(__FUNCTION__,(*msgb)->buffer, messageLength, rsslSocketChannel->stream);
+						(*ripcDumpOutFunc)(__FUNCTION__, msgb->buffer, messageLength, rsslSocketChannel->stream);
 						hdr[2] = (char)flags;           /* hdr.IPC_opcode */
 					}
 
@@ -2033,7 +2031,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						compBuf.avail_out = (unsigned long)(compressedmb1->maxLength - headerLength - footer_size);
 					}
 					/* comp inputs stay the same */
-					compBuf.next_in = (*msgb)->buffer + headerLength;
+					compBuf.next_in = msgb->buffer + headerLength;
 					compBuf.avail_in = messageLength - headerLength;
 
 					if ((*(rsslSocketChannel->outCompFuncs->compress)) (rsslSocketChannel->c_stream_out, &compBuf, error) < 0)
@@ -2165,7 +2163,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length), rsslSocketChannel->stream);
 
 						compressedmb1->local = compressedmb1->buffer;
-						compressedmb1->priority = (*msgb)->priority;
+						compressedmb1->priority = msgb->priority;
 
 						/* need to handle the forceFlush case for compression as well */
 						if (forceFlush == 1)
@@ -2317,7 +2315,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						}
 
 						/* map priority */
-						compressedmb2->priority = (*msgb)->priority;
+						compressedmb2->priority = msgb->priority;
 
 						/* Just used standard header on any fragments off of a compressed buffer */
 						headerLength = IPC_header_size;
@@ -2388,12 +2386,12 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						}
 						uncompBytes += headerLength;
 						compressedmb2->length = totalSize = (compLen2 + footer_size + httpHeaderLen);
-						compressedmb2->priority = (*msgb)->priority;
+						compressedmb2->priority = msgb->priority;
 						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
 							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
 							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb2->buffer, (RsslUInt32)(compressedmb2->length), rsslSocketChannel->stream);
-						rtr_dfltcFreeMsg(*msgb);
-						(*msgb) = compressedmb2;
+						rtr_dfltcFreeMsg(msgb);
+						msgb = compressedmb2;
 					}
 					else
 					{
@@ -2466,8 +2464,8 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
 							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
 							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length), rsslSocketChannel->stream);
-						rtr_dfltcFreeMsg(*msgb);
-						(*msgb) = compressedmb1;
+						rtr_dfltcFreeMsg(msgb);
+						msgb = compressedmb1;
 					}
 				}
 				break;
@@ -2481,7 +2479,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				break;
 			}
 
-			(*msgb)->local = (*msgb)->buffer;
+			msgb->local = msgb->buffer;
 
 			if (forceFlush == 1)
 			{
@@ -2493,10 +2491,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 
 				rwflags |= (rsslSocketChannel->blocking ? RIPC_RW_BLOCKING : 0);
 
-				if ((*msgb)->local == (*msgb)->buffer)
-					lenToWrite = (RsslInt32)((*msgb)->length);
+				if (msgb->local == msgb->buffer)
+					lenToWrite = (RsslInt32)(msgb->length);
 				else
-					lenToWrite = (RsslInt32)((*msgb)->length - ((caddr_t)(*msgb)->local - (*msgb)->buffer));
+					lenToWrite = (RsslInt32)(msgb->length - ((caddr_t)msgb->local - msgb->buffer));
 
 				/* the user wants to force a flush - check if the output buffers have any data */
 				for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++)
@@ -2509,9 +2507,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				{
 					/* pass the buffer directly to write and free the buffer */
 					if (rsslSocketChannel->httpHeaders)
-						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelStreamFd, (*msgb)->local, lenToWrite, rwflags, error);
+						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelStreamFd, msgb->local, lenToWrite, rwflags, error);
 					else
-						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, (*msgb)->local, lenToWrite, rwflags, error);
+						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, msgb->local, lenToWrite, rwflags, error);
 
 
 					/* if it failed flat out, see if we are tunneling and we should switch the FD */
@@ -2520,7 +2518,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						rsslSocketChannel->tunnelStreamFd = rsslSocketChannel->newTunnelStreamFd;
 						rsslSocketChannel->newTunnelStreamFd = 0;
 						/* now reattempt the write */
-						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelStreamFd, (*msgb)->local, lenToWrite, rwflags, error);
+						cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelStreamFd, msgb->local, lenToWrite, rwflags, error);
 					}
 
 					/* normal processing */
@@ -2530,9 +2528,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						rsslSocketChannel->bytesOutLastMsg += lenToWrite;
 
 						/* entire thing was written */
-						rtr_dfltcFreeMsg(*msgb);
-						(*msgb)->buffer = 0;
-						(*msgb)->length = 0;
+						rtr_dfltcFreeMsg(msgb);
+						msgb->buffer = 0;
+						msgb->length = 0;
 
 
 						/* need to switch stream IDs after sending the end of chunk message */
@@ -2587,8 +2585,8 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					{
 						/* cc is somewhere between nothing and our size */
 						/* update the local pointer, and put buffer in queue */
-						(*msgb)->local = (caddr_t)(*msgb)->local + cc;
-						rsslSocketChannel->nextOutBuf = (*msgb)->priority;
+						msgb->local = (caddr_t)msgb->local + cc;
+						rsslSocketChannel->nextOutBuf = msgb->priority;
 						forceFlush = 2;
 					}
 				}
@@ -2602,9 +2600,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 			if ((forceFlush == 0) || (forceFlush == 2))
 			{
 				/* figure out which priority list to put this in */
-				rsslSocketChannel->priorityQueues[(*msgb)->priority].queueLength += totalSize;
+				rsslSocketChannel->priorityQueues[msgb->priority].queueLength += totalSize;
 
-				pLink = rsslQueuePeekBack(&rsslSocketChannel->priorityQueues[(*msgb)->priority].priorityQueue);
+				pLink = rsslQueuePeekBack(&rsslSocketChannel->priorityQueues[msgb->priority].priorityQueue);
 
 				/* since there are dblks - actual memory block, and mblks - pointers
 				into dblks, it is possible that there are several mblks sharing
@@ -2613,16 +2611,16 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				If it is the case, we update the length of the block (to avoid adding
 				another pointer to the same block).  If its not the
 				case, we put the block in the list */
-				if (pLink && (lastmb = RSSL_QUEUE_LINK_TO_OBJECT(rtr_msgb_t, link, pLink)) && ((lastmb->buffer + lastmb->length) == (*msgb)->buffer))
+				if (pLink && (lastmb = RSSL_QUEUE_LINK_TO_OBJECT(rtr_msgb_t, link, pLink)) && ((lastmb->buffer + lastmb->length) == msgb->buffer))
 				{
-					lastmb->length += (*msgb)->length;
-					lastmb->maxLength += (*msgb)->length;
+					lastmb->length += msgb->length;
+					lastmb->maxLength += msgb->length;
 
-					rsslSocketChannel->bytesOutLastMsg += (RsslUInt32)((*msgb)->length);
+					rsslSocketChannel->bytesOutLastMsg += (RsslUInt32)(msgb->length);
 
-					rtr_dfltcFreeMsg(*msgb);
-					(*msgb)->buffer = 0;
-					(*msgb)->length = 0;
+					rtr_dfltcFreeMsg(msgb);
+					msgb->buffer = 0;
+					msgb->length = 0;
 				}
 				else
 				{
@@ -2632,8 +2630,8 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						printf("#2 Queuing %d bytes (forceFlush=%d, queueLength=%d)\n", totalSize, forceFlush, rsslSocketChannel->priorityQueues[(*msgb)->priority].queueLength);
 #endif
 
-					rsslQueueAddLinkToBack(&(rsslSocketChannel->priorityQueues[(*msgb)->priority].priorityQueue), &((*msgb)->link));
-					rsslSocketChannel->bytesOutLastMsg += (RsslUInt32)((*msgb)->length);
+					rsslQueueAddLinkToBack(&(rsslSocketChannel->priorityQueues[msgb->priority].priorityQueue), &(msgb->link));
+					rsslSocketChannel->bytesOutLastMsg += (RsslUInt32)(msgb->length);
 				}
 			}
 
@@ -2644,32 +2642,32 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 			{
 				if (opCodes & IPC_FRAG_HEADER)
 				{
-					(*msgb)->buffer -= (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1);
-					(*msgb)->length += (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1 + footer_size);
+					msgb->buffer -= (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1);
+					msgb->length += (IPC_header_size + rsslSocketChannel->version->firstFragHdrLen + 1 + footer_size);
 				}
 				else if (opCodes & IPC_FRAG)
 				{
-					(*msgb)->buffer -= (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1);
-					(*msgb)->length += (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1 + footer_size);
+					msgb->buffer -= (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1);
+					msgb->length += (IPC_header_size + rsslSocketChannel->version->subsequentFragHdrLen + 1 + footer_size);
 				}
 				else
 				{
-					(*msgb)->buffer -= (IPC_header_size + 1);
-					(*msgb)->length += (IPC_header_size + 1 + footer_size);
+					msgb->buffer -= (IPC_header_size + 1);
+					msgb->length += (IPC_header_size + 1 + footer_size);
 				}
 			}
 			else
 			{
-				(*msgb)->buffer -= IPC_header_size;
-				(*msgb)->length += (IPC_header_size + footer_size);
+				msgb->buffer -= IPC_header_size;
+				msgb->length += (IPC_header_size + footer_size);
 			}
-			rtr_dfltcFreeMsg(*msgb);
+			rtr_dfltcFreeMsg(msgb);
 		}
 
 		*bytesWritten = rsslSocketChannel->bytesOutLastMsg;
 		*uncompBytesWritten = uncompBytes;
 
-		(*msgb) = nmb;
+		msgb = nmb;
 		/* reset flags */
 		if (flags & IPC_EXTENDED_FLAGS)
 		{
@@ -2687,6 +2685,9 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 		else
 			opCodes = 0x0;
 	}
+
+	/* If this is a chained message and the full value has not been queued*/
+	rsslBufferImpl->bufferInfo = (void*)msgb;
 
 	if (retval != RSSL_RET_FAILURE)
 	{
@@ -9041,15 +9042,18 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 	RsslUInt32 totalOutBytes = 0;
 	RsslUInt32 totalUncompOutBytes = 0;
 	RsslUInt32 writeFlags = writeInArgs->writeInFlags;
-	rtr_msgb_t	**ripcBuffer = (rtr_msgb_t**)(&rsslBufImpl->bufferInfo);
-
+	rtr_msgb_t	*ripcBuffer;
 	RsslSocketChannel *rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
 
 	if (IPC_NULL_PTR(rsslSocketChannel, "rsslSocketWrite", "rsslSocketChannel", error))
 		return RSSL_RET_FAILURE;
 
+	// Set ripcBuffer to bufferInfo on rsslBufImpl.  When this changes, we will update rsslBufImpl->bufferInfo at the same time.
+	ripcBuffer = (rtr_msgb_t*)(rsslBufImpl->bufferInfo);
+
+
 	/* check if we are doing fragmentation */
-	if ((*ripcBuffer) && (!(rsslBufImpl->fragmentationFlag)) && (rsslBufImpl->writeCursor == 0))
+	if (ripcBuffer && (!(rsslBufImpl->fragmentationFlag)) && (rsslBufImpl->writeCursor == 0))
 	{
 		/* no fragmentation */
 
@@ -9067,20 +9071,21 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			else
 			{
 				bufLength = rsslBufImpl->buffer.length;
-				rwfPut16(((*ripcBuffer)->buffer + rsslBufImpl->packingOffset - 2), bufLength);	/* fill in the length of the last message */
+				rwfPut16((ripcBuffer->buffer + rsslBufImpl->packingOffset - 2), bufLength);	/* fill in the length of the last message */
 				rsslBufImpl->packingOffset += rsslBufImpl->buffer.length;						/* advance the packing offset to include this last message */
 			}
-			(*ripcBuffer)->length = rsslBufImpl->packingOffset;		/* the packing offset is the entire length of everything in the buffer we want to send */
+			ripcBuffer->length = rsslBufImpl->packingOffset;		/* the packing offset is the entire length of everything in the buffer we want to send */
 		}
 		else
 		{
 			/* standard case - buffer is within size bounds */
 			/* make sure rssl buffer matches ripcbuffer size */
-			(*ripcBuffer)->length = rsslBufImpl->buffer.length;
+			ripcBuffer->length = rsslBufImpl->buffer.length;
 		}
 
-		(*ripcBuffer)->priority = rsslBufImpl->priority;
+		ripcBuffer->priority = rsslBufImpl->priority;
 
+		/* Queue the buffer for writing */
 		retVal = ipcWriteSession(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
 
 		totalOutBytes += outBytes;
@@ -9093,7 +9098,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 		RsslUInt32 tempSize = 0;
 		RsslUInt32 copyUserMsgSize = 0;
 		RsslUInt16 fragHeaderSize = 0;
-		rtr_msgb_t **rootBuffer;
 		rtr_msgb_t	*nextBuffer;
 		RsslBool firstFragment = rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER ? 1 : 0;
 
@@ -9131,12 +9135,10 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 		   max message size, so this shouldnt happen very frequently. */
 		tempSize = rsslBufImpl->buffer.length - rsslBufImpl->writeCursor;
 
-		rootBuffer = ripcBuffer;
-
 		/* This while loop support the WRITE_CALL_AGAIN case as well*/
 		while (tempSize > 0)
 		{
-			if (*ripcBuffer)
+			if (ripcBuffer)
 			{
 				do
 				{
@@ -9156,17 +9158,17 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 					{
 						/* use rsslChnlImpl->maxMsgSize here - because of tunneling, server side ripcBuffer->maxLen can have
 							some additional bytes available there that we shouldnt be using */
-						MemCopyByInt((*ripcBuffer)->buffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, copyUserMsgSize);
+						MemCopyByInt(ripcBuffer->buffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, copyUserMsgSize);
 						tempSize -= copyUserMsgSize;
 						rsslBufImpl->writeCursor += copyUserMsgSize;
-						(*ripcBuffer)->length = copyUserMsgSize;
-						(*ripcBuffer)->priority = rsslBufImpl->priority;
+						ripcBuffer->length = copyUserMsgSize;
+						ripcBuffer->priority = rsslBufImpl->priority;
 
 						/* go to the next buffer if needed*/
-						if ((*ripcBuffer)->nextMsg)
+						if (ripcBuffer->nextMsg)
 						{
-							nextBuffer = (*ripcBuffer)->nextMsg;
-							ripcBuffer = &nextBuffer;
+							nextBuffer = ripcBuffer->nextMsg;
+							ripcBuffer = nextBuffer;
 						}
 						else
 						{
@@ -9176,10 +9178,10 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 					else
 					{
 						/* this will all actually fit in one message */
-						MemCopyByInt((*ripcBuffer)->buffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, tempSize);
+						MemCopyByInt(ripcBuffer->buffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, tempSize);
 						rsslBufImpl->writeCursor += tempSize;
-						(*ripcBuffer)->length = tempSize;
-						(*ripcBuffer)->priority = rsslBufImpl->priority;
+						ripcBuffer->length = tempSize;
+						ripcBuffer->priority = rsslBufImpl->priority;
 						tempSize -= tempSize;
 						break;
 					}
@@ -9188,8 +9190,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 
 				retVal = ipcWriteSession(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
 
-				/* Reset ripcBuffer to point to rsslBufferImpl.bufferInfo */
-				ripcBuffer = rootBuffer;
 				rsslBufImpl->fragmentationFlag = BUFFER_IMPL_SUBSEQ_FRAG_HEADER;
 				totalOutBytes += outBytes;
 				outBytes = 0;
@@ -9203,14 +9203,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			copyUserMsgSize = rsslChnlImpl->maxMsgSize - SUBSEQ_FRAG_OVERHEAD;
 
 			/* Created an individual subsequent fragmented buffer */
-			(*ripcBuffer) = ipcFragmentationDataBuffer(rsslSocketChannel, 0, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize, error);
-			if ((*ripcBuffer) == NULL)
+			ripcBuffer = (void*)ipcFragmentationDataBuffer(rsslSocketChannel, 0, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize, error);
+			if (ripcBuffer == NULL)
 			{
 				/* call flush and try again, then return error */
 				rsslFlush(&rsslChnlImpl->Channel, error);
 
-				(*ripcBuffer) = ipcFragmentationDataBuffer(rsslSocketChannel, 0, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize, error);
-				if ((*ripcBuffer) == NULL)
+				ripcBuffer = (void*)ipcFragmentationDataBuffer(rsslSocketChannel, 0, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize, error);
+				if (ripcBuffer == NULL)
 				{
 					/* return error here */
 					error->channel = &rsslChnlImpl->Channel;
@@ -9219,12 +9219,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 					return RSSL_RET_WRITE_CALL_AGAIN;
 				}
 			}
+			/* set the new buffer on the rsslBufImpl->bufferInfo.  Since we've already sent the first chain set, this should go through the loop without another nextBuffer. */
+			rsslBufImpl->bufferInfo = (void*)ripcBuffer;
 		}
 	}
 
 	if (retVal == RSSL_RET_FAILURE)
 	{
-		if ((*ripcBuffer))
+		if (rsslBufImpl->bufferInfo)
 		{
 			/* if write fails we should close socket */
 			rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
@@ -9239,14 +9241,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			if ((errno == EINTR) || (errno == EAGAIN) || (errno == _IPC_WOULD_BLOCK))
 			{
 				/* flush was blocked */
-				(*ripcBuffer) = NULL;
+				rsslBufImpl->bufferInfo = NULL;
 				return RSSL_RET_WRITE_FLUSH_FAILED;
 			}
 			else
 			{
 				/* socket error */
 				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-				(*ripcBuffer) = NULL;
+				rsslBufImpl->bufferInfo = NULL;
 				error->channel = &rsslChnlImpl->Channel;
 
 				return RSSL_RET_WRITE_FLUSH_FAILED;
@@ -9288,7 +9290,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			rsslBufImpl->owner = 0;
 			_rsslFree(rsslBufImpl->buffer.data);
 			rsslBufImpl->buffer.length = 0;
-			(*ripcBuffer)->priority = rsslBufImpl->priority;
 		}
 
 		/* now add to free buffer list */

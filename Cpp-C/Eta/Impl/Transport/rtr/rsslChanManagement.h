@@ -152,7 +152,7 @@ typedef struct {
 	RsslUInt32	totalLength;		/* total length - used to calculated packing buffer sizes */
 	rsslChannelImpl *RsslChannel;	/* channel that currently owns this buffer */
 	int	priority;					/* which priority queue to write to */
-	void		*bufferInfo;		/* The new type to abstract the acture buffer type*/	
+	void			*bufferInfo;		/* The new type to abstract the underlying transport's buffer type*/	
 	RsslUInt8		fragmentationFlag; /* indicate wheter the buffer is used for fragmentation*/
 } rsslBufferImpl;
 

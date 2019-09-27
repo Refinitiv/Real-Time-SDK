@@ -1368,18 +1368,21 @@ public class ReactorChannel extends VaNode
 		// if done getting the auth token and service discovery
     	if (_state == State.EDP_RT_DONE)
     	{
-    		if (_watchlist != null)
+    		if(Reactor.requestServiceDiscovery(reactorConnectInfo))
     		{
-    			if (verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-    			{
-    				error.text(errorInfo.error().text());
-        			return null;
-    			}
-    		}
-    		else if (_watchlist == null && verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-    		{
-    			error.text(errorInfo.error().text());
-    			return null;	
+	    		if (_watchlist != null)
+	    		{
+	    			if (verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
+	    			{
+	    				error.text(errorInfo.error().text());
+	        			return null;
+	    			}
+	    		}
+	    		else if (_watchlist == null && verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
+	    		{
+	    			error.text(errorInfo.error().text());
+	    			return null;	
+	    		}
     		}
 
 			return reconnect(reactorConnectInfo, error);	
