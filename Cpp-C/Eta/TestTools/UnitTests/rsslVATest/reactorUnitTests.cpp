@@ -3493,14 +3493,22 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatc
 	while(pProvMon->mutMsg.mutMsgType != MUT_MSG_CONN)
 		ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
 
-	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+	ASSERT_EQ(pProvMon->mutMsg.mutMsgType, MUT_MSG_CONN);
+	ASSERT_EQ(pProvMon->mutMsg.channelEvent.channelEventType, RSSL_RC_CET_CHANNEL_UP);
 	pProvCh = pProvMon->mutMsg.pReactorChannel;
 
-	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+	while(pProvMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+		ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
+	ASSERT_EQ(pProvMon->mutMsg.mutMsgType, MUT_MSG_CONN);
+	ASSERT_EQ(pProvMon->mutMsg.channelEvent.channelEventType, RSSL_RC_CET_CHANNEL_READY);
 
-	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+	/* For some reason, after several iterations, the connection runs very slow */
+	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+	while(pConsMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+		ASSERT_TRUE(dispatchEvent(pConsMon, 1000) >= RSSL_RET_SUCCESS);
+	ASSERT_EQ(pConsMon->mutMsg.mutMsgType, MUT_MSG_CONN);
+	ASSERT_EQ(pConsMon->mutMsg.channelEvent.channelEventType, RSSL_RC_CET_CHANNEL_UP);
 	pConsCh = pConsMon->mutMsg.pReactorChannel;
 
 	/* If loginMsgCallback provided, exchange login messages */
@@ -3683,13 +3691,16 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatc
 			ASSERT_TRUE(rsslReactorSubmit(pProvMon->pReactor, pProvCh, pMsgBuf, &submitOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 		}
 
+		pConsMon->mutMsg.mutMsgType = MUT_MSG_NONE;
 		if (channelDispatch)
-			ASSERT_TRUE(dispatchChannelEvents(pConsMon, pConsCh, 100, 50) >= RSSL_RET_SUCCESS);
+			while(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE)
+				ASSERT_TRUE(dispatchChannelEvents(pConsMon, pConsCh, 1000, 50) >= RSSL_RET_SUCCESS);
 		else
 		{
-			ASSERT_TRUE(dispatchEvents(pConsMon, 100, 50) >= RSSL_RET_SUCCESS);
+			while(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE)
+				ASSERT_TRUE(dispatchEvents(pConsMon, 1000, 50) >= RSSL_RET_SUCCESS);
 		}
-		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RSSL);
+		ASSERT_EQ(pConsMon->mutMsg.mutMsgType, MUT_MSG_RSSL);
 	}
 
 	/* Cons: Ack close */

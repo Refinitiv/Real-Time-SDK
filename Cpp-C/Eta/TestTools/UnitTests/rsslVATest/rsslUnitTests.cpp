@@ -7,6 +7,7 @@
  */
 
 #include "rsslTestFramework.h"
+#include "getTime.h"
 #include "gtest/gtest.h"
 
 #include <stdio.h>
@@ -28,6 +29,7 @@
 
 static void rsslUnitTests_DirectoryPacking();
 static void rsslUnitTests_LoginPacking();
+static void rsslUnitTests_WriteFailure(int fragMsg);
 
 static const RsslInt32 
 			LOGIN_STREAM_ID = 1,
@@ -57,6 +59,52 @@ TEST(RsslUnitTests, DirectoryPacking)
 	rsslTestInitialize(&pOpts);
 
 	rsslUnitTests_DirectoryPacking();
+	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests, WriteFailureTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts.serverMaxOutputBuffers = 20;
+	pOpts.serverGuaranteedOutputBuffers = 5;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(0);
+	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests, WriteFailureCompressionTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts.serverMaxOutputBuffers = 30;
+	pOpts.serverGuaranteedOutputBuffers = 5;
+	pOpts.compressionType = RSSL_COMP_ZLIB;
+	pOpts.compressionLevel = 0;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(0);
+	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests, WriteFailureFragmentedTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts.serverMaxOutputBuffers = 30;
+	pOpts.serverGuaranteedOutputBuffers = 3;
+	pOpts.compressionType = RSSL_COMP_ZLIB;
+	pOpts.compressionLevel = 0;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(1);
 	rsslTestUninitialize();
 }
 
@@ -525,5 +573,76 @@ static void rsslUnitTests_LoginPacking()
 	
 	rsslCloseChannel(pConsumerChannel, &error);
 	rsslCloseChannel(pProviderChannel, &error);
+	rsslTestFinish();
+}
+
+/*This test does the following:
+1. Opens up a consumer and server provider channel.  Server has been configured in calling function.
+2. Kills the consumer channel
+3. Attempts to ping.  This should succeed, as the SYN-ACK has not been sent yet by the server.
+4. Gets 10 buffers from the prov channel.  This should get into the shared buffer pool
+5. Attempts to write all buffers, until rsslWrite attempts to flush. This should fail, and the channel should be in the close state.
+6. Closes the provider channel.  This should succeed.
+
+The high watermark is set to be approximately 80% of the buffer pull size, to ensure that this test is getting shared pool buffers.
+*/
+static void rsslUnitTests_WriteFailure(int fragMsg)
+{
+
+	RsslChannel* pConsumerChannel;
+	RsslChannel* pProviderChannel;
+	RsslBuffer *pSendBuffer[10];
+	RsslError error;
+	RsslRet ret;
+	RsslWriteOutArgs writeOutArgs = RSSL_INIT_WRITE_OUT_ARGS;
+	RsslWriteInArgs writeInArgs = RSSL_INIT_WRITE_IN_ARGS;
+	int watermark;
+	RsslChannelInfo chnlInfo;
+	int i;
+	RsslUInt32 msgSize;
+
+	rsslTestStart();
+	pConsumerChannel = rsslTestCreateConsumerChannel();
+	pProviderChannel = rsslTestCreateProviderChannel();
+	rsslTestInitChannels(pConsumerChannel, pProviderChannel);
+
+	rsslGetChannelInfo(pProviderChannel, &chnlInfo, &error);
+	
+	rsslCloseChannel(pConsumerChannel, &error);
+	
+	if (fragMsg == 0)
+	{
+		msgSize = chnlInfo.maxFragmentSize;
+		watermark = chnlInfo.maxFragmentSize * 8;
+	}
+	else
+	{
+		msgSize = 2 * chnlInfo.maxFragmentSize;
+		watermark = chnlInfo.maxFragmentSize * 16;
+	}
+
+	rsslIoctl(pProviderChannel, RSSL_HIGH_WATER_MARK, &watermark, &error);
+
+	/* Ping should succeed, but this should prime the next flush to fail */
+	ret = rsslPing(pProviderChannel, &error);
+	EXPECT_EQ(ret, RSSL_RET_SUCCESS);
+
+	for (i = 0; i < 10; ++i)
+	{
+		pSendBuffer[i] = rsslGetBuffer(pProviderChannel, msgSize, RSSL_FALSE, &error);
+		EXPECT_TRUE(pSendBuffer[i] != NULL);
+	}
+	i = 0;
+	do
+	{
+		ret = rsslWriteEx(pProviderChannel, pSendBuffer[i], &writeInArgs, &writeOutArgs, &error);
+		i++;
+	} while (ret >= RSSL_RET_SUCCESS);
+
+	EXPECT_EQ(ret, RSSL_RET_WRITE_FLUSH_FAILED);
+	EXPECT_EQ(pProviderChannel->state, RSSL_CH_STATE_CLOSED);
+
+	ret = rsslCloseChannel(pProviderChannel, &error);
+	EXPECT_EQ(ret, RSSL_RET_SUCCESS);
 	rsslTestFinish();
 }

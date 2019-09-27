@@ -32,17 +32,30 @@ extern "C" {
 typedef struct
 {
 	RsslConnectionTypes connectionType;
+	RsslUInt32 serverGuaranteedOutputBuffers;
+	RsslUInt32 serverMaxOutputBuffers;
+	RsslUInt32 compressionType;
+	RsslUInt32 compressionLevel;
+
 } rsslTestInitOpts;
 
 // any added options need to be cleared in this function
 static void rsslTestClearInitOpts(rsslTestInitOpts *pOpts)
 {
 	pOpts->connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts->serverGuaranteedOutputBuffers = 50;
+	pOpts->serverMaxOutputBuffers = 50;
+	pOpts->compressionType = 0;
+	pOpts->compressionLevel = 0;
+
 }
 
 
 // Call before starting a series of tests. 
 void rsslTestInitialize(rsslTestInitOpts *pOpts);
+
+/* Get the server after initialization */
+RsslServer* getServer();
 
 // Call after finishing a series of tests. 
 void rsslTestUninitialize();

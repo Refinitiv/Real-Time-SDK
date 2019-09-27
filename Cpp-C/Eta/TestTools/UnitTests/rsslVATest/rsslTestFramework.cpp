@@ -58,6 +58,15 @@ void rsslTestInitialize(rsslTestInitOpts *pOpts)
 
 		rsslClearBindOpts(&bindOpts); 
 		bindOpts.serviceName = const_cast<char*>("14011");
+		bindOpts.guaranteedOutputBuffers = pOpts->serverGuaranteedOutputBuffers;
+		bindOpts.maxOutputBuffers = pOpts->serverMaxOutputBuffers;
+		if (pOpts->compressionType != RSSL_COMP_NONE)
+		{
+			/* If zlib compression, force compression on for all clients */
+			bindOpts.compressionType = pOpts->compressionType;
+			bindOpts.forceCompression = RSSL_TRUE;
+			bindOpts.compressionLevel = pOpts->compressionLevel;
+		}
 		ASSERT_TRUE((pServer = rsslBind(&bindOpts, &error)));
 	}
 	else
@@ -66,6 +75,11 @@ void rsslTestInitialize(rsslTestInitOpts *pOpts)
 	}
 
 	rsslTestInitialized = RSSL_TRUE;
+}
+
+RsslServer* getServer()
+{
+	return pServer;
 }
 
 void rsslTestUninitialize()
