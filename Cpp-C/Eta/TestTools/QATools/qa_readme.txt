@@ -57,7 +57,12 @@ vaconsumer-TsFrag-002:  Alter VAConsumer to accept -msgSize as an input.  This i
   buffer data body with "1, 2, 3....255" and repeats this pattern of data.  The provider (common code)
   will then need to check for the same pattern in the fully assembled message and print "TEST PASSED".
 
-vaconsumer-ChnlStats-001: Alter VAConsumer to accept -statisticFilter for testing ReactorChannelStatistic.
+vaconsumer-ChnlStats-001: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING.
+  And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+
+vaconsumer-ChnlStats-003: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING. 
+  And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+  The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
 
 vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
 

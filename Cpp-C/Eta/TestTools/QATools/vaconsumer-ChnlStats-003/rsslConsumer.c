@@ -95,6 +95,10 @@ char tokenServiceUrlBlock[512];
 char serviceDiscoveryUrlBlock[512];
 RsslBuffer tokenServiceUrl = RSSL_INIT_BUFFER;
 RsslBuffer serviceDiscoveryUrl = RSSL_INIT_BUFFER;
+int reissueTokenAttemptLimit = 0;
+int restRequestTimeOut = 0;
+int reissueTokenAttemptInterval = 0;
+double tokenReissueRatio = 0.0;
 //END APIQA
 
 static char libsslName[255];
@@ -149,6 +153,10 @@ void printUsageAndExit(char *appName)
 		    "\n -statisticFilter valid values are READ / WRITE / PING.\n"
 		    "\n -tokenServiceUrl \n"
 		    "\n -serviceDiscoveryUrl \n"
+		    "\n -restRequestTimeout \n"
+			"\n -tokenReissueRatio \n"
+			"\n -reissueTokenAttemptLimit \n"
+			"\n -reissueTokenAttemptInterval \n"
 			/*END APIQA*/
 			"\n -tunnel causes the consumer to open a tunnel stream that exchanges basic messages.\n"
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
@@ -348,6 +356,26 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				serviceDiscoveryUrl.length = snprintf(serviceDiscoveryUrlBlock, sizeof(serviceDiscoveryUrlBlock), "%s", argv[i - 1]);
 				serviceDiscoveryUrl.data = serviceDiscoveryUrlBlock;
+			}
+			else if (strcmp("-restRequestTimeout", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				restRequestTimeOut = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-tokenReissueRatio", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				tokenReissueRatio = atof(argv[i - 1]);
+			}
+			else if (strcmp("-reissueTokenAttemptInterval", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				reissueTokenAttemptInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-reissueTokenAttemptLimit", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				reissueTokenAttemptLimit = atoi(argv[i - 1]);
 			}
 			//END APIQA
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || (strcmp("-encrypted", argv[i]) == 0) 
@@ -1768,13 +1796,33 @@ int main(int argc, char **argv)
 	// API QA
 	if (tokenServiceUrl.length > 0)
 	{
-		printf("Connecting to tokenServiceUrl %s:\n", tokenServiceUrl.data);
+		printf("Connecting to tokenServiceUrl: %s\n", tokenServiceUrl.data);
 		reactorOpts.tokenServiceURL = tokenServiceUrl;
 	}
 	if (serviceDiscoveryUrl.length > 0)
 	{
-		printf("Connecting to serviceDiscoveryUrl %s:\n", serviceDiscoveryUrl.data);
+		printf("Connecting to serviceDiscoveryUrl: %s\n", serviceDiscoveryUrl.data);
 		reactorOpts.serviceDiscoveryURL = serviceDiscoveryUrl;
+	}
+	if (tokenReissueRatio > 0.0)
+	{
+		printf("QA Prints tokenReissueRatio: %0.1f\n", tokenReissueRatio);
+		reactorOpts.tokenReissueRatio = tokenReissueRatio;
+	}
+	if (restRequestTimeOut > 0)
+	{
+		printf("QA Prints restRequestTimeout: %d\n", restRequestTimeOut);
+		reactorOpts.restRequestTimeOut = restRequestTimeOut;
+	}
+	if (reissueTokenAttemptInterval > 0)
+	{
+		printf("QA Prints reissueTokenAttemptInterval: %d\n", reissueTokenAttemptInterval);
+		reactorOpts.reissueTokenAttemptInterval = reissueTokenAttemptInterval;
+	}
+	if (reissueTokenAttemptLimit > 0)
+	{
+		printf("QA Prints reissueTokenAttemptLimit: %d\n", reissueTokenAttemptLimit);
+		reactorOpts.reissueTokenAttemptLimit = reissueTokenAttemptLimit;
 	}
 	// End API QA
 
