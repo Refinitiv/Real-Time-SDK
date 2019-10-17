@@ -592,7 +592,8 @@ void wlItemGroupMerge(WlItemGroup *pItemGroup, WlService *pWlService, RsslBuffer
 		WlItemGroup *pNewGroup = RSSL_HASH_LINK_TO_OBJECT(WlItemGroup, hlItemGroupTable, pHashLink);
 		RsslQueueLink *pLink;
 
-		RSSL_QUEUE_FOR_EACH_LINK(&pNewGroup->openStreamList, pLink)
+		/* Update every WlItemStream in the list of the old group ID to use the new group ID. */
+		RSSL_QUEUE_FOR_EACH_LINK(&pItemGroup->openStreamList, pLink)
 		{
 			WlItemStream *pItemStream = RSSL_QUEUE_LINK_TO_OBJECT(WlItemStream, qlItemGroup, pLink);
 			pItemStream->pItemGroup = pNewGroup;
