@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.3.1.0.jar         ema3.3.1.G1
+    ema-3.3.1.2.jar         ema3.3.1.G2
 
 # EMA Java Issues and Workarounds
  

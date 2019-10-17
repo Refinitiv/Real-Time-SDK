@@ -102,14 +102,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.3.1.G1
+    libema.lib                ema3.3.1.G2
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.3.1.G1
-    libema.dll                ema3.3.1.G1
+    libema.lib                ema3.3.1.G2
+    libema.dll                ema3.3.1.G2
 
 #### Linux
     
@@ -129,13 +129,13 @@ This will create all necessary soft links for example makefiles to link.  It is 
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.3.1.G1
+    libema.a                    ema3.3.1.G2
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.3.1.0           libema.so.7          ema3.3.1.G1
+    libema.so.3.3.1.2           libema.so.7          ema3.3.1.G2
     
   
 # EMA C++ Issues and Workarounds
