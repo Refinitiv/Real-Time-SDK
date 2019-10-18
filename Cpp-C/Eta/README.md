@@ -166,25 +166,25 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib               eta3.3.1.G1
-    librsslVA.lib             eta3.3.1.G1
-    librsslVACache.lib        eta3.3.1.G1
-    libansi.lib               eta3.3.1.G1
-    libdacs.lib               eta3.3.1.G1
+    librssl.lib               eta3.3.1.G2
+    librsslVA.lib             eta3.3.1.G2
+    librsslVACache.lib        eta3.3.1.G2
+    libansi.lib               eta3.3.1.G2
+    libdacs.lib               eta3.3.1.G2
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.3.1.G1
-    librssl.lib               eta3.3.1.G1
-    librssl.pdb               eta3.3.1.G1
-    librsslVA.dll             eta3.3.1.G1
-    librsslVA.lib             eta3.3.1.G1
-    librsslVA.pdb             eta3.3.1.G1
-    librsslVACache.dll        eta3.3.1.G1
-    librsslVACache.lib        eta3.3.1.G1
-    librsslVACache.pdb        eta3.3.1.G1
+    librssl.dll               eta3.3.1.G2
+    librssl.lib               eta3.3.1.G2
+    librssl.pdb               eta3.3.1.G2
+    librsslVA.dll             eta3.3.1.G2
+    librsslVA.lib             eta3.3.1.G2
+    librsslVA.pdb             eta3.3.1.G2
+    librsslVACache.dll        eta3.3.1.G2
+    librsslVACache.lib        eta3.3.1.G2
+    librsslVACache.pdb        eta3.3.1.G2
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -203,19 +203,19 @@ This will create all necessary soft links for UPA example makefiles to link.  It
 
     Library Name                       Package Version
     ------------                       ---------------
-    librssl.a                          eta3.3.1.G1
-    librsslVA.a                        eta3.3.1.G1
-    librsslVACache.a                   eta3.3.1.G1
-    libansi.lib                        eta3.3.1.G1
-    libdacs.lib                        eta3.3.1.G1
+    librssl.a                          eta3.3.1.G2
+    librsslVA.a                        eta3.3.1.G2
+    librsslVACache.a                   eta3.3.1.G2
+    libansi.lib                        eta3.3.1.G2
+    libdacs.lib                        eta3.3.1.G2
 
 ##### Shared Library Manifest
 
     Library Name                       Binary Version       Package Version
     -------------                      --------------       ----------------
-    librssl.so.3.3.1.1                 librssl.so.9         eta3.3.1.G1
-    librsslVA.so.3.3.1.1               librsslVA.so.12      eta3.3.1.G1
-    librsslVACache.so.3.3.1.0          librsslVACache.so.3  eta3.3.1.G1
+    librssl.so.3.3.1.2                 librssl.so.9         eta3.3.1.G2
+    librsslVA.so.3.3.1.2               librsslVA.so.12      eta3.3.1.G2
+    librsslVACache.so.3.3.1.2          librsslVACache.so.3  eta3.3.1.G2
 
 
 # ETA C-Edition Issues and Workarounds
