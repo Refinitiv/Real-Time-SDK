@@ -297,10 +297,18 @@ Channel* ChannelList::front() const
 void ChannelCallbackClient::closeChannels()
 {
 	UInt32 size = _channelList.size();
+	RsslReactorChannel* pReactorChannel = NULL;
 
 	for ( UInt32 idx = 0; idx < size; ++idx )
 	{
-		_ommBaseImpl.closeChannel( _channelList[idx] );
+		pReactorChannel = _channelList[idx];
+		_ommBaseImpl.closeChannel( pReactorChannel );
+	}
+
+	/* EMA closes the connecting channel as well when the login timeout occurs. */
+	if( ( pReactorChannel == NULL ) && _pReconnectingReactorChannel )
+	{
+		_ommBaseImpl.closeChannel( _pReconnectingReactorChannel );
 	}
 }
 
@@ -308,7 +316,8 @@ ChannelCallbackClient::ChannelCallbackClient( OmmBaseImpl& ommBaseImpl, RsslReac
 	_channelList(),
 	_ommBaseImpl( ommBaseImpl ),
 	_pRsslReactor( pRsslReactor ),
-	_bInitialChannelReadyEventReceived( false )
+	_bInitialChannelReadyEventReceived( false ),
+	_pReconnectingReactorChannel( NULL )
 {
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -1035,6 +1044,8 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		_ommBaseImpl.processChannelEvent( pEvent );
 
 		_ommBaseImpl.getLoginCallbackClient().processChannelEvent( pEvent );
+
+		_pReconnectingReactorChannel = pEvent->pReactorChannel;
 
 		return RSSL_RC_CRET_SUCCESS;
 	}

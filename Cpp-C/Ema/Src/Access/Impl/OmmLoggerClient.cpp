@@ -25,14 +25,13 @@ OmmLoggerClient::OmmLoggerClient( LoggerType loggerType, bool includeDate, Sever
 	_pFile( 0 ),
 	_pOutput( 0 ),
 	_logLine( 0, 2048 ),
-	_severity( severity )
+	_severity( severity ),
+	_includeDateInLoggerOutput( includeDate )
 {
 	if ( loggerType == OmmLoggerClient::FileEnum )
 		openLogFile( fileName );
 	else
 		_pOutput = stdout;
-
-	_includeDateInLoggerOutput = includeDate;
 }
 
 OmmLoggerClient::~OmmLoggerClient()
@@ -117,22 +116,35 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName )
 		}
 
         int record(-1);
-        for ( int i = 0; i < clientFiles.fileCount; ++i )
-            if ( ! clientFiles.openFiles[i].clientCount )
+        for ( int i = 0; i < clientFiles.openFilesSize; ++i )
+            if ( !clientFiles.openFiles[i].clientCount )
 			{
                 record = i;
                 break;
 			}
 
-        if ( record == -1 )
+		/* Ensure that there is no LoggerFile available before resizing the memory block */
+		if ( record == -1 && ( clientFiles.openFilesSize == clientFiles.fileCount ) )
 		{
-			if ( clientFiles.openFilesSize )
-				clientFiles.openFilesSize *= 2;
-			else
-				clientFiles.openFilesSize = 4;
-			clientFiles.openFiles = static_cast<struct LoggerFile *>( realloc(static_cast<void *>( clientFiles.openFiles ), sizeof(struct LoggerFile) * clientFiles.openFilesSize ));
-			for ( int i = clientFiles.fileCount; i < clientFiles.openFilesSize; ++i )
-				memset( static_cast<void *>(&clientFiles.openFiles[i]), 0, sizeof clientFiles.openFiles[i] );
+			clientFiles.openFilesSize += 4;
+
+			clientFiles.openFiles = static_cast<struct LoggerFile *>(realloc(static_cast<void *>(clientFiles.openFiles), sizeof(struct LoggerFile) * clientFiles.openFilesSize));
+
+			if ( clientFiles.openFiles == NULL )
+			{
+				fclose( _pOutput );
+
+				_printLock.unlock();
+
+				EmaString temp(" Failed to create ");
+				temp.append(fileName).append(" for writing log messages.");
+
+				throwMeeException( temp );
+				return;
+			}
+
+			for (int i = clientFiles.fileCount; i < clientFiles.openFilesSize; ++i)
+				memset(static_cast<void *>(&clientFiles.openFiles[i]), 0, sizeof clientFiles.openFiles[i]);
 			record = clientFiles.fileCount;
 		}
 
@@ -151,7 +163,7 @@ void OmmLoggerClient::closeLogFile()
 
 	if ( _pOutput && _pOutput != stdout )
 	{
-		for ( int i = 0; i < clientFiles.fileCount; ++i )
+		for ( int i = 0; i < clientFiles.openFilesSize; ++i )
 			if ( clientFiles.openFiles[i].ptr == _pOutput )
 			{
 				if ( ! --clientFiles.openFiles[i].clientCount )
@@ -176,6 +188,7 @@ void OmmLoggerClient::closeLogFile()
 	if ( ! clientFiles.fileCount ) {
 	  free( clientFiles.openFiles );
 	  clientFiles.openFiles = 0;
+	  clientFiles.openFilesSize = 0;
 	}
 
 	_printLock.unlock();

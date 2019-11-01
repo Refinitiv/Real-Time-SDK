@@ -152,6 +152,8 @@ private :
 
 	bool							_bInitialChannelReadyEventReceived;
 
+	RsslReactorChannel*				_pReconnectingReactorChannel; // This is used to close later when the login timeout occurs.
+
 	void channelParametersToString(ActiveConfig&, ChannelConfig*, EmaString& );
 
 	ChannelCallbackClient( OmmBaseImpl&, RsslReactor* );

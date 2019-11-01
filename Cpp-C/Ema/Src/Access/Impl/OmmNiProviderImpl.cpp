@@ -51,6 +51,8 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	initialize( config._pImpl );
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -58,8 +60,6 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
-
-	initialize( config._pImpl );
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
@@ -83,6 +83,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	initialize(config._pImpl);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -90,8 +92,6 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
-
-	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
@@ -115,6 +115,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	initialize(config._pImpl);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -122,8 +124,6 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
-
-	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
@@ -147,6 +147,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	initialize(config._pImpl);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -154,8 +156,6 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
-
-	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }

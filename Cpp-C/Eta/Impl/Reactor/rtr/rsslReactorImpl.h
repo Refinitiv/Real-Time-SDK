@@ -214,29 +214,36 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 		{
 			rsslClearReactorConnectInfoImpl(&pReactorChannel->connectionOptList[i]);
 
-			pReactorChannel->connectionOptList[i].base.location.length = (RsslUInt32)strlen(pOpts->reactorConnectionList[i].location.data);
-			pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc((size_t)pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
-			if (pReactorChannel->connectionOptList[i].base.location.data == 0)
+			if(pOpts->reactorConnectionList[i].enableSessionManagement)
 			{
-				for (k = 0; k < i; k++)
+				pReactorChannel->connectionOptList[i].base.location.length = (RsslUInt32)strlen(pOpts->reactorConnectionList[i].location.data);
+				pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc((size_t)pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
+				if (pReactorChannel->connectionOptList[i].base.location.data == 0)
 				{
-					free(pReactorChannel->connectionOptList[k].base.location.data);
-				}
+					for (k = 0; k < i; k++)
+					{
+						free(pReactorChannel->connectionOptList[k].base.location.data);
+					}
 				
-				free(pReactorChannel->connectionOptList);
-				pReactorChannel->connectionOptList = NULL;
-				if (pReactorChannel->pChannelStatistic)
-				{
-					free(pReactorChannel->pChannelStatistic);
-					pReactorChannel->pChannelStatistic = NULL;
+					free(pReactorChannel->connectionOptList);
+					pReactorChannel->connectionOptList = NULL;
+					if (pReactorChannel->pChannelStatistic)
+					{
+						free(pReactorChannel->pChannelStatistic);
+						pReactorChannel->pChannelStatistic = NULL;
+					}
+
+					return RSSL_RET_FAILURE;
 				}
 
-				return RSSL_RET_FAILURE;
-			}
-
-			memset(pReactorChannel->connectionOptList[i].base.location.data, 0, pReactorChannel->connectionOptList[i].base.location.length + 1);
-			strncpy(pReactorChannel->connectionOptList[i].base.location.data, pOpts->reactorConnectionList[i].location.data, 
+				memset(pReactorChannel->connectionOptList[i].base.location.data, 0, pReactorChannel->connectionOptList[i].base.location.length + 1);
+				strncpy(pReactorChannel->connectionOptList[i].base.location.data, pOpts->reactorConnectionList[i].location.data, 
 							pReactorChannel->connectionOptList[i].base.location.length);
+			}
+			else
+			{
+				rsslClearBuffer(&pReactorChannel->connectionOptList[i].base.location);
+			}
 
 			pReactorChannel->connectionOptList[i].base.initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
 			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;

@@ -47,6 +47,8 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 
 	_ommIProviderDirectoryStore.setClient(this);
 
+	initialize(ommIProviderConfig._pImpl);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -54,8 +56,6 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 		handleMee("Failed to allocate memory in OmmIProviderImpl::OmmIProviderImpl()");
 		return;
 	}
-
-	initialize(ommIProviderConfig._pImpl);
 }
 
 OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient, OmmProviderErrorClient& ommProviderErrorClient, void* closure) :
@@ -74,6 +74,8 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 
 	_ommIProviderDirectoryStore.setClient(this);
 
+	initialize(ommIProviderConfig._pImpl);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -81,8 +83,6 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 		handleMee("Failed to allocate memory in OmmIProviderImpl::OmmIProviderImpl()");
 		return;
 	}
-
-	initialize(ommIProviderConfig._pImpl);
 }
 //only for unit test, internal use
 OmmIProviderImpl::OmmIProviderImpl(const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient) :
