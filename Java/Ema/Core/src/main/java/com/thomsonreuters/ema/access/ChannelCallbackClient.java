@@ -843,7 +843,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						removeChannel( channelInfo );
 					}
 				}
-				throw _baseImpl.ommIUExcept().message(tempErr.toString());
+				
+				throw _baseImpl.ommIUExcept().message(tempErr.toString(), rsslErrorInfo.code());
 			}
 
 			_baseImpl.ommImplState(OmmImplState.RSSLCHANNEL_DOWN);
@@ -863,7 +864,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			 if (_baseImpl.loggerClient().isErrorEnabled())
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, errorStrUnsupportedConnectionType.toString(), Severity.ERROR));
 
-			 throw _baseImpl.ommIUExcept().message( errorStrUnsupportedConnectionType.toString() );
+			 throw _baseImpl.ommIUExcept().message( errorStrUnsupportedConnectionType.toString(), OmmInvalidUsageException.ErrorCode.UNSUPPORTED_CHANNEL_TYPE );
 		}
 	}
 	
@@ -925,14 +926,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             	if (_baseImpl.loggerClient().isErrorEnabled())
 		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy hostname not provided", Severity.ERROR));
 
-            	throw _baseImpl.ommIUExcept().message( "Proxy hostname not provided" );
+            	throw _baseImpl.ommIUExcept().message( "Proxy hostname not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
             }           
             if (channelConfig.httpProxyPort == null)
             {
             	if (_baseImpl.loggerClient().isErrorEnabled())
 		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy port number not provided", Severity.ERROR));
 
-            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided" );
+            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
             }                             	
             
             rsslOptions.tunnelingInfo().HTTPproxy(true);
@@ -946,7 +947,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             	if (_baseImpl.loggerClient().isErrorEnabled())
 		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy port number not provided", Severity.ERROR));
 
-            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided" );
+            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
             }
             
             // set credentials
@@ -998,7 +999,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
         		if (_baseImpl.loggerClient().isErrorEnabled())
 		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Keystore file is missing for connectionType of encryption", Severity.ERROR));
 
-            	throw _baseImpl.ommIUExcept().message( "Keystore file is missing for connectionType of encryption" );
+            	throw _baseImpl.ommIUExcept().message( "Keystore file is missing for connectionType of encryption", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 	        }
 	        
 	        if (((EncryptedChannelConfig)channelConfig).KeyStorePasswd == null)
@@ -1006,7 +1007,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	        	if (_baseImpl.loggerClient().isErrorEnabled())
 		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Keystore password is missing for connectionType of encryption", Severity.ERROR));
 
-            	throw _baseImpl.ommIUExcept().message( "Keystore password is missing for connectionType of encryption" );
+            	throw _baseImpl.ommIUExcept().message( "Keystore password is missing for connectionType of encryption", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 	        }
 	                
 	        rsslOptions.tunnelingInfo().KeystoreFile(((EncryptedChannelConfig)channelConfig).KeyStoreFile);

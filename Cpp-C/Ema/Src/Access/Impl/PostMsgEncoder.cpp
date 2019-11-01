@@ -9,6 +9,7 @@
 #include "PostMsgEncoder.h"
 #include "ComplexType.h"
 #include "Decoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -215,7 +216,7 @@ void PostMsgEncoder::attrib( const ComplexType& attrib )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -243,7 +244,7 @@ void PostMsgEncoder::serviceId( UInt16 serviceId )
 	if ( hasServiceName() )
 	{
 		EmaString text( "Attempt to set serviceId while service name is already set." );
-		throwIueException( text );
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -294,7 +295,7 @@ void PostMsgEncoder::payload( const ComplexType& load )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 

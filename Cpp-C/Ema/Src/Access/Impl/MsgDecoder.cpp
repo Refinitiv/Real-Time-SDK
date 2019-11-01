@@ -12,6 +12,7 @@
 #include "ExceptionTranslator.h"
 #include "rtr/rsslMsgEncoders.h"
 #include <stdlib.h>
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -102,7 +103,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 			{
 				EmaString errorText("Failed to decode the encoded buffer for ");
 				errorText.append(functionName);
-				throwIueException(errorText.c_str());
+				throwIueException( errorText.c_str(), OmmInvalidUsageException::InternalErrorEnum );
 			}
 
 			destMsg->_pDecoder->_rsslMsg.msgBase.streamId = other->getStreamId();
@@ -155,7 +156,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 					EmaString errorText("rsslEncodeMsg() failed with reason: ");
 					errorText.append(rsslRetCodeToString(ret)).append(" for ");
 					errorText.append(functionName);
-					throwIueException(errorText.c_str());
+					throwIueException( errorText.c_str(), ret );
 				}
 
 				destMsg->_pDecoder->getCopiedBuffer().length = rsslGetEncodedBufferLength(&encodeIter);
@@ -165,7 +166,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 				{
 					EmaString errorText("Failed to decode the encoded buffer for ");
 					errorText.append(functionName);
-					throwIueException(errorText.c_str());
+					throwIueException( errorText.c_str(), OmmInvalidUsageException::InternalErrorEnum );
 				}
 
 				destMsg->_pDecoder->_rsslMsg.msgBase.streamId = other->getStreamId();
@@ -174,7 +175,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 			{
 				EmaString errorText("Failed to clone empty encoded buffer for ");
 				errorText.append(functionName);
-				throwIueException(errorText.c_str());
+				throwIueException( errorText.c_str(), OmmInvalidUsageException::InternalErrorEnum );
 			}
 		}
 	}
@@ -182,7 +183,7 @@ void MsgDecoder::cloneBufferToMsg(Msg* destMsg, Msg* other, const char* function
 	{
 		EmaString errorText(functionName);
 		errorText.append(" does not support passing in just encoded message");
-		throwIueException(errorText.c_str());
+		throwIueException( errorText.c_str(), OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 

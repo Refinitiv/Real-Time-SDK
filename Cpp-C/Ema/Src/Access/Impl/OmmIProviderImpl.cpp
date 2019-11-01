@@ -25,6 +25,7 @@
 #include "ServerChannelHandler.h"
 #include "RdmUtilities.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4355)
@@ -154,9 +155,10 @@ void OmmIProviderImpl::readCustomConfig(EmaConfigServerImpl* pConfigImpl)
 			rsslMsg.refreshMsg = *_ommIProviderActiveConfig.pDirectoryRefreshMsg->get();
 
 			EmaString text;
-			if (_ommIProviderDirectoryStore.decodeSourceDirectory(&rsslMsg.refreshMsg.msgBase.encDataBody, text) == false)
+			Int32 errorCode;
+			if (_ommIProviderDirectoryStore.decodeSourceDirectory(&rsslMsg.refreshMsg.msgBase.encDataBody, text, errorCode) == false)
 			{
-				handleIue(text);
+				handleIue(text, errorCode);
 				return;
 			}
 
@@ -224,14 +226,14 @@ UInt64 OmmIProviderImpl::registerClient(const ReqMsg& reqMsg, OmmProviderClient&
 	if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
 	{
 		_userLock.unlock();
-		handleIue( "OMM Interactive provider supports registering DICTIONARY domain type only." );
+		handleIue( "OMM Interactive provider supports registering DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum );
 		return 0;
 	}
 
 	if ( getServerChannelHandler().getClientSessionList().size() == 0 )
 	{
 		_userLock.unlock();
-		handleIue("There is no active client session available for registering.");
+		handleIue( "There is no active client session available for registering.", OmmInvalidUsageException::NoActiveChannelEnum );
 		return 0;
 	}
 
@@ -251,7 +253,7 @@ void OmmIProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 	if ( reqMsgEncoder.isDomainTypeSet() && reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
 	{
 		_userLock.unlock();
-		handleIue( "OMM Interactive provider supports reissuing DICTIONARY domain type only." );
+		handleIue( "OMM Interactive provider supports reissuing DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -276,7 +278,7 @@ void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 		_userLock.unlock();
 		EmaString temp("Attempt to submit GenericMsg with non existent Handle = ");
 		temp.append(handle).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -285,7 +287,7 @@ void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 		_userLock.unlock();
 		EmaString temp("Attempt to submit GenericMsg with Dictionary domain while this is not supported.");
 		temp.append(handle).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -295,7 +297,8 @@ void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo(&rsslErrorInfo);
-	if (rsslReactorSubmitMsg(_pRsslReactor, itemInfo->getClientSession()->getChannel(), &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	Int32 retCode;
+	if ( (retCode = rsslReactorSubmitMsg(_pRsslReactor, itemInfo->getClientSession()->getChannel(), &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS )
 	{
 		_userLock.unlock();
 		EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const GenericMsg& ).");
@@ -306,7 +309,7 @@ void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-		handleIue(temp);
+		handleIue(temp, retCode);
 
 		return;
 	}
@@ -330,7 +333,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 		_userLock.unlock();
 		EmaString temp("Attempt to submit RefreshMsg with non existent Handle = ");
 		temp.append(handle).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -354,7 +357,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 				return;
 			}
 
@@ -380,16 +383,16 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
 			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
 		EmaString temp;
-
-		if (_ommIProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp) == false)
+		Int32 errorCode;
+		if (_ommIProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode) == false)
 		{
 			_userLock.unlock();
-			handleIue(temp);
+			handleIue(temp, errorCode);
 			return;
 		}
 
@@ -417,7 +420,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -438,7 +441,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
 			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 
 			return;
 		}
@@ -479,7 +482,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -501,7 +504,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			EmaString temp("Attempt to fanout RefreshMsg with domain type ");
 			temp.append(rdmDomainToString(submitMsgOpts.pRsslMsg->msgBase.domainType))
 			.append(" while this is not supported.");
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
@@ -557,7 +560,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-		handleIue(temp);
+		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 		return;
 	}
@@ -586,7 +589,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 		_userLock.unlock();
 		EmaString temp("Attempt to submit UpdateMsg with non existent Handle = ");
 		temp.append(handle).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -594,7 +597,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit UpdateMsg with login domain while this is not supported.");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 	else if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY)
@@ -616,16 +619,16 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 			_userLock.unlock();
 			EmaString temp("Attempt to submit UpdateMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
 			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
 		EmaString temp;
-
-		if (_ommIProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp) == false)
+		Int32 errorCode;
+		if (_ommIProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode) == false)
 		{
 			_userLock.unlock();
-			handleIue(temp);
+			handleIue(temp, errorCode);
 			return;
 		}
 
@@ -653,7 +656,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -670,7 +673,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit UpdateMsg with dictionary domain while this is not supported.");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 	else
@@ -681,7 +684,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 			EmaString temp("Attempt to fanout UpdateMsg with domain type ");
 			temp.append(rdmDomainToString(submitMsgOpts.pRsslMsg->msgBase.domainType))
 				.append(" while this is not supported.");
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
@@ -740,7 +743,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-		handleIue(temp);
+		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 		return;
 	}
@@ -764,7 +767,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 		_userLock.unlock();
 		EmaString temp("Attempt to submit StatusMsg with non existent Handle = ");
 		temp.append(handle).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -788,7 +791,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -820,7 +823,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -864,7 +867,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 			if (submit(submitMsgOpts, _pDictionaryHandler->getDicitonaryItemList(), text, false, rsslErrorInfo) == false)
 			{
 				_userLock.unlock();
-				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const RefreshMsg& ).");
+				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const StatusMsg& ).");
 				temp.append(CR).append(itemInfo->getClientSession()->toString()).append(CR)
 					.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
 					.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
@@ -872,7 +875,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-				handleIue(temp);
+				handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 				return;
 			}
@@ -894,7 +897,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 			EmaString temp("Attempt to fanout StatusMsg with domain type ");
 			temp.append(rdmDomainToString(submitMsgOpts.pRsslMsg->msgBase.domainType))
 				.append(" while this is not supported.");
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
@@ -955,7 +958,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-		handleIue(temp);
+		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
 
 		return;
 	}
@@ -1001,6 +1004,7 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 
 					if (DirectoryServiceStore::encodeDirectoryMsg(_rsslDirectoryMsg, rsslRDMDirectoryMsg, itemInfo->getFilter(), itemInfo->hasServiceId(), itemInfo->getServiceId()) == false)
 					{
+						/* The above method return false only when it fails to allocate memory for encoding directory message. Users is notified by OmmMemoryExhaustionException. */
 						return true;
 					}
 
@@ -1047,6 +1051,7 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 
 					if (DirectoryServiceStore::encodeDirectoryMsg(_rsslDirectoryMsg, rsslRDMDirectoryMsg, itemInfo->getFilter(), itemInfo->hasServiceId(), itemInfo->getServiceId()) == false)
 					{
+						/* The above method return false only when it fails to allocate memory for encoding directory message. Users is notified by OmmMemoryExhaustionException. */
 						return true;
 					}
 
@@ -1192,7 +1197,7 @@ void OmmIProviderImpl::unregister(UInt64 handle)
 
 void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 {
-	handleIue("Calling the OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle) method is not support in this release.");
+	handleIue("Calling the OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle) method is not support in this release.", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
 DirectoryServiceStore& OmmIProviderImpl::getDirectoryServiceStore()
@@ -1212,7 +1217,7 @@ bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, Rss
 			append(" with service name of ").append(serviceName).
 			append(" that was not included in the SourceDirectory. Dropping this ").
 			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
 	else if (*pServiceId > 0xFFFF)
@@ -1223,7 +1228,7 @@ bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, Rss
 			append(" with service name of ").append(serviceName).
 			append(" whose matching service id of ").append(*pServiceId).append(" is out of range. Dropping this ").
 			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
 
@@ -1245,7 +1250,7 @@ bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rssl
 			append(" with service Id of ").append(serviceId).
 			append(" that was not included in the SourceDirectory. Dropping this ").
 			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
 	else if (serviceId > 0xFFFF)
@@ -1255,7 +1260,7 @@ bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rssl
 		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
 			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
 			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
 
@@ -1422,5 +1427,50 @@ void OmmIProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformatio
  * here because the function is defined in a common base class
  */
 void OmmIProviderImpl::getChannelInformation(ChannelInformation&) {
-  throwIueException("IProvider applications do not support the getChannelInformation method");
+  throwIueException( "IProvider applications do not support the getChannelInformation method", OmmInvalidUsageException::InvalidOperationEnum );
+}
+
+void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+{
+	_userLock.lock();
+
+	RsslError rsslError;
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslIoctlCodes ioCtlCode = (RsslIoctlCodes)code;
+		
+	if (ioCtlCode == RSSL_SERVER_NUM_POOL_BUFFERS)
+	{
+		ret = rsslServerIoctl(_pRsslServer, ioCtlCode, &value, &rsslError);
+	}
+	else
+	{
+		ItemInfoPtr itemInfo = getItemInfo(handle);
+
+		if (itemInfo == 0)
+		{
+			_userLock.unlock();
+			EmaString temp("Attempt to modify I/O option with non existent Handle = ");
+			temp.append(handle).append(".");
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+			return;
+		}
+
+		RsslReactorChannel* pReactorChannel = itemInfo->getClientSession()->getChannel();
+		ret = rsslIoctl(pReactorChannel->pRsslChannel, ioCtlCode, &value, &rsslError);
+	}
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to modify I/O option for code = ");
+			temp.append(code).append(".").append(CR)
+			.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
 }

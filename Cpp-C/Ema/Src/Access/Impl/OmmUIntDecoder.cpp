@@ -84,7 +84,7 @@ const EmaString& OmmUIntDecoder::toString()
 	{
 		EmaString temp( "Failed to convert OmmUInt to string. Reason: " );
 		temp += rsslRetCodeToString( retCode );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 	else
 	{

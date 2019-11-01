@@ -10,6 +10,8 @@
 #include "ReqMsg.h"
 #include "ComplexType.h"
 #include "Decoder.h"
+#include "OmmInvalidUsageException.h"
+
 #include "rtr/rsslArray.h"
 #include "rtr/rsslElementList.h"
 #include "rtr/rsslIterators.h"
@@ -285,7 +287,7 @@ void ReqMsgEncoder::attrib( const ComplexType& attrib )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -299,7 +301,7 @@ void ReqMsgEncoder::attrib( const ComplexType& attrib )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 #endif
@@ -312,7 +314,7 @@ void ReqMsgEncoder::serviceId( UInt16 serviceId )
 	if ( hasServiceName() )
 	{
 		EmaString text( "Attempt to set serviceId while service name is already set." );
-		throwIueException( text );
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -363,7 +365,7 @@ void ReqMsgEncoder::payload( const ComplexType& load )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -377,7 +379,7 @@ void ReqMsgEncoder::payload( const ComplexType& load )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 #endif
@@ -406,7 +408,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator buffer in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -415,7 +417,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator version in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -425,7 +427,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementList in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -468,7 +470,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 			{
 				EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementEntry. Internal error " );
 				temp.append( rsslRetCodeToString( retCode ) );
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 			return;
 		}
@@ -494,7 +496,7 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator buffer in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 
@@ -503,7 +505,7 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator version in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 
@@ -513,7 +515,7 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 	{
 		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementList in ReqMsg::payload(). Internal error " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 
@@ -557,7 +559,7 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 			{
 				EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementEntry. Internal error " );
 				temp.append( rsslRetCodeToString( retCode ) );
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 			return 0;
 		}

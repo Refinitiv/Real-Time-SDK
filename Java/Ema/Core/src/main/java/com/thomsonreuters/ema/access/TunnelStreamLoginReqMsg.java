@@ -47,7 +47,7 @@ public class TunnelStreamLoginReqMsg
 		int retCode = _decIter.setBufferAndRWFVersion(_buffer, Codec.majorVersion(), Codec.minorVersion());
 		if (CodecReturnCodes.SUCCESS != retCode)
 			throw ommIUExcept()
-					.message("Internal Error. Failed to set decode iterator version in TunnelStreamLoginReqMsg.msg().");
+					.message("Internal Error. Failed to set decode iterator version in TunnelStreamLoginReqMsg.msg().", retCode);
 
 		if (_msg != null)
 			_msg.clear();
@@ -58,7 +58,7 @@ public class TunnelStreamLoginReqMsg
 
 		retCode = _msg.decode(_decIter);
 		if (CodecReturnCodes.SUCCESS != retCode)
-			throw ommIUExcept().message("Internal Error. Failed to decode message in TunnelStreamLoginReqMsg.msg().");
+			throw ommIUExcept().message("Internal Error. Failed to decode message in TunnelStreamLoginReqMsg.msg().", retCode);
 
 		return _msg;
 

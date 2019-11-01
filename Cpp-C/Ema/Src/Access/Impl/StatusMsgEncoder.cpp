@@ -9,6 +9,7 @@
 #include "StatusMsgEncoder.h"
 #include "ComplexType.h"
 #include "OmmStateDecoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -101,7 +102,7 @@ void StatusMsgEncoder::serviceId( UInt16 value )
 	if ( hasServiceName() )
 	{
 		EmaString text( "Attempt to set serviceId while service name is already set." );
-		throwIueException( text );
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -232,7 +233,7 @@ void StatusMsgEncoder::payload( const ComplexType& load )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 #else
@@ -269,7 +270,7 @@ void StatusMsgEncoder::attrib( const ComplexType& attrib )
 	else
 	{
 		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 #else

@@ -9,6 +9,7 @@
 #include "ServiceEndpointDiscoveryImpl.h"
 #include "ExceptionTranslator.h"
 #include "Utilities.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -36,7 +37,7 @@ _pClient(0)
 			.append("' Internal sysError='").append(rsslErrorInfo.rsslError.sysError)
 			.append("' Error Location='").append(rsslErrorInfo.errorLocation)
 			.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 	}
 
 	_pServiceEndpointDiscovery = pServiceEndpointDiscovery;
@@ -136,7 +137,7 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 			.append(" specified in ServiceEndpointDiscoveryOption::transport()");
 
 		_userLock.unlock();
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		break;
 	}
 
@@ -155,7 +156,7 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 			.append(" specified in ServiceEndpointDiscoveryOption::dataFormat()");
 
 		_userLock.unlock();
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		break;
 	}
 
@@ -168,7 +169,7 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 			.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
 
 		_userLock.unlock();
-		throwIueException(temp);
+		throwIueException( temp, rsslErrorInfo.rsslError.rsslErrorId );
 	}
 
 	_userLock.unlock();

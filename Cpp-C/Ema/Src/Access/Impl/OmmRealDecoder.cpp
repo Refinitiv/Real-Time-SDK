@@ -100,7 +100,7 @@ const EmaString& OmmRealDecoder::toString()
 	{
 		EmaString temp( "Failed to convert OmmReal to string. Reason: " );
 		temp += rsslRetCodeToString( retCode );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 	else
 	{

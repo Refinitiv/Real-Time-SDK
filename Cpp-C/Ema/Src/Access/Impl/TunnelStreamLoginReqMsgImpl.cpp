@@ -10,6 +10,7 @@
 #include "ReqMsgEncoder.h"
 #include "StaticDecoder.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -78,11 +79,11 @@ TunnelStreamLoginReqMsgImpl& TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const 
 {
 	RsslEncodeIterator eIter;
 	rsslClearEncodeIterator( &eIter );
-
-	if ( rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+	RsslRet retCode;
+	if ( (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal Error. Failed to set encode iterator version in TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const ReqMsg& )." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return *this;
 	}
 
@@ -99,16 +100,15 @@ TunnelStreamLoginReqMsgImpl& TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const 
 		return *this;
 	}
 
-	if ( rsslSetEncodeIteratorBuffer( &eIter, &_rsslBuffer ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslSetEncodeIteratorBuffer( &eIter, &_rsslBuffer )) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal Error. Failed to set encode iterator buffer in TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const ReqMsg& )." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return *this;
 	}
 
 	RsslMsg* pRsslMsg = (RsslMsg*)static_cast<const ReqMsgEncoder&>( loginReqMsg.getEncoder() ).getRsslRequestMsg();
 
-	RsslRet retCode;
 	while ( ( retCode = rsslEncodeMsg( &eIter, pRsslMsg ) ) == RSSL_RET_BUFFER_TOO_SMALL )
 	{
 		if ( _rsslBuffer.data )
@@ -126,17 +126,17 @@ TunnelStreamLoginReqMsgImpl& TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const 
 
 		rsslClearEncodeIterator( &eIter );
 
-		if ( rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) != RSSL_RET_SUCCESS )
 		{
 			EmaString temp( "Internal Error. Failed to set encode iterator version in TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const ReqMsg& )." );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return *this;
 		}
 
-		if ( rsslSetEncodeIteratorBuffer( &eIter, &_rsslBuffer ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetEncodeIteratorBuffer( &eIter, &_rsslBuffer )) != RSSL_RET_SUCCESS )
 		{
 			EmaString temp( "Internal Error. Failed to set encode iterator buffer in TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const ReqMsg& )." );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return *this;
 		}
 	}
@@ -147,7 +147,7 @@ TunnelStreamLoginReqMsgImpl& TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const 
 			free( _rsslBuffer.data );
 
 		EmaString temp( "Internal Error. Failed to encode message in TunnelStreamLoginReqMsgImpl::setLoginReqMsg( const ReqMsg& )." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return *this;
 	}
 
@@ -172,25 +172,25 @@ RsslMsg* TunnelStreamLoginReqMsgImpl::getRsslMsg()
 {
 	RsslDecIterator dIter;
 	rsslClearDecodeIterator( &dIter );
-
-	if ( rsslSetDecodeIteratorRWFVersion( &dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+	RsslRet retCode;
+	if ( (retCode = rsslSetDecodeIteratorRWFVersion( &dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal Error. Failed to set decode iterator version in TunnelStreamLoginReqMsgImpl::getRsslMsg()." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 
-	if ( rsslSetDecodeIteratorBuffer( &dIter, &_rsslBuffer ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslSetDecodeIteratorBuffer( &dIter, &_rsslBuffer )) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal Error. Failed to set decode iterator buffer in TunnelStreamLoginReqMsgImpl::getRsslMsg()." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 
-	if ( rsslDecodeMsg( &dIter, &_rsslMsg ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslDecodeMsg( &dIter, &_rsslMsg )) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal Error. Failed to decode message in TunnelStreamLoginReqMsgImpl::getRsslMsg()." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return 0;
 	}
 

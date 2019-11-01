@@ -55,6 +55,14 @@ void ErrorClientHandler::onInvalidUsage( const EmaString& text )
 		_pProviderErrorClient->onInvalidUsage( text );
 }
 
+void ErrorClientHandler::onInvalidUsage( const EmaString& text, Int32 errorCode )
+{
+	if ( _pConsumerErrorClient )
+		_pConsumerErrorClient->onInvalidUsage( text, errorCode );
+	else if ( _pProviderErrorClient )
+		_pProviderErrorClient->onInvalidUsage( text, errorCode );
+}
+
 void ErrorClientHandler::onMemoryExhaustion( const EmaString& text )
 {
 	if ( _pConsumerErrorClient )

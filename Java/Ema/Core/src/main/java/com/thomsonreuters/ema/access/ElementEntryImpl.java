@@ -231,12 +231,13 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -263,12 +264,13 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
 										.append( value ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -477,11 +479,12 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.ENUM; 
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret =((com.thomsonreuters.upa.codec.Enum)_entryData).value(value)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
 					.append( value ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -493,7 +496,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -516,7 +519,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -539,7 +542,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -562,7 +565,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -585,7 +588,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -701,9 +704,9 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	private ElementEntry entryValue(String name, int rsslDataType, DataImpl value)
 	{
 		if (name == null)
-			throw ommIUExcept().message("Passed in name is null");
+			throw ommIUExcept().message("Passed in name is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		_rsslElementEntry.name().data(name);
 		_rsslElementEntry.dataType(rsslDataType);
@@ -716,7 +719,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	private ElementEntry entryValue(String name, int rsslDataType)
 	{
 		if (name == null)
-			throw ommIUExcept().message("Passed in name is null");
+			throw ommIUExcept().message("Passed in name is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		_rsslElementEntry.name().data(name);
 		_rsslElementEntry.dataType(rsslDataType);

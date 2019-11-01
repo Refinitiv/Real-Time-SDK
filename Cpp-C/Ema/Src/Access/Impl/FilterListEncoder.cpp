@@ -11,6 +11,7 @@
 #include "StaticDecoder.h"
 #include "Decoder.h"
 #include "FilterList.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -54,7 +55,7 @@ void FilterListEncoder::initEncode( UInt8 dataType )
 	{
 		EmaString temp( "Failed to initialize FilterList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -92,7 +93,7 @@ void FilterListEncoder::addEncodedEntry( UInt8 id, UInt8 action, UInt8 dataType,
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding FilterList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -129,7 +130,7 @@ void FilterListEncoder::startEncodingEntry( UInt8 id, UInt8 action, UInt8 dataTy
 		EmaString temp( "Failed to start encoding entry in FilterList::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -147,7 +148,7 @@ void FilterListEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in FilterList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -156,7 +157,7 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -184,7 +185,7 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -197,7 +198,7 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -211,7 +212,7 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 	if (_containerComplete)
 	{
 		EmaString temp("Attempt to add an entry after complete() was called.");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -246,7 +247,7 @@ void FilterListEncoder::complete()
 	{
 		EmaString temp( "Failed to complete FilterList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -268,6 +269,6 @@ void FilterListEncoder::totalCountHint( UInt8 totalCountHint )
 	else
 	{
 		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }

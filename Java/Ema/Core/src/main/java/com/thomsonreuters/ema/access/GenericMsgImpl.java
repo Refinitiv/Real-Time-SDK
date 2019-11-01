@@ -107,7 +107,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public long seqNum()
 	{
 		if (!hasSeqNum())
-			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).seqNum();
 	}
@@ -116,7 +116,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public long secondarySeqNum()
 	{
 		if (!hasSecondarySeqNum())
-			throw ommIUExcept().message("Attempt to secondarySeqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to secondarySeqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).secondarySeqNum();
 	}
@@ -125,7 +125,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public int partNum()
 	{
 		if (!hasPartNum())
-			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).partNum();
 	}
@@ -134,7 +134,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;

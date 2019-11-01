@@ -53,9 +53,9 @@ public:
 
 		virtual ImplementationType getImplType() = 0;
 
-		virtual void handleIue(const EmaString&) = 0;
+		virtual void handleIue(const EmaString&, Int32 errorCode) = 0;
 
-		virtual void handleIue(const char*) = 0;
+		virtual void handleIue(const char*, Int32 errorCode) = 0;
 
 		virtual void handleIhe(UInt64, const EmaString&) = 0;
 

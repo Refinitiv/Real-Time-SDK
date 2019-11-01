@@ -234,6 +234,7 @@ else()
             Include/FilterEntry.h
             Include/FilterList.h
             Include/GenericMsg.h
+	    Include/IOCtlCode.h
             Include/Key.h
             Include/Map.h
             Include/MapEntry.h

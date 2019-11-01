@@ -39,6 +39,7 @@ import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ComponentInfo;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportFactory;
+import com.thomsonreuters.upa.transport.TransportReturnCodes;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
 {
@@ -248,7 +249,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("OMM Interactive provider supports registering DICTIONARY domain type only.");
 			userLock().unlock();
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return 0;
 		}
 		
@@ -257,7 +258,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("There is no active client session available for registering.");
 			userLock().unlock();
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return 0;
 		}
 		
@@ -280,7 +281,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			userLock().unlock();
 			StringBuilder temp = strBuilder();
 			temp.append("OMM Interactive provider supports reissuing DICTIONARY domain type only.");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -304,7 +305,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit GenericMsg with non existent Handle = ")
 			.append(handle).append(".");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -314,7 +315,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit GenericMsg with Dictionary domain while this is not supported.")
 			.append(handle).append(".");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -346,7 +347,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit RefreshMsg with non existent Handle = ")
 			.append(handle).append(".");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -384,26 +385,28 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString());
+						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
-			if ( !_ommIProviderDirectoryStore.decodeSourceDirectory(refreshMsgImpl._rsslMsg, strBuilder()) )
+			IntObject errorCode = new IntObject();
+			if ( !_ommIProviderDirectoryStore.decodeSourceDirectory(refreshMsgImpl._rsslMsg, strBuilder(), errorCode) )
 			{
 				userLock().unlock();
-				handleInvalidUsage(_strBuilder.toString());
+				handleInvalidUsage(_strBuilder.toString(), errorCode.value());
 				return;
 			}
 			
 			clientSession = handle != 0 ? itemInfo.clientSession() : null;
 			
-			if ( !_ommIProviderDirectoryStore.submitSourceDirectory(clientSession, refreshMsgImpl._rsslMsg, strBuilder(), _storeUserSubmitted) )
+			errorCode.clear();
+			if ( !_ommIProviderDirectoryStore.submitSourceDirectory(clientSession, refreshMsgImpl._rsslMsg, strBuilder(), _storeUserSubmitted, errorCode) )
 			{
 				userLock().unlock();
 				StringBuilder text = new StringBuilder();
 				text.append("Attempt to submit invalid directory domain message.").append(OmmLoggerClient.CR)
 				.append("Reason = ").append(_strBuilder);
-				handleInvalidUsage(text.toString());
+				handleInvalidUsage(text.toString(), errorCode.value());
 				return;
 			}
 			
@@ -432,7 +435,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ")
-						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString());
+						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
@@ -482,7 +485,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				StringBuilder temp = strBuilder();
 				temp.append("Attempt to fanout RefreshMsg with domain type ")
 				.append(Utilities.rdmDomainAsString(refreshMsgImpl.domainType())).append(".");
-				handleInvalidUsage(temp.toString());
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
@@ -554,7 +557,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit UpdateMsg with non existent Handle = ")
 			.append(handle).append(".");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -565,7 +568,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			userLock().unlock();
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit UpdateMsg with login domain while this is not supported.");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		else if ( updateMsgImpl.domainType() == EmaRdm.MMT_DIRECTORY )
@@ -578,7 +581,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					StringBuilder temp = strBuilder();
 					temp.append("Attempt to submit UpdateMsg with SourceDirectory while RefreshMsg was not submitted on this stream yet. Handle = ");
 					temp.append(itemInfo.handle().value());
-					handleInvalidUsage(temp.toString());
+					handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 					return;
 				}
 			}
@@ -587,26 +590,28 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit UpdateMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(DataType.asString(updateMsgImpl.payload().dataType())).toString());
+						.append(DataType.asString(updateMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
-			if ( !_ommIProviderDirectoryStore.decodeSourceDirectory(updateMsgImpl._rsslMsg, strBuilder()) )
+			IntObject intObj = new IntObject();
+			if ( !_ommIProviderDirectoryStore.decodeSourceDirectory(updateMsgImpl._rsslMsg, strBuilder(), intObj) )
 			{
 				userLock().unlock();
-				handleInvalidUsage(_strBuilder.toString());
+				handleInvalidUsage(_strBuilder.toString(), intObj.value());
 				return;
 			}
 			
 			clientSession = handle != 0 ? itemInfo.clientSession() : null;
 			
-			if ( !_ommIProviderDirectoryStore.submitSourceDirectory(clientSession, updateMsgImpl._rsslMsg, strBuilder(), _storeUserSubmitted ) )
+			intObj.clear();
+			if ( !_ommIProviderDirectoryStore.submitSourceDirectory(clientSession, updateMsgImpl._rsslMsg, strBuilder(), _storeUserSubmitted, intObj ) )
 			{
 				userLock().unlock();
 				StringBuilder text = new StringBuilder();
 				text.append("Attempt to submit invalid directory domain message.").append(OmmLoggerClient.CR)
 				.append("Reason = ").append(_strBuilder);
-				handleInvalidUsage(text.toString());
+				handleInvalidUsage(text.toString(), intObj.value());
 				return;
 			}
 			
@@ -634,7 +639,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			userLock().unlock();
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit UpdateMsg with dictionary domain while this is not supported.");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		else
@@ -645,7 +650,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				StringBuilder temp = strBuilder();
 				temp.append("Attempt to fanout UpdateMsg with domain type ")
 				.append(Utilities.rdmDomainAsString(updateMsgImpl.domainType())).append(".");
-				handleInvalidUsage(temp.toString());
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
@@ -685,7 +690,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				StringBuilder temp = strBuilder();
 				temp.append("Attempt to submit UpdateMsg while RefreshMsg was not submitted on this stream yet. Handle = ");
 				temp.append(itemInfo.handle().value());
-				handleInvalidUsage(temp.toString());
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				return;
 			}
 			
@@ -716,7 +721,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			StringBuilder temp = strBuilder();
 			temp.append("Attempt to submit StatusMsg with non existent Handle = ")
 			.append(handle).append(".");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -812,7 +817,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				StringBuilder temp = strBuilder();
 				temp.append("Attempt to fanout StatusMsg with domain type ")
 				.append(Utilities.rdmDomainAsString(statusMsgImpl.domainType())).append(".");
-				handleInvalidUsage(temp.toString());
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
@@ -1062,7 +1067,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 							.append(". Error text: ")
 							.append(_rsslErrorInfo.error().text());
 						
-						handleInvalidUsage(_strBuilder.toString());
+						handleInvalidUsage(_strBuilder.toString(), ret);
 						return false;
 				    }
 				}
@@ -1138,7 +1143,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 			
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), ret);
 			return false;
 	    }
 		
@@ -1178,7 +1183,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
 			append(" with service name of ").append(serviceName).append(" that was not included in the SourceDirectory. Dropping this ").
 			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			return false;
 		}
 		else if ( serviceId.value() > 65535)
@@ -1187,7 +1192,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
 			append(" with service name of ").append(serviceName).append(" whose matching service id of ").append(serviceId.value()).
 			append(" is out of range. Dropping this ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			return false;
 		}
 		
@@ -1207,7 +1212,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
 			append(" with service Id of ").append(serviceId).append(" that was not included in the SourceDirectory. Dropping this ").
 			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			return false;
 		}
 		else if ( serviceId > 65535)
@@ -1216,7 +1221,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
 			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
 			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			return false;
 		}
 		
@@ -1489,7 +1494,9 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				ChannelInformation tmp =
 						new ChannelInformationImpl(componentInfo.toString(), upaChannelInfo.clientHostname(), upaChannelInfo.clientIP(),
 								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
-								channel.minorVersion(), channel.pingTimeout());
+								channel.minorVersion(), channel.pingTimeout(), upaChannelInfo.maxFragmentSize(), upaChannelInfo.maxOutputBuffers(),
+								upaChannelInfo.guaranteedOutputBuffers(), upaChannelInfo.numInputBuffers(), upaChannelInfo.sysSendBufSize(),
+								upaChannelInfo.sysRecvBufSize(), upaChannelInfo.compressionType(), upaChannelInfo.compressionThreshold());
 				ci.add(tmp);
 			}
 		}
@@ -1503,7 +1510,83 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	public void channelInformation(ChannelInformation ci) {
 		StringBuilder temp = strBuilder();
 		temp.append("IProvider applications do not support the channelInformation method");
-		handleInvalidUsage(temp.toString());
+		handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 	}
 
+	@Override
+	public void modifyIOCtl(int code, int value)
+	{	
+		StringBuilder temp = strBuilder();
+		temp.append("IProvider applications do not support the modifyIOCtl(int code, int value) method.");
+		handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);	
+	}
+
+	@Override
+	public void modifyIOCtl(int code, int value, long handle)
+	{
+		userLock().lock();
+		
+		Error error = TransportFactory.createError();
+		int ret;
+		
+		if(code == IOCtlCode.SERVER_NUM_POOL_BUFFERS)
+		{
+			ret = _server.ioctl(code, value, error);
+			
+			if(ret != value)
+			{
+				ret = TransportReturnCodes.FAILURE;
+			}
+			else
+			{
+				ret = TransportReturnCodes.SUCCESS;
+			}
+		}
+		else
+		{
+			ItemInfo itemInfo = getItemInfo(handle);
+			ReactorChannel reactorChannel;
+			
+			if( itemInfo == null || (reactorChannel = itemInfo.clientSession().channel()) == null )
+			{
+				userLock().unlock();
+				StringBuilder temp = strBuilder();
+				temp.append("Attempt to modify I/O option with non existent Handle = ")
+				.append(handle).append(".");
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				return;
+			}
+			
+			Channel channel = reactorChannel.channel();
+			
+			ret = channel.ioctl(code, value, error);
+			
+			if(code == IOCtlCode.MAX_NUM_BUFFERS || code == IOCtlCode.NUM_GUARANTEED_BUFFERS)
+			{
+				if(ret != value)
+				{
+					ret = TransportReturnCodes.FAILURE;
+				}
+				else
+				{
+					ret = TransportReturnCodes.SUCCESS;
+				}
+			}
+		}
+		
+		if(ret != TransportReturnCodes.SUCCESS)
+		{
+			userLock().unlock();
+			strBuilder().append("Failed to modify I/O option = ")
+			.append(code).append(". Reason: ")
+			.append(ReactorReturnCodes.toString(ret))
+			.append(". Error text: ")
+			.append(error.text());
+			
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+			return;
+		}
+		
+		userLock().unlock();
+	}
 }

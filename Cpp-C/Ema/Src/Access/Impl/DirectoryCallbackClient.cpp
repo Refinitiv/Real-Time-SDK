@@ -18,6 +18,7 @@
 #include "GenericMsgEncoder.h"
 #include "StaticDecoder.h"
 #include "Utilities.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -1376,7 +1377,7 @@ bool DirectoryItem::submit( const PostMsg& )
 	EmaString temp( "Invalid attempt to submit PostMsg on directory stream. " );
 	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1445,7 +1446,7 @@ bool DirectoryItem::submit( RsslGenericMsg* pRsslGenericMsg )
 		.append( ". Error text: " )
 		.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -1526,7 +1527,7 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		.append( ". Error text: " )
 		.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -1575,7 +1576,7 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 		.append( ". Error text: " )
 		.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}

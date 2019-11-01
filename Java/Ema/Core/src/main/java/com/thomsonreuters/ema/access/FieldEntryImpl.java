@@ -287,12 +287,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -319,12 +320,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
 										.append( value ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -532,11 +534,12 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.ENUM; 
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
 					.append( value ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 		
 		return this;
@@ -548,7 +551,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -571,7 +574,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -594,7 +597,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -617,7 +620,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -640,7 +643,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
 
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -783,10 +786,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 			StringBuilder error = errorString();
 			error.append( "Attempt to enumDisplay() while actual entry data type is ")
 				 .append( DataType.asString( _load.dataType() ) );
-			throw ommIUExcept().message( error.toString() );
+			throw ommIUExcept().message( error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if ( DataCode.BLANK == _load.code() )
-			throw ommIUExcept().message( "Attempt to enumDisplay() while entry data is blank." );
+			throw ommIUExcept().message( "Attempt to enumDisplay() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		if ( _rsslDictionaryEntry != null )
 		{
@@ -804,7 +807,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 				StringBuilder error = errorString();
 				error.append( "The enum value " ).append( _rsslEnumValue.toInt() ).append( " for the field Id " )
 				.append( _rsslFieldEntry.fieldId() ).append( " does not exist in the enumerated type dictionary" );
-				throw ommIUExcept().message( error.toString() );
+				throw ommIUExcept().message( error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 		}
 		else
@@ -812,7 +815,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 			StringBuilder error = errorString();
 			error.append( "The field Id  " )
 				 .append( _rsslFieldEntry.fieldId() ).append( " does not exist in the field dictionary" );
-			throw ommIUExcept().message( error.toString() );
+			throw ommIUExcept().message( error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	}
 
@@ -821,7 +824,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		if (fieldId < -32768 || fieldId > 32767)
 			throw ommOORExcept().message("fieldId is out of range [(-32768) - 32767].");
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		_rsslFieldEntry.fieldId(fieldId);
 		_rsslFieldEntry.dataType(rsslDataType);

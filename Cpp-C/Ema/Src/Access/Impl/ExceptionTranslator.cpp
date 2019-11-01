@@ -19,14 +19,14 @@
 
 using namespace thomsonreuters::ema::access;
 
-void throwIueException( const EmaString& text )
+void throwIueException( const EmaString& text, Int32 errorCode )
 {
-	OmmInvalidUsageExceptionImpl::throwException( text );
+	OmmInvalidUsageExceptionImpl::throwException( text, errorCode );
 }
 
-void throwIueException( const char* text )
+void throwIueException( const char* text, Int32 errorCode )
 {
-	OmmInvalidUsageExceptionImpl::throwException( text );
+	OmmInvalidUsageExceptionImpl::throwException( text, errorCode );
 }
 
 void throwIceException( const EmaString& text )

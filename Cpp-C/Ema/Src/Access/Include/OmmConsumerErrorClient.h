@@ -71,6 +71,15 @@ public:
 	*/ 
 	virtual void onInvalidUsage( const EmaString& text);
 
+	/** Invoked in the case of invalid usage. Requires OmmConsumer constructor to have an OmmConsumerErrorClient.
+		\remark This method provides an additional error code for applications to check and handle the error appropriately.
+		\remark The applications should override only one of the onInvalidUsage() method to avoid receiving two callback calls for an invalid usage error.
+		@param[out] text specifies associated error text
+		@param[out] errorCode specifies associated error code
+		@return void
+	*/
+	virtual void onInvalidUsage( const EmaString& text, Int32 errorCode );
+
 	/** Invoked in the case of an underlying system error. Requires OmmConsumer constructor to have an OmmConsumerErrorClient.
 		@param[out] code specifies system exception code
 		@param[out] specifies system exception pointer

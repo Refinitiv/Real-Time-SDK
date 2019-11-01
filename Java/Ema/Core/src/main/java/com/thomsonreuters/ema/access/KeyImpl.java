@@ -54,7 +54,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to intValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((OmmInt)_data).intValue();
@@ -68,7 +68,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ommIntValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmInt)_data;
@@ -82,7 +82,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to uintValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((OmmUInt)_data).longValue();
@@ -96,7 +96,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ommUIntValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmUInt)_data;
@@ -110,7 +110,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to real() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmReal)_data;
@@ -124,7 +124,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to floatValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((OmmFloat)_data).floatValue();
@@ -138,7 +138,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ommFloatValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmFloat)_data;
@@ -152,7 +152,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to doubleValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((OmmDouble)_data).doubleValue();
@@ -166,7 +166,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ommDoubleValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmDouble)_data;
@@ -180,7 +180,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to date() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmDate)_data;
@@ -194,7 +194,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to time() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmTime)_data;
@@ -208,7 +208,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to dateTime() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmDateTime)_data;
@@ -222,7 +222,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to qos() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmQos)_data;
@@ -236,7 +236,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to state() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmState)_data;
@@ -250,7 +250,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to enumValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((OmmEnum)_data).enumValue();
@@ -264,7 +264,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ommEnumValue() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmEnum)_data;
@@ -278,7 +278,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to buffer() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmBuffer)_data;
@@ -292,7 +292,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to ascii() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmAscii)_data;
@@ -306,7 +306,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to utf8() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmUtf8)_data;
@@ -320,7 +320,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to rmtes() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmRmtes)_data;
@@ -334,7 +334,7 @@ class KeyImpl implements Key
 			StringBuilder error = errorString();
 			error.append("Attempt to error() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmError)_data;

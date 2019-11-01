@@ -38,6 +38,16 @@ public interface OmmProviderErrorClient
 	 * 
 	 * @param text specifies associated error text
 	 */ 
-	public void onInvalidUsage(String text);
+	public default void onInvalidUsage(String text) {}
 
+	/**
+	 * Invoked in the case of invalid usage.
+	 * <br>Requires OmmProvider constructor to have an OmmProviderErrorClient.
+	 * <p>This method provides an additional error code for applications to check and handle the error appropriately.
+	 * <br>The applications should override only one of the onInvalidUsage() method to avoid receiving two callback calls for an invalid usage error.</p>
+	 * 
+	 * @param text specifies associated error text
+	 * @param errorCode specifies associated error code
+	 */ 
+	public default void onInvalidUsage(String text, int errorCode) {}
 }

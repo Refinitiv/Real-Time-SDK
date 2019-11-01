@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "OmmInvalidUsageException.h"
 
 #include "Utilities.h"
 
@@ -51,7 +52,7 @@ EmaString::EmaString ( const char* str, UInt32 length ) :
 			if ( tempLength >= EmaString::npos )
 			{
 				const char* temp = "The length of the passed in string is larger than MAX_UINT32. EmaString( const char* , UInt32 ).";
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 
@@ -204,7 +205,7 @@ EmaString& EmaString::set ( const char* str, UInt32 length )
 			if ( tempLength >= EmaString::npos )
 			{
 				const char* temp = "The length of the passed in string is larger than MAX_UINT32. EmaString::set( const char* , UInt32 ).";
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return *this;
 			}
 
@@ -289,7 +290,7 @@ EmaString& EmaString::append ( Int64 i )
 	if (((UInt64)_length + 22) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( Int64 ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 
@@ -329,7 +330,7 @@ EmaString& EmaString::append ( UInt64 i )
 	if (((UInt64)_length + 22) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( UInt64 ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 
@@ -365,7 +366,7 @@ EmaString& EmaString::append ( Int32 i )
 	if (((UInt64)_length + 13) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( Int32 ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 
@@ -405,7 +406,7 @@ EmaString& EmaString::append ( UInt32 i )
 	if (((UInt64)_length + 13) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( UInt32 ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 	
@@ -445,7 +446,7 @@ EmaString& EmaString::append ( float f )
 	if (((UInt64)_length + 33) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( float ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return *this;
 	}
 	
@@ -485,7 +486,7 @@ EmaString& EmaString::append ( double d )
 	if (((UInt64)_length + 33) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( double ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 	
@@ -529,7 +530,7 @@ EmaString& EmaString::append ( const char* str )
 	if (((size_t)_length + strLength + 1) >= (size_t)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( const char* ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 
@@ -579,7 +580,7 @@ EmaString& EmaString::append ( const EmaString& other )
 	if (((UInt64)_length + (UInt64)other._length + 1) >= (UInt64)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( EmaString ).";
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return *this;
 	}
 

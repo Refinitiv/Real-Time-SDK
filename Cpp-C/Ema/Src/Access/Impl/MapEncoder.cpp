@@ -11,6 +11,7 @@
 #include "OmmStateDecoder.h"
 #include "OmmQosDecoder.h"
 #include "OmmRealDecoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -58,7 +59,7 @@ void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDa
 		temp += DataType( emaLoadType ).toString();
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaLoadType );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -69,7 +70,7 @@ void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDa
 		temp += EmaString(" while Map entry key is set to ");
 		temp += DataType(_emaKeyType).toString();
 		temp += EmaString(" with the keyType() method");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -90,7 +91,7 @@ void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDa
 	{
 		EmaString temp( "Failed to initialize Map encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -117,7 +118,7 @@ void MapEncoder::addEntryWithNoPayload( void* keyValue, MapEntry::MapAction acti
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding MapEntry with Delete action. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -145,7 +146,7 @@ void MapEncoder::addEncodedEntry( void* keyValue, MapEntry::MapAction action,
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding Map. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -173,7 +174,7 @@ void MapEncoder::addDecodedEntry( void* keyValue, MapEntry::MapAction action,
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding Map in addDecodedEntry(). Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -200,7 +201,7 @@ void MapEncoder::startEncodingEntry( void* keyValue, MapEntry::MapAction action,
 		EmaString temp( "Failed to start encoding entry in Map::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -218,7 +219,7 @@ void MapEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in Map. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -228,7 +229,7 @@ void MapEncoder::validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 
 	if (_containerComplete)
 	{
 		EmaString temp("Attempt to add an entry after complete() was called.");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -247,7 +248,7 @@ void MapEncoder::validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 
 		temp += methodName;
 		temp += " while established key data type is ";
 		temp += DataType(_emaKeyType).toString();
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 	else if (_rsslMap.containerType != rsslLoadDataType)
@@ -256,7 +257,7 @@ void MapEncoder::validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 
 		temp += DataType(emaLoadType).toString();
 		temp += EmaString(" while the expected DataType is ");
 		temp += DataType(_emaLoadType);
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 }
@@ -271,7 +272,7 @@ void MapEncoder::keyFieldId( Int16 fieldId )
 	else
 	{
 		EmaString temp( "Invalid attempt to call keyFieldId() when container is not empty." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -285,7 +286,7 @@ void MapEncoder::totalCountHint( UInt32 totalCountHint )
 	else
 	{
 		EmaString temp( "Invalid attempt to call totalCountHint() when container is not empty." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -305,7 +306,7 @@ void MapEncoder::summaryData( const ComplexType& data )
 			else
 			{
 				EmaString temp( "Attempt to set summaryData() with a ComplexType while complete() was not called on this ComplexType." );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 		}
@@ -317,7 +318,7 @@ void MapEncoder::summaryData( const ComplexType& data )
 		else
 		{
 			EmaString temp( "Attempt to pass an empty ComplexType to summaryData() while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -327,7 +328,7 @@ void MapEncoder::summaryData( const ComplexType& data )
 	else
 	{
 		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -336,7 +337,7 @@ void MapEncoder::keyType( DataType::DataTypeEnum keyPrimitiveType )
 	if (_containerComplete)
 	{
 		EmaString temp("Attempt to call keyType() after complete() was called.");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -344,7 +345,7 @@ void MapEncoder::keyType( DataType::DataTypeEnum keyPrimitiveType )
 	{
 		EmaString temp("The specified key type '");
 		temp.append(DataType(keyPrimitiveType)).append("' is not a primitive type");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -372,7 +373,7 @@ void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -385,7 +386,7 @@ void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -422,7 +423,7 @@ void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -435,7 +436,7 @@ void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -476,7 +477,7 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -489,7 +490,7 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -525,7 +526,7 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 	{
 		EmaString temp( "Attempt to addKeyRealFromDouble() with invalid magnitudeType='" );
 		temp.append( getMTypeAsString( magnitudeType) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -540,7 +541,7 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -553,7 +554,7 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -572,7 +573,7 @@ void MapEncoder::addKeyRealFromDouble(double key, MapEntry::MapAction action,
 	{
 		EmaString temp("Attempt to addKeyRealFromDouble() with invalid magnitudeType='");
 		temp.append(getMTypeAsString(magnitudeType)).append("'. ");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -599,7 +600,7 @@ void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -612,7 +613,7 @@ void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -648,7 +649,7 @@ void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -661,7 +662,7 @@ void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -712,7 +713,7 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -725,7 +726,7 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -798,7 +799,7 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -811,7 +812,7 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -896,7 +897,7 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -909,7 +910,7 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -976,7 +977,7 @@ void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction 
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -989,7 +990,7 @@ void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction 
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1036,7 +1037,7 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1049,7 +1050,7 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1093,7 +1094,7 @@ void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1106,7 +1107,7 @@ void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1146,7 +1147,7 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1159,7 +1160,7 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1204,7 +1205,7 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1217,7 +1218,7 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1262,7 +1263,7 @@ void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1275,7 +1276,7 @@ void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1320,7 +1321,7 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1333,7 +1334,7 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -1371,7 +1372,7 @@ void MapEncoder::complete()
 	{
 		EmaString temp( "Failed to complete Map encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 

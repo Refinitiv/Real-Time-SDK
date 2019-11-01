@@ -29,6 +29,7 @@
 #include "RefreshMsg.h"
 #include "UpdateMsg.h"
 #include "StatusMsg.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -65,7 +66,7 @@ void ElementListEncoder::info( Int16 elementListNum )
 	else
 	{
 		EmaString temp("Invalid attempt to call info() when container is initialized.");
-		throwIueException(temp);
+		throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
 	}
 }
 
@@ -86,7 +87,7 @@ void ElementListEncoder::initEncode()
 	{
 		EmaString temp( "Failed to initialize ElementList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -98,7 +99,7 @@ void ElementListEncoder::addPrimitiveEntry( const EmaString& name, RsslDataType 
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -123,7 +124,7 @@ void ElementListEncoder::addPrimitiveEntry( const EmaString& name, RsslDataType 
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding ElementList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -132,7 +133,7 @@ void ElementListEncoder::addEncodedEntry( const EmaString& name, RsslDataType rs
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -156,7 +157,7 @@ void ElementListEncoder::addEncodedEntry( const EmaString& name, RsslDataType rs
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding ElementList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -165,7 +166,7 @@ void ElementListEncoder::startEncodingEntry( const EmaString& name, RsslDataType
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -190,7 +191,7 @@ void ElementListEncoder::startEncodingEntry( const EmaString& name, RsslDataType
 		EmaString temp( "Failed to start encoding entry in ElementList::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -208,7 +209,7 @@ void ElementListEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in ElementList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -276,7 +277,7 @@ void ElementListEncoder::addRealFromDouble( const EmaString& name, double value,
 	{
 		EmaString temp( "Attempt to addRealFromDouble() with invalid magnitudeType='" );
 		temp.append( getMTypeAsString( magnitudeType ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -569,7 +570,7 @@ void ElementListEncoder::addArray( const EmaString& name, const OmmArray& array 
 		else
 		{
 			EmaString temp( "Attempt to addArray() while OmmArray::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -604,7 +605,7 @@ void ElementListEncoder::addElementList( const EmaString& name, const ElementLis
 		else
 		{
 			EmaString temp( "Attempt to addElementList() while ElementList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -639,7 +640,7 @@ void ElementListEncoder::addFieldList( const EmaString& name, const FieldList& f
 		else
 		{
 			EmaString temp( "Attempt to addFieldList() while FieldList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -676,7 +677,7 @@ void ElementListEncoder::addReqMsg( const EmaString& name, const ReqMsg& reqMsg 
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addReqMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -702,7 +703,7 @@ void ElementListEncoder::addRefreshMsg( const EmaString& name, const RefreshMsg&
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addRefreshMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -728,7 +729,7 @@ void ElementListEncoder::addStatusMsg( const EmaString& name, const StatusMsg& s
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addStatusMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -754,7 +755,7 @@ void ElementListEncoder::addUpdateMsg( const EmaString& name, const UpdateMsg& u
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addUpdateMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -780,7 +781,7 @@ void ElementListEncoder::addPostMsg( const EmaString& name, const PostMsg& postM
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addPostMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -806,7 +807,7 @@ void ElementListEncoder::addAckMsg( const EmaString& name, const AckMsg& ackMsg 
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addAckMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -832,7 +833,7 @@ void ElementListEncoder::addGenericMsg( const EmaString& name, const GenericMsg&
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addGenericMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -856,7 +857,7 @@ void ElementListEncoder::addMap( const EmaString& name, const Map& map )
 		else
 		{
 			EmaString temp( "Attempt to addMap() while Map::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -891,7 +892,7 @@ void ElementListEncoder::addVector( const EmaString& name, const Vector& vector 
 		else
 		{
 			EmaString temp( "Attempt to addVector() while Vector::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -926,7 +927,7 @@ void ElementListEncoder::addSeries( const EmaString& name, const Series& series 
 		else
 		{
 			EmaString temp( "Attempt to addSeries() while Series::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -961,7 +962,7 @@ void ElementListEncoder::addFilterList( const EmaString& name, const FilterList&
 		else
 		{
 			EmaString temp( "Attempt to addFilterList() while FilterList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -1000,7 +1001,7 @@ void ElementListEncoder::addOpaque( const EmaString& name, const OmmOpaque& ommO
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmOpaque to addOpaque() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -1028,7 +1029,7 @@ void ElementListEncoder::addXml( const EmaString& name, const OmmXml& ommXml )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmXml to addXml() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -1056,7 +1057,7 @@ void ElementListEncoder::addAnsiPage( const EmaString& name, const OmmAnsiPage& 
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmAnsiPage to addAnsiPage() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -1304,7 +1305,7 @@ void ElementListEncoder::complete()
 	{
 		EmaString temp( "Failed to complete ElementList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 

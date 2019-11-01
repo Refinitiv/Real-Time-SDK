@@ -90,7 +90,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to reqMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (ReqMsg)_load;
@@ -103,7 +103,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to refreshMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (RefreshMsg)_load;
@@ -116,7 +116,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to UpdateMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (UpdateMsg)_load;
@@ -129,7 +129,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to statusMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (StatusMsg)_load;
@@ -142,7 +142,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to postMsg() while actual entry data type is ")
 			 	 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (PostMsg)_load;
@@ -155,7 +155,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ackMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	
 		return (AckMsg)_load;
@@ -168,7 +168,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to genericMsg() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	
 		return (GenericMsg)_load;
@@ -181,7 +181,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to fieldList() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (FieldList)_load;
@@ -194,7 +194,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to elementList() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (ElementList)_load;
@@ -207,7 +207,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to array() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmArray)_load;
@@ -220,7 +220,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to map() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Map)_load;
@@ -233,7 +233,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to vector() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Vector)_load;
@@ -246,7 +246,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to series() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Series)_load;
@@ -259,7 +259,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to filterList() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (FilterList)_load;
@@ -272,7 +272,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to opaque() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmOpaque)_load;
@@ -285,7 +285,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to xml() while actual entry data type is ")
 			 	 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmXml)_load;
@@ -298,7 +298,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ansiPage() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmAnsiPage)_load;
@@ -311,10 +311,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to intValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to intValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to intValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((OmmInt)_load).intValue();
 	}
@@ -326,10 +326,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ommIntValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ommIntValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ommIntValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmInt)_load;
 	}
@@ -341,10 +341,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to uintValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to uintValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to uintValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((OmmUInt)_load).longValue();
 	}
@@ -356,10 +356,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ommUIntValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ommUIntValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ommUIntValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmUInt)_load;
 	}
@@ -371,10 +371,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to real() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to real() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to real() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmReal)_load;
 	}
@@ -386,10 +386,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to floatValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to floatValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to floatValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((OmmFloat)_load).floatValue();
 	}
@@ -401,10 +401,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ommFloatValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ommFloatValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ommFloatValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmFloat)_load;
 	}
@@ -416,10 +416,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to doubleValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to doubleValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to doubleValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((OmmDouble)_load).doubleValue();
 	}
@@ -431,10 +431,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ommDoubleValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ommDoubleValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ommDoubleValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmDouble)_load;
 	}
@@ -446,10 +446,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to date() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to date() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to date() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmDate)_load;
 	}
@@ -461,10 +461,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to time() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to time() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to time() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmTime)_load;
 	}
@@ -476,10 +476,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to dateTime() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to dateTime() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to dateTime() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmDateTime)_load;
 	}
@@ -491,10 +491,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to qos() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to qos() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to qos() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmQos)_load;
 	}
@@ -506,10 +506,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to state() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to state() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to state() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmState)_load;
 	}
@@ -521,10 +521,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to enumValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to enumValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to enumValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((OmmEnum)_load).enumValue();
 	}
@@ -536,10 +536,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ommEnumValue() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ommEnumValue() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ommEnumValue() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmEnum)_load;
 	}
@@ -551,10 +551,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to buffer() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to buffer() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to buffer() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmBuffer)_load;
 	}
@@ -566,10 +566,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to ascii() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to ascii() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to ascii() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmAscii)_load;
 	}
@@ -581,10 +581,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to utf8() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to utf8() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to utf8() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmUtf8)_load;
 	}
@@ -596,10 +596,10 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to rmtes() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		else if (DataCode.BLANK == _load.code())
-			throw ommIUExcept().message("Attempt to rmtes() while entry data is blank.");
+			throw ommIUExcept().message("Attempt to rmtes() while entry data is blank.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return (OmmRmtes)_load;
 	}
@@ -611,7 +611,7 @@ abstract class EntryImpl extends VaNode
 			StringBuilder error = errorString();
 			error.append("Attempt to error() while actual entry data type is ")
 				 .append(DataType.asString(_load.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (OmmError)_load;
@@ -687,7 +687,7 @@ abstract class EntryImpl extends VaNode
 																			.append( millisecond ).append( "." )
 																			.append( microsecond ).append( "." )
 																			.append( nanosecond ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		return cacheEntryData;
@@ -721,7 +721,7 @@ abstract class EntryImpl extends VaNode
 										.append( month ).append( " / " )
 										.append( day ).append( " / " )
 										.append( year ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		return cacheEntryData;
@@ -760,7 +760,7 @@ abstract class EntryImpl extends VaNode
 																			.append( millisecond ).append( "." )
 																			.append( microsecond ).append( "." )
 																			.append( nanosecond ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		return cacheEntryData;
@@ -794,7 +794,7 @@ abstract class EntryImpl extends VaNode
                 .append( dataState ).append( " / " )
                 .append( statusCode ).append( "/ " )
                 .append( statusText ).append( "." ).toString();
-            throw ommIUExcept().message(errText);
+            throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
         }
 
         return cacheEntryData;

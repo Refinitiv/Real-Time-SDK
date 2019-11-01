@@ -64,7 +64,7 @@ public :
 	
 	void onMemoryExhaustion( const thomsonreuters::ema::access::EmaString& );
 	
-	void onInvalidUsage( const thomsonreuters::ema::access::EmaString& );
+	void onInvalidUsage( const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32 );
 };
 
 #endif // __ema_consumer_h_

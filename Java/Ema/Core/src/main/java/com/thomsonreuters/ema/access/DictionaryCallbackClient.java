@@ -85,7 +85,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(),
 												Severity.ERROR).toString());
 
-			throw (_ommBaseImpl.ommIUExcept().message(temp.toString()));
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
 		}
 		else if (_ommBaseImpl.activeConfig().rsslFldDictRequest == null && _ommBaseImpl.activeConfig().rsslEnumDictRequest != null)
 		{
@@ -99,7 +99,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(),
 												Severity.ERROR).toString());
 
-			throw (_ommBaseImpl.ommIUExcept().message(temp.toString()));
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
 		}
 		
 		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
@@ -217,10 +217,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 																			Severity.ERROR).toString());
 			}
 			
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-		
-			return;
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString(), _rsslError.errorId()));
 		}
 		
 		if (_rsslLocalDictionary.loadEnumTypeDictionary(_ommBaseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName, _rsslError) < 0)
@@ -239,9 +236,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 																			Severity.ERROR).toString());
 			}
 			
-			_baseImpl.handleInvalidUsage(temp.toString());
-			
-			return;
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString(), _rsslError.errorId()));
 		}
 
 		if (_baseImpl.loggerClient().isTraceEnabled())
@@ -1314,7 +1309,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 		        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
 
-		        	_baseImpl.handleInvalidUsage( temp.toString() );
+		        	_baseImpl.handleInvalidUsage( temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 
 					return false;
 				}
@@ -1357,7 +1352,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(DictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -1373,7 +1368,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(DictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -1389,7 +1384,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(DictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -1815,7 +1810,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -1834,7 +1829,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -1862,7 +1857,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -1937,7 +1932,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 			return false;
 	    }
 		

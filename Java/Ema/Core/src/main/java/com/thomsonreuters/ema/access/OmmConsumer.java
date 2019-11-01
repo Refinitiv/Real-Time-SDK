@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
+
 /**
  * OmmConsumer class encapsulates functionality of an Omm consuming type application.
  * 
@@ -281,5 +282,15 @@ public interface OmmConsumer
 	 * @param ci the ChannelInformation
 	 */
 	public void channelInformation(ChannelInformation ci);
+	
+	/**
+	 * Allows modifying some I/O values programmatically for a channel to override the default values.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 * 
+	 * @param code provides Code of I/O option defined in {@link IOCtlCode} to modify.
+	 * @param value provides Value to modify I/O option to
+	 * @throws OmmInvalidUsageException if failed to modify I/O option to
+	 */
+	public void modifyIOCtl(int code, int value);
 }
 

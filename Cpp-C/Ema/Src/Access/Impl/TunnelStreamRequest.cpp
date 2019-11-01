@@ -10,6 +10,7 @@
 #include "ReqMsg.h"
 #include "ExceptionTranslator.h"
 #include "TunnelStreamLoginReqMsgImpl.h"
+#include "OmmInvalidUsageException.h"
 
 #include <limits.h>
 #include <new>
@@ -570,7 +571,7 @@ TunnelStreamRequest& TunnelStreamRequest::serviceId( UInt32 serviceId )
 	if ( _serviceNameSet )
 	{
 		EmaString temp( "Attempt to set serviceId while serviceName is already set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_serviceIdSet = true;
@@ -584,7 +585,7 @@ TunnelStreamRequest& TunnelStreamRequest::serviceName( const EmaString& serviceN
 	if ( _serviceIdSet )
 	{
 		EmaString temp( "Attempt to set serviceName while serviceId is already set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_serviceNameSet = true;
@@ -669,7 +670,7 @@ UInt32 TunnelStreamRequest::getServiceId() const
 	if ( !_serviceIdSet )
 	{
 		EmaString temp( "Attempt to get serviceId while it is not set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceId;
@@ -680,7 +681,7 @@ const EmaString& TunnelStreamRequest::getServiceName() const
 	if ( !_serviceNameSet )
 	{
 		EmaString temp( "Attempt to get serviceName while it is not set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceName;
@@ -691,7 +692,7 @@ const EmaString& TunnelStreamRequest::getName() const
 	if ( !_nameSet )
 	{
 		EmaString temp( "Attempt to get Name while it is not set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _name;
@@ -712,7 +713,7 @@ const ReqMsg& TunnelStreamRequest::getLoginReqMsg() const
 	if ( !_pImpl )
 	{
 		EmaString temp( "Attempt to get loginReqMsg while it is not set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pImpl->getLoginReqMsg();

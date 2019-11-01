@@ -9,6 +9,7 @@
 #include "MapDecoder.h"
 #include "GlobalPool.h"
 #include "StaticDecoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -362,7 +363,7 @@ Int16 MapDecoder::getKeyFieldId() const
 	if ( !hasKeyFieldId() )
 	{
 		EmaString temp( "Attempt to getKeyFieldId() while it is not set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslMap.keyFieldId;
@@ -378,7 +379,7 @@ UInt32 MapDecoder::getTotalCountHint() const
 	if ( !hasTotalCountHint() )
 	{
 		EmaString temp( "Attempt to getTotalCountHint() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslMap.totalCountHint;

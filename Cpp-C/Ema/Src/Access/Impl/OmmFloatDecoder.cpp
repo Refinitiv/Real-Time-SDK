@@ -84,7 +84,7 @@ const EmaString& OmmFloatDecoder::toString()
 	{
 		EmaString text( "Failed to convert OmmFloat to string. Reason: " );
 		text += rsslRetCodeToString( retCode );
-		throwIueException( text );
+		throwIueException( text, retCode );
 	}
 	else
 	{

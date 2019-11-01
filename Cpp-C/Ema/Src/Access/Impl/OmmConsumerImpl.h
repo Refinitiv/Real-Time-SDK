@@ -75,6 +75,8 @@ public:
 	ImplementationType getImplType();
     void getChannelInformation(ChannelInformation&);
 
+	void modifyIOCtl(Int32 code, Int32 value);
+
 private :
 
 	void readCustomConfig( EmaConfigImpl* );

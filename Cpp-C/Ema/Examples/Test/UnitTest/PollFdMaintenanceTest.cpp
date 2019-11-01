@@ -89,8 +89,8 @@ private:
 
   // all needed because of pure virtual functions
   ImplementationType getImplType() { return ConsumerEnum; }
-  void handleIue(const EmaString&) {}
-  void handleIue(const char*) {}
+  void handleIue(const EmaString&, Int32) {}
+  void handleIue(const char*, Int32) {}
   void handleIhe(UInt64, const EmaString&) {}
   void handleIhe(UInt64, const char*) {}
   void handleMee(const char*) {}

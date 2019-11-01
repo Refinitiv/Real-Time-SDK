@@ -56,7 +56,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			.append(_reactorErrorInfo.location()).append("' Error Text='")
 			.append(_reactorErrorInfo.error().text()).append("'. ");
 			
-			throw ommIUExcept().message(_strBuilder.toString());
+			throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 		}
 	}
 	
@@ -89,7 +89,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			.append(_reactorErrorInfo.location()).append("' Error Text='")
 			.append(_reactorErrorInfo.error().text()).append("'. ");
 			
-			throw ommIUExcept().message(_strBuilder.toString());
+			throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 		}
 	}
 	
@@ -169,7 +169,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 				strBuilder().append("Invalid transport protocol ").append(serviceEndpointDiscoveryOptionImpl._transport)
 					.append(" specified in ServiceEndpointDiscoveryOption.transport()");
 				
-				throw ommIUExcept().message(_strBuilder.toString());
+				throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
 			switch(serviceEndpointDiscoveryOptionImpl._dataFormat)
@@ -186,7 +186,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 				strBuilder().append("Invalid dataformat protocol ").append(serviceEndpointDiscoveryOptionImpl._dataFormat)
 					.append(" specified in ServiceEndpointDiscoveryOption.dataFormat()");
 				
-				throw ommIUExcept().message(_strBuilder.toString());
+				throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
 			if (_reactor.queryServiceDiscovery(_reactorServiceDiscoveryOptions, _reactorErrorInfo) != ReactorReturnCodes.SUCCESS)
@@ -197,7 +197,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 				.append(_reactorErrorInfo.location()).append("' Error Text='")
 				.append(_reactorErrorInfo.error().text()).append("'. ");
 				
-				throw ommIUExcept().message(_strBuilder.toString());
+				throw ommIUExcept().message(_strBuilder.toString(), _reactorErrorInfo.code());
 			}
 		}
 		finally

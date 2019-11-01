@@ -200,7 +200,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		if(username == null || username.length() == 0)
 		{
 			configStrBuilder().append("EmaConfigImpl:UserName input String cannot be blank.");
-			throw ( ommIUExcept().message( _configStrBuilder.toString()));
+			throw ( ommIUExcept().message( _configStrBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
 		}
 			
 		_rsslLoginReq.userName().data(username);

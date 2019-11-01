@@ -14,6 +14,7 @@
 #include "StaticDecoder.h"
 #include "Rdm/Include/EmaRdm.h"
 #include "Utilities.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -386,7 +387,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 {
 	if (!_loadedFieldDictionary)
 	{
-		throwIueException("The field dictionary information was not loaded");
+		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	RsslDictionaryEntry* rsslDictionaryEntry = getDictionaryEntry(_pRsslDataDictionary, fieldId);
@@ -400,7 +401,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 
 	EmaString errorText("The Field ID ");
 	errorText.append(fieldId).append(" does not exist in the field dictionary");
-	throwIueException(errorText);
+	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 	
 	return _dictionaryEntry;
 }
@@ -421,7 +422,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::a
 {
 	if ( !_loadedFieldDictionary )
 	{
-		throwIueException("The field dictionary information was not loaded");
+		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	FieldNameToIdHash*	 pNameToIdMap = fieldNameToIdMap();
@@ -438,7 +439,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::a
 
 	EmaString errorText("The Field name ");
 	errorText.append(fieldName).append(" does not exist in the field dictionary");
-	throwIueException(errorText);
+	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 
 	return _dictionaryEntry;
 }
@@ -465,7 +466,7 @@ const EnumType& DataDictionaryImpl::getEnumType(Int32 fieldId, Int32 value) cons
 {
 	if ( !_loadedEnumTypeDef )
 	{
-		throwIueException("The enumerated types dictionary was not loaded");
+		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	RsslDictionaryEntry* rsslDictionaryEntry = getDictionaryEntry(_pRsslDataDictionary, fieldId);
@@ -484,7 +485,7 @@ const EnumType& DataDictionaryImpl::getEnumType(Int32 fieldId, Int32 value) cons
 	EmaString errorText("The enum value ");
 	errorText.append(value).append(" for the Field ID ");
 	errorText.append(fieldId).append(" does not exist in enumerated type definitions");
-	throwIueException(errorText);
+	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 	
 	return _enumType;
 }
@@ -501,7 +502,7 @@ void DataDictionaryImpl::loadFieldDictionary(const thomsonreuters::ema::access::
 				.append("Current working directory ").append(workingDir).append(CR)
 				.append("Reason='").append(_errorText.data).append("'");
 
-			throwIueException(errorText);
+			throwIueException( errorText, OmmInvalidUsageException::FailureEnum );
 		}
 		else
 		{
@@ -526,7 +527,7 @@ void DataDictionaryImpl::loadEnumTypeDictionary(const thomsonreuters::ema::acces
 				.append("Current working directory ").append(workingDir).append(CR)
 				.append("Reason='").append(_errorText.data).append("'");
 
-			throwIueException(errorText);
+			throwIueException( errorText, OmmInvalidUsageException::FailureEnum );
 		}
 		else
 		{
@@ -544,7 +545,7 @@ void DataDictionaryImpl::encodeFieldDictionary(thomsonreuters::ema::access::Seri
 {
 	if (!_loadedFieldDictionary)
 	{
-		throwIueException("The field dictionary information was not loaded");
+		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	SeriesEncoder& seriesEncoder = static_cast<SeriesEncoder&>(const_cast<Encoder&>(series.getEncoder()));
@@ -580,7 +581,7 @@ void DataDictionaryImpl::encodeFieldDictionary(thomsonreuters::ema::access::Seri
 		thomsonreuters::ema::access::EmaString errorText("Failed to encode the field dictionary information");
 		errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
-		throwIueException(errorText);
+		throwIueException( errorText, ret );
 	}
 
 	pEncodeIterator->setEncodedLength(rsslGetEncodedBufferLength(&(pEncodeIterator->_rsslEncIter)));
@@ -592,7 +593,7 @@ bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid
 {
 	if (!_loadedFieldDictionary)
 	{
-		throwIueException("The field dictionary information was not loaded");
+		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	SeriesEncoder& seriesEncoder = static_cast<SeriesEncoder&>(const_cast<Encoder&>(series.getEncoder()));
@@ -624,7 +625,7 @@ bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid
 		RsslRet ret = rsslSetEncodeIteratorBuffer(&pEncodeIterator->_rsslEncIter, rsslBuffer);
 		if (ret != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set RsslEncodeIterator buffer in DataDictionaryImpl::encodeFieldDictionary(fragmentationSize).");
+			throwIueException( "Failed to set RsslEncodeIterator buffer in DataDictionaryImpl::encodeFieldDictionary(fragmentationSize).", ret );
 		}
 	}
 
@@ -646,10 +647,10 @@ bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid
 		return false;
 	}
 
-	thomsonreuters::ema::access::EmaString errorText("Failed to encode the field dictionary information with fragementation size ");
+	thomsonreuters::ema::access::EmaString errorText("Failed to encode the field dictionary information with fragmentation size ");
 	errorText.append(fieldDictionarySize).append(CR).append("Reason='").append(_errorText.data).append("'");
 
-	throwIueException(errorText);
+	throwIueException( errorText, ret );
 
 	return false;
 }
@@ -665,22 +666,23 @@ void DataDictionaryImpl::decodeFieldDictionary(const Series& series, UInt32 verb
 		RsslDecodeIterator rsslDecodeIterator;
 		rsslClearDecodeIterator(&rsslDecodeIterator);
 
-		if (rsslSetDecodeIteratorRWFVersion(&rsslDecodeIterator, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION) != RSSL_RET_SUCCESS)
+		RsslRet retCode;
+		if ((retCode = rsslSetDecodeIteratorRWFVersion(&rsslDecodeIterator, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION)) != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set decode iterator RWF version in DataDictionaryImpl::decodeFieldDictionary()");
+			throwIueException( "Failed to set decode iterator RWF version in DataDictionaryImpl::decodeFieldDictionary()", retCode );
 		}
 
-		if (rsslSetDecodeIteratorBuffer(&rsslDecodeIterator, &rsslBuffer) != RSSL_RET_SUCCESS)
+		if ((retCode = rsslSetDecodeIteratorBuffer(&rsslDecodeIterator, &rsslBuffer)) != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set decode iterator buffer in DataDictionaryImpl::decodeFieldDictionary()");
+			throwIueException( "Failed to set decode iterator buffer in DataDictionaryImpl::decodeFieldDictionary()", retCode );
 		}
 
-		if (rsslDecodeFieldDictionary(&rsslDecodeIterator, _pRsslDataDictionary, (RDMDictionaryVerbosityValues)verbosity, &_errorText) < RSSL_RET_SUCCESS)
+		if (  (retCode = rsslDecodeFieldDictionary(&rsslDecodeIterator, _pRsslDataDictionary, (RDMDictionaryVerbosityValues)verbosity, &_errorText) ) < RSSL_RET_SUCCESS)
 		{
 			EmaString errorText("Failed to decode the field dictionary information");
 			errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
-			throwIueException(errorText);
+			throwIueException( errorText, retCode );
 		}
 
 		_loadedFieldDictionary = true;
@@ -695,7 +697,7 @@ void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosi
 {
 	if (!_loadedEnumTypeDef)
 	{
-		throwIueException("The enumerated types dictionary was not loaded");
+		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	SeriesEncoder& seriesEncoder = static_cast<SeriesEncoder&>(const_cast<Encoder&>(series.getEncoder()));
@@ -729,7 +731,7 @@ void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosi
 		thomsonreuters::ema::access::EmaString errorText("Failed to encode the enumerated type definition");
 		errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
-		throwIueException(errorText);
+		throwIueException( errorText, ret );
 	}
 
 	pEncodeIterator->setEncodedLength(rsslGetEncodedBufferLength(&(pEncodeIterator->_rsslEncIter)));
@@ -742,7 +744,7 @@ bool DataDictionaryImpl::encodeEnumTypeDictionary(thomsonreuters::ema::access::S
 {
 	if (!_loadedEnumTypeDef)
 	{
-		throwIueException("The enumerated types dictionary was not loaded");
+		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	SeriesEncoder& seriesEncoder = static_cast<SeriesEncoder&>(const_cast<Encoder&>(series.getEncoder()));
@@ -773,7 +775,7 @@ bool DataDictionaryImpl::encodeEnumTypeDictionary(thomsonreuters::ema::access::S
 		RsslRet ret = rsslSetEncodeIteratorBuffer(&pEncodeIterator->_rsslEncIter, rsslBuffer);
 		if (ret != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set RsslEncodeIterator buffer in DataDictionaryImpl::encodeEnumTypeDictionary(fragmentationSize).");
+			throwIueException( "Failed to set RsslEncodeIterator buffer in DataDictionaryImpl::encodeEnumTypeDictionary(fragmentationSize).", ret );
 		}
 	}
 
@@ -795,10 +797,10 @@ bool DataDictionaryImpl::encodeEnumTypeDictionary(thomsonreuters::ema::access::S
 		return false;
 	}
 	
-	thomsonreuters::ema::access::EmaString errorText("Failed to set encode enumeration types definition with fragementation size ");
+	thomsonreuters::ema::access::EmaString errorText("Failed to set encode enumeration types definition with fragmentation size ");
 	errorText.append(enumTypeDictionarySize).append(CR).append("Reason='").append(_errorText.data).append("'");
 
-	throwIueException(errorText);
+	throwIueException( errorText, ret );
 
 	return false;
 }
@@ -817,20 +819,20 @@ void DataDictionaryImpl::decodeEnumTypeDictionary(const Series& series, UInt32 v
 
 		if ((ret = rsslSetDecodeIteratorBuffer(&rsslDecodeIterator, &rsslBuffer)) != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set decode iterator buffer in DataDictionaryImpl::decodeEnumTypeDictionary()");
+			throwIueException( "Failed to set decode iterator buffer in DataDictionaryImpl::decodeEnumTypeDictionary()", ret );
 		}
 
 		if ((ret = rsslSetDecodeIteratorRWFVersion(&rsslDecodeIterator, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION)) != RSSL_RET_SUCCESS)
 		{
-			throwIueException("Failed to set decode iterator RWF version in DataDictionaryImpl::decodeEnumTypeDictionary()");
+			throwIueException( "Failed to set decode iterator RWF version in DataDictionaryImpl::decodeEnumTypeDictionary()", ret );
 		}
 
-		if (rsslDecodeEnumTypeDictionary(&rsslDecodeIterator, _pRsslDataDictionary, (RDMDictionaryVerbosityValues)verbosity, &_errorText) < 0)
+		if ((ret = rsslDecodeEnumTypeDictionary(&rsslDecodeIterator, _pRsslDataDictionary, (RDMDictionaryVerbosityValues)verbosity, &_errorText)) < 0)
 		{
 			EmaString errorText("Failed to decode the enumerated types dictionary");
 			errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
-			throwIueException(errorText);
+			throwIueException( errorText, ret );
 		}
 
 		_loadedEnumTypeDef = true;
@@ -853,22 +855,22 @@ thomsonreuters::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(co
 
 	if ((ret = rsslSetDecodeIteratorBuffer(&rsslDecodeIterator, &rsslBuffer)) != RSSL_RET_SUCCESS)
 	{
-		throwIueException("Failed to set decode iterator buffer in DataDictionaryImpl::extractDictionaryType()");
+		throwIueException( "Failed to set decode iterator buffer in DataDictionaryImpl::extractDictionaryType()", ret );
 	}
 
 	if ((ret = rsslSetDecodeIteratorRWFVersion(&rsslDecodeIterator, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION)) != RSSL_RET_SUCCESS)
 	{
-		throwIueException("Failed to set decode iterator RWF version in DataDictionaryImpl::extractDictionaryType()");
+		throwIueException( "Failed to set decode iterator RWF version in DataDictionaryImpl::extractDictionaryType()", ret );
 	}
 
 	RDMDictionaryTypes rdmDitionaryTypes;
 
-	if (rsslExtractDictionaryType(&rsslDecodeIterator, &rdmDitionaryTypes, &_errorText) < 0)
+	if ((ret = rsslExtractDictionaryType(&rsslDecodeIterator, &rdmDitionaryTypes, &_errorText)) < 0)
 	{
 		EmaString errorText("Failed to extract dictionary type");
 		errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
-		throwIueException(errorText);
+		throwIueException( errorText, ret );
 	}
 
 	return (UInt64)rdmDitionaryTypes;
@@ -906,7 +908,7 @@ DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() co
 
 void DataDictionaryImpl::throwIueForQueryOnly()
 {
-	throwIueException("This DataDictionary instance is used for query data dictionary information only");
+	throwIueException( "This DataDictionary instance is used for query data dictionary information only", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 const thomsonreuters::ema::access::EmaString&  DataDictionaryImpl::toString() const

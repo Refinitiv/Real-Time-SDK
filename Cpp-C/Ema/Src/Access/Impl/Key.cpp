@@ -25,6 +25,7 @@
 #include "OmmUtf8.h"
 #include "OmmError.h"
 #include "RmtesBuffer.h" // not sure if needed
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -55,7 +56,7 @@ Int64 Key::getInt() const
 	{
 		EmaString temp( "Attempt to getInt() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmInt&>( *_pData ).getInt();
@@ -67,7 +68,7 @@ UInt64 Key::getUInt() const
 	{
 		EmaString temp( "Attempt to getUInt() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmUInt&>( *_pData ).getUInt();
@@ -79,7 +80,7 @@ const OmmReal& Key::getReal() const
 	{
 		EmaString temp( "Attempt to getReal() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmReal&>( *_pData );
@@ -91,7 +92,7 @@ const OmmDate& Key::getDate() const
 	{
 		EmaString temp( "Attempt to getDate() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDate&>( *_pData );
@@ -103,7 +104,7 @@ const OmmDateTime& Key::getDateTime() const
 	{
 		EmaString temp( "Attempt to getDateTime() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDateTime&>( *_pData );
@@ -115,7 +116,7 @@ const OmmTime& Key::getTime() const
 	{
 		EmaString temp( "Attempt to getTime() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmTime&>( *_pData );
@@ -127,7 +128,7 @@ const OmmQos& Key::getQos() const
 	{
 		EmaString temp( "Attempt to getQos() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmQos&>( *_pData );
@@ -139,7 +140,7 @@ const OmmState& Key::getState() const
 	{
 		EmaString temp( "Attempt to getState() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmState&>( *_pData );
@@ -151,7 +152,7 @@ UInt16 Key::getEnum() const
 	{
 		EmaString temp( "Attempt to getEnum() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmEnum&>( *_pData ).getEnum();
@@ -163,7 +164,7 @@ const EmaBuffer& Key::getBuffer() const
 	{
 		EmaString temp( "Attempt to getBuffer() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmBuffer&>( *_pData ).getBuffer();
@@ -175,7 +176,7 @@ const EmaString& Key::getAscii() const
 	{
 		EmaString temp( "Attempt to getAscii() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmAscii&>( *_pData ).getAscii();
@@ -187,7 +188,7 @@ float Key::getFloat() const
 	{
 		EmaString temp( "Attempt to getFloat() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmFloat&>( *_pData ).getFloat();
@@ -199,7 +200,7 @@ double Key::getDouble() const
 	{
 		EmaString temp( "Attempt to getDouble() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDouble&>( *_pData ).getDouble();
@@ -211,7 +212,7 @@ const RmtesBuffer& Key::getRmtes() const
 	{
 		EmaString temp( "Attempt to getRmtes() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmRmtes&>( *_pData ).getRmtes();
@@ -223,7 +224,7 @@ const EmaBuffer& Key::getUtf8() const
 	{
 		EmaString temp( "Attempt to get*_pDataUtf8() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmUtf8&>( *_pData ).getUtf8();
@@ -235,7 +236,7 @@ const OmmError& Key::getError() const
 	{
 		EmaString temp( "Attempt to getError() while actual data type is " );
 		temp += getDTypeAsString( _pData->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmError&>( *_pData );

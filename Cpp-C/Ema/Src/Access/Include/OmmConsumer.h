@@ -281,7 +281,22 @@ public :
 	*/
 	void unregister( UInt64 handle );
 
+	/** Provides channel information about the active channel.
+		@param[in] caller provider ChannelInformation&; parameter will be cleared and then
+				   current channel information will be provided
+		@return void
+		\remark This method is \ref ObjectLevelSafe
+	*/
 	void getChannelInformation(ChannelInformation&);
+
+	/** Allows modifying some I/O values programmatically for a channel to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.
+		@param[in] value provides Value to modify I/O option to
+		@return void
+		@throw OmmInvalidUsageException if failed to modify I/O option to
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void modifyIOCtl(Int32 code, Int32 value);
 	//@}
 
 private :

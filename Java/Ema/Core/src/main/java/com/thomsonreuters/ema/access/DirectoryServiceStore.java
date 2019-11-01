@@ -22,6 +22,7 @@ import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.ema.access.ConfigReader.XMLnode;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.IntObject;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -147,8 +148,8 @@ abstract class DirectoryServiceStore
     private DirectoryServiceStoreClient		_directoryServiceStoreClient = null;
     private static ArrayDeque<Service>		_servicePool = new ArrayDeque<>(5);
     
-    abstract boolean checkExistingServiceId(int serviceId, StringBuilder errorText);
-    abstract boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText);
+    abstract boolean checkExistingServiceId(int serviceId, StringBuilder errorText, IntObject errorCode);
+    abstract boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText, IntObject errorCode);
     
     DirectoryServiceStore(EmaObjectManager objectManager, int providerRole, OmmCommonImpl ommCommonImpl,
     		BaseConfig baseConfig )
@@ -970,7 +971,7 @@ abstract class DirectoryServiceStore
         service.state().serviceState(OmmNiProviderActiveConfig.DEFAULT_SERVICE_STATE);
 	}
     
-    boolean decodeSourceDirectory(com.thomsonreuters.upa.codec.Msg rsslMsg, StringBuilder errorText)
+    boolean decodeSourceDirectory(com.thomsonreuters.upa.codec.Msg rsslMsg, StringBuilder errorText, IntObject intObj)
 	{
 		int retCode = CodecReturnCodes.SUCCESS;
 		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
@@ -984,6 +985,7 @@ abstract class DirectoryServiceStore
 		{
 			errorText.append("Internal error. Failed to set decode iterator buffer and version in OmmNiProviderImpl.decodeSourceDirectory(). Reason = ")
 			.append( CodecReturnCodes.toString(retCode) ).append(".");
+			intObj.value(retCode);
 			return false;
 		}
 		
@@ -1001,6 +1003,7 @@ abstract class DirectoryServiceStore
 		{
 			errorText.append("Internal error. Failed to decode Map in OmmNiProviderImpl.decodeSourceDirectory(). Reason = ")
 			.append( CodecReturnCodes.toString(retCode) ).append(".");
+			intObj.value(retCode);
 			return false;
 		}
 		else if ( retCode == CodecReturnCodes.NO_DATA )
@@ -1022,7 +1025,7 @@ abstract class DirectoryServiceStore
 		switch( map.keyPrimitiveType())
 		{
 		case com.thomsonreuters.upa.codec.DataTypes.UINT:
-			if( !decodeSourceDirectoryKeyUInt(map, decodeIt, errorText) )
+			if( !decodeSourceDirectoryKeyUInt(map, decodeIt, errorText, intObj) )
 				return false;
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
@@ -1037,6 +1040,7 @@ abstract class DirectoryServiceStore
 				_ommCommonImpl.loggerClient().error( _ommCommonImpl.formatLogMessage(_activeConfig.instanceName, errorText.toString(), Severity.ERROR) );
 			}
 			
+			intObj.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return false;
 		}
 		default:
@@ -1044,6 +1048,7 @@ abstract class DirectoryServiceStore
 			.append( DataType.asString(map.keyPrimitiveType()))
 			.append(" while the expected key DataType is ")
 			.append( DataType.asString(DataType.DataTypes.UINT) + " or " + DataType.asString(DataType.DataTypes.ASCII) );
+			intObj.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return false;
 		}
 		
@@ -1055,7 +1060,7 @@ abstract class DirectoryServiceStore
 		return true;
 	}
     
-    boolean decodeSourceDirectoryKeyUInt(com.thomsonreuters.upa.codec.Map map, DecodeIterator decodeIt, StringBuilder errorText)
+    boolean decodeSourceDirectoryKeyUInt(com.thomsonreuters.upa.codec.Map map, DecodeIterator decodeIt, StringBuilder errorText, IntObject errorCode)
 	{
 		int retCode = CodecReturnCodes.SUCCESS;
 		com.thomsonreuters.upa.codec.UInt serviceId = CodecFactory.createUInt();
@@ -1072,6 +1077,7 @@ abstract class DirectoryServiceStore
 			{
 				errorText.append( "Internal error: Failed to Decode Map Entry. Reason = " )
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			
@@ -1118,7 +1124,7 @@ abstract class DirectoryServiceStore
 			}
 			else if ( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.ADD )
 			{
-				if ( checkExistingServiceId((int)serviceId.toLong(), errorText) == false )
+				if ( checkExistingServiceId((int)serviceId.toLong(), errorText, errorCode) == false )
 				{
 					return false;
 				}
@@ -1129,6 +1135,7 @@ abstract class DirectoryServiceStore
 				errorText.append( "Attempt to specify Service with a container of " )
 				.append(DataType.asString(map.containerType()))
 				.append("  rather than the expected  ").append( DataType.asString(DataTypes.FILTER_LIST));
+				errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return false;
 			}
 			
@@ -1141,6 +1148,7 @@ abstract class DirectoryServiceStore
 			{
 				errorText.append("Internal error: Failed to Decode FilterList. Reason")
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			else if ( retCode == CodecReturnCodes.NO_DATA )
@@ -1171,6 +1179,7 @@ abstract class DirectoryServiceStore
 				{
 					errorText.append("Internal error: Failed to Decode Filter Entry. Reason = ");
 					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
+					errorCode.value(retCode);
 					return false;
 				}
 				
@@ -1188,6 +1197,7 @@ abstract class DirectoryServiceStore
 					{
 						errorText.append("Attempt to update Infofilter of service with id of ").append(serviceId)
 						.append(" while this is not allowed.");
+						errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 						return false;
 					}
 					
@@ -1198,6 +1208,7 @@ abstract class DirectoryServiceStore
 						errorText.append("Attempt to specify Service InfoFilter with a container of ");
 						errorText.append(DataType.asString(containerType));
 						errorText.append(" rather than the expected ").append(DataType.asString(DataTypes.ELEMENT_LIST));
+						errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 						return false;
 					}
 					
@@ -1208,6 +1219,7 @@ abstract class DirectoryServiceStore
 					{
 						errorText.append("Internal error: Failed to Decode Element List. Reason = ");
 						errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
+						errorCode.value(retCode);
 						return false;
 					}
 					
@@ -1219,6 +1231,7 @@ abstract class DirectoryServiceStore
 						{
 							errorText.append("Internal error: Failed to Decode ElementEntry. Reason = ");
 							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
+							errorCode.value(retCode);
 							return false;
 						}
 						
@@ -1238,6 +1251,7 @@ abstract class DirectoryServiceStore
 								errorText.append("Attempt to specify Service Name with a ")
 								.append( DataType.asString(elementEntry.dataType()) )
 								.append(" rather than the expected ").append( DataType.asString(DataTypes.ASCII));
+								errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 								return false;
 							}
 							
@@ -1249,18 +1263,20 @@ abstract class DirectoryServiceStore
 							{
 								errorText.append("Internal error: Failed to Decode Buffer. Reason = ");
 								errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
+								errorCode.value(retCode);
 								return false;
 							}
 							else if ( retCode == CodecReturnCodes.BLANK_DATA )
 							{
 								errorText.append("Attempt to specify Service Name with a blank ascii string for service id of ");
 								errorText.append(serviceId);
+								errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 								return false;
 							}
 							
 							bServiceNameEntryFound = true;
 							
-							if ( addServiceIdAndNamePair(serviceId.toBigInteger().intValue(), serviceNameBuffer.toString(), errorText ) == false )
+							if ( addServiceIdAndNamePair(serviceId.toBigInteger().intValue(), serviceNameBuffer.toString(), errorText, errorCode) == false )
 							{
 								return false;
 							}
@@ -1271,6 +1287,7 @@ abstract class DirectoryServiceStore
 					{
 						errorText.append("Attempt to specify service InfoFilter without required Service Name for service id of ")
 						.append(serviceId);
+						errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 						return false;
 					}
 				}
@@ -1289,7 +1306,7 @@ abstract class DirectoryServiceStore
 		return true;
 	}
     
-    boolean submitSourceDirectory(ClientSession clientSession, com.thomsonreuters.upa.codec.Msg msg, StringBuilder errorText, boolean storeUserSubmitted)
+    boolean submitSourceDirectory(ClientSession clientSession, com.thomsonreuters.upa.codec.Msg msg, StringBuilder errorText, boolean storeUserSubmitted, IntObject errorCode)
     {
     	if ( _userStoreDecodeIt == null)
     	{
@@ -1306,6 +1323,7 @@ abstract class DirectoryServiceStore
 		{
 			errorText.append("Internal error. Failed to set decode iterator buffer and version in DirectoryServiceStore.submitSourceDirectory(). Reason = ")
 			.append( CodecReturnCodes.toString(retCode) ).append(".");
+			errorCode.value(retCode);
 			return false;
 		}
    
@@ -1326,6 +1344,7 @@ abstract class DirectoryServiceStore
 		{
 			errorText.append("Internal error: Failed to decode Source Directory message in DirectoryServiceStore.submitSourceDirectory(). Reason")
 			.append( CodecReturnCodes.toString(retCode) ).append(".");
+			errorCode.value(retCode);
 			return false;
 		}
 		
@@ -1348,6 +1367,7 @@ abstract class DirectoryServiceStore
 			default:
 			{
 				errorText.append("Received unexpected message type ").append(_submittedDirectoryMsg.rdmMsgType().toString()).append(".");
+				errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return false;
 			}
 		}
@@ -1412,7 +1432,7 @@ abstract class DirectoryServiceStore
 							cacheService = DirectoryMsgFactory.createService();
 							cacheService.serviceId(submittedService.serviceId());
 							
-							if ( !applyService(cacheService, submittedService, clientSession, errorText) )
+							if ( !applyService(cacheService, submittedService, clientSession, errorText, errorCode) )
 							{
 								return false;
 							}
@@ -1434,7 +1454,7 @@ abstract class DirectoryServiceStore
 					
 					if ( cacheService != null)
 					{
-						if ( !applyService( cacheService, submittedService, clientSession, errorText) )
+						if ( !applyService( cacheService, submittedService, clientSession, errorText, errorCode) )
 						{
 							return false;
 						}
@@ -1450,7 +1470,7 @@ abstract class DirectoryServiceStore
     	return true;
     }
     
-    boolean applyService(Service cacheService, Service submittedService, ClientSession clientSession,  StringBuilder errorText)
+    boolean applyService(Service cacheService, Service submittedService, ClientSession clientSession,  StringBuilder errorText, IntObject errorCode)
     {
     	int retCode = CodecReturnCodes.SUCCESS;
     	int flags;
@@ -1473,6 +1493,7 @@ abstract class DirectoryServiceStore
 				errorText.append("Internal error: Failed to Update State filter in DirectoryServiceStroe.applyService() for Service Id = ")
 				.append(submittedService.serviceId()).append(OmmLoggerClient.CR).append("Reason = ")
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			
@@ -1499,6 +1520,7 @@ abstract class DirectoryServiceStore
 				errorText.append("Internal error: Failed to Update Info filter in DirectoryServiceStroe.applyService() for Service Id = ")
 				.append(submittedService.serviceId()).append(OmmLoggerClient.CR).append("Reason = ")
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			
@@ -1523,6 +1545,7 @@ abstract class DirectoryServiceStore
 				errorText.append("Internal error: Failed to Update Load filter in DirectoryServiceStroe.applyService() for Service Id = ")
 				.append(submittedService.serviceId()).append(OmmLoggerClient.CR).append("Reason = ")
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			
@@ -1595,6 +1618,7 @@ abstract class DirectoryServiceStore
 				errorText.append("Internal error: Failed to Update Link filter in DirectoryServiceStroe.applyService() for Service Id = ")
 				.append(submittedService.serviceId()).append(OmmLoggerClient.CR).append("Reason = ")
 				.append( CodecReturnCodes.toString(retCode) ).append(".");
+				errorCode.value(retCode);
 				return false;
 			}
 			
@@ -2109,7 +2133,7 @@ class OmmIProviderDirectoryStore extends DirectoryServiceStore
 	}
 
 	@Override
-	boolean checkExistingServiceId(int serviceId, StringBuilder errorText)
+	boolean checkExistingServiceId(int serviceId, StringBuilder errorText, IntObject errorCode)
 	{
 		if ( _ommIProviderActiveConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL)
 		{
@@ -2120,6 +2144,7 @@ class OmmIProviderDirectoryStore extends DirectoryServiceStore
 				errorText.setLength(0);
 				errorText.append("Attempt to add a service with name of ");
 				errorText.append(serviceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+				errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				return false;
 			}
 		}
@@ -2128,7 +2153,7 @@ class OmmIProviderDirectoryStore extends DirectoryServiceStore
 	}
 
 	@Override
-	boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText)
+	boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText, IntObject errorCode)
 	{
 		if ( _ommIProviderActiveConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL)
 		{
@@ -2139,6 +2164,7 @@ class OmmIProviderDirectoryStore extends DirectoryServiceStore
 					errorText.setLength(0);
 					errorText.append("Attempt to add a service with name of ");
 					errorText.append(serviceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+					errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				
 				return false;
@@ -2190,7 +2216,7 @@ class OmmNiProviderDirectoryStore extends DirectoryServiceStore
 	}
 
 	@Override
-	protected boolean checkExistingServiceId(int serviceId, StringBuilder errorText)
+	protected boolean checkExistingServiceId(int serviceId, StringBuilder errorText, IntObject errorCode)
 	{
 		String serviceName = _servicesIdAndNameTable.get(_tempServiceIdInteger.value(serviceId));
 		
@@ -2199,6 +2225,7 @@ class OmmNiProviderDirectoryStore extends DirectoryServiceStore
 			errorText.setLength(0);
 			errorText.append("Attempt to add a service with name of ");
 			errorText.append(serviceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+			errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			return false;
 		}
 		
@@ -2206,7 +2233,7 @@ class OmmNiProviderDirectoryStore extends DirectoryServiceStore
 	}
 
 	@Override
-	protected boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText)
+	protected boolean addServiceIdAndNamePair(int serviceId, String serviceName, StringBuilder errorText, IntObject errorCode)
 	{
 		if ( _servicesNameAndIdTable.get(serviceName) != null )
 		{
@@ -2215,6 +2242,7 @@ class OmmNiProviderDirectoryStore extends DirectoryServiceStore
 				errorText.setLength(0);
 				errorText.append("Attempt to add a service with name of ");
 				errorText.append(serviceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+				errorCode.value(OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 			return false;

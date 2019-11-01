@@ -84,7 +84,7 @@ const EmaString& OmmEnumDecoder::toString()
 	{
 		EmaString text( "Failed to convert OmmEnum to string. Reason: " );
 		text += rsslRetCodeToString( retCode );
-		throwIueException( text );
+		throwIueException( text, retCode );
 	}
 	else
 	{

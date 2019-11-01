@@ -25,9 +25,10 @@ class OmmInvalidUsageExceptionImpl extends OmmInvalidUsageException
 		return ExceptionType.OmmInvalidUsageException;
 	}
 
-	OmmInvalidUsageException message(String exceptMessage)
+	OmmInvalidUsageException message(String exceptMessage, int errorCode)
 	{
 		_exceptMessage = exceptMessage;
+		_errorCode = errorCode;
 		return this;
 	}
 }

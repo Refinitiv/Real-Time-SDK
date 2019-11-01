@@ -201,6 +201,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			break;
 		case ExceptionType.OmmInvalidUsageException:
 			_consumerErrorClient.onInvalidUsage(ommException.getMessage());
+			_consumerErrorClient.onInvalidUsage(ommException.getMessage(), ((OmmInvalidUsageException)ommException).errorCode());
 			break;
 		default:
 			break;
@@ -351,7 +352,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				if (loggerClient().isErrorEnabled())
 					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(excepText);
+				throw ommIUExcept().message(excepText, OmmInvalidUsageException.ErrorCode.DIRECTORY_REQUEST_TIME_OUT);
 			} else
 				timeoutEvent.cancel();
 		}
@@ -389,7 +390,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				if (loggerClient().isErrorEnabled())
 					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(excepText);
+				throw ommIUExcept().message(excepText, OmmInvalidUsageException.ErrorCode.DICTIONARY_REQUEST_TIME_OUT);
 			} else
 				timeoutEvent.cancel();
 		}
@@ -449,12 +450,16 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 	
 	@Override
-	public void handleInvalidUsage(String text)
+	public void handleInvalidUsage(String text, int errorCode)
 	{
 		if ( hasErrorClient() )
+		{
 			_consumerErrorClient.onInvalidUsage(text);
+			
+			_consumerErrorClient.onInvalidUsage(text, errorCode);
+		}
 		else
-			throw (ommIUExcept().message(text.toString()));
+			throw (ommIUExcept().message(text.toString(), errorCode));
 		
 	}
 
@@ -547,5 +552,20 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			super.userLock().unlock();
 		}
 
+	}
+
+	@Override
+	public void modifyIOCtl(int code, int value)
+	{
+		super.userLock().lock();
+		
+		try
+		{
+			super.modifyIOCtl(code, value, _loginCallbackClient.activeChannelInfo());
+		}
+		finally
+		{
+			super.userLock().unlock();
+		}
 	}
 }

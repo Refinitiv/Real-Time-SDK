@@ -10,6 +10,7 @@
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
 #include "rtr/rsslMsgDecoders.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -198,7 +199,7 @@ const EmaString& AckMsgDecoder::getName() const
 	if ( !hasName() )
 	{
 		EmaString temp( "Attempt to getName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_name.setInt( _pRsslMsg->msgBase.msgKey.name.data, _pRsslMsg->msgBase.msgKey.name.length, false );
@@ -211,7 +212,7 @@ UInt8 AckMsgDecoder::getNameType() const
 	if ( !hasNameType() )
 	{
 		EmaString temp( "Attempt to getNameType() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.nameType;
@@ -222,7 +223,7 @@ UInt32 AckMsgDecoder::getServiceId() const
 	if ( !hasServiceId() )
 	{
 		EmaString temp( "Attempt to getServiceId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.serviceId;
@@ -233,7 +234,7 @@ const EmaString& AckMsgDecoder::getServiceName() const
 	if ( !_serviceNameSet )
 	{
 		EmaString temp( "Attempt to getServiceName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceName.toString();
@@ -244,7 +245,7 @@ Int32 AckMsgDecoder::getId() const
 	if ( !hasId() )
 	{
 		EmaString temp( "Attempt to getId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.identifier;
@@ -260,7 +261,7 @@ UInt32 AckMsgDecoder::getSeqNum() const
 	if ( !hasSeqNum() )
 	{
 		EmaString temp( "Attempt to getSeqNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->ackMsg.seqNum;
@@ -271,7 +272,7 @@ UInt32 AckMsgDecoder::getFilter() const
 	if ( !hasFilter() )
 	{
 		EmaString temp( "Attempt to getFilter() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.filter;
@@ -282,7 +283,7 @@ UInt8 AckMsgDecoder::getNackCode() const
 	if ( !hasNackCode() )
 	{
 		EmaString temp( "Attempt to getNackCode() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->ackMsg.nakCode;
@@ -293,7 +294,7 @@ const EmaBuffer& AckMsgDecoder::getExtendedHeader() const
 	if ( !hasExtendedHeader() )
 	{
 		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_extHeader.setFromInt( _pRsslMsg->ackMsg.extendedHeader.data, _pRsslMsg->ackMsg.extendedHeader.length );
@@ -313,7 +314,7 @@ const EmaString& AckMsgDecoder::getText() const
 	if ( !hasText() )
 	{
 		EmaString temp( "Attempt to getText() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_text.setInt( _pRsslMsg->ackMsg.text.data, _pRsslMsg->ackMsg.text.length, false );

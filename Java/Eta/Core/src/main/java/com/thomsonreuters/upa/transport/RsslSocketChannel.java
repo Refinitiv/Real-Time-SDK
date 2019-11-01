@@ -896,7 +896,7 @@ class RsslSocketChannel extends UpaNode implements Channel
 
                 		if (value >= compressionThreshold)
                 		{
-                			_sessionCompLowThreshold = value;
+                			_channelInfo._compressionThreshold = _sessionCompLowThreshold = value;
                 			retCode = TransportReturnCodes.SUCCESS;
                 		}
                 		else

@@ -15,6 +15,7 @@
 #include "StreamId.h"
 #include "EmaVersion.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -687,7 +688,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			}
 
 			delete [] reactorConnectInfo;
-			throwIueException( temp );
+			throwIueException( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 			return;
 		}
@@ -709,7 +710,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	else
 	{
 		delete [] reactorConnectInfo;
-		throwIueException( errorStrUnsupportedConnectionType );
+		throwIueException( errorStrUnsupportedConnectionType, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	delete [] reactorConnectInfo;
 }

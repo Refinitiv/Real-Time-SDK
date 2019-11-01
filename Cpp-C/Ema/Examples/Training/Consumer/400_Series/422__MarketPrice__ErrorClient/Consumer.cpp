@@ -68,10 +68,11 @@ void AppErrorClient::onMemoryExhaustion( const EmaString& text )
 	cout << "Error text: " << text << endl;
 }
 	
-void AppErrorClient::onInvalidUsage( const EmaString& text )
+void AppErrorClient::onInvalidUsage( const EmaString& text, Int32 errorCode )
 {
 	cout << "onInvalidUsage callback function" << endl;
 	cout << "Error text: " << text << endl;
+	cout << "Error code: " << errorCode << endl;
 }
 
 void AppClient::decode( const FieldList& fl )

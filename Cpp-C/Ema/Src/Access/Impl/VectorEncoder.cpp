@@ -11,6 +11,7 @@
 #include "StaticDecoder.h"
 #include "Decoder.h"
 #include "Vector.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -51,7 +52,7 @@ void VectorEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 		temp += DataType( emaDataType ).toString();
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaDataType );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -70,7 +71,7 @@ void VectorEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 	{
 		EmaString temp( "Failed to initialize Vector encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -104,7 +105,7 @@ void VectorEncoder::addEncodedEntry( UInt32 position, UInt8 action, const EmaBuf
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding Vector. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -137,7 +138,7 @@ void VectorEncoder::startEncodingEntry( UInt32 position, UInt8 action, const Ema
 		EmaString temp( "Failed to start encoding entry in Vector::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -155,7 +156,7 @@ void VectorEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in Vector. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -164,7 +165,7 @@ void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, cons
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -184,7 +185,7 @@ void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, cons
 		temp += DataType( complexType.getDataType() ).toString();
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaDataType );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -201,7 +202,7 @@ void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, cons
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -214,7 +215,7 @@ void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, cons
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -228,7 +229,7 @@ void VectorEncoder::add(UInt32 position, VectorEntry::VectorAction action, const
 	if (_containerComplete)
 	{
 		EmaString temp("Attempt to add an entry after complete() was called.");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -246,7 +247,7 @@ void VectorEncoder::add(UInt32 position, VectorEntry::VectorAction action, const
 		temp += DataType(DataType::NoDataEnum).toString();
 		temp += EmaString(" while the expected DataType is ");
 		temp += DataType(_emaDataType);
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -272,7 +273,7 @@ void VectorEncoder::complete()
 	{
 		EmaString temp( "Failed to complete Vector encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -294,7 +295,7 @@ void VectorEncoder::totalCountHint( UInt32 totalCountHint )
 	else
 	{
 		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -314,7 +315,7 @@ void VectorEncoder::summaryData( const ComplexType& data )
 			else
 			{
 				EmaString temp( "Attempt to set summaryData() with a ComplexType while complete() was not called on this ComplexType." );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 		}
@@ -326,7 +327,7 @@ void VectorEncoder::summaryData( const ComplexType& data )
 		else
 		{
 			EmaString temp( "Attempt to pass an empty ComplexType to summaryData() while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -336,7 +337,7 @@ void VectorEncoder::summaryData( const ComplexType& data )
 	else
 	{
 		EmaString temp( "Invalid attempt to call summaryData() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -352,6 +353,6 @@ void VectorEncoder::sortable( bool sortable )
 	else
 	{
 		EmaString temp( "Invalid attempt to call sortable() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }

@@ -21,9 +21,9 @@ class OmmInvalidUsageExceptionImpl : public OmmInvalidUsageException
 {
 public :
 
-	static void throwException( const EmaString& );
+	static void throwException( const EmaString&, Int32 );
 
-	static void throwException( const char* );
+	static void throwException( const char*, Int32 );
 
 	OmmInvalidUsageExceptionImpl();
 

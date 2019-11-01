@@ -35,6 +35,10 @@ void OmmProviderErrorClient::onInvalidUsage( const EmaString& )
 {
 }
 
+void OmmProviderErrorClient::onInvalidUsage(const EmaString&, Int32 )
+{
+}
+
 void OmmProviderErrorClient::onSystemError( Int64, void*, const EmaString& )
 {
 }

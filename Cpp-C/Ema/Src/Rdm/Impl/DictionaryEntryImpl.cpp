@@ -10,6 +10,7 @@
 #include "EnumTypeImpl.h"
 #include "EnumTypeTableImpl.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -105,7 +106,7 @@ const EnumType& DictionaryEntryImpl::getEnumEntry(thomsonreuters::ema::access::U
 		EmaString errorText("The enum value ");
 		errorText.append(value).append(" for the Field ID ");
 		errorText.append(_pRsslDictionaryEntry->fid).append(" does not exist in enumerated type definitions");
-		throwIueException(errorText);
+		throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 
 	return _enumType;
@@ -126,7 +127,7 @@ const EnumTypeTable& DictionaryEntryImpl::getEnumTypeTable() const
 	{
 		EmaString errorText("The EnumTypeTable does not exist for the Field ID ");
 		errorText.append(_pRsslDictionaryEntry->fid);
-		throwIueException(errorText);
+		throwIueException( errorText, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _enumTypeTable;

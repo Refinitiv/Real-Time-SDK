@@ -88,7 +88,7 @@ class DictionaryEntryImpl extends VaNode implements DictionaryEntry
 		if ( hasEnumType(value) == false )
 		{
 			throw ommIUExcept().message("The enum value " + value + " for the Field ID " + rsslDictionaryEntry.fid() +
-					" does not exist in enumerated type definitions" );
+					" does not exist in enumerated type definitions", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 		}
 		
 		if ( enumTypeImpl == null )
@@ -108,7 +108,8 @@ class DictionaryEntryImpl extends VaNode implements DictionaryEntry
 	public EnumTypeTable enumTypeTable() {
 		if( hasEnumTypeTable() == false)
 		{
-			throw ommIUExcept().message("The EnumTypeTable does not exist for the Field ID " + rsslDictionaryEntry.fid());
+			throw ommIUExcept().message("The EnumTypeTable does not exist for the Field ID " + rsslDictionaryEntry.fid()
+			, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return  enumTypeTableImpl();

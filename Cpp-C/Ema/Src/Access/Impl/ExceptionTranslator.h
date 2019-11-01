@@ -19,9 +19,9 @@ namespace thomsonreuters {
 	}
 }
 
-void throwIueException( const thomsonreuters::ema::access::EmaString& );
+void throwIueException( const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32 );
 
-void throwIueException( const char* );
+void throwIueException( const char*, thomsonreuters::ema::access::Int32 );
 
 void throwIceException( const thomsonreuters::ema::access::EmaString& );
 

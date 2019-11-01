@@ -15,6 +15,7 @@
 #include "DirectoryCallbackClient.h"
 #include "LoginCallbackClient.h"
 #include "ChannelInfoImpl.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -170,14 +171,14 @@ void OmmConsumerImpl::loadDictionary()
 		}
 		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 			_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg );
-		throwIueException( failureMsg );
+		throwIueException( failureMsg, OmmInvalidUsageException::DictionaryRequestTimeOutEnum );
 		return;
 	}
 	else
 		if ( timeOutLengthInMicroSeconds != 0 ) pWatcher->cancel();
 
 	if ( _atExit )
-		throwIueException( "Application or user initiated exit while waiting for dictionary response." );
+		throwIueException( "Application or user initiated exit while waiting for dictionary response.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 void OmmConsumerImpl::loadDirectory()
@@ -210,14 +211,14 @@ void OmmConsumerImpl::loadDirectory()
 		}
 		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 			_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg );
-		throwIueException( failureMsg );
+		throwIueException( failureMsg, OmmInvalidUsageException::DirectoryRequestTimeOutEnum );
 		return;
 	}
 	else
 		if ( timeOutLengthInMicroSeconds != 0 ) pWatcher->cancel();
 
 	if ( _atExit )
-		throwIueException( "Application or user initiated exit while waiting for directory response." );
+		throwIueException( "Application or user initiated exit while waiting for directory response.", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 void OmmConsumerImpl::reLoadDirectory()
@@ -352,4 +353,36 @@ void OmmConsumerImpl::getChannelInformation(ChannelInformation& ci) {
 	return;
   }
   return getChannelInformationImpl(pChannel->getRsslChannel(), OmmCommonImpl::ConsumerEnum, ci);
+}
+
+void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
+{
+	_userLock.lock();
+
+	Channel* pChannel;
+	if ( ( pChannel = getLoginCallbackClient().getActiveChannel() ) == NULL || ( pChannel->getRsslChannel() == NULL ) ) 
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to modify I/O option.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	RsslError rsslError;
+	RsslRet ret = rsslIoctl( pChannel->getRsslChannel()->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError );
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to modify I/O option for code = ");
+			temp.append(code).append(".").append(CR)
+			.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
 }

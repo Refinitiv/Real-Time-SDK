@@ -9,6 +9,7 @@
 #include "ElementListDecoder.h"
 #include "StaticDecoder.h"
 #include "Encoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -50,7 +51,7 @@ Int16 ElementListDecoder::getInfoElementListNum() const
 	{
 		EmaString temp( "Attempt to getInfoElementListNum() while it is NOT set." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslElementList.elementListNum;
@@ -375,7 +376,7 @@ bool ElementListDecoder::getNextData( const Data& data )
 	{
 		EmaString temp( "Wrong container type used for passing search list. Expecting ElementList. Passed in container is " );
 		temp += getDTypeAsString( data.getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return true;
 	}
 
@@ -389,7 +390,7 @@ bool ElementListDecoder::getNextData( const Data& data )
 	case RSSL_DT_ASCII_STRING :
 		return getNextData( stringList );
 	default :
-		throwIueException( EmaString( "Passed in search list contains wrong data type." ) );
+		throwIueException( EmaString( "Passed in search list contains wrong data type." ), OmmInvalidUsageException::InvalidArgumentEnum );
 		return true;
 	}
 }
@@ -445,7 +446,7 @@ void ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 					if ( retCode != RSSL_RET_END_OF_CONTAINER )
 					{
 						EmaString temp( "Error decoding OmmArray with Ascii while compiling search list." );
-						throwIueException( temp );
+						throwIueException( temp, retCode );
 						return;
 					}
 				}
@@ -455,7 +456,7 @@ void ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 			break;
 		default :
 			EmaString temp( "Search list does not contain expected OmmArray of Ascii." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -465,7 +466,7 @@ void ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 	if ( retCode != RSSL_RET_END_OF_CONTAINER )
 	{
 		EmaString temp( "Error decoding ElementList while compiling a search list." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 

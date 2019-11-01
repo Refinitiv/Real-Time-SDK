@@ -36,6 +36,8 @@ public:
 
 	void onInvalidUsage( const EmaString& );
 
+	void onInvalidUsage( const EmaString&, Int32 );
+
 	void onMemoryExhaustion( const EmaString& );
 
 	void onSystemError( Int64 , void* , const EmaString& );

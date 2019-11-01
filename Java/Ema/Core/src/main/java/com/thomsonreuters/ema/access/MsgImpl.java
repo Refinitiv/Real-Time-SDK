@@ -159,7 +159,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasName())
 		{
 			String temp = "Attempt to name() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		com.thomsonreuters.upa.codec.Buffer nameBuffer = _rsslMsg.msgKey().name();
@@ -176,7 +176,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasNameType())
 		{
 			String temp = "Attempt to nameType() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _rsslMsg.msgKey().nameType();
@@ -188,7 +188,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasServiceId())
 		{
 			String temp = "Attempt to serviceId() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _rsslMsg.msgKey().serviceId();
@@ -200,7 +200,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasId())
 		{
 			String temp = "Attempt to id() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _rsslMsg.msgKey().identifier();
@@ -212,7 +212,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasFilter())
 		{
 			String temp = "Attempt to filter() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return _rsslMsg.msgKey().filter();
@@ -224,7 +224,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!hasExtendedHeader())
 		{
 			String temp = "Attempt to extendedHeader() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		if( _extendedHeader == null || (_extendedHeader.capacity() < _rsslMsg.extendedHeader().length()) )
@@ -279,7 +279,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (!_serviceNameSet)
 		{
 			String temp = "Attempt to serviceName() while it is NOT set." ;
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _serviceName;
@@ -389,7 +389,7 @@ class MsgImpl extends DataImpl implements Msg
 	void msgServiceName(String serviceName)
 	{
 		if (serviceName == null)
-			throw ommIUExcept().message("Passed in serviceName is null");
+			throw ommIUExcept().message("Passed in serviceName is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		switch (_dataType)
 		{
@@ -414,7 +414,7 @@ class MsgImpl extends DataImpl implements Msg
 			((com.thomsonreuters.upa.codec.AckMsg)_rsslMsg).applyHasMsgKey();
 			break;
 		default:
-			throw ommIUExcept().message("Msg encoding failed.");
+			throw ommIUExcept().message("Msg encoding failed.", OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 		}
 		
 		_serviceName = serviceName;
@@ -487,7 +487,7 @@ class MsgImpl extends DataImpl implements Msg
 	void msgName(String name)
 	{
 		if (name == null)
-			throw ommIUExcept().message("Passed in name is null");
+			throw ommIUExcept().message("Passed in name is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		switch (_dataType)
 		{
@@ -758,7 +758,7 @@ class MsgImpl extends DataImpl implements Msg
    void  msgPermissionData(ByteBuffer permissionData)
    {
 	   if (permissionData == null)
-			throw ommIUExcept().message("Passed in permissionData is null");
+			throw ommIUExcept().message("Passed in permissionData is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	   
 	   switch (_dataType)
        {
@@ -792,7 +792,7 @@ class MsgImpl extends DataImpl implements Msg
 	void msgAttrib(ComplexType attrib)
 	{
 		if (attrib == null)
-			throw ommIUExcept().message("Passed in payload is null");
+			throw ommIUExcept().message("Passed in payload is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		switch (_dataType)
 		{
@@ -829,7 +829,7 @@ class MsgImpl extends DataImpl implements Msg
 	void msgPayload(ComplexType payload)
 	{
 		if (payload == null)
-			throw ommIUExcept().message("Passed in payload is null");
+			throw ommIUExcept().message("Passed in payload is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		_rsslMsg.containerType(Utilities.toRsslDataType(payload.dataType()));
 		Utilities.copy(((DataImpl)payload).encodedData(),  _rsslMsg.encodedDataBody());
@@ -838,7 +838,7 @@ class MsgImpl extends DataImpl implements Msg
 	void msgExtendedHeader(ByteBuffer buffer)
 	{
 		if (buffer == null)
-			throw ommIUExcept().message("Passed in buffer is null");
+			throw ommIUExcept().message("Passed in buffer is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 	    switch (_dataType)
         {
@@ -916,7 +916,7 @@ class MsgImpl extends DataImpl implements Msg
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 		 while ((ret = _rsslMsg.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -931,7 +931,7 @@ class MsgImpl extends DataImpl implements Msg
 						.append(" while encoding rsslMsg. Reason='")
 						.append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
-			 	throw ommIUExcept().message(errText);
+			 	throw ommIUExcept().message(errText, ret);
 		    }
 		 
 		return _rsslBuffer;

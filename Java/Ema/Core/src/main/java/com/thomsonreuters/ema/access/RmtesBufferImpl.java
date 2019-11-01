@@ -109,7 +109,7 @@ class RmtesBufferImpl implements RmtesBuffer
 	public RmtesBuffer apply(RmtesBuffer source)
 	{
 		if (source == null)
-			throw ommIUExcept().message("Source passed in is invalid in apply(RmtesBuffer source)");
+			throw ommIUExcept().message("Source passed in is invalid in apply(RmtesBuffer source)", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if (_applyToCache)
 		{
@@ -145,7 +145,7 @@ class RmtesBufferImpl implements RmtesBuffer
 			if (_rsslDecoder.hasPartialRMTESUpdate(rsslBuffer))
 			{
 				if (cacheByteBuffer == null)
-					throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply(RmtesBuffer source)");
+					throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply(RmtesBuffer source)", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				
 				int sourceBufferLen = rsslBuffer.length() + _rsslRmtesCacheBuffer.length();
 				if ( cacheBufferPreAllocateLen < sourceBufferLen)
@@ -170,8 +170,9 @@ class RmtesBufferImpl implements RmtesBuffer
 				_rsslRmtesCacheBuffer.length(0);
 			}
 			
-			if (_rsslDecoder.RMTESApplyToCache(rsslBuffer, _rsslRmtesCacheBuffer) != CodecReturnCodes.SUCCESS)
-				throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply(RmtesBuffer source)");
+			int retCode;
+			if ( (retCode = _rsslDecoder.RMTESApplyToCache(rsslBuffer, _rsslRmtesCacheBuffer)) != CodecReturnCodes.SUCCESS)
+				throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply(RmtesBuffer source)", retCode);
 
 			_applyToCache = true;
 		}
@@ -183,7 +184,7 @@ class RmtesBufferImpl implements RmtesBuffer
 	public RmtesBuffer apply(OmmRmtes source)
 	{
 		if (source == null || source.rmtes() == null)
-			throw ommIUExcept().message("Source passed in is invalid in apply(OmmRmtes source)");
+			throw ommIUExcept().message("Source passed in is invalid in apply(OmmRmtes source)", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		return apply(source.rmtes());
 	}
@@ -197,7 +198,7 @@ class RmtesBufferImpl implements RmtesBuffer
 		if (_rsslDecoder.hasPartialRMTESUpdate(_rsslBuffer))
 		{
 			if (cacheByteBuffer == null)
-				throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply()");
+				throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply()", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			
 			int sourceBufferLen = _rsslBuffer.length() + _rsslRmtesCacheBuffer.length();
 			if ( cacheBufferPreAllocateLen < sourceBufferLen)
@@ -222,8 +223,9 @@ class RmtesBufferImpl implements RmtesBuffer
 			_rsslRmtesCacheBuffer.length(0);
 		}
 		
-		if (_rsslDecoder.RMTESApplyToCache(_rsslBuffer, _rsslRmtesCacheBuffer) != CodecReturnCodes.SUCCESS)
-			throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply()");
+		int retCode;
+		if ( (retCode = _rsslDecoder.RMTESApplyToCache(_rsslBuffer, _rsslRmtesCacheBuffer)) != CodecReturnCodes.SUCCESS)
+			throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply()", retCode);
 		
 		_applyToCache = true;
 	
@@ -257,7 +259,7 @@ class RmtesBufferImpl implements RmtesBuffer
 		
 		int ret = _rsslDecoder.RMTESToUCS2(_rsslRmtesBuffer, _rsslRmtesCacheBuffer) ;
 		 if (ret != CodecReturnCodes.SUCCESS)
-         	throw ommIUExcept().message("rsslDecoder.RMTESToUCS2() failed in decode() : " + CodecReturnCodes.info(ret));
+         	throw ommIUExcept().message("rsslDecoder.RMTESToUCS2() failed in decode() : " + CodecReturnCodes.info(ret), ret);
 		 
 		 _rsslRmtesBuffer.byteData().limit(_rsslRmtesBuffer.length());
 	}

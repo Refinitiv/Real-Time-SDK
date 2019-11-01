@@ -12,6 +12,8 @@ Series100Consumer100-ConsFunc-002
     Alters consumer that sleep for 1 second before requesting item, calls uninitialize() 
     right after requesting item
 
+Series100Consumer100-ConsFunc-003
+	Alters consumer to be slow consumer when dispatch refreshMsg and updateMsg.
 
 Module:  Series100Consumer110 
 -----------------
@@ -460,6 +462,17 @@ Series100Provider100-ProvFunc-008
 Series100Provider130-ProvFunc-001
     Alters Interactive Provider UserDispatch to accept multiple clients.
 
+Series100IProvider100-ProvFunc-009
+	Alters Interactive Provider to submit huge updateMsg and resubmit it again after adjust guaranteedOutputBuffers to 10000 using method modifyCtrlIO()(since v. 1.4.0).
+	
+Series100IProvider100-ProvFunc-010
+	Alters Interactive Provider to register appClientError (since v. 1.4.0) and submit huge updateMsg.
+
+Module:	 Series100IProvider170
+---------------------------
+Series100IProvider170-ProvFunc-001
+	Alters Interactive Provider to parse IOControl parameters as an input argument to modify their values and get those values to display after modifying i.e.
+    -maxOutputBuffers, 	-guranteedOutputBuffers, -compressionThreshold
 
 Module:  Series300Provider320
 ---------------------------

@@ -435,7 +435,7 @@ const EmaString& LoginReqImpl::getApplicationId() const
 	{
 		EmaString text(ENAME_APP_ID);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _applicationId;
@@ -447,7 +447,7 @@ const EmaString& LoginReqImpl::getApplicationName() const
 	{
 		EmaString text(ENAME_APP_NAME);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _applicationName;
@@ -459,7 +459,7 @@ const EmaString& LoginReqImpl::getApplicationAuthorizationToken() const
 	{
 		EmaString text(ENAME_APPAUTH_TOKEN);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _applicationAuthToken;
@@ -471,7 +471,7 @@ const EmaString& LoginReqImpl::getInstanceId() const
 	{
 		EmaString text(ENAME_INST_ID);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _instanceId;
@@ -483,7 +483,7 @@ const EmaString& LoginReqImpl::getPassword() const
 	{
 		EmaString text(ENAME_PASSWORD);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _password;
@@ -495,7 +495,7 @@ const EmaString& LoginReqImpl::getPosition() const
 	{
 		EmaString text(ENAME_POSITION);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _position;
@@ -537,7 +537,7 @@ const EmaBuffer& LoginReqImpl::getAuthenticationExtended() const
 	{
 		EmaString text(ENAME_AUTH_EXTENDED);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationExtended;
@@ -549,7 +549,7 @@ const EmaString& LoginReqImpl::getName() const
 	{
 		EmaString text(ENAME_USERNAME);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _name;
@@ -561,7 +561,7 @@ const UInt32& LoginReqImpl::getNameType() const
 	{
 		EmaString text(ENAME_USERNAME_TYPE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _nameType;
@@ -942,7 +942,7 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 				{
 					EmaString text("Invalid element value of ");
 					text.append(value);
-					throwIueException(text);
+					throwIueException( text, OmmInvalidUsageException::InvalidArgumentEnum );
 				}
 
 			}
@@ -982,7 +982,7 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 				if (!_nameTypeSet || _nameType != USER_AUTH_TOKEN)
 				{
 					EmaString text("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken");
-					throwIueException(text);
+					throwIueException( text, OmmInvalidUsageException::InvalidArgumentEnum );
 				}
 				if (elementEntry.getCode() == Data::NoCodeEnum)
 					name(elementEntry.getAscii());
@@ -992,7 +992,7 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 		{
 			EmaString text("Decoding error for ");
 			text.append(elementName).append(" element. ").append(iue.getText());
-			throwIueException(text);
+			throwIueException( text, iue.getErrorCode() );
 		}
 	}
 }

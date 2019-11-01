@@ -8,6 +8,7 @@
 
 #include "OmmNonRwfEncoder.h"
 #include "rtr/rsslDataUtils.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -41,7 +42,7 @@ void OmmNonRwfEncoder::encodeBuffer( const char* data, UInt32 length )
 	{
 		EmaString temp( "Internal failure #1 in OmmNonRwfEncoder::encodeBuffer(). Reason = " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -68,7 +69,7 @@ void OmmNonRwfEncoder::encodeBuffer( const char* data, UInt32 length )
 	{
 		EmaString temp( "Internal failure #2 in OmmNonRwfEncoder::encodeBuffer(). Reason = " );
 		temp.append( rsslRetCodeToString( retCode ) );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 

@@ -13,6 +13,7 @@
 #include "OmmQosDecoder.h"
 #include "OmmRealDecoder.h"
 #include "Utilities.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -40,7 +41,7 @@ void OmmArrayEncoder::fixedWidth( UInt16 width )
 	if ( _rsslArray.primitiveType )
 	{
 		EmaString temp( "Attempt to set fixed width of OmmArray after add***() was already called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -64,7 +65,7 @@ void OmmArrayEncoder::initEncode()
 	{
 		EmaString temp( "Failed to initialize OmmArray encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -73,7 +74,7 @@ void OmmArrayEncoder::addPrimitiveEntry( const char* methodName, void* value )
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -91,7 +92,7 @@ void OmmArrayEncoder::addPrimitiveEntry( const char* methodName, void* value )
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding OmmArray. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -109,7 +110,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 	{
 		EmaString temp( "Attempt to addInt() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -123,7 +124,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -132,7 +133,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -141,7 +142,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -149,7 +150,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 		break;
@@ -172,7 +173,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 	{
 		EmaString temp( "Attempt to addUInt() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	} 
 
@@ -186,7 +187,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addUInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -195,7 +196,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addUInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -204,7 +205,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addUInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 		break;
@@ -212,7 +213,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addUInt(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		}
 		return;
 	}
@@ -228,7 +229,7 @@ void OmmArrayEncoder::addReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeT
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addReal(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -242,7 +243,7 @@ void OmmArrayEncoder::addReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeT
 	{
 		EmaString temp( "Attempt to addReal() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -262,7 +263,7 @@ void OmmArrayEncoder::addRealFromDouble( double value, OmmReal::MagnitudeType ma
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addRealFromDouble(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -276,7 +277,7 @@ void OmmArrayEncoder::addRealFromDouble( double value, OmmReal::MagnitudeType ma
 	{
 		EmaString temp( "Attempt to addRealFromDouble() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -285,7 +286,7 @@ void OmmArrayEncoder::addRealFromDouble( double value, OmmReal::MagnitudeType ma
 	{
 		EmaString temp( "Attempt to addRealFromDouble() with invalid magnitudeType='" );
 		temp.append( getMTypeAsString( magnitudeType) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -300,7 +301,7 @@ void OmmArrayEncoder::addFloat( float value )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addFloat(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -314,7 +315,7 @@ void OmmArrayEncoder::addFloat( float value )
 	{
 		EmaString temp( "Attempt to addFloat() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -329,7 +330,7 @@ void OmmArrayEncoder::addDouble( double value )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addDouble(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -343,7 +344,7 @@ void OmmArrayEncoder::addDouble( double value )
 	{
 		EmaString temp( "Attempt to addDouble() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -373,7 +374,7 @@ void OmmArrayEncoder::addDate( UInt16 year, UInt8 month, UInt8 day )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addDate(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -387,7 +388,7 @@ void OmmArrayEncoder::addDate( UInt16 year, UInt8 month, UInt8 day )
 	{
 		EmaString temp( "Attempt to addDate() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -429,7 +430,7 @@ void OmmArrayEncoder::addTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mi
 	{
 		EmaString temp( "Attempt to addTime() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -443,7 +444,7 @@ void OmmArrayEncoder::addTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mi
 	{
 		EmaString temp( "Unsupported fixedWidth encoding in addTime(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -489,7 +490,7 @@ void OmmArrayEncoder::addDateTime( UInt16 year, UInt8 month, UInt8 day,
 	{
 		EmaString temp( "Attempt to addDateTime() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -503,7 +504,7 @@ void OmmArrayEncoder::addDateTime( UInt16 year, UInt8 month, UInt8 day,
 	{
 		EmaString temp( "Unsupported fixedWidth encoding in addDateTime(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -515,7 +516,7 @@ void OmmArrayEncoder::addQos( UInt32 timeliness, UInt32 rate )
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addQos(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -529,7 +530,7 @@ void OmmArrayEncoder::addQos( UInt32 timeliness, UInt32 rate )
 	{
 		EmaString temp( "Attempt to addQos() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -550,7 +551,7 @@ void OmmArrayEncoder::addState( OmmState::StreamState streamState,
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addState(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -564,7 +565,7 @@ void OmmArrayEncoder::addState( OmmState::StreamState streamState,
 	{
 		EmaString temp( "Attempt to addState() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -592,7 +593,7 @@ void OmmArrayEncoder::addEnum( UInt16 value )
 	{
 		EmaString temp( "Attempt to addEnum() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -605,7 +606,7 @@ void OmmArrayEncoder::addEnum( UInt16 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addEnum(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		}
 		return;
 	case 2 :
@@ -613,14 +614,14 @@ void OmmArrayEncoder::addEnum( UInt16 value )
 		{
 			EmaString temp( "Out of range value for the specified fixed width in addEnum(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "' value='" ).append( value ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		}
 		return;
 	default :
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addEnum(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		}
 		return;
 	}
@@ -642,7 +643,7 @@ void OmmArrayEncoder::addBuffer( const EmaBuffer& value )
 	{
 		EmaString temp( "Attempt to addBuffer() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -650,7 +651,7 @@ void OmmArrayEncoder::addBuffer( const EmaBuffer& value )
 	{
 		EmaString temp( "Passed in value is longer than fixed width in addBuffer(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -675,7 +676,7 @@ void OmmArrayEncoder::addAscii( const EmaString& value )
 	{
 		EmaString temp( "Attempt to addAscii() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -683,7 +684,7 @@ void OmmArrayEncoder::addAscii( const EmaString& value )
 	{
 		EmaString temp( "Passed in value is longer than fixed width in addAscii(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -708,7 +709,7 @@ void OmmArrayEncoder::addUtf8( const EmaBuffer& value )
 	{
 		EmaString temp( "Attempt to addUtf8() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -716,7 +717,7 @@ void OmmArrayEncoder::addUtf8( const EmaBuffer& value )
 	{
 		EmaString temp( "Passed in value is longer than fixed width in addUtf8(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -741,7 +742,7 @@ void OmmArrayEncoder::addRmtes( const EmaBuffer& value )
 	{
 		EmaString temp( "Attempt to addRmtes() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -749,7 +750,7 @@ void OmmArrayEncoder::addRmtes( const EmaBuffer& value )
 	{
 		EmaString temp( "Passed in value is longer than fixed width in addRmtes(). Fixed width='" );
 		temp.append( _rsslArray.itemLength ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -776,7 +777,7 @@ void OmmArrayEncoder::addCodeInt()
 			{
 				EmaString temp( "Unsupported fixedWidth encoding in addCodeInt(). Fixed width='" );
 				temp.append( _rsslArray.itemLength ).append( "'. " );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			}
 			return;
 		}
@@ -791,7 +792,7 @@ void OmmArrayEncoder::addCodeInt()
 	{
 		EmaString temp( "Attempt to addCodeInt() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 		
@@ -814,7 +815,7 @@ void OmmArrayEncoder::addCodeUInt()
 			{
 				EmaString temp( "Unsupported fixedWidth encoding in addCodeUInt(). Fixed width='" );
 				temp.append( _rsslArray.itemLength ).append( "'. " );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			}
 			return;
 		}
@@ -829,7 +830,7 @@ void OmmArrayEncoder::addCodeUInt()
 	{
 		EmaString temp( "Attempt to addCodeUInt() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	} 
 
@@ -844,7 +845,7 @@ void OmmArrayEncoder::addCodeReal()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeReal(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -858,7 +859,7 @@ void OmmArrayEncoder::addCodeReal()
 	{
 		EmaString temp( "Attempt to addCodeReal() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -873,7 +874,7 @@ void OmmArrayEncoder::addCodeFloat()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeFloat(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -887,7 +888,7 @@ void OmmArrayEncoder::addCodeFloat()
 	{
 		EmaString temp( "Attempt to addCodeFloat() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -902,7 +903,7 @@ void OmmArrayEncoder::addCodeDouble()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeDouble(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -916,7 +917,7 @@ void OmmArrayEncoder::addCodeDouble()
 	{
 		EmaString temp( "Attempt to addCodeDouble() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -931,7 +932,7 @@ void OmmArrayEncoder::addCodeDate()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeDate(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -945,7 +946,7 @@ void OmmArrayEncoder::addCodeDate()
 	{
 		EmaString temp( "Attempt to addCodeDate() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -966,7 +967,7 @@ void OmmArrayEncoder::addCodeTime()
 			{
 				EmaString temp( "Unsupported fixedWidth encoding in addCodeTime(). Fixed width='" );
 				temp.append( _rsslArray.itemLength ).append( "'. " );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			}
 			return;
 		}
@@ -981,7 +982,7 @@ void OmmArrayEncoder::addCodeTime()
 	{
 		EmaString temp( "Attempt to addCodeTime() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1002,7 +1003,7 @@ void OmmArrayEncoder::addCodeDateTime()
 			{
 				EmaString temp( "Unsupported fixedWidth encoding in addCodeDateTime(). Fixed width='" );
 				temp.append( _rsslArray.itemLength ).append( "'. " );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			}
 			return;
 		}
@@ -1017,7 +1018,7 @@ void OmmArrayEncoder::addCodeDateTime()
 	{
 		EmaString temp( "Attempt to addCodeDateTime() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1032,7 +1033,7 @@ void OmmArrayEncoder::addCodeQos()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeQos(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -1046,7 +1047,7 @@ void OmmArrayEncoder::addCodeQos()
 	{
 		EmaString temp( "Attempt to addCodeQos() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1061,7 +1062,7 @@ void OmmArrayEncoder::addCodeState()
 		{
 			EmaString temp( "Unsupported fixedWidth encoding in addCodeState(). Fixed width='" );
 			temp.append( _rsslArray.itemLength ).append( "'. " );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -1075,7 +1076,7 @@ void OmmArrayEncoder::addCodeState()
 	{
 		EmaString temp( "Attempt to addCodeState() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1096,7 +1097,7 @@ void OmmArrayEncoder::addCodeEnum()
 			{
 				EmaString temp( "Unsupported fixedWidth encoding in addCodeEnum(). Fixed width='" );
 				temp.append( _rsslArray.itemLength ).append( "'. " );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			}
 			return;
 		}
@@ -1111,7 +1112,7 @@ void OmmArrayEncoder::addCodeEnum()
 	{
 		EmaString temp( "Attempt to addCodeEnum() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1132,7 +1133,7 @@ void OmmArrayEncoder::addCodeBuffer()
 	{
 		EmaString temp( "Attempt to addCodeBuffer() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1153,7 +1154,7 @@ void OmmArrayEncoder::addCodeAscii()
 	{
 		EmaString temp( "Attempt to addCodeAscii() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1174,7 +1175,7 @@ void OmmArrayEncoder::addCodeUtf8()
 	{
 		EmaString temp( "Attempt to addCodeUtf8() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1195,7 +1196,7 @@ void OmmArrayEncoder::addCodeRmtes()
 	{
 		EmaString temp( "Attempt to addCodeRmtes() while OmmArray contains='" );
 		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1209,7 +1210,7 @@ void OmmArrayEncoder::complete()
 	if ( !_rsslArray.primitiveType )
 	{
 		EmaString temp( "Attempt to complete() while no OmmArray::add***() were called yet." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -1219,7 +1220,7 @@ void OmmArrayEncoder::complete()
 	{
 		EmaString temp( "Failed to complete OmmArray encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 

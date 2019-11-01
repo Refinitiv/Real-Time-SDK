@@ -96,7 +96,7 @@ const EmaString& OmmDateTimeDecoder::toString()
 	{
 		EmaString temp( "Failed to convert OmmDateTime to string. Reason: " );
 		temp += rsslRetCodeToString( retCode );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 	else
 	{

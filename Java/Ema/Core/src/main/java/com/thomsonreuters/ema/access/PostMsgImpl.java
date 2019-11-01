@@ -135,7 +135,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	public long seqNum()
 	{
 		if (!hasSeqNum())
-			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).seqNum();
 	}
@@ -144,7 +144,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	public long postId()
 	{
 		if (!hasPostId())
-			throw ommIUExcept().message("Attempt to postId() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to postId() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).postId();
 	}
@@ -153,7 +153,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	public int partNum()
 	{
 		if (!hasPartNum())
-			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).partNum();
 	}
@@ -162,7 +162,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	public int postUserRights()
 	{
 		if (!hasPostUserRights())
-			throw ommIUExcept().message("Attempt to postUserRights() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to postUserRights() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).postUserRights();
 	}
@@ -171,7 +171,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;

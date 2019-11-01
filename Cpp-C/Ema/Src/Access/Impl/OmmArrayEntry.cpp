@@ -26,6 +26,7 @@
 #include "OmmRmtes.h"
 #include "OmmUtf8.h"
 #include "RmtesBuffer.h" // not sure if needed
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -63,12 +64,12 @@ Int64 OmmArrayEntry::getInt() const
 	{
 		EmaString temp( "Attempt to getInt() while actual Entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getInt() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmInt&>( *_pLoad ).getInt();
@@ -80,12 +81,12 @@ UInt64 OmmArrayEntry::getUInt() const
 	{
 		EmaString temp( "Attempt to getUInt() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getUInt() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmUInt&>( *_pLoad ).getUInt();
@@ -97,12 +98,12 @@ const OmmReal& OmmArrayEntry::getReal() const
 	{
 		EmaString temp( "Attempt to getReal() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getReal() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmReal&>( *_pLoad );
@@ -114,12 +115,12 @@ const OmmDate& OmmArrayEntry::getDate() const
 	{
 		EmaString temp( "Attempt to getDate() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getDate() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDate&>( *_pLoad );
@@ -131,12 +132,12 @@ const OmmDateTime& OmmArrayEntry::getDateTime() const
 	{
 		EmaString temp( "Attempt to getDateTime() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getDateTime() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDateTime&>( *_pLoad );
@@ -148,12 +149,12 @@ const OmmTime& OmmArrayEntry::getTime() const
 	{
 		EmaString temp( "Attempt to getTime() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getTime() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmTime&>( *_pLoad );
@@ -165,12 +166,12 @@ const EmaString& OmmArrayEntry::getAscii() const
 	{
 		EmaString temp( "Attempt to getAscii() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getAscii() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmAscii&>( *_pLoad ).getAscii();
@@ -182,12 +183,12 @@ const EmaBuffer& OmmArrayEntry::getBuffer() const
 	{
 		EmaString temp( "Attempt to getBuffer() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getBuffer() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmBuffer&>( *_pLoad ).getBuffer();
@@ -199,12 +200,12 @@ float OmmArrayEntry::getFloat() const
 	{
 		EmaString temp( "Attempt to getFloat() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getFloat() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmFloat&>( *_pLoad ).getFloat();
@@ -216,12 +217,12 @@ double OmmArrayEntry::getDouble() const
 	{
 		EmaString temp( "Attempt to getDouble() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getDouble() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmDouble&>( *_pLoad ).getDouble();
@@ -233,12 +234,12 @@ const RmtesBuffer& OmmArrayEntry::getRmtes() const
 	{
 		EmaString temp( "Attempt to getRmtes() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getRmtes() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmRmtes&>( *_pLoad ).getRmtes();
@@ -250,12 +251,12 @@ const EmaBuffer& OmmArrayEntry::getUtf8() const
 	{
 		EmaString temp( "Attempt to getUtf8() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getUtf8() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmUtf8&>( *_pLoad ).getUtf8();
@@ -267,12 +268,12 @@ const OmmState& OmmArrayEntry::getState() const
 	{
 		EmaString temp( "Attempt to getState() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getState() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmState&>( *_pLoad );
@@ -284,12 +285,12 @@ UInt16 OmmArrayEntry::getEnum() const
 	{
 		EmaString temp( "Attempt to getEnum() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getEnum() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmEnum&>( *_pLoad ).getEnum();
@@ -301,12 +302,12 @@ const OmmQos& OmmArrayEntry::getQos() const
 	{
 		EmaString temp( "Attempt to getQos() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	else if ( _pLoad->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getQos() while entry data is blank." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmQos&>( *_pLoad );
@@ -318,7 +319,7 @@ const OmmError& OmmArrayEntry::getError() const
 	{
 		EmaString temp( "Attempt to getError() while actual entry data type is " );
 		temp += getDTypeAsString( _pLoad->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmError&>( *_pLoad );

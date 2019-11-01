@@ -29,6 +29,7 @@
 #include "RefreshMsg.h"
 #include "StatusMsg.h"
 #include "UpdateMsg.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -66,7 +67,7 @@ void FieldListEncoder::info( Int16 dictionaryId, Int16 fieldListNum )
 	else
 	{
 		EmaString temp("Invalid attempt to call info() when container is initialized.");
-		throwIueException(temp);
+		throwIueException(temp, OmmInvalidUsageException::InvalidOperationEnum);
 	}
 }
 
@@ -87,7 +88,7 @@ void FieldListEncoder::initEncode()
 	{
 		EmaString temp( "Failed to initialize FieldList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -99,7 +100,7 @@ void FieldListEncoder::addPrimitiveEntry( Int16 fieldId, RsslDataType rsslDataTy
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -123,7 +124,7 @@ void FieldListEncoder::addPrimitiveEntry( Int16 fieldId, RsslDataType rsslDataTy
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding FieldList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -132,7 +133,7 @@ void FieldListEncoder::addEncodedEntry( Int16 fieldId, RsslDataType rsslDataType
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -155,7 +156,7 @@ void FieldListEncoder::addEncodedEntry( Int16 fieldId, RsslDataType rsslDataType
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding FieldList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -164,7 +165,7 @@ void FieldListEncoder::startEncodingEntry( Int16 fieldId, RsslDataType rsslDataT
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -188,7 +189,7 @@ void FieldListEncoder::startEncodingEntry( Int16 fieldId, RsslDataType rsslDataT
 		EmaString temp( "Failed to start encoding entry in FieldList::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -206,7 +207,7 @@ void FieldListEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in FieldList. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -270,11 +271,12 @@ void FieldListEncoder::addRealFromDouble( Int16 fieldId, double value,
 	}
 
 	RsslReal real;
-	if ( RSSL_RET_SUCCESS != rsslDoubleToReal( &real, &value, magnitudeType ) )
+	Int32 retCode;
+	if ( RSSL_RET_SUCCESS != ( retCode = rsslDoubleToReal( &real, &value, magnitudeType ) ) )
 	{
 		EmaString temp( "Attempt to addRealFromDouble() with invalid magnitudeType='" );
 		temp.append( getMTypeAsString( magnitudeType) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -567,7 +569,7 @@ void FieldListEncoder::addArray( Int16 fieldId, const OmmArray& array )
 		else
 		{
 			EmaString temp( "Attempt to addArray() while OmmArray::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -602,7 +604,7 @@ void FieldListEncoder::addElementList( Int16 fieldId, const ElementList& element
 		else
 		{
 			EmaString temp( "Attempt to addElementList() while ElementList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -637,7 +639,7 @@ void FieldListEncoder::addFieldList( Int16 fieldId, const FieldList& fieldList )
 		else
 		{
 			EmaString temp( "Attempt to addFieldList() while FieldList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -674,7 +676,7 @@ void FieldListEncoder::addReqMsg( Int16 fieldId, const ReqMsg& reqMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addReqMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -700,7 +702,7 @@ void FieldListEncoder::addRefreshMsg( Int16 fieldId, const RefreshMsg& refreshMs
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addRefreshMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -726,7 +728,7 @@ void FieldListEncoder::addStatusMsg( Int16 fieldId, const StatusMsg& statusMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addStatusMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -752,7 +754,7 @@ void FieldListEncoder::addUpdateMsg( Int16 fieldId, const UpdateMsg& updateMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addUpdateMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -778,7 +780,7 @@ void FieldListEncoder::addPostMsg( Int16 fieldId, const PostMsg& postMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addPostMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -804,7 +806,7 @@ void FieldListEncoder::addAckMsg( Int16 fieldId, const AckMsg& ackMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addAckMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -830,7 +832,7 @@ void FieldListEncoder::addGenericMsg( Int16 fieldId, const GenericMsg& genMsg )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty message to addGenericMsg() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -854,7 +856,7 @@ void FieldListEncoder::addMap( Int16 fieldId, const Map& map )
 		else
 		{
 			EmaString temp( "Attempt to addMap() while Map::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -889,7 +891,7 @@ void FieldListEncoder::addVector( Int16 fieldId, const Vector& vector )
 		else
 		{
 			EmaString temp( "Attempt to addVector() while Vector::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -924,7 +926,7 @@ void FieldListEncoder::addSeries( Int16 fieldId, const Series& series )
 		else
 		{
 			EmaString temp( "Attempt to addSeries() while Series::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -959,7 +961,7 @@ void FieldListEncoder::addFilterList( Int16 fieldId, const FilterList& filterLis
 		else
 		{
 			EmaString temp( "Attempt to addFilterList() while FilterList::complete() was not called." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -998,7 +1000,7 @@ void FieldListEncoder::addOpaque( Int16 fieldId, const OmmOpaque& ommOpaque )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmOpaque to addOpaque() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -1026,7 +1028,7 @@ void FieldListEncoder::addXml( Int16 fieldId, const OmmXml& ommXml )
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmXml to addXml() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -1054,7 +1056,7 @@ void FieldListEncoder::addAnsiPage( Int16 fieldId, const OmmAnsiPage& ommAnsiPag
 	else
 	{
 		EmaString temp( "Attempt to pass an empty OmmAnsiPage to addAnsiPage() while it is not supported." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 }
 
@@ -1285,7 +1287,7 @@ void FieldListEncoder::complete()
 	{
 		EmaString temp( "Failed to complete FieldList encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 

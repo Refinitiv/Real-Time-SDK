@@ -108,6 +108,8 @@ public :
     void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&);
     void getChannelInformation(ChannelInformation&);
 
+	void modifyIOCtl(Int32 code, Int32 value, UInt64 handle);
+
 private :
 
 	void reLoadConfigSourceDirectory();

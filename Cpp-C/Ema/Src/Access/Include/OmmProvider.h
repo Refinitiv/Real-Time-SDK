@@ -273,6 +273,7 @@ public :
 		@param[in] genericMsg specifies GenericMsg to be sent on the open item stream
 		@param[in] identifies handle associated with an item stream on which to send the GenericMsg
 		@return void
+		@throw OmmInvalidUsageException if failed to submit genericMsg
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
@@ -282,6 +283,7 @@ public :
 		@param[in] refreshMsg specifies RefreshMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the RefreshMsg
 		@return void
+		@throw OmmInvalidUsageException if failed to submit refreshMsg
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
@@ -291,6 +293,7 @@ public :
 		@param[in] updateMsg specifies UpdateMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the UpdateMsg
 		@return void
+		@throw OmmInvalidUsageException if failed to submit updateMsg
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
@@ -300,6 +303,7 @@ public :
 		@param[in] statusMsg specifies StatusMsg to be sent
 		@param[in] identifies handle associated with an item stream on which to send the StatusMsg
 		@return void
+		@throw OmmInvalidUsageException if failed to submit statusMsg
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/	
@@ -328,6 +332,7 @@ public :
 		@param[in] ackMsg specifies AckMsg to be sent on the open item stream
 		@param[in] identifies handle associated with an item stream on which to send the AckMsg
 		@return void
+		@throw OmmInvalidUsageException if failed to submit ackMsg
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
@@ -353,6 +358,15 @@ public :
 	*/
 	void getChannelInformation(ChannelInformation&);
 
+	/** Allows modifying some I/O values programmatically for a channel to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.
+		@param[in] value provides Value to modify I/O option to
+		@param[in] identifies handle associated with an item or login stream. This parameter is needed or IProvider applications only.
+		@return void
+		@throw OmmInvalidUsageException if fails to modify I/O option to
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void modifyIOCtl( Int32 code, Int32 value, UInt64 handle = 0 );
 	//@}
 
 private :

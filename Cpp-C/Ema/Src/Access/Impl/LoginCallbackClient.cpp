@@ -15,6 +15,7 @@
 #include "GenericMsgEncoder.h"
 #include "PostMsgEncoder.h"
 #include "Utilities.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -775,7 +776,7 @@ void LoginCallbackClient::initialize()
 
 		if ( RSSL_RET_SUCCESS != rsslGetUserName( &tempBuffer ) )
 		{
-			_ommBaseImpl.handleIue( "Failed to obtain name of the process owner" );
+			_ommBaseImpl.handleIue( "Failed to obtain name of the process owner",  OmmInvalidUsageException::FailureEnum );
 			return;
 		}
 
@@ -1497,7 +1498,7 @@ bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRssl
 	if ( retCode != RSSL_RET_SUCCESS )
 	{
 		free( pRsslMsgBuffer->data );
-		_ommBaseImpl.handleIue( "Internal error. Failed to set encode iterator version in LoginCallbackClient::convertRdmLoginToRsslBuffer()" );
+		_ommBaseImpl.handleIue( "Internal error. Failed to set encode iterator version in LoginCallbackClient::convertRdmLoginToRsslBuffer()", retCode );
 		return false;
 	}
 
@@ -1505,7 +1506,7 @@ bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRssl
 	if ( retCode != RSSL_RET_SUCCESS )
 	{
 		free( pRsslMsgBuffer->data );
-		_ommBaseImpl.handleIue( "Internal error. Failed to set encode iterator buffer in LoginCallbackClient::convertRdmLoginToRsslBuffer()" );
+		_ommBaseImpl.handleIue( "Internal error. Failed to set encode iterator buffer in LoginCallbackClient::convertRdmLoginToRsslBuffer()", retCode);
 		return false;
 	}
 
@@ -1758,7 +1759,7 @@ bool LoginItem::submit( RsslRDMLoginRequest* pRsslRequestMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-			_ommBaseImpl.handleIue( text );
+			_ommBaseImpl.handleIue( text, ret );
 
 			return false;
 		}
@@ -1807,7 +1808,7 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-			_ommBaseImpl.handleIue( text );
+			_ommBaseImpl.handleIue( text, ret );
 
 			return false;
 		}
@@ -1856,7 +1857,7 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-			_ommBaseImpl.handleIue( text );
+			_ommBaseImpl.handleIue( text, ret );
 
 			return false;
 		}
@@ -2028,7 +2029,7 @@ bool NiProviderLoginItem::submit(RsslRDMLoginRequest* pRsslRequestMsg )
 				.append( ". Error text: " )
 				.append( rsslErrorInfo.rsslError.text );
 
-			_ommBaseImpl.handleIue( text );
+			_ommBaseImpl.handleIue( text, ret );
 
 			return false;
 		}
@@ -2077,7 +2078,7 @@ bool NiProviderLoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 				.append( ". Error text: " )
 				.append( rsslErrorInfo.rsslError.text );
 
-			_ommBaseImpl.handleIue( text );
+			_ommBaseImpl.handleIue( text, ret );
 
 			return false;
 		}

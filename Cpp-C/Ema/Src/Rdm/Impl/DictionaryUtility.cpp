@@ -9,6 +9,7 @@
 #include "DictionaryUtility.h"
 #include "FieldListDecoder.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -26,7 +27,7 @@ const DataDictionary& DictionaryUtility::dataDictionary(const thomsonreuters::em
 {
 	if (!fieldList.hasDecoder())
 	{
-		throwIueException("Failed to extract DataDictionary from the passed in FieldList");
+		throwIueException( "Failed to extract DataDictionary from the passed in FieldList", OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 
 	Decoder& decoder = const_cast<thomsonreuters::ema::access::FieldList&>(fieldList).getDecoder();

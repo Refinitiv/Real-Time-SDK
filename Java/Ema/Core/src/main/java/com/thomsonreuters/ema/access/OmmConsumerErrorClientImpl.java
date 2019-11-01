@@ -15,4 +15,7 @@ class OmmConsumerErrorClientImpl implements OmmConsumerErrorClient
 
 	@Override
 	public void onInvalidUsage(String text) {}
+
+	@Override
+	public void onInvalidUsage(String text, int errorCode) {}
 }

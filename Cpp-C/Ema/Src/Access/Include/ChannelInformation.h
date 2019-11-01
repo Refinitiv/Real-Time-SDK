@@ -81,6 +81,16 @@ public:
 	RwfEnum = 0				/*!< (0) Reuters wireformat protocol */
   };
 
+  /** @enum CompressionType
+	  An enumeration representing compression types.
+  */
+  enum CompressionType
+  {
+	  NoneEnum = 0x00,		 /*!< (0) No compression will be negotiated. */
+	  ZLIBEnum = 0x01,		 /*!< (1) Will attempt to use Zlib compression. */
+	  LZ4Enum = 0x02		 /*!< (2) Will attempt to use LZ4 compression */
+  };
+
   ///@name Constructor
   //@{
   /** Constructs ChannelInformation.
@@ -106,7 +116,7 @@ public:
 					  const EmaString& hostname, const EmaString& ipAddress,
 					  const ChannelState channelState, const ConnectionType connectionType,
 					  const ProtocolType protocolType, const UInt32 majorVersion,
-					  const UInt32 minorVersion, const UInt32 pingTimeout);
+					  const UInt32 minorVersion, const UInt32 pingTimeout );
   //@}
 
   ///@name Destructor
@@ -170,6 +180,51 @@ public:
 	  @return UInt32 representation of this object's ping timeout
   */
   UInt32 getPingTimeout() const { return _pingTimeout; }
+
+  /** Gets the max fragment size
+	  @return The max fragment size before fragmentation and reassembly is necessary.
+  */
+  UInt32 getMaxFragmentSize() const { return _maxFragmentSize;  }
+
+  /** Gets the maximum number of output buffers
+	  @return The maximum number of output buffers available to the channel.
+  */
+  UInt32 getMaxOutputBuffers() const { return _maxOutputBuffers; }
+
+  /** Gets the guaranteed number of output buffers
+	  @return The guaranteed number of output buffers available to the channel.
+  */
+  UInt32 getGuaranteedOutputBuffers() const { return _guaranteedOutputBuffers; }
+
+  /** Gets the number of input buffers
+	  @return The number of input buffers available to the channel.
+  */
+  UInt32 getNumInputBuffers() const { return _numInputBuffers; }
+
+  /** Gets the systems send Buffer size
+	  @return The systems send buffer size respective to the transport type being used.
+  */
+  UInt32 getSysSendBufSize() const { return _sysSendBufSize; }
+
+  /** Gets the systems receive Buffer size
+	  @return The systems receive buffer size respective to the transport type being used.
+  */
+  UInt32 getSysRecvBufSize() const { return _sysRecvBufSize; }
+
+  /** Gets the compression type
+	  @return The type of compression being used, if it is enabled.
+  */
+  CompressionType getCompressionType() const { return _compressionType; }
+
+  /** Gets the compression threshold
+	  @return The compression threshold for compressing any message lager than this when compression is enabled.
+  */
+  UInt32 getCompressionThreshold() const { return _compressionThreshold; }
+
+  /** Gets the encryption protocol
+	  @return The current encryption protocol being used.
+  */
+  UInt64 getEncryptionProtocol() const { return _encryptionProtocol; }
 
   /** Gets a string representation of the class instance.
 	  @return string representation of the class instance.
@@ -239,6 +294,60 @@ public:
 	  @return reference to this object
   */
   ChannelInformation& pingTimeout(UInt32 pingTimeout);
+
+  /** Specifies the max fragment size
+	  @param[in] maxFragmentSize specifies max fragment size
+	  @return reference to this object
+  */
+  ChannelInformation& maxFragmentSize(UInt32 maxFragmentSize);
+
+  /** Specifies the maximum number of output buffers
+	  @param[in] maxOutputBuffers specifies maximum number of output buffers
+	  @return reference to this object
+  */
+  ChannelInformation& maxOutputBuffers(UInt32 maxOutputBuffers);
+
+  /** Specifies the guaranteed number of output buffers
+	  @param[in] guaranteedOutputBuffers specifies guaranteed number of output buffers
+	  @return reference to this object
+  */
+  ChannelInformation& guaranteedOutputBuffers(UInt32 guaranteedOutputBuffers);
+
+  /** Specifies the number of input buffers
+	  @param[in] guaranteedOutputBuffers specifies number of input buffers
+	  @return reference to this object
+  */
+  ChannelInformation& numInputBuffers(UInt32 numInputBuffers);
+
+  /** Specifies the systems Send Buffer size
+	  @param[in] sysSendBufSize specifies systems send Buffer size
+	  @return reference to this object
+  */
+  ChannelInformation& sysSendBufSize(UInt32 sysSendBufSize);
+
+  /** Specifies the systems Receive Buffer size
+	 @param[in] sysRecvBufSize specifies systems receive Buffer size
+	 @return reference to this object
+  */
+  ChannelInformation& sysRecvBufSize(UInt32 sysRecvBufSize);
+
+  /** Specifies the compression type
+	 @param[in] compressionType specifies compression type
+	 @return reference to this object
+  */
+  ChannelInformation& compressionType(UInt32 compressionType);
+
+  /** Specifies the compression threshold
+	 @param[in] compressionThreshold specifies compression threshold
+	 @return reference to this object
+  */
+  ChannelInformation& compressionThreshold(UInt32 compressionThreshold);
+
+  /** Specifies the encryption protocol
+	 @param[in] encryptionProtocol specifies the encryption protocol
+	 @return reference to this object
+  */
+  ChannelInformation& encryptionProtocol(UInt64 encryptionProtocol);
   //@}
 
 private:
@@ -251,6 +360,15 @@ private:
   UInt32 _majorVersion;
   UInt32 _minorVersion;
   UInt32 _pingTimeout;
+  UInt32 _maxFragmentSize;
+  UInt32 _maxOutputBuffers;
+  UInt32 _guaranteedOutputBuffers;
+  UInt32 _numInputBuffers;
+  UInt32 _sysSendBufSize;
+  UInt32 _sysRecvBufSize;
+  CompressionType _compressionType;
+  UInt32 _compressionThreshold;
+  UInt64 _encryptionProtocol;
   mutable EmaString _toString;
 };
 

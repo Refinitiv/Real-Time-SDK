@@ -19,6 +19,7 @@
 #include "OmmNiProviderImpl.h"
 #include "OmmIProviderImpl.h"
 #include "EmaRdm.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -114,14 +115,14 @@ bool LocalDictionary::isLoaded() const
 	return _isLoaded;
 }
 
-bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName )
+bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName, RsslRet& retCode )
 {
 	char errTxt[256];
 	RsslBuffer buffer;
 	buffer.data = errTxt;
 	buffer.length = 255;
 
-	if ( rsslLoadFieldDictionary( fldName.c_str(), &_rsslDictionary, &buffer ) < 0 )
+	if ( ( retCode = rsslLoadFieldDictionary( fldName.c_str(), &_rsslDictionary, &buffer ) ) < 0 )
 	{
 		_isLoaded = false;
 
@@ -139,7 +140,7 @@ bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName 
 		return false;
 	}
 
-	if ( rsslLoadEnumTypeDictionary( enumName.c_str(), &_rsslDictionary, &buffer ) < 0 )
+	if ( ( retCode = rsslLoadEnumTypeDictionary( enumName.c_str(), &_rsslDictionary, &buffer ) ) < 0 )
 	{
 		_isLoaded = false;
 
@@ -732,7 +733,7 @@ void DictionaryCallbackClient::initialize()
 				EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 				temp.append( CR ).append( "Invalid attempt to download dictionaries from different service IDs." );
 
-				_ommBaseImpl.handleIue( temp );
+				_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 		}
@@ -745,7 +746,7 @@ void DictionaryCallbackClient::initialize()
 				EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 				temp.append( CR ).append( "Invalid attempt to download dictionaries from different service names." );
 
-				_ommBaseImpl.handleIue( temp );
+				_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 		}
@@ -754,7 +755,7 @@ void DictionaryCallbackClient::initialize()
 			EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 			temp.append( CR ).append( "Invalid attempt to download dictionaries from different services." );
 
-			_ommBaseImpl.handleIue( temp );
+			_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -766,7 +767,7 @@ void DictionaryCallbackClient::initialize()
 		EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 		temp.append( CR ).append( "Enumeration type definition request message was not populated." );
 
-		_ommBaseImpl.handleIue( temp );
+		_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 	else if ( !_ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommBaseImpl.getActiveConfig().pRsslEnumDefRequestMsg )
@@ -774,7 +775,7 @@ void DictionaryCallbackClient::initialize()
 		EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 		temp.append( CR ).append( "RDM Field Dictionary request message was not populated." );
 
-		_ommBaseImpl.handleIue( temp );
+		_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -786,7 +787,18 @@ void DictionaryCallbackClient::loadDictionaryFromFile()
 {
 	_localDictionary = LocalDictionary::create( _ommBaseImpl, _ommBaseImpl.getActiveConfig() );
 
-	_localDictionary->load( _ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName, _ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName );
+	RsslRet retCode;
+	if (_localDictionary->load(_ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName, _ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName, retCode) == false)
+	{
+		EmaString temp("DictionaryHandler::loadDictionaryFromFile() failed while initializing DictionaryHandler.");
+		temp.append(CR).append("Unable to load RDMFieldDictionary from file named ").append(_ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName)
+			.append(CR).append("or load enumtype.def from file named ").append(_ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName);
+
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+		throwIueException(temp, retCode);
+	}
 }
 
 bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
@@ -1608,7 +1620,7 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 				temp.append(_name);
 				temp.append("\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ");
 				temp.append("Instance name='").append(_ommBaseImpl.getInstanceName()).append("'.");
-				_ommBaseImpl.handleIue(temp);
+				_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return false;
 			}
 
@@ -1674,7 +1686,7 @@ bool DictionaryItem::modify( const ReqMsg& reqMsg )
 	EmaString temp( "Invalid attempt to modify dictionary stream. " );
 	temp.append( "User name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1684,7 +1696,7 @@ bool DictionaryItem::submit( const PostMsg& )
 	EmaString temp( "Invalid attempt to submit PostMsg on dictionary stream. " );
 	temp.append( "User name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1694,7 +1706,7 @@ bool DictionaryItem::submit( const GenericMsg& )
 	EmaString temp( "Invalid attempt to submit GenericMsg on dictionary stream. " );
 	temp.append( "User name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }

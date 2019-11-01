@@ -133,7 +133,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public long seqNum()
 	{
 		if (!hasSeqNum())
-			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).seqNum();
 	}
@@ -142,7 +142,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
@@ -152,7 +152,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public int conflatedTime()
 	{
 		if (!hasConflated())
-			throw ommIUExcept().message("Attempt to conflatedTime() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to conflatedTime() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).conflationTime();
 	}
@@ -161,7 +161,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public int conflatedCount()
 	{
 		if (!hasConflated())
-			throw ommIUExcept().message("Attempt to conflatedCount() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to conflatedCount() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).conflationCount();
 	}
@@ -170,7 +170,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public long publisherIdUserId()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).postUserInfo().userId();
 	}
@@ -179,7 +179,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public long publisherIdUserAddress()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).postUserInfo().userAddr();
 	}

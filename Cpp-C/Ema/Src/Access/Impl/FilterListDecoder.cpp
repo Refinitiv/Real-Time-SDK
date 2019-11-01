@@ -8,6 +8,7 @@
 
 #include "FilterListDecoder.h"
 #include "StaticDecoder.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -339,7 +340,7 @@ UInt32 FilterListDecoder::getTotalCountHint() const
 	if ( !hasTotalCountHint() )
 	{
 		EmaString temp( "Attempt to getTotalCountHint() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslFilterList.totalCountHint;

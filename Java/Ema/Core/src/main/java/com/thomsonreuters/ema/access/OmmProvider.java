@@ -281,6 +281,7 @@ public interface OmmProvider
 	 * Sends a GenericMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
+	 * @throws OmmInvalidUsageException if failed to submit genericMsg
 	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 * 
 	 * @param genericMsg specifies GenericMsg to be sent on the open item stream
@@ -292,6 +293,7 @@ public interface OmmProvider
 	 * Sends a RefreshMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
+	 * @throws OmmInvalidUsageException if failed to submit refreshMsg
 	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 * 
 	 * @param refreshMsg specifies RefreshMsg to be sent on the open item stream
@@ -303,6 +305,7 @@ public interface OmmProvider
 	 * Sends a UpdateMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
+	 * @throws OmmInvalidUsageException if failed to submit updateMsg
 	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 * 
 	 * @param updateMsg specifies UpdateMsg to be sent on the open item stream
@@ -314,6 +317,7 @@ public interface OmmProvider
 	 * Sends a StatusMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
+	 * @throws OmmInvalidUsageException if failed to submit statusMsg
 	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 * 
 	 * @param statusMsg specifies StatusMsg to be sent on the open item stream
@@ -325,6 +329,7 @@ public interface OmmProvider
 	 * Sends a AckMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
 	 * 
+	 * @throws OmmInvalidUsageException if failed to submit ackMsg
 	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 * 
 	 * @param ackMsg specifies AckMsg to be sent on the open item stream
@@ -390,4 +395,24 @@ public interface OmmProvider
 	 * @param ci the ChannelInformation 
 	 */
 	public void channelInformation(ChannelInformation ci);
+	
+	/**
+	 * Allows modifying some I/O values programmatically for a channel to override the default values for Non-Interactive Providers applications.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 * 
+	 * @param code provides Code of I/O option defined in {@link IOCtlCode} to modify.
+	 * @param value provides Value to modify I/O option to
+	 * @throws OmmInvalidUsageException if failed to modify I/O option to
+	 */
+	public void modifyIOCtl(int code, int value);
+	
+	/**
+	 * Allows modifying some I/O values programmatically for a channel to override the default values for Interactive Providers applications.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 * 
+	 * @param code provides Code of I/O option defined in {@link IOCtlCode} to modify.
+	 * @param value provides Value to modify I/O option to
+	 * @param handle identifies item or login stream 
+	 */
+	public void modifyIOCtl(int code, int value, long handle);
 }

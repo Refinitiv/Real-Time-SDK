@@ -309,7 +309,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			StringBuilder temp = strBuilder();
 			temp.append("OMM Interactive provider supports registering LOGIN and DICTIONARY domain type only.");
 			userLock().unlock();
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return 0;
 		}
 		
@@ -345,7 +345,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		{
 			StringBuilder temp = strBuilder();
 			temp.append("OMM Interactive provider supports reissuing LOGIN and DICTIONARY domain type only.");
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			return;
 		}
 		
@@ -400,10 +400,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
+		streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+		
+		if(streamInfo != null && streamInfo.streamType() == StreamType.CONSUMING)
+		{
+			userLock().unlock();
+			handleInvalidHandle(handle, "Attempt to submit( RefreshMsg ) using a registered handle.");
+			return;
+		}
+		
 		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
-			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
+			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 		
@@ -421,24 +430,26 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString());
+						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
-			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(refreshMsgImpl._rsslMsg, strBuilder() ) )
+			IntObject intObject = new IntObject();
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(refreshMsgImpl._rsslMsg, strBuilder(), intObject ) )
 			{
 				userLock().unlock();
-				handleInvalidUsage(_strBuilder.toString());
+				handleInvalidUsage(_strBuilder.toString(), intObject.value());
 				return;
 			}
 			
-			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory(null, refreshMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory) )
+			intObject.clear();
+			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory(null, refreshMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory, intObject) )
 			{
 				userLock().unlock();
 				StringBuilder text = new StringBuilder();
 				text.append("Attempt to submit invalid source directory domain message.").append(OmmLoggerClient.CR)
 				.append("Reason = ").append(_strBuilder);
-				handleInvalidUsage(text.toString());
+				handleInvalidUsage(text.toString(), intObject.value());
 				return;
 			}
 			
@@ -452,7 +463,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 				if (streamInfo != null)
 				{
 					refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -488,8 +498,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					.append(handle).append(", user assigned streamId = ").append(refreshMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
-			
 			if ( streamInfo != null )
 			{
 				refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -512,7 +520,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					
 					strBuilder().append("Attempt to submit initial RefreshMsg with service name of ")
 					.append(serviceName).append(" that was not included in the SourceDirectory. Dropping this RefreshMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					return;
 				}
 				
@@ -553,7 +561,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					userLock().unlock();
 					strBuilder().append("Attempt to submit initial RefreshMsg with service id of ")
 					.append(serviceId).append(" that was not included in the SourceDirectory. Dropping this RefreshMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				
 				int flags = refreshMsgImpl.rsslMsg().flags();
@@ -582,7 +590,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			else
 			{
 				userLock().unlock();
-				handleInvalidUsage("Attempt to submit initial RefreshMsg without service name or id. Dropping this RefreshMsg.");
+				handleInvalidUsage("Attempt to submit initial RefreshMsg without service name or id. Dropping this RefreshMsg.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 		}
@@ -619,7 +627,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 			
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), ret);
 			return;
 	    }
 		
@@ -655,10 +663,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
+		streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+		
+		if(streamInfo != null && streamInfo.streamType() == StreamType.CONSUMING)
+		{
+			userLock().unlock();
+			handleInvalidHandle(handle, "Attempt to submit( UpdateMsg ) using a registered handle.");
+			return;
+		}
+		
 		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
-			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
+			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 		
@@ -676,24 +693,26 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit UpdateMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(  DataType.asString(updateMsgImpl.payload().dataType())).toString());
+						.append(  DataType.asString(updateMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 			
-			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(updateMsgImpl._rsslMsg, strBuilder()) )
+			IntObject intObject = new IntObject();
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(updateMsgImpl._rsslMsg, strBuilder(), intObject))
 			{
 				userLock().unlock();
-				handleInvalidUsage(_strBuilder.toString());
+				handleInvalidUsage(_strBuilder.toString(), intObject.value());
 				return;
 			}
 			
-			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory( null, updateMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory) )
+			intObject.clear();
+			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory( null, updateMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory, intObject) )
 			{
 				userLock().unlock();
 				StringBuilder text = new StringBuilder();
 				text.append("Attempt to submit invalid source directory domain message.").append(OmmLoggerClient.CR)
 				.append("Reason = ").append(_strBuilder);
-				handleInvalidUsage(text.toString());
+				handleInvalidUsage(text.toString(), intObject.value());
 				return;
 			}
 			
@@ -712,7 +731,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 				if (streamInfo != null)
 				{
 					updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -748,8 +766,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 						.append(handle).append(", user assigned streamId = ").append(updateMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
-			
 			if ( streamInfo != null )
 			{
 				updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -772,7 +788,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					
 					strBuilder().append("Attempt to submit initial UpdateMsg with service name of ")
 					.append(serviceName).append(" that was not included in the SourceDirectory. Dropping this UpdateMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					return;
 				}
 				
@@ -809,7 +825,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					userLock().unlock();
 					strBuilder().append("Attempt to submit initial UpdateMsg with service id of ")
 					.append(serviceId).append(" that was not included in the SourceDirectory. Dropping this UpdateMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					return;
 				}
 				
@@ -835,7 +851,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			else
 			{
 				userLock().unlock();
-				handleInvalidUsage("Attempt to submit initial UpdateMsg without service name or id. Dropping this UpdateMsg.");
+				handleInvalidUsage("Attempt to submit initial UpdateMsg without service name or id. Dropping this UpdateMsg.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 		}
@@ -872,7 +888,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 			
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), ret);
 			return;
 	    }
 		
@@ -893,10 +909,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
+		streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+		
+		if(streamInfo != null && streamInfo.streamType() == StreamType.CONSUMING)
+		{
+			userLock().unlock();
+			handleInvalidHandle(handle, "Attempt to submit( StatusMsg ) using a registered handle.");
+			return;
+		}
+		
 		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
-			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
+			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 		
@@ -914,13 +939,14 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit StatusMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(DataType.asString(statusMsgImpl.payload().dataType())).toString());
+						.append(DataType.asString(statusMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
-			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(statusMsgImpl._rsslMsg, strBuilder()) )
+			IntObject intObject = new IntObject();
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(statusMsgImpl._rsslMsg, strBuilder(), intObject) )
 			{
 				userLock().unlock();
-				handleInvalidUsage(_strBuilder.toString());
+				handleInvalidUsage(_strBuilder.toString(), intObject.value());
 				return;
 			}
 			
@@ -939,7 +965,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 				if (streamInfo != null)
 				{
 					statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -975,8 +1000,6 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 						.append(handle).append(", user assigned streamId = ").append(statusMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
-			
 			if ( streamInfo != null )
 			{
 				statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
@@ -998,7 +1021,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					userLock().unlock();
 					strBuilder().append("Attempt to submit initial StatusMsg with service name of ")
 					.append(serviceName).append(" that was not included in the SourceDirectory. Dropping this StatusMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					return;
 				}
 				
@@ -1035,7 +1058,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					userLock().unlock();
 					strBuilder().append("Attempt to submit initial StatusMsg with service id of ")
 					.append(serviceId).append(" that was not included in the SourceDirectory. Dropping this StatusMsg.");
-					handleInvalidUsage(_strBuilder.toString());
+					handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					return;
 				}
 				
@@ -1061,7 +1084,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			else
 			{
 				userLock().unlock();
-				handleInvalidUsage("Attempt to submit initial StatusMsg without service name or id. Dropping this StatusMsg.");
+				handleInvalidUsage("Attempt to submit initial StatusMsg without service name or id. Dropping this StatusMsg.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
 		}
@@ -1098,7 +1121,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 			
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), ret);
 			return;
 	    }
 		
@@ -1128,7 +1151,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
-			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
+			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return;
 		}
 		
@@ -1142,6 +1165,13 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		if ( streamInfo != null )
 		{
+			if(streamInfo.streamType() == StreamType.CONSUMING)
+			{
+				userLock().unlock();
+				super.submit(genericMsg, handle);
+				return;
+			}
+			
 			((GenericMsgImpl)genericMsg).streamId(streamInfo.streamId());
 			if (((GenericMsgImpl) genericMsg)._rsslMsg.domainType() == 0)
 				((GenericMsgImpl) genericMsg)._rsslMsg.domainType(streamInfo.domainType());
@@ -1180,7 +1210,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 				
-			handleInvalidUsage(_strBuilder.toString());
+			handleInvalidUsage(_strBuilder.toString(), ret);
 			return;
 	    }
 		
@@ -1196,6 +1226,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			break;
 		case ExceptionType.OmmInvalidUsageException:
 			_providerErrorClient.onInvalidUsage(ommException.getMessage());
+			_providerErrorClient.onInvalidUsage(ommException.getMessage(), ((OmmInvalidUsageException)ommException).errorCode());
 			break;
 		default:
 			break;
@@ -1364,12 +1395,16 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	}
 
 	@Override
-	public void handleInvalidUsage(String text)
+	public void handleInvalidUsage(String text, int errorCode)
 	{
 		if ( hasErrorClient() )
+		{
 			_providerErrorClient.onInvalidUsage(text);
+			
+			_providerErrorClient.onInvalidUsage(text, errorCode);
+		}
 		else
-			throw (ommIUExcept().message(text.toString()));
+			throw (ommIUExcept().message(text.toString(), errorCode));
 		
 	}
 
@@ -1405,10 +1440,10 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		StringBuilder errorText = new StringBuilder();
 		
-		if ( encodeIt.setBufferAndRWFVersion(encodedBuffer, Codec.majorVersion(),Codec.minorVersion()) != CodecReturnCodes.SUCCESS )
+		if ( (retCode = encodeIt.setBufferAndRWFVersion(encodedBuffer, Codec.majorVersion(),Codec.minorVersion())) != CodecReturnCodes.SUCCESS )
 		{
 			errorText.append("Internal error. Failed to set encode iterator buffer and version in OmmNiProviderImpl.reLoadConfigSourceDirectory().");
-			handleInvalidUsage(errorText.toString());
+			handleInvalidUsage(errorText.toString(), retCode);
 		}
 		
 		while ( ( retCode = directoryRefresh.encode(encodeIt) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
@@ -1420,25 +1455,25 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		{
 			errorText.append("Internal error. Failed to encode buffer from DirectoryRefresh in OmmNiProviderImpl.reLoadConfigSourceDirectory().").append(" Reason = ");
 			errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-			handleInvalidUsage(errorText.toString());
+			handleInvalidUsage(errorText.toString(), retCode);
 		}
 		
 		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
 		decodeIt.clear();
 		
-		if ( decodeIt.setBufferAndRWFVersion(encodedBuffer, Codec.majorVersion(), Codec.minorVersion()) != CodecReturnCodes.SUCCESS )
+		if ( (retCode = decodeIt.setBufferAndRWFVersion(encodedBuffer, Codec.majorVersion(), Codec.minorVersion())) != CodecReturnCodes.SUCCESS )
 		{
 			errorText.append("Internal error. Failed to set decode iterator buffer and version in OmmNiProviderImpl.reLoadConfigSourceDirectory().");
-			handleInvalidUsage(errorText.toString());
+			handleInvalidUsage(errorText.toString(), retCode);
 		}
 	
 		com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg = (com.thomsonreuters.upa.codec.RefreshMsg)CodecFactory.createMsg();
 		rsslRefreshMsg.clear();
 		
-		if ( rsslRefreshMsg.decode(decodeIt) != CodecReturnCodes.SUCCESS )
+		if ( (retCode = rsslRefreshMsg.decode(decodeIt)) != CodecReturnCodes.SUCCESS )
 		{
 			errorText.append("Internal error. Failed to decode message in OmmNiProviderImpl.reLoadConfigSourceDirectory().");
-			handleInvalidUsage(errorText.toString());
+			handleInvalidUsage(errorText.toString(), retCode);
 		}
 		
 		int flags = rsslRefreshMsg.flags();
@@ -1453,7 +1488,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		if(_activeChannelInfo == null)
 		{
 			errorText.append("No active channel to send message.");
-			handleInvalidUsage(errorText.toString());
+			handleInvalidUsage(errorText.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 			return CodecReturnCodes.FAILURE;
 		}
 		
@@ -1483,7 +1518,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				.append(". Error text: ")
 				.append(_rsslErrorInfo.error().text());
 				
-			handleInvalidUsage(temp.toString());
+			handleInvalidUsage(temp.toString(), retCode);
 	    }
 		
 		return retCode;
@@ -1569,7 +1604,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		.append("Non interactive provider role does not support submitting AckMsg on handle =  ")
 		.append(handle);
 		
-		handleInvalidUsage(text.toString());
+		handleInvalidUsage(text.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	}
 
 	@Override
@@ -1586,7 +1621,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				StringBuilder temp = strBuilder();
 				temp.append("Unable to obtain next available stream id for submitting item.");
-				handleInvalidUsage(temp.toString());
+				handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 			}
 			
 			return --_nextProviderStreamId;
@@ -1811,6 +1846,29 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	public void connectedClientChannelInfo(List<ChannelInformation> ci) {
 		StringBuilder temp = strBuilder();
 		temp.append("NIProvider applications do not support the connectedClientChannelInfo method");
-		handleInvalidUsage(temp.toString());
+		handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+	}
+
+	@Override
+	public void modifyIOCtl(int code, int value)
+	{
+		super.userLock().lock();
+		
+		try
+		{
+			super.modifyIOCtl(code, value, _activeChannelInfo);
+		}
+		finally
+		{
+			super.userLock().unlock();
+		}
+	}
+
+	@Override
+	public void modifyIOCtl(int code, int value, long handle)
+	{
+		StringBuilder temp = strBuilder();
+		temp.append("NIProvider applications do not support the modifyIOCtl(int code, int value, long handle) method");
+		handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 	}
 }

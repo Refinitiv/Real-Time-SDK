@@ -9,6 +9,8 @@
 #include "RmtesBufferImpl.h"
 #include "ExceptionTranslator.h"
 #include "RmtesBuffer.h"
+#include "OmmInvalidUsageException.h"
+
 #include <stdlib.h>
 
 using namespace thomsonreuters::ema::access;
@@ -74,7 +76,7 @@ RmtesBufferImpl::RmtesBufferImpl( const char* buf, UInt32 length ) :
 		if ( rsslHasPartialRMTESUpdate( &_rsslBuffer ) )
 		{
 			EmaString temp( "Failed to construct RmtesBufferImpl( const char*, UInt32 ) due to invalid data." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidDataEnum );
 			return;
 		}
 
@@ -103,7 +105,7 @@ RmtesBufferImpl::RmtesBufferImpl( const char* buf, UInt32 length ) :
 
 			EmaString temp( "Failed to construct RmtesBufferImpl( const char* , UInt32 ). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return;
 		}
 
@@ -150,7 +152,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
 		if ( rsslHasPartialRMTESUpdate( &_rsslBuffer ) )
 		{
 			EmaString temp( "Failed to construct RmtesBufferImpl( const RmtesBuffer& ) due to invalid data." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidDataEnum );
 			return;
 		}
 
@@ -179,7 +181,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
 
 			EmaString temp( "Failed to construct RmtesBufferImpl( const RmtesBuffer& ). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return;
 		}
 
@@ -274,7 +276,7 @@ const EmaBuffer& RmtesBufferImpl::getAsUTF8()
 		{
 			EmaString temp( "Failed to convert to UTF8 in RmtesBufferImpl::getAsUTF8(). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return _utf8Buffer.toBuffer();
 		}
 		
@@ -347,7 +349,7 @@ const EmaBufferU16& RmtesBufferImpl::getAsUTF16()
 		{
 			EmaString temp( "Failed to convert to UTF16 in RmtesBufferImpl::getAsUTF16(). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return _utf16Buffer.toBuffer();
 		}
 		
@@ -420,7 +422,7 @@ const EmaString& RmtesBufferImpl::toString()
 		{
 			EmaString temp( "Failed to convert to UTF8 in RmtesBufferImpl::toString(). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return _toString.toString();
 		}
 		
@@ -513,7 +515,7 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 		{
 			EmaString temp( "Failed to apply in RmtesBufferImpl::apply( const RmtesBufferImpl& ). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return;
 		}
 
@@ -580,7 +582,7 @@ void RmtesBufferImpl::apply( const char* buf, UInt32 length )
 		{
 			EmaString temp( "Failed to apply in RmtesBufferImpl::apply( const char* , UInt32 ). Reason: " );
 			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 			return;
 		}
 

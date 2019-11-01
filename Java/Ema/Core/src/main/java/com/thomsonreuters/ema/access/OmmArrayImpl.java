@@ -190,56 +190,48 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	@Override
 	public boolean addAll(Collection<? extends OmmArrayEntry> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean remove(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("OmmArray collection doesn't support this operation.");
 	}
 	
@@ -402,7 +394,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			return _rsslBuffer; 
 		
 		if (_ommArrayCollection.isEmpty())
-			throw ommIUExcept().message("OmmArray to be encoded is empty.");
+			throw ommIUExcept().message("OmmArray to be encoded is empty.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -410,7 +402,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 
 	   OmmArrayEntryImpl firstEntry = (OmmArrayEntryImpl)_ommArrayCollection.get(0);
@@ -427,7 +419,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	    	String errText = errorString().append("Failed to intialize encoding on rssl array. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    ret = CodecReturnCodes.FAILURE;
@@ -442,7 +434,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(arrayEntry._entryDataType))
 						.append("while OmmArray contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(primitiveType)).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 		  if ((ret = arrayEntryEncode(fixedItemLength, primitiveType, arrayEntry._rsslArrayEntry, arrayEntry._entryData)) != CodecReturnCodes.SUCCESS)
@@ -452,7 +444,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		    								.append(" while encoding rssl array. Reason='")
 		    								.append(CodecReturnCodes.toString(ret))
 		    								.append("'").toString();
-		    	throw ommIUExcept().message(errText);
+		    	throw ommIUExcept().message(errText, ret);
 		    }
 		 }
 		 
@@ -462,7 +454,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	    	String errText = errorString().append("Failed to complete encoding on rssl array. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	 
 	    _encodeComplete = true;
@@ -495,7 +487,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 					{
 						String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of UInt type. Fixed width='")
 						.append( fixedItemLength ).append( "' value='" ).append( uintValue ).append( "'. " ).toString();
-						 throw ommIUExcept().message(errText);
+						 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					}
 					break;
 				case 2 :
@@ -503,7 +495,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 					{
 						String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of UInt type. Fixed width='")
 						.append( fixedItemLength ).append( "' value='" ).append( uintValue ).append( "'. " ).toString();
-						 throw ommIUExcept().message(errText);
+						 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					}
 					break;
 				case 4 :
@@ -511,14 +503,14 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 					{
 						String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of UInt type. Fixed width='")
 						.append( fixedItemLength ).append( "' value='" ).append( uintValue ).append( "'. " ).toString();
-						 throw ommIUExcept().message(errText);
+						 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 					}
 					break;
 				default :
 					{
 						String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of UInt type. Fixed width='")
 						.append( fixedItemLength ).append( "'. " ).toString();
-						 throw ommIUExcept().message(errText);
+						 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 					}
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -538,7 +530,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				{
 					String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of Int type. Fixed width='")
 					.append( fixedItemLength ).append( "' value='" ).append( intValue ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				break;
 			case 2 :
@@ -546,7 +538,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				{
 					String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of Int type. Fixed width='")
 					.append( fixedItemLength ).append( "' value='" ).append( intValue ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				break;
 			case 4 :
@@ -554,14 +546,14 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				{
 					String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of Int type. Fixed width='")
 					.append( fixedItemLength ).append( "' value='" ).append( intValue ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				break;
 			default :
 				{
 					String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Int type. Fixed width='")
 					.append( fixedItemLength ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -580,7 +572,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				{
 					String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of Enum type. Fixed width='")
 					.append( fixedItemLength ).append( "' value='" ).append( enumValue ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				break;
 			case 2 :
@@ -588,14 +580,14 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				{
 					String errText = errorString().append("Out of range value for the specified fixed width in encoding entry of Enum type. Fixed width='")
 					.append( fixedItemLength ).append( "' value='" ).append( enumValue ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 				break;
 			default :
 				{
 					String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Enum type. Fixed width='")
 					.append( fixedItemLength ).append( "'. " ).toString();
-					 throw ommIUExcept().message(errText);
+					 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -608,7 +600,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Real type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -620,7 +612,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Float type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -632,7 +624,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Double type . Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -644,7 +636,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in encoding entry of Date type . Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -664,7 +656,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding entry of Time type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 		case com.thomsonreuters.upa.codec.DataTypes.DATETIME :
 			if ( fixedItemLength == 0 || fixedItemLength == 9 || (fixedItemLength == 7 && ((com.thomsonreuters.upa.codec.DateTime)value).millisecond() == 0)  )
@@ -679,14 +671,14 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in entry of DateTime type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 		case com.thomsonreuters.upa.codec.DataTypes.QOS:
 			if (fixedItemLength != 0)
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in entry of Qos type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -698,7 +690,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported fixedWidth encoding in entry of State type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -713,7 +705,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Passed in value is longer than fixed width in encoding entry of Buffer type. Fixed width='")
 				.append( fixedItemLength ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
@@ -724,7 +716,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 				String errText = errorString().append("Unsupported data type encoding in encoding entry. Data type='")
 				.append( com.thomsonreuters.upa.codec.DataTypes.toString(dataType) ).append( "'. " ).toString();
-				 throw ommIUExcept().message(errText);
+				 throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 		}
 	}

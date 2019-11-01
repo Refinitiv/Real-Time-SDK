@@ -188,7 +188,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     		             _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
     		         }
     				 
-    				 throw (_ommServerBaseImpl.ommIUExcept().message(temp.toString()));
+    				 throw (_ommServerBaseImpl.ommIUExcept().message(temp.toString(), error.errorId()));
     		     }
     			 
     			 if (dictionary.loadEnumTypeDictionary(dictionaryConfig.enumtypeDefFileName, error) < 0)
@@ -206,7 +206,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     		             _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
     		         }
     				 
-    				 throw (_ommServerBaseImpl.ommIUExcept().message(temp.toString()));
+    				 throw (_ommServerBaseImpl.ommIUExcept().message(temp.toString(), error.errorId()));
     		     }
     			 
     			 if ( !existingFieldName )

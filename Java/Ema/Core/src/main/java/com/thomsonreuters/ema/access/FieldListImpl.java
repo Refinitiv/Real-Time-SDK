@@ -51,7 +51,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	public int infoFieldListNum()
 	{
 		if (!hasInfo())
-			throw ommIUExcept().message("Attempt to infoFieldListNum() while FieldList Info is NOT set.");
+			throw ommIUExcept().message("Attempt to infoFieldListNum() while FieldList Info is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslFieldList.fieldListNum();
 	}
@@ -60,7 +60,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	public int infoDictionaryId()
 	{
 		if (!hasInfo())
-			throw ommIUExcept().message("Attempt to infoDictionaryId() while FieldList Info is NOT set.");
+			throw ommIUExcept().message("Attempt to infoDictionaryId() while FieldList Info is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _rsslFieldList.dictionaryId();
 	}
@@ -401,7 +401,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	 
 	    while (( ret = _rsslFieldList.encodeInit(_rsslEncodeIter, null, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -414,7 +414,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    	String errText = errorString().append("Failed to intialize encoding on rssl fieldlist. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    ret = CodecReturnCodes.FAILURE;
@@ -427,7 +427,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 			    								.append(" while encoding rssl fieldlist. Reason='")
 			    								.append(CodecReturnCodes.toString(ret))
 			    								.append("'").toString();
-			    	throw ommIUExcept().message(errText);
+			    	throw ommIUExcept().message(errText, ret);
 			 }
 		 }
 		 
@@ -437,7 +437,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    	String errText = errorString().append("Failed to complete encoding on rssl fieldlist. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    _encodeComplete = true;

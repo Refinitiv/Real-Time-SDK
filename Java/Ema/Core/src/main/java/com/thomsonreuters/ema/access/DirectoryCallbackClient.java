@@ -847,7 +847,7 @@ class DirectoryItem<T> extends SingleItem<T>
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(DirectoryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -896,7 +896,7 @@ class DirectoryItem<T> extends SingleItem<T>
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -994,7 +994,7 @@ class DirectoryItem<T> extends SingleItem<T>
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -1049,7 +1049,7 @@ class DirectoryItem<T> extends SingleItem<T>
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 			return false;
 	    }

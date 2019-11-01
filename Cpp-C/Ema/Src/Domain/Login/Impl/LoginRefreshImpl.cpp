@@ -244,7 +244,7 @@ LoginRefreshImpl& LoginRefreshImpl::supportBatchRequests(UInt64 value)
 	{
 		EmaString text("Invalid value ");
 		text.append(value).append(" for the ").append(ENAME_SUPPORT_BATCH).append(" element.");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 
 	_changed = true;
@@ -581,7 +581,7 @@ const EmaString& LoginRefreshImpl::getApplicationId() const
 	{
 		EmaString text(ENAME_APP_ID);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _applicationId;
@@ -594,7 +594,7 @@ const EmaString& LoginRefreshImpl::getApplicationName() const
 	{
 		EmaString text(ENAME_APP_NAME);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _applicationName;
@@ -606,7 +606,7 @@ const EmaString& LoginRefreshImpl::getPosition() const
 	{
 		EmaString text(ENAME_POSITION);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _position;
@@ -678,7 +678,7 @@ const EmaBuffer& LoginRefreshImpl::getAuthenticationExtended() const
 	{
 		EmaString text(ENAME_AUTH_EXTENDED);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationExtended;
@@ -690,7 +690,7 @@ const UInt64& LoginRefreshImpl::getAuthenticationTTReissue() const
 	{
 		EmaString text(ENAME_AUTH_TT_REISSUE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationTTReissue;
@@ -702,7 +702,7 @@ const UInt64& LoginRefreshImpl::getAuthenticationErrorCode() const
 	{
 		EmaString text(ENAME_AUTH_ERRORCODE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException (text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationErrorCode;
@@ -714,7 +714,7 @@ const EmaString& LoginRefreshImpl::getAuthenticationErrorText() const
 	{
 		EmaString text(ENAME_AUTH_ERRORTEXT);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationErrorText;
@@ -726,7 +726,7 @@ const EmaString& LoginRefreshImpl::getName() const
 	{
 		EmaString text(ENAME_USERNAME);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _name;
@@ -738,7 +738,7 @@ const UInt32& LoginRefreshImpl::getNameType() const
 	{
 		EmaString text(ENAME_USERNAME_TYPE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _nameType;
@@ -750,7 +750,7 @@ const OmmState& LoginRefreshImpl::getState() const
 	{
 		EmaString text(ENAME_STATE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_state._pDecoder->setRsslData(_rsslState);
@@ -764,7 +764,7 @@ const UInt32& LoginRefreshImpl::getSeqNum() const
 	{
 		EmaString text(ENAME_SEQ_NUM);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _seqNum;
@@ -1366,7 +1366,7 @@ void LoginRefreshImpl::decode(const RefreshMsg& refreshMsg)
 		{
 			EmaString text("Decoding error for ");
 			text.append(elementName).append(" element. ").append(iue.getText());
-			throwIueException(text);
+			throwIueException( text, iue.getErrorCode() );
 		}
 	}
 }

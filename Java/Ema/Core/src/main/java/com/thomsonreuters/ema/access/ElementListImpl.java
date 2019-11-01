@@ -48,7 +48,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	public int infoElementListNum()
 	{
 		if (!hasInfo())
-			throw ommIUExcept().message("Attempt to infoElementListNum() while ElementList Info is NOT set.");
+			throw ommIUExcept().message("Attempt to infoElementListNum() while ElementList Info is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _rsslElementList.elementListNum();
 	}
@@ -364,7 +364,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		{
 			String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 					.append(CodecReturnCodes.toString(ret)).append("'").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		while ((ret = _rsslElementList.encodeInit(_rsslEncodeIter, null, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -376,7 +376,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		{
 			String errText = errorString().append("Failed to intialize encoding on rssl elementlist. Reason='")
 					.append(CodecReturnCodes.toString(ret)).append("'").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		ret = CodecReturnCodes.FAILURE;
@@ -388,7 +388,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 				String errText = errorString().append("Failed to ").append("rsslElementEntry.encode()")
 						.append(" while encoding rssl elementlist. Reason='").append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 			}
 		}
 
@@ -397,7 +397,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		{
 			String errText = errorString().append("Failed to complete encoding on rssl elementlist. Reason='")
 					.append(CodecReturnCodes.toString(ret)).append("'").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		_encodeComplete = true;

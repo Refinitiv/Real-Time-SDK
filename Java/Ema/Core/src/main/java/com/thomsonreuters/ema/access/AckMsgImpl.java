@@ -144,7 +144,7 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	public long seqNum()
 	{
 		if (!hasSeqNum())
-			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((com.thomsonreuters.upa.codec.AckMsg) _rsslMsg).seqNum();
 	}
@@ -159,7 +159,7 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	public int nackCode()
 	{
 		if (!hasNackCode())
-			throw ommIUExcept().message("Attempt to nackCode() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to nackCode() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return ((com.thomsonreuters.upa.codec.AckMsg) _rsslMsg).nakCode();
 	}
@@ -168,7 +168,7 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	public String text()
 	{
 		if (!hasText())
-			throw ommIUExcept().message("Attempt to text() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to text() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		if (_textSet)  return _text;
 		
@@ -283,7 +283,7 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	public AckMsg text(String text)
 	{
 		if (text == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		((com.thomsonreuters.upa.codec.AckMsg)_rsslMsg).applyHasText();
 		((com.thomsonreuters.upa.codec.AckMsg)_rsslMsg).text().data(text);

@@ -11,6 +11,7 @@
 #include "StaticDecoder.h"
 #include "Decoder.h"
 #include "Series.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -51,7 +52,7 @@ void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 		temp += DataType( emaDataType ).toString();
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaDataType );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -70,7 +71,7 @@ void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 	{
 		EmaString temp( "Failed to initialize Series encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 
 	_containerInitialized = true;
@@ -93,7 +94,7 @@ void SeriesEncoder::addEncodedEntry( const char* methodName, const RsslBuffer& r
 		EmaString temp( "Failed to " );
 		temp.append( methodName ).append( " while encoding Series. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -115,7 +116,7 @@ void SeriesEncoder::startEncodingEntry( const char* methodName )
 		EmaString temp( "Failed to start encoding entry in Series::" );
 		temp.append( methodName ).append( ". Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -133,7 +134,7 @@ void SeriesEncoder::endEncodingEntry() const
 	{
 		EmaString temp( "Failed to end encoding entry in Series. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -142,7 +143,7 @@ void SeriesEncoder::add( const ComplexType& complexType )
 	if ( _containerComplete )
 	{
 		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -162,7 +163,7 @@ void SeriesEncoder::add( const ComplexType& complexType )
 		temp += DataType( complexType.getDataType() ).toString();
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaDataType );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -173,7 +174,7 @@ void SeriesEncoder::add( const ComplexType& complexType )
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -186,7 +187,7 @@ void SeriesEncoder::add( const ComplexType& complexType )
 		if ( rsslDataType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -200,7 +201,7 @@ void SeriesEncoder::add()
 	if (_containerComplete)
 	{
 		EmaString temp("Attempt to add an entry after complete() was called.");
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -218,7 +219,7 @@ void SeriesEncoder::add()
 		temp += DataType(DataType::NoDataEnum).toString();
 		temp += EmaString(" while the expected DataType is ");
 		temp += DataType(_emaDataType);
-		throwIueException(temp);
+		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
@@ -244,7 +245,7 @@ void SeriesEncoder::complete()
 	{
 		EmaString temp( "Failed to complete Series encoding. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return;
 	}
 
@@ -266,7 +267,7 @@ void SeriesEncoder::totalCountHint( UInt32 totalCountHint )
 	else
 	{
 		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }
 
@@ -286,7 +287,7 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 			else
 			{
 				EmaString temp( "Attempt to set summaryData() with a ComplexType while complete() was not called on this ComplexType." );
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			}
 		}
 		else if ( data.hasDecoder() )
@@ -297,7 +298,7 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 		else
 		{
 			EmaString temp( "Attempt to pass an empty ComplexType to summaryData() while it is not supported." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 
@@ -307,6 +308,6 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 	else
 	{
 		EmaString temp( "Invalid attempt to call summaryData() when container is initialized." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 }

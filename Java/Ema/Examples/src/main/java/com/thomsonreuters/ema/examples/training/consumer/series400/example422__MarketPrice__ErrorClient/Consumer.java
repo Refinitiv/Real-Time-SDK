@@ -120,9 +120,8 @@ class AppErrorClient implements OmmConsumerErrorClient
 		System.out.println("onInvalidHandle callback function" + "\nInvalid handle: " + handle + "\nError text: " + text); 
 	}
 
-	public void onInvalidUsage(String text) {
-		System.out.println("onInvalidUsage callback function" + "\nError text: " + text); 
-	
+	public void onInvalidUsage(String text, int errorCode) {
+		System.out.println("onInvalidUsage callback function" + "\nError text: " + text +" , Error code: " + errorCode); 
 	}
 }
 

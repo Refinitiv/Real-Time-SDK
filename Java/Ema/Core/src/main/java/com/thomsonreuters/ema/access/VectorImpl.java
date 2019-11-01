@@ -63,7 +63,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	public int totalCountHint()
 	{
 		if (!hasTotalCountHint())
-			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.");
+			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslVector.totalCountHint();
 	}
@@ -129,7 +129,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	public Vector summaryData(ComplexType summaryData)
 	{
 		if (summaryData == null)
-			throw ommIUExcept().message("Passed in summaryData is null");
+			throw ommIUExcept().message("Passed in summaryData is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		_summaryDataType = summaryData.dataType();
 		_summaryDataTypeSet = true;
@@ -177,56 +177,48 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	@Override
 	public boolean addAll(Collection<? extends VectorEntry> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean remove(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
 	}
 	
@@ -467,7 +459,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 							.append(" while Vector entry load type is set to ")
 							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
 							.append(" with summaryData() method").toString();
-					throw ommIUExcept().message(errText);
+					throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 				else
 				{
@@ -499,7 +491,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    	String errText = errorString().append("Failed to intialize encoding on rssl Vector. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    VectorEntryImpl vectorEntry;
@@ -512,7 +504,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(vectorEntry._entryDataType))
 						.append(" while Vector contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 			while ((ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -527,7 +519,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 						.append(" while encoding rssl Vector. Reason='")
 						.append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		    }
 		}
 		 
@@ -537,7 +529,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    	String errText = errorString().append("Failed to complete encoding on rssl Vector. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	     
 	    _encodeComplete = true;
@@ -554,7 +546,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	}
 	

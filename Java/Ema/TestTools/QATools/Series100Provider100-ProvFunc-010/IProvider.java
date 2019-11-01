@@ -1,0 +1,189 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+///*|-----------------------------------------------------------------------------
+
+package com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thomsonreuters.ema.access.ChannelInformation;
+import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldList;
+import com.thomsonreuters.ema.access.GenericMsg;
+import com.thomsonreuters.ema.access.Msg;
+import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.OmmIProviderConfig;
+import com.thomsonreuters.ema.access.OmmProvider;
+import com.thomsonreuters.ema.access.OmmProviderClient;
+import com.thomsonreuters.ema.access.OmmProviderEvent;
+import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.PostMsg;
+import com.thomsonreuters.ema.access.RefreshMsg;
+import com.thomsonreuters.ema.access.ReqMsg;
+import com.thomsonreuters.ema.access.StatusMsg;
+import com.thomsonreuters.ema.rdm.EmaRdm;
+//API QA
+import com.thomsonreuters.ema.access.OmmProviderErrorClient;
+//End API QA
+
+class AppClient implements OmmProviderClient
+{
+	public long itemHandle = 0;
+	
+	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent event)
+	{
+		switch (reqMsg.domainType())
+		{
+			case EmaRdm.MMT_LOGIN :
+				processLoginRequest(reqMsg, event);
+				break;
+			case EmaRdm.MMT_MARKET_PRICE :
+				processMarketPriceRequest(reqMsg, event);
+				break;
+			default :
+				processInvalidItemRequest(reqMsg, event);
+				break;
+		}
+	}
+	
+	public void onRefreshMsg(RefreshMsg refreshMsg,	OmmProviderEvent event){}
+	public void onStatusMsg(StatusMsg statusMsg, OmmProviderEvent event){}
+	public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent event){}
+	public void onPostMsg(PostMsg postMsg, OmmProviderEvent event){}
+	public void onReissue(ReqMsg reqMsg, OmmProviderEvent event){}
+	public void onClose(ReqMsg reqMsg, OmmProviderEvent event){}
+	public void onAllMsg(Msg msg, OmmProviderEvent event){}
+	
+	void processLoginRequest(ReqMsg reqMsg, OmmProviderEvent event)
+	{
+		event.provider().submit( EmaFactory.createRefreshMsg().domainType(EmaRdm.MMT_LOGIN).name(reqMsg.name()).
+				nameType(EmaRdm.USER_NAME).complete(true).solicited(true).
+				state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Login accepted"),
+				event.handle() );
+	}
+	
+	void processMarketPriceRequest(ReqMsg reqMsg, OmmProviderEvent event)
+	{
+		if( itemHandle != 0 )
+		{
+			processInvalidItemRequest(reqMsg, event);
+			return;
+		}
+		
+		FieldList fieldList = EmaFactory.createFieldList();
+		fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+		fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+		fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+		fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+		
+		event.provider().submit( EmaFactory.createRefreshMsg().name(reqMsg.name()).serviceId(reqMsg.serviceId()).solicited(true).
+				state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Refresh Completed").
+				payload(fieldList).complete(true),
+				event.handle() );
+
+		itemHandle = event.handle();
+	}
+	
+	void processInvalidItemRequest(ReqMsg reqMsg, OmmProviderEvent event)
+	{
+		event.provider().submit( EmaFactory.createStatusMsg().name(reqMsg.name()).serviceName(reqMsg.serviceName()).
+				state(OmmState.StreamState.CLOSED, OmmState.DataState.SUSPECT,	OmmState.StatusCode.NOT_FOUND, "Item not found"),
+				event.handle() );
+	}
+}
+
+//APIQA
+class AppErrorClient implements OmmProviderErrorClient
+{
+	public void onInvalidHandle(long handle, String text)
+	{
+		System.out.println("onInvalidHandle callback function" + "\nInvalid handle: " + handle + "\nError text: " + text); 
+	}
+
+	public void onInvalidUsage(String text, int errorCode) {
+		System.out.println("onInvalidUsage callback function" + "\nError text: " + text +" , Error code: " + errorCode); 
+	}
+}
+//END API QA
+
+public class IProvider
+{
+	public static void main(String[] args)
+	{
+		OmmProvider provider = null;
+		try
+		{
+			AppClient appClient = new AppClient();
+			//API QA
+			AppErrorClient appErrorClient = new AppErrorClient();
+			// END API QA
+			FieldList fieldList = EmaFactory.createFieldList();
+
+			OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig();
+			
+			provider = EmaFactory.createOmmProvider(config.port("14002"), appClient, appErrorClient);
+			
+			//List<ChannelInformation> ci = new ArrayList<ChannelInformation>();
+			
+			long invalidHandle = 0;
+			
+			provider.submit(EmaFactory.createGenericMsg(), invalidHandle);
+				
+			while( appClient.itemHandle == 0 ) Thread.sleep(1000);
+			
+			for( int i = 0; i < 20; i++ )
+			{
+				fieldList.clear();
+				fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			    fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + i, OmmReal.MagnitudeType.EXPONENT_0));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(315, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(316, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(317, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(318, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(319, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(320, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(321, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(322, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(323, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(324, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(325, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(326, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(327, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(328, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(329, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(330, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(331, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(332, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(333, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(334, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(335, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(336, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(337, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				fieldList.add(EmaFactory.createFieldEntry().rmtes(338, ByteBuffer.wrap("A1234567890123456789012345678901234567890123546789012345678901234567890".getBytes() )));
+				try {
+					for (int j=0; j < 100; j++)
+						provider.submit( EmaFactory.createUpdateMsg().payload( fieldList ), appClient.itemHandle );
+				}catch (Exception exp) {
+					System.out.println(exp.getMessage());
+				}
+				
+				Thread.sleep(1000);
+			}
+				
+		} 
+		catch (InterruptedException | OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+		}
+		finally 
+		{
+			if (provider != null) provider.uninitialize();
+		}
+	}
+}

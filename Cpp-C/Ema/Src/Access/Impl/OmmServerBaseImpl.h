@@ -124,9 +124,9 @@ public:
 
 	void installTimeOut();
 
-	void handleIue(const EmaString&);
+	void handleIue(const EmaString&, Int32 errorCode);
 
-	void handleIue(const char*);
+	void handleIue(const char*, Int32 errorCode);
 
 	void handleIhe(UInt64, const EmaString&);
 
@@ -249,6 +249,7 @@ protected:
 	StatusMsg					_statusMsg;
 	GenericMsg					_genericMsg;
 	PostMsg						_postMsg;
+	RsslServer*					_pRsslServer;
 
 
 private:
@@ -280,7 +281,6 @@ private:
 	ItemInfoHash _itemInfoHash;
 
 	RsslReactorOMMProviderRole	_providerRole;
-	RsslServer*					_pRsslServer;
 	RsslReactorAcceptOptions	_reactorAcceptOptions;
     EmaVector<RsslReactorChannel*> connectedChannels;
 };

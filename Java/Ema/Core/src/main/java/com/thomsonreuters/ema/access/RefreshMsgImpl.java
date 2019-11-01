@@ -160,7 +160,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public OmmQos qos()
 	{
 		if (!hasQos())
-			throw ommIUExcept().message("Attempt to qos() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to qos() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		if (_qosSet) return _qos;
 		
@@ -177,7 +177,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public long seqNum()
 	{
 		if (!hasSeqNum())
-			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to seqNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).seqNum();
 	}
@@ -186,7 +186,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public int partNum()
 	{
 		if (!hasPartNum())
-			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to partNum() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).partNum();
 	}
@@ -202,7 +202,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
@@ -212,7 +212,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public long publisherIdUserId()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).postUserInfo().userId();
 	}
@@ -221,7 +221,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public long publisherIdUserAddress()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).postUserInfo().userAddr();
 	}
@@ -334,7 +334,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 										.append( dataState ).append( " / " )
 										.append( statusCode ).append( " / " )
 										.append( statusCode ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().text().data(statusText);
@@ -376,7 +376,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public RefreshMsg itemGroup(ByteBuffer itemGroup)
 	{
 		if (itemGroup == null)
-			throw ommIUExcept().message("Passed in itemGroup is null");
+			throw ommIUExcept().message("Passed in itemGroup is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		Utilities.copy(itemGroup, ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).groupId());
 		return this;

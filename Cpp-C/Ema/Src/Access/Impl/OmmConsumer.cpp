@@ -124,3 +124,8 @@ void OmmConsumer::getChannelInformation(ChannelInformation& ci) {
   else
 	ci.clear();
 }
+
+void OmmConsumer::modifyIOCtl(Int32 code, Int32 value)
+{
+	_pImpl->modifyIOCtl(code, value);
+}

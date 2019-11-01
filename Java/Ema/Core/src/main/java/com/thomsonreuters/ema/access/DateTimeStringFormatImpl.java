@@ -23,7 +23,7 @@ class DateTimeStringFormatImpl  implements  DateTimeStringFormat
 		{
 			_dtString = "Invalid DateTimeStringFormatType " + format;
 			OmmInvalidUsageExceptionImpl ommIUExcept = new OmmInvalidUsageExceptionImpl();
-			throw ommIUExcept.message(_dtString);
+			throw ommIUExcept.message(_dtString, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 
 		return _format;

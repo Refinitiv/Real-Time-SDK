@@ -35,7 +35,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to reqMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (ReqMsg)_data;
@@ -49,7 +49,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to refreshMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (RefreshMsg)_data;
@@ -63,7 +63,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to updateMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (UpdateMsg)_data;
@@ -77,7 +77,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to statusMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (StatusMsg)_data;
@@ -91,7 +91,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to postMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (PostMsg)_data;
@@ -105,7 +105,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to ackMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (AckMsg)_data;
@@ -119,7 +119,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to genericMsg() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return (GenericMsg)_data;
@@ -133,7 +133,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to fieldList() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (FieldList)_data;
@@ -147,7 +147,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to elementList() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (ElementList)_data;
@@ -161,7 +161,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to map() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Map)_data;
@@ -175,7 +175,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to vector() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Vector)_data;
@@ -189,7 +189,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to series() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (Series)_data;
@@ -203,7 +203,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to filterList() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (FilterList)_data;
@@ -217,7 +217,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to opaque() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmOpaque)_data;
@@ -231,7 +231,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to xml() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmXml)_data;
@@ -245,7 +245,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to ansiPage() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmAnsiPage)_data;
@@ -259,7 +259,7 @@ class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 			StringBuilder error = errorString();
 			error.append("Attempt to error() while actual data type is ")
 				 .append(DataType.asString(_data.dataType()));
-			throw ommIUExcept().message(error.toString());
+			throw ommIUExcept().message(error.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return (OmmError)_data;

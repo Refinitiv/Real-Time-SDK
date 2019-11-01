@@ -19,7 +19,8 @@ class DictionaryUtilityImpl implements DictionaryUtility {
 		
 		if( fieldListImpl._objManager == null )
 		{
-			throw new OmmInvalidUsageExceptionImpl().message("Failed to extract DataDictionary from the passed in FieldList");
+			throw new OmmInvalidUsageExceptionImpl().message("Failed to extract DataDictionary from the passed in FieldList",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		return fieldListImpl._dataDictionaryImpl;

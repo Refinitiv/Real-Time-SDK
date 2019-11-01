@@ -65,7 +65,7 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		_permData = Utilities.copyFromPool( _rsslFilterEntry.permData(), _permData, _objManager);
 		return _permData;
@@ -300,7 +300,7 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 		if (action < 0 || action > 15)
 			throw ommOORExcept().message("action is out of range [0 - 15].");
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		_rsslFilterEntry.id(filterId);
 		_rsslFilterEntry.action(action);

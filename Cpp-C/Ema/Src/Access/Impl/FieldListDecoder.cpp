@@ -9,6 +9,7 @@
 #include "FieldListDecoder.h"
 #include "StaticDecoder.h"
 #include "Encoder.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -74,7 +75,7 @@ Int16 FieldListDecoder::getInfoFieldListNum() const
 	{
 		EmaString temp( "Attempt to getInfoFieldListNum() while FieldList Info is NOT set." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslFieldList.fieldListNum;
@@ -86,7 +87,7 @@ Int16 FieldListDecoder::getInfoDictionaryId() const
 	{
 		EmaString temp( "Attempt to getInfoDictionaryId() while FieldList Info is NOT set." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _rsslFieldList.dictionaryId;
@@ -601,7 +602,7 @@ bool FieldListDecoder::getNextData( const Data& data )
 	{
 		EmaString temp( "Wrong container type used for passing search list. Expecting ElementList. Passed in container is " );
 		temp += getDTypeAsString( data.getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 		return true;
 	}
 
@@ -618,7 +619,7 @@ bool FieldListDecoder::getNextData( const Data& data )
 	case RSSL_DT_ASCII_STRING :
 		return getNextData( stringList );
 	default :
-		throwIueException( EmaString( "Passed in search list contains wrong data type." ) );
+		throwIueException( EmaString( "Passed in search list contains wrong data type." ), OmmInvalidUsageException::InvalidArgumentEnum );
 		return true;
 	}
 }
@@ -682,7 +683,7 @@ void FieldListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rss
 					if ( retCode != RSSL_RET_END_OF_CONTAINER )
 					{
 						EmaString temp( "Error decoding OmmArray with Int while compiling search list." );
-						throwIueException( temp );
+						throwIueException( temp, retCode );
 						return;
 					}
 				}
@@ -705,7 +706,7 @@ void FieldListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rss
 					if ( retCode != RSSL_RET_END_OF_CONTAINER )
 					{
 						EmaString temp( "Error decoding OmmArray with Ascii while compiling search list." );
-						throwIueException( temp );
+						throwIueException( temp, retCode );
 						return;
 					}
 				}
@@ -715,7 +716,7 @@ void FieldListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rss
 			break;
 		default :
 			EmaString temp( "Search list does not contain expected OmmArray of Int or OmmArray of Ascii." );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -725,7 +726,7 @@ void FieldListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rss
 	if ( retCode != RSSL_RET_END_OF_CONTAINER )
 	{
 		EmaString temp( "Error decoding ElementList while compiling a search list." );
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 	}
 }
 
@@ -816,7 +817,7 @@ const EmaString& FieldListDecoder::getEnumDisplay(UInt16 enumValue) const
 			EmaString errorText( "The enum value " );
 			errorText.append( enumValue).append( " for the field Id " );
 			errorText.append( _rsslFieldEntry.fieldId ).append( " does not exist in the enumerated type dictionary" );
-			throwIueException( errorText );
+			throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 		}
 	}
 	else
@@ -825,7 +826,7 @@ const EmaString& FieldListDecoder::getEnumDisplay(UInt16 enumValue) const
 
 		EmaString errorText( "The field Id " );
 		errorText.append( _rsslFieldEntry.fieldId ).append( " does not exist in the field dictionary" );
-		throwIueException( errorText );
+		throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 
 	return _enumDisplayValue.toString();

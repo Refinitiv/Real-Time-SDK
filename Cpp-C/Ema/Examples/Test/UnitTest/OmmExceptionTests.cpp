@@ -36,7 +36,7 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 			}
 
 			try {			
-				throwIueException(largeText);
+				throwIueException(largeText, OmmInvalidUsageException::FailureEnum);
 				EXPECT_FALSE( true ) << "OmmInvalidUsageException - Expected but not thrown";
 			}
 			catch( const OmmInvalidUsageException& excp)

@@ -33,6 +33,7 @@
 #include "OmmServerBaseImpl.h"
 #include "OmmIProviderImpl.h"
 #include "ServerChannelHandler.h"
+#include "OmmInvalidUsageException.h"
 
 #include "rtr/rsslMsgKey.h"
 
@@ -347,7 +348,7 @@ bool ProviderItem::modify( const ReqMsg& reqMsg )
 				.append("' does not match existing request.")
 				.append("Instance name='").append(_ommCommonImpl.getInstanceName()).append("'.");
 
-			_ommCommonImpl.handleIue(temp);
+			_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return false;
 		}
 	}
@@ -360,7 +361,7 @@ bool ProviderItem::modify( const ReqMsg& reqMsg )
 				.append("' does not match existing request")
 				.append("Instance name='").append(_ommCommonImpl.getInstanceName()).append("'.");
 
-			_ommCommonImpl.handleIue(temp);
+			_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return false;
 		}
 	}
@@ -383,7 +384,7 @@ bool ProviderItem::modify( const ReqMsg& reqMsg )
 				.append("' does not match existing request.")
 				.append("Instance name='").append(_ommCommonImpl.getInstanceName()).append("'.");
 
-			_ommCommonImpl.handleIue(temp);
+			_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return false;
 		}
 	}
@@ -635,7 +636,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -693,7 +694,7 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -739,7 +740,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -783,7 +784,7 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -972,7 +973,7 @@ bool NiProviderSingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		if ( pChannel == NULL )
 		{
 			EmaString temp( "No active channel to send message." );
-			_ommBaseImpl.handleIue( temp );
+			_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::FailureEnum );
 
 			return false;
 		}
@@ -1025,7 +1026,7 @@ bool NiProviderSingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -1078,7 +1079,7 @@ bool NiProviderSingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -1307,7 +1308,7 @@ bool IProviderSingleItem::submit(RsslRequestMsg* pRsslRequestMsg)
 		else
 		{
 			EmaString temp( "No active channel to send message." );
-			_ommServerBaseImpl.handleIue(temp);
+			_ommServerBaseImpl.handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
 
 		return false;
 		}
@@ -1336,7 +1337,7 @@ bool IProviderSingleItem::submit(RsslRequestMsg* pRsslRequestMsg)
 			.append(". Error text: ")
 			.append(rsslErrorInfo.rsslError.text);
 
-		_ommServerBaseImpl.handleIue(text);
+		_ommServerBaseImpl.handleIue(text, ret);
 
 		return false;
 	}
@@ -1387,7 +1388,7 @@ bool IProviderSingleItem::submit(RsslCloseMsg* pRsslCloseMsg)
 			.append(". Error text: ")
 			.append(rsslErrorInfo.rsslError.text);
 
-		_ommServerBaseImpl.handleIue(text);
+		_ommServerBaseImpl.handleIue(text, ret);
 
 		return false;
 	}
@@ -1660,7 +1661,7 @@ bool BatchItem::modify( const ReqMsg& reqMsg )
 	EmaString temp( "Invalid attempt to modify batch stream. " );
 	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, RSSL_RET_INVALID_ARGUMENT);
 
 	return false;
 }
@@ -1670,7 +1671,7 @@ bool BatchItem::close()
 	EmaString temp( "Invalid attempt to close batch stream. " );
 	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, RSSL_RET_INVALID_ARGUMENT);
 
 	return false;
 }
@@ -1680,7 +1681,7 @@ bool BatchItem::submit( const PostMsg& )
 	EmaString temp( "Invalid attempt to submit PostMsg on batch stream. " );
 	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1690,7 +1691,7 @@ bool BatchItem::submit( const GenericMsg& )
 	EmaString temp( "Invalid attempt to submit GenericMsg on batch stream. " );
 	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1809,7 +1810,7 @@ UInt32 TunnelItem::addSubItem( Item* pSubItem, Int32 streamId )
 			EmaString temp( "Invalid attempt to open a sub stream with streamId smaller than starting stream id. Passed in stream id is " );
 			temp.append( streamId );
 
-			_ommBaseImpl.handleIue( temp );
+			_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return 0;
 		}
 
@@ -1835,7 +1836,7 @@ UInt32 TunnelItem::addSubItem( Item* pSubItem, Int32 streamId )
 				EmaString temp( "Invalid attempt to open a substream: substream streamId (" );
 				temp.append( streamId ).append( ") is already in use" );
 
-				_ommBaseImpl.handleIue( temp );
+				_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 				return 0;
 			}
 		}
@@ -1964,7 +1965,7 @@ bool TunnelItem::open( const ReqMsg& )
 	EmaString temp( "Invalid attempt to open tunnel stream using ReqMsg." );
 	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1974,7 +1975,7 @@ bool TunnelItem::modify( const ReqMsg& )
 	EmaString temp( "Invalid attempt to reissue tunnel stream using ReqMsg." );
 	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1984,7 +1985,7 @@ bool TunnelItem::submit( const PostMsg& )
 	EmaString temp( "Invalid attempt to submit PostMsg on tunnel stream." );
 	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -1994,7 +1995,7 @@ bool TunnelItem::submit( const GenericMsg& )
 	EmaString temp( "Invalid attempt to submit GenericMsg on tunnel stream." );
 	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	_ommBaseImpl.handleIue( temp );
+	_ommBaseImpl.handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 
 	return false;
 }
@@ -2038,23 +2039,24 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 
 	if ( tunnelStreamRequest.hasLoginReqMsg() )
 	{
-		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorRWFVersion( &dIter, _pDirectory->getChannel()->getRsslChannel()->majorVersion, _pDirectory->getChannel()->getRsslChannel()->minorVersion ) )
+		RsslRet retCode;
+		if ( RSSL_RET_SUCCESS != ( retCode = rsslSetDecodeIteratorRWFVersion( &dIter, _pDirectory->getChannel()->getRsslChannel()->majorVersion, _pDirectory->getChannel()->getRsslChannel()->minorVersion ) ) )
 		{
 			free( rsslBuffer.data );
-			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator version in TunnelItem::submit( const TunnelStreamRequest& )" );
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator version in TunnelItem::submit( const TunnelStreamRequest& )", retCode );
 			return false;
 		}
 
-		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorBuffer( &dIter, tunnelStreamRequest._pImpl->getRsslBuffer() ) )
+		if ( RSSL_RET_SUCCESS != ( retCode = rsslSetDecodeIteratorBuffer( &dIter, tunnelStreamRequest._pImpl->getRsslBuffer() ) ) )
 		{
 			free( rsslBuffer.data );
-			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator buffer in TunnelItem::submit( const TunnelStreamRequest& )" );
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator buffer in TunnelItem::submit( const TunnelStreamRequest& )", retCode );
 			return false;
 		}
 
 		RsslMsg* pRsslMsg = tunnelStreamRequest._pImpl->getRsslMsg();
 
-		RsslRet retCode = rsslDecodeRDMLoginMsg( &dIter, pRsslMsg, &rsslRdmLoginMsg, &rsslBuffer, &rsslErrorInfo );
+		retCode = rsslDecodeRDMLoginMsg( &dIter, pRsslMsg, &rsslRdmLoginMsg, &rsslBuffer, &rsslErrorInfo );
 
 		while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
 		{
@@ -2076,7 +2078,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 		if ( RSSL_RET_SUCCESS != retCode )
 		{
 			free( rsslBuffer.data );
-			_ommBaseImpl.handleIue( "Internal Error. Failed to decode login request in TunnelItem::submit( const TunnelStreamRequest& )" );
+			_ommBaseImpl.handleIue( "Internal Error. Failed to decode login request in TunnelItem::submit( const TunnelStreamRequest& )", retCode );
 			return false;
 		}
 
@@ -2130,7 +2132,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -2167,7 +2169,7 @@ bool TunnelItem::close()
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		_ommBaseImpl.handleIue( text );
+		_ommBaseImpl.handleIue( text, ret );
 
 		return false;
 	}
@@ -2206,19 +2208,19 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	RsslEncodeIterator eIter;
 	rsslClearEncodeIterator( &eIter );
 
-	if ( rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion ) != RSSL_RET_SUCCESS )
-	{
-		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		return false;
-	}
-
-	if ( rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer ) != RSSL_RET_SUCCESS )
-	{
-		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		return false;
-	}
-
 	RsslRet retCode;
+	if ( (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion )) != RSSL_RET_SUCCESS )
+	{
+		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
+		return false;
+	}
+
+	if ( (retCode = rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer )) != RSSL_RET_SUCCESS )
+	{
+		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
+		return false;
+	}
+
 	while ( ( retCode = rsslEncodeMsg( &eIter, pRsslMsg ) ) == RSSL_RET_BUFFER_TOO_SMALL )
 	{
 		rsslTunnelStreamReleaseBuffer( pRsslBuffer, &rsslErrorInfo );
@@ -2235,15 +2237,15 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 		rsslClearEncodeIterator( &eIter );
 
-		if ( rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion )) != RSSL_RET_SUCCESS )
 		{
-			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
 			return false;
 		}
 
-		if ( rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer )) != RSSL_RET_SUCCESS )
 		{
-			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
 			return false;
 		}
 	}
@@ -2252,7 +2254,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	{
 		rsslTunnelStreamReleaseBuffer( pRsslBuffer, &rsslErrorInfo );
 
-		_ommBaseImpl.handleIue( "Internal Error. Failed to encode message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
+		_ommBaseImpl.handleIue( "Internal Error. Failed to encode message in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
 		return false;
 	}
 
@@ -2268,7 +2270,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	{
 		rsslTunnelStreamReleaseBuffer( pRsslBuffer, &rsslErrorInfo );
 
-		_ommBaseImpl.handleIue( "Internal Error. Failed to submit message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
+		_ommBaseImpl.handleIue( "Internal Error. Failed to submit message in TunnelItem::submitSubItemMsg( RsslMsg* ).", retCode );
 		return false;
 	}
 
@@ -2352,11 +2354,12 @@ bool SubItem::open( const ReqMsg& reqMsg )
 			if ( _ommBaseImpl.hasErrorClientHandler() )
 			{
 				_ommBaseImpl.getErrorClientHandler().onInvalidUsage( temp );
+				_ommBaseImpl.getErrorClientHandler().onInvalidUsage( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return false;
 			}
 			else
 			{
-				throwIueException( temp );
+				throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return false;
 			}
 		}
@@ -3295,7 +3298,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 					EmaString temp( "Invalid ReqMsg's name type : " );
 					temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType );
 					temp.append(". Instance name='").append( _ommCommonImpl.getInstanceName()).append("'.");
-					_ommCommonImpl.handleIue(temp);
+					_ommCommonImpl.handleIue(temp , OmmInvalidUsageException::InvalidArgumentEnum);
 					return 0;
 				}
 
@@ -3303,7 +3306,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				{
 					EmaString temp( "ReqMsg's name is not defined. " );
 					temp.append( "Instance name='" ).append( _ommCommonImpl.getInstanceName() ).append( "'." );
-					_ommCommonImpl.handleIue(temp);
+					_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 					return 0;
 				}
 
@@ -3329,7 +3332,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 			Channel* c( ommBaseImpl.getLoginCallbackClient().getActiveChannel() );
 			if ( !c )
 			{
-				ommBaseImpl.handleIue("Failed to send a directory request due to no active channel on registerClient().");
+				ommBaseImpl.handleIue("Failed to send a directory request due to no active channel on registerClient().", OmmInvalidUsageException::NoActiveChannelEnum);
 				return 0;
 			}
 
@@ -3378,7 +3381,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 									EmaString temp("Failed to split a batch request into single item requests on registerClient(). ");
 									temp.append("Instance name='").append(ommBaseImpl.getInstanceName()).append("'.");
-									ommBaseImpl.handleIue(temp);
+									ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InternalErrorEnum);
 
 									return (UInt64)0;
 								}
@@ -3531,7 +3534,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 				EmaString temp( "Invalid ReqMsg's name type : " );
 				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType );
 				temp.append( ". Instance name='" ).append( _ommCommonImpl.getInstanceName() ).append( "'." );
-				_ommCommonImpl.handleIue(temp);
+				_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 				return 0;
 			}
 
@@ -3539,7 +3542,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 			{
 				EmaString temp("ReqMsg's name is not defined. ");
 				temp.append("Instance name='").append(_ommCommonImpl.getInstanceName()).append("'.");
-				_ommCommonImpl.handleIue(temp);
+				_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 				return 0;
 			}
 
@@ -3575,7 +3578,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 			EmaString temp( "Invalid ReqMsg's domain type : " );
 			temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType );
 			temp.append(". Instance name='").append( _ommCommonImpl.getInstanceName()).append("'.");
-			_ommCommonImpl.handleIue(temp);
+			_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return 0;
 		}
 		}
@@ -3584,7 +3587,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 	{
 		EmaString temp( "Attempt to use parentHandle on OmmProvider::registerClient(). " );
 		temp.append( "Instance name='" ).append( _ommCommonImpl.getInstanceName() ).append( "'." );
-		_ommCommonImpl.handleIue(temp);
+		_ommCommonImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 		return 0;
 	}
 }
@@ -3838,9 +3841,12 @@ Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
 				_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
 
 			if (_ommCommonImpl.hasErrorClientHandler())
+			{
 				_ommCommonImpl.getErrorClientHandler().onInvalidUsage(temp);
+				_ommCommonImpl.getErrorClientHandler().onInvalidUsage(temp, OmmInvalidUsageException::InternalErrorEnum);
+			}
 			else
-				throwIueException(temp);
+				throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 		}
 
 		return _nextStreamId;
@@ -3882,7 +3888,7 @@ RsslMsg* ItemWatchList::processRsslMsg(RsslMsg* pRsslMsg, ProviderItem* pProvide
 		{
 			if (pProviderItem->processInitialResp(&pRsslMsg->refreshMsg, pRsslMsg->msgBase.domainType > MMT_DICTIONARY) == false)
 			{
-				pProviderItem->scheduleItemClosedRecoverableStatus("received response is mismatch with the initlal request");
+				pProviderItem->scheduleItemClosedRecoverableStatus("received response is mismatch with the initial request");
 
 				return 0;
 			}

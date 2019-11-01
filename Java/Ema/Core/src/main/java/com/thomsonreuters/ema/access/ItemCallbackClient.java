@@ -270,7 +270,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 			}
 
@@ -299,7 +299,7 @@ class TunnelItem<T> extends Item<T> {
 						_baseImpl.loggerClient().error(
 								_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-					_baseImpl.handleInvalidUsage(temp.toString());
+					_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				}
 			}
 		}
@@ -323,7 +323,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 		}
 
 		if (streamId >= _subItems.size())
@@ -335,7 +335,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 		}
 
 		if (_subItems.get(streamId) != null)
@@ -353,7 +353,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 
 			return null;
 		}
@@ -367,7 +367,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 
 			return null;
 		}
@@ -409,7 +409,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
 				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
@@ -430,7 +430,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
 				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
@@ -457,7 +457,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -472,7 +472,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -487,7 +487,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -502,7 +502,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -539,7 +539,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 
 				return false;
 			}
@@ -561,7 +561,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 
 				return false;
 			}
@@ -609,7 +609,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), _baseImpl.rsslErrorInfo().code());
 
 			return false;
 		}
@@ -635,7 +635,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), _baseImpl.rsslErrorInfo().code());
 
 			return false;
 		}
@@ -660,7 +660,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 
 			return false;
 		}
@@ -676,14 +676,15 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), _baseImpl.rsslErrorInfo().code());
 
 			return false;
 		}
 
 		_baseImpl.rsslEncIter().clear();
-		if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-				_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion))
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
+				_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Internal Error. Failed to set encode iterator in TunnelItem.submitSubItemMsg");
@@ -692,7 +693,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 		}
@@ -712,13 +713,13 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), _baseImpl.rsslErrorInfo().code());
 
 				return false;
 			}
 			_baseImpl.rsslEncIter().clear();
-			if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion))
+			if (ReactorReturnCodes.SUCCESS > (ret = _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
+					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Internal Error. Failed to set encode iterator in in TunnelItem.submitSubItemMsg");
@@ -727,7 +728,7 @@ class TunnelItem<T> extends Item<T> {
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 				return false;
 			}
@@ -743,7 +744,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), retCode);
 
 			return false;
 		}
@@ -761,7 +762,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.loggerClient()
 						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), retCode);
 
 			return false;
 		}
@@ -807,7 +808,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -822,7 +823,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -837,7 +838,7 @@ class TunnelItem<T> extends Item<T> {
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -907,7 +908,7 @@ class SubItem<T> extends Item<T>
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(SubItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 				return false;
 			}
@@ -1990,7 +1991,7 @@ TunnelStreamStatusEventCallback
 			        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
 
-						_baseImpl.handleInvalidUsage( temp.toString() );
+						_baseImpl.handleInvalidUsage( temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 
 						return 0;
 					}
@@ -2007,7 +2008,7 @@ TunnelStreamStatusEventCallback
 			        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
 
-			        	_baseImpl.handleInvalidUsage( temp.toString() );
+			        	_baseImpl.handleInvalidUsage( temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
 
 						return 0;
 					}
@@ -2071,7 +2072,7 @@ TunnelStreamStatusEventCallback
 									temp.toString(), Severity.ERROR));
 						}
 	
-						_baseImpl.handleInvalidUsage(temp.toString());						
+						_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);						
 						return 0;
 					}
 						
@@ -2198,7 +2199,7 @@ TunnelStreamStatusEventCallback
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 
-				temp.append("Attempt to get item from itemMap failed in registerClient(). ");
+				temp.append("Attempt to get item for parent handle from itemMap failed in registerClient(). ");
 
 				if (_baseImpl.loggerClient().isErrorEnabled())
 				{
@@ -2206,7 +2207,7 @@ TunnelStreamStatusEventCallback
 							temp.toString(), Severity.ERROR));
 				}
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 				return 0;
 			}
@@ -2222,7 +2223,7 @@ TunnelStreamStatusEventCallback
 							temp.toString(), Severity.ERROR));
 				}
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 				return 0;
 			}
@@ -2529,7 +2530,7 @@ TunnelStreamStatusEventCallback
 				if (_baseImpl.loggerClient().isErrorEnabled())
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 				
-				_baseImpl.handleInvalidUsage(tempErr.toString());
+				_baseImpl.handleInvalidUsage(tempErr.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 			}
 				
 			return _nextStreamId;
@@ -3017,7 +3018,7 @@ class SingleItem<T> extends Item<T>
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 			return false;
 	    }
 
@@ -3073,7 +3074,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 			return false;
 	    }
@@ -3121,7 +3122,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -3170,7 +3171,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -3218,7 +3219,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -3266,7 +3267,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -3313,7 +3314,7 @@ class SingleItem<T> extends Item<T>
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 
 			return false;
 	    }
@@ -3520,7 +3521,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -3539,7 +3540,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -3567,7 +3568,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 					_baseImpl.loggerClient()
 							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				
 				return false;
 			}
@@ -3659,7 +3660,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 			return false;
 	    }
 		
@@ -3718,7 +3719,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 				.append(rsslErrorInfo.error().text());
 				
 
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 			return false;
 	    }
@@ -3834,7 +3835,7 @@ class BatchItem<T> extends SingleItem<T>
 					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -3851,7 +3852,7 @@ class BatchItem<T> extends SingleItem<T>
 					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -3867,7 +3868,7 @@ class BatchItem<T> extends SingleItem<T>
 			_baseImpl.loggerClient()
 					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}
@@ -3884,7 +3885,7 @@ class BatchItem<T> extends SingleItem<T>
 					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 
-		_baseImpl.handleInvalidUsage(temp.toString());
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return false;
 	}

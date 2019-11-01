@@ -14,6 +14,7 @@
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderImpl.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #include <ctype.h>
 #include <new>
@@ -1527,15 +1528,16 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 	RsslDecodeIterator decIter;
 	rsslClearDecodeIterator(&decIter);
 
-	if (rsslSetDecodeIteratorRWFVersion(&decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION) != RSSL_RET_SUCCESS)
+	RsslRet retCode;
+	if ((retCode = rsslSetDecodeIteratorRWFVersion(&decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION)) != RSSL_RET_SUCCESS)
 	{
-		_ommCommonImpl.handleIue("Internal error. Failed to set decode iterator version in DirectoryServiceStore::submitSourceDirectory");
+		_ommCommonImpl.handleIue("Internal error. Failed to set decode iterator version in DirectoryServiceStore::submitSourceDirectory", retCode);
 		return false;
 	}
 
-	if (rsslSetDecodeIteratorBuffer(&decIter, &pMsg->msgBase.encDataBody) != RSSL_RET_SUCCESS)
+	if ((retCode = rsslSetDecodeIteratorBuffer(&decIter, &pMsg->msgBase.encDataBody)) != RSSL_RET_SUCCESS)
 	{
-		_ommCommonImpl.handleIue("Internal error. Failed to set decode iterator buffer in DirectoryServiceStore::submitSourceDirectory");
+		_ommCommonImpl.handleIue("Internal error. Failed to set decode iterator buffer in DirectoryServiceStore::submitSourceDirectory", retCode);
 		return false;
 	}
 
@@ -1546,8 +1548,6 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 	RsslBuffer tempBuffer;
 
 	tempBuffer = sourceDirectoryBuffer;
-
-	RsslRet retCode;
 
 	while (RSSL_RET_BUFFER_TOO_SMALL == (retCode = rsslDecodeRDMDirectoryMsg(&decIter, pMsg, &userSubmitSourceDirectory, &tempBuffer, &rsslErrorInfo)))
 	{
@@ -1580,7 +1580,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 
-		_ommCommonImpl.handleIue(temp);
+		_ommCommonImpl.handleIue(temp, retCode);
 		return false;
 	}
 
@@ -1880,7 +1880,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 	return true;
 }
 
-bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaString& errorText)
+bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaString& errorText, Int32& errorCode)
 {
 	RsslRet retCode = RSSL_RET_SUCCESS;
 	RsslDecodeIterator dIter;
@@ -1891,6 +1891,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 	{
 		errorText.set( "Internal error. Failed to set decode iterator version in DirectoryServiceStore::decodeSourceDirectory(). Reason = " );
 		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
+		errorCode = retCode;
 		return false;
 	}
 
@@ -1899,6 +1900,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 	{
 		errorText.set( "Internal error. Failed to set decode iterator buffer in DirectoryServiceStore::decodeSourceDirectory. Reason = " );
 		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
+		errorCode = retCode;
 		return false;
 	}
 
@@ -1914,6 +1916,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 	{
 		errorText.set( "Internal error. Failed to decode rsslMap in DirectoryServiceStore::decodeSourceDirectory. Reason = " );
 		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
+		errorCode = retCode;
 		return false;
 	}
 	else if ( retCode == RSSL_RET_NO_DATA )
@@ -1930,7 +1933,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 	switch ( rsslMap.keyPrimitiveType )
 	{
 	case RSSL_DT_UINT:
-		if ( !decodeSourceDirectoryKeyUInt( rsslMap, dIter, errorText ) )
+		if ( !decodeSourceDirectoryKeyUInt( rsslMap, dIter, errorText, errorCode) )
 			return false;
 		break;
 	default:
@@ -1938,6 +1941,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 		errorText += DataType((DataType::DataTypeEnum)rsslMap.keyPrimitiveType).toString();
 		errorText += EmaString( " while the expected key DataType is " );
 		errorText += DataType( DataType::UIntEnum ).toString();
+		errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 		return false;
 	}
 
@@ -1947,7 +1951,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 	return true;
 }
 
-bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslDecodeIterator& dIter, EmaString& errorText)
+bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslDecodeIterator& dIter, EmaString& errorText, Int32& errorCode)
 {
 	RsslRet retCode = RSSL_RET_SUCCESS;
 	RsslUInt64 serviceId = 0;
@@ -1959,6 +1963,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 		{
 			errorText.set("Internal error: Failed to Decode Map Entry. Reason = ");
 			errorText.append(rsslRetCodeToString(retCode)).append(". ");
+			errorCode = retCode;
 			return false;
 		}
 
@@ -1993,6 +1998,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 				{
 					errorText.set("Internal error: mismatch between _serviceIdToServiceName and _serviceNameToServiceId tables.")
 						.append(" ServiceName = ").append(**pServiceNamePtr).append(" serviceId = ").append(serviceId);
+					errorCode = OmmInvalidUsageException::InternalErrorEnum;
 					return false;
 				}
 
@@ -2016,6 +2022,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 		{
 			if (checkExistingServiceId(serviceId, errorText) == false)
 			{
+				errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 				return false;
 			}
 		}
@@ -2026,6 +2033,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 			errorText += DataType((DataType::DataTypeEnum)rsslMap.containerType).toString();
 			errorText += EmaString(" rather than the expected ");
 			errorText += DataType(DataType::FilterListEnum).toString();
+			errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 			return false;
 		}
 
@@ -2040,6 +2048,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 		{
 			errorText.set("Internal error: Failed to Decode FilterList. Reason = ");
 			errorText.append(rsslRetCodeToString(retCode)).append(". ");
+			errorCode = retCode;
 			return false;
 		}
 		else if (retCode == RSSL_RET_NO_DATA)
@@ -2067,6 +2076,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 			{
 				errorText.set("Internal error: Failed to Decode Filter Entry. Reason = ");
 				errorText.append(rsslRetCodeToString(retCode)).append(". ");
+				errorCode = retCode;
 				return false;
 			}
 
@@ -2083,6 +2093,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 				{
 					errorText.set("Attempt to update Infofilter of service with id of ");
 					errorText.append(serviceId).append(" while this is not allowed.");
+					errorCode = OmmInvalidUsageException::InvalidOperationEnum;
 					return false;
 				}
 
@@ -2094,6 +2105,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 					errorText += DataType((DataType::DataTypeEnum)type).toString();
 					errorText += EmaString(" rather than the expected ");
 					errorText += DataType(DataType::ElementListEnum).toString();
+					errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 					return false;
 				}
 
@@ -2106,6 +2118,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 				{
 					errorText.set("Internal error: Failed to Decode Element List. Reason = ");
 					errorText.append(rsslRetCodeToString(retCode)).append(". ");
+					errorCode = retCode;
 					return false;
 				}
 
@@ -2117,6 +2130,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 					{
 						errorText.set("Internal error: Failed to Decode ElementEntry. Reason = ");
 						errorText.append(rsslRetCodeToString(retCode)).append(". ");
+						errorCode = retCode;
 						return false;
 					}
 
@@ -2135,6 +2149,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 							errorText += DataType((DataType::DataTypeEnum)rsslElementEntry.dataType).toString();
 							errorText += EmaString(" rather than the expected ");
 							errorText += DataType(DataType::AsciiEnum).toString();
+							errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 							return false;
 						}
 
@@ -2146,12 +2161,14 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 						{
 							errorText.set("Internal error: Failed to Decode Buffer. Reason = ");
 							errorText.append(rsslRetCodeToString(retCode)).append(". ");
+							errorCode = retCode;
 							return false;
 						}
 						else if (retCode == RSSL_RET_BLANK_DATA)
 						{
 							errorText.set("Attempt to specify Service Name with a blank ascii string for service id of ");
 							errorText.append(serviceId);
+							errorCode = OmmInvalidUsageException::InvalidArgumentEnum;
 							return false;
 						}
 
@@ -2165,11 +2182,13 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 						catch (std::bad_alloc)
 						{
 							errorText.set("Failed to allocate memory in DirectoryServiceStore::decodeSourceDirectoryKeyUInt()");
+							errorCode = OmmInvalidUsageException::InternalErrorEnum;
 							return false;
 						}
 
 						if (addServiceIdAndNamePair(serviceId, pServiceName, &errorText) == false)
 						{
+							errorCode = OmmInvalidUsageException::InvalidOperationEnum;
 							return false;
 						}
 					}
@@ -2179,6 +2198,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 				{
 					errorText.set("Attempt to specify service InfoFilter without required Service Name for service id of ");
 					errorText.append(serviceId);
+					errorCode = OmmInvalidUsageException::InvalidOperationEnum;
 					return false;
 				}
 			}

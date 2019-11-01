@@ -49,7 +49,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	public int totalCountHint()
 	{
 		if (!hasTotalCountHint())
-			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.");
+			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslFilterList.totalCountHint();
 	}
@@ -347,7 +347,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	}
 	
@@ -379,7 +379,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    	String errText = errorString().append("Failed to intialize encoding on rssl FilterList. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 		for (com.thomsonreuters.ema.access.FilterEntry entry  : _filterListCollection)
@@ -396,7 +396,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 						.append(" while encoding rssl FilterList. Reason='")
 						.append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		    }
 		 }
 		 
@@ -406,7 +406,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    	String errText = errorString().append("Failed to complete encoding on rssl FilterList. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    _encodeComplete = true;

@@ -117,6 +117,27 @@ public interface ChannelInformation
 		 */
 		public static final int RWF = 0;
 	}
+	
+	/**
+	 * Compression types.
+	 */
+	public static class CompressionType
+	{
+		/**
+		 * No compression will be negotiated
+		 */
+		public static final int NONE = 0x00;
+
+		/**
+		 * Will attempt to use Zlib compression
+		 */
+		public static final int ZLIB = 0x01;
+		
+		/**
+		 * Will attempt to use LZ4 compression
+		 */
+		public static final int LZ4 = 0x02;
+	}
 
 	/** Clears the ChannelInformation
 	 *  <p>invoking clear() resets all member variables to their default values</p>
@@ -192,6 +213,62 @@ public interface ChannelInformation
 	 * @return the ping timeout
 	 */
 	public int pingTimeout();
+	
+	/**
+	 * Gets the max fragment size
+	 *
+	 * @return the max fragment size
+	 */
+	public int maxFragmentSize();
+	
+	/**
+	 * Gets the maximum number of output buffers
+	 *
+	 * @return the maximum number of output buffers available to the channel.
+	 */
+	public int maxOutputBuffers();
+	
+	/**
+	 * Gets the guaranteed number of output buffers
+	 *
+	 * @return the guaranteed number of output buffers available to the channel.
+	 */
+	public int guaranteedOutputBuffers();
+	
+	/**
+	 * Gets the number of input buffers
+	 *
+	 * @return the number of input buffers available to the channel.
+	 */
+	public int numInputBuffers();
+	
+	/**
+	 * Gets the systems send Buffer size
+	 *
+	 * @return the systems send buffer size respective to the transport type being used.
+	 */
+	public int sysSendBufSize();
+	
+	/**
+	 * Gets the systems receive Buffer size
+	 *
+	 * @return the systems receive buffer size respective to the transport type being used.
+	 */
+	public int sysRecvBufSize();
+	
+	/**
+	 * Gets the compression type
+	 *
+	 * @return the type of compression being used, if it is enabled.
+	 */
+	public int compressionType();
+	
+	/**
+	 * Gets the compression threshold
+	 *
+	 * @return the compression threshold for compressing any message lager than this when compression is enabled.
+	 */
+	public int compressionThreshold();
 
 	/** Sets host name
 	 *
@@ -253,4 +330,59 @@ public interface ChannelInformation
 	 *
 	 */
 	public void pingTimeout(int pingTimeout);
+	
+	/** Specifies the max fragment size
+	 * 
+	 * @param maxFragmentSize specifies max fragment size
+	 */
+	public void maxFragmentSize(int maxFragmentSize);
+
+	/** Specifies the maximum number of output buffers
+	 * 
+	 * @param maxOutputBuffers specifies maximum number of output buffers
+	 * 
+	 */
+	public void maxOutputBuffers(int maxOutputBuffers);
+
+	/** Specifies the guaranteed number of output buffers
+	 * 
+	 * @param guaranteedOutputBuffers specifies guaranteed number of output buffers
+	 * 
+	 */
+	public void guaranteedOutputBuffers(int guaranteedOutputBuffers);
+
+	/** Specifies the number of input buffers
+	 * 
+	 * @param guaranteedOutputBuffers specifies number of input buffers
+	 * 
+ 	 */
+	public void numInputBuffers(int numInputBuffers);
+
+	/** Specifies the systems Send Buffer size
+	 * 
+	 * @param sysSendBufSize specifies systems send Buffer size
+	 * 
+ 	 */
+	public void sysSendBufSize(int sysSendBufSize);
+
+	/** Specifies the systems Receive Buffer size
+	 * 
+	 * @param[in] sysRecvBufSize specifies systems receive Buffer size
+	 * 
+	 */
+	public void sysRecvBufSize(int sysRecvBufSize);
+
+	/** Specifies the compression type
+	 * 
+	 * @param[in] compressionType specifies compression type
+	 * 
+	 */
+	public void compressionType(int compressionType);
+
+	/** Specifies the compression threshold
+	 * 
+	 * @param[in] compressionThreshold specifies compression threshold
+	 * 
+	 */
+	public void compressionThreshold(int compressionThreshold);
 }

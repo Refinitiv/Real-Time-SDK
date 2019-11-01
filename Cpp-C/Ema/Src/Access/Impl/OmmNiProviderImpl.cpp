@@ -22,6 +22,7 @@
 #include "StreamId.h"
 #include "DirectoryServiceStore.h"
 #include "ChannelInfoImpl.h"
+#include "OmmInvalidUsageException.h"
 
 #include <limits.h>
 
@@ -230,9 +231,10 @@ void OmmNiProviderImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 			rsslMsg.refreshMsg = *_activeConfig.pDirectoryRefreshMsg->get();
 
 			EmaString text;
-			if (_ommNiProviderDirectoryStore.decodeSourceDirectory(&rsslMsg.refreshMsg.msgBase.encDataBody, text) == false)
+			Int32 retCode;
+			if (_ommNiProviderDirectoryStore.decodeSourceDirectory(&rsslMsg.refreshMsg.msgBase.encDataBody, text, retCode) == false)
 			{
-				handleIue(text);
+				handleIue(text, retCode);
 				return;
 			}
 
@@ -319,18 +321,18 @@ void OmmNiProviderImpl::loadDirectory()
 
 		RsslEncIterator eIter;
 		rsslClearEncodeIterator( &eIter );
-
-		if ( RSSL_RET_SUCCESS != rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) )
+		RsslRet retCode;
+		if ( RSSL_RET_SUCCESS != (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) )
 		{
 			free( rsslMsgBuffer.data );
-			handleIue( "Internal error. Failed to set encode iterator version in OmmNiProviderImpl::loadDirectory()" );
+			handleIue( "Internal error. Failed to set encode iterator version in OmmNiProviderImpl::loadDirectory()", retCode );
 			return;
 		}
 
-		if ( RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer ) )
+		if ( RSSL_RET_SUCCESS != (retCode = rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer )) )
 		{
 			free( rsslMsgBuffer.data );
-			handleIue( "Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::loadDirectory()" );
+			handleIue( "Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::loadDirectory()", retCode );
 			return;
 		}
 
@@ -350,7 +352,7 @@ void OmmNiProviderImpl::loadDirectory()
 
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo( &rsslErrorInfo );
-		RsslRet retCode = rsslEncodeRDMDirectoryMsg( &eIter, (RsslRDMDirectoryMsg*) &directoryRefresh, &rsslMsgBuffer.length, &rsslErrorInfo );
+		retCode = rsslEncodeRDMDirectoryMsg( &eIter, (RsslRDMDirectoryMsg*) &directoryRefresh, &rsslMsgBuffer.length, &rsslErrorInfo );
 
 		while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
 		{
@@ -382,7 +384,7 @@ void OmmNiProviderImpl::loadDirectory()
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-			handleIue( temp );
+			handleIue( temp, retCode );
 			return;
 		}
 
@@ -400,26 +402,26 @@ void OmmNiProviderImpl::loadDirectory()
 		RsslDecodeIterator decIter;
 		rsslClearDecodeIterator( &decIter );
 
-		if ( rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) != RSSL_RET_SUCCESS )
 		{
 			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-			handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::loadDirectory()" );
+			handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::loadDirectory()", retCode );
 			return;
 		}
 
-		if ( rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer )) != RSSL_RET_SUCCESS )
 		{
 			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-			handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::loadDirectory()" );
+			handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::loadDirectory()", retCode );
 			return;
 		}
 
 		RsslRefreshMsg rsslRefreshMsg;
 		rsslClearRefreshMsg( &rsslRefreshMsg );
-		if ( rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg ) != RSSL_RET_SUCCESS )
+		if ( (retCode = rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg )) != RSSL_RET_SUCCESS )
 		{
 			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-			handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::loadDirectory()" );
+			handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::loadDirectory()", retCode );
 			return;
 		}
 
@@ -438,7 +440,7 @@ void OmmNiProviderImpl::loadDirectory()
 		{
 			EmaString temp( "Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is " );
 			temp += DataType((DataType::DataTypeEnum)pTempRsslMsg->msgBase.containerType).toString();
-			handleIue( temp );
+			handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 	}
@@ -447,7 +449,7 @@ void OmmNiProviderImpl::loadDirectory()
 	if ( pChannel == NULL )
 	{
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -468,7 +470,7 @@ void OmmNiProviderImpl::loadDirectory()
 			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 		return;
 	}
 	else
@@ -515,18 +517,18 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 
 	RsslEncIterator eIter;
 	rsslClearEncodeIterator( &eIter );
-
-	if ( RSSL_RET_SUCCESS != rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) )
+	RsslRet retCode;
+	if ( RSSL_RET_SUCCESS != (retCode = rsslSetEncodeIteratorRWFVersion( &eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) )
 	{
 		free( rsslMsgBuffer.data );
-		handleIue( "Internal error. Failed to set encode iterator version in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		handleIue( "Internal error. Failed to set encode iterator version in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()", retCode );
 		return;
 	}
 
-	if ( RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer ) )
+	if ( RSSL_RET_SUCCESS != (retCode = rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer )) )
 	{
 		free( rsslMsgBuffer.data );
-		handleIue( "Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		handleIue( "Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()", retCode );
 		return;
 	}
 
@@ -547,7 +549,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
-	RsslRet retCode = rsslEncodeRDMDirectoryMsg( &eIter, (RsslRDMDirectoryMsg*) &directoryRefresh, &rsslMsgBuffer.length, &rsslErrorInfo );
+	retCode = rsslEncodeRDMDirectoryMsg( &eIter, (RsslRDMDirectoryMsg*) &directoryRefresh, &rsslMsgBuffer.length, &rsslErrorInfo );
 
 	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
 	{
@@ -579,33 +581,33 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-		handleIue( temp );
+		handleIue( temp, retCode );
 		return;
 	}
 
 	RsslDecodeIterator decIter;
 	rsslClearDecodeIterator( &decIter );
 
-	if ( rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION )) != RSSL_RET_SUCCESS )
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-		handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()", retCode);
 		return;
 	}
 
-	if ( rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer )) != RSSL_RET_SUCCESS )
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-		handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()", retCode);
 		return;
 	}
 
 	RsslRefreshMsg rsslRefreshMsg;
 	rsslClearRefreshMsg( &rsslRefreshMsg );
-	if ( rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg )) != RSSL_RET_SUCCESS )
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-		handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()", retCode);
 		return;
 	}
 
@@ -615,23 +617,22 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 	submitMsgOpts.pRsslMsg = (RsslMsg*) &rsslRefreshMsg;
 
 	EmaString temp;
-
-	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
+	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, retCode))
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-		handleIue( temp );
+		handleIue( temp, retCode);
 		return;
 	}
 
 	if ( _activeChannel == NULL )
 	{
 		EmaString temp("No active channel to send message.");
-		handleIue(temp);
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
 		return;
 	}
 
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _activeChannel->getRsslReactor(), _activeChannel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslReactorSubmitMsg( _activeChannel->getRsslReactor(), _activeChannel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo )) != RSSL_RET_SUCCESS )
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 
@@ -643,7 +644,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-		handleIue( temp );
+		handleIue( temp, retCode );
 		return;
 	}
 	else
@@ -651,7 +652,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 		_bIsStreamIdZeroRefreshSubmitted = true;
 
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "User submitted source directoies were sent out on the wire after reconnect." );
+			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "User submitted source directories were sent out on the wire after reconnect." );
 	}
 
 	DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
@@ -687,17 +688,17 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 	submitMsgOpts.pRsslMsg = (RsslMsg*) _activeConfig.pDirectoryRefreshMsg->get();
 
 	EmaString temp;
-
-	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
+	Int32 errorCode;
+	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode))
 	{
-		handleIue( temp );
+		handleIue( temp, errorCode);
 		return;
 	}
 
 	if ( _activeChannel == NULL )
 	{
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -713,14 +714,14 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 	}
 	else
 	{
 		_bIsStreamIdZeroRefreshSubmitted = true;
 
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directoies were sent out on the wire after reconnect." );
+			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directories were sent out on the wire after reconnect." );
 	}
 }
 
@@ -794,7 +795,7 @@ UInt64 OmmNiProviderImpl::registerClient( const ReqMsg& reqMsg, OmmProviderClien
 		reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
 	{
 		_userLock.unlock();
-		handleIue("OMM Interactive provider supports registering LOGIN and DICTIONARY domain type only.");
+		handleIue("OMM Interactive provider supports registering LOGIN and DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum);
 		return 0;
 	}
 
@@ -847,7 +848,7 @@ void OmmNiProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 		reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY ) )
 	{
 		_userLock.unlock();
-		handleIue("OMM Non-Interactive provider supports reissuing LOGIN and DICTIONARY domain type only.");
+		handleIue("OMM Non-Interactive provider supports reissuing LOGIN and DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum);
 		return;
 	}
 
@@ -868,7 +869,7 @@ void OmmNiProviderImpl::unregister( UInt64 handle )
 		return;
 	}
 
-	if ( ( *pTempStreamInfoPtr )->_streamType == StreamInfo::ProvidingEnum )
+	if ( ( *pTempStreamInfoPtr )->_streamType != StreamInfo::ConsumingEnum )
 	{
 		_userLock.unlock();
 		handleIhe( handle, "Attempt to unregister a handle that was not registered." );
@@ -920,7 +921,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 	{
 		_userLock.unlock();
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -939,16 +940,16 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
 			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue(temp);
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
 		EmaString temp;
-
-		if (!_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
+		Int32 errorCode;
+		if (!_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode))
 		{
 			_userLock.unlock();
-			handleIue(temp);
+			handleIue(temp, errorCode);
 			return;
 		}
 
@@ -1029,7 +1030,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 				EmaString temp( "Attempt to submit initial RefreshMsg with service name of " );
 				temp.append( serviceName ).append( " that was not included in the SourceDirectory. Dropping this RefreshMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 			else if ( *pServiceId > 0xFFFF )
@@ -1038,7 +1039,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 				EmaString temp( "Attempt to submit initial RefreshMsg with service name of " );
 				temp.append( serviceName ).append( " whose matching service id of " ).append( *pServiceId ).append( " is out of range. Dropping this RefreshMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 				return;
 			}
 
@@ -1074,7 +1075,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit initial RefreshMsg with service id of " );
 				temp.append( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId ).append( " that was not included in the SourceDirectory. Dropping this RefreshMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 
@@ -1101,7 +1102,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		else
 		{
 			_userLock.unlock();
-			handleIue( "Attempt to submit initial RefreshMsg without service name or id. Dropping this RefreshMsg." );
+			handleIue( "Attempt to submit initial RefreshMsg without service name or id. Dropping this RefreshMsg.", OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 	}
@@ -1128,7 +1129,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
 		_userLock.unlock();
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 		return;
 	}
@@ -1181,7 +1182,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 	{
 		_userLock.unlock();
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -1200,16 +1201,16 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			_userLock.unlock();
 			EmaString temp( "Attempt to submit UpdateMsg with SourceDirectory domain using container with wrong data type. Expected is Map. Passed in is " );
 			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue( temp );
+			handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 
 		EmaString temp;
-
-		if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp ) )
+		Int32 errorCode;
+		if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode ) )
 		{
 			_userLock.unlock();
-			handleIue( temp );
+			handleIue( temp, errorCode );
 			return;
 		}
 
@@ -1313,7 +1314,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit UpdateMsg with service name of " );
 				temp.append( serviceName ).append( " that was not included in the SourceDirectory. Dropping this UpdateMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 			else if ( *pServiceId > 0xFFFF )
@@ -1321,7 +1322,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit UpdateMsg with service name of " );
 				temp.append( serviceName ).append( " whose matching service id of " ).append( *pServiceId ).append( " is out of range. Dropping this UpdateMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 				return;
 			}
 
@@ -1355,7 +1356,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit UpdateMsg with service id of " );
 				temp.append( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId ).append( " that was not included in the SourceDirectory. Dropping this UpdateMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 
@@ -1373,14 +1374,14 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
-				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )" );
+				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const UpdateMsg& )" );
 				return;
 			}
 		}
 		else
 		{
 			_userLock.unlock();
-			handleIue( "Attempt to submit UpdateMsg without service name or id. Dropping this UpdateMsg." );
+			handleIue( "Attempt to submit UpdateMsg without service name or id. Dropping this UpdateMsg.", OmmInvalidUsageException::InvalidArgumentEnum);
 			return;
 		}
 	}
@@ -1407,7 +1408,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
 		_userLock.unlock();
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 		return;
 	}
 
@@ -1443,7 +1444,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 	{
 		_userLock.unlock();
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -1455,6 +1456,15 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			temp.append( handle ).append( ", user assigned streamId = " ).append( submitMsgOpts.pRsslMsg->msgBase.streamId ).append( "." );
 
 			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
+		}
+
+		if (submitMsgOpts.pRsslMsg->msgBase.containerType != RSSL_DT_MAP)
+		{
+			_userLock.unlock();
+			EmaString temp("Attempt to submit StatusMsg with SourceDirectory domain using container with wrong data type. Expected is Map. Passed in is ");
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
+			handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+			return;
 		}
 
 		if ( _activeConfig.mergeSourceDirectoryStreams )
@@ -1543,7 +1553,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit StatusMsg with service name of " );
 				temp.append( serviceName ).append( " that was not included in the SourceDirectory. Dropping this StatusMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 			else if ( *pServiceId > 0xFFFF )
@@ -1551,7 +1561,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				_userLock.unlock();
 				EmaString temp( "Attempt to submit StatusMsg with service name of " );
 				temp.append( serviceName ).append( " whose matching service id of " ).append( *pServiceId ).append( " is out of range. Dropping this StatusMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidOperationEnum );
 				return;
 			}
 
@@ -1586,7 +1596,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 				EmaString temp( "Attempt to submit StatusMsg with service id of " );
 				temp.append( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId ).append( " that was not included in the SourceDirectory. Dropping this StatusMsg." );
-				handleIue( temp );
+				handleIue( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 				return;
 			}
 
@@ -1611,7 +1621,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 		else
 		{
 			_userLock.unlock();
-			handleIue( "Attempt to submit StatusMsg without service name or id. Dropping this StatusMsg." );
+			handleIue( "Attempt to submit StatusMsg without service name or id. Dropping this StatusMsg.", OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
 	}
@@ -1638,7 +1648,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
 		_userLock.unlock();
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 		return;
 	}
@@ -1675,7 +1685,7 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 	{
 		_userLock.unlock();
 		EmaString temp( "No active channel to send message." );
-		handleIue( temp );
+		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
 
@@ -1724,7 +1734,7 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
 		_userLock.unlock();
-		handleIue( temp );
+		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
 		return;
 	}
 
@@ -1733,7 +1743,7 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 
 void OmmNiProviderImpl::submit(const AckMsg&, UInt64)
 {
-	handleIue("Non-interactive provider does not support submmiting AckMsg.");
+	handleIue("Non-interactive provider does not support submitting AckMsg.", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
 void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, RsslReactorOAuthCredential* pReactorOAuthCredential)
@@ -1823,7 +1833,7 @@ Int32 OmmNiProviderImpl::getNextProviderStreamId()
 	{
 		if ( _nextProviderStreamId == INT_MIN )
 		{
-			handleIue("Unable to obtain next available stream id for submitting item.");
+			handleIue("Unable to obtain next available stream id for submitting item.", OmmInvalidUsageException::InternalErrorEnum);
 		}
 
 		return --_nextProviderStreamId;
@@ -1902,7 +1912,7 @@ UInt32 OmmNiProviderImpl::getRequestTimeout()
  * defined here because the function is defined in a common base class
  */
 void OmmNiProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformation>&) {
-  throwIueException("NIProvider applications do not support the getConnectedClientChannelInfo method");
+  throwIueException( "NIProvider applications do not support the getConnectedClientChannelInfo method", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
 void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
@@ -1915,3 +1925,35 @@ void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
   }
   return getChannelInformationImpl(rsslReactorChannel, OmmCommonImpl::NiProviderEnum, ci);
 }
+
+void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+{
+	_userLock.lock();
+
+	if (_activeChannel == NULL || _activeChannel->getRsslChannel() == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to modify I/O option.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	RsslError rsslError;
+	RsslRet ret = rsslIoctl(_activeChannel->getRsslChannel()->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to modify I/O option for code = ");
+			temp.append(code).append(".").append(CR)
+			.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+}
+

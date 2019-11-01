@@ -217,7 +217,7 @@ const UInt64& LoginStatusImpl::getAuthenticationErrorCode() const
 	{
 		EmaString text(ENAME_AUTH_ERRORCODE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationErrorCode;
@@ -229,7 +229,7 @@ const EmaString& LoginStatusImpl::getAuthenticationErrorText() const
 	{
 		EmaString text(ENAME_AUTH_ERRORTEXT);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _authenticationErrorText;
@@ -241,7 +241,7 @@ const EmaString& LoginStatusImpl::getName() const
 	{
 		EmaString text(ENAME_USERNAME);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _name;
@@ -253,7 +253,7 @@ const UInt32& LoginStatusImpl::getNameType() const
 	{
 		EmaString text(ENAME_USERNAME_TYPE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _nameType;
@@ -265,7 +265,7 @@ const OmmState& LoginStatusImpl::getState() const
 	{
 		EmaString text(ENAME_STATE);
 		text.append(" element is not set");
-		throwIueException(text);
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 	 
 	_state._pDecoder->setRsslData(_rsslState);
@@ -381,7 +381,7 @@ void LoginStatusImpl::decode(const StatusMsg& statusMsg)
 		{
 			EmaString text("Decoding error for ");
 			text.append(elementName).append(" element. ").append(iue.getText());
-			throwIueException(text);
+			throwIueException( text, iue.getErrorCode() );
 		}
 	}
 }

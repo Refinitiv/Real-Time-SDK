@@ -56,7 +56,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	public int totalCountHint()
 	{
 		if (!hasTotalCountHint())
-			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.");
+			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslSeries.totalCountHint();
 	}
@@ -112,7 +112,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	public Series summaryData(ComplexType summaryData)
 	{
 		if (summaryData == null)
-			throw ommIUExcept().message("Passed in summaryData is null");
+			throw ommIUExcept().message("Passed in summaryData is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		_summaryDataType = summaryData.dataType();
 		_summaryDataTypeSet = true;
@@ -160,56 +160,48 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	@Override
 	public boolean addAll(Collection<? extends SeriesEntry> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 	
 	@Override
 	public boolean remove(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
 	}
 	
@@ -438,7 +430,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 							.append(" while Series entry load type is set to ")
 							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
 							.append(" with summaryData() method").toString();
-					throw ommIUExcept().message(errText);
+					throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 				else
 				{
@@ -470,7 +462,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    SeriesEntryImpl seriesEntry;
@@ -483,7 +475,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(seriesEntry._entryDataType))
 						.append(" while Series contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 			while ((ret = seriesEntry._rsslSeriesEntry.encode(_rsslEncodeIter) ) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -498,7 +490,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		    								.append(" while encoding rssl series. Reason='")
 		    								.append(CodecReturnCodes.toString(ret))
 		    								.append("'").toString();
-		    	throw ommIUExcept().message(errText);
+		    	throw ommIUExcept().message(errText, ret);
 		    }
 		 }
 		 
@@ -508,7 +500,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    _encodeComplete = true;
@@ -525,7 +517,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	}
 	

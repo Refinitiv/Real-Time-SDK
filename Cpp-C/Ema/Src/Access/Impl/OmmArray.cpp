@@ -13,6 +13,7 @@
 #include "OmmArrayEncoder.h"
 #include "Utilities.h"
 #include "GlobalPool.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -59,7 +60,7 @@ const OmmArrayEntry& OmmArray::getEntry() const
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _entry;

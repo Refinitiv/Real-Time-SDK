@@ -80,6 +80,8 @@ public:
     void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&);
     void getChannelInformation(ChannelInformation&);
 
+	void modifyIOCtl(Int32 code, Int32 value, UInt64 handle);
+
 private:
 
 	bool encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase );

@@ -8,6 +8,7 @@
 
 #include "EncodeIterator.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -62,14 +63,14 @@ void EncodeIterator::clear(UInt32 allocatedSize)
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
 			const char* temp = "Failed to set RsslEncodeIterator version in EncodeIterator::clear().";
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 		}
 
 		retCode = rsslSetEncodeIteratorBuffer( &_rsslEncIter, &_rsslEncBuffer1 );
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
 			const char* temp = "Failed to set RsslEncodeIterator buffer in EncodeIterator::clear().";
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 		}
 	}
 	else if (_allocatedSize < allocatedSize)
@@ -89,14 +90,14 @@ void EncodeIterator::clear(UInt32 allocatedSize)
 			if ( retCode != RSSL_RET_SUCCESS )
 			{
 				const char* temp = "Failed to set RsslEncodeIterator version in EncodeIterator::clear().";
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 
 			retCode = rsslSetEncodeIteratorBuffer( &_rsslEncIter, &_rsslEncBuffer1 );
 			if ( retCode != RSSL_RET_SUCCESS )
 			{
 				const char* temp = "Failed to set RsslEncodeIterator buffer in EncodeIterator::clear().";
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 		}
 		else
@@ -110,14 +111,14 @@ void EncodeIterator::clear(UInt32 allocatedSize)
 			if ( retCode != RSSL_RET_SUCCESS )
 			{
 				const char* temp = "Failed to set RsslEncodeIterator version in EncodeIterator::clear().";
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 
 			retCode = rsslSetEncodeIteratorBuffer( &_rsslEncIter, &_rsslEncBuffer2 );
 			if ( retCode != RSSL_RET_SUCCESS )
 			{
 				const char* temp = "Failed to set RsslEncodeIterator buffer in EncodeIterator::clear().";
-				throwIueException( temp );
+				throwIueException( temp, retCode );
 			}
 		}
 	}
@@ -144,7 +145,7 @@ void EncodeIterator::reallocate()
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
 			const char* temp = "Failed to realign RsslEncodeIterator buffer in EncodeIterator::reallocate().";
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 		}
 
 		_allocatedSize = newSize;
@@ -181,14 +182,14 @@ void EncodeIterator::reallocate( UInt32 size )
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
 			const char* temp = "Failed to set RsslEncodeIterator version in EncodeIterator::reallocate().";
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 		}
 
 		retCode = rsslSetEncodeIteratorBuffer( &_rsslEncIter, temp );
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
 			const char* temp = "Failed to set RsslEncodeIterator buffer in EncodeIterator::reallocate().";
-			throwIueException( temp );
+			throwIueException( temp, retCode );
 		}
 	}
 	catch ( std::bad_alloc )

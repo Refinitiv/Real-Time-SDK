@@ -11,6 +11,8 @@
 #include "StaticDecoder.h"
 #include "OmmQos.h"
 #include "ReqMsg.h"
+#include "OmmInvalidUsageException.h"
+
 #include "rtr/rsslMsgDecoders.h"
 
 using namespace thomsonreuters::ema::access;
@@ -181,7 +183,7 @@ const EmaString& ReqMsgDecoder::getName() const
 	if ( !hasName() )
 	{
 		EmaString temp( "Attempt to getName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_name.setInt( _pRsslMsg->msgBase.msgKey.name.data, _pRsslMsg->msgBase.msgKey.name.length, false );
@@ -194,7 +196,7 @@ UInt8 ReqMsgDecoder::getNameType() const
 	if ( !hasNameType() )
 	{
 		EmaString temp( "Attempt to getNameType() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.nameType;
@@ -205,7 +207,7 @@ UInt32 ReqMsgDecoder::getServiceId() const
 	if ( !hasServiceId() )
 	{
 		EmaString temp( "Attempt to getServiceId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.serviceId;
@@ -216,7 +218,7 @@ const EmaString& ReqMsgDecoder::getServiceName() const
 	if ( !_serviceNameSet )
 	{
 		EmaString temp( "Attempt to getServiceName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceName.toString();
@@ -227,7 +229,7 @@ Int32 ReqMsgDecoder::getId() const
 	if ( !hasId() )
 	{
 		EmaString temp( "Attempt to getId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.identifier;
@@ -238,7 +240,7 @@ UInt32 ReqMsgDecoder::getFilter() const
 	if ( !hasFilter() )
 	{
 		EmaString temp( "Attempt to getFilter() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.filter;
@@ -249,7 +251,7 @@ const EmaBuffer& ReqMsgDecoder::getExtendedHeader() const
 	if ( !hasExtendedHeader() )
 	{
 		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_extHeader.setFromInt( _pRsslMsg->requestMsg.extendedHeader.data, _pRsslMsg->requestMsg.extendedHeader.length );
@@ -282,7 +284,7 @@ UInt8 ReqMsgDecoder::getPriorityClass() const
 	if ( !hasPriority() )
 	{
 		EmaString temp( "Attempt to getPriorityClass() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->requestMsg.priorityClass;
@@ -293,7 +295,7 @@ UInt16 ReqMsgDecoder::getPriorityCount() const
 	if ( !hasPriority() )
 	{
 		EmaString temp( "Attempt to getPriorityCount() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->requestMsg.priorityCount;
@@ -304,7 +306,7 @@ UInt32 ReqMsgDecoder::getTimeliness() const
 	if ( !hasQos() )
 	{
 		EmaString temp( "Attempt to getTimeliness() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	UInt32 timeliness = ReqMsg::BestTimelinessEnum;
@@ -361,7 +363,7 @@ UInt32 ReqMsgDecoder::getRate() const
 	if ( !hasQos() )
 	{
 		EmaString temp( "Attempt to getRate() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	UInt32 rate = ReqMsg::BestRateEnum;

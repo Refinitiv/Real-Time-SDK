@@ -52,7 +52,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	public TunnelStreamRequest serviceId(int serviceId)
 	{
 		if (_serviceNameSet)
-			throw ommIUExcept().message("Attempt to set serviceId while serviceName is already set.");
+			throw ommIUExcept().message("Attempt to set serviceId while serviceName is already set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_serviceIdSet = true;
 		return this;
@@ -63,7 +63,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	public TunnelStreamRequest serviceName(String serviceName)
 	{
 		if (_serviceIdSet)
-			throw ommIUExcept().message("Attempt to set serviceName while serviceId is already set.");
+			throw ommIUExcept().message("Attempt to set serviceName while serviceId is already set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_serviceNameSet = true;
 		_serviceName = serviceName;
@@ -159,7 +159,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	{
 
 		if (_serviceIdSet != true)
-			throw ommIUExcept().message("Attempt to get servieId while it is not set.");
+			throw ommIUExcept().message("Attempt to get servieId while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _serviceId;
 	}
@@ -168,7 +168,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	public String serviceName()
 	{
 		if (_serviceNameSet == false)
-			throw ommIUExcept().message("Attempt to get serviceName while it is not set.");
+			throw ommIUExcept().message("Attempt to get serviceName while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _serviceName;
 	}
@@ -177,7 +177,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	public String name()
 	{
 		if (_nameSet == false)
-			throw ommIUExcept().message("Attempt to get Name while it is not set.");
+			throw ommIUExcept().message("Attempt to get Name while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _name;
 	}
@@ -205,7 +205,7 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	{
 
 		if (_tunnelStreamLoginReqMsg == null)
-			throw ommIUExcept().message("Attempt to get loginReqMsg while it is not set.");
+			throw ommIUExcept().message("Attempt to get loginReqMsg while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		return _tunnelStreamLoginReqMsg.loginReqMsg();
 	}

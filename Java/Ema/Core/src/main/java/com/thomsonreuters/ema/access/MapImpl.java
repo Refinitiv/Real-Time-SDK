@@ -66,7 +66,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	public int keyFieldId()
 	{
 		if (!hasKeyFieldId())
-			throw ommIUExcept().message("Attempt to keyFieldId() while it is not set.");
+			throw ommIUExcept().message("Attempt to keyFieldId() while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslMap.keyFieldId();
 	}
@@ -75,7 +75,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	public int totalCountHint()
 	{
 		if (!hasTotalCountHint())
-			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.");
+			throw ommIUExcept().message("Attempt to totalCountHint() while it is not set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return _rsslMap.totalCountHint();
 	}
@@ -137,56 +137,48 @@ class MapImpl extends CollectionDataImpl implements Map
 	@Override
 	public boolean addAll(Collection<? extends MapEntry> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean remove(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
 	}
 	
@@ -237,7 +229,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	public Map summaryData(ComplexType summaryData)
 	{
 		if (summaryData == null)
-			throw ommIUExcept().message("Passed in summaryData is null");
+			throw ommIUExcept().message("Passed in summaryData is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		_summaryDataType = summaryData.dataType();
 		_summaryDataTypeSet = true;
@@ -518,7 +510,7 @@ class MapImpl extends CollectionDataImpl implements Map
 						.append(" while Map entry key is set to ")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(_keyType))
 						.append(" with keyType() method").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			else
 			{
@@ -536,7 +528,7 @@ class MapImpl extends CollectionDataImpl implements Map
 							.append(" while Map entry load type is set to ")
 							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
 							.append(" with summaryData() method").toString();
-					throw ommIUExcept().message(errText);
+					throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 				}
 				else
 				{
@@ -571,7 +563,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	    	String errText = errorString().append("Failed to intialize encoding on rssl map. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    MapEntryImpl mapEntry;
@@ -584,7 +576,7 @@ class MapImpl extends CollectionDataImpl implements Map
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._keyDataType))
 						.append(" while Map key contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(keyType)).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 			if (entryType != mapEntry._entryDataType)
@@ -593,7 +585,7 @@ class MapImpl extends CollectionDataImpl implements Map
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._entryDataType))
 						.append(" while Map contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 			}
 			
 			if ((ret = mapEntryEncode(keyType, mapEntry._rsslMapEntry,  mapEntry._keyData)) != CodecReturnCodes.SUCCESS)
@@ -603,7 +595,7 @@ class MapImpl extends CollectionDataImpl implements Map
 		    								.append(" while encoding rssl map. Reason='")
 		    								.append(CodecReturnCodes.toString(ret))
 		    								.append("'").toString();
-		    	throw ommIUExcept().message(errText);
+		    	throw ommIUExcept().message(errText, ret);
 		    }
 		 }
 		 
@@ -613,7 +605,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	    	String errText = errorString().append("Failed to complete encoding on rssl map. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	        throw ommIUExcept().message(errText);
+	        throw ommIUExcept().message(errText, ret);
 	    }
 	    
 	    _encodeComplete = true;
@@ -630,7 +622,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 	}
 	
@@ -763,7 +755,7 @@ class MapImpl extends CollectionDataImpl implements Map
 		{
 			String errText = errorString().append("The specified key type '").append(DataType.asString(keyPrimitiveType))
 				.append("' is not a primitive type").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		_keyType = keyPrimitiveType;

@@ -73,7 +73,7 @@ public :
 
 	bool isLoaded() const;
 
-	bool load( const EmaString& fldName, const EmaString& enumName );
+	bool load( const EmaString& fldName, const EmaString& enumName, RsslRet& retCode );
 
 	DictionaryType getType() const;
 

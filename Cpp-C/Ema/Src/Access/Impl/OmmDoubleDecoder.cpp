@@ -84,7 +84,7 @@ const EmaString& OmmDoubleDecoder::toString()
 	{
 		EmaString text( "Failed to convert OmmDouble to string. Reason: " );
 		text += rsslRetCodeToString( retCode );
-		throwIueException( text );
+		throwIueException( text, retCode );
 	}
 	else
 	{

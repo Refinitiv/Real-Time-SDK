@@ -15,6 +15,7 @@
 #include "OmmNiProviderConfigImpl.h"
 #include "OmmIProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -23,7 +24,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
   _role(config.getProviderRole())
 {
 	if ( config.getProviderRole() == OmmProviderConfig::InteractiveEnum )
-		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor." );
+		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor.", OmmInvalidUsageException::InvalidArgumentEnum );
 	else
 	{
 		try
@@ -73,7 +74,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClien
   _role(config.getProviderRole())
 {
 	if ( config.getProviderRole() == OmmProviderConfig::InteractiveEnum )
-		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor." );
+		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor.", OmmInvalidUsageException::InvalidArgumentEnum );
 	else
 	{
 		try
@@ -172,6 +173,11 @@ void OmmProvider::unregister( UInt64 handle )
 	_pImpl->unregister( handle );
 }
 
+void OmmProvider::submit( const AckMsg& ackMsg, UInt64 handle )
+{
+	_pImpl->submit( ackMsg, handle );
+}
+
 void OmmProvider::getConnectedClientChannelInfo( EmaVector<ChannelInformation>& ci ) {
 	return _pImpl->getConnectedClientChannelInfo( ci );
 }
@@ -183,4 +189,9 @@ void OmmProvider::getChannelInformation( ChannelInformation& ci ) {
 		_pImpl->getChannelInformation( ci );
 	else
 		ci.clear();
+}
+
+void OmmProvider::modifyIOCtl( Int32 code, Int32 value, UInt64 handle )
+{
+	_pImpl->modifyIOCtl(code, value, handle);
 }

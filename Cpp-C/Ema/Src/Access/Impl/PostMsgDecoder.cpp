@@ -10,6 +10,7 @@
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
 #include "rtr/rsslMsgDecoders.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -209,7 +210,7 @@ const EmaString& PostMsgDecoder::getName() const
 	if ( !hasName() )
 	{
 		EmaString temp( "Attempt to getName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_name.setInt( _pRsslMsg->msgBase.msgKey.name.data, _pRsslMsg->msgBase.msgKey.name.length, false );
@@ -222,7 +223,7 @@ UInt8 PostMsgDecoder::getNameType() const
 	if ( !hasNameType() )
 	{
 		EmaString temp( "Attempt to getNameType() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.nameType;
@@ -233,7 +234,7 @@ UInt32 PostMsgDecoder::getServiceId() const
 	if ( !hasServiceId() )
 	{
 		EmaString temp( "Attempt to getServiceId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.serviceId;
@@ -244,7 +245,7 @@ Int32 PostMsgDecoder::getId() const
 	if ( !hasId() )
 	{
 		EmaString temp( "Attempt to getId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.identifier;
@@ -255,7 +256,7 @@ UInt32 PostMsgDecoder::getSeqNum() const
 	if ( !hasSeqNum() )
 	{
 		EmaString temp( "Attempt to getSeqNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->postMsg.seqNum;
@@ -276,7 +277,7 @@ UInt32 PostMsgDecoder::getPostId() const
 	if ( !hasPostId() )
 	{
 		EmaString temp( "Attempt to getPostId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->postMsg.postId;
@@ -287,7 +288,7 @@ UInt16 PostMsgDecoder::getPartNum() const
 	if ( !hasPartNum() )
 	{
 		EmaString temp( "Attempt to getPartNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->postMsg.partNum;
@@ -298,7 +299,7 @@ UInt16 PostMsgDecoder::getPostUserRights() const
 	if ( !hasPostUserRights() )
 	{
 		EmaString temp( "Attempt to getPostUserRights() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->postMsg.postUserRights;
@@ -319,7 +320,7 @@ const EmaString& PostMsgDecoder::getServiceName() const
 	if ( !_serviceNameSet )
 	{
 		EmaString temp( "Attempt to getServiceName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceName.toString();
@@ -330,7 +331,7 @@ const EmaBuffer& PostMsgDecoder::getPermissionData() const
 	if ( !hasPermissionData() )
 	{
 		EmaString temp( "Attempt to getPermissionData() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_permission.setFromInt( _pRsslMsg->postMsg.permData.data, _pRsslMsg->postMsg.permData.length );
@@ -343,7 +344,7 @@ UInt32 PostMsgDecoder::getFilter() const
 	if ( !hasFilter() )
 	{
 		EmaString temp( "Attempt to getFilter() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.filter;
@@ -354,7 +355,7 @@ const EmaBuffer& PostMsgDecoder::getExtendedHeader() const
 	if ( !hasExtendedHeader() )
 	{
 		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_extHeader.setFromInt( _pRsslMsg->postMsg.extendedHeader.data, _pRsslMsg->postMsg.extendedHeader.length );

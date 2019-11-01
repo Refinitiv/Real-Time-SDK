@@ -279,7 +279,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if (!hasPriority())
 		{
 			String temp = "Attempt to priorityClass() while it is NOT set.";
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).priority().priorityClass();
@@ -291,7 +291,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if (!hasPriority())
 		{
 			String temp = "Attempt to priorityCount() while it is NOT set.";
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		return ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).priority().count();
@@ -303,7 +303,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if (!hasQos())
 		{
 			String temp = "Attempt to qosTimeliness() while it is NOT set.";
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
@@ -369,7 +369,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if (!hasQos())
 		{
 			String temp = "Attempt to qosRate() while it is NOT set.";
-			throw ommIUExcept().message(temp);
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
@@ -815,14 +815,14 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if ( retCode !=CodecReturnCodes.SUCCESS)
 		{
 			String temp =  "ReqMsgImpl.checkBatchView() failed to set iterator version in ReqMsgImpl.payload(). Internal error "  + CodecReturnCodes.toString(retCode);
-			throw ommIUExcept().message( temp );
+			throw ommIUExcept().message( temp, retCode );
 		}
 
 		retCode = _rsslElementList.decode(_rsslDecodeIter, null);
 		if ( retCode != CodecReturnCodes.SUCCESS )
 		{
 				String temp =  "ReqMsgImpl.checkBatchView() failed to decode ElementList in ReqMsgImpl.payload(). Internal error "  + CodecReturnCodes.toString(retCode);
-				throw ommIUExcept().message( temp );
+				throw ommIUExcept().message( temp, retCode );
 		}
 	
 		while ( true )
@@ -884,7 +884,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			default :
 				{
 					String temp =  "ReqMsgImpl.checkBatchView() failed to decode ElementEntry. Internal error "  + CodecReturnCodes.toString(retCode);
-					throw ommIUExcept().message( temp );
+					throw ommIUExcept().message( temp, retCode );
 				}
 			}
 		}

@@ -20,10 +20,21 @@ ChannelInformation::ChannelInformation( const EmaString& connectedComponentInfo,
 						  const EmaString& hostname, const EmaString& ipAddress,
 						  const ChannelState channelState, const ConnectionType connectionType,
 						  const ProtocolType protocolType, const UInt32 majorVersion,
-						  const UInt32 minorVersion, const UInt32 pingTimeout) :
+						  const UInt32 minorVersion, const UInt32 pingTimeout ) :
   _connectedComponentInfo( connectedComponentInfo ),  _hostname( hostname ), _ipAddress( ipAddress ),
   _channelState( channelState ), _connectionType( connectionType ), _protocolType( protocolType ),
-  _majorVersion( majorVersion ), _minorVersion( minorVersion ), _pingTimeout( pingTimeout ) {}
+  _majorVersion( majorVersion ), _minorVersion( minorVersion ), _pingTimeout( pingTimeout ) 
+ {
+	_maxFragmentSize = 0;
+	_maxOutputBuffers = 0;
+	_guaranteedOutputBuffers = 0;
+	_numInputBuffers = 0;
+	_sysSendBufSize = 0;
+	_sysRecvBufSize = 0;
+	_compressionType = NoneEnum;
+	_compressionThreshold = 0;
+	_encryptionProtocol = 0;
+ }
 
 ChannelInformation::~ChannelInformation() {}
 
@@ -60,8 +71,24 @@ const EmaString& ChannelInformation::toString() const {
   }
   _toString.append( "\n\tmajor version: " ).append( _majorVersion )
 	.append( "\n\tminor version: " ).append( _minorVersion )
-	.append( "\n\tping timeout: " ).append( _pingTimeout );
-
+	.append( "\n\tping timeout: " ).append( _pingTimeout )
+	.append( "\n\tmax fragmentation size: " ).append( _maxFragmentSize )
+	.append( "\n\tmax output buffers: " ).append( _maxOutputBuffers )
+	.append( "\n\tguaranteed output buffers: " ).append( _guaranteedOutputBuffers )
+	.append( "\n\tnumber input buffers: " ).append( _numInputBuffers )
+	.append( "\n\tsystem send buffer size: " ).append( _sysSendBufSize )
+	.append( "\n\tsystem receive buffer size: " ).append( _sysRecvBufSize )
+	.append( "\n\tcompression type: " );
+	switch ( _compressionType ) {
+	  case ZLIBEnum: _toString.append("ZLIB"); break;
+	  case LZ4Enum: _toString.append("LZ4"); break;
+	  case NoneEnum:
+	  default:
+		  _toString.append("none"); break;
+	}
+	_toString.append("\n\tcompression threshold: ").append( _compressionThreshold )
+		.append("\n\tencryption protocol: ").append( _encryptionProtocol );
+	
   return _toString;
 }
 
@@ -79,6 +106,15 @@ void ChannelInformation::clear() {
   _protocolType = UnknownEnum;
   _majorVersion = _minorVersion = _pingTimeout = 0;
   _toString.clear();
+  _maxFragmentSize = 0;
+  _maxOutputBuffers = 0;
+  _guaranteedOutputBuffers = 0;
+  _numInputBuffers = 0;
+  _sysSendBufSize = 0;
+  _sysRecvBufSize = 0;
+  _compressionType = NoneEnum;
+  _compressionThreshold = 0;
+  _encryptionProtocol = 0;
 }
 
 ChannelInformation& ChannelInformation::hostname(const EmaString& value) {
@@ -115,6 +151,51 @@ ChannelInformation& ChannelInformation::minorVersion(UInt32 value) {
 }
 ChannelInformation& ChannelInformation::pingTimeout(UInt32 value) {
   _pingTimeout = value;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::maxFragmentSize(UInt32 maxFragmentSize) {
+  _maxFragmentSize = maxFragmentSize;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::maxOutputBuffers(UInt32 maxOutputBuffers) {
+  _maxOutputBuffers = maxOutputBuffers;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::guaranteedOutputBuffers(UInt32 guaranteedOutputBuffers) {
+  _guaranteedOutputBuffers = guaranteedOutputBuffers;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::numInputBuffers(UInt32 numInputBuffers) {
+  _numInputBuffers = numInputBuffers;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::sysSendBufSize(UInt32 sysSendBufSize) {
+  _sysSendBufSize = sysSendBufSize;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::sysRecvBufSize(UInt32 sysRecvBufSize) {
+  _sysRecvBufSize = sysRecvBufSize;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::compressionType(UInt32 compressionType) {
+  _compressionType = (CompressionType)compressionType;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::compressionThreshold(UInt32 compressionThreshold) {
+  _compressionThreshold = compressionThreshold;
+  return *this;
+}
+
+ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProtocol) {
+  _encryptionProtocol = encryptionProtocol;
   return *this;
 }
 
@@ -159,6 +240,16 @@ void thomsonreuters::ema::access::getChannelInformation(const RsslReactorChannel
 	  if (i < (rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount - 1))
 		componentInfo.append(", ");
 	}
+
+	ci.maxFragmentSize(rsslReactorChannelInfo.rsslChannelInfo.maxFragmentSize)
+		.maxOutputBuffers(rsslReactorChannelInfo.rsslChannelInfo.maxOutputBuffers)
+		.guaranteedOutputBuffers(rsslReactorChannelInfo.rsslChannelInfo.guaranteedOutputBuffers)
+		.numInputBuffers(rsslReactorChannelInfo.rsslChannelInfo.numInputBuffers)
+		.sysSendBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysSendBufSize)
+		.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
+		.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
+		.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
+		.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
   }
   else
 	componentInfo.append("unavailable");

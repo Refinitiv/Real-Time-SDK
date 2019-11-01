@@ -125,4 +125,6 @@
 #include "Access/Include/ServiceEndpointDiscoveryOption.h"
 #include "Access/Include/ServiceEndpointDiscoveryResp.h"
 
+#include "Access/Include/IOCtlCode.h"
+
 #endif // __thomsonreuters_ema_Ema_h

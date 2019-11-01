@@ -341,7 +341,8 @@ public class EmaFactory
 		}
 		else
 		{
-			throw new OmmInvalidUsageExceptionImpl().message("The createOmmProvider(OmmProviderConfig) method supports Non-Interactive provider role only.");
+			throw new OmmInvalidUsageExceptionImpl().message("The createOmmProvider(OmmProviderConfig) method supports Non-Interactive provider role only.",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 	}
 	
@@ -409,7 +410,9 @@ public class EmaFactory
 		{
 			if(errorClient != null)
 			{
-				errorClient.onInvalidUsage("The createOmmProvider(OmmProviderConfig, OmmProviderErrorClient)) method supports Non-Interactive provider role only.");
+				String errorText = "The createOmmProvider(OmmProviderConfig, OmmProviderErrorClient)) method supports Non-Interactive provider role only.";
+				errorClient.onInvalidUsage(errorText);
+				errorClient.onInvalidUsage(errorText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
 			return null;

@@ -494,7 +494,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_applicationIdSet)
 		{
-			throw ommIUExcept().message( EmaRdm.ENAME_APP_ID + " element is not set");
+			throw ommIUExcept().message( EmaRdm.ENAME_APP_ID + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _applicationId;
@@ -505,7 +505,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_applicationNameSet)
 		{
-			throw ommIUExcept().message( EmaRdm.ENAME_APP_NAME + " element is not set");
+			throw ommIUExcept().message( EmaRdm.ENAME_APP_NAME + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _applicationName;
@@ -516,7 +516,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_applicationAuthTokenSet)
 		{
-			throw ommIUExcept().message(EmaRdm.ENAME_APPAUTH_TOKEN + " element is not set");
+			throw ommIUExcept().message(EmaRdm.ENAME_APPAUTH_TOKEN + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _applicationAuthToken;
@@ -527,7 +527,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_instanceIdSet)
 		{
-			throw ommIUExcept().message(EmaRdm.ENAME_INST_ID + " element is not set");
+			throw ommIUExcept().message(EmaRdm.ENAME_INST_ID + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _instanceId;
@@ -538,7 +538,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_passwordSet)
 		{
-			throw ommIUExcept().message(EmaRdm.ENAME_PASSWORD + " element is not set");
+			throw ommIUExcept().message(EmaRdm.ENAME_PASSWORD + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _password;
@@ -549,7 +549,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 		if(!_positionSet)
 		{
-			throw ommIUExcept().message(EmaRdm.ENAME_POSITION + " element is not set");
+			throw ommIUExcept().message(EmaRdm.ENAME_POSITION + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _position;
@@ -560,7 +560,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
    {
        if(!_authenticationExtendedSet)
        {
-           throw ommIUExcept().message(EmaRdm.ENAME_AUTHN_EXTENDED + " element is not set");
+           throw ommIUExcept().message(EmaRdm.ENAME_AUTHN_EXTENDED + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
        }
        
        return _authenticationExtended;
@@ -608,7 +608,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
        if(!_nameSet)
        {
-           throw ommIUExcept().message(EmaRdm.ENAME_USERNAME + " element is not set");
+           throw ommIUExcept().message(EmaRdm.ENAME_USERNAME + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
        }
 
 	    return _name;
@@ -619,7 +619,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     {
        if(!_nameTypeSet)
        {
-           throw ommIUExcept().message(EmaRdm.ENAME_USERNAME_TYPE + " element is not set");
+           throw ommIUExcept().message(EmaRdm.ENAME_USERNAME_TYPE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
        }
 
         return _nameType;
@@ -727,7 +727,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	{
 	    if (reqMsg.domainType() != EmaRdm.MMT_LOGIN)
 	    {
-	        throw ommIUExcept().message("Domain type must be Login.");
+	        throw ommIUExcept().message("Domain type must be Login.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	    }
 	    
 		_allowSuspectDataSet = false;
@@ -895,7 +895,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     					}
     					else
     					{
-    						throw ommIUExcept().message("Invalid element value of " + role);
+    						throw ommIUExcept().message("Invalid element value of " + role, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
     					}
     				}
     					break;
@@ -933,7 +933,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     				    {
     				    	if(elementEntry.code() != DataCode.BLANK)
         					{
-    				    		throw ommIUExcept().message("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken");
+    				    		throw ommIUExcept().message("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
         					}
     				    }
     				    name(elementEntry.ascii().ascii());
@@ -946,7 +946,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     		}
     		catch(OmmInvalidUsageException ommInvlaidUsageException)
     		{
-    			throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvlaidUsageException.getMessage());
+    			throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvlaidUsageException.getMessage(), ommInvlaidUsageException.errorCode());
     		}
 	    }
 	}
@@ -1622,7 +1622,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
 	{
 		if(!_applicationIdSet)
 		{
-			throw ommIUExcept().message( EmaRdm.ENAME_APP_ID + " element is not set");
+			throw ommIUExcept().message( EmaRdm.ENAME_APP_ID + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _applicationId;
@@ -1633,7 +1633,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
 	{
 		if(!_applicationNameSet)
 		{
-			throw ommIUExcept().message( EmaRdm.ENAME_APP_NAME + " element is not set");
+			throw ommIUExcept().message( EmaRdm.ENAME_APP_NAME + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _applicationName;
@@ -1644,7 +1644,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
 	{
 		if(!_positionSet)
 		{
-			throw ommIUExcept().message( EmaRdm.ENAME_POSITION + " element is not set");
+			throw ommIUExcept().message( EmaRdm.ENAME_POSITION + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		return _position;
@@ -1655,7 +1655,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationExtendedRespSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_EXTENDED + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_EXTENDED + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationExtendedResp;
@@ -1666,7 +1666,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationTTReissueSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_TT_REISSUE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_TT_REISSUE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationTTReissue;
@@ -1677,7 +1677,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationErrorCodeSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORCODE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORCODE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationErrorCode;
@@ -1688,7 +1688,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationErrorTextSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORTEXT + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORTEXT + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationErrorText;
@@ -1765,7 +1765,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_nameSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _name;
@@ -1776,7 +1776,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_nameTypeSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME_TYPE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME_TYPE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _nameType;
@@ -1787,7 +1787,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_seqNumSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_SEQ_NUM + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_SEQ_NUM + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _seqNum;
@@ -1798,7 +1798,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_stateSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_STATE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_STATE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
 
         _state.decode(_rsslState);
@@ -1935,7 +1935,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
 	{
         if (refreshMsg.domainType() != EmaRdm.MMT_LOGIN)
         {
-            throw ommIUExcept().message("Domain type must be Login.");
+            throw ommIUExcept().message("Domain type must be Login.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
         }
         
     	_allowSuspectDataSet = false;
@@ -2211,9 +2211,9 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     				}
     			}
     		}
-    		catch(OmmInvalidUsageException ommInvlaidUsageException)
+    		catch(OmmInvalidUsageException ommInvalidUsageException)
     		{
-    			throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvlaidUsageException.getMessage());
+    			throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvalidUsageException.getMessage(), ommInvalidUsageException.errorCode());
     			}
 	        }
     	}
@@ -2537,7 +2537,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationErrorCodeSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORCODE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORCODE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationErrorCode;
@@ -2548,7 +2548,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_authenticationErrorTextSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORTEXT + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_AUTHN_ERRORTEXT + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _authenticationErrorText;
@@ -2559,7 +2559,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_nameSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _name;
@@ -2570,7 +2570,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_nameTypeSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME_TYPE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_USERNAME_TYPE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
         
         return _nameType;
@@ -2581,7 +2581,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (!_stateSet)
         {
-            throw ommIUExcept().message( EmaRdm.ENAME_STATE + " element is not set");
+            throw ommIUExcept().message( EmaRdm.ENAME_STATE + " element is not set", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
         }
 
         _state.decode(_rsslState);
@@ -2627,7 +2627,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     {
         if (statusMsg.domainType() != EmaRdm.MMT_LOGIN)
         {
-            throw ommIUExcept().message("Domain type must be Login.");
+            throw ommIUExcept().message("Domain type must be Login.", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
         }
         
         _authenticationErrorCodeSet = false;
@@ -2675,9 +2675,9 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
                     }
                 }
             }
-            catch(OmmInvalidUsageException ommInvlaidUsageException)
+            catch(OmmInvalidUsageException ommInvalidUsageException)
             {
-                throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvlaidUsageException.getMessage());
+                throw ommIUExcept().message("Decoding error for " + elementName + " element. " + ommInvalidUsageException.getMessage(), ommInvalidUsageException.errorCode());
             }
         }
     }

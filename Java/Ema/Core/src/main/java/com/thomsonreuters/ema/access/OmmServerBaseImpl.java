@@ -105,7 +105,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	private OmmEventImpl<OmmProviderEvent> _ommProviderEvent;
 	private Object _closure;
 	
-	private Server _server;
+	protected Server _server;
 	private BindOptions _bindOptions = TransportFactory.createBindOptions();
 	private com.thomsonreuters.upa.transport.Error _transportError = TransportFactory.createError();
 	private ReactorAcceptOptions reactorAcceptOptions = ReactorFactory.createReactorAcceptOptions();
@@ -179,6 +179,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		_ommProviderErrorClient = providerErrorClient;
 		_closure = closure;
 		_ommProviderEvent = new OmmEventImpl<OmmProviderEvent>();
+		_connectedChannels = new ArrayList<ReactorChannel>();
 	}
 	
 	void initialize(ActiveServerConfig activeConfig,EmaConfigServerImpl config)
@@ -224,7 +225,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			}
 
 			if (_loggerClient.isTraceEnabled())
@@ -249,7 +250,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 				
 			} else
 			{
@@ -329,7 +330,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.FAILURE));
 		    }
 			
 			if (_loggerClient.isTraceEnabled())
@@ -347,7 +348,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			}
 			
 			try
@@ -365,7 +366,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			}
 			
 			_state = OmmImplState.REACTOR_INITIALIZED;
@@ -669,7 +670,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		{
 			configImpl.errorTracker().append("Not supported server type. Type = ")
 					.append(ConnectionTypes.toString(serverType));
-			throw ommIUExcept().message(configImpl.errorTracker().text());
+			throw ommIUExcept().message(configImpl.errorTracker().text(), OmmInvalidUsageException.ErrorCode.UNSUPPORTED_SERVER_TYPE );
 		}
 		}
 
@@ -796,6 +797,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			break;
 		case ExceptionType.OmmInvalidUsageException:
 			_ommProviderErrorClient.onInvalidUsage(ommException.getMessage());
+			_ommProviderErrorClient.onInvalidUsage(ommException.getMessage(), ((OmmInvalidUsageException)ommException).errorCode());
 			break;
 		default:
 			break;
@@ -818,12 +820,16 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		return _ommIHExcept;
 	}
 	
-	public void handleInvalidUsage(String text)
+	public void handleInvalidUsage(String text, int errorCode)
 	{
 		if ( hasErrorClient() )
+		{
 			_ommProviderErrorClient.onInvalidUsage(text);
+			
+			_ommProviderErrorClient.onInvalidUsage(text, errorCode);
+		}
 		else
-			throw (ommIUExcept().message(text.toString()));
+			throw (ommIUExcept().message(text.toString(), errorCode));
 		
 	}
 

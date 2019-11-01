@@ -16,6 +16,7 @@
 #include "DirectoryServiceStore.h"
 #include "Decoder.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #include <new>
 
@@ -492,7 +493,8 @@ void DictionaryHandler::loadDictionaryFromFile()
 
 			plocalDictionary = LocalDictionary::create(*_pOmmServerBaseImpl, _pOmmServerBaseImpl->getActiveConfig());
 
-			if (plocalDictionary->load(dictionaryConfig->rdmfieldDictionaryFileName, dictionaryConfig->enumtypeDefFileName) == false)
+			RsslRet retCode;
+			if (plocalDictionary->load(dictionaryConfig->rdmfieldDictionaryFileName, dictionaryConfig->enumtypeDefFileName, retCode) == false)
 			{
 				EmaString temp("DictionaryHandler::loadDictionaryFromFile() failed while initializing DictionaryHandler.");
 					temp.append(CR).append("Unable to load RDMFieldDictionary from file named ").append(dictionaryConfig->rdmfieldDictionaryFileName)
@@ -500,7 +502,7 @@ void DictionaryHandler::loadDictionaryFromFile()
 
 				if (OmmLoggerClient::ErrorEnum >= _pOmmServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
 					_pOmmServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
-				throwIueException(temp);
+				throwIueException(temp, retCode);
 				return;
 			}
 

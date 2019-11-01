@@ -311,7 +311,7 @@ class DataDictionaryImpl implements DataDictionary
 						.append("Reason='")
 						.append(rsslError.text())
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, rsslError.errorId());
 			}
 			else
 			{
@@ -320,7 +320,7 @@ class DataDictionaryImpl implements DataDictionary
 		}
 		else
 		{
-			throw ommIUExcept().message(queryingOnlyText);
+			throw ommIUExcept().message(queryingOnlyText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	}
 
@@ -339,7 +339,7 @@ class DataDictionaryImpl implements DataDictionary
 						.append("Reason='")
 						.append(rsslError.text())
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, rsslError.errorId());
 			}
 			else
 			{
@@ -348,7 +348,7 @@ class DataDictionaryImpl implements DataDictionary
 		}
 		else
 		{
-			throw ommIUExcept().message(queryingOnlyText);
+			throw ommIUExcept().message(queryingOnlyText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	}
 
@@ -357,13 +357,13 @@ class DataDictionaryImpl implements DataDictionary
 		
 		if( !loadedFieldDictionary )
 		{
-			throw ommIUExcept().message("The field dictionary information was not loaded");
+			throw ommIUExcept().message("The field dictionary information was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		if ( series == null )
 		{
 			String errText = errorString().append("Passed in series parameter is null").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		series.clear();
@@ -396,7 +396,7 @@ class DataDictionaryImpl implements DataDictionary
 								.append(rsslError.text())
 								.append("'").toString();
 					
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		seriesImpl._encodeComplete = true;
@@ -410,7 +410,7 @@ class DataDictionaryImpl implements DataDictionary
 			if ( series == null )
 			{
 				String errText = errorString().append("Passed in series parameter is null").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
 			Buffer encodedBuffer = ((SeriesImpl)series).encodedData();
@@ -425,7 +425,7 @@ class DataDictionaryImpl implements DataDictionary
 		    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl decode iterator. Reason='")
 		    								.append(CodecReturnCodes.toString(ret))
 		    								.append("'").toString();
-		    	throw ommIUExcept().message(errText);
+		    	throw ommIUExcept().message(errText, ret);
 		    }
 			
 			ret = rsslDataDictionary.decodeFieldDictionary(decodeIterator, (int)verbosity, rsslError);
@@ -435,14 +435,14 @@ class DataDictionaryImpl implements DataDictionary
 				String errText = errorString().append("Failed to decode the field dictionary information. Reason='")
 						.append(rsslError.text())
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 			}
 			
 			loadedFieldDictionary = true;
 		}
 		else
 		{
-			throw ommIUExcept().message(queryingOnlyText);
+			throw ommIUExcept().message(queryingOnlyText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION );
 		}
 	}
 
@@ -451,13 +451,13 @@ class DataDictionaryImpl implements DataDictionary
 		
 		if(!loadedEnumTypeDef)
 		{
-			throw ommIUExcept().message("The enumerated types dictionary was not loaded");
+			throw ommIUExcept().message("The enumerated types dictionary was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		if ( series == null )
 		{
 			String errText = errorString().append("Passed in series parameter is null").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		series.clear();
@@ -487,7 +487,7 @@ class DataDictionaryImpl implements DataDictionary
 								.append(rsslError.text())
 								.append("'").toString();
 					
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		seriesImpl._encodeComplete = true;
@@ -499,12 +499,12 @@ class DataDictionaryImpl implements DataDictionary
 		if ( series == null )
 		{
 			String errText = errorString().append("Passed in series parameter is null").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		if( !loadedEnumTypeDef )
 		{
-			throw ommIUExcept().message("The enumerated types dictionary was not loaded");
+			throw ommIUExcept().message("The enumerated types dictionary was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		series.clear();
@@ -541,7 +541,7 @@ class DataDictionaryImpl implements DataDictionary
 				.append(rsslError.text())
 				.append("'").toString();
 		
-		throw ommIUExcept().message(errText);
+		throw ommIUExcept().message(errText, ret);
 	}
 	
 	@Override
@@ -550,12 +550,12 @@ class DataDictionaryImpl implements DataDictionary
 		if ( series == null )
 		{
 			String errText = errorString().append("Passed in series parameter is null").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		if(!loadedFieldDictionary)
 		{
-			throw ommIUExcept().message("The field dictionary information was not loaded");
+			throw ommIUExcept().message("The field dictionary information was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		series.clear();
@@ -590,7 +590,7 @@ class DataDictionaryImpl implements DataDictionary
 		String errText = errorString().append("Failed to encode the field dictionary information. Reason='")
 				.append(CodecReturnCodes.toString(ret))
 				.append("'").toString();
-		throw ommIUExcept().message(errText);
+		throw ommIUExcept().message(errText, ret);
 	}
 
 	@Override
@@ -599,7 +599,7 @@ class DataDictionaryImpl implements DataDictionary
 		if ( series == null )
 		{
 			String errText = errorString().append("Passed in series parameter is null").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		Buffer encodedBuffer = ((SeriesImpl)series).encodedData();
@@ -614,7 +614,7 @@ class DataDictionaryImpl implements DataDictionary
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl decode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
+	    	throw ommIUExcept().message(errText, ret);
 	    }
 		
 		com.thomsonreuters.upa.codec.Int dictionaryType = com.thomsonreuters.upa.codec.CodecFactory.createInt();
@@ -624,7 +624,7 @@ class DataDictionaryImpl implements DataDictionary
 			String errText = errorString().append("Failed to extract dictionary type. Reason='")
 					.append(CodecReturnCodes.toString(ret))
 					.append("'").toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, rsslError.errorId());
 		}
 		
 		return (int)dictionaryType.toLong();
@@ -638,7 +638,7 @@ class DataDictionaryImpl implements DataDictionary
 			if ( series == null )
 			{
 				String errText = errorString().append("Passed in series parameter is null").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 			
 			Buffer encodedBuffer = ((SeriesImpl)series).encodedData();
@@ -653,7 +653,7 @@ class DataDictionaryImpl implements DataDictionary
 		    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl decode iterator. Reason='")
 		    								.append(CodecReturnCodes.toString(ret))
 		    								.append("'").toString();
-		    	throw ommIUExcept().message(errText);
+		    	throw ommIUExcept().message(errText, ret);
 		    }
 			
 			ret = rsslDataDictionary.decodeEnumTypeDictionary(decodeIterator, (int)verbosity, rsslError);
@@ -662,14 +662,14 @@ class DataDictionaryImpl implements DataDictionary
 				String errText = errorString().append("Failed to decode the enumerated types dictionary. Reason='")
 						.append(rsslError.text())
 						.append("'").toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 			}
 			
 			loadedEnumTypeDef = true;
 		}
 		else
 		{
-			throw ommIUExcept().message(queryingOnlyText);
+			throw ommIUExcept().message(queryingOnlyText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	}
 
@@ -678,7 +678,7 @@ class DataDictionaryImpl implements DataDictionary
 		
 		if( !loadedFieldDictionary )
 		{
-			throw ommIUExcept().message("The field dictionary information was not loaded");
+			throw ommIUExcept().message("The field dictionary information was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		com.thomsonreuters.upa.codec.DictionaryEntry dictionaryEntry = rsslDataDictionary.entry(fieldId);
@@ -688,7 +688,7 @@ class DataDictionaryImpl implements DataDictionary
 			return dictionaryEntryImpl.dictionaryEntry(this, dictionaryEntry);
 		}
 		
-		throw ommIUExcept().message("The Field ID " + fieldId + " does not exist in the field dictionary");
+		throw ommIUExcept().message("The Field ID " + fieldId + " does not exist in the field dictionary", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	}
 
 
@@ -697,7 +697,7 @@ class DataDictionaryImpl implements DataDictionary
 		
 		if( !loadedEnumTypeDef )
 		{
-			throw ommIUExcept().message("The enumerated types dictionary was not loaded");
+			throw ommIUExcept().message("The enumerated types dictionary was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 
 		com.thomsonreuters.upa.codec.DictionaryEntry dictionaryEntry;
@@ -716,7 +716,8 @@ class DataDictionaryImpl implements DataDictionary
 			}
 		}
 	
-		throw ommIUExcept().message("The enum value " + value + " for the Field ID " + fieldId + " does not exist in enumerated type definitions");
+		throw ommIUExcept().message("The enum value " + value + " for the Field ID " + fieldId + " does not exist in enumerated type definitions",
+				OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 	}
 
 	@Override
@@ -769,12 +770,12 @@ class DataDictionaryImpl implements DataDictionary
 		
 		if( !loadedFieldDictionary )
 		{
-			throw ommIUExcept().message("The field dictionary information was not loaded");
+			throw ommIUExcept().message("The field dictionary information was not loaded", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 		
 		if ( !hasEntry(fieldName) )
 		{
-			throw ommIUExcept().message("The Field name " + fieldName + " does not exist in the field dictionary");
+			throw ommIUExcept().message("The Field name " + fieldName + " does not exist in the field dictionary", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		return entry(fieldNameToIdMap().get(fieldName));

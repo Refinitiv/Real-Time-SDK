@@ -25,6 +25,7 @@
 #include "GenericMsg.h"
 #include "MsgDecoder.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -55,7 +56,7 @@ const ReqMsg& Attrib::getReqMsg() const
 	{
 		EmaString temp( "Attempt to getReqMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const ReqMsg&>( *_pAttrib );
@@ -67,7 +68,7 @@ const RefreshMsg& Attrib::getRefreshMsg() const
 	{
 		EmaString temp( "Attempt to getRefreshMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const RefreshMsg&>( *_pAttrib );
@@ -79,7 +80,7 @@ const UpdateMsg& Attrib::getUpdateMsg() const
 	{
 		EmaString temp( "Attempt to getUpdateMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const UpdateMsg&>( *_pAttrib );
@@ -91,7 +92,7 @@ const StatusMsg& Attrib::getStatusMsg() const
 	{
 		EmaString temp( "Attempt to getStatusMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const StatusMsg&>( *_pAttrib );
@@ -103,7 +104,7 @@ const PostMsg& Attrib::getPostMsg() const
 	{
 		EmaString temp( "Attempt to getPostMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const PostMsg&>( *_pAttrib );
@@ -115,7 +116,7 @@ const AckMsg& Attrib::getAckMsg() const
 	{
 		EmaString temp( "Attempt to getAckMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const AckMsg&>( *_pAttrib );
@@ -127,7 +128,7 @@ const GenericMsg& Attrib::getGenericMsg() const
 	{
 		EmaString temp( "Attempt to getGenericMsg() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const GenericMsg&>( *_pAttrib );
@@ -139,7 +140,7 @@ const FieldList& Attrib::getFieldList() const
 	{
 		EmaString temp( "Attempt to getFieldList() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const FieldList&>( *_pAttrib );
@@ -151,7 +152,7 @@ const ElementList& Attrib::getElementList() const
 	{
 		EmaString temp( "Attempt to getElementList() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const ElementList&>( *_pAttrib );
@@ -163,7 +164,7 @@ const Map& Attrib::getMap() const
 	{
 		EmaString temp( "Attempt to getMap() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const Map&>( *_pAttrib );
@@ -175,7 +176,7 @@ const Vector& Attrib::getVector() const
 	{
 		EmaString temp( "Attempt to getVector() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const Vector&>( *_pAttrib );
@@ -187,7 +188,7 @@ const Series& Attrib::getSeries() const
 	{
 		EmaString temp( "Attempt to getSeries() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const Series&>( *_pAttrib );
@@ -199,7 +200,7 @@ const FilterList& Attrib::getFilterList() const
 	{
 		EmaString temp( "Attempt to getFilterList() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const FilterList&>( *_pAttrib );
@@ -211,7 +212,7 @@ const OmmOpaque& Attrib::getOpaque() const
 	{
 		EmaString temp( "Attempt to getOpaque() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmOpaque&>( *_pAttrib );
@@ -223,7 +224,7 @@ const OmmXml& Attrib::getXml() const
 	{
 		EmaString temp( "Attempt to getXml() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmXml&>( *_pAttrib );
@@ -235,8 +236,20 @@ const OmmAnsiPage& Attrib::getAnsiPage() const
 	{
 		EmaString temp( "Attempt to getAnsiPage() while actual dataType is " );
 		temp += getDTypeAsString( _pAttrib->getDataType() );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return static_cast<const OmmAnsiPage&>( *_pAttrib );
+}
+
+const OmmError& Attrib::getError() const
+{
+	if ( _pAttrib->getDataType() != DataType::ErrorEnum )
+	{
+		EmaString temp( "Attempt to getError() while actual dataType is " );
+		temp += getDTypeAsString( _pAttrib->getDataType() );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	return static_cast<const OmmError&>( *_pAttrib );
 }

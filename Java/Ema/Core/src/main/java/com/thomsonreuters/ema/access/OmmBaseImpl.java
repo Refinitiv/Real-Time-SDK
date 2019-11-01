@@ -35,7 +35,11 @@ import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
+import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
+import com.thomsonreuters.upa.transport.Error;
+import com.thomsonreuters.upa.transport.TransportFactory;
+import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.Reactor;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
@@ -56,7 +60,7 @@ interface OmmCommonImpl
 		final static int IPROVIDER = 2;
 	}
 	
-	void handleInvalidUsage(String text);
+	void handleInvalidUsage(String text, int errorCode);
 	
 	void handleInvalidHandle(long handle, String text);
 	
@@ -203,7 +207,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			}
 
 			if (_loggerClient.isTraceEnabled())
@@ -246,7 +250,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			} else
 			{
 				if (_loggerClient.isTraceEnabled())
@@ -270,7 +274,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
 
-				throw (ommIUExcept().message(temp));
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
 			}
 
 			handleAdminDomains(config);
@@ -1049,7 +1053,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		{
 			configImpl.errorTracker().append("Not supported channel type. Type = ")
 					.append(ConnectionTypes.toString(connectionType));
-			throw ommIUExcept().message(configImpl.errorTracker().text());
+			throw ommIUExcept().message(configImpl.errorTracker().text(), OmmInvalidUsageException.ErrorCode.UNSUPPORTED_CHANNEL_TYPE);
 		}
 		}
 
@@ -1139,16 +1143,24 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	{
 		if (_activeConfig.loginRequestTimeOut == 0)
 		{
-			while (_state < OmmImplState.LOGIN_STREAM_OPEN_OK)
+			while (_state < OmmImplState.LOGIN_STREAM_OPEN_OK && _state != OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN)
 				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
+			
+			/* Throws OmmInvalidUsageException when EMA receives login reject from the data source. */
+			if(_state == OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN)
+			{
+				throw ommIUExcept().message(_loginCallbackClient.loginFailureMessage(), OmmInvalidUsageException.ErrorCode.LOGIN_REQUEST_REJECTED);
+			}
 		}
 		else
 		{
 			_eventTimeout = false;
 			TimeoutEvent timeoutEvent = addTimeoutEvent(_activeConfig.loginRequestTimeOut * 1000, this);
 	
-			while (!_eventTimeout && (_state < OmmImplState.LOGIN_STREAM_OPEN_OK))
+			while (!_eventTimeout && (_state < OmmImplState.LOGIN_STREAM_OPEN_OK) && (_state != OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN))
+			{
 				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
+			}
 	
 			if (_eventTimeout)
 			{
@@ -1178,8 +1190,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if (_loggerClient.isErrorEnabled())
 					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(excepText);
-			} else
+				throw ommIUExcept().message(excepText, OmmInvalidUsageException.ErrorCode.LOGIN_REQUEST_TIME_OUT);
+			} 
+			else if (_state == OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN) /* Throws OmmInvalidUsageException when EMA receives login reject from the data source. */
+			{
+				timeoutEvent.cancel();
+				throw ommIUExcept().message(_loginCallbackClient.loginFailureMessage(), OmmInvalidUsageException.ErrorCode.LOGIN_REQUEST_REJECTED);
+			}
+			else
 				timeoutEvent.cancel();
 		}
 	}
@@ -1539,4 +1557,44 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	void setActiveRsslReactorChannel(ChannelInfo activeChannelInfo) {}
 	
 	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
+	
+	
+	protected void modifyIOCtl(int code, int value, ChannelInfo activeChannelInfo)
+	{
+		if(activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+		{
+			strBuilder().append("No active channel to modify I/O option.");
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+			return;
+		}
+		
+		Channel channel = activeChannelInfo.rsslReactorChannel().channel();
+		Error error = TransportFactory.createError();
+		
+		int ret = channel.ioctl(code, value, error);
+		
+		if(code == IOCtlCode.MAX_NUM_BUFFERS || code == IOCtlCode.NUM_GUARANTEED_BUFFERS)
+		{
+			if(ret != value)
+			{
+				ret = TransportReturnCodes.FAILURE;
+			}
+			else
+			{
+				ret = TransportReturnCodes.SUCCESS;
+			}
+		}
+		
+		if(ret != TransportReturnCodes.SUCCESS)
+		{
+			strBuilder().append("Failed to modify I/O option = ")
+			.append(code).append(". Reason: ")
+			.append(ReactorReturnCodes.toString(ret))
+			.append(". Error text: ")
+			.append(error.text());
+			
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+		}
+	}
 }
+

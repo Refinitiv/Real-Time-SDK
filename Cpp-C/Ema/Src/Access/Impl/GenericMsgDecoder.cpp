@@ -10,6 +10,7 @@
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
 #include "rtr/rsslMsgDecoders.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -191,7 +192,7 @@ const EmaString& GenericMsgDecoder::getName() const
 	if ( !hasName() )
 	{
 		EmaString temp( "Attempt to getName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_name.setInt( _pRsslMsg->msgBase.msgKey.name.data, _pRsslMsg->msgBase.msgKey.name.length, false );
@@ -204,7 +205,7 @@ UInt8 GenericMsgDecoder::getNameType() const
 	if ( !hasNameType() )
 	{
 		EmaString temp( "Attempt to getNameType() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.nameType;
@@ -215,7 +216,7 @@ UInt32 GenericMsgDecoder::getServiceId() const
 	if ( !hasServiceId() )
 	{
 		EmaString temp( "Attempt to getServiceId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.serviceId;
@@ -226,7 +227,7 @@ Int32 GenericMsgDecoder::getId() const
 	if ( !hasId() )
 	{
 		EmaString temp( "Attempt to getId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.identifier;
@@ -237,7 +238,7 @@ UInt32 GenericMsgDecoder::getSeqNum() const
 	if ( !hasSeqNum() )
 	{
 		EmaString temp( "Attempt to getSeqNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->genericMsg.seqNum;
@@ -248,7 +249,7 @@ UInt32 GenericMsgDecoder::getSecondarySeqNum() const
 	if ( !hasSecondarySeqNum() )
 	{
 		EmaString temp( "Attempt to getSecondarySeqNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->genericMsg.secondarySeqNum;
@@ -259,7 +260,7 @@ UInt16 GenericMsgDecoder::getPartNum() const
 	if ( !hasPartNum() )
 	{
 		EmaString temp( "Attempt to getPartNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->genericMsg.partNum;
@@ -275,7 +276,7 @@ const EmaBuffer& GenericMsgDecoder::getPermissionData() const
 	if ( !hasPermissionData() )
 	{
 		EmaString temp( "Attempt to getPermissionData() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_permission.setFromInt( _pRsslMsg->genericMsg.permData.data, _pRsslMsg->genericMsg.permData.length );
@@ -288,7 +289,7 @@ UInt32 GenericMsgDecoder::getFilter() const
 	if ( !hasFilter() )
 	{
 		EmaString temp( "Attempt to getFilter() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.filter;
@@ -299,7 +300,7 @@ const EmaBuffer& GenericMsgDecoder::getExtendedHeader() const
 	if ( !hasExtendedHeader() )
 	{
 		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_extHeader.setFromInt( _pRsslMsg->genericMsg.extendedHeader.data, _pRsslMsg->genericMsg.extendedHeader.length );

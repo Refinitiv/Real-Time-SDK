@@ -116,12 +116,13 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
@@ -148,12 +149,13 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
 										.append( value ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 		
 		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
@@ -360,11 +362,12 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.ENUM; 
 		}
 		
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
 					.append( value ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 		
 		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
@@ -376,7 +379,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry buffer(ByteBuffer value)
 	{
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -399,7 +402,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry ascii(String value)
 	{
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -422,7 +425,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry utf8(ByteBuffer value)
 	{
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -445,7 +448,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry utf8(String value)
 	{
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{
@@ -468,7 +471,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry rmtes(ByteBuffer value)
 	{
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		
 		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
 		{

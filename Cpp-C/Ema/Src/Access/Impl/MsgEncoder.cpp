@@ -8,6 +8,7 @@
 
 #include "MsgEncoder.h"
 #include "rtr/rsslMsgEncoders.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -66,7 +67,7 @@ void MsgEncoder::serviceName( const EmaString& serviceName )
 	if ( hasServiceId() )
 	{
 		EmaString text( "Attempt to set serviceName while service id is already set." );
-		throwIueException( text );
+		throwIueException( text, OmmInvalidUsageException::InvalidOperationEnum );
 		return;
 	}
 
@@ -120,7 +121,7 @@ RsslBuffer& MsgEncoder::getRsslBuffer() const
 		EmaString temp( "Failed to encode message. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'" );
 
-		throwIueException( temp );
+		throwIueException( temp, retCode );
 		return Encoder::getRsslBuffer();
 	}
 

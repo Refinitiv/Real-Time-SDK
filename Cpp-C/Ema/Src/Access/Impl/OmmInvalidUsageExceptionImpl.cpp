@@ -10,7 +10,8 @@
 
 using namespace thomsonreuters::ema::access;
 
-OmmInvalidUsageExceptionImpl::OmmInvalidUsageExceptionImpl()
+OmmInvalidUsageExceptionImpl::OmmInvalidUsageExceptionImpl() :
+ OmmInvalidUsageException()
 {
 }
 
@@ -32,20 +33,22 @@ OmmInvalidUsageExceptionImpl& OmmInvalidUsageExceptionImpl::operator=( const Omm
 	return *this;
 }
 
-void OmmInvalidUsageExceptionImpl::throwException( const EmaString& text )
+void OmmInvalidUsageExceptionImpl::throwException( const EmaString& text, Int32 errorCode )
 {
 	OmmInvalidUsageExceptionImpl exception;
 
 	exception.statusText( text );
+	exception._errorCode = errorCode;
 
 	throw exception;
 }
 
-void OmmInvalidUsageExceptionImpl::throwException( const char* text )
+void OmmInvalidUsageExceptionImpl::throwException( const char* text, Int32 errorCode)
 {
 	OmmInvalidUsageExceptionImpl exception;
 
 	exception.statusText( text );
+	exception._errorCode = errorCode;
 
 	throw exception;
 }

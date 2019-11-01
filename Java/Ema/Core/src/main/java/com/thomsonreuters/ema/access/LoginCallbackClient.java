@@ -72,6 +72,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	private LoginRequest			_tempLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
 	private OmmBaseImpl<T>			_ommBaseImpl;
 	private LoginRefresh			_loginRefresh;
+	private String					_loginFailureMsg;
     
 	LoginCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
@@ -112,6 +113,11 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		
 		return _loginRefresh;
 	}
+	
+	String loginFailureMessage()
+	{
+		return _loginFailureMsg;
+	}
 
 	@Override
 	public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
@@ -120,6 +126,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		LoginMsg loginMsg = event.rdmLoginMsg();
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		ReactorChannel rsslReactorChannel  = event.reactorChannel();
+		
+		_baseImpl.eventReceived();
 
 		if (loginMsg == null)
 		{
@@ -177,18 +185,22 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				if (state.streamState() != com.thomsonreuters.upa.codec.StreamStates.OPEN)
 				{
 					closeChannel = true;
+					
+					_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
+					
+					StringBuilder temp = _baseImpl.strBuilder();
+					
+		        	temp.append("RDMLogin stream was closed with refresh message")
+		        		.append(OmmLoggerClient.CR);
+		        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
+		        	temp.append(OmmLoggerClient.CR)
+		    			.append(state.toString());
+		        	
+		        	_loginFailureMsg = temp.toString();
 	
 					if (_baseImpl.loggerClient().isErrorEnabled())
-		        	{
-			        	StringBuilder temp = _baseImpl.strBuilder();
-						
-			        	temp.append("RDMLogin stream was closed with refresh message")
-			        		.append(OmmLoggerClient.CR);
-			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
-			        	temp.append(OmmLoggerClient.CR)
-			    			.append(state.toString());
-			        	
-			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	{			        	
+			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, _loginFailureMsg, Severity.ERROR));
 		        	}
 				}
 				else if (state.dataState() == com.thomsonreuters.upa.codec.DataStates.SUSPECT)
@@ -249,18 +261,21 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 					if (state.streamState() != com.thomsonreuters.upa.codec.StreamStates.OPEN)
 					{
 						closeChannel = true;
+						_ommBaseImpl.ommImplState(OmmImplState.RSSLCHANNEL_UP_STREAM_NOT_OPEN);
+						
+						StringBuilder temp = _baseImpl.strBuilder();
+						
+			        	temp.append("RDMLogin stream was closed with status message")
+			        		.append(OmmLoggerClient.CR);
+			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
+			        	temp.append(OmmLoggerClient.CR)
+		    				.append(state.toString());
+			        	
+			        	_loginFailureMsg = temp.toString();
 						
 						if (_baseImpl.loggerClient().isErrorEnabled())
-			        	{
-				        	StringBuilder temp = _baseImpl.strBuilder();
-							
-				        	temp.append("RDMLogin stream was closed with status message")
-				        		.append(OmmLoggerClient.CR);
-				        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
-				        	temp.append(OmmLoggerClient.CR)
-			    				.append(state.toString());
-				        	
-				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			        	{	
+				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, _loginFailureMsg, Severity.ERROR));
 			        	}
 					}
 					else if (state.dataState() == com.thomsonreuters.upa.codec.DataStates.SUSPECT)
@@ -1052,7 +1067,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 			temp.append("Failed cache login reissue. Reason: ")
 				.append(ReactorReturnCodes.toString(ret));
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
+			_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 			
 		}
 		
@@ -1154,7 +1169,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 					.append(". Error text: ")
 					.append(rsslErrorInfo.error().text());
 					
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 				return false;
 		    }
@@ -1203,7 +1218,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 					.append(". Error text: ")
 					.append(rsslErrorInfo.error().text());
 					
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 				return false;
 		    }
@@ -1251,7 +1266,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 					.append(". Error text: ")
 					.append(rsslErrorInfo.error().text());
 					
-				_baseImpl.handleInvalidUsage(temp.toString());
+				_baseImpl.handleInvalidUsage(temp.toString(), ret);
 	
 				return false;
 		    }

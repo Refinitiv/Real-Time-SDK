@@ -23,7 +23,9 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 
 	public ChannelInformationImpl(String componentInfo, String hostname, String ipAddress, int state,
-			int connectionType, int protocolType, int majorVersion, int minorVersion, int pingTimeout) {
+			int connectionType, int protocolType, int majorVersion, int minorVersion, int pingTimeout,
+			int maxFragmentSize, int maxOutputBuffers, int guaranteedOutputBuffers, int numInputBuffers,
+			int sysSendBufSize, int sysRecvBufSize, int compressionType, int compressionThreshold) {
 		this._componentInfo = componentInfo;
 		this._hostname = hostname;
 		this._ipAddress = ipAddress;
@@ -33,6 +35,14 @@ class ChannelInformationImpl implements ChannelInformation
 		this._majorVersion = majorVersion;
 		this._minorVersion = minorVersion;
 		this._pingTimeout = pingTimeout;
+		this._maxFragmentSize = maxFragmentSize;
+		this._maxOutputBuffers = maxOutputBuffers;
+		this._guaranteedOutputBuffers = guaranteedOutputBuffers;
+		this._numInputBuffers = numInputBuffers;
+		this._sysSendBufSize = sysSendBufSize;
+		this._sysRecvBufSize = sysRecvBufSize;
+		this._compressionType = compressionType;
+		this._compressionThreshold = compressionThreshold;
 	}
 
 	public ChannelInformationImpl(ReactorChannel channel) {
@@ -46,6 +56,14 @@ class ChannelInformationImpl implements ChannelInformation
 		_protocolType = ProtocolType.UNKNOWN;
 		_pingTimeout = _majorVersion = _minorVersion = 0;
 		_ipAddress = _hostname = _componentInfo = null;
+		_maxFragmentSize = 0;
+		_maxOutputBuffers = 0;
+		_guaranteedOutputBuffers = 0;
+		_numInputBuffers = 0;
+		_sysSendBufSize = 0;
+		_sysRecvBufSize = 0;
+		_compressionType = 0;
+		_compressionThreshold = 0;
 	}
 
 	public void set(ReactorChannel reactorChannel) {
@@ -72,6 +90,14 @@ class ChannelInformationImpl implements ChannelInformation
 				// the clientHostname and clientIP methods will return non-null values only for IProvider clients
 				_hostname = rci.channelInfo().clientHostname();
 				_ipAddress = rci.channelInfo().clientIP();
+				_maxFragmentSize = rci.channelInfo().maxFragmentSize();
+				_maxOutputBuffers = rci.channelInfo().maxOutputBuffers();
+				_guaranteedOutputBuffers = rci.channelInfo().guaranteedOutputBuffers();
+				_numInputBuffers = rci.channelInfo().numInputBuffers();
+				_sysSendBufSize = rci.channelInfo().sysSendBufSize();
+				_sysRecvBufSize = rci.channelInfo().sysRecvBufSize();
+				_compressionType = rci.channelInfo().compressionType();
+				_compressionThreshold = rci.channelInfo().compressionThreshold();
 			}
 		}
 
@@ -86,7 +112,7 @@ class ChannelInformationImpl implements ChannelInformation
 			_majorVersion = reactorChannel.channel().majorVersion();
 			_minorVersion = reactorChannel.channel().minorVersion();
 			_pingTimeout = reactorChannel.channel().pingTimeout();
-			_channelState = reactorChannel.channel().state();			
+			_channelState = reactorChannel.channel().state();
 		}
 		else {
 			_connectionType = _protocolType = -1;
@@ -130,6 +156,30 @@ class ChannelInformationImpl implements ChannelInformation
 			_stringBuilder.append("unknown wire format");
 		_stringBuilder.append("\n\tmajor version: " + _majorVersion + "\n\tminor version: " + _minorVersion
 				+ "\n\tping timeout: " + _pingTimeout);
+		
+		_stringBuilder.append("\n\tmax fragmentation size: " + _maxFragmentSize)
+		.append("\n\tmax output buffers: " + _maxOutputBuffers)
+		.append("\n\tguaranteed output buffers: " + _guaranteedOutputBuffers)
+		.append("\n\tnumber input buffers: " + _numInputBuffers)
+		.append("\n\tsystem send buffer size: " + _sysSendBufSize)
+		.append("\n\tsystem receive buffer size: " + _sysRecvBufSize)
+		.append("\n\tcompression type: ");
+		switch (_compressionType)
+		{
+			case CompressionType.ZLIB:
+				_stringBuilder.append("ZLIB");
+				break;
+			case CompressionType.LZ4:
+				_stringBuilder.append("LZ4");	
+				break;
+			case CompressionType.NONE:			
+			default:
+				_stringBuilder.append("none");
+				break;
+		}
+		
+		_stringBuilder.append("\n\tcompression threshold: " + _compressionThreshold);
+		
 		return _stringBuilder.toString();
 	}
 
@@ -243,5 +293,94 @@ class ChannelInformationImpl implements ChannelInformation
 	private int _majorVersion;
 	private int _minorVersion;
 	private int _pingTimeout;
+	private int _maxFragmentSize;
+	private int _maxOutputBuffers;
+	private int _guaranteedOutputBuffers;
+	private int _numInputBuffers;
+	private int _sysSendBufSize;
+	private int _sysRecvBufSize;
+	private int _compressionType;
+	private int _compressionThreshold;
+	
 	private StringBuilder _stringBuilder = new StringBuilder();
+	
+	@Override
+	public int maxFragmentSize() {
+		return _maxFragmentSize;
+	}
+
+	@Override
+	public int maxOutputBuffers() {
+		return _maxOutputBuffers;
+	}
+
+	@Override
+	public int guaranteedOutputBuffers() {
+		return _guaranteedOutputBuffers;
+	}
+
+	@Override
+	public int numInputBuffers() {
+		return _numInputBuffers;
+	}
+
+	@Override
+	public int sysSendBufSize() {
+		return _sysSendBufSize;
+	}
+
+	@Override
+	public int sysRecvBufSize() {
+		return _sysRecvBufSize;
+	}
+
+	@Override
+	public int compressionType() {
+		return _compressionType;
+	}
+	
+	@Override
+	public int compressionThreshold() {
+		return _compressionThreshold;
+	}
+
+	@Override
+	public void maxFragmentSize(int maxFragmentSize) {
+		_maxFragmentSize = maxFragmentSize;
+	}
+
+	@Override
+	public void maxOutputBuffers(int maxOutputBuffers) {
+		_maxOutputBuffers = maxOutputBuffers;
+	}
+
+	@Override
+	public void guaranteedOutputBuffers(int guaranteedOutputBuffers) {
+		_guaranteedOutputBuffers = guaranteedOutputBuffers;
+	}
+
+	@Override
+	public void numInputBuffers(int numInputBuffers) {
+		_numInputBuffers = numInputBuffers;
+	}
+
+	@Override
+	public void sysSendBufSize(int sysSendBufSize) {
+		_sysSendBufSize = sysSendBufSize;
+	}
+
+	@Override
+	public void sysRecvBufSize(int sysRecvBufSize) {
+		_sysRecvBufSize = sysRecvBufSize;
+	}
+
+	@Override
+	public void compressionType(int compressionType) {
+		_compressionType = compressionType;
+	}
+
+	@Override
+	public void compressionThreshold(int compressionThreshold) {
+		_compressionThreshold = compressionThreshold;
+	}
 }

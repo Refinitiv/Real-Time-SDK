@@ -97,7 +97,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public OmmState state()
 	{
 		if (!hasState())
-			throw ommIUExcept().message("Attempt to state() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to state() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		if (_stateSet) return _state;
 		
@@ -129,7 +129,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public ByteBuffer itemGroup()
 	{
 		if (!hasItemGroup())
-			throw ommIUExcept().message("Attempt to itemGroup() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to itemGroup() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		_itemGroup = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId(), _itemGroup, _objManager);
 		return _itemGroup;
@@ -139,7 +139,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 
 		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
@@ -149,7 +149,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public long publisherIdUserId()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserId() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).postUserInfo().userId();
 	}
@@ -158,7 +158,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public long publisherIdUserAddress()
 	{
 		if (!hasPublisherId())
-			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to publisherIdUserAddress() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		return ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).postUserInfo().userAddr();
 	}
@@ -265,7 +265,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 										.append( dataState ).append( " / " )
 										.append( statusCode ).append( " / " )
 										.append( statusCode ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).state().text().data(statusText);
@@ -277,7 +277,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public StatusMsg itemGroup(ByteBuffer itemGroup)
 	{
 		if (itemGroup == null)
-			throw ommIUExcept().message("Passed in itemGroup is null");
+			throw ommIUExcept().message("Passed in itemGroup is null", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).applyHasGroupId();
 		Utilities.copy(itemGroup, ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId());

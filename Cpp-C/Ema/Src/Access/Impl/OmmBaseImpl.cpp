@@ -17,6 +17,7 @@
 #include "OmmInvalidHandleException.h"
 #include "OmmSystemException.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 
 #include "GetTime.h"
 
@@ -838,7 +839,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	{
 		EmaString temp( "Not supported channel type. Type = " );
 		temp.append( ( UInt32 )channelType );
-		throwIueException( temp );
+		throwIueException(temp, OmmInvalidUsageException::UnSupportedChannelTypeEnum );
 		return 0;
 	}
 	}
@@ -1148,7 +1149,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			EmaString temp( "Failed to create communication Pipe." );
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
@@ -1175,7 +1176,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -1231,7 +1232,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			.append( "' Error Text='" ).append( rsslErrorInfo.rsslError.text ).append( "'. " );
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-			throwIueException( temp );
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -1308,13 +1309,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
 				}
 
-				throwIueException( failureMsg );
+				throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
 				return;
 			}
 			else if ( _state == RsslChannelUpStreamNotOpenEnum )
 			{
 				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
-				throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
+				throwIueException( getLoginCallbackClient().getLoginFailureMessage(), OmmInvalidUsageException::LoginRequestRejectedEnum );
 				return;
 			}
 			else
@@ -1325,7 +1326,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 		else
 		{
-			throwIueException( "Application or user initiated exit while waiting for login response." );
+			throwIueException( "Application or user initiated exit while waiting for login response.", OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
@@ -1830,26 +1831,32 @@ void OmmBaseImpl::closeChannel( RsslReactorChannel* pRsslReactorChannel )
 	_pChannelCallbackClient->removeChannel( pRsslReactorChannel );
 }
 
-void OmmBaseImpl::handleIue( const EmaString& text )
+void OmmBaseImpl::handleIue( const EmaString& text, Int32 errorCode )
 {
 	if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, text );
 
 	if ( hasErrorClientHandler() )
+	{
 		getErrorClientHandler().onInvalidUsage( text );
+		getErrorClientHandler().onInvalidUsage( text, errorCode );
+	}
 	else
-		throwIueException( text );
+		throwIueException( text, errorCode );
 }
 
-void OmmBaseImpl::handleIue( const char* text )
+void OmmBaseImpl::handleIue( const char* text, Int32 errorCode )
 {
 	if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, text );
 
-	if ( hasErrorClientHandler() )
+	if (hasErrorClientHandler())
+	{
 		getErrorClientHandler().onInvalidUsage( text );
+		getErrorClientHandler().onInvalidUsage( text, errorCode );
+	}
 	else
-		throwIueException( text );
+		throwIueException( text, errorCode );
 }
 
 void OmmBaseImpl::handleIhe( UInt64 handle, const EmaString& text )
@@ -2056,6 +2063,7 @@ void OmmBaseImpl::notifErrorClientHandler( const OmmException& ommException, Err
 		break;
 	case OmmException::OmmInvalidUsageExceptionEnum:
 		errorClient.onInvalidUsage( ommException.getText() );
+		errorClient.onInvalidUsage( ommException.getText(), static_cast<const OmmInvalidUsageException&>( ommException ).getErrorCode() );
 		break;
 	case OmmException::OmmInaccessibleLogFileExceptionEnum:
 		errorClient.onInaccessibleLogFile( static_cast<const OmmInaccessibleLogFileException&>( ommException ).getFilename(),

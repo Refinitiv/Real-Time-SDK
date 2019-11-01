@@ -24,6 +24,7 @@
 #include "OmmSystemException.h"
 #include "ExceptionTranslator.h"
 #include "EmaVersion.h"
+#include "OmmInvalidUsageException.h"
 
 #include "GetTime.h"
 
@@ -372,7 +373,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		{
 			EmaString temp("Not supported server type. Type = ");
 			temp.append((UInt32)serverType);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::UnSupportedServerTypeEnum );
 			return 0;
 		}
 	}
@@ -542,7 +543,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			EmaString temp("Failed to create communication Pipe.");
 			if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 		}
 		else if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 		{
@@ -560,7 +561,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 			if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 			return;
 		}
 		else if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
@@ -589,7 +590,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 				.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
 			if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
 			return;
 		}
 		else if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
@@ -664,7 +665,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 				.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
 			if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::FailureEnum );
 			return;
 		}
 
@@ -770,7 +771,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 
 			if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp);
+			throwIueException( temp, OmmInvalidUsageException::UnSupportedServerTypeEnum );
 			return;
 		}
 	}
@@ -1340,7 +1341,7 @@ void OmmServerBaseImpl::removeSocket(RsslSocket fd)
 #endif
 }
 
-void OmmServerBaseImpl::handleIue(const EmaString& text)
+void OmmServerBaseImpl::handleIue(const EmaString& text, Int32 errorCode)
 {
 	if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 	{
@@ -1351,12 +1352,15 @@ void OmmServerBaseImpl::handleIue(const EmaString& text)
 	}
 
 	if (hasErrorClientHandler())
-		getErrorClientHandler().onInvalidUsage(text);
+	{
+		getErrorClientHandler().onInvalidUsage( text );
+		getErrorClientHandler().onInvalidUsage( text, errorCode );
+	}
 	else
-		throwIueException(text);
+		throwIueException( text, errorCode );
 }
 
-void OmmServerBaseImpl::handleIue(const char* text)
+void OmmServerBaseImpl::handleIue(const char* text, Int32 errorCode)
 {
 	if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 	{
@@ -1367,9 +1371,12 @@ void OmmServerBaseImpl::handleIue(const char* text)
 	}
 
 	if (hasErrorClientHandler())
-		getErrorClientHandler().onInvalidUsage(text);
+	{
+		getErrorClientHandler().onInvalidUsage( text );
+		getErrorClientHandler().onInvalidUsage( text, errorCode );
+	}
 	else
-		throwIueException(text);
+		throwIueException( text, errorCode );
 }
 
 void OmmServerBaseImpl::handleIhe(UInt64 handle, const EmaString& text)
@@ -1526,6 +1533,7 @@ void OmmServerBaseImpl::notifErrorClientHandler(const OmmException& ommException
 		break;
 	case OmmException::OmmInvalidUsageExceptionEnum:
 		errorClient.onInvalidUsage(ommException.getText());
+		errorClient.onInvalidUsage(ommException.getText(), static_cast<const OmmInvalidUsageException&>(ommException).getErrorCode());
 		break;
 	case OmmException::OmmInaccessibleLogFileExceptionEnum:
 		errorClient.onInaccessibleLogFile(static_cast<const OmmInaccessibleLogFileException&>(ommException).getFilename(),
@@ -1790,21 +1798,29 @@ void OmmServerBaseImpl::removeConnectedChannel(RsslReactorChannel* channel) {
 void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>& ci) {
   RsslReactorChannelInfo rsslReactorChannelInfo;
   RsslErrorInfo rsslErrorInfo;
+  RsslRet ret;
 
   ci.clear();
 
   _userLock.lock();
 
   RsslReactorChannel* rrc;
+  EmaString componentInfo;
   for (UInt32 index = 0; index < connectedChannels.size(); ++index) {
 	rrc = connectedChannels[index];
 	// create connected component info
-	rsslReactorGetChannelInfo(rrc, &rsslReactorChannelInfo, &rsslErrorInfo);
-	EmaString componentInfo("Connected component version: ");
-	for (unsigned int i = 0; i < rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount; ++i) {
-	  componentInfo.append(rsslReactorChannelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
-	  if (i < (rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount - 1))
-		componentInfo.append(", ");
+	if ((ret = rsslReactorGetChannelInfo(rrc, &rsslReactorChannelInfo, &rsslErrorInfo)) == RSSL_RET_SUCCESS)
+	{
+		componentInfo.set("Connected component version: ");
+		for (unsigned int i = 0; i < rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount; ++i) {
+			componentInfo.append(rsslReactorChannelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
+			if (i < (rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount - 1))
+				componentInfo.append(", ");
+		}
+	}
+	else
+	{
+		componentInfo.set("unavailable");
 	}
 
 	ChannelInformation item(componentInfo, rrc->pRsslChannel->clientHostname,
@@ -1814,6 +1830,20 @@ void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInfor
 							static_cast<ChannelInformation::ProtocolType>(rrc->pRsslChannel->protocolType),
 							rrc->pRsslChannel->majorVersion, rrc->pRsslChannel->minorVersion,
 							rrc->pRsslChannel->pingTimeout);
+
+	if (ret == RSSL_RET_SUCCESS)
+	{
+		item.maxFragmentSize(rsslReactorChannelInfo.rsslChannelInfo.maxFragmentSize)
+			.maxOutputBuffers(rsslReactorChannelInfo.rsslChannelInfo.maxOutputBuffers)
+			.guaranteedOutputBuffers(rsslReactorChannelInfo.rsslChannelInfo.guaranteedOutputBuffers)
+			.numInputBuffers(rsslReactorChannelInfo.rsslChannelInfo.numInputBuffers)
+			.sysSendBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysSendBufSize)
+			.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
+			.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
+			.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
+			.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+	}
+
 	ci.push_back(item);
   }
 

@@ -12,6 +12,7 @@
 #include "FieldListEncoder.h"
 #include "Utilities.h"
 #include "GlobalPool.h"
+#include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -151,7 +152,7 @@ const EmaBuffer& FieldList::getAsHex() const
 	{
 		EmaString temp( "Attempt to getAsHex() while data is not set." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pDecoder->getHexBuffer();
@@ -179,7 +180,7 @@ const FieldEntry& FieldList::getEntry() const
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _entry;

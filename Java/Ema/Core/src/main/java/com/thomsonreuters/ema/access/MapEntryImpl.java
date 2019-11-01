@@ -80,7 +80,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public ByteBuffer permissionData()
 	{
 		if (!hasPermissionData())
-			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
+			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.", OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		
 		_permData = Utilities.copyFromPool( _rsslMapEntry.permData(), _permData, _objManager);
 		return _permData;
@@ -177,12 +177,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, value, permissionData);
@@ -214,12 +215,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyReal(double key, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( key ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, value, permissionData);
@@ -368,7 +370,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 					.append( dataState ).append( " / " )
 					.append( statusCode ).append( "/ " )
 					.append( statusText ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 
 		entryValue(action, value, permissionData);
@@ -388,11 +390,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyEnum(int key, int action, ComplexType value, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createEnum();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_keyData).value(key) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret =((com.thomsonreuters.upa.codec.Enum)_keyData).value(key)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in key is='" )
 					.append( key ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, value, permissionData);
@@ -431,11 +434,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyAscii(String key, int action, ComplexType value, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createBuffer();
-		if (CodecReturnCodes.SUCCESS != ((Buffer)_keyData).data(key) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((Buffer)_keyData).data(key)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid string. Passed in key is='" )
 					.append( key ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, value, permissionData);
@@ -493,7 +497,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 		if (action < 0 || action > 15)
 			throw ommOORExcept().message("action is out of range [0 - 15].");
 		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
+			throw ommIUExcept().message("Passed in value is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 
 		_rsslMapEntry.action(action);
 		_entryDataType = Utilities.toRsslDataType(value.dataType());	
@@ -601,12 +605,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyReal(long mantissa, int magnitudeType, int action, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, permissionData);
@@ -641,12 +646,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyReal(double key, int magnitudeType, int action, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( key ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
-			throw ommIUExcept().message(errText);
+			throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, permissionData);
@@ -801,7 +807,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 					.append( dataState ).append( " / " )
 					.append( statusCode ).append( "/ " )
 					.append( statusText ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
 		
 		entryValue(action, permissionData);
@@ -822,11 +828,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyEnum(int key, int action, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createEnum();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_keyData).value(key) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((com.thomsonreuters.upa.codec.Enum)_keyData).value(key)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in key is='" )
 					.append( key ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, permissionData);
@@ -867,11 +874,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyAscii(String key, int action, ByteBuffer permissionData)
 	{
 		_keyData = CodecFactory.createBuffer();
-		if (CodecReturnCodes.SUCCESS != ((Buffer)_keyData).data(key) )
+		int ret;
+		if (CodecReturnCodes.SUCCESS != (ret = ((Buffer)_keyData).data(key)) )
 		{
 			String errText = errorString().append("Attempt to specify invalid string. Passed in key is='" )
 					.append( key ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
+				throw ommIUExcept().message(errText, ret);
 		}
 
 		entryValue(action, permissionData);

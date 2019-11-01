@@ -9,6 +9,8 @@
 #include "UpdateMsgDecoder.h"
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
+#include "OmmInvalidUsageException.h"
+
 #include "rtr/rsslMsgDecoders.h"
 
 using namespace thomsonreuters::ema::access;
@@ -182,7 +184,7 @@ const EmaString& UpdateMsgDecoder::getName() const
 	if ( !hasName() )
 	{
 		EmaString temp( "Attempt to getName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_name.setInt( _pRsslMsg->msgBase.msgKey.name.data, _pRsslMsg->msgBase.msgKey.name.length, false );
@@ -195,7 +197,7 @@ UInt8 UpdateMsgDecoder::getNameType() const
 	if ( !hasNameType() )
 	{
 		EmaString temp( "Attempt to getNameType() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.nameType;
@@ -206,7 +208,7 @@ UInt32 UpdateMsgDecoder::getServiceId() const
 	if ( !hasServiceId() )
 	{
 		EmaString temp( "Attempt to getServiceId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.serviceId;
@@ -217,7 +219,7 @@ const EmaString& UpdateMsgDecoder::getServiceName() const
 	if ( !_serviceNameSet )
 	{
 		EmaString temp( "Attempt to getServiceName() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _serviceName.toString();
@@ -228,7 +230,7 @@ Int32 UpdateMsgDecoder::getId() const
 	if ( !hasId() )
 	{
 		EmaString temp( "Attempt to getId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.identifier;
@@ -239,7 +241,7 @@ UInt32 UpdateMsgDecoder::getFilter() const
 	if ( !hasFilter() )
 	{
 		EmaString temp( "Attempt to getFilter() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->msgBase.msgKey.filter;
@@ -250,7 +252,7 @@ const EmaBuffer& UpdateMsgDecoder::getExtendedHeader() const
 	if ( !hasExtendedHeader() )
 	{
 		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_extHeader.setFromInt( _pRsslMsg->updateMsg.extendedHeader.data, _pRsslMsg->updateMsg.extendedHeader.length );
@@ -288,7 +290,7 @@ UInt32 UpdateMsgDecoder::getSeqNum() const
 	if ( !hasSeqNum() )
 	{
 		EmaString temp( "Attempt to getSeqNum() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->updateMsg.seqNum;
@@ -299,7 +301,7 @@ const EmaBuffer& UpdateMsgDecoder::getPermissionData() const
 	if ( !hasPermissionData() )
 	{
 		EmaString temp( "Attempt to getPermissionData() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	_permission.setFromInt( _pRsslMsg->updateMsg.permData.data, _pRsslMsg->updateMsg.permData.length );
@@ -312,7 +314,7 @@ UInt16 UpdateMsgDecoder::getConflatedTime() const
 	if ( !hasConflated() )
 	{
 		EmaString temp( "Attempt to getConflatedTime() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->updateMsg.conflationTime;
@@ -323,7 +325,7 @@ UInt16 UpdateMsgDecoder::getConflatedCount() const
 	if ( !hasConflated() )
 	{
 		EmaString temp( "Attempt to getConflatedCount() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->updateMsg.conflationCount;
@@ -334,7 +336,7 @@ UInt32 UpdateMsgDecoder::getPublisherIdUserId() const
 	if ( !hasPublisherId() )
 	{
 		EmaString temp( "Attempt to getPublisherIdUserId() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->updateMsg.postUserInfo.postUserId;
@@ -345,7 +347,7 @@ UInt32 UpdateMsgDecoder::getPublisherIdUserAddress() const
 	if ( !hasPublisherId() )
 	{
 		EmaString temp( "Attempt to getPublisherIdUserAddress() while it is NOT set." );
-		throwIueException( temp );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
 
 	return _pRsslMsg->updateMsg.postUserInfo.postUserAddr;

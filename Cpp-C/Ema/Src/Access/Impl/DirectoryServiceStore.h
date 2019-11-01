@@ -277,9 +277,9 @@ public:
 
 	virtual ~DirectoryServiceStore();
 
-	bool decodeSourceDirectory(RwfBuffer*, EmaString&);
+	bool decodeSourceDirectory(RwfBuffer*, EmaString&, Int32&);
 
-	bool decodeSourceDirectoryKeyUInt(RsslMap&, RsslDecodeIterator&, EmaString&);
+	bool decodeSourceDirectoryKeyUInt(RsslMap&, RsslDecodeIterator&, EmaString&, Int32&);
 
 	static bool encodeDirectoryRefreshMsg(const DirectoryCache& directoryCache, RsslRDMDirectoryRefresh&, int directoryServiceFilter = (RDM_DIRECTORY_SERVICE_INFO_FILTER | RDM_DIRECTORY_SERVICE_STATE_FILTER),
 		bool specificServiceId = false, UInt16 serviceId = 0);
