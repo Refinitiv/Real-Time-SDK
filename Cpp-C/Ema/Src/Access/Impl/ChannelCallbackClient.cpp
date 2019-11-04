@@ -298,16 +298,16 @@ Channel* ChannelList::front() const
 void ChannelCallbackClient::closeChannels()
 {
 	UInt32 size = _channelList.size();
-	RsslReactorChannel* pReactorChannel = NULL;
 
 	for ( UInt32 idx = 0; idx < size; ++idx )
 	{
-		pReactorChannel = _channelList[idx];
+		RsslReactorChannel* pReactorChannel = _channelList[idx];
+
 		_ommBaseImpl.closeChannel( pReactorChannel );
 	}
 
-	/* EMA closes the connecting channel as well when the login timeout occurs. */
-	if( ( pReactorChannel == NULL ) && _pReconnectingReactorChannel )
+	/* EMA closes the reconnecting channel(if any) as well when the login timeout occurs. */
+	if( _pReconnectingReactorChannel )
 	{
 		_ommBaseImpl.closeChannel( _pReconnectingReactorChannel );
 	}
@@ -719,6 +719,9 @@ void ChannelCallbackClient::removeChannel( RsslReactorChannel* pRsslReactorChann
 {
 	if (pRsslReactorChannel)
 	{
+		if (_pReconnectingReactorChannel == pRsslReactorChannel)
+			_pReconnectingReactorChannel = NULL; // Unset the ReactorChannel of the RECONNECTING event as the channel is being destroyed.
+
 		_ommBaseImpl.getLoginCallbackClient().removeChannel(pRsslReactorChannel);
 		_channelList.removeChannel((Channel*)pRsslReactorChannel->userSpecPtr);
 	}
@@ -774,6 +777,8 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			if ( i < ( channelInfo.rsslChannelInfo.componentInfoCount - 1 ) )
 				componentInfo.append( ", " );
 		}
+
+		_pReconnectingReactorChannel = NULL;
 #ifdef WIN32
 		int sendBfrSize = 65535;
 
@@ -1008,6 +1013,8 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		_pReconnectingReactorChannel = NULL;
 
 		_ommBaseImpl.setState( OmmBaseImpl::RsslChannelDownEnum );
 
