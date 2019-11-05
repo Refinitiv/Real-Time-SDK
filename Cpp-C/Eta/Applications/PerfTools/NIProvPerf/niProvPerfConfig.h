@@ -51,6 +51,9 @@ typedef struct
 	RsslInt32			commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
 
 	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+
+	char				caStore[255];				/* Certificate authority location */
+	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */
 } NIProvPerfConfig;
 
 /* Contains the global application configuration */

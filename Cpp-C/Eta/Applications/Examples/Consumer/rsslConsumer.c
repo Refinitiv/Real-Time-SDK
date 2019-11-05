@@ -66,6 +66,7 @@ static char proxyDomain[128];
 static char libsslName[255];
 static char libcryptoName[255];
 static char libcurlName[255];
+static char cipherSuite[255];
 static char authenticationToken[AUTH_TOKEN_LENGTH];
 static char authenticationExtended[AUTH_TOKEN_LENGTH];
 static char applicationId[128];
@@ -151,6 +152,8 @@ int main(int argc, char **argv)
 	snprintf(proxyPasswd, 128, "%s", defaultProxyPasswd);
 	snprintf(proxyDomain, 128, "%s", defaultProxyDomain);
 	snprintf(sslCAStore, 255, "%s", defaultCAStore);
+	memset((void*)cipherSuite, 0, 255);
+
 	tlsProtocol = RSSL_ENC_NONE;
 
     /* Check usage and retrieve operating parameters */
@@ -246,16 +249,6 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				snprintf(proxyDomain, 128, "%s", argv[i - 1]);
-			}
-			else if (strcmp("-spTLSv1", argv[i]) == 0)
-			{
-				i++;
-				tlsProtocol |= RSSL_ENC_TLSV1;
-			}
-			else if (strcmp("-spTLSv1.1", argv[i]) == 0)
-			{
-				i++;
-				tlsProtocol |= RSSL_ENC_TLSV1_1;
 			}
 			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
 			{
@@ -448,8 +441,6 @@ int main(int argc, char **argv)
 				printf("\n -runtime adjusts the time the application runs.\n");
 				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET and HTTP(Windows only).\n");
 				printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
-				printf(" -spTLSv1 Specifies that TLSv1.0 can be used for an OpenSSL-based encrypted connection\n");
-				printf(" -spTLSv1.1 Specifies that TLSv1.1 can be used for an OpenSSL-based encrypted connection\n");
 				printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
 				printf("\n -ph specifies the proxy host\n");
 				printf(" -pp specifies the proxy port\n");
@@ -458,7 +449,7 @@ int main(int argc, char **argv)
 				printf(" -pdomain specifies the proxy domain\n");
 				printf("\n -libcurlName specifies the name of the libcurl shared object\n");
 				printf(" -libsslName specifies the name of libssl shared object\n");
-				printf(" -libcryptName specifies the name of libcrypto shared object\n");
+				printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 #ifdef _WIN32
 				/* WINDOWS: wait for user to enter something before exiting  */
 				printf("\nPress Enter or Return key to exit application:");

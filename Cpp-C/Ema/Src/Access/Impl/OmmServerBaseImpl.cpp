@@ -318,19 +318,18 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	UInt32 maxUInt32(0xFFFFFFFF);
 	EmaString serverNodeName("ServerGroup|ServerList|Server.");
 	serverNodeName.append(serverName).append("|");
+	SocketServerConfig* socketServerConfig = 0;
 
 	RsslConnectionTypes serverType;
-	if ( !pConfigServerImpl->get<RsslConnectionTypes>( serverNodeName + "ServerType", serverType )  ||
-		pConfigServerImpl->getUserSpecifiedPort().userSpecifiedValue.length() > 0 )
+	if ( !pConfigServerImpl->get<RsslConnectionTypes>( serverNodeName + "ServerType", serverType ) )
 	{
 		serverType = RSSL_CONN_TYPE_SOCKET;
 	}
 
 	switch (serverType)
 	{
-		case RSSL_CONN_TYPE_SOCKET:
+		case RSSL_CONN_TYPE_ENCRYPTED:
 		{
-			SocketServerConfig* socketServerConfig = 0;
 			try
 			{
 				socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
@@ -338,11 +337,70 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			}
 			catch (std::bad_alloc) {}
 
-			if ( !socketServerConfig )
+			if (!socketServerConfig)
 			{
 				const char* temp = "Failed to allocate memory for SocketServerConfig.";
 				throwMeeException(temp);
 				return 0;
+			}
+
+			if (pConfigServerImpl->getUserSpecifiedLibSslName().length() > 0)
+			{
+				socketServerConfig->libSslName = pConfigServerImpl->getUserSpecifiedLibCryptoName();
+				socketServerConfig->libCryptoName = pConfigServerImpl->getUserSpecifiedLibSslName();
+			}
+
+			if (pConfigServerImpl->getUserSpecifiedLibCurlName().length() > 0)
+			{
+				socketServerConfig->libCurlName = pConfigServerImpl->getUserSpecifiedLibCurlName();
+			}
+
+			if (pConfigServerImpl->getUserSpecifiedServerCert().length() > 0)
+			{
+				socketServerConfig->serverCert = pConfigServerImpl->getUserSpecifiedServerCert();
+			}
+			else
+				pConfigServerImpl->get<EmaString>(serverNodeName + "ServerCert", socketServerConfig->serverCert);
+
+			if (pConfigServerImpl->getUserSpecifiedServerPrivateKey().length() > 0)
+			{
+				socketServerConfig->serverPrivateKey = pConfigServerImpl->getUserSpecifiedServerPrivateKey();
+			}
+			else
+				pConfigServerImpl->get<EmaString>(serverNodeName + "ServerPrivateKey", socketServerConfig->serverPrivateKey);
+
+			if (pConfigServerImpl->getUserSpecifiedDhParams().length() > 0)
+			{
+				socketServerConfig->dhParams = pConfigServerImpl->getUserSpecifiedDhParams();
+			}
+			else
+				pConfigServerImpl->get<EmaString>(serverNodeName + "DhParams", socketServerConfig->dhParams);
+
+			if (pConfigServerImpl->getUserSpecifiedCipherSuite().length() > 0)
+			{
+				socketServerConfig->cipherSuite = pConfigServerImpl->getUserSpecifiedCipherSuite();
+			}
+			else
+				pConfigServerImpl->get<EmaString>(serverNodeName + "CipherSuite", socketServerConfig->cipherSuite);
+		}
+		/* Socket's a superset of Encrypted for servers */
+		case RSSL_CONN_TYPE_SOCKET:
+		{
+			if (socketServerConfig == 0)
+			{
+				try
+				{
+					socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
+					newServerConfig = socketServerConfig;
+				}
+				catch (std::bad_alloc) {}
+
+				if (!socketServerConfig)
+				{
+					const char* temp = "Failed to allocate memory for SocketServerConfig.";
+					throwMeeException(temp);
+					return 0;
+				}
 			}
 
 			PortSetViaFunctionCall portSetViaFncCall(pConfigServerImpl->getUserSpecifiedPort());
@@ -377,6 +435,8 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			return 0;
 		}
 	}
+
+	socketServerConfig->connectionType = serverType;
 
 	newServerConfig->name = serverName;
 
@@ -552,7 +612,16 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		}
 
 		RsslError rsslError;
-		RsslRet retCode = rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError);
+		RsslInitializeExOpts rsslInitOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+		rsslInitOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+		if (_activeServerConfig.libSslName.length() > 0)
+			rsslInitOpts.jitOpts.libsslName = (char*)_activeServerConfig.libSslName.c_str();
+		if (_activeServerConfig.libCryptoName.length() > 0)
+			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeServerConfig.libCryptoName.c_str();
+		if (_activeServerConfig.libcurlName.length() > 0)
+			rsslInitOpts.jitOpts.libcurlName = (char*)_activeServerConfig.libcurlName.c_str();
+
+		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if (retCode != RSSL_RET_SUCCESS)
 		{
 			EmaString temp("rsslInitialize() failed while initializing OmmServerBaseImpl.");
@@ -754,9 +823,19 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout;
 	bindOptions.componentVersion = (char *)componentVersion.c_str();
 
-	switch (_activeServerConfig.pServerConfig->getType())
+
+	switch (_activeServerConfig.pServerConfig->connectionType)
 	{
-		case ServerConfig::SocketChannelEnum:
+		case RSSL_CONN_TYPE_ENCRYPTED:
+		{
+			SocketServerConfig *socketServerConfig = static_cast<SocketServerConfig *>(_activeServerConfig.pServerConfig);
+			bindOptions.encryptionOpts.serverCert = const_cast<char *>(socketServerConfig->serverCert.c_str());
+			bindOptions.encryptionOpts.serverPrivateKey = const_cast<char *>(socketServerConfig->serverPrivateKey.c_str());
+			bindOptions.encryptionOpts.dhParams = const_cast<char *>(socketServerConfig->dhParams.c_str());
+			bindOptions.encryptionOpts.cipherSuite = const_cast<char *>(socketServerConfig->cipherSuite.c_str());
+
+		}
+		case RSSL_CONN_TYPE_SOCKET:
 		{
 			SocketServerConfig *socketServerConfig = static_cast<SocketServerConfig *>(_activeServerConfig.pServerConfig);
 			bindOptions.tcpOpts.tcp_nodelay = socketServerConfig->tcpNodelay;

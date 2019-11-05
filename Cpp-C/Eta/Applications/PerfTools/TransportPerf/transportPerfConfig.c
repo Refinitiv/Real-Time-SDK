@@ -34,6 +34,7 @@ static void clearTransportPerfConfig()
 	transportPerfConfig.threadBindList = defaultThreadBindList;
 
 	transportPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+	transportPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
 	transportPerfConfig.reflectMsgs = RSSL_FALSE;
 	transportPerfConfig.guaranteedOutputBuffers = 5000;
 	transportPerfConfig.maxFragmentSize = 6144;
@@ -55,6 +56,9 @@ static void clearTransportPerfConfig()
 	transportPerfConfig.rAddr = RSSL_FALSE;
 	transportPerfConfig.takeMCastStats = RSSL_FALSE;
 
+	snprintf(transportPerfConfig.caStore, sizeof(transportPerfConfig.caStore), "");
+	snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "");
+	snprintf(transportPerfConfig.serverKey, sizeof(transportPerfConfig.serverKey), "");
 
 	transportPerfConfig.appType = APPTYPE_SERVER;
 	transportPerfConfig.busyRead = RSSL_FALSE;
@@ -155,6 +159,22 @@ void initTransportPerfConfig(int argc, char **argv)
 				transportPerfConfig.connectionType = RSSL_CONN_TYPE_SEQ_MCAST;
 			else
 				transportPerfConfig.connectionType = RSSL_CONN_TYPE_INIT; /* error */
+		}
+		else if (strcmp("-encryptedConnType", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			if (strcmp("socket", argv[iargs]) == 0)
+				transportPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("http", argv[iargs]) == 0)
+			{
+#ifdef Linux  
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				exitConfigError(argv);
+#else // HTTP connnections spported only through Windows WinInet 
+				transportPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
+#endif
+			}
 		}
 		else if (0 == strcmp("-appType", argv[iargs]))
 		{
@@ -315,6 +335,21 @@ void initTransportPerfConfig(int argc, char **argv)
 		{
 			transportPerfConfig.takeMCastStats = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-castore", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportPerfConfig.caStore, sizeof(transportPerfConfig.caStore), "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportPerfConfig.serverKey, sizeof(transportPerfConfig.serverKey), "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "%s", argv[iargs]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -435,6 +470,25 @@ void printTransportPerfConfig(FILE *file)
 			"       Connection Type: %s\n",
 			transportPerfConfig.runTime,
 			connectionTypeToString(transportPerfConfig.connectionType));
+	if (transportPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		if (transportPerfConfig.appType == APPTYPE_CLIENT)
+		{
+			fprintf(file,
+				"Encrypted Connection Type: %s\n"
+				"			  CA Store: %s\n",
+				connectionTypeToString(transportPerfConfig.encryptedConnectionType),
+				transportPerfConfig.caStore);
+		}
+		else
+		{
+			fprintf(file,
+				"	Server Private Key: %s\n"
+				"	Server Certificate: %s\n",
+				transportPerfConfig.serverKey,
+				transportPerfConfig.serverCert);
+		}
+	}
 	
 	if(transportPerfConfig.connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST && transportPerfConfig.sAddr)
 	{
@@ -538,6 +592,7 @@ void exitWithUsage()
 			"  -appType <type>            Type of application(server, client)\n"
 			"\n"
 			"  -connType <type>           Type of connection(\"socket\", \"http\", \"encrypted\", \"reliableMCast\", \"shmem\", \"seqMCast\")\n"
+			"  -encryptedConnType <type>  Encrypted connection protocol for a client connection only. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"http\")\n"
 			"  -outputBufs <count>        Number of output buffers(configures guaranteedOutputBuffers in the RSSL bind/connection options)\n"
 			"  -maxFragmentSize <count>   Max size of buffers(configures maxFragmentSize in the RSSL bind/connection options)\n"
 			"  -sendBufSize <size>        System Send Buffer Size(configures sysSendBufSize in the RSSL bind/connection options)\n"
@@ -567,8 +622,12 @@ void exitWithUsage()
 			"\n"
 			"  -threads <thread list>     list of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                               (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
-
 			"\n"
+			"  -castore					  File location of the certificate authority store for client connections.\n"
+			"  -keyfile				  	  Server private key for OpenSSL encryption.\n"
+			"  -cert					  Server certificate for openSSL encryption.\n"
+			"\n"
+			
 			);
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");

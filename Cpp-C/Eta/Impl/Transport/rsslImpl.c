@@ -950,15 +950,6 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 			return NULL;
 		}
 		break;
-		case RSSL_CONN_TYPE_ENCRYPTED:
-		{
-			/* currently not supported by servers */
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 Encrypted connection type (%d) is currently not supported for a server\n", __FILE__, __LINE__, opts->connectionType);
-			_rsslReleaseServer(rsslSrvrImpl);
-			return NULL;
-		}
-		break;
 		case RSSL_CONN_TYPE_SEQ_MCAST:
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -969,9 +960,23 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 		break;
 		default:
 		{
-			/* SOCKET or HTTP use the same transport type and can allow for either connection type */
+			/* SOCKET, HTTP, and ENCRYPTED use the same transport type and can allow for either connection type */
 			rsslSrvrImpl->serverFuncs = &(serverTransFuncs[RSSL_SOCKET_TRANSPORT]);
 			rsslSrvrImpl->channelFuncs = &(channelTransFuncs[RSSL_SOCKET_TRANSPORT]);
+		}
+	}
+
+	/* If this is an encrypted connection type, load OpenSSL.  This needs to be globally locked to ensure that multiple threads cannot attempt to load at the same time. */
+	if (opts->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		mutexFuncs.staticMutexLock();
+		retVal = ipcLoadOpenSSL(error);
+		mutexFuncs.staticMutexUnlock();
+
+		if (retVal != RSSL_RET_SUCCESS)
+		{
+			_rsslReleaseServer(rsslSrvrImpl);
+			return NULL;
 		}
 	}
 	
@@ -1118,6 +1123,7 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1008 Unable to set Reliable Multicast functions (%d).",
 					__FILE__, __LINE__, errno);
+				_rsslReleaseChannel(rsslChnlImpl);
 				return NULL;
 			}
 
@@ -1131,6 +1137,20 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 			/* handles all HTTP/ENCRYPTED/SOCKET cases */
 			rsslChnlImpl->channelFuncs = &(channelTransFuncs[RSSL_SOCKET_TRANSPORT]);
 	}		
+
+	/* If this is an encrypted connection type and not HTTP, load OpenSSL.  This needs to be globally locked to ensure that multiple threads cannot attempt to load at the same time. */
+	if (opts->connectionType == RSSL_CONN_TYPE_ENCRYPTED && opts->encryptionOpts.encryptedProtocol != RSSL_CONN_TYPE_HTTP)
+	{
+		mutexFuncs.staticMutexLock();
+		retVal = ipcLoadOpenSSL(error);
+		mutexFuncs.staticMutexUnlock();
+
+		if (retVal != RSSL_RET_SUCCESS)
+		{
+			_rsslReleaseChannel(rsslChnlImpl);
+			return NULL;
+		}
+	}
 
 	retVal = (*(rsslChnlImpl->channelFuncs->channelConnect))(rsslChnlImpl, opts, error);
 

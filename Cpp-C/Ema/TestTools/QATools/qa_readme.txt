@@ -150,6 +150,12 @@ Series200Consumer200-ConsFunc-001
      Alters consumer to decode Date/Time/DateTime and print using ISO 8601
 
 
+Module:  Series200Consumer280
+-----------------------------
+
+Series200Consumer280-ConsFunc-001
+     Alters consumer which remove set host with api call OmmConsumerConfig() in file Consumer.cpp ,also alter to specify consumerName("Consumer_3") 
+
 Module:  Series300Consumer331
 ---------------------------
 Series300Consumer331-GenM-001
@@ -310,6 +316,8 @@ Series400Consumer410-MultiThreadBatchView-001: This test tool implements the fol
       - all received messages are processed on ApiDispatch thread or UserDispath thread control  
     + Exits
 
+Series400Consumer410-Encryption-001
+    Alters consumer which remove set host with api call OmmConsumerConfig(),in file ConsumerManager.cpp	
 
 Module:  Series400Consumer421 
 ---------------------------
@@ -554,6 +562,11 @@ Series400Provider421-PConfig-003:
         and EnumTypeDefItemName RWFEnum3 
         -Removed code for programmatic configure Provider_1 and Server_1
 
+Series400Provider421-Encryption-001
+    Alters Provider for following changes
+        -Set ServerType to Encrtyped
+        -New ServerCert and ServerPrivateKey configuration in Server_1 
+        -Set LoggerSeverity to Verbose
 
 Module:  Series100NiProvider100
 ---------------------------

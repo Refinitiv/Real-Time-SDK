@@ -41,10 +41,17 @@ RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
 static char traceOutputFile[128];
+static char certFile[128];
+static char keyFile[128];
+static char cipherSuite[128];
+static char libsslName[255];
+static char libcryptoName[255];
+static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 300;
 static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
+static RsslBool userSpecCipher = RSSL_FALSE;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
@@ -60,7 +67,11 @@ static const char *defaultServiceName = "DIRECT_FEED";
 
 void exitWithUsage()
 {
-	printf(	"Usage: -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf("\tAdditional encyrption options:\n");
+	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -196,44 +207,43 @@ int main(int argc, char **argv)
 	RsslCreateReactorOptions reactorOpts;
 
 	RsslReactorDispatchOptions dispatchOpts;
-
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 	time_t nextSendTime;
-
-	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
-	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
-	{
-		printf("rsslInitialize(): failed <%s>\n",rsslErrorInfo.rsslError.text);
-		/* WINDOWS: wait for user to enter something before exiting  */
-#ifdef _WIN32
-		printf("\nPress Enter or Return key to exit application:");
-		getchar();
-#endif
-		exit(RSSL_RET_FAILURE);
-	}
-
-	rsslClearOMMProviderRole(&providerRole);
-
-	providerRole.base.channelEventCallback = channelEventCallback;
-	providerRole.base.defaultMsgCallback = defaultMsgCallback;
-	providerRole.loginMsgCallback = loginMsgCallback;
-	providerRole.directoryMsgCallback = directoryMsgCallback;
-	providerRole.dictionaryMsgCallback = dictionaryMsgCallback;
-	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
-
-	rsslClearCreateReactorOptions(&reactorOpts);
-
-	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
-	{
-		printf("Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text);
-		cleanUpAndExit();
-	}
 
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(certFile, 128, "\0");
+	snprintf(keyFile, 128, "\0");
+	snprintf(cipherSuite, 128, "\0");
+	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
-	for(iargs = 1; iargs < argc; ++iargs)
+	for (iargs = 1; iargs < argc; ++iargs)
 	{
-		if (0 == strcmp("-p", argv[iargs]))
+		if (strcmp("-libsslName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libsslName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libsslName = libsslName;
+		}
+		else if (strcmp("-libcryptoName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libcryptoName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libcryptoName = libcryptoName;
+		}
+		else if (0 == strcmp("-c", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			if (0 == strcmp(argv[iargs], "socket") || 0 == strcmp(argv[iargs], "0"))
+				connType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[iargs], "encrypted") || 0 == strcmp(argv[iargs], "1"))
+				connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else
+			{
+				connType = (RsslConnectionTypes)atoi(argv[iargs]);
+			}
+		}
+		else if (0 == strcmp("-p", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(portNo, 128, "%s", argv[iargs]);
@@ -269,6 +279,22 @@ int main(int argc, char **argv)
 		{
 			cacheOption = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(certFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(keyFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-cipher", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(cipherSuite, 128, "%s", argv[iargs]);
+			userSpecCipher = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -278,6 +304,38 @@ int main(int argc, char **argv)
 	printf("portNo: %s\n", portNo);
 	printf("serviceName: %s\n", serviceName);
 	printf("serviceId: %llu\n", getServiceId());
+
+	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
+	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+	if (rsslInitializeEx(&initOpts, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslInitialize(): failed <%s>\n",rsslErrorInfo.rsslError.text);
+		/* WINDOWS: wait for user to enter something before exiting  */
+#ifdef _WIN32
+		printf("\nPress Enter or Return key to exit application:");
+		getchar();
+#endif
+		exit(RSSL_RET_FAILURE);
+	}
+
+	rsslClearOMMProviderRole(&providerRole);
+
+	providerRole.base.channelEventCallback = channelEventCallback;
+	providerRole.base.defaultMsgCallback = defaultMsgCallback;
+	providerRole.loginMsgCallback = loginMsgCallback;
+	providerRole.directoryMsgCallback = directoryMsgCallback;
+	providerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
+
+	rsslClearCreateReactorOptions(&reactorOpts);
+
+	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
+	{
+		printf("Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
+
+
 
 	/* Initialiize client session information */
 	for (i = 0; i < MAX_CLIENT_SESSIONS; i++)
@@ -334,6 +392,12 @@ int main(int argc, char **argv)
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	sopts.connectionType = connType;
+	sopts.encryptionOpts.serverCert = certFile;
+	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (userSpecCipher == RSSL_TRUE)
+		sopts.encryptionOpts.cipherSuite = cipherSuite;
 
 	/* Create the server. */
 	if (!(rsslSrvr = rsslBind(&sopts, &rsslErrorInfo.rsslError)))

@@ -658,6 +658,7 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 		} converter[] =
 		{
 			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
+			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED }
 		};
 
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
@@ -1233,6 +1234,14 @@ void EmaConfigServerImpl::clear()
 
 	if (_pProgrammaticConfigure)
 		_pProgrammaticConfigure->clear();
+
+	_libCryptoName.clear();
+	_libSslName.clear();
+	_libCurlName.clear();
+	_serverCert.clear();
+	_serverPrivateKey.clear();
+	_dhParams.clear();
+	_cipherSuite.clear();
 }
 
 void EmaConfigServerImpl::addAdminMsg( const RefreshMsg& refreshMsg )
@@ -1332,6 +1341,41 @@ AdminRefreshMsg* EmaConfigServerImpl::getDirectoryRefreshMsg()
 	AdminRefreshMsg* pTemp = _pDirectoryRsslRefreshMsg;
 	_pDirectoryRsslRefreshMsg = 0;
 	return pTemp;
+}
+
+void EmaConfigServerImpl::libsslName(const EmaString& libsslName)
+{
+	_libSslName = libsslName;
+}
+
+void EmaConfigServerImpl::libcryptoName(const EmaString& libcryptoName)
+{
+	_libCryptoName = libcryptoName;
+}
+
+void EmaConfigServerImpl::libcurlName(const EmaString& libcurlName)
+{
+	_libCryptoName = libcurlName;
+}
+
+void EmaConfigServerImpl::serverCert(const EmaString& serverCert)
+{
+	_serverCert = serverCert;
+}
+
+void EmaConfigServerImpl::serverPrivateKey(const EmaString& serverPrivateKey)
+{
+	_serverPrivateKey = serverPrivateKey;
+}
+
+void EmaConfigServerImpl::cipherSuite(const EmaString& cipherSuite)
+{
+	_cipherSuite = cipherSuite;
+}
+
+void EmaConfigServerImpl::dhParams(const EmaString& dhParams)
+{
+	_dhParams = dhParams;
 }
 
 void XMLnode::print( int tabs )

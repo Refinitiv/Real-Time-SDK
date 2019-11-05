@@ -37,11 +37,18 @@ RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
 static char traceOutputFile[128];
+static char certFile[128];
+static char keyFile[128];
+static char cipherSuite[128];
+static char libsslName[255];
+static char libcryptoName[255];
+static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 1200;
 static time_t rsslProviderRuntime = 0;
 static RsslUInt32 clientSessionCount;
 static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
+static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
@@ -53,7 +60,11 @@ static const char *defaultServiceName = "DIRECT_FEED";
 
 void exitWithUsage()
 {
-	printf(	"Usage: -p <port number> -s <service name> -id <service ID> -runtime <seconds>\n");
+	printf("Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf("\tAdditional encyrption options:\n");
+	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -75,13 +86,43 @@ int main(int argc, char **argv)
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	RsslRet	retval = 0;
 	int iargs;
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 	rsslClearReadOutArgs(&readOutArgs);
+	
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(certFile, 128, "\0");
+	snprintf(keyFile, 128, "\0");
+	snprintf(cipherSuite, 128, "\0");
+	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for(iargs = 1; iargs < argc; ++iargs)
 	{
-		if (0 == strcmp("-p", argv[iargs]))
+		if (strcmp("-libsslName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libsslName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libsslName = libsslName;
+		}
+		else if (strcmp("-libcryptoName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libcryptoName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libcryptoName = libcryptoName;
+		}
+		else if (0 == strcmp("-c", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			if (0 == strcmp(argv[iargs], "socket") || 0 == strcmp(argv[iargs], "0"))
+				connType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[iargs], "encrypted") || 0 == strcmp(argv[iargs], "1"))
+				connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else
+			{
+				connType = (RsslConnectionTypes)atoi(argv[iargs]);
+			}
+		}
+		else if (0 == strcmp("-p", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(portNo, 128, "%s", argv[iargs]);
@@ -116,6 +157,22 @@ int main(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			timeToRun = atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(certFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(keyFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-cipher", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(cipherSuite, 128, "%s", argv[iargs]);
+			userSpecCipher = RSSL_TRUE;
 		}
 		else
 		{
@@ -167,7 +224,7 @@ int main(int argc, char **argv)
 
 	/* Initialize RSSL */
 	/* RSSL_LOCK_NONE is used since this is a single threaded application. */
-	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+	if (rsslInitializeEx(&initOpts, &error) != RSSL_RET_SUCCESS)
 	{
 		printf("rsslInitialize(): failed <%s>\n",error.text);
 		/* WINDOWS: wait for user to enter something before exiting  */
@@ -472,6 +529,12 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	sopts.connectionType = connType;
+	sopts.encryptionOpts.serverCert = certFile;
+	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (userSpecCipher == RSSL_TRUE)
+		sopts.encryptionOpts.cipherSuite = cipherSuite;
 
 	if ((srvr = rsslBind(&sopts, error)) != 0)
 	{

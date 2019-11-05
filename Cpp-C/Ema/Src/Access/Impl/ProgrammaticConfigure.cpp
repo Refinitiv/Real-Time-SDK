@@ -2123,7 +2123,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 {
 	const ElementList& elementListServer = mapEntry.getElementList();
 
-	EmaString name, interfaceName, port;
+	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
 		tcpNodelay, initializationTimeout;
@@ -2150,6 +2150,41 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				interfaceName = serverEntry.getAscii();
 				flags |= InterfaceNameFlagEnum;
 			}
+			else if (serverEntry.getName() == "ServerCert")
+			{
+				serverCert = serverEntry.getAscii();
+				flags |= ServerCertEnum;
+			}
+			else if (serverEntry.getName() == "ServerPrivateKey")
+			{
+				serverPrivateKey = serverEntry.getAscii();
+				flags |= ServerPrivateKeyEnum;
+			}
+			else if (serverEntry.getName() == "DHParams")
+			{
+				dhParams = serverEntry.getAscii();
+				flags |= DHParamEnum;
+			}
+			else if (serverEntry.getName() == "CipherSuite")
+			{
+				cipherSuite = serverEntry.getAscii();
+				flags |= CipherSuiteEnum;
+			}
+			else if (serverEntry.getName() == "LibSslName")
+			{
+				libSslName = serverEntry.getAscii();
+				flags |= LibSslNameEnum;
+			}
+			else if (serverEntry.getName() == "LibCryptoName")
+			{
+				libCryptoName = serverEntry.getAscii();
+				flags |= LibCryptoNameEnum;
+			}
+			else if (serverEntry.getName() == "LibCurlName")
+			{
+				libCryptoName = serverEntry.getAscii();
+				flags |= LibCurlNameEnum;
+			}
 			break;
 
 		case DataType::EnumEnum:
@@ -2162,11 +2197,15 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				case RSSL_CONN_TYPE_SOCKET:
 					flags |= ServerTypeFlagEnum;
 					break;
+
+				case RSSL_CONN_TYPE_ENCRYPTED:
+					flags |= ServerTypeFlagEnum;
+					break;
 				default:
 					EmaString text("Invalid ServerType [");
 					text.append(serverType);
-					text.append("] in Programmatic Configuration. Use default ServerType [");
-					text.append("RSSL_SOCKET");
+					text.append("] in Programmatic Configuration. Use either ServerType [");
+					text.append("RSSL_SOCKET | RSSL_ENCRYPTED");
 					text.append("]");
 					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
 					emaConfigErrList.add(mce);
@@ -2258,6 +2297,23 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			SocketServerConfig* pCurrentServerConfig = static_cast<SocketServerConfig*>(activeServerConfig.pServerConfig);
 			SocketServerConfig* fileCfgSocket = static_cast<SocketServerConfig*>(fileCfg);
 
+			pCurrentServerConfig->connectionType = (RsslConnectionTypes)serverType;
+
+			if (flags & LibSslNameEnum)
+				pCurrentServerConfig->libSslName = libSslName;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->libSslName = fileCfgSocket->libSslName;
+
+			if (flags & LibCryptoNameEnum)
+				pCurrentServerConfig->libCryptoName = libCryptoName;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->libCryptoName = fileCfgSocket->libCryptoName;
+
+			if (flags & LibCurlNameEnum)
+				pCurrentServerConfig->libCurlName = libCurlName;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->libCurlName = fileCfgSocket->libCurlName;
+
 			if (flags & TcpNodelayFlagEnum)
 				pCurrentServerConfig->tcpNodelay = tcpNodelay ? true : false;
 			else if (fileCfgSocket)
@@ -2324,6 +2380,29 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
 			else if (fileCfgSocket)
 				pCurrentServerConfig->initializationTimeout = fileCfg->initializationTimeout;
+
+			if (serverType == RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				if (flags & ServerCertEnum)
+					pCurrentServerConfig->serverCert = serverCert;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->serverCert = fileCfgSocket->serverCert;
+
+				if (flags & ServerPrivateKeyEnum)
+					pCurrentServerConfig->serverPrivateKey = serverPrivateKey;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->serverPrivateKey = fileCfgSocket->serverPrivateKey;
+
+				if (flags & DHParamEnum)
+					pCurrentServerConfig->dhParams = dhParams;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->dhParams = fileCfgSocket->dhParams;
+
+				if (flags & CipherSuiteEnum)
+					pCurrentServerConfig->cipherSuite = cipherSuite;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
+			}
 		}
 		catch (std::bad_alloc)
 		{

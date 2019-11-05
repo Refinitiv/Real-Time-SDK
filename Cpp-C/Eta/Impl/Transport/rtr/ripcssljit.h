@@ -26,6 +26,9 @@
 #define RSSL_SSL_VERIFY_NONE	0x00		// SSL_VERIFY_NONE
 #define RSSL_10_SSL_OP_ALL		0x80000BFFL	// SSL_OP_ALL in 1.0.2
 #define RSSL_10_SSL_OP_NO_SSLv2 0x01000000L // SSL_OP_NO_SSLv2 in 1.0.2
+#define RSSL_10_SSL_OP_NO_SSLv3 0x02000000L // SSL_OP_NO_SSLv3 in 1.0.2
+#define RSSL_10_SSL_OP_NO_TLSv1 0x04000000L // SSL_OP_NO_SSLv2 in 1.0.2
+#define RSSL_10_SSL_OP_NO_TLSv1_1 0x10000000L // SSL_OP_NO_SSLv3 in 1.0.2
 #define RSSL_SSL_FILETYPE_PEM  1			// SSL_FILETYPE_PEM
 #define RSSL_SSL_VERIFY_PEER	0x1		//  SSL_VERIFY_PEER
 #define RSSL_SSL_VERIFY_FAIL_IF_NO_PEER_CERT 0x02 //SSL_VERIFY_FAIL_IF_NO_PEER_CERT
@@ -43,6 +46,9 @@
 #define RSSL_10_SSL_ST_OK 0x03	//SSL_ST_OK from 1.0.2
 #define RSSL_BIO_NOCLOSE 0x00	//BIO_NOCLOSE
 #define RSSL_10_SSL_CTRL_MODE 33 //SSL_CTRL_MODE for 1.0.2
+#define RSSL_SSL_CTRL_SET_TMP_ECDH 4 //SSL_CTRL_SET_TMP_ECDH
+
+#define RSSL_SSL_CTRL_SET_TMP_DH 3	// SSL_CTRL_SET_TMP_DH 
 #define RSSL_SSL_MODE_ENABLE_PARTIAL_WRITE 0x00000001L //SSL_MODE_ENABLE_PARTIAL_WRITE
 #define RSSL_SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER 0x00000002L //SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
 
@@ -58,6 +64,10 @@
 
 #define RSSL_NID_subject_alt_name 85 //NID_subject_alt_name
 #define RSSL_NID_commonName 13 // NID_commonName
+
+#define RSSL_10_TLS1_VERSION                    0x0301
+#define RSSL_10_TLS1_1_VERSION                  0x0302
+#define RSSL_10_TLS1_2_VERSION                  0x0303
 
 #define RSSL_11_TLS1_VERSION                    0x0301
 #define RSSL_11_TLS1_1_VERSION                  0x0302
@@ -113,9 +123,12 @@ typedef enum {
 
 typedef struct openssl_x509_store_ctx OPENSSL_X509_STORE_CTX;
 typedef struct open_ssl OPENSSL_SSL;
-typedef struct openssl_dh OPENSSL_DH;
+typedef struct openssl_11_dh OPENSSL_11_DH;
+typedef struct openssl_dh_method OPENSSL_DH_METHOD;
+typedef struct openssl_bn_mont_ctx OPENSSL_10_BN_MONT_CTX;
 typedef struct openssl_ctx OPENSSL_SSL_CTX;
 typedef struct openssl_bio OPENSSL_BIO;
+typedef struct openssl_engine OPENSSL_ENGINE;
 /* Windows defined X509_NAME in crypto.h. To avoid a type redefinition(since we are only passing pointers that have been allocated by OpenSSL), 
   this is renamed to OPENSSL_X509_NAME */
 typedef struct openSSL_x509_name OPENSSL_X509_NAME;
@@ -124,6 +137,7 @@ typedef struct openssl_x509 OPENSSL_X509;
 typedef struct openssl_method OPENSSL_SSL_METHOD;
 typedef struct openssl_bignum OPENSSL_BIGNUM;
 typedef struct openssl_x509_store	OPENSSL_X509_STORE;
+typedef struct openssl_x509_verify_param OPENSSL_X509_VERIFY_PARAM;
 
 typedef struct openssl_stack OPENSSL_STACK;
 #define _STACK OPENSSL_STACK;
@@ -136,12 +150,15 @@ typedef struct openssl_asn1_octet_string OPENSSL_ASN1_OCTET_STRING;
 typedef struct openssl_asn1_object OPENSSL_ASN1_OBJECT;
 typedef struct openssl_asn1_string OPENSSL_ASN1_STRING;
 
+typedef struct openssl_ec_key_st OPENSSL_EC_KEY;
+
 typedef int (*verifyCallback)(int, OPENSSL_X509_STORE_CTX*);
 
-typedef OPENSSL_DH* (*dhVerifyCallback)(OPENSSL_SSL*, int, int);
 typedef int pem_password_cb(char*, int, int, void*);
 
 
+/* OpenSSL 1.0.X elliptic curve default */
+#define RSSL_10_NID_X9_62_prime256v1 415
 
 /* Types for GENERAL_NAME struct*/
 # define RSSL_SSL_GEN_OTHERNAME   0
@@ -153,6 +170,11 @@ typedef int pem_password_cb(char*, int, int, void*);
 # define RSSL_SSL_GEN_URI         6
 # define RSSL_SSL_GEN_IPADD       7
 # define RSSL_SSL_GEN_RID         8
+
+typedef struct OPENSSL_10_CRYPTO_EX_DATA_st {
+	OPENSSL_STACK *sk;
+	int dummy;
+}OPENSSL_10_CRYPTO_EX_DATA;
 
 typedef struct OPENSSL_GENERAL_NAME_st {
 
@@ -177,6 +199,32 @@ typedef struct OPENSSL_GENERAL_NAME_st {
 		OPENSSL_ASN1_TYPE *other;       /* x400Address */
 	} d;
 } OPENSSL_GENERAL_NAME;
+
+typedef struct OPENSSL_10_DH_st
+{
+	/*
+	* This first argument is used to pick up errors when a DH is passed
+	* instead of a EVP_PKEY
+	*/
+	int pad;
+	int version;
+	OPENSSL_BIGNUM *p;
+	OPENSSL_BIGNUM *g;
+	long length;                /* optional */
+	OPENSSL_BIGNUM *pub_key;            /* g^x % p */
+	OPENSSL_BIGNUM *priv_key;           /* x */
+	int flags;
+	OPENSSL_10_BN_MONT_CTX *method_mont_p;
+	OPENSSL_BIGNUM *q;
+	OPENSSL_BIGNUM *j;
+	unsigned char *seed;
+	int seedlen;
+	OPENSSL_BIGNUM *counter;
+	int references;
+	OPENSSL_10_CRYPTO_EX_DATA ex_data;
+	const OPENSSL_DH_METHOD *meth;
+	OPENSSL_ENGINE *engine;
+} OPENSSL_10_DH;
 
 typedef enum
 {
@@ -211,7 +259,8 @@ typedef struct
 	void (*set_accept_state)(OPENSSL_SSL*);			/* SSL_set_accept_state */
 	void (*ssl_free)(OPENSSL_SSL*);				/* SSL_free */
 	int (*ssl_state)(const OPENSSL_SSL*);		/* SSL_state */
-	int (*ssl1_set_host)(OPENSSL_SSL*, const char*); /* V1.1.X SSL_set1_host for host validation.*/
+	int (*ssl_set1_host)(OPENSSL_SSL*, const char*); /* V1.1.X SSL_set1_host for host validation.*/
+	OPENSSL_X509_VERIFY_PARAM* (*ssl_get0_param)(OPENSSL_SSL*);	/* V1.1 SSL_get0_param for hostname verification */
 	void (*set_hostflags)(OPENSSL_SSL*, unsigned int); /* V1.1.X SSL_set_hostflags*/
 	OPENSSL_X509* (*ssl_get_peer_cert)(const OPENSSL_SSL*); /* SSL_get_peer_certificate*/
 	RSSL_11_OSSL_HANDSHAKE_STATE (*ssl_get_state)(const OPENSSL_SSL*); /* 1.1 SSL_get_state*/
@@ -219,6 +268,9 @@ typedef struct
 	const OPENSSL_SSL_METHOD* (*TLSv1_client_method)();  /* TLSv1_client_method */
 	const OPENSSL_SSL_METHOD* (*TLSv1_1_client_method)();
 	const OPENSSL_SSL_METHOD* (*TLSv1_2_client_method)();
+	const OPENSSL_SSL_METHOD* (*SSLv23_server_method)(); /* V1.0.X auto-negoitated server method */
+	const OPENSSL_SSL_METHOD* (*TLS_server_method)(); /* V1.1.X auto-negotiated server method*/
+
 
 	OPENSSL_SSL_CTX* (*ctx_new)(const OPENSSL_SSL_METHOD*);									/* SSL_CTX_new */
 	void (*ctx_set_quiet_shutdown)(OPENSSL_SSL_CTX*, int);							/* SSL_CTX_set_quiet_shutdown */
@@ -230,11 +282,11 @@ typedef struct
 	int (*ctx_use_cert_chain_file)(OPENSSL_SSL_CTX*, const char*);					/* SSL_CTX_use_certificate_chain_file */
 	int (*ctx_use_privatekey_file)(OPENSSL_SSL_CTX*, const char*, int);				/* SSL_CTX_use_PrivateKey_file */
 	void (*ctx_set_verify)(OPENSSL_SSL_CTX*, int, verifyCallback);	/* SSL_CTX_set_verify */
-	void (*ctx_set_tmp_dh_callback)(OPENSSL_SSL_CTX*, dhVerifyCallback);	/* SSL_CTX_set_tmp_dh_callback */
 	int (*ctx_set_ex_data)(OPENSSL_SSL_CTX*, int, void*);		/* SSL_CTX_set_ex_data */
 	void (*ctx_free)(OPENSSL_SSL_CTX*);												/* SSL_CTX_free */
 	long (*ctx_ctrl)(OPENSSL_SSL_CTX*, int, long, void*);							/* SSL_CTX_ctrl */
 	long (*ctx_set_options)(OPENSSL_SSL_CTX*, unsigned long);					/* SSL_CTX_set_options */
+
 
 	OPENSSL_BIO* (*BIO_new_socket)(int, int);						/* BIO_new_socket */
 	int(*BIO_sock_should_retry)(int);						/* BIO_sock_should_retry */
@@ -265,10 +317,15 @@ typedef struct
 	OPENSSL_X509_NAME* (*get_subject_name)(OPENSSL_X509*);			/* X509_get_subject_name */
 	OPENSSL_X509_NAME* (*get_issuer_name)(OPENSSL_X509*);		/* X509_get_issuer_name */
 	const char* (*verify_cert_error_string)(long);	/* X509_verify_cert_error_string */
-	OPENSSL_DH* (*read_bio_dhparams)(OPENSSL_BIO*, OPENSSL_DH**, pem_password_cb*, void*); /* PEM_read_bio_DHparams */
-	OPENSSL_DH* (*dh_new)();							/* DH_new */
+	OPENSSL_10_DH* (*read_bio_dhparams_10)(OPENSSL_BIO*, OPENSSL_10_DH**, pem_password_cb*, void*); /* PEM_read_bio_DHparams */
+	OPENSSL_10_DH* (*dh_new_10)();							/* DH_new */
+	void (*dh_free_10)(OPENSSL_10_DH*);						/* DH_free */
+	OPENSSL_11_DH* (*read_bio_dhparams_11)(OPENSSL_BIO*, OPENSSL_11_DH**, pem_password_cb*, void*); /* PEM_read_bio_DHparams */
+	OPENSSL_11_DH* (*dh_new_11)();							/* DH_new */
+	int (*dh_set0_pqg_11)(OPENSSL_11_DH *dh, OPENSSL_BIGNUM *p, OPENSSL_BIGNUM *q, OPENSSL_BIGNUM *g); /* DH_set0_pqg for 1.1.X */
+	void (*dh_free_11)(OPENSSL_11_DH*);						/* DH_free */
 	OPENSSL_BIGNUM* (*bin2bn)(const unsigned char*, int, OPENSSL_BIGNUM*);	/* BN_bin2bn */
-	void (*dh_free)(OPENSSL_DH*);						/* DH_free */
+	void (*bn_free)(OPENSSL_BIGNUM*);			/* BN_free */
 	void (*rand_seed)(const void*, int);		/* RAND_seed */
 	void (*err_free_strings)(void);				/* ERR_free_strings */
 	void (*err_remove_state)(int);				/* ERR_remove_state */
@@ -279,13 +336,19 @@ typedef struct
 	int (*X509_NAME_get_index_by_NID)(OPENSSL_X509_NAME*, int, int); /* X509_NAME_get_index_by_NID*/
 	OPENSSL_X509_NAME_ENTRY* (*X509_NAME_get_entry)(const OPENSSL_X509_NAME*, int); /* X509_NAME_get_entry*/
 	OPENSSL_ASN1_STRING* (*X509_NAME_ENTRY_get_data)(OPENSSL_X509_NAME_ENTRY*); /* X509_NAME_ENTRY_get_data */
+	int(*x509_verify_param_set1_ip_asc)(OPENSSL_X509_VERIFY_PARAM*, const char*);		/* 1.1 X509_verify_Param */
 	unsigned char* (*ASN1_STRING_data)(OPENSSL_ASN1_STRING*); /* ASN1_STRING_data for 1.0.X.  This is only called in the 1.0.X certificate validation */
 	int (*ASN1_STRING_length)(OPENSSL_ASN1_STRING*); /* ASN1_STRING_length */
 	int (*sk_num)(const OPENSSL_STACK*);		/* sk_num */
 	void*(*sk_value)(const OPENSSL_STACK*, int); /* sk_value */
 	void*(*sk_free)(OPENSSL_STACK*);			/* sk_free for 1.0.X */
+	OPENSSL_EC_KEY* (*EC_KEY_new_by_curve_name)(int); /* EC_KEY_new_by_curve_name */
 }ripcCryptoApiFuncs;
 
+
+OPENSSL_10_DH *ripcSSL10DHGetParam(ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs);
+
+OPENSSL_11_DH *ripcSSL11DHGetParam(ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs);
 
 #endif
 

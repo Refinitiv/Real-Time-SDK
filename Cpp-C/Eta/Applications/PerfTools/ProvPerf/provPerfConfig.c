@@ -36,6 +36,11 @@ static void clearProvPerfConfig()
 	snprintf(provPerfConfig.summaryFilename, sizeof(provPerfConfig.summaryFilename), "ProvSummary.out");
 	provPerfConfig.writeStatsInterval = 5;
 	provPerfConfig.displayStats = RSSL_TRUE;
+	provPerfConfig.connType = RSSL_CONN_TYPE_SOCKET;
+	snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), "");
+	snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), "");
+	snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "");
+
 }
 
 void exitConfigError(char **argv)
@@ -251,6 +256,35 @@ void initProvPerfConfig(int argc, char **argv)
 		{
 			provPerfConfig.useReactor = RSSL_TRUE;
 		}
+		else if (strcmp("-connType", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			if (strcmp("socket", argv[iargs]) == 0)
+				provPerfConfig.connType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("encrypted", argv[iargs]) == 0)
+				provPerfConfig.connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else
+			{
+				printf("Config Error: Unknown connection type \"%s\"\n", argv[iargs]);
+				exitConfigError(argv);
+			}
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), argv[iargs]);
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), argv[iargs]);
+		}
+		else if (0 == strcmp("-cipher", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), argv[iargs]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -298,6 +332,7 @@ void printProvPerfConfig(FILE *file)
 
 	fprintf(file,  
 			"                Run Time: %u\n"
+			"		  Connection Type: %u\n"	
 			"                    Port: %s\n"
 			"             Thread List: %s\n"
 			"          Output Buffers: %u\n"
@@ -313,8 +348,12 @@ void printProvPerfConfig(FILE *file)
 			"              Stats File: %s\n"
 			"            Latency File: %s\n"
 			"    Write Stats Interval: %u\n"
-			"           Display Stats: %s\n",
+			"           Display Stats: %s\n"
+			"             Private Key: %s\n"
+			"             Server Cert: %s\n"
+			"                  Cipher: %s\n",
 			provPerfConfig.runTime,
+			provPerfConfig.connType,
 			provPerfConfig.portNo,
 			threadString,
 			provPerfConfig.guaranteedOutputBuffers,
@@ -330,7 +369,10 @@ void printProvPerfConfig(FILE *file)
 			providerThreadConfig.statsFilename,
 			providerThreadConfig.latencyLogFilename,
 			provPerfConfig.writeStatsInterval,
-			(provPerfConfig.displayStats ? "Yes" : "No")
+			(provPerfConfig.displayStats ? "Yes" : "No"),
+			provPerfConfig.serverKey,
+			provPerfConfig.serverCert,
+			provPerfConfig.cipherSuite
 		  );
 
 	fprintf(file, 
@@ -388,6 +430,7 @@ void exitWithUsage()
 			"  -?                                   Shows this usage\n"
 			"\n"
 			"  -p <port number>                     Port number\n"
+			"  -connType <type>                     Type of connection(\"socket\", \"encrypted\")\n"
 			"\n"
 			"  -outputBufs <count>                  Number of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n"
 			"  -maxFragmentSize <size>              Max size of buffers(configures maxFragmentSize in RsslBindOptions)\n"
@@ -427,6 +470,10 @@ void exitWithUsage()
 			"  -measureEncode                       Measure encoding time of messages.\n"
 			"\n"
 			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
+			"\n"
+			"  -keyfile								Server private key for OpenSSL encryption.\n"
+			"  -cert								Server certificate for openSSL encryption.\n"
+			"  -cipher								Optional OpenSSL formatted cipher string.\n"
 			"\n"
 			);
 #ifdef _WIN32

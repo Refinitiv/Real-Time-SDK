@@ -289,6 +289,15 @@ public:
 	EmaString		serviceName;
 	RsslBool		tcpNodelay;
 
+	EmaString				libSslName;
+	EmaString				libCryptoName;
+	EmaString				libCurlName;
+
+	EmaString				serverCert;
+	EmaString				serverPrivateKey;
+	EmaString				cipherSuite;
+	EmaString				dhParams;
+
 private:
 
 	EmaString		defaultServiceName;

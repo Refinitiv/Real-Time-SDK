@@ -62,6 +62,9 @@ static void clearConsPerfConfig()
 
 	snprintf(consPerfConfig.itemFilename, sizeof(consPerfConfig.itemFilename), "%s", "350k.xml");
 	snprintf(consPerfConfig.msgFilename, sizeof(consPerfConfig.msgFilename), "%s", "MsgData.xml");
+
+	snprintf(consPerfConfig.caStore, sizeof(consPerfConfig.caStore), "");
+	consPerfConfig.tlsProtocolFlags = 0;
 }
 
 void exitConfigError(char **argv)
@@ -312,6 +315,15 @@ void initConsPerfConfig(int argc, char **argv)
 		{
 			++iargs; consPerfConfig.useWatchlist = RSSL_TRUE;
 		}
+		else if (strcmp("-castore", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(consPerfConfig.caStore, sizeof(consPerfConfig.caStore), "%s", argv[iargs++]);
+		}
+		else if (strcmp("-spTLSv1.2", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.tlsProtocolFlags |= RSSL_ENC_TLSV1_2;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -487,7 +499,9 @@ void printConsPerfConfig(FILE *file)
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
 		"               Tick Rate: %u\n"
-		" Reactor/Watchlist Usage: %s\n\n",
+		" Reactor/Watchlist Usage: %s\n"
+		"       CA store location: %s\n"
+		"      TLS Protocol flags: %i\n",
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
 		consPerfConfig.serviceName,
@@ -496,7 +510,7 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.numInputBuffers,
 		consPerfConfig.sendBufSize, (consPerfConfig.sendBufSize ? " bytes" : "(use default)"),
 		consPerfConfig.recvBufSize, (consPerfConfig.recvBufSize ? " bytes" : "(use default)"),
-		consPerfConfig.highWaterMark, (consPerfConfig.highWaterMark > 0 ?  " bytes" : "(use default)"),
+		consPerfConfig.highWaterMark, (consPerfConfig.highWaterMark > 0 ? " bytes" : "(use default)"),
 		strlen(consPerfConfig.interfaceName) ? consPerfConfig.interfaceName : "(use default)",
 		(consPerfConfig.tcpNoDelay ? "Yes" : "No"),
 		strlen(consPerfConfig.username) ? consPerfConfig.username : "(use system login name)",
@@ -514,7 +528,9 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.statsFilename,
 		consPerfConfig.logLatencyToFile ? consPerfConfig.latencyLogFilename : "(none)",
 		consPerfConfig.ticksPerSec,
-		reactorWatchlistUsageString
+		reactorWatchlistUsageString,
+		consPerfConfig.caStore,
+		consPerfConfig.tlsProtocolFlags
 	  );
 
 	fprintf(file,
@@ -573,9 +589,12 @@ void exitWithUsage()
 			"  -watchlist                           Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving.\n"
 			"\n"
 			"  -nanoTime                            Assume latency has nanosecond precision instead of microsecond.\n"
-			"  -measureDecode                       Measure decode time of updates.\n\n"
+			"  -measureDecode                       Measure decode time of updates.\n"
 			"\n"
-			);
+			"  -castore								File location of the certificate authority store.\n"
+			"  -spTLSv1.2							Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			"\n"
+	);
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();

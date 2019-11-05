@@ -913,6 +913,9 @@ static RsslRet connectChannel(ConsumerThread* pConsumerThread)
 	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		copts.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+		if (consPerfConfig.tlsProtocolFlags != 0)
+			copts.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
+		copts.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
 	}
 
 	copts.connectionInfo.unified.address = consPerfConfig.hostName;
@@ -1043,6 +1046,9 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+		if (consPerfConfig.tlsProtocolFlags != 0)
+			cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
+		cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
 	}
 
 	cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;

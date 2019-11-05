@@ -138,6 +138,50 @@ public :
 		@return reference to this object
 	*/
 	OmmIProviderConfig& config( const Data& config );
+	
+	/** Specifies the name of the libssl.so shared library for Encrypted connections
+	@param[in] libsslName specifies the name of the libssl.so shared library
+	@return reference to this object
+	*/
+	OmmIProviderConfig& libSslName(const EmaString& libsslName);
+
+	/** Specifies the name of the libcrypto.so shared library for Encrypted connections.
+	@param[in] libcryptoName specifies the name of the libcrypto.so shared library
+	@return reference to this object
+	*/
+	OmmIProviderConfig& libCryptoName(const EmaString& libcryptoName);
+
+	/** Specifies the name of the libcurl.so shared library.  This is not used server side 
+		connections, but this is required on first initialization for both REST and proxy connections.
+	@param[in] libcryptoName specifies the name of the libcrypto.so shared library
+	@return reference to this object
+	*/
+	OmmIProviderConfig& libCurlName(const EmaString& libcurlName);
+
+
+	/** Specifies the location of the server certificate file for encrypted providers.
+	@param[in] serverCert specifies the name of the server certificate file
+	@return reference to this object
+	*/
+	OmmIProviderConfig& serverCert(const EmaString& serverCert);
+
+	/** Specifies the location of the private key file for encrypted providers.
+	@param[in] serverPrivateKey specifies the name of the private key file
+	@return reference to this object
+	*/
+	OmmIProviderConfig& serverPrivateKey(const EmaString& serverPrivateKey);
+
+	/** Optionally Specifies the cipher suites used by the provider.  This is an OpenSSL formatted string string.
+	@param[in] cipherSuite specifies the ciphers to be used by the provider
+	@return reference to this object
+	*/
+	OmmIProviderConfig& cipherSuite(const EmaString& cipherSuite);
+
+	/** Specifies an optional DH Parameter file to be used with the provder.
+	@param[in] dhParams specifies the DH parameter file
+	@return reference to this object
+	*/
+	OmmIProviderConfig& dhParams(const EmaString& dhParams);
 
 	/** Specifies an administrative refresh message to override the default administrative refresh.
 	    Application may call multiple times prior to initialization. Supports Directory and Dictionary domains only.

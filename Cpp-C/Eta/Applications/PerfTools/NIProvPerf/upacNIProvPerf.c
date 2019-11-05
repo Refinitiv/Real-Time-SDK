@@ -160,6 +160,10 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 		if (niProvPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && niProvPerfConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
 		{
 			copts.encryptionOpts.encryptedProtocol = niProvPerfConfig.encryptedConnectionType;
+
+			if (niProvPerfConfig.tlsProtocolFlags != 0)
+				copts.encryptionOpts.encryptionProtocolFlags = niProvPerfConfig.tlsProtocolFlags;
+			copts.encryptionOpts.openSSLCAStore = niProvPerfConfig.caStore;
 		}
 		copts.connectionInfo.unified.address = niProvPerfConfig.hostName;
 		copts.connectionInfo.unified.serviceName = niProvPerfConfig.portNo;
@@ -617,6 +621,10 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 		if (niProvPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && niProvPerfConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
 		{
 			cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = niProvPerfConfig.encryptedConnectionType;
+
+			if (niProvPerfConfig.tlsProtocolFlags != 0)
+				cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = niProvPerfConfig.tlsProtocolFlags;
+			cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = niProvPerfConfig.caStore;
 		}
 		cInfo.rsslConnectOptions.connectionInfo.unified.address = niProvPerfConfig.hostName;
 		cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = niProvPerfConfig.portNo;

@@ -33,6 +33,10 @@ typedef struct
 	RsslUInt32			writeStatsInterval;			/* Controls how often statistics are written. */
 	RsslBool			displayStats;				/* Controls whether stats appear on the screen. */
 	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+	RsslConnectionTypes connType;					/* Connection type for this provider */
+	char				serverCert[255];			/* Server certificate file location */
+	char				serverKey[255];				/* Server private key file location */
+	char				cipherSuite[255];			/* Server cipher suite */
 } ProvPerfConfig;
 
 /* Contains the global application configuration */

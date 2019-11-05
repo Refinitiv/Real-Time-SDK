@@ -102,3 +102,46 @@ OmmIProviderConfig& OmmIProviderConfig::addAdminMsg( const RefreshMsg& refreshMs
 	_pImpl->addAdminMsg( refreshMsg );
 	return *this;
 }
+
+OmmIProviderConfig& OmmIProviderConfig::libSslName(const EmaString& libSslName)
+{
+	_pImpl->libsslName(libSslName);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::libCryptoName(const EmaString& libCryptoName)
+{
+	_pImpl->libcryptoName(libCryptoName);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::libCurlName (const EmaString& libCurlName)
+{
+	_pImpl->libcurlName(libCurlName);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::serverCert(const EmaString& serverCert)
+{
+	_pImpl->serverCert(serverCert);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::serverPrivateKey(const EmaString& serverPrivateKey)
+{
+	_pImpl->serverPrivateKey(serverPrivateKey);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::cipherSuite(const EmaString& cipherSuite)
+{
+	_pImpl->cipherSuite(cipherSuite);
+	return *this;
+}
+
+OmmIProviderConfig& OmmIProviderConfig::dhParams(const EmaString& dhParams)
+{
+	_pImpl->dhParams(dhParams);
+	return *this;
+}
+

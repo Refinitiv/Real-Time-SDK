@@ -31,6 +31,12 @@ static void* sslHandle = 0;
 static void* cryptoHandle = 0;
 #endif
 
+#if defined(_WIN32)
+static RsslUInt32			shutdownFlag = SD_SEND;
+#else
+static RsslUInt32			shutdownFlag = SHUT_WR;
+#endif
+
 #ifdef LINUX
 static char* default10SslLibName = "libssl.so.10";
 static char* default10CryptoLibName = "libcrypto.so.10";
@@ -242,6 +248,26 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 			sslFuncs.TLSv1_2_client_method = 0;
 		else
 			supportedProtocols |= RIPC_PROTO_SSL_TLS_V1_2;
+
+		RSSL_LI_RESET_DLERROR;
+		sslFuncs.SSLv23_server_method = (const OPENSSL_SSL_METHOD* (*)())RSSL_LI_DLSYM(sslHandle, "SSLv23_server_method");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.SSLv23_server_method, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.dh_free_10 = (void(*)(OPENSSL_10_DH*))RSSL_LI_DLSYM(cryptoHandle, "DH_free");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_free_10, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.dh_new_10 = (OPENSSL_10_DH* (*)())RSSL_LI_DLSYM(cryptoHandle, "DH_new");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_new_10, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.read_bio_dhparams_10 = (OPENSSL_10_DH* (*)(OPENSSL_BIO*, OPENSSL_10_DH**, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_read_bio_DHparams");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.read_bio_dhparams_10, dlErr))
+			return ripcSSLInitError();
 	}
 	
 	/* These funtions are only defined on the OpenSSL 1.1.X interface */
@@ -258,8 +284,18 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 			return ripcSSLInitError();
 
 		RSSL_LI_RESET_DLERROR;
-		sslFuncs.ssl1_set_host = (int (*)(OPENSSL_SSL*, const char*))RSSL_LI_DLSYM(sslHandle, "SSL_set1_host");
-		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl1_set_host, dlErr))
+		sslFuncs.ssl_set1_host = (int (*)(OPENSSL_SSL*, const char*))RSSL_LI_DLSYM(sslHandle, "SSL_set1_host");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_set1_host, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		sslFuncs.ssl_get0_param = (OPENSSL_X509_VERIFY_PARAM*(*)(OPENSSL_SSL*))RSSL_LI_DLSYM(sslHandle, "SSL_get0_param");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_get0_param, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.x509_verify_param_set1_ip_asc = (int(*)(OPENSSL_X509_VERIFY_PARAM*, const char*))RSSL_LI_DLSYM(cryptoHandle, "X509_VERIFY_PARAM_set1_ip_asc");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.x509_verify_param_set1_ip_asc, dlErr))
 			return ripcSSLInitError();
 
 		RSSL_LI_RESET_DLERROR;
@@ -278,6 +314,36 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 			return ripcSSLInitError();
 		else
 			supportedProtocols = RIPC_PROTO_SSL_TLS_V1 | RIPC_PROTO_SSL_TLS_V1_1 | RIPC_PROTO_SSL_TLS_V1_2 | RIPC_PROTO_SSL_TLS;
+
+		RSSL_LI_RESET_DLERROR;
+		sslFuncs.TLS_server_method = (const OPENSSL_SSL_METHOD* (*)())RSSL_LI_DLSYM(sslHandle, "TLS_server_method");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.TLS_server_method, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.bn_free = (void(*)(OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "BN_free");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.bn_free, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.dh_free_11 = (void(*)(OPENSSL_11_DH*))RSSL_LI_DLSYM(cryptoHandle, "DH_free");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_free_11, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.dh_new_11 = (OPENSSL_11_DH* (*)())RSSL_LI_DLSYM(cryptoHandle, "DH_new");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_new_11, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.read_bio_dhparams_11 = (OPENSSL_11_DH* (*)(OPENSSL_BIO*, OPENSSL_11_DH**, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_read_bio_DHparams");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.read_bio_dhparams_11, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.dh_set0_pqg_11 = (int (*)(OPENSSL_11_DH *dh, OPENSSL_BIGNUM *p, OPENSSL_BIGNUM *q, OPENSSL_BIGNUM *g))RSSL_LI_DLSYM(cryptoHandle, "DH_set0_pqg");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_set0_pqg_11, dlErr))
+			return ripcSSLInitError();
 	}
 	
 	RSSL_LI_RESET_DLERROR;
@@ -426,11 +492,6 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		return ripcSSLInitError();
 	
 	RSSL_LI_RESET_DLERROR;
-	sslFuncs.ctx_set_tmp_dh_callback = (void (*)(OPENSSL_SSL_CTX*, dhVerifyCallback))RSSL_LI_DLSYM(sslHandle, "SSL_CTX_set_tmp_dh_callback");
-	if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ctx_ctrl, dlErr))
-		return ripcSSLInitError();
-	
-	RSSL_LI_RESET_DLERROR;
 	sslFuncs.ctx_free = (void (*)(OPENSSL_SSL_CTX*))RSSL_LI_DLSYM(sslHandle, "SSL_CTX_free");
 	if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ctx_free, dlErr))
 		return ripcSSLInitError();
@@ -485,25 +546,10 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 	cryptoFuncs.err_print_errors_fp = (void (*)(FILE*))RSSL_LI_DLSYM(cryptoHandle, "ERR_print_errors_fp");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.err_print_errors_fp, dlErr))
 		return ripcSSLInitError();
-	
-	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.read_bio_dhparams = (OPENSSL_DH* (*)(OPENSSL_BIO*, OPENSSL_DH**, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_read_bio_DHparams");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.read_bio_dhparams, dlErr))
-		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.rand_seed = (void (*)(const void*, int))RSSL_LI_DLSYM(cryptoHandle, "RAND_seed");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.rand_seed, dlErr))
-		return ripcSSLInitError();
-
-	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.dh_free = (void (*)(OPENSSL_DH*))RSSL_LI_DLSYM(cryptoHandle, "DH_free");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_free, dlErr))
-		return ripcSSLInitError();
-	
-	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.dh_new = (OPENSSL_DH* (*)())RSSL_LI_DLSYM(cryptoHandle, "DH_new");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_new, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
@@ -598,20 +644,25 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.err_remove_state = (void (*)(int))RSSL_LI_DLSYM(cryptoHandle, "ERR_remove_state");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.ASN1_STRING_length, dlErr))
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.err_remove_state, dlErr))
 		return ripcSSLInitError();
 
-	SSLfuncs.bindSrvr = 0;
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.EC_KEY_new_by_curve_name = (OPENSSL_EC_KEY* (*)(int))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_new_by_curve_name");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_KEY_new_by_curve_name, dlErr))
+		return ripcSSLInitError();
+
+	SSLfuncs.bindSrvr = ipcSrvrBind;
 	SSLfuncs.newSrvrConnection = ripcNewSSLSocket; //should be used after accept is called on the server side
 	SSLfuncs.connectSocket = ipcConnectSocket;
 	SSLfuncs.newClientConnection = 0;
-	SSLfuncs.initializeTransport = ripcSSLAccept; // calls accept on server side
-	SSLfuncs.shutdownTransport = ripcShutdownSSLSocket; // shuts down socket on client or server side
+	SSLfuncs.initializeTransport = ripcSSLInit; // calls accept on server side
+	SSLfuncs.shutdownTransport = ripcCloseSSLSocket; // shuts down socket on client or server side
 	SSLfuncs.readTransport = ripcSSLRead; // read function on client or server side
 	SSLfuncs.writeTransport = ripcSSLWrite; // write function on client or server side
 	SSLfuncs.writeVTransport = 0;
 	SSLfuncs.reconnectClient = ripcSSLReconnection;
-	SSLfuncs.acceptSocket = 0;
+	SSLfuncs.acceptSocket = ipcSrvrAccept;
 	SSLfuncs.shutdownSrvrError = 0;
 	SSLfuncs.sessIoctl = 0;
 
@@ -661,6 +712,9 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		if (retVal == 0)
 			return ripcSSLInitError();
 	}
+
+	/* Set the encrypted functions for server usage to ENCRYPTED*/
+	ipcSetTransFunc(RSSL_CONN_TYPE_ENCRYPTED, &SSLfuncs);
 	
 	funcs.newSSLServer = (void*)ripcInitializeSSLServer;
 	funcs.freeSSLServer = ripcReleaseSSLServer;
@@ -823,7 +877,7 @@ RsslBool ripcVerifyCertHost(char* inputPattern, unsigned int patternLen, char* h
 	return ripcCompareHostNameLen((char*)patternFirstDotPos, (char*)hostFirstDotPos, patternEndLen);
 }
 
-static ripcVerify10Hostname(OPENSSL_X509* cert, RsslSocketChannel* chnl, RsslError* err)
+static RsslBool ripcVerify10Hostname(OPENSSL_X509* cert, RsslSocketChannel* chnl, RsslError* err)
 {
 	RsslBool match = RSSL_FALSE;
 	RsslBool hasChecked = RSSL_FALSE;  /* This ensures that we have checked against an DNS or IP Addess Type*/
@@ -864,11 +918,13 @@ static ripcVerify10Hostname(OPENSSL_X509* cert, RsslSocketChannel* chnl, RsslErr
 		{
 			certName = (OPENSSL_GENERAL_NAME*)(cryptoFuncs.sk_value)(certAltNames, i);
 
+			if (certName->type == RSSL_SSL_GEN_DNS || certName->type == RSSL_SSL_GEN_IPADD)
+				hasChecked = RSSL_TRUE;
+
 			if (certName->type == hostAddressType)
 			{
 				hostName = (char*)(*cryptoFuncs.ASN1_STRING_data)((OPENSSL_ASN1_STRING*)certName->d.ia5);
 				hostNameLen = (unsigned int)(*cryptoFuncs.ASN1_STRING_length)((OPENSSL_ASN1_STRING*)certName->d.ia5);
-				hasChecked = RSSL_TRUE;
 
 				switch (hostAddressType)
 				{
@@ -890,61 +946,63 @@ static ripcVerify10Hostname(OPENSSL_X509* cert, RsslSocketChannel* chnl, RsslErr
 		if (match == RSSL_FALSE && hasChecked == RSSL_TRUE)
 		{
 			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  No subject name match in host certificate's alternate name list.", __FILE__, __LINE__);
+			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  No subject name match in host certificate's alternate name list.", __FILE__, __LINE__);
 			return RSSL_FALSE;
+		}
+		else if (match == RSSL_TRUE && hasChecked == RSSL_TRUE)
+		{
+			return RSSL_TRUE;
 		}
 	}
-	else
+
+	/* Get the common name in C string form from the certificate's subject name */
+	name = (*cryptoFuncs.get_subject_name)(cert);
+	if (name == NULL)
 	{
-		/* Get the common name in C string form from the certificate's subject name */
-		name = (*cryptoFuncs.get_subject_name)(cert);
-		if (name == NULL)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  No subject name in host certificate.", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  No subject name in host certificate.", __FILE__, __LINE__);
+		return RSSL_FALSE;
+	}
 
-		locCN = (*cryptoFuncs.X509_NAME_get_index_by_NID)(name, RSSL_NID_commonName, -1);
-		if (locCN < 0)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  No common name in host certificate.", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+	locCN = (*cryptoFuncs.X509_NAME_get_index_by_NID)(name, RSSL_NID_commonName, -1);
+	if (locCN < 0)
+	{
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  No common name in host certificate.", __FILE__, __LINE__);
+		return RSSL_FALSE;
+	}
 
-		nameEntry = (*cryptoFuncs.X509_NAME_get_entry)(name, locCN);
-		if (nameEntry == NULL)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  Unable to retieve common name from certificate.", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+	nameEntry = (*cryptoFuncs.X509_NAME_get_entry)(name, locCN);
+	if (nameEntry == NULL)
+	{
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  Unable to retieve common name from certificate.", __FILE__, __LINE__);
+		return RSSL_FALSE;
+	}
 
-		asn1CN = (*cryptoFuncs.X509_NAME_ENTRY_get_data)(nameEntry);
-		if (asn1CN == NULL)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  Unable to retieve common name from certificate.", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+	asn1CN = (*cryptoFuncs.X509_NAME_ENTRY_get_data)(nameEntry);
+	if (asn1CN == NULL)
+	{
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  Unable to retieve common name from certificate.", __FILE__, __LINE__);
+		return RSSL_FALSE;
+	}
 
-		/* Get the C string from the ASN1_STRING, and verify that the certificate's length is equal to the length of the C string*/
-		hostName = (char*)(*cryptoFuncs.ASN1_STRING_data)(asn1CN);
-		hostNameLen = (unsigned int)(*cryptoFuncs.ASN1_STRING_length)(asn1CN);
-		if (strlen(hostName) != (size_t)hostNameLen)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  Unable to retieve common name from certificate.", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+	/* Get the C string from the ASN1_STRING, and verify that the certificate's length is equal to the length of the C string*/
+	hostName = (char*)(*cryptoFuncs.ASN1_STRING_data)(asn1CN);
+	hostNameLen = (unsigned int)(*cryptoFuncs.ASN1_STRING_length)(asn1CN);
+	if (strlen(hostName) != (size_t)hostNameLen)
+	{
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  Certificate hostname does not match the connected DNS name", __FILE__, __LINE__);
+		return RSSL_FALSE;
+	}
 
-		if (ripcVerifyCertHost(hostName, hostNameLen, chnl->hostName, err) == RSSL_FALSE)
-		{
-			_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  Certificate hostname does not match the connected DNS name", __FILE__, __LINE__);
-			return RSSL_FALSE;
-		}
+	if (ripcVerifyCertHost(hostName, hostNameLen, chnl->hostName, err) == RSSL_FALSE)
+	{
+		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  Certificate hostname does not match the connected DNS name", __FILE__, __LINE__);
+		return RSSL_FALSE;
 	}
 
 	return RSSL_TRUE;
@@ -962,7 +1020,7 @@ static RsslBool ripcVerifyCert(OPENSSL_SSL* ssl, RsslSocketChannel* chnl, RsslEr
 	if (!cert)
 	{
 		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> No certificate from server.", __FILE__, __LINE__);
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 No certificate from server.", __FILE__, __LINE__);
 		ripcSSLErrors(err, (RsslInt32)strlen(err->text));
 		return RSSL_FALSE;
 	}
@@ -972,7 +1030,7 @@ static RsslBool ripcVerifyCert(OPENSSL_SSL* ssl, RsslSocketChannel* chnl, RsslEr
 	if(RSSL_X509_V_OK != ret)
 	{
 		_rsslSetError(err, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  OpenSSL Return code: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
+		snprintf(err->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 Certificate validation error.  OpenSSL Return code: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
 		ripcSSLErrors(err, (RsslInt32)strlen(err->text));
 		return RSSL_FALSE;
 	}
@@ -988,52 +1046,7 @@ static RsslBool ripcVerifyCert(OPENSSL_SSL* ssl, RsslSocketChannel* chnl, RsslEr
 	return certHostMatch;
 }
 
-// this is a temporary diffie-hellman callback that allows us
-// to use ephemeral diffie-hellman (EDH) for key exchange.  
-static OPENSSL_DH *ripcDHCallback(OPENSSL_SSL *ssl, RsslInt32 is_export, RsslInt32 keylength)
-{
-	OPENSSL_DH *ret = 0;
-	ripcSSLSession *sess = 0;
-
-	sess = (ripcSSLSession*)(*(sslFuncs.get_ex_data))(ssl, 0);
-
-	switch (keylength)
-	{
-	case 512:
-			ret = (OPENSSL_DH*)sess->server->keys[RIPC_SSL_DH512].key;
-		break;
-	
-	case 1024:
-			ret = (OPENSSL_DH*)sess->server->keys[RIPC_SSL_DH1024].key;
-		break;
-
-	case 2048:
-	default:
-			ret = (OPENSSL_DH*)sess->server->keys[RIPC_SSL_DH2048].key;
-		break;
-	}
-
-	return ret;
-}
-
-RsslInt32 ripcInitSSLConnectOpts(ripcSSLConnectOpts *config, RsslError *error)
-{
-	config->CAfile = 0;
-	config->CApath = 0;
-	config->cert_file = 0;
-	config->cipher = CIPHER_LIST;
-	config->key_file = 0;
-	config->verifyDepth = 9;
-	config->verifyLevel = ripcSSLNone;
-	config->blocking = 0;
-	config->address = 0;
-	config->id = 0;
-	config->pID = 0;
-
-	return 1;
-}
-
-ripcSSLServer *ripcSSLNewServer(RsslSocket fd, char* name, RsslError *error)
+ripcSSLServer *ripcSSLNewServer(RsslServerSocketChannel* chnl, RsslError *error)
 {
 	RsslInt32 i = 0;
 	ripcSSLServer *server = (ripcSSLServer*)_rsslMalloc(sizeof(ripcSSLServer));
@@ -1041,25 +1054,18 @@ ripcSSLServer *ripcSSLNewServer(RsslSocket fd, char* name, RsslError *error)
 	if (server == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Could not allocate space for ripcSSLServer.", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 1001 Could not allocate space for ripcSSLServer.", __FILE__, __LINE__);
 		return 0;
 	}
 
-	server->socket = (RsslUInt32)fd;
+	/* Clear out the SSL Server object */
+	memset((void*)server, 0, sizeof(ripcSSLServer));
+
+	server->socket = (RsslUInt32)chnl->stream;
 	server->ctx = 0;
-
-	for (i = 0; i <= RIPC_SSL_MAX_KEY; i++)
-	{
-		server->keys[i].nData = 0;
-		server->keys[i].cipherData = 0;
-		server->keys[i].key = 0;
-	}
-
-	if (ripcInitSSLConnectOpts(&server->config, error) == 0)
-	{
-		_rsslFree(server);
-		return 0;
-	}
+	server->chnl = chnl;
+	server->verifyDepth = 9;
+	server->cipherSuite = chnl->cipherSuite;
 
 	return server;
 }
@@ -1072,204 +1078,26 @@ ripcSSLSession *ripcSSLNewSession(RsslSocket fd, RsslSocketChannel* chnl, ripcSS
 	if (session == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Could not allocate space for ripcSSLSession.", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 1001 Could not allocate space for ripcSSLSession.", __FILE__, __LINE__);
 		return 0;
 	}
+
+	/* Clear out the ssl session object */
+	memset((void*)session, 0, sizeof(ripcSSLSession));
 
 	session->socket = (RsslUInt32)fd;
 	session->server = server;
 	session->bio = 0;
 	session->ctx = 0;
 	session->connection = 0;
+	session->blocking = chnl->blocking;
 	session->clientConnState = SSL_INITIALIZING;
 	
-	/* we only need to initialize the connect opts for client side configs - if its 
-	   a server side channel, just point it to the servers config */
-	if (server == 0)
-	{
-		if (ripcInitSSLConnectOpts(&session->config, error) == 0)
-		{
-            _rsslFree(session);
-			return 0;
-		}
-	}
-	else
-	{
-		// set to point at servers config
-		session->config.CAfile = session->server->config.CAfile;
-		session->config.CApath = session->server->config.CApath;
-		session->config.cert_file = session->server->config.cert_file;
-		session->config.key_file = session->server->config.key_file;
-		session->config.cipher = session->server->config.cipher;
-		session->config.verifyDepth = session->server->config.verifyDepth;
-		session->config.verifyLevel = session->server->config.verifyLevel;		
-	}
-
 	return session;
 }
 
-void ripcFreeSSLConnectOpts(ripcSSLConnectOpts *config)
-{
-	if (config->cert_file)
-	{
-		_rsslFree(config->cert_file);
-		config->cert_file = 0;
-	}
 
-	if (config->key_file)
-	{
-		_rsslFree(config->key_file);
-		config->key_file = 0;
-	}
-
-	if (config->CAfile)
-	{
-		_rsslFree(config->CAfile);
-		config->CAfile = 0;
-	}
-
-	if (config->CApath)
-	{
-		_rsslFree(config->CApath);
-		config->CApath = 0;
-	}
-
-	/*if (config->cipher && (config->cipher != CIPHER_LIST))
-	{
-		_rsslFree(config->cipher);
-		config->cipher = 0;
-	} */
-}
-
-
-static int ssl_rand_choosenum(int l, int h)
-{
-	int i = 0;
-	char buf[50];
-	srand((unsigned int)time(NULL));
-	snprintf(buf, 50, "%.0f", (((double)(rand()%RAND_MAX)/RAND_MAX)*(h-l)));
-	i = atoi(buf) + 1;
-	if (i < 1)
-		i = l;
-	if (i > h)
-		i = h;
-	return i;
-}
-
-static void ripcSSLRandSeed()
-{
-	time_t t;
-	int l = 0;
-	unsigned short pid;
-	unsigned char stackdata[256];
-
-	/* seed in the current time */
-	t = time(NULL);
-	(*(cryptoFuncs.rand_seed))((unsigned char*)&t, sizeof(time_t));
-
-	/* seed in the PID */
-	pid = getpid();
-	(*(cryptoFuncs.rand_seed))((unsigned char*)&pid, sizeof(unsigned short));
-
-	/* seed in some current state of the run-time stack */
-	l = ssl_rand_choosenum(0, sizeof(stackdata)-128-1);
-	(*(cryptoFuncs.rand_seed))(stackdata + l, 128);
-}
-
-/* initialize the temporary DH keys */
-RsslInt32 ripcInitKeys(ripcSSLServer *server, RsslError *error)
-{
-	OPENSSL_DH *dh = 0;
-
-	ripcSSLRandSeed();
-
-	/* if they pass in a key file, use that instead */
-	if (server->config.key_file)
-	{
-		/* set up diffie-hellman temp keys for EDH */
-		if ((dh = ripcSSLDHGetParamFile(server->config.key_file, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 512 bit DH parameters from file %s.", __FILE__, __LINE__, server->config.key_file);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-		server->keys[RIPC_SSL_DH512].key = (void*)dh;
-
-		if ((dh = ripcSSLDHGetParamFile(server->config.key_file, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 1024 bit DH parameters from file %s.", __FILE__, __LINE__, server->config.key_file);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-		server->keys[RIPC_SSL_DH1024].key = (void*)dh;
-
-		if ((dh = ripcSSLDHGetParamFile(server->config.key_file, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 2048 bit DH parameters from file %s.", __FILE__, __LINE__, server->config.key_file);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-		server->keys[RIPC_SSL_DH2048].key = (void*)dh;
-	}
-	else // no key passed in, using default keys from ripcssldh.c file 
-	{
-		/* set up diffie-hellman temp keys for EDH */
-		if ((dh = ripcSSLDHGetTmpParam(512, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 512 bit DH parameters.", __FILE__, __LINE__);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-		server->keys[RIPC_SSL_DH512].key = (void*)dh;
-
-		if ((dh = ripcSSLDHGetTmpParam(1024, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 1024 bit DH parameters.", __FILE__, __LINE__);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-		server->keys[RIPC_SSL_DH1024].key = (void*)dh;
-
-		if ((dh = ripcSSLDHGetTmpParam(2048, &sslFuncs, &cryptoFuncs)) == NULL)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to import temporary 2048 bit DH parameters.", __FILE__, __LINE__);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			return -1;
-		}
-
-		server->keys[RIPC_SSL_DH2048].key = (void*)dh;
-	}
-
-	return 1;
-}
-
-void ripcFreeKeys(ripcSSLServer *server)
-{
-	if (server->keys[RIPC_SSL_DH512].key)
-	{
-		(*(cryptoFuncs.dh_free))((OPENSSL_DH*)server->keys[RIPC_SSL_DH512].key);
-		server->keys[RIPC_SSL_DH512].key = 0;
-	}
-	if (server->keys[RIPC_SSL_DH1024].key)
-	{
-		(*(cryptoFuncs.dh_free))((OPENSSL_DH*)server->keys[RIPC_SSL_DH1024].key);
-		server->keys[RIPC_SSL_DH1024].key = 0;
-	}
-	if (server->keys[RIPC_SSL_DH2048].key)
-	{
-		(*(cryptoFuncs.dh_free))((OPENSSL_DH*)server->keys[RIPC_SSL_DH2048].key);
-		server->keys[RIPC_SSL_DH2048].key = 0;
-	}
-}
-
-//user is either 0 for client or 1 for server - we set up a few options differently for the server
-OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, RsslSocketChannel* chnl, ripcSSLConnectOpts *config, RsslError *error)
+OPENSSL_SSL_CTX* ripcSSLSetupCTXClient(ripcSSLProtocolFlags version, RsslSocketChannel* chnl, RsslError *error)
 {
 	OPENSSL_SSL_CTX *ctx = 0;
 	RsslInt32 retVal = 0;
@@ -1283,7 +1111,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 	{
 		/* populate error  and return failure */
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXClient() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
 		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		return NULL;
 	}
@@ -1293,7 +1121,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error  and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXClient() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			return NULL;
 		}
@@ -1303,7 +1131,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error  and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXClient() failed to create new context (errno %d)", __FILE__,__LINE__,errno);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			return NULL;
 		}
@@ -1313,7 +1141,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 			{
 				/* populate error  and return failure */
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() failed to create new context (errno %d)", __FILE__, __LINE__, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXClient() failed to create new context (errno %d)", __FILE__, __LINE__, errno);
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				return NULL;
 			}
@@ -1359,64 +1187,12 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 	{
 		/* populate error and return failure */
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> ripcSSLSetupCTX() error setting up cipher list (no valid ciphers) (errno %d)", __FILE__,__LINE__,errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error: 2001 ripcSSLSetupCTXClient() error setting up cipher list (no valid ciphers) (errno %d)", __FILE__,__LINE__,errno);
 		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		(*(sslFuncs.ctx_free))(ctx);
 		return NULL;
 	}
-
-	// need to get CAFILE or CADIR from config 
-	if (config->CAfile || config->CApath)
-	{
-		if ((retVal = (*(sslFuncs.ctx_load_verify_location))(ctx, config->CAfile, config->CApath)) != 1)
-		{
-			/* populate error and return failure */
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading CA file (errno %d)", __FILE__,__LINE__,errno);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			(*(sslFuncs.ctx_free))(ctx);
-			return NULL;
-		}
-
-		if ((retVal = (*(sslFuncs.ctx_set_default_verify_paths))(ctx)) != 1)
-		{
-			/* populate error and return failure */
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading CA file (errno %d)", __FILE__,__LINE__,errno);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			(*(sslFuncs.ctx_free))(ctx);
-			return NULL;
-		}
-	}
 	
-	/* need to get CERTFILE from config */
-	if (config->cert_file)
-	{
-		if ((retVal = (*(sslFuncs.ctx_use_cert_chain_file))(ctx, config->cert_file)) != 1)
-		{
-			/* populate error and return failure */
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading certificate from file %s", __FILE__,__LINE__,config->cert_file);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			(*(sslFuncs.ctx_free))(ctx);
-			return NULL;
-		}
-
-		/* need to get CERTFILE from config */
-		if ((retVal = (*(sslFuncs.ctx_use_privatekey_file))(ctx, config->cert_file, RSSL_SSL_FILETYPE_PEM)) != 1)
-		{
-			/* populate error and return failure */
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading private key from file %s", __FILE__,__LINE__,config->cert_file);
-			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-			(*(sslFuncs.ctx_free))(ctx);
-			return NULL;
-		}
-	}
-
-	if (!user)
-		perm |= RSSL_SSL_VERIFY_PEER;
-	/* Config OpenSSL to validate the certificate */
 	(*(sslFuncs.ctx_set_verify))(ctx, perm, NULL);
 
 	/* Setup the Certificate trust store here. */
@@ -1429,7 +1205,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error finding certificate store", __FILE__, __LINE__);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXClient() error finding certificate store", __FILE__, __LINE__);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			(*(sslFuncs.ctx_free))(ctx);
 			return NULL;
@@ -1443,7 +1219,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error certificate store not a file or directory", __FILE__, __LINE__);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXClient() error certificate store not a file or directory", __FILE__, __LINE__);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			(*(sslFuncs.ctx_free))(ctx);
 			return NULL;
@@ -1455,7 +1231,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 			{
 				/* populate error and return failure */
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading certifcate store", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTX() error loading certifcate store", __FILE__, __LINE__);
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				(*(sslFuncs.ctx_free))(ctx);
 				return NULL;
@@ -1467,7 +1243,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 			{
 				/* populate error and return failure */
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading certifcate store", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTX() error loading certifcate store", __FILE__, __LINE__);
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				(*(sslFuncs.ctx_free))(ctx);
 				return NULL;
@@ -1482,7 +1258,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() error loading CA file (errno %d)", __FILE__, __LINE__, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTX() error loading CA file (errno %d)", __FILE__, __LINE__, errno);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			(*(sslFuncs.ctx_free))(ctx);
 			return NULL;
@@ -1501,7 +1277,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() Error creating new X509_store", __FILE__, __LINE__);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTX() Error creating new X509_store", __FILE__, __LINE__);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			(*(sslFuncs.ctx_free))(ctx);
 			return NULL;
@@ -1511,7 +1287,7 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		{
 			/* populate error and return failure */
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLSetupCTX() Error loading Windows ROOT certificate store", __FILE__, __LINE__);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTX() Error loading Windows ROOT certificate store", __FILE__, __LINE__);
 			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 			(*(sslFuncs.ctx_free))(ctx);
 			return NULL;
@@ -1536,13 +1312,12 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 
 		(*sslFuncs.ctx_set_cert_store)(ctx, store);
 
-		
 #endif
 	}
 
 	if (openSSLAPI == RSSL_OPENSSL_V1_0)
 	{
-		RsslInt32 opts = RSSL_10_SSL_OP_ALL | RSSL_10_SSL_OP_NO_SSLv2;
+		RsslInt32 opts = RSSL_10_SSL_OP_ALL | RSSL_10_SSL_OP_NO_SSLv2 | RSSL_10_SSL_OP_NO_SSLv3;
 		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_10_SSL_CTRL_OPTIONS, opts, NULL);
 	}
 	else
@@ -1551,7 +1326,207 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user, ripcSSLProtocolFlags version, R
 		(*(sslFuncs.ctx_set_options))(ctx, opts);
 	}
 	
-	(*(sslFuncs.ctx_set_tmp_dh_callback))(ctx, ripcDHCallback);
+	return ctx;
+}
+
+
+OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerSocketChannel* chnl, RsslError *error)
+{
+	OPENSSL_SSL_CTX *ctx = 0;
+	RsslInt32 retVal = 0;
+	RsslInt32 perm = RSSL_SSL_VERIFY_NONE;
+	char* cipherList = 0;
+
+
+	if (openSSLAPI == RSSL_OPENSSL_V1_0)
+	{
+		if ((ctx = (*(sslFuncs.ctx_new))((*(sslFuncs.SSLv23_server_method))())) == NULL)
+		{
+			/* populate error  and return failure */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXServer() failed to create new context (errno %d)", __FILE__, __LINE__, errno);
+			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+			return NULL;
+		}
+
+		RsslInt32 opts = RSSL_10_SSL_OP_ALL | RSSL_10_SSL_OP_NO_SSLv2 | RSSL_10_SSL_OP_NO_SSLv3 | RSSL_10_SSL_OP_NO_TLSv1 | RSSL_10_SSL_OP_NO_TLSv1_1;
+		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_10_SSL_CTRL_OPTIONS, opts, NULL);
+	}
+	else
+	{
+	
+		if ((ctx = (*(sslFuncs.ctx_new))((*(sslFuncs.TLS_server_method))())) == NULL)
+		{
+			/* populate error  and return failure */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLSetupCTXServer() failed to create new context (errno %d)", __FILE__, __LINE__, errno);
+			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+			return NULL;
+		}
+
+		/* Setup the TLS version here, starting with the minimum version */
+		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_11_SSL_CTRL_SET_MIN_PROTO_VERSION, RSSL_11_TLS1_2_VERSION, NULL);
+
+		/* Set the maximum version according to the bitmap */
+		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_11_SSL_CTRL_SET_MAX_PROTO_VERSION, RSSL_11_TLS1_2_VERSION, NULL);
+
+		RsslInt32 opts = RSSL_11_SSL_OP_ALL;
+		(*(sslFuncs.ctx_set_options))(ctx, opts);
+	}
+
+
+	/* if they pass in a key file, use that instead */
+	if (chnl->dhParams)
+	{
+		if (openSSLAPI == RSSL_OPENSSL_V1_0)
+		{
+			/* set up diffie-hellman temp keys for EDH */
+			OPENSSL_BIO *bio;
+			OPENSSL_10_DH *dh;
+
+			if ((bio = (*(sslFuncs.BIO_new_file))(chnl->dhParams, "r")) == NULL)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 Unable to load DH parameter file %s.", __FILE__, __LINE__, chnl->dhParams);
+				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+				(*(sslFuncs.ctx_free))(ctx);
+				return NULL;
+			}
+			dh = (*(cryptoFuncs.read_bio_dhparams_10))(bio, NULL, NULL, NULL);
+			(*(sslFuncs.BIO_free))(bio);
+
+			(*(sslFuncs.ctx_ctrl))(ctx, RSSL_SSL_CTRL_SET_TMP_DH, 0, (void*)dh);
+
+			(*(cryptoFuncs.dh_free_10))(dh);
+		}
+		else
+		{
+			/* set up diffie-hellman temp keys for EDH */
+			OPENSSL_BIO *bio;
+			OPENSSL_11_DH *dh;
+
+			if ((bio = (*(sslFuncs.BIO_new_file))(chnl->dhParams, "r")) == NULL)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 Unable to load DH parameter file %s.", __FILE__, __LINE__, chnl->dhParams);
+				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+				(*(sslFuncs.ctx_free))(ctx);
+				return NULL;
+			}
+			dh = (*(cryptoFuncs.read_bio_dhparams_11))(bio, NULL, NULL, NULL);
+			(*(sslFuncs.BIO_free))(bio);
+
+			(*(sslFuncs.ctx_ctrl))(ctx, RSSL_SSL_CTRL_SET_TMP_DH, 0, (void*)dh);
+
+			(*(cryptoFuncs.dh_free_11))(dh);
+		}
+
+	}
+	else // no key passed in, using default keys from ripcssldh.c file 
+	{
+		if (openSSLAPI == RSSL_OPENSSL_V1_0)
+		{
+			/* set up diffie-hellman temp keys for EDH */
+			OPENSSL_10_DH *dh = ripcSSL10DHGetParam(&sslFuncs, &cryptoFuncs);
+
+			if (dh == NULL)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 Unable to load default DH parameters %s.", __FILE__, __LINE__, chnl->dhParams);
+				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+				(*(sslFuncs.ctx_free))(ctx);
+				return NULL;
+			}
+
+			(*(sslFuncs.ctx_ctrl))(ctx, RSSL_SSL_CTRL_SET_TMP_DH, 0, (void*)dh);
+
+			(*(cryptoFuncs.dh_free_10))(dh);
+		}
+		else
+		{
+			/* set up diffie-hellman temp keys for EDH */
+			OPENSSL_11_DH *dh = ripcSSL11DHGetParam(&sslFuncs, &cryptoFuncs);
+
+			if (dh == NULL)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 Unable to load default DH parameters %s.", __FILE__, __LINE__, chnl->dhParams);
+				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+				(*(sslFuncs.ctx_free))(ctx);
+				return NULL;
+			}
+
+			(*(sslFuncs.ctx_ctrl))(ctx, RSSL_SSL_CTRL_SET_TMP_DH, 0, (void*)dh);
+
+			(*(cryptoFuncs.dh_free_11))(dh);
+		}
+	}
+
+	/* Setup the elliptic curve information for 1.0.X only.  1.1 automatically selects the proper curve */
+	if (openSSLAPI == RSSL_OPENSSL_V1_0)
+	{
+		OPENSSL_EC_KEY* ecdh;
+		ecdh = (*(cryptoFuncs.EC_KEY_new_by_curve_name))(RSSL_10_NID_X9_62_prime256v1);    //  secp256r1 curve - referred as prime256v1
+		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_SSL_CTRL_SET_TMP_ECDH, 0, ecdh);
+	}
+	
+
+	/* Turn off SSLv2 and SSLv3, since both are insecure.  See:
+	https://www.openssl.org/~bodo/ssl-poodle.pdf
+	*/
+
+	(*(sslFuncs.ctx_set_quiet_shutdown))(ctx, 1);
+
+	if (chnl->cipherSuite && ((const char*)chnl->cipherSuite) > 0)
+		cipherList = chnl->cipherSuite;
+	else
+		cipherList = CIPHER_LIST;
+
+	if ((retVal = (*(sslFuncs.ctx_set_cipher_list))(ctx, cipherList)) != 1)
+	{
+		/* populate error and return failure */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXServer() error setting up cipher list (no valid ciphers) (errno %d)", __FILE__, __LINE__, errno);
+		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+		(*(sslFuncs.ctx_free))(ctx);
+		return NULL;
+	}
+
+	/* need to get CERTFILE from config */
+	if (chnl->serverCert)
+	{
+		if ((retVal = (*(sslFuncs.ctx_use_cert_chain_file))(ctx, chnl->serverCert)) != 1)
+		{
+			/* populate error and return failure */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXServer() error loading certificate from file %s", __FILE__, __LINE__, chnl->serverCert);
+			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+			(*(sslFuncs.ctx_free))(ctx);
+			return NULL;
+		}
+
+		/* need to get CERTFILE from config */
+		if ((retVal = (*(sslFuncs.ctx_use_privatekey_file))(ctx, chnl->serverPrivateKey, RSSL_SSL_FILETYPE_PEM)) != 1)
+		{
+			/* populate error and return failure */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXServer() error loading private key from file %s", __FILE__, __LINE__, chnl->serverPrivateKey);
+			ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+			(*(sslFuncs.ctx_free))(ctx);
+			return NULL;
+		}
+	}
+	else
+	{
+		/* populate error and return failure */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLSetupCTXServer() No certificate files provided.", __FILE__, __LINE__);
+		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+		(*(sslFuncs.ctx_free))(ctx);
+		return NULL;
+	}
+
+	(*(sslFuncs.ctx_set_verify))(ctx, perm, NULL);
 
 	return ctx;
 }
@@ -1572,7 +1547,7 @@ RsslInt32 ripcSSLRead( void *sslSess, char *buf, RsslInt32 max_len, ripcRWFlags 
 		{
 			case RSSL_SSL_ERROR_NONE:
 				totalBytes += numBytes;
-				if (sess->config.blocking)
+				if (sess->blocking)
 					return totalBytes;
 			break;
 			case RSSL_SSL_ERROR_WANT_WRITE:
@@ -1624,7 +1599,7 @@ RsslInt32 ripcSSLWrite( void *sslSess, char *buf, RsslInt32 len, ripcRWFlags fla
 		{
 			case RSSL_SSL_ERROR_NONE:
 				totalOut += numBytes;
-				if (sess->config.blocking)
+				if (sess->blocking)
 					return totalOut;
 			break;
 			case RSSL_SSL_ERROR_WANT_WRITE:
@@ -1655,7 +1630,7 @@ RsslInt32 ripcSSLWrite( void *sslSess, char *buf, RsslInt32 len, ripcRWFlags fla
 	return totalOut;
 }
 
-RsslInt32 ripcShutdownSSLSocket(void *session)
+RsslInt32 ripcCloseSSLSocket(void *session)
 {
 	ripcSSLSession *sess = (ripcSSLSession*)session;
 
@@ -1673,10 +1648,28 @@ RsslInt32 ripcShutdownSSLSocket(void *session)
 	return 1;
 }
 
-RsslInt32 ripcSSLAccept(void *session, ripcSessInProg *inPr, RsslError *error)
+RsslInt32 ripcShutdownSSLSocket(void *session)
+{
+	ripcSSLSession *sess = (ripcSSLSession*)session;
+
+	if (session == NULL)
+		return 1;
+
+	/* If the socket is invalid, it already has been closed by curl */
+	if (sess->socket != RIPC_INVALID_SOCKET)
+		shutdown(sess->socket, shutdownFlag);
+	/* close the SSL connection */
+	(*(sslFuncs.set_shutdown))(sess->connection, RSSL_SSL_SENT_SHUTDOWN | RSSL_SSL_RECEIVED_SHUTDOWN);
+
+	ripcReleaseSSLSession(sess, 0);
+
+	return 1;
+}
+
+/* Initializes the OpenSSL session, calling either ssl_accept or ssl_connect depending on if the channel is a server or client, respectively*/
+RsslInt32 ripcSSLInit(void *session, ripcSessInProg *inPr, RsslError *error)
 {
 	RsslInt32 retVal = 0;
-	RsslUInt32 verify_error;
 	ripcSSLSession *sess = (ripcSSLSession*)session;
 	long ret;
 
@@ -1689,29 +1682,12 @@ RsslInt32 ripcSSLAccept(void *session, ripcSessInProg *inPr, RsslError *error)
 
 			error->sysError = (*(sslFuncs.get_error))(sess->connection, retVal);
 
-			if (sess->config.verifyLevel > ripcSSLNone)
-			{
-				verify_error = (*(sslFuncs.get_verify_result))(sess->connection);
-
-				if (verify_error != RSSL_X509_V_OK)
-				{
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLAccept Verify Error: %s", __FILE__, __LINE__, (*(cryptoFuncs.verify_cert_error_string))(verify_error));
-				}
-				else
-				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, error->sysError );
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLAccept Verify Error ", __FILE__, __LINE__);
-					ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-					return -1;
-				}
-			}
-
 			if ((retVal == -1) && ((error->sysError == RSSL_SSL_ERROR_WANT_READ) || (error->sysError == RSSL_SSL_ERROR_WANT_WRITE)))
 				return 0;
 			else
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, error->sysError );
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLAccept error on SSL_accept ", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLInit error on SSL_accept. The client may be attempting to connect with a non-encrypted connection. ", __FILE__, __LINE__);
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				return -1;
 			}
@@ -1759,7 +1735,8 @@ RsslInt32 ripcSSLAccept(void *session, ripcSessInProg *inPr, RsslError *error)
 			and initComplete to 0.  ssl_connect will be called when initTransport is called again.*/
 			if ((retVal = ipcConnected(sess->socket)) == -1)
 			{
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect channel down", __FILE__, __LINE__);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 1002 ripcSSLInit client connect() failed. System errno: %i", __FILE__, __LINE__, errno);
 				return -1;
 			}
 
@@ -1785,14 +1762,14 @@ RsslInt32 ripcSSLAccept(void *session, ripcSessInProg *inPr, RsslError *error)
 					if (RSSL_X509_V_OK != ret)
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  OpenSSL Verification return: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 ripcSSLInit Certificate validation error.  OpenSSL Verification return: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
 						ripcSSLErrors(error, (RsslInt32)strlen(error->text));
-						return -1;
+						return -2;
 					}
 					else
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLAccept error on SSL_connect SSL Error: %i errno: %i ", __FILE__, __LINE__, error->sysError, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2002 ripcSSLInit error on SSL_connect SSL.  Please verify that the server can accept TLS encrypted connections. Error: %i errno: %i ", __FILE__, __LINE__, error->sysError, errno);
 						ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 						return -1;
 					}
@@ -1802,7 +1779,7 @@ RsslInt32 ripcSSLAccept(void *session, ripcSessInProg *inPr, RsslError *error)
 			{
 				if (ripcVerifyCert(sess->connection, (*(sslFuncs.get_ex_data))(sess->connection, 0), error) == RSSL_FALSE)
 				{
-					return -1;
+					return -2;
 				}
 				sess->clientConnState = SSL_ACTIVE;
 				inPr->intConnState = (sess->clientConnState << 8);  
@@ -1818,7 +1795,9 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 {
 	RsslInt32 retVal = 0;
 	long ret;
+	struct in_addr addr;
 	ripcSSLSession *sess = ripcInitializeSSLSession(fd, SSLProtocolVersion, (RsslSocketChannel*)userSpecPtr, error);
+	OPENSSL_X509_VERIFY_PARAM* params;
 
 	if (sess == NULL)
 		return 0;
@@ -1826,13 +1805,13 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	if ((sess->bio = (*(sslFuncs.BIO_new_socket))((int)sess->socket, RSSL_BIO_NOCLOSE)) == NULL)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect error creating new socket", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLConnect error creating new BIO socket", __FILE__, __LINE__);
 		return 0;
 	}
 
 	if ((sess->connection = (*(sslFuncs.ssl_new))(sess->ctx)) == NULL)
 	{
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect error creating new SSL connection", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2000 ripcSSLConnect error creating new SSL connection", __FILE__, __LINE__);
 		return 0;
 	}
 
@@ -1840,7 +1819,8 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 
 	if ((*(sslFuncs.set_cipher_list))(sess->connection, CIPHER_LIST) < 1)
 	{
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect error setting cipher list", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect error setting up cipher list (no valid ciphers) (errno %d)", __FILE__, __LINE__, errno);
+		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		return 0;
 	}
 
@@ -1859,18 +1839,38 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	/* Setup hostname validation here */
 	if (openSSLAPI == RSSL_OPENSSL_V1_1)
 	{
-		if ((*sslFuncs.ssl1_set_host)(sess->connection, ((RsslSocketChannel*)userSpecPtr)->hostName) != 1)
+		/* Check to see if the hostname on the channel is an IP Address*/
+		if (inet_pton(AF_INET, ((RsslSocketChannel*)userSpecPtr)->hostName, &addr))
 		{
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect Unable to set hostName on ssl object", __FILE__, __LINE__);
-			return 0;
+			params = (*sslFuncs.ssl_get0_param)(sess->connection);
+
+			if (params == NULL)
+			{
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2000 ripcSSLConnect Unable to get ssl certificate verification parameters", __FILE__, __LINE__);
+				return 0;
+			}
+
+			if ((*cryptoFuncs.x509_verify_param_set1_ip_asc)(params, ((RsslSocketChannel*)userSpecPtr)->hostName) != 1)
+			{
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Unable to set IP address verification on SSL object", __FILE__, __LINE__);
+				return 0;
+			}
 		}
-		(*sslFuncs.set_hostflags)(sess->connection, RSSL_11_X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+		else
+		{
+			if ((*sslFuncs.ssl_set1_host)(sess->connection, ((RsslSocketChannel*)userSpecPtr)->hostName) != 1)
+			{
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Unable to set hostName verification on ssl object", __FILE__, __LINE__);
+				return 0;
+			}
+			(*sslFuncs.set_hostflags)(sess->connection, RSSL_11_X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+		}
 	}
 	/* Check to see if the channel has connected, if so, proceed with ssl_connect.  Otherwise, set the state the SSL_INITIALIZNIG,
 	  and initComplete to 0.  ssl_connect will be called when initTransport is called again.*/
 	if ((retVal = ipcConnected(fd)) == -1)
 	{
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLConnect channel down", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 1002 ripcSSLConnect() client connect() failed.  System errno: (%d)\n", __FILE__, __LINE__, errno);
 		return 0;
 	}
 
@@ -1902,14 +1902,14 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 			if (RSSL_X509_V_OK != ret)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Certificate validation error.  OpenSSL Verification return: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 Certificate validation error.  OpenSSL Verification return: %s", __FILE__, __LINE__, (*cryptoFuncs.verify_cert_error_string)(ret));
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				return 0;
 			}
 			else
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> error on SSL_connect SSL Error: %i errno: %i ", __FILE__, __LINE__, error->sysError, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 error on SSL_connect SSL Error: %i errno: %i ", __FILE__, __LINE__, error->sysError, errno);
 				ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 				return 0;
 			}
@@ -1957,28 +1957,42 @@ RsslInt32  ripcSSLReconnection(void *session, RsslError *error)
 
 void *ripcNewSSLSocket(void *server, RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr,  RsslError *error)
 {
-	ripcSSLSession *newsess = (ripcSSLSession*)ripcSSLNewSession(fd, 0, server, error);
+	ripcSSLSession *newsess = (ripcSSLSession*)ripcSSLNewSession(fd, (RsslSocketChannel*)userSpecPtr, server, error);
 	ripcSSLServer *srvr = (ripcSSLServer*)server;
+	char* cipherList = 0;
 	
 	if (newsess == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLNewSocket could not allocate ripcSSLSession.", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 1001 ripcSSLNewSocket could not allocate ripcSSLSession.", __FILE__, __LINE__);
 		return 0;
 	}
 
 	*initComplete = 0;
 
-	ripcSSLRandSeed();
-
 	newsess->connection = (*(sslFuncs.ssl_new))(srvr->ctx);
-	
-	(*(sslFuncs.ssl_clear))(newsess->connection);
-
-	if ((*(sslFuncs.set_cipher_list))(newsess->connection, CIPHER_LIST) < 1)
+	if (newsess->connection == NULL)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ripcSSLNewSocket could not set cipher", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLNewSocket could get SSL object", __FILE__, __LINE__);
+		ripcReleaseSSLSession((void*)newsess, error);
+		return 0;
+	}
+
+
+	(*(sslFuncs.ssl_clear))(newsess->connection);
+
+	if (srvr->cipherSuite == NULL)
+		cipherList = CIPHER_LIST;
+	else
+		cipherList = srvr->cipherSuite;
+
+	if ((*(sslFuncs.set_cipher_list))(newsess->connection, cipherList) < 1)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2001 ripcSSLNewSocket error setting up cipher list (no valid ciphers) (errno %d)", __FILE__, __LINE__, errno);
+		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+		ripcReleaseSSLSession((void*)newsess, error);
 		return 0;
 	}
 
@@ -1989,8 +2003,18 @@ void *ripcNewSSLSocket(void *server, RsslSocket fd, RsslInt32 *initComplete, voi
 	(*(sslFuncs.set_ex_data))(newsess->connection, 0, newsess);
 
 	newsess->bio = (*(sslFuncs.BIO_new_socket))((int)fd, RSSL_BIO_NOCLOSE);
+	if (newsess->bio == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 2000 ripcSSLNewSocket could not get new socket BIO", __FILE__, __LINE__);
+		ripcReleaseSSLSession((void*)newsess, error);
+		return 0;
+	}
+
 	(*(sslFuncs.set_bio))(newsess->connection, newsess->bio, newsess->bio);
 	(*(sslFuncs.set_accept_state))(newsess->connection);
+
+	*initComplete = RSSL_FALSE;
 
 	return newsess;
 }
@@ -2004,8 +2028,6 @@ RsslInt32 ripcReleaseSSLServer(void* srvr, RsslError *error)
 		if (server->ctx)
 			(*(sslFuncs.ctx_free))(server->ctx);
 
-		ripcFreeKeys(server);
-		ripcFreeSSLConnectOpts(&server->config);
 		_rsslFree(server);
 	}
 
@@ -2032,26 +2054,7 @@ RsslInt32 ripcReleaseSSLSession(void* session, RsslError *error)
 			sess->ctx = 0;
 		}
         
-
-		// if the server exists, the config is just pointing to the server 
-		// if it doesnt, we need to clean up the memory we point to
-		if (sess->server)
-		{
-			// just reset pointers 
-			sess->config.CAfile = 0;
-			sess->config.CApath = 0;
-			sess->config.cert_file = 0;
-			sess->config.cipher = 0;
-			sess->config.verifyDepth = 0;
-			sess->config.verifyLevel = 0;
-			sess->config.blocking = 0;
-			sess->config.address = 0;
-			sess->config.id = 0;
-			sess->config.pID = 0;
-		}
-		else
-			ripcFreeSSLConnectOpts(&sess->config);
-		
+	
 		sess->server = 0;
 
 		_rsslFree(sess);
@@ -2059,23 +2062,16 @@ RsslInt32 ripcReleaseSSLSession(void* session, RsslError *error)
 	return 1;
 }
 
-ripcSSLServer *ripcInitializeSSLServer(RsslSocket fd, char* name, RsslError  *error)
+ripcSSLServer *ripcInitializeSSLServer(RsslServerSocketChannel* chnl, RsslError  *error)
 {
 	/* how do we pass in the connect options here??? */
-	ripcSSLServer *server = ripcSSLNewServer(fd, name, error);
+	ripcSSLServer *server = ripcSSLNewServer(chnl, error);
 
 	if (server == 0)
 		return 0;
 
-	/* setup temporary keys */
-	if (ripcInitKeys(server, error) <= 0)
-	{
-		ripcReleaseSSLServer(server, 0);
-		return 0;
-	}
-
 	/* setup the CTX - we are the server */
-	server->ctx = ripcSSLSetupCTX(1, RIPC_PROTO_SSL_TLS_V1_2, NULL,  &server->config, error);
+	server->ctx = ripcSSLSetupCTXServer(RIPC_PROTO_SSL_TLS_V1_2, chnl,  error);
 	if (server->ctx == 0)
 	{
 		/* release server */
@@ -2099,7 +2095,7 @@ ripcSSLSession *ripcInitializeSSLSession(RsslSocket fd, RsslInt32 SSLProtocolVer
 		return 0;
 
 	/* setup the CTX - we are the client */
-	sess->ctx = ripcSSLSetupCTX(0, SSLProtocolVersion, chnl, &sess->config, error);
+	sess->ctx = ripcSSLSetupCTXClient(SSLProtocolVersion, chnl, error);
 
 	if (sess->ctx == NULL)
 		return NULL;

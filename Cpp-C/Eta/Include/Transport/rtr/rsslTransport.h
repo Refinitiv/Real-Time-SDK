@@ -207,7 +207,7 @@ typedef enum
 typedef struct {
 	char*			libsslName;				/*!< Name of the openSSL libssl shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
 	char*			libcryptoName;			/*!< Name of the openSSL libcrypto shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
-	char*			libcurlName;
+	char*			libcurlName;			/*!< Name of the curl shared library.  The RSSL API will attempt to dynamically load this library for proxy connections. */
 } rsslJITOpts;
 
 #define RSSL_INIT_SSL_LIB_JIT_OPTS { NULL, NULL, NULL }
@@ -474,8 +474,6 @@ typedef struct {
 
 typedef enum {
 	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */
-	RSSL_ENC_TLSV1   = 0x01,			/*!< @brief (0x02) Encryption using TLSv1 protocol */
-	RSSL_ENC_TLSV1_1 = 0x02,			/*!< @brief (0x04) Encryption using TLSv1.1 protocol */
 	RSSL_ENC_TLSV1_2 = 0x04				/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
 } RsslEncryptionProtocolTypes;
 
@@ -497,9 +495,9 @@ typedef struct {
 } RsslEncryptionOpts;
 
 #ifdef _WIN32
-#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_HTTP, NULL}
+#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_HTTP, NULL}
 #else
-#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_SOCKET, NULL}
+#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_SOCKET, NULL}
 #endif
 
 
@@ -658,7 +656,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyHostName = 0;
 	opts->proxyOpts.proxyPort = 0;
 	opts->componentVersion = NULL;
-	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2;
+	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
 #ifdef _WIN32
 	opts->encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
 #else
@@ -804,6 +802,22 @@ RSSL_API RsslInt32 rsslServerBufferUsage(RsslServer *srvr,
  *	@addtogroup RSSLServerBindOpts
  *	@{
  */
+
+ /** @brief Options used for configuring an encrypted tunneled connection (::RSSL_CONN_TYPE_ENCRYPTED).
+ *  see rsslConnect
+ *  see RsslConnectOptions
+ */
+typedef struct {
+	RsslUInt32			encryptionProtocolFlags;	/*!< @brief Bitmap flag set defining the TLS version(s) to be used by this connection.  See RsslEncryptionProtocolTypes */
+	char*				serverCert;					/*!< Path to this server's certificate.   */
+	char*				serverPrivateKey;			/*!< Path to the server's key file */
+	char*				cipherSuite;				/*!< Optional OpenSSL formatted cipher suite string.  ETA's default configuration is OWASP's "B" tier recommendations, which are the following:
+														DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ECDSA:!ADH:!IDEA:!3DES */
+	char*				dhParams;					/*!< Optional Diffie-Hellman parameter file.  If this is not present, RSSL will load it's default DH parameters */
+} RsslBindEncryptionOpts;
+
+
+#define RSSL_INIT_BIND_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, NULL, NULL, NULL, NULL}
  
 /**
  * @brief RSSL Bind Options used in the rsslBind call.
@@ -838,6 +852,7 @@ typedef struct {
 	void			*userSpecPtr;			/*!< @brief A user specified pointer, returned as userSpecPtr of the RsslServer. */ 
 	RsslTcpOpts		tcpOpts;				/*!< @brief TCP transport specific options (used by RSSL_CONN_TYPE_SOCKET and RSSL_CONN_TYPE_HTTP). */
 	char*			componentVersion;		/*!< @brief User defined component version information */
+	RsslBindEncryptionOpts encryptionOpts;	/*!< @brief Encryption options. */
 } RsslBindOptions;
 
 
@@ -845,7 +860,7 @@ typedef struct {
  * @brief RSSL Bind Options initialization
  * @see RsslBindOptions
  */
-#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0 }
+#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0, RSSL_INIT_BIND_ENCRYPTION_OPTS }
 
 /**
  * @brief Clears RSSL Bind Options 
@@ -884,6 +899,11 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->sysSendBufSize = 0;
 	opts->sysRecvBufSize = 0;
 	opts->componentVersion = NULL;
+	opts->encryptionOpts.cipherSuite = NULL;
+	opts->encryptionOpts.dhParams = NULL;
+	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+	opts->encryptionOpts.serverCert = NULL;
+	opts->encryptionOpts.serverPrivateKey = NULL;
 }
 
 /**

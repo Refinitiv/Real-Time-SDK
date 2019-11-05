@@ -1155,35 +1155,6 @@ RsslInt32 ipcSrvrBind(rsslServerImpl *srvr, RsslError *error)
 
 	rsslServerSocketChannel->stream = sock_fd;
 
-#ifdef RIPC_SSL_ENABLED
-	if (rsslServerSocketChannel->connType == RIPC_CONN_TYPE_ENCRYPTED)
-	{
-		if (getSSLTransFuncs()->newSSLServer == 0)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Cannot enable ssl. Secure Sockets layer library not initialized. ",
-				__FILE__, __LINE__);
-
-			sock_close(rsslServerSocketChannel->stream);
-			relRsslServerSocketChannel(rsslServerSocketChannel);
-		}
-		else
-		{
-			rsslServerSocketChannel->connType = RIPC_CONN_TYPE_ENCRYPTED;
-			rsslServerSocketChannel->transportInfo = (*(getSSLTransFuncs()->newSSLServer))(rsslServerSocketChannel->stream, rsslServerSocketChannel->serverName, error);
-
-			if (rsslServerSocketChannel->transportInfo == 0)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-
-				sock_close(rsslServerSocketChannel->stream);
-				relRsslServerSocketChannel(rsslServerSocketChannel);
-			}
-		}
-	}
-#endif 
-
 	return 0;
 }
 
@@ -1234,7 +1205,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 
 		ipcCloseActiveSrvr(rsslServerSocketChannel);
 		/* rest of cleanup done after return */
-		return(0);
+		return RIPC_INVALID_SOCKET;
 	}
 
 	if (!ripcValidSocket(fdtemp))
@@ -1262,7 +1233,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 				break;
 			}
 		}
-		return(0);
+		return RIPC_INVALID_SOCKET;
 	}
 
 	if (rtrUnlikely(getConndebug()))
@@ -1271,7 +1242,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 	if (ipcSessSetMode(fdtemp, rsslServerSocketChannel->session_blocking, rsslServerSocketChannel->tcp_nodelay, error, __LINE__) < 0)
 	{
 		sock_close(fdtemp);
-		return(0);
+		return RIPC_INVALID_SOCKET;
 	}
 
 	sockopts.code = RIPC_SOPT_KEEPALIVE;
@@ -1284,7 +1255,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 			__FILE__, __LINE__, errno);
 
 		sock_close(fdtemp);
-		return(0);
+		return RIPC_INVALID_SOCKET;
 	}
 
 	/* if non-zero, set this */
@@ -1301,7 +1272,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 				__FILE__, __LINE__, rsslServerSocketChannel->recvBufSize, errno);
 
 			sock_close(fdtemp);
-			return(0);
+			return RIPC_INVALID_SOCKET;
 		}
 	}
 
@@ -1319,7 +1290,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 				__FILE__, __LINE__, rsslServerSocketChannel->sendBufSize, errno);
 
 			sock_close(fdtemp);
-			return(0);
+			return RIPC_INVALID_SOCKET;
 		}
 	}
 
@@ -1361,7 +1332,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				"<%s:%d> Error: 1004 rsslGetHostByName() failed. Host name is incorrect. System errno: (%d)\n",
 				__FILE__, __LINE__, errno);
 
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 
@@ -1374,7 +1345,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
 				__FILE__, __LINE__, errno);
 
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 	else
@@ -1386,7 +1357,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
 				__FILE__, __LINE__, errno);
 
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 
@@ -1404,7 +1375,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 			"<%s:%d> Error: 1004 rsslGetHostByName() failed. Interface name (%s) is incorrect. System errno: (%d)\n",
 			__FILE__, __LINE__, pRsslSocketChannel->interfaceName, errno);
 
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 
 
@@ -1444,7 +1415,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				"<%s:%d> Error: 1002 Unable to create internal pipe on connection request.\n",
 				__FILE__, __LINE__);
 
-			return(RIPC_CONN_ERROR);
+			return(RIPC_INVALID_SOCKET);
 		}
 
 		RSSL_THREAD_START(&(pRsslSocketChannel->curlThreadInfo.curlThreadId), runBlockingLibcurlProxyConnection, pRsslSocketChannel);
@@ -1460,7 +1431,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 			"<%s:%d> ipcConnectSocket() Error: 1002 socket() failed. System errno: (%d)\n",
 			__FILE__, __LINE__, errno);
 
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 
 	sockopts.code = RIPC_SOPT_LINGER;
@@ -1473,7 +1444,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 			__FILE__, __LINE__, errno);
 
 		sock_close(sock_fd);
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 
 	sockopts.code = RIPC_SOPT_KEEPALIVE;
@@ -1486,7 +1457,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 			__FILE__, __LINE__, errno);
 
 		sock_close(sock_fd);
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 
 	/* if non-zero, set this */
@@ -1503,7 +1474,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				__FILE__, __LINE__, pRsslSocketChannel->recvBufSize, errno);
 
 			sock_close(sock_fd);
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 
@@ -1521,14 +1492,14 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				__FILE__, __LINE__, pRsslSocketChannel->sendBufSize, errno);
 
 			sock_close(sock_fd);
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 
 	if (ipcSessSetMode(sock_fd, blocking, tcp_nodelay, error, __LINE__) < 0)
 	{
 		sock_close(sock_fd);
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 
 	if (ipcBindSocket(localAddr, localPort, sock_fd) < 0)
@@ -1539,7 +1510,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 			__FILE__, __LINE__, errno);
 
 		sock_close(sock_fd);
-		return(0);
+		return(RIPC_INVALID_SOCKET);
 	}
 #ifdef IPC_DEBUG_SOCKET_NAME
 	_ipcdGetSockName(sock_fd);
@@ -1562,7 +1533,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				__FILE__, __LINE__, errno);
 
 			sock_close(sock_fd);
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 
 #if defined(_WIN32)
@@ -1577,7 +1548,7 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 				__FILE__, __LINE__, errno);
 
 			sock_close(sock_fd);
-			return(0);
+			return(RIPC_INVALID_SOCKET);
 		}
 	}
 

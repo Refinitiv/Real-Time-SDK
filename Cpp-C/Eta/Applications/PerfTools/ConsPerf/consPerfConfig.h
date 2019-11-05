@@ -73,6 +73,9 @@ typedef struct
 	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 	RsslBool			useWatchlist;				/* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
 
+	char				caStore[255];				/* Certificate authority location */
+	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */
+
 	RsslInt32 _requestsPerTick;
 	RsslInt32 _requestsPerTickRemainder;
 } ConsPerfConfig;

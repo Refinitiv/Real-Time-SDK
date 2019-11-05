@@ -38,6 +38,7 @@ typedef struct
 													 * Messages cannot be sent in this mode. */
 
 	RsslConnectionTypes	connectionType;				/* Type of connection. See -connType */
+	RsslConnectionTypes encryptedConnectionType;		/* Encrypted connection type if the connectionType is ENCRYPTED*/
 	char 				portNo[32];					/* Port number. See -p */
 	char				interfaceName[128];			/* Name of interface.  See -if */
 	RsslBool			tcpNoDelay;					/* Enable/Disable Nagle's algorithm. See -tcpDelay */
@@ -62,6 +63,10 @@ typedef struct
 	RsslBool			sAddr;						/* Whether an outbound address was specified. See -sa */
 	RsslBool			rAddr;						/* Whether an inbound address was specified. See -ra */
 	RsslBool			takeMCastStats;				/* Running a multicast connection and we want stats. */
+
+	char				caStore[255];
+	char				serverCert[255];
+	char				serverKey[255];
 
 } TransportPerfConfig;
 

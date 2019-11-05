@@ -48,6 +48,9 @@ static void clearNIProvPerfConfig()
 
 	niProvPerfConfig.itemPublishCount = 100000;
 	niProvPerfConfig.commonItemCount = 0;
+
+	snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), "");
+	niProvPerfConfig.tlsProtocolFlags = 0;
 }
 
 void exitConfigError(char **argv)

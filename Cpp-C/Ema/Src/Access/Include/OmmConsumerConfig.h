@@ -204,15 +204,13 @@ public :
 	*/
 	OmmConsumerConfig& tunnelingObjectName(const EmaString& objectName);
 
-	/** Specifies the name of the libssl.so shared library for Encrypted connections on 
-		a Linux operating system.
+	/** Specifies the name of the libssl.so shared library for Encrypted connections.
 		@param[in] libsslName specifies the name of the libssl.so shared library
 		@return reference to this object
 	*/
 	OmmConsumerConfig& tunnelingLibSslName(const EmaString& libsslName);
 
-	/** Specifies the name of the libcrypto.so shared library for Encrypted connections on 
-		a Linux operating system.
+	/** Specifies the name of the libcrypto.so shared library for Encrypted connections.
 		@param[in] libsslName specifies the name of the libcrypto.so shared library
 		@return reference to this object
 	*/

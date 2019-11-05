@@ -865,7 +865,11 @@ static RsslServer* bindRsslServer(RsslError* error)
 	sopts.serviceName = transportPerfConfig.portNo;
 	sopts.sysSendBufSize = transportPerfConfig.sendBufSize;
 	sopts.sysRecvBufSize = transportPerfConfig.recvBufSize;
-
+	if (transportPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED) 
+	{
+		sopts.encryptionOpts.serverCert = transportPerfConfig.serverCert;
+		sopts.encryptionOpts.serverPrivateKey = transportPerfConfig.serverKey;
+	}
 	if ((srvr = rsslBind(&sopts, error)) == 0)
 		return NULL;
 
@@ -950,6 +954,11 @@ static RsslChannel* startConnection()
 	copts.connectionType = transportPerfConfig.connectionType;
 	copts.tcp_nodelay = transportPerfConfig.tcpNoDelay;
 	copts.compressionType = transportPerfConfig.compressionType;
+	if (transportPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		copts.encryptionOpts.encryptedProtocol = transportPerfConfig.encryptedConnectionType;
+		copts.encryptionOpts.openSSLCAStore = transportPerfConfig.caStore;
+	}
 
 	if(copts.connectionType == RSSL_CONN_TYPE_SEQ_MCAST)
 	{

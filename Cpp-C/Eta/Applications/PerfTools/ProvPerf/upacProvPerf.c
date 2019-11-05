@@ -585,6 +585,15 @@ int main(int argc, char **argv)
 	sopts.connectionType = RSSL_CONN_TYPE_SOCKET;
 	sopts.maxFragmentSize = provPerfConfig.maxFragmentSize;
 
+	sopts.connectionType = provPerfConfig.connType;
+
+	if (provPerfConfig.connType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		sopts.encryptionOpts.serverCert = provPerfConfig.serverCert;
+		sopts.encryptionOpts.serverPrivateKey = provPerfConfig.serverKey;
+		sopts.encryptionOpts.cipherSuite = provPerfConfig.cipherSuite;
+	}
+
 	if ((rsslSrvr = rsslBind(&sopts, &error)) == 0)
 	{
 		printf("rsslBind() failed: %d(%s)\n", error.rsslErrorId, error.text);

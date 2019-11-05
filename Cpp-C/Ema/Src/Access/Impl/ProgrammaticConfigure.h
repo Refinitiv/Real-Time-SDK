@@ -54,20 +54,28 @@ public:
 	*/
 	enum ServerEntryFlagEnum
 	{
-		ServerTypeFlagEnum =			0x0001,
-		PortFlagEnum =					0x0002,
-		InterfaceNameFlagEnum =			0x0004,
-		CompTypeFlagEnum =				0x0008,
-		GuarantOutputBufFlagEnum =		0x0010,
-		NumInputBufFlagEnum =			0x0020,
-		SysRecvBufSizeFlagEnum =		0x0040,
-		SysSendBufSizeFlagEnum =		0x0080,
-		HighWaterMarkFlagEnum =			0x0100,
-		TcpNodelayFlagEnum =			0x0200,
-		ConnMinPingTimeoutFlagEnum =	0x0400,
-		ConnPingTimeoutFlagEnum =		0x0800,
-		CompressThresHoldFlagEnum =		0x1000,
-		InitializationTimeoutFlagEnum = 0x2000
+		ServerTypeFlagEnum =			0x000001,
+		PortFlagEnum =					0x000002,
+		InterfaceNameFlagEnum =			0x000004,
+		CompTypeFlagEnum =				0x000008,
+		GuarantOutputBufFlagEnum =		0x000010,
+		NumInputBufFlagEnum =			0x000020,
+		SysRecvBufSizeFlagEnum =		0x000040,
+		SysSendBufSizeFlagEnum =		0x000080,
+		HighWaterMarkFlagEnum =			0x000100,
+		TcpNodelayFlagEnum =			0x000200,
+		ConnMinPingTimeoutFlagEnum =	0x000400,
+		ConnPingTimeoutFlagEnum =		0x000800,
+		CompressThresHoldFlagEnum =		0x001000,
+		InitializationTimeoutFlagEnum = 0x002000,
+		ServerCertEnum =				0x004000,
+		ServerPrivateKeyEnum =			0x008000,
+		DHParamEnum =					0x010000,
+		CipherSuiteEnum =				0x020000,
+		LibSslNameEnum =				0x040000,
+		LibCryptoNameEnum =				0x080000,
+		LibCurlNameEnum =				0x100000,
+
 	};
 
 

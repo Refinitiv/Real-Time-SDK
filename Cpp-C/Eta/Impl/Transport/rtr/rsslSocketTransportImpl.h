@@ -259,22 +259,6 @@ typedef struct {
 	int(*decompress)(void *compressInfo, ripcCompBuffer *buf, RsslError *error);
 } ripcCompFuncs;
 
-/* This structure represents the function entry points for the different
-* Secure Sockets Layer implementations.
-* -- OpenSSL Secure Sockets
-*/
-typedef struct RsslSSLSrvrFuncs {
-
-	void*	(*newSSLServer)(RsslSocket fd, char *name, RsslError*);
-	/* A new server has been created */
-
-	int(*freeSSLServer)(void *server, RsslError*);
-	/* Free the SSL server */
-
-} ripcSSLFuncs;
-
-ripcSSLFuncs*		getSSLTransFuncs();
-
 typedef struct {
 	RsslQueueLink      link1;      /* It is used to add this type to RsslQueue */
 	char		*serverName;		/* portName or port number */
@@ -310,41 +294,40 @@ typedef struct {
 									* the OS calls read/write. For Secure
 									* Sockets we use SSLRead/SSLWrite calls.
 									*/
+	char*			dhParams;
+	char*			cipherSuite;
+	RsslUInt32		encryptionProtocolFlags;
+	char*			serverCert;
+	char*			serverPrivateKey;
 } RsslServerSocketChannel;
 
-#define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+#define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, RSSL_ENC_TLSV1_2, 0, 0 };
 
 RTR_C_INLINE void rsslClearRsslServerSocketChannel(RsslServerSocketChannel *rsslServerSocketChannel)
 {
-	rsslServerSocketChannel->serverName = 0;
-	rsslServerSocketChannel->interfaceName = 0;
-	rsslServerSocketChannel->maxMsgSize = 0;
-	rsslServerSocketChannel->maxUserMsgSize = 0;
-	rsslServerSocketChannel->maxGuarMsgs = 0;
-	rsslServerSocketChannel->maxNumMsgs = 0;
-	rsslServerSocketChannel->numInputBufs = 0;
+	memset((void*)rsslServerSocketChannel, 0, sizeof(RsslServerSocketChannel));
 	rsslServerSocketChannel->compressionSupported = RSSL_COMP_NONE;
-	rsslServerSocketChannel->zlibCompressionLevel = 0;
-	rsslServerSocketChannel->forcecomp = 0;
-	rsslServerSocketChannel->server_blocking = 0;
-	rsslServerSocketChannel->session_blocking = 0;
-	rsslServerSocketChannel->tcp_nodelay = 0;
-	rsslServerSocketChannel->connType = 0;
-	rsslServerSocketChannel->rsslFlags = 0;
-	rsslServerSocketChannel->pingTimeout = 0;
-	rsslServerSocketChannel->minPingTimeout = 0;
-	rsslServerSocketChannel->majorVersion = 0;
-	rsslServerSocketChannel->minorVersion = 0;
 	rsslServerSocketChannel->protocolType = 0; // RIPC_RWF_PROTOCOL_TYPE;
-	rsslServerSocketChannel->sharedBufPool = 0;
-	rsslServerSocketChannel->mutex = 0;
-	rsslServerSocketChannel->sendBufSize = 0;
-	rsslServerSocketChannel->recvBufSize = 0;
-	rsslServerSocketChannel->transportInfo = 0;
-	rsslServerSocketChannel->mountNak = 0;
+	rsslServerSocketChannel->encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
 }
 
 RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChannel* rsslServerSocketChannel);
+
+/* This structure represents the function entry points for the different
+* Secure Sockets Layer implementations.
+* -- OpenSSL Secure Sockets
+*/
+typedef struct RsslSSLSrvrFuncs {
+
+	void*	(*newSSLServer)(RsslServerSocketChannel* chnl, RsslError* err);
+	/* A new server has been created */
+
+	int(*freeSSLServer)(void *server, RsslError* err);
+	/* Free the SSL server */
+
+} ripcSSLFuncs;
+
+ripcSSLFuncs*		getSSLTransFuncs();
 
 
 typedef enum
@@ -467,9 +450,9 @@ typedef struct
 	RsslUInt32			ipAddress;
 	RsslUInt16			pID;				/* process ID for tunneling */
 	char				tunnelingState;		/* used for basic state management of connection handshake for tunneling management */
-	void				*tunnelStreamFd;	/* keeps track of the streamingFD for wininet based tunnel solutions */
-	void				*newTunnelStreamFd; /* keeps track of streamingFD for winInet based tunnel solutions during the reconnect period */
-	void				*oldTunnelStreamFd; /* keeps track of the previous streamingFD for wininet based tunnel solutions */
+	void				*tunnelTransportInfo;	/* keeps track of the streaming transport Info for wininet based tunnel solutions */
+	void				*newTunnelTransportInfo; /* keeps track of streaming transport info for winInet based tunnel solutions during the reconnect period */
+	RsslSocket			oldTunnelStreamFd; /* This is the streamingFD of the old connection */
 	RsslUInt8			compressionBitmap[RIPC_COMP_BITMAP_SIZE];	/* 1 byte array used in compression */
 	RsslInt32			minPingTimeout;		/* minimum ping timeout */
 	RsslUInt32			srvrcomp;			/* compression types allowed by the server */
@@ -491,6 +474,7 @@ typedef struct
 											* the OS calls read/write. For Secure
 											* Sockets we use SSLRead/SSLWrite calls.
 											*/
+	void				*newTransportInfo;	
 } RsslSocketChannel;
 
 
@@ -593,9 +577,9 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->ipAddress = 0;
 	rsslSocketChannel->pID = 0;
 	rsslSocketChannel->tunnelingState = RIPC_NO_TUNNELING;
-	rsslSocketChannel->tunnelStreamFd = 0;
-	rsslSocketChannel->newTunnelStreamFd = 0;
-	rsslSocketChannel->oldTunnelStreamFd = 0;
+	rsslSocketChannel->tunnelTransportInfo = 0;
+	rsslSocketChannel->newTunnelTransportInfo = 0;
+	rsslSocketChannel->oldTunnelStreamFd = RIPC_INVALID_SOCKET;
 
 	rsslSocketChannel->dbgFlags = 0;
 
@@ -707,6 +691,7 @@ extern RsslRet ipcSetCompFunc(int, ripcCompFuncs*);
 extern RsslRet ipcSetTransFunc(int, ripcTransportFuncs*);
 extern RsslRet ipcSetSSLFuncs(ripcSSLFuncs*);
 extern RsslRet ipcSetSSLTransFunc(int, ripcTransportFuncs*);
+extern RsslRet ipcLoadOpenSSL(RsslError *error);
 
 extern RsslRet ipcShutdownServer(RsslServerSocketChannel* socket, RsslError *error);
 extern RsslRet ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error);

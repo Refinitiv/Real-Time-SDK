@@ -194,6 +194,7 @@ void BaseConfig::clear()
 	libSslName.clear();
 	libCryptoName.clear();
 	traceStr.clear();
+	libcurlName.clear();
 	tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
 }
 
@@ -368,6 +369,8 @@ void ActiveConfig::clear()
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
 	pDirectoryRefreshMsg = 0;
+
+	BaseConfig::clear();
 
 }
 
@@ -672,6 +675,19 @@ ServerConfig::~ServerConfig()
 
 void ServerConfig::clear()
 {
+	name.clear();
+	interfaceName.clear();
+	compressionType = DEFAULT_COMPRESSION_TYPE;
+	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
+	connectionType = RSSL_CONN_TYPE_SOCKET;
+	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
+	connectionMinPingTimeout = DEFAULT_CONNECTION_MINPINGTIMEOUT;
+	initializationTimeout = DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
+	guaranteedOutputBuffers = DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS;
+	numInputBuffers = DEFAULT_NUM_INPUT_BUFFERS;
+	sysRecvBufSize = DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE;
+	sysSendBufSize = DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE;
+	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 }
 
 void ServerConfig::setGuaranteedOutputBuffers(UInt64 value)
@@ -742,6 +758,14 @@ SocketServerConfig::~SocketServerConfig()
 void SocketServerConfig::clear()
 {
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	libSslName.clear();
+	libCryptoName.clear();
+	libCurlName.clear();
+
+	serverCert.clear();
+	serverPrivateKey.clear();
+	cipherSuite.clear();
+	dhParams.clear();
 }
 
 ServerConfig::ServerType SocketServerConfig::getType() const

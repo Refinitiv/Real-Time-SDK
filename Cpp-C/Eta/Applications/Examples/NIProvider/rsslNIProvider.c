@@ -146,8 +146,6 @@ void printUsageAndExit(char *appName)
 	printf("[-hsmAddr <Address>] [-hsmPort <Port>] [-hsmInterface <Interface>] [-hsmInterval <Seconds>] \n");
 	printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET and HTTP(Windows only).\n");
 	printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
-	printf(" -spTLSv1 Specifies that TLSv1.0 can be used for an OpenSSL-based encrypted connection\n");
-	printf(" -spTLSv1.1 Specifies that TLSv1.1 can be used for an OpenSSL-based encrypted connection\n");
 	printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
 	printf("\n -ph specifies the proxy host\n");
 	printf(" -pp specifies the proxy port\n");

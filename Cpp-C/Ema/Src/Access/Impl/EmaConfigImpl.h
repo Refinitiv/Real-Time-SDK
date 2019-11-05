@@ -1391,13 +1391,65 @@ public:
 	AdminRefreshMsg* getDirectoryRefreshMsg();
 
 	bool getDirectoryName(const EmaString&, EmaString&) const;
-	
+
+	void libsslName(const EmaString&);
+	void libcryptoName(const EmaString&);
+	void libcurlName(const EmaString&);
+	void serverCert(const EmaString&);
+	void serverPrivateKey(const EmaString&);
+	void cipherSuite(const EmaString&);
+	void dhParams(const EmaString&);
+
+	const EmaString& getUserSpecifiedLibSslName()
+	{
+		return _libSslName;
+	}
+
+	const EmaString& getUserSpecifiedLibCryptoName()
+	{
+		return _libCryptoName;
+	}
+
+	const EmaString& getUserSpecifiedLibCurlName()
+	{
+		return _libCurlName;
+	}
+
+	const EmaString& getUserSpecifiedServerCert()
+	{
+		return _serverCert;
+	}
+
+	const EmaString& getUserSpecifiedServerPrivateKey()
+	{
+		return _serverPrivateKey;
+	}
+
+	const EmaString& getUserSpecifiedCipherSuite()
+	{
+		return _cipherSuite;
+	}
+
+	const EmaString& getUserSpecifiedDhParams()
+	{
+		return _dhParams;
+	}
+
+
 protected:
 
 	void addDirectoryRefreshMsg(RsslRefreshMsg*);
 
 	PortSetViaFunctionCall		_portSetViaFunctionCall;
 	AdminRefreshMsg*			_pDirectoryRsslRefreshMsg;
+
+	EmaString		_libSslName;
+	EmaString		_libCryptoName;
+	EmaString		_libCurlName;
+	EmaString		_serverCert;
+	EmaString		_serverPrivateKey;
+	EmaString		_cipherSuite;
+	EmaString		_dhParams;
 
 };
 
