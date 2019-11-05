@@ -37,11 +37,13 @@ void createProgrammaticConfig( Map& configMap )
 	innerMap.addKeyAscii( "Channel_13", MapEntry::AddEnum,
 		ElementList()
 		.addEnum( "ChannelType", 1 )
+		.addEnum( "CompressionType", 99 )
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 30000 )
 		.addAscii( "Host", "localhost" )
 		.addAscii( "Port", "14002" )
 		.addAscii( "ObjectName", "P_ObjectName")
+		.addAscii( "OpenSSLCAStore", "MYCA")
 		.addAscii( "ProxyHost", "proxyHostToConnectTo")
 		.addAscii("ProxyPort", "proxyPortToConnectTo" )
 		.addUInt( "TcpNodelay", 1 ).complete() ).complete();
