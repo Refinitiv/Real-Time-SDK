@@ -353,7 +353,7 @@ public interface ChannelInformation
 
 	/** Specifies the number of input buffers
 	 * 
-	 * @param guaranteedOutputBuffers specifies number of input buffers
+	 * @param numInputBuffers specifies number of input buffers
 	 * 
  	 */
 	public void numInputBuffers(int numInputBuffers);
@@ -367,21 +367,21 @@ public interface ChannelInformation
 
 	/** Specifies the systems Receive Buffer size
 	 * 
-	 * @param[in] sysRecvBufSize specifies systems receive Buffer size
+	 * @param sysRecvBufSize specifies systems receive Buffer size
 	 * 
 	 */
 	public void sysRecvBufSize(int sysRecvBufSize);
 
 	/** Specifies the compression type
 	 * 
-	 * @param[in] compressionType specifies compression type
+	 * @param compressionType specifies compression type
 	 * 
 	 */
 	public void compressionType(int compressionType);
 
 	/** Specifies the compression threshold
 	 * 
-	 * @param[in] compressionThreshold specifies compression threshold
+	 * @param compressionThreshold specifies compression threshold
 	 * 
 	 */
 	public void compressionThreshold(int compressionThreshold);
