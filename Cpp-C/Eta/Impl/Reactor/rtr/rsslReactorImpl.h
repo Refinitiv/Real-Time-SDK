@@ -437,6 +437,9 @@ typedef struct
 	/* For sharing access token for multiple reactor channel using the same OAuth credential */
 	RsslReactorTokenManagementImpl reactorTokenManagement;
 
+	RsslQueue errorInfoPool; /* Keeps a pool of RsslErrorInfo for notifying users with the token events. */
+	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
+
 } RsslReactorWorker;
 
 typedef enum
@@ -534,6 +537,10 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName);
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
+
+RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pReactorWoker);
+
+void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);

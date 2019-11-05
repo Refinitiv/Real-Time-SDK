@@ -156,6 +156,19 @@ RTR_C_INLINE void rsslClearReactorTokenManagementImpl(RsslReactorTokenManagement
 	rsslInitQueue(&pTokenManagementImpl->tokenSessionList);
 }
 
+/* RsslReactorErrorInfoImpl is used to capture error information for a token session for one or multiple channels and it is 
+ * able to reuse it from the pool. */
+typedef struct
+{
+	RsslQueueLink				poolLink;		/* For keeping in the RsslReactorWorker.errorInfoPool member */
+	RsslErrorInfo				rsslErrorInfo;	/* Keeps the error message and its location */
+	RsslUInt32					referenceCount; /* Number of events that refers to this structure */
+} RsslReactorErrorInfoImpl;
+
+RTR_C_INLINE void rsslClearReactorErrorInfoImpl(RsslReactorErrorInfoImpl *pErrorInfoImpl)
+{
+	memset(pErrorInfoImpl, 0, sizeof(RsslReactorErrorInfoImpl));
+}
 
 #ifdef __cplusplus
 };

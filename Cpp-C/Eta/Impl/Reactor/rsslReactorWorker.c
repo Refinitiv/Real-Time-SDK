@@ -84,6 +84,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 {
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 	int eventQueueFd;
+	int i;
 
 	if (rsslInitReactorEventQueueGroup(&pReactorImpl->reactorWorker.activeEventQueueGroup) != RSSL_RET_SUCCESS)
 	{
@@ -103,6 +104,24 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	rsslInitQueue(&pReactorImpl->reactorWorker.inactiveChannels);
 	rsslInitQueue(&pReactorImpl->reactorWorker.reconnectingChannels);
 	rsslInitQueue(&pReactorImpl->reactorWorker.disposableRestHandles);
+
+	/* Initialize the error information pool for the session management */
+	rsslInitQueue(&pReactorImpl->reactorWorker.errorInfoPool);
+	RSSL_MUTEX_INIT(&pReactorImpl->reactorWorker.errorInfoPoolLock);
+
+	/* Initialize error information pool */
+	for (i = 0; i < 5; ++i)
+	{
+		RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = (RsslReactorErrorInfoImpl*)malloc(sizeof(RsslReactorErrorInfoImpl));
+
+		if (!pReactorErrorInfoImpl)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactorWorker error pool.");
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslQueueAddLinkToBack(&pReactorImpl->reactorWorker.errorInfoPool, &pReactorErrorInfoImpl->poolLink);
+	}
 
 	pReactorImpl->reactorWorker.pNotifier = rsslCreateNotifier(1024);
 	if (pReactorImpl->reactorWorker.pNotifier == NULL)
@@ -279,6 +298,17 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
 		RSSL_MUTEX_DESTROY(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
+
+		/* Free RsslReactorErrorInfoImpl from the Reactor worker's pool */
+		RSSL_MUTEX_LOCK(&pReactorWorker->errorInfoPoolLock);
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->errorInfoPool)))
+		{
+			RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorErrorInfoImpl, poolLink, pLink);
+			free(pReactorErrorInfoImpl);
+		}
+		RSSL_MUTEX_UNLOCK(&pReactorWorker->errorInfoPoolLock);
+
+		RSSL_MUTEX_DESTROY(&pReactorWorker->errorInfoPoolLock);
 	}
 
 	if (pReactorImpl->pRestClient)
@@ -890,14 +920,20 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													else
 													{
 														RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+														RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+														
 														rsslClearReactorTokenMgntEvent(pEvent);
+														rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
 
 														pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pOAuthCredentialRenewalImpl;
 														pEvent->pAuthTokenEventCallback = pOAuthCredentialRenewalImpl->pAuthTokenEventCallback;
 														pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
 
-														rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+														pReactorErrorInfoImpl->referenceCount++;
+														rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 															"Failed to send the REST request. Text: %s", pReactorWorker->workerCerr.rsslError.text);
+
+														pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 														if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 															== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
@@ -929,14 +965,20 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												else
 												{
 													RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+													RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+
 													rsslClearReactorTokenMgntEvent(pEvent);
+													rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
 
 													pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pOAuthCredentialRenewalImpl;
 													pEvent->pAuthTokenEventCallback = pOAuthCredentialRenewalImpl->pAuthTokenEventCallback;
 													pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
 
-													rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+													pReactorErrorInfoImpl->referenceCount++;
+													rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 														"Failed to send the REST request. Text: %s", pReactorWorker->workerCerr.rsslError.text);
+
+													pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 													if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 														== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
@@ -2200,6 +2242,10 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
 	RsslQueueLink *pLink;
 	RsslReactorImpl *pReactorImpl = (RsslReactorImpl *)pReactorTokenSession->pReactor;
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+
+	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+	rsslCopyErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, &pReactorTokenSession->tokenSessionWorkerCerr);
 
 	RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 	{
@@ -2216,7 +2262,8 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 			pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
 			pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
 			pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
-			rsslCopyErrorInfo(&pEvent->errorInfo, &pReactorTokenSession->tokenSessionWorkerCerr);
+			pReactorErrorInfoImpl->referenceCount++;
+			pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 				== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
@@ -2234,8 +2281,8 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 			pEvent->pTokenSessionImpl = pReactorTokenSession;
 			pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_CHANNEL_WARNING;
 			pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
-			pEvent->pAuthTokenEventCallback = NULL;
-			rsslCopyErrorInfo(&pEvent->errorInfo, &pReactorTokenSession->tokenSessionWorkerCerr);
+			pReactorErrorInfoImpl->referenceCount++;
+			pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 				== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
@@ -3274,6 +3321,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 	RsslReactorWorker *pReactorWorker = &pRsslReactorImpl->reactorWorker;
 	RsslError rsslError;
 	RsslReactorTokenMgntEvent *pEvent;
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = NULL;
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -3309,8 +3357,15 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 
 				if (pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.data == 0)
 				{
-					rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+					rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+
+					pReactorErrorInfoImpl->referenceCount++;
+					rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 						"Failed to allocate memory for parsing the token information");
+
+					pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
 					goto RequestFailed;
 				}
 			}
@@ -3319,8 +3374,15 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 				&pReactorOAuthCredentialRenewalImpl->tokenInformation.expiresIn, &pReactorOAuthCredentialRenewalImpl->tokenInformation.tokenType,
 				&pReactorOAuthCredentialRenewalImpl->tokenInformation.scope, &pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer, &rsslError) != RSSL_RET_SUCCESS)
 			{
-				rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+				rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+
+				pReactorErrorInfoImpl->referenceCount++;
+				rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 					"Failed to parse the token information. Text: %s", rsslError.text);
+
+				pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
 				goto RequestFailed;
 			}
 
@@ -3337,8 +3399,15 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 		}
 		default:
 		{
-			rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+			rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+
+			pReactorErrorInfoImpl->referenceCount++;
+			rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+
+			pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
 			goto RequestFailed;
 		}
 	}
@@ -3363,6 +3432,9 @@ static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestRe
 	RsslReactorImpl *pRsslReactorImpl = (RsslReactorImpl*)pReactorOAuthCredentialRenewalImpl->pRsslReactor;
 	RsslReactorWorker *pReactorWorker = &pRsslReactorImpl->reactorWorker;
 	RsslReactorTokenMgntEvent *pEvent;
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+
+	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
 
 	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
 	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
@@ -3377,8 +3449,11 @@ static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestRe
 	pEvent->pAuthTokenEventCallback = pReactorOAuthCredentialRenewalImpl->pAuthTokenEventCallback;
 	pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
 
-	rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+	pReactorErrorInfoImpl->referenceCount++;
+	rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 		"Failed to send the REST request. Text: %s", rsslError->text);
+
+	pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pRsslReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 		== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))

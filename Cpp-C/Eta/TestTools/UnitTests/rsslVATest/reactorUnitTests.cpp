@@ -91,6 +91,7 @@ typedef struct
 
 	RsslInt32 numOfAuthTokenInfoCount; /* Number of authentication token received. */
 	RsslInt32 numOfAuthTokenInfoErrorCount; /* Number of authentication token error received. */
+	RsslInt32 authTokenInfoErrorTextLength; /* The length of the error message if any. */
 	RsslUInt32 authEventStatusCode; /* The HTTP status code */
 
 } MyReactor;
@@ -330,6 +331,7 @@ protected:
 		rsslClearOMMProviderRole(&_reactorOmmProviderRole);
 		pConsMon->numOfAuthTokenInfoCount = 0;
 		pConsMon->numOfAuthTokenInfoErrorCount = 0;
+		pConsMon->authTokenInfoErrorTextLength = 0;
 		pConsMon->channelDownReconnectingEventCount = 0;
 		
 		for(;i < connectInfoCount; i++)
@@ -1108,6 +1110,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_Unauthori
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 400);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 0);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 1);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength > 0);
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
     ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -1163,6 +1166,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAu
 	ASSERT_TRUE(pConsMon->authEventStatusCode == 0); /* No HTTP response status code as the URL is invalid*/
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 0);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 1);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength > 0);
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -1411,6 +1415,36 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections_UsingOnly_RsslRMD
 		dispatchEvent(pConsMon, 800);
 		time_sleep(100);
 	}
+}
+
+TEST_F(ReactorSessionMgntTest, SubmitInvalidUserCredentials_without_tokensession)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal credentialRenewal;
+
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+	renewalOptions.pAuthTokenEventCallback = authTokenEventCallback;
+
+	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+	credentialRenewal.userName.data = const_cast<char*>("invalid");
+	credentialRenewal.userName.length = (RsslUInt32)strlen(credentialRenewal.userName.data);
+	credentialRenewal.password = credentialRenewal.userName;
+	credentialRenewal.clientId = credentialRenewal.userName;
+
+	ASSERT_TRUE(rsslReactorSubmitOAuthCredentialRenewal(pConsMon->pReactor, &renewalOptions, &credentialRenewal, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	dispatchEvent(pConsMon, 10000);
+
+	/* Check for token information from the callback */
+	ASSERT_TRUE(pConsMon->authEventStatusCode == 401);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 0);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 1);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength > 0);
 }
 
 struct ReactorServiceDiscoveryEndpointResult
@@ -2263,6 +2297,7 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 	if (pAuthTokenEvent->pError)
 	{
 		pMyReactor->numOfAuthTokenInfoErrorCount++;
+		pConsMon->authTokenInfoErrorTextLength = (RsslUInt32)strlen(pAuthTokenEvent->pError->rsslError.text);
 	}
 	else if (pAuthTokenEvent->pReactorAuthTokenInfo)
 	{

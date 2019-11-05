@@ -136,7 +136,7 @@ typedef struct
 	RsslReactorAuthTokenEvent reactorAuthTokenEvent;
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback;
 	RsslReactorTokenSessionImpl *pTokenSessionImpl;
-	RsslErrorInfo errorInfo;
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl;
 } RsslReactorTokenMgntEvent;
 
 RTR_C_INLINE void rsslClearReactorTokenMgntEvent(RsslReactorTokenMgntEvent *pEvent)
@@ -163,7 +163,7 @@ typedef struct
 	RsslReactorOAuthCredentialEvent reactorOAuthCredentialEvent;
 	RsslReactorOAuthCredentialEventCallback *pOAuthCredentialEventCallback;
 	RsslReactorTokenSessionImpl *pTokenSessionImpl;
-	RsslErrorInfo errorInfo;
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl;
 } RsslReactorCredentialRenewalEvent;
 
 RTR_C_INLINE void rsslClearReactorCredentialRenewalEvent(RsslReactorCredentialRenewalEvent *pEvent)
@@ -200,7 +200,6 @@ typedef struct
 	RsslReactorTokenSessionEventType reactorTokenSessionEventType;
 	RsslReactorChannel *pReactorChannel;
 	RsslReactorTokenSessionImpl *pTokenSessionImpl;
-	RsslErrorInfo errorInfo;
 } RsslReactorTokenSessionEvent;
 
 RTR_C_INLINE void rsslClearReactorTokenSessionEvent(RsslReactorTokenSessionEvent *pEvent)

@@ -23,6 +23,8 @@
 #include <alloca.h>
 #endif
 
+#define RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE 10
+
 /* Moves a RsslReactorChannelImpl from whatever list it's on to the given list and changes its state. */
 static void _reactorMoveChannel(RsslQueue *pNewList, RsslReactorChannelImpl *pReactorChannel);
 
@@ -2665,7 +2667,22 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 				/* The channel is being closed by the user. The channel can be NULL when submitting OAuth credential renewal without the token session */
 				if (pReactorChannel && (pReactorChannel->reactorParentQueue == &pReactorImpl->closingChannels))
+				{
+					if ( (pReactorTokenMgntEvent->reactorTokenMgntEventType == RSSL_RCIMPL_TKET_RESP_FAILURE) ||
+						(pReactorTokenMgntEvent->reactorTokenMgntEventType == RSSL_RCIMPL_TKET_CHANNEL_WARNING) )
+					{
+						if (pReactorTokenMgntEvent->pReactorErrorInfoImpl)
+						{
+							/* Decrease the reference count of RsslReactorErrorInfoImpl before putting it back to the pool. */
+							if( --pReactorTokenMgntEvent->pReactorErrorInfoImpl->referenceCount == 0)
+							{
+								rsslReactorReturnErrorInfoToPool(pReactorTokenMgntEvent->pReactorErrorInfoImpl, &pReactorImpl->reactorWorker);
+							}
+						}
+					}
+
 					return RSSL_RET_SUCCESS;
+				}
 
 				switch (pReactorTokenMgntEvent->reactorTokenMgntEventType)
 				{
@@ -2741,11 +2758,17 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)pReactorTokenMgntEvent->pOAuthCredentialRenewal;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorAuthTokenInfo = NULL;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.pReactorChannel = pReactorChannel ? &pReactorChannel->reactorChannel : NULL;
-							pReactorTokenMgntEvent->reactorAuthTokenEvent.pError = &pReactorTokenMgntEvent->errorInfo;
+							pReactorTokenMgntEvent->reactorAuthTokenEvent.pError = &pReactorTokenMgntEvent->pReactorErrorInfoImpl->rsslErrorInfo;
 							pReactorTokenMgntEvent->reactorAuthTokenEvent.statusCode = pReactorChannel ? pTokenSession->httpStausCode : pReactorOAuthCredentialRenewalImpl->httpStatusCode;
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 							cret = (*pReactorTokenMgntEvent->pAuthTokenEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &pReactorTokenMgntEvent->reactorAuthTokenEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+							/* Decrease the reference count of RsslReactorErrorInfoImpl before putting it back to the pool. */
+							if (--pReactorTokenMgntEvent->pReactorErrorInfoImpl->referenceCount == 0)
+							{
+								rsslReactorReturnErrorInfoToPool(pReactorTokenMgntEvent->pReactorErrorInfoImpl, &pReactorImpl->reactorWorker);
+							}
 
 							if (cret != RSSL_RC_CRET_SUCCESS)
 							{
@@ -2766,11 +2789,17 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
 							rsslEvent.channelEventImpl.channelEvent.channelEventType = RSSL_RC_CET_WARNING;
 							rsslEvent.channelEventImpl.channelEvent.pReactorChannel = &pReactorChannel->reactorChannel;
-							rsslEvent.channelEventImpl.channelEvent.pError = &pReactorTokenMgntEvent->errorInfo;
+							rsslEvent.channelEventImpl.channelEvent.pError = &pReactorTokenMgntEvent->pReactorErrorInfoImpl->rsslErrorInfo;
 
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 							(*pReactorChannel->channelRole.base.channelEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &rsslEvent.channelEventImpl.channelEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+							/* Decrease the reference count of RsslReactorErrorInfoImpl before putting it back to the pool. */
+							if (--pReactorTokenMgntEvent->pReactorErrorInfoImpl->referenceCount == 0)
+							{
+								rsslReactorReturnErrorInfoToPool(pReactorTokenMgntEvent->pReactorErrorInfoImpl, &pReactorImpl->reactorWorker);
+							}
 						}
 
 						return RSSL_RET_SUCCESS;
@@ -6251,4 +6280,43 @@ RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName)
 	}
 
 	return NULL;
+}
+
+RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pReactorWoker)
+{
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl;
+	RsslQueueLink *pLink;
+
+	RSSL_MUTEX_LOCK(&pReactorWoker->errorInfoPoolLock);
+	if ((pLink = rsslQueueRemoveFirstLink(&pReactorWoker->errorInfoPool)))
+		pReactorErrorInfoImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorErrorInfoImpl, poolLink, pLink);
+	else
+	{
+		pReactorErrorInfoImpl = (RsslReactorErrorInfoImpl*)malloc(sizeof(RsslReactorErrorInfoImpl));
+		if (pReactorErrorInfoImpl)
+		{
+			rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+			rsslInitQueueLink(&pReactorErrorInfoImpl->poolLink);
+		}
+	}
+	RSSL_MUTEX_UNLOCK(&pReactorWoker->errorInfoPoolLock);
+
+	return pReactorErrorInfoImpl;
+}
+
+void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfoImpl, RsslReactorWorker *pReactorWoker)
+{
+	RSSL_MUTEX_LOCK(&pReactorWoker->errorInfoPoolLock);
+
+	/* Keeps the RsslReactorErrorInfoImpl in the pool until reaches the maximum pool size to reduce memory consumption in the long run. */
+	if ( pReactorWoker->errorInfoPool.count < RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE)
+	{
+		rsslQueueAddLinkToBack(&pReactorWoker->errorInfoPool, &pReactorErrorInfoImpl->poolLink);
+	}
+	else
+	{
+		free(pReactorErrorInfoImpl);
+	}
+
+	RSSL_MUTEX_UNLOCK(&pReactorWoker->errorInfoPoolLock);
 }
