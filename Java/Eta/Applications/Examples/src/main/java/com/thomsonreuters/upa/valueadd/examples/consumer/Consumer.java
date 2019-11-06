@@ -520,7 +520,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         	    		continue;
         	    	}
 	        		
-	        		if (chnlInfo.canSendLoginReissue &&
+	        		if (chnlInfo.canSendLoginReissue && (consumerCmdLineParser.enableSessionMgnt() == false) &&
 	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
 	        		{
 						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
@@ -555,7 +555,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     	{
     		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 
-    		if (chnlInfo.reactorChannel != null)
+    		if (chnlInfo.reactorChannel != null && 
+			(chnlInfo.reactorChannel.state() == ReactorChannel.State.UP ||
+		         chnlInfo.reactorChannel.state() == ReactorChannel.State.READY))
     		{
     			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
     			loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
