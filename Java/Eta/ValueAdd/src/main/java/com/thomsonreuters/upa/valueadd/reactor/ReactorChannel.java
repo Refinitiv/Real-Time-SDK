@@ -1368,6 +1368,8 @@ public class ReactorChannel extends VaNode
 		// if done getting the auth token and service discovery
     	if (_state == State.EDP_RT_DONE)
     	{
+		copyTokenAndPassword(_loginRequestForEDP);
+
     		if(Reactor.requestServiceDiscovery(reactorConnectInfo))
     		{
 	    		if (_watchlist != null)
@@ -1525,8 +1527,6 @@ public class ReactorChannel extends VaNode
 	
     int verifyAndCopyServiceDiscoveryData (LoginRequest rdmLoginRequest, ReactorErrorInfo errorInfo)
     {
-    	copyTokenAndPassword(rdmLoginRequest);
-    	
     	if (_reactor._restClient.endpoint() == null || _reactor._restClient.port() == null)
     	{
         	_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.verifyAndCopyServiceDiscoveryData", 
