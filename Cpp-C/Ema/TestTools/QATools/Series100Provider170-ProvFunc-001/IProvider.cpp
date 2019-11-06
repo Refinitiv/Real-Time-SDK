@@ -8,6 +8,8 @@
 #include <map>
 
 #include "IProvider.h"
+#include <stdlib.h>
+#include <cstring>
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -176,7 +178,7 @@ void printHelp()
 	cout << endl << "Optional options:\n" << endl
 		<< " -?\tShows this usage" << endl
 		<< " -maxOutputBuffers : value of maxOutputBuffer to modify. " << endl
-		<< " -guranteedOutputBuffers : value of guranteedOutputBuffers to modify. " << endl
+		<< " -guaranteedOutputBuffers : value of guaranteedOutputBuffers to modify. " << endl
 		<< " -highWaterMark : value of highWaterMark to modify. " << endl
 		<< " -serverNumPoolBuffers : value of serverNumPoolBuffer to modify. " << endl
 		<< " -compressionThreshold : value of compressionThreshold to modify. " << endl;
@@ -192,7 +194,7 @@ int main(int argc, char* argv[])
 		AppErrorClient errorClient;
 		OmmIProviderConfig config;
 		Int32 maxOutputBuffers = 2000;
-		Int32 guranteedOutputBuffers = 2000;
+		Int32 guaranteedOutputBuffers = 2000;
 		Int32 highWaterMark = 1000;
 		Int32 serverNumPoolBuffers = 3000;
 		Int32 compressionThreshold = 40;
@@ -208,9 +210,9 @@ int main(int argc, char* argv[])
 			{
 				maxOutputBuffers = (i < (argc - 1) ? atoi(argv[++i]) : maxOutputBuffers);
 			}
-			else if (strcmp(argv[i], "-guranteedOutputBuffers") == 0)
+			else if (strcmp(argv[i], "-guaranteedOutputBuffers") == 0)
 			{
-				guranteedOutputBuffers = (i < (argc - 1) ? atoi(argv[++i]) : guranteedOutputBuffers);
+				guaranteedOutputBuffers = (i < (argc - 1) ? atoi(argv[++i]) : guaranteedOutputBuffers);
 			}
 			else if (strcmp(argv[i], "-highWaterMark") == 0)
 			{
@@ -242,12 +244,12 @@ int main(int argc, char* argv[])
 				  if (i == 0)
 				  {
 					  cout << "Modify maxOutputBuffers to " << maxOutputBuffers << endl;
-					  cout << "Modify guranteedOutputBuffers to " << guranteedOutputBuffers << endl;
+					  cout << "Modify guaranteedOutputBuffers to " << guaranteedOutputBuffers << endl;
 					  cout << "Modify highWaterMark to " << highWaterMark << endl;
 					  cout << "Modify serverNumPoolBuffers to " << serverNumPoolBuffers << endl;
 					  cout << "Modify compressionThreshold to " << compressionThreshold << endl;
 					  provider.modifyIOCtl(1, maxOutputBuffers, I->second[index]); //maxNumBuffer
-					  provider.modifyIOCtl(2, guranteedOutputBuffers, I->second[index]); //guaranteedOutputBuffer
+					  provider.modifyIOCtl(2, guaranteedOutputBuffers, I->second[index]); //guaranteedOutputBuffer
 					  provider.modifyIOCtl(3, highWaterMark, I->second[index]); //highWaterMark
 					  provider.modifyIOCtl(8, serverNumPoolBuffers, I->second[index]); //serverNumPoolBuffer
 					  provider.modifyIOCtl(9, compressionThreshold, I->second[index]); //compressionThreshold				
@@ -272,7 +274,7 @@ int main(int argc, char* argv[])
 				cout << ci[index] << endl;
 				//API QA
 				cout << " Test getMaxOutputBuffers() : " << ci[index].getMaxOutputBuffers() << endl;
-				cout << " Test getGuranteedOutputBuffers() : " << ci[index].getGuaranteedOutputBuffers() << endl;
+				cout << " Test getGuaranteedOutputBuffers() : " << ci[index].getGuaranteedOutputBuffers() << endl;
 				cout << " Test getCompressionThreshold() : " << ci[index].getCompressionThreshold() << endl;
 				// END API QA
 			}

@@ -25,6 +25,7 @@ typedef struct
 	char				interfaceName[128];			/* Name of interface. See -if */
 	RsslBool			tcpNoDelay;					/* Enable/Disable Nagle's algorithm. See -tcpDelay */
 	RsslUInt32			guaranteedOutputBuffers;	/* Guaranteed Output Buffers. See -outputBufs */
+	RsslUInt32			maxOutputBuffers;		/* Max Output Buffers. See -maxOutputBufs */
 	RsslUInt32			maxFragmentSize;			/* Maximum Fragment Size. See -maxFragmentSize */
 	RsslUInt32			highWaterMark;				/* sets the point which will cause UPA to automatically flush */
 	RsslUInt32			sendBufSize;				/* System Send Buffer Size. See -sendBufSize */

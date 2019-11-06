@@ -574,6 +574,7 @@ int main(int argc, char **argv)
 	rsslClearBindOpts(&sopts);
 
 	sopts.guaranteedOutputBuffers = provPerfConfig.guaranteedOutputBuffers;
+	sopts.maxOutputBuffers = provPerfConfig.maxOutputBuffers;
 	sopts.serviceName = provPerfConfig.portNo;
 	if(strlen(provPerfConfig.interfaceName)) sopts.interfaceName = provPerfConfig.interfaceName;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;

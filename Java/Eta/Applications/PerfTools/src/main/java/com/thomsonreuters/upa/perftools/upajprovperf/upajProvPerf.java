@@ -119,8 +119,10 @@ public class upajProvPerf
     private void init(String[] args)
     {
         ProviderPerfConfig.init(args);
+        //init binding options first to be able print effective values
+        initBindOptions();
         _acceptOptions.sysSendBufSize(ProviderPerfConfig.sendBufSize());
-        System.out.println(ProviderPerfConfig.convertToString());
+        System.out.println(ProviderPerfConfig.convertToString(_bindOptions));
 
         // parse message data XML file
         if (_xmlMsgData.parseFile(ProviderPerfConfig.msgFilename()) == CodecReturnCodes.FAILURE)
@@ -159,19 +161,6 @@ public class upajProvPerf
             System.exit(-1);
         }
 
-        _bindOptions.guaranteedOutputBuffers(ProviderPerfConfig.guaranteedOutputBuffers());
-        _bindOptions.serviceName(ProviderPerfConfig.portNo());
-        if (ProviderPerfConfig.interfaceName() != null)
-            _bindOptions.interfaceName(ProviderPerfConfig.interfaceName());
-
-        _bindOptions.majorVersion(Codec.majorVersion());
-        _bindOptions.minorVersion(Codec.minorVersion());
-        _bindOptions.protocolType(Codec.protocolType());
-        _bindOptions.sysRecvBufSize(ProviderPerfConfig.recvBufSize());
-        _bindOptions.connectionType(ConnectionTypes.SOCKET);
-        _bindOptions.maxFragmentSize(ProviderPerfConfig.maxFragmentSize());
-        _bindOptions.tcpOpts().tcpNoDelay(ProviderPerfConfig.tcpNoDelay());
-
         _upajServer = Transport.bind(_bindOptions, _error);
         if (_upajServer == null)
         {
@@ -190,6 +179,23 @@ public class upajProvPerf
             System.exit(-1);
         }
     }
+
+	private void initBindOptions() {
+		_bindOptions.guaranteedOutputBuffers(ProviderPerfConfig.guaranteedOutputBuffers());
+        if (ProviderPerfConfig.maxOutputBuffers() > 0)
+            _bindOptions.maxOutputBuffers(ProviderPerfConfig.maxOutputBuffers());
+        _bindOptions.serviceName(ProviderPerfConfig.portNo());
+        if (ProviderPerfConfig.interfaceName() != null)
+            _bindOptions.interfaceName(ProviderPerfConfig.interfaceName());
+
+        _bindOptions.majorVersion(Codec.majorVersion());
+        _bindOptions.minorVersion(Codec.minorVersion());
+        _bindOptions.protocolType(Codec.protocolType());
+        _bindOptions.sysRecvBufSize(ProviderPerfConfig.recvBufSize());
+        _bindOptions.connectionType(ConnectionTypes.SOCKET);
+        _bindOptions.maxFragmentSize(ProviderPerfConfig.maxFragmentSize());
+        _bindOptions.tcpOpts().tcpNoDelay(ProviderPerfConfig.tcpNoDelay());
+	}
 
     /*
      * Main loop for provider perf application.

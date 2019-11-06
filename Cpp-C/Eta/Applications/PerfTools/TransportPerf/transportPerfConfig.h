@@ -79,6 +79,9 @@ void initTransportPerfConfig(int argc, char **argv);
 /* Prints out the configuration. */
 void printTransportPerfConfig(FILE *file);
 
+/* Prints out the compressionType value. */
+const char *compressionTypeToString(RsslCompTypes compType);
+
 /* Exits the application and prints out usage information. */
 void exitWithUsage();
 
