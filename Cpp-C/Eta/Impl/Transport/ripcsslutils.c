@@ -1336,10 +1336,12 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerS
 	RsslInt32 retVal = 0;
 	RsslInt32 perm = RSSL_SSL_VERIFY_NONE;
 	char* cipherList = 0;
+	RsslInt32 opts;
 
 
 	if (openSSLAPI == RSSL_OPENSSL_V1_0)
 	{
+		opts = RSSL_10_SSL_OP_ALL | RSSL_10_SSL_OP_NO_SSLv2 | RSSL_10_SSL_OP_NO_SSLv3 | RSSL_10_SSL_OP_NO_TLSv1 | RSSL_10_SSL_OP_NO_TLSv1_1;
 		if ((ctx = (*(sslFuncs.ctx_new))((*(sslFuncs.SSLv23_server_method))())) == NULL)
 		{
 			/* populate error  and return failure */
@@ -1349,12 +1351,12 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerS
 			return NULL;
 		}
 
-		RsslInt32 opts = RSSL_10_SSL_OP_ALL | RSSL_10_SSL_OP_NO_SSLv2 | RSSL_10_SSL_OP_NO_SSLv3 | RSSL_10_SSL_OP_NO_TLSv1 | RSSL_10_SSL_OP_NO_TLSv1_1;
 		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_10_SSL_CTRL_OPTIONS, opts, NULL);
 	}
 	else
 	{
-	
+		opts = RSSL_11_SSL_OP_ALL;
+
 		if ((ctx = (*(sslFuncs.ctx_new))((*(sslFuncs.TLS_server_method))())) == NULL)
 		{
 			/* populate error  and return failure */
@@ -1370,7 +1372,6 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerS
 		/* Set the maximum version according to the bitmap */
 		(*(sslFuncs.ctx_ctrl))(ctx, RSSL_11_SSL_CTRL_SET_MAX_PROTO_VERSION, RSSL_11_TLS1_2_VERSION, NULL);
 
-		RsslInt32 opts = RSSL_11_SSL_OP_ALL;
 		(*(sslFuncs.ctx_set_options))(ctx, opts);
 	}
 
