@@ -26,6 +26,9 @@ static void clearProvPerfConfig()
 	provPerfConfig.runTime = 360;
 
 	provPerfConfig.guaranteedOutputBuffers = 5000;
+	/* In the case that client doesn't supply -maxOutputBufs as the input argument, application should remain old functionality
+	   see rsslClearBindOpts(...) */
+	provPerfConfig.maxOutputBuffers = 50;
 	provPerfConfig.maxFragmentSize = 6144;
 	provPerfConfig.sendBufSize = 0;
 	provPerfConfig.recvBufSize = 0;
@@ -132,6 +135,11 @@ void initProvPerfConfig(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			sscanf(argv[iargs], "%u", &provPerfConfig.guaranteedOutputBuffers);
+		}
+		else if (0 == strcmp("-maxOutputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			sscanf(argv[iargs], "%u", &provPerfConfig.maxOutputBuffers);
 		}
 		else if (0 == strcmp("-maxFragmentSize", argv[iargs]))
 		{
@@ -336,6 +344,7 @@ void printProvPerfConfig(FILE *file)
 			"                    Port: %s\n"
 			"             Thread List: %s\n"
 			"          Output Buffers: %u\n"
+			"      Max Output Buffers: %u\n"
 			"       Max Fragment Size: %u\n"
 			"        Send Buffer Size: %u%s\n"
 			"        Recv Buffer Size: %u%s\n"
@@ -357,6 +366,7 @@ void printProvPerfConfig(FILE *file)
 			provPerfConfig.portNo,
 			threadString,
 			provPerfConfig.guaranteedOutputBuffers,
+			provPerfConfig.maxOutputBuffers,
 			provPerfConfig.maxFragmentSize,
 			provPerfConfig.sendBufSize, (provPerfConfig.sendBufSize ? " bytes" : "(use default)"),
 			provPerfConfig.recvBufSize, (provPerfConfig.recvBufSize ? " bytes" : "(use default)"),
@@ -433,6 +443,7 @@ void exitWithUsage()
 			"  -connType <type>                     Type of connection(\"socket\", \"encrypted\")\n"
 			"\n"
 			"  -outputBufs <count>                  Number of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n"
+			"  -maxOutputBufs <count>               Max number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n"
 			"  -maxFragmentSize <size>              Max size of buffers(configures maxFragmentSize in RsslBindOptions)\n"
 			"  -sendBufSize <size>                  System Send Buffer Size(configures sysSendBufSize in RsslBindOptions)\n"
 			"  -recvBufSize <size>                  System Receive Buffer Size(configures sysRecvBufSize in RsslBindOptions)\n"

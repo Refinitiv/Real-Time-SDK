@@ -2,6 +2,7 @@ package com.thomsonreuters.upa.perftools.common;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.transport.BindOptions;
 
 /** Provides configuration that is not specific to any particular handler. */
 public class ProviderPerfConfig
@@ -38,6 +39,7 @@ public class ProviderPerfConfig
     private static String              _interfaceName;               // Network interface to bind to
     private static boolean             _tcpNoDelay;                  // TCP_NODELAY option for socket
     private static int                 _guaranteedOutputBuffers;     // Guaranteed Output Buffers
+    private static int                 _maxOutputBuffers;            // Max Output Buffers
     private static int                 _maxFragmentSize;             // Max fragment size
     private static int                 _highWaterMark;               // High water mark
     private static int                 _sendBufSize;                 // System send buffer size
@@ -56,6 +58,7 @@ public class ProviderPerfConfig
         CommandLine.programName("upajProvPerf");
         CommandLine.addOption("p", "14002", "Port number to connect to");
         CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in BindOptions)");
+        CommandLine.addOption("maxOutputBufs", 0, "Number of max output buffers, optional(configures maxOutputBuffers in BindOptions), value is recalculated by API to match expression: 5 < \"-outputBufs\" <= \"-maxOutputBufs\"");
         CommandLine.addOption("maxFragmentSize", 6144, " Max size of buffers(configures maxFragmentSize in BindOptions)");
         CommandLine.addOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in BindOptions)");
         CommandLine.addOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in BindOptions)");
@@ -135,6 +138,7 @@ public class ProviderPerfConfig
             _writeStatsInterval = CommandLine.intValue("writeStatsInterval");
             _threadCount = (CommandLine.intValue("threads") > 1 ? CommandLine.intValue("threads") : 1);            
             _guaranteedOutputBuffers = CommandLine.intValue("outputBufs");
+            _maxOutputBuffers = CommandLine.intValue("maxOutputBufs");
             _maxFragmentSize = CommandLine.intValue("maxFragmentSize");
             _serviceId = CommandLine.intValue("serviceId");
             _openLimit = CommandLine.intValue("openLimit");
@@ -236,17 +240,22 @@ public class ProviderPerfConfig
         _genMsgsPerTick = _genMsgsPerSec / _ticksPerSec;
         _genMsgsPerTickRemainder = _genMsgsPerSec % _ticksPerSec;
         
-        createConfigString();
+        createConfigString(null);
     }
 
     // Create config string.
-    private static void createConfigString()
+    private static void createConfigString(BindOptions bindOptions)
     {
         _configString = "--- TEST INPUTS ---\n\n" +
                 "       Steady State Time: " + _runTime + " sec\n" +
                 "                    Port: " + _portNo + "\n" +
                 "            Thread Count: " + _threadCount + "\n" +
-                "          Output Buffers: " + _guaranteedOutputBuffers + "\n" +
+                "          Output Buffers: " + _guaranteedOutputBuffers 
+                                             + (bindOptions == null ? "" : "(effective = " + bindOptions.guaranteedOutputBuffers() + ")")
+                                             + "\n" +
+                "      Max Output Buffers: " + _maxOutputBuffers + ((_maxOutputBuffers > 0)? "" : "(use default)") 
+                                             + (bindOptions == null ? "" : "(effective = " + bindOptions.maxOutputBuffers() + ")")
+                                             + "\n" +
                 "       Max Fragment Size: " + _maxFragmentSize + "\n" +
                 "        Send Buffer Size: " + _sendBufSize + ((_sendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
                 "        Recv Buffer Size: " + _recvBufSize + ((_recvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
@@ -271,7 +280,7 @@ public class ProviderPerfConfig
                 "              Service ID: " + _serviceId + "\n" +
                 "              Open Limit: " + _openLimit + "\n" +
                 "             Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
-                               }
+    }
 
     /**
      *  Time application runs before exiting.
@@ -486,6 +495,16 @@ public class ProviderPerfConfig
         return _guaranteedOutputBuffers;
     }
     
+    /**
+     *  Max Output Buffers.
+     *
+     * @return the int
+     */
+    public static int maxOutputBuffers()
+    {
+        return _maxOutputBuffers;
+    }
+
     /**
      *  Max Fragment Size.
      *
@@ -743,6 +762,19 @@ public class ProviderPerfConfig
      */
     public static String convertToString()
     {
+        return convertToString(null);
+    }
+
+    /**
+     *  Converts configuration parameters to a string with effective bindOptions values.
+     *
+     * @return the string
+     */
+    public static String convertToString(BindOptions bindOptions)
+    {
+    	if (bindOptions != null) {
+    		createConfigString(bindOptions);
+    	}
         return _configString;
     }
 
