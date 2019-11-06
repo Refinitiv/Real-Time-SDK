@@ -340,41 +340,44 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 	RsslQueueLink     *pLink;
 	RsslRestHeader    *rsslRestHeader;
 	CURLcode          curlCode;
-	RsslBuffer        header;
-	char*             originPtr;
+	size_t			  keyLen;
+	size_t			  valueLen;
+	size_t			  headerLen;
+	char*             header;
 	struct curl_slist *pHeaderList = 0;
 	RsslBool          specifiedAcceptEncoding = RSSL_FALSE;
-	header.data = (char*)malloc(RSSL_REST_DEFAULT_MAX_HEADER_LENGTH);
-
-	if (header.data == 0)
-	{
-		_rsslRestClearError(pError);
-		pError->rsslErrorId = RSSL_RET_FAILURE;
-		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: failed to allocate memory.", __FILE__, __LINE__);
-		return pHeaderList;
-	}
-
-	originPtr = header.data;
-	header.length = RSSL_REST_DEFAULT_MAX_HEADER_LENGTH;
-
+	
 	RSSL_QUEUE_FOR_EACH_LINK(&rsslRestRequestArgs->httpHeaders, pLink)
 	{
 		rsslRestHeader = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
+		keyLen = strlen((const char*)(rsslRestHeader->key.data));
+		valueLen = strlen((const char*)(rsslRestHeader->value.data));
+		// String is key + ": " + value + "\0"
+		headerLen = keyLen + valueLen + 2 + 1;
 
-		strcpy(header.data, rsslRestHeader->key.data);
-		strncat(header.data, ": ",2);
-		strcat(header.data, rsslRestHeader->value.data);
+		header = (char*)malloc(headerLen);
+
+		if (header == 0)
+		{
+			_rsslRestClearError(pError);
+			pError->rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: failed to allocate memory.", __FILE__, __LINE__);
+			return pHeaderList;
+		}
+
+		memset((void*)header, 0, headerLen);
+
+		strncpy(header, rsslRestHeader->key.data, keyLen);
+		strncat(header, ": ", headerLen - keyLen);
+		strncat(header, rsslRestHeader->value.data, headerLen - keyLen - 2);
 
 		if (strncmp(rsslRestHeader->key.data, rssl_rest_accept_encoding_text.data, rssl_rest_accept_encoding_text.length) == 0)
 			specifiedAcceptEncoding = RSSL_TRUE;
 
-		pHeaderList = (*(rssl_rest_CurlJITFuncs->curl_slist_append))(pHeaderList, (const char*)header.data);
-
-		header.data = originPtr;
+		pHeaderList = (*(rssl_rest_CurlJITFuncs->curl_slist_append))(pHeaderList, (const char*)header);
+		free(header);
 	}
-
-	free(header.data);
 
 	// Set the default accept if not specified by users
 	if (specifiedAcceptEncoding == RSSL_FALSE)
