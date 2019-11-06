@@ -242,6 +242,8 @@ void initTransportPerfConfig(int argc, char **argv)
 				transportPerfConfig.compressionType = RSSL_COMP_NONE;
 			else if (0 == strcmp(argv[iargs], "zlib"))
 				transportPerfConfig.compressionType = RSSL_COMP_ZLIB;
+			else if (0 == strcmp(argv[iargs], "lz4"))
+				transportPerfConfig.compressionType = RSSL_COMP_LZ4;
 			else
 			{
 				/* Read it as a number. */
@@ -439,7 +441,7 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 
 }
 
-static const char *compressionTypeToString(RsslCompTypes compType)
+const char *compressionTypeToString(RsslCompTypes compType)
 {
 	switch(compType)
 	{
@@ -447,6 +449,8 @@ static const char *compressionTypeToString(RsslCompTypes compType)
 			return "none";
 		case RSSL_COMP_ZLIB:
 			return "zlib";
+		case RSSL_COMP_LZ4:
+			return "lz4";
 		default:
 			return "unknown";
 	}
@@ -598,7 +602,7 @@ void exitWithUsage()
 			"  -sendBufSize <size>        System Send Buffer Size(configures sysSendBufSize in the RSSL bind/connection options)\n"
 			"  -recvBufSize <size>        System Receive Buffer Size(configures sysRecvBufSize in the RSSL bind/connection options)\n"
 			"  -highWaterMark <bytes>     Number of queued bytes at which rsslWrite() internally flushes.\n"
-			"  -compressionType <type>    Type of compression to use(\"none\", \"zlib\")\n"
+			"  -compressionType <type>    Type of compression to use(\"none\", \"zlib\", \"lz4\")\n"
 			"  -compressionLevel <num>    Level of compression.\n"
 			"  -if <interface name>       Name of network interface to use\n"
 			"  -tcpDelay                  Turns off tcp_nodelay in RsslBindOpts, enabling Nagle's\n"

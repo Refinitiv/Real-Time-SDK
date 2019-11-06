@@ -244,7 +244,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 			channelInfo.clientToServerPings == RSSL_TRUE ? "true" : "false",
 			channelInfo.serverToClientPings == RSSL_TRUE ? "true" : "false",
 			channelInfo.sysSendBufSize, channelInfo.sysRecvBufSize,			
-			channelInfo.compressionType == RSSL_COMP_ZLIB ? "zlib" : "none",
+			compressionTypeToString(channelInfo.compressionType),
 			channelInfo.compressionThreshold			
 			);
 	if (channelInfo.componentInfoCount == 0)
