@@ -8,6 +8,7 @@
 
 #include "OmmInvalidUsageException.h"
 #include "EmaStringInt.h"
+#include "Utilities.h"
 
 #include <stdio.h>
 #include <string.h>
