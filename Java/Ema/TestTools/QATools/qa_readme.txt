@@ -167,6 +167,9 @@ Module:  Series100Consumer170
 Series100Consumer170-ConsFunc-001
     Alters consumer to test Channel Information ESDK-1601 
 
+Series100Consumer170-ConsFunc-002
+     Alters consumer to test OMMErrorClient and modifyIOCtl ESDK-3294
+
 
 Module:  Series200Consumer200
 -----------------------------
