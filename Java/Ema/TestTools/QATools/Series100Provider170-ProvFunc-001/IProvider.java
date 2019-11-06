@@ -160,7 +160,7 @@ public class IProvider
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
 	    		+ "  -maxOutputBuffers : value of maxOutputBuffer to modify.\r\n" 
-	    		+ "  -guranteedOutputBuffers : value of guranteedOutputBuffers to modify.\n"
+	    		+ "  -guaranteedOutputBuffers : value of guaranteedOutputBuffers to modify.\n"
 	    		+ "  -highWaterMark : value of highWaterMark to modify.\r\n" 
 	    		+ "  -serverNumPoolBuffers : value of serverNumPoolBuffer to modify.\r\n" 
 	    		+ "  -compressionThreshold : value of compressionThreshold to modify.\n"
@@ -296,7 +296,7 @@ public class IProvider
 							ChannelInformation K = ci.get(index);
 							System.out.println("client: " + K);
 							System.out.println("Test getMaxOutputBuffers() : " + K.maxOutputBuffers()); 
-							System.out.println("Test getGuranteedOutputBuffers() : " + K.guaranteedOutputBuffers());
+							System.out.println("Test getGuaranteedOutputBuffers() : " + K.guaranteedOutputBuffers());
 							System.out.println("Test getCompressionThreshold() : " + K.compressionThreshold());
 						}
 					}
@@ -311,7 +311,7 @@ public class IProvider
 					ChannelInformation K = ci.get(index);
 					System.out.println("client: " + K);
 					System.out.println("Test getMaxOutputBuffers() : " + K.maxOutputBuffers()); 
-					System.out.println("Test getGuranteedOutputBuffers() : " + K.guaranteedOutputBuffers());
+					System.out.println("Test getGuaranteedOutputBuffers() : " + K.guaranteedOutputBuffers());
 					System.out.println("Test getCompressionThreshold() : " + K.compressionThreshold());
 				}
 			}
