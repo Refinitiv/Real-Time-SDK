@@ -39,7 +39,7 @@ Additionally, documentation is available online from Refinitiv Developer Portal 
 - [C++/C](https://developers.refinitiv.com/elektron/elektron-sdk-cc/docs)
 - [Java](https://developers.refinitiv.com/elektron/elektron-sdk-java/docs)
 
-Please note that HTML documentation is also available within each package that is available for download in Developer Portal. However, we recommend using these docs from above mentioned Developer Portal links. If viewing docs in a package locally, please use Internet Explorer or modify security settings with Chrome, Firefox, etc. to do so.
+Please note that HTML documentation is also available within each package; packages are available for download in Developer Portal. Legacy portal for ETA has been removed from each package and remains available on Developer Portal for [C](https://docs-developers.refinitiv.com/1565642222871/16304/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Documentation_Portal/Transport_C_DocPortal.1.01.html) and [Java](https://docs-developers.refinitiv.com/1573085826531/16305/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Java_Documentation_Portal/Transport_J_DocPortal.1.01.html). We highly recommend using these docs from above mentioned Developer Portal links. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal or use Internet Explorer or modify security settings with Chrome, Firefox, etc. to do so.
 
 # Developing 
 If you discover any issues with this project, please feel free to create an Issue.
