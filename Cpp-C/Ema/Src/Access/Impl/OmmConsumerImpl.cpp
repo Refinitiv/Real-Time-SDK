@@ -143,42 +143,49 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 
 void OmmConsumerImpl::loadDictionary()
 {
-	UInt64 timeOutLengthInMicroSeconds = _activeConfig.dictionaryRequestTimeOut * 1000;
-	_eventTimedOut = false;
-
-	TimeOut* pWatcher = 0;
-	
-	try {
-		pWatcher = new TimeOut( *this, timeOutLengthInMicroSeconds, &OmmBaseImpl::terminateIf, reinterpret_cast< void* >( this ), true );
-	}
-	catch ( std::bad_alloc ) {
-		throwMeeException( "Failed to allocate memory in OmmConsumerImpl::loadDictionary()." );
-		return;
-	}
-
-	while ( !_atExit && ! _eventTimedOut && !_pDictionaryCallbackClient->isDictionaryReady() )
-		rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
-
-	if ( _eventTimedOut )
+	if (getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
 	{
-		EmaString failureMsg( "dictionary retrieval failed (timed out after waiting " );
-		failureMsg.append( _activeConfig.dictionaryRequestTimeOut ).append( " milliseconds) for " );
-		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-		if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
-		{
-			SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-			failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-		}
-		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg );
-		throwIueException( failureMsg, OmmInvalidUsageException::DictionaryRequestTimeOutEnum );
-		return;
+		_pDictionaryCallbackClient->loadDictionaryFromFile();
 	}
 	else
-		if ( timeOutLengthInMicroSeconds != 0 ) pWatcher->cancel();
+	{
+		UInt64 timeOutLengthInMicroSeconds = _activeConfig.dictionaryRequestTimeOut * 1000;
+		_eventTimedOut = false;
 
-	if ( _atExit )
-		throwIueException( "Application or user initiated exit while waiting for dictionary response.", OmmInvalidUsageException::InvalidOperationEnum );
+		TimeOut* pWatcher = 0;
+
+		try {
+			pWatcher = new TimeOut(*this, timeOutLengthInMicroSeconds, &OmmBaseImpl::terminateIf, reinterpret_cast<void*>(this), true);
+		}
+		catch (std::bad_alloc) {
+			throwMeeException("Failed to allocate memory in OmmConsumerImpl::loadDictionary().");
+			return;
+		}
+
+		while (!_atExit && !_eventTimedOut && !_pDictionaryCallbackClient->isDictionaryReady())
+			rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived);
+
+		if (_eventTimedOut)
+		{
+			EmaString failureMsg("dictionary retrieval failed (timed out after waiting ");
+			failureMsg.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
+			ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
+			if (pChannelcfg->getType() == ChannelConfig::SocketChannelEnum)
+			{
+				SocketChannelConfig* channelConfig(reinterpret_cast<SocketChannelConfig*>(pChannelcfg));
+				failureMsg.append(channelConfig->hostName).append(":").append(channelConfig->serviceName).append(")");
+			}
+			if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg);
+			throwIueException(failureMsg, OmmInvalidUsageException::DictionaryRequestTimeOutEnum);
+			return;
+		}
+		else
+			if (timeOutLengthInMicroSeconds != 0) pWatcher->cancel();
+
+		if (_atExit)
+			throwIueException("Application or user initiated exit while waiting for dictionary response.", OmmInvalidUsageException::InvalidOperationEnum);
+	}
 }
 
 void OmmConsumerImpl::loadDirectory()

@@ -172,13 +172,12 @@ public :
 
 	static const EmaString	_rwfEnumName;
 
+	void loadDictionaryFromFile();
 private :
 
 	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
 
 	bool downloadDictionaryFromService( const Directory& );
-
-	void loadDictionaryFromFile();
 
 	static const EmaString			_clientName;
 
