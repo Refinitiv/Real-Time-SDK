@@ -27,19 +27,23 @@ The Elektron-SDK will support multiple languages across different combinations o
 
 
 # Documentation
-Documentation is available in several sections:
+Documentation is available in **PDF format** on GitHub and Refinitiv Developer Portal. 
+
+GitHub PDF format docs per API:
 
 - [Elektron Message API - C++ Edition](Cpp-C/Ema/Docs)
 - [Elektron Transport API - C Edition](Cpp-C/Eta/Docs)
 - [Elektron Message API - Java Edition](Java/Ema/Docs)
 - [Elektron Transport API - Java Edition](Java/Eta/Docs)
 
-Additionally, documentation is available online from Refinitiv Developer Portal for both C++ and Java at 
+Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
 - [C++/C](https://developers.refinitiv.com/elektron/elektron-sdk-cc/docs)
 - [Java](https://developers.refinitiv.com/elektron/elektron-sdk-java/docs)
 
-Please note that HTML documentation is also available within each package; packages are available for download in Developer Portal. Legacy portal for ETA has been removed from each package and remains available on Developer Portal for [C](https://docs-developers.refinitiv.com/1565642222871/16304/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Documentation_Portal/Transport_C_DocPortal.1.01.html) and [Java](https://docs-developers.refinitiv.com/1573085826531/16305/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Java_Documentation_Portal/Transport_J_DocPortal.1.01.html). We highly recommend using these docs from above mentioned Developer Portal links. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal or use Internet Explorer or modify security settings with Chrome, Firefox, etc. to do so.
+Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal.
+
+Packages are available for download in Developer Portal. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal, using Internet Explorer, or, modifying security settings with Chrome, Firefox, etc., to do so. HTML documentation is also available on Developer Portal for [ETAC](https://docs-developers.refinitiv.com/1565642222871/16304/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Documentation_Portal/Transport_C_DocPortal.1.01.html), [ETA Java](https://docs-developers.refinitiv.com/1573085826531/16305/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Java_Documentation_Portal/Transport_J_DocPortal.1.01.html), [EMA C++](https://docs-developers.refinitiv.com/1573164882026/4725/Docs/HTML/wwhelp/wwhimpl/js/html/wwhelp.htm#href=Documentation_Portal/EMAC_Doc_Portal.1.1.html) and [EMA Java](https://docs-developers.refinitiv.com/1573165073365/6066/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=Documentation_Portal/EMAJ_Doc_Portal.1.1.html). We highly recommend viewing HTML docs from Developer Portal.
 
 # Developing 
 If you discover any issues with this project, please feel free to create an Issue.
