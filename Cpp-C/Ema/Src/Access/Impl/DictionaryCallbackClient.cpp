@@ -779,23 +779,18 @@ void DictionaryCallbackClient::initialize()
 		return;
 	}
 
-	if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum )
-		loadDictionaryFromFile();
+	if (_ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
+		_localDictionary = LocalDictionary::create(_ommBaseImpl, _ommBaseImpl.getActiveConfig());
 }
 
 void DictionaryCallbackClient::loadDictionaryFromFile()
 {
-	_localDictionary = LocalDictionary::create( _ommBaseImpl, _ommBaseImpl.getActiveConfig() );
-
 	RsslRet retCode;
 	if (_localDictionary->load(_ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName, _ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName, retCode) == false)
 	{
-		EmaString temp("DictionaryHandler::loadDictionaryFromFile() failed while initializing DictionaryHandler.");
+		EmaString temp("DictionaryCallbackClient::loadDictionaryFromFile() failed.");
 		temp.append(CR).append("Unable to load RDMFieldDictionary from file named ").append(_ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName)
 			.append(CR).append("or load enumtype.def from file named ").append(_ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName);
-
-		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
-			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
 
 		throwIueException(temp, retCode);
 	}
