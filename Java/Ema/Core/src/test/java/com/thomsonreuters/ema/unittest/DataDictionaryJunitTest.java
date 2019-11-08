@@ -384,7 +384,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
 			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary\n\tCurrent working directory " 
-			+ System.getProperty("user.dir") + "\n\tReason='Can't open file: Invalid_RDMFieldDictionary''"),
+			+ System.getProperty("user.dir") + "\n\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
 				"DataDictionary.loadFieldDictionary() with invalid RDMFieldDictionary - exception expected");
 		}
 		
@@ -397,7 +397,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
 			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def\n\tCurrent working directory " 
-			+ System.getProperty("user.dir") + "\n\tReason='Can't open file: Invalid_enumtype.def''"),
+			+ System.getProperty("user.dir") + "\n\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
 				"DataDictionary.loadEnumTypeDictionary() with invalid enumtype.def - exception expected");
 		}
 	}
@@ -426,7 +426,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 				"DataDictionary.entry(fid) cannot get DictionaryEntry  - exception expected");
 		}
 		
@@ -438,7 +438,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 				"DataDictionary.entry(name) cannot get DictionaryEntry  - exception expected");
 		}
 
@@ -452,7 +452,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded', Error Code='-4048'"),
 				"DataDictionary::getEnumType(fid,value) cannot get EnumType  - exception expected");
 		}
 
@@ -490,7 +490,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded', Error Code='-4048'"),
 				"DataDictionary.encodeEnumTypeDictionary()  - exception expected");
 		}
 
@@ -504,7 +504,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded', Error Code='-4048'"),
 				"DataDictionary.encodeEnumTypeDictionary(fragmentation)  - exception expected");
 		}
 
@@ -516,7 +516,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 				"DataDictionary.encodeFieldDictionary()  - exception expected");
 		}
 
@@ -528,7 +528,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 				"DataDictionary.encodeFieldDictionary(fragmentation)  - exception expected");
 		}
 	}
@@ -670,7 +670,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch(OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='This DataDictionary instance is used for query data dictionary information only'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='This DataDictionary instance is used for query data dictionary information only', Error Code='-4048'"),
 				"Calling DataDictionary.decodeFieldDictionary()  - exception expected");
 		}
 	}
@@ -702,7 +702,7 @@ public class DataDictionaryJunitTest extends TestCase {
 			catch (OmmException excp)
 			{
 				TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 					"DataDictionary.entry(fid) cannot get DictionaryEntry  - exception expected");
 			}
 			
@@ -714,7 +714,7 @@ public class DataDictionaryJunitTest extends TestCase {
 			catch (OmmException excp)
 			{
 				TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded'"),
+				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The field dictionary information was not loaded', Error Code='-4048'"),
 					"DataDictionary.entry(name) cannot get DictionaryEntry  - exception expected");
 			}
 			
@@ -728,7 +728,7 @@ public class DataDictionaryJunitTest extends TestCase {
 			catch (OmmException excp)
 			{
 				TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded'"),
+				TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enumerated types dictionary was not loaded', Error Code='-4048'"),
 					"DataDictionary::getEnumType(fid,value) cannot get EnumType  - exception expected");
 			}
 			
@@ -907,7 +907,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals( "Exception Type='OmmInvalidUsageException', Text='Failed to extract DataDictionary from the passed in FieldList'"),
+			TestUtilities.checkResult(excp.toString().equals( "Exception Type='OmmInvalidUsageException', Text='Failed to extract DataDictionary from the passed in FieldList', Error Code='-22'"),
 				"DictionaryUtility.dataDictionary(FieldList) from encoding a FieldList  - exception expected");
 		}	
 	}
@@ -1094,7 +1094,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The EnumTypeTable does not exist for the Field ID 1'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The EnumTypeTable does not exist for the Field ID 1', Error Code='-4048'"),
 				"Calling DictionaryEntry::getEnumType() for non existing EnumTypeTable - exception expected");
 		}
 
@@ -1131,7 +1131,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enum value 5555 for the Field ID 1 does not exist in enumerated type definitions'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The enum value 5555 for the Field ID 1 does not exist in enumerated type definitions', Error Code='-22'"),
 				"Calling DictionaryEntry::getEnumType() for non existing EnumType - exception expected");
 		}
 
@@ -1166,7 +1166,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field ID -555 does not exist in the field dictionary'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field ID -555 does not exist in the field dictionary', Error Code='-22'"),
 				"DictionaryUtility.entry(fid) from non existing  DictionaryEntry - exception expected");
 		}
 
@@ -1199,7 +1199,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field name UNKNOWN_FID does not exist in the field dictionary'"),
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field name UNKNOWN_FID does not exist in the field dictionary', Error Code='-22'"),
 				"DictionaryUtility.entry(name) from non existing  DictionaryEntry - exception expected");
 		}
 
@@ -1232,7 +1232,7 @@ public class DataDictionaryJunitTest extends TestCase {
 		catch (OmmException excp)
 		{
 			TestUtilities.checkResult(excp.exceptionType()  == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
-			TestUtilities.checkResult(excp.toString().equals( "Exception Type='OmmInvalidUsageException', Text='The enum value 5555 for the Field ID 4 does not exist in enumerated type definitions'"),
+			TestUtilities.checkResult(excp.toString().equals( "Exception Type='OmmInvalidUsageException', Text='The enum value 5555 for the Field ID 4 does not exist in enumerated type definitions', Error Code='-22'"),
 				"DictionaryUtility.enumType(fid, enumvalue) from non existing EnumType - exception expected");
 		}
 
