@@ -674,6 +674,8 @@ public class Reactor
 
             	if (requestServiceDiscovery(reactorConnectOptions.connectionList().get(0)))
             	{
+            		reactorChannel.copyTokenAndPassword(reactorChannel._loginRequestForEDP);
+            		
 		            if (reactorChannel.verifyAndCopyServiceDiscoveryData(reactorChannel._loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
 		            {
 		            	return errorInfo.code();
