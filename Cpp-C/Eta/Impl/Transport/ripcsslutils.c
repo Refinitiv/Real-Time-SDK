@@ -1642,7 +1642,8 @@ RsslInt32 ripcCloseSSLSocket(void *session)
 	if(sess->socket != RIPC_INVALID_SOCKET)
 		sock_close(sess->socket);
 	/* close the SSL connection */
-	(*(sslFuncs.set_shutdown))(sess->connection, RSSL_SSL_SENT_SHUTDOWN| RSSL_SSL_RECEIVED_SHUTDOWN);
+	if (sess->connection)
+		(*(sslFuncs.set_shutdown))(sess->connection, RSSL_SSL_SENT_SHUTDOWN| RSSL_SSL_RECEIVED_SHUTDOWN);
 
 	ripcReleaseSSLSession(sess, 0);
 
@@ -1660,7 +1661,8 @@ RsslInt32 ripcShutdownSSLSocket(void *session)
 	if (sess->socket != RIPC_INVALID_SOCKET)
 		shutdown(sess->socket, shutdownFlag);
 	/* close the SSL connection */
-	(*(sslFuncs.set_shutdown))(sess->connection, RSSL_SSL_SENT_SHUTDOWN | RSSL_SSL_RECEIVED_SHUTDOWN);
+	if(sess->connection)
+		(*(sslFuncs.set_shutdown))(sess->connection, RSSL_SSL_SENT_SHUTDOWN | RSSL_SSL_RECEIVED_SHUTDOWN);
 
 	ripcReleaseSSLSession(sess, 0);
 

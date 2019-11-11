@@ -11713,6 +11713,10 @@ void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
 				}
 
 				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
+
+				/* Handle the Java HTTP Tunnelling case, where transportInfo may be the same as tunnelTransportInfo */
+				if (rsslSocketChannel->transportInfo == rsslSocketChannel->tunnelTransportInfo)
+					rsslSocketChannel->tunnelTransportInfo = NULL;
 				rsslSocketChannel->transportInfo = NULL;
 			}
 
