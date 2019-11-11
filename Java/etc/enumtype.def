@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.38
-!tag Build_RDMD  4.20.38
-!tag DT_Version  19.81
-!tag Date        16-Sep-2019
+!tag RT_Version  4.20.39
+!tag Build_RDMD  4.20.39
+!tag DT_Version  19.91
+!tag Date        28-Oct-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8659,6 +8659,13 @@ ORDER_EXID 13603
    1577        "FBL"   Financial Benchmarks India Private Limited
    1578        "BLS"   US Bureau Of Labor Statistics
    1579        "TON"   TonnEdge
+   1580        "CWM"   CIBC World Markets
+   1581        "CGX"   Central Eastern European Gas Exchange
+   1582        "LZN"   Shandong Longzhong Information Technology Co Ltd
+   1583        "GMN"   GEMINI TRUST COMPANY, LLC
+   1584        "CCL"   CRYPTO COIN COMPARISON LTD
+   1585        "KAI"   KAIKO
+   1586        "SNE"   SENER (Government of Mexico)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11021,6 +11028,7 @@ OR_RNK_RUL  3425
       7       "PEN "   Price, Exchange Sequence Number
       8       "PT  "   Price, Time
       9       "PTR "   Price, Time, Rank
+     10       "T   "   Time
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11349,6 +11357,7 @@ RPT_UNITS   4033
     215   "Pound   "   Pound as a measure of weight as defined by the British Imperial Standards. 1 Pound = 0.4536 Kilograms
     216   "OZS     "   Troy Ounces
     217   "USD/TON "   USD per Tonne (metric)
+    218   "MMBTU   "   Millions of British Thermal Units
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11621,6 +11630,24 @@ P_C_IND1    4737
      17       "P-BE"   Bermuda expiration put option
      18       "P&C "   PUT and Call option
      19       "BULL"   Deprecated. Do not use.
+     20       "C-EL"   Event Linked Call Option
+     21       "P-EL"   Event Linked Put Option
+     22       "PACA"   Put American Call American
+     23       "PACE"   Put American Call European
+     24       "PACB"   Put American Call Bermuda
+     25       "PACL"   Put American Call Event Linked
+     26       "PECA"   Put European Call American
+     27       "PECE"   Put European Call European
+     28       "PECB"   Put European Call Bermuda
+     29       "PECL"   Put European Call Event Linked
+     30       "PBCA"   Put Bermuda Call American
+     31       "PBCE"   Put Bermuda Call European
+     32       "PBCB"   Put Bermuda Call Bermuda
+     33       "PBCL"   Put Bermuda Call Event Linked
+     34       "PLCA"   Put Event Linked Call American
+     35       "PLCE"   Put Event Linked Call European
+     36       "PLCB"   Put Event Linked Call Bermuda
+     37       "PLCL"   Put Event Linked Call Event Linekd
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15540,6 +15567,7 @@ LQP_FAC    12800
       3      "BID  "   Lquidity Provider on the bid side only
       4      "Y    "   Liquidity Provider available
       5      "MGF  "   Minimum Guaranteed Fill
+      6      "GEF  "   Guaranteed Execution Facility
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16736,7 +16764,7 @@ DCNT_BAS2  12964
       1   "00      "   30/360 US
       2   "05G     "   30/365 German
       3   "0AG     "   30/Actual German
-      4   "A0      "   Actual/350
+      4   "A0      "   Actual/360
       5   "A0D     "   Actual/360 Day Based
       6   "A4      "   Actual/364
       7   "A5      "   Actual/365
@@ -17216,6 +17244,9 @@ DELIV_PRD  13015
      28   "WD + 2  "   Week Day + 2
      29   "WD + 3  "   Week Day + 3
      30   "WD + 4  "   Week Day + 4
+     31   "HOLIDAY "   Holiday
+     32   "NXT HOUR"   Next Hour
+     33   "INTRADAY"   Intraday
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18322,6 +18353,62 @@ MET_TYP20  13562
      71   "YAPMCP  "   Yearly Average PM Close Price
      72   "MAAV    "   Monthly AM Daily Accumulated Volume
      73   "MPAV    "   Monthly PM Daily Accumulated Volume
+     74   "WCOMSS  "   Weekly Change on Outstanding Margin Selling Shares
+     75   "WCOMBS  "   Weekly Change on Outstanding Margin Buying Shares
+     76   "NMSS    "   Negotiable Margin Selling Shares
+     77   "SMSS    "   Standardized Margin Selling Shares
+     78   "NMBS    "   Negotiable Margin Buying Shares
+     79   "SMBS    "   Standardized Margin Buying Shares
+     80   "OMSV    "   Outstanding Margin Selling Value
+     81   "OMBV    "   Outstanding Margin Buying Value
+     82   "WCOMSV  "   Weekly Change on Outstanding Margin Selling Value
+     83   "WCOMBV  "   Weekly Change on Outstanding Margin Buying Value
+     84   "NMSV    "   Negotiable Margin Selling Value
+     85   "SMSV    "   Standardized Margin Selling Value
+     86   "NMBV    "   Negotiable Margin Buying Value
+     87   "SMBV    "   Standardized Margin Buying Value
+     88   "WCNMSS  "   Weekly Change on Negotiable Margin Selling Shares
+     89   "WCSMSS  "   Weekly Change on Standardized Margin Selling Shares
+     90   "WCNMBS  "   Weekly Change on Negotiable Margin Buying Shares
+     91   "WCSMBS  "   Weekly Change on Standardized Margin Buying Shares
+     92   "WCNMSV  "   Weekly Change on Negotiable Margin Selling Value
+     93   "WCSMSV  "   Weekly Change on Standardized Margin Selling Value
+     94   "WCNMBV  "   Weekly Change on Negotiable Margin Buying Value
+     95   "WCSMBV  "   Weekly Change on Standardized Margin Buying Value
+     96   "CAMSS   "   Customer Account Margin Selling Shares
+     97   "CAMBS   "   Customer Account Margin Buying Shares
+     98   "DAMSS   "   Dealer Account Margin Selling Shares
+     99   "DAMBS   "   Dealer Account Margin Buying Shares
+    100   "CAMSV   "   Customer Account Margin Selling Value
+    101   "CAMBV   "   Customer Account Margin Buying Value
+    102   "DAMSV   "   Dealer Account Margin Selling Value
+    103   "DAMBV   "   Dealer Account Margin Buying Value
+    104   "WCAMSS  "   Weekly Change on Customer Account Margin Selling Shares
+    105   "WCCAMBS "   Weekly Change on Customer Account Margin Buying Shares
+    106   "WCDAMSS "   Weekly Change on Dealer Account Margin Selling Shares
+    107   "WCDAMBS "   Weekly Change on Dealer Account Margin Buying Shares
+    108   "WCCAMSV "   Weekly Change on Customer Account Margin Selling Value
+    109   "WCCAMBV "   Weekly Change on Customer Account Margin Buying Value
+    110   "WCDAMSV "   Weekly Change on Dealer Account Margin Selling Value
+    111   "WCDAMBV "   Weekly Change on Dealer Account Margin Buying Value
+    112   "CALS    "   Customer Account Loan Shares
+    113   "CALF    "   Customer Account Loan Funds
+    114   "WCCALS  "   Weekly Change on Customer Account Loan Shares
+    115   "WCCALF  "   Weekly Change on Customer Account Loan Funds
+    116   "DALS    "   Dealer Account Loan Shares
+    117   "DALF    "   Dealer Account Loan Funds
+    118   "WCDALS  "   Weekly Change on Dealer Account Loan Shares
+    119   "WCDALF  "   Weekly Change on Dealer Account Loan Funds
+    120   "CALSV   "   Value of Customer Account Loan Shares
+    121   "CALFV   "   Value of Customer Account Loan Funds
+    122   "WCCALSV "   Weekly Change on Value of Customer Account Loan Shares
+    123   "WCCALFV "   Weekly Change on Value of Customer Account Loan Funds
+    124   "DALSV   "   Value of Dealer Account Loan Shares
+    125   "DALFV   "   Value of Dealer Account Loan Funds
+    126   "WCDALSV "   Weekly Change on Value of Dealer Account Loan Shares
+    127   "WCDALFV "   Weekly Change on Value of Dealer Account Loan Funds
+    128   "IMS     "   Internal Matched Shares
+    129   "WCIMS   "   Weekly Change on Internal Matched Shares
 !
 ! ACRONYM    FID
 ! -------    ---

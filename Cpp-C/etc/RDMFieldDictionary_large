@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.38_TREP_19.81		09/17/2019
-!	* Modified 09/17/2019 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.38.
+!   Version	 4.20.39_TREP_19.91		10/28/2019
+!	* Modified 10/28/2019 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.39.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.38_TREP
+!   Version: 4.20.39_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.38
-!tag Build     2
-!tag Date      16-Jul-2019
+!tag Version   4.20.39
+!tag Build     3
+!tag Date      24-Sep-2019
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -7848,7 +7848,8 @@ AVG_MAT    "AVERAGE MATURITY"    3268  NULL        PRICE              17  REAL64
 !
 ASIA_CL_DT "DATE OF ASIA CL"     3269  NULL        DATE               11  DATE             4
 !
-! FX and Money close date for Tokyo trading session
+! For 24-hour or geographically diverse markets, the close price date at the end of 
+! the Asia trading day.
 !
 ASIA_CLOSE "PRICE AT ASIA CLS"   3270  NULL        PRICE              17  REAL64           9
 !
@@ -7884,7 +7885,8 @@ ASIA_OPEN  "PRICE AT ASIA MO"    3277  NULL        PRICE              17  REAL64
 !
 EURO_CL_DT "DATE OF EURO CL"     3278  NULL        DATE               11  DATE             4
 !
-! FX and Money close date for London trading session
+! For 24-hour or geographically diverse markets, the close price date at the end of 
+! the Europe trading day.
 !
 EURO_CLOSE "PRICE AT EURO CLS"   3279  NULL        PRICE              17  REAL64           9
 !
@@ -7920,7 +7922,8 @@ EURO_OPEN  "PRICE AT EURO MO"    3286  NULL        PRICE              17  REAL64
 !
 US_CL_DT   "DATE OF US CL"       3287  NULL        DATE               11  DATE             4
 !
-! FX and Money close date for New York trading session
+! For 24-hour or geographically diverse markets, the close price date at the end of 
+! the Americas trading day.
 !
 US_CLOSE   "PRICE AT US CLS"     3288  NULL        PRICE              17  REAL64           9
 !
@@ -19876,7 +19879,10 @@ ODD_NUMMOV "ODD TRD NUM MOV"     7153  NULL        INTEGER            15   INT64
 !
 ! Number of Odd Lot trades.
 !
-PRE_INT275 "PRED INTEGER 275"    7154  NULL        INTEGER            15   INT64           8
+NO_MPANT   "NUM MKT PART"        7154  NULL        INTEGER            15   INT64           8
+!
+! Number of Market Participants.
+!
 PRE_INT276 "PRED INTEGER 276"    7155  NULL        INTEGER            15   INT64           8
 PRE_INT277 "PRED INTEGER 277"    7156  NULL        INTEGER            15   INT64           8
 PRE_INT278 "PRED INTEGER 278"    7157  NULL        INTEGER            15   INT64           8
@@ -20931,8 +20937,8 @@ LST_CLN_PR "LAST CLEAN PRC"      7598  NULL        PRICE              17  REAL64
 !
 MID_IV     "MID IMPLIED VOLT"    7599  NULL        PRICE              17  REAL64           9
 !
-! Mid implied volatility computed from bid and ask of options instruments or 
-! approximation of mid volatility computed through interpolation
+! Mid implied volatility computed from bid and ask or an approximation computed 
+! through interpolation, for an option(or an option embedded) instrument.
 !
 UPP_RNGLIM "UPPER RANGE LMT"     7600  NULL        PRICE              17  REAL64           9
 !
@@ -25336,8 +25342,7 @@ T_TAX_ELG  "TRAN TAX FLAG"       8951  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 MID_IV_FLG "MID IMP VOLT FLAG"   8952  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
-! Qualifier of mid implied volatility. ' ' = Mid volatility computed from bid and ask 
-! price. '*' = Interpolated mid implied volatility
+! Qualifier of mid implied volatility.
 !
 UN_CRS_SC  "UNDERLYING CRS SC"   8953  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !
@@ -26636,7 +26641,10 @@ HSTOFBK_DT "HST OFFBK DATE"      9365  NULL        DATE               11  DATE  
 !
 ! The Historical Off-book Date.
 !
-PRE_DT255  "PRED DATE 255"       9366  NULL        DATE               11  DATE             4
+SRC_MAT_DT "SRC MAT DATE"        9366  NULL        DATE               11  DATE             4
+!
+! Instrument Maturity Date as provided by the source.
+!
 PRE_DT256  "PRED DATE 256"       9367  NULL        DATE               11  DATE             4
 PRE_DT257  "PRED DATE 257"       9368  NULL        DATE               11  DATE             4
 PRE_DT258  "PRED DATE 258"       9369  NULL        DATE               11  DATE             4
@@ -30114,9 +30122,18 @@ WK_BID_LOW "WEEKLY BID LOW"     10685  NULL        PRICE              17  REAL64
 !
 ! Weekly Lowest BID
 !
-PRERL1695  "PRED REAL 1695"     10686  NULL        PRICE              17  REAL64           9
-PRERL1696  "PRED REAL 1696"     10687  NULL        PRICE              17  REAL64           9
-PRERL1697  "PRED REAL 1697"     10688  NULL        PRICE              17  REAL64           9
+TP_MP_AVPC "TOP MP ACVOL PCT"   10686  NULL        PRICE              17  REAL64           9
+!
+! The total trade volume of the top market participants in percentage.
+!
+RFQ_BYLD   "RFQ BID YLD"        10687  NULL        PRICE              17  REAL64           9
+!
+! RFQ ASK Yield.
+!
+RFQ_AYLD   "RFQ ASK YLD"        10688  NULL        PRICE              17  REAL64           9
+!
+! RFQ BID Yield.
+!
 PRERL1698  "PRED REAL 1698"     10689  NULL        PRICE              17  REAL64           9
 PRERL1699  "PRED REAL 1699"     10690  NULL        PRICE              17  REAL64           9
 PRERL1700  "PRED REAL 1700"     10691  NULL        PRICE              17  REAL64           9
@@ -31296,9 +31313,18 @@ NAV_TONE   "NAV TONE"           11701  NULL        ALPHANUMERIC        8  RMTES_
 !
 ! Price indicators for FID NAVALUE(#120).
 !
-PRE_8TX021 "PRED 8 TXT 021"     11702  NULL        ALPHANUMERIC        8  RMTES_STRING     8
-PRE_8TX022 "PRED 8 TXT 022"     11703  NULL        ALPHANUMERIC        8  RMTES_STRING     8
-PRE_8TX023 "PRED 8 TXT 023"     11704  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+PRI_PC_PRD "PRIOR FCAST PERIOD" 11702  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Text to describe the prior forecasting period.
+!
+RFQ_B_MMID "RFQ BID MMID"       11703  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! RFQ BID Market Participant ID.
+!
+RFQ_A_MMID "RFQ ASK MMID"       11704  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! RFQ ASK Market Participant ID.
+!
 PRE_8TX024 "PRED 8 TXT 024"     11705  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX025 "PRED 8 TXT 025"     11706  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX026 "PRED 8 TXT 026"     11707  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -36343,7 +36369,10 @@ STRIKE_LVL "STRIKE LEVEL"       14383  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Strike Level.
 !
-PRE_16T068 "PRED 16 TXT 068"    14384  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+AVGPC_PRD1 "AVG PRC PRD 1"      14384  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Average Price Calculation Period.
+!
 PRE_16T069 "PRED 16 TXT 069"    14385  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T070 "PRED 16 TXT 070"    14386  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T071 "PRED 16 TXT 071"    14387  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -37658,9 +37687,18 @@ LOCATION   "LOCATION"           15150  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Warehouse location, i.e., a city/port.
 !
-PRE_24T126 "PRED 24 TXT 126"    15151  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T127 "PRED 24 TXT 127"    15152  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T128 "PRED 24 TXT 128"    15153  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+ALT_MMID   "ALT MARKET MKR ID"  15151  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Alternative Market Participant ID.
+!
+RFQ_B_AMMD "RFQ BID ALT MMID"   15152  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Alternative RFQ BID Market Participant ID.
+!
+RFQ_A_AMMD "RFQ ASK ALT MMID"   15153  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Alternative RFQ ASK Market Participant ID.
+!
 PRE_24T129 "PRED 24 TXT 129"    15154  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T130 "PRED 24 TXT 130"    15155  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T131 "PRED 24 TXT 131"    15156  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -37774,7 +37812,10 @@ PUT_ACVOL  "PUT ACVOL"          15215  NULL        PRICE              17  REAL64
 !
 ! Put options accumulated volume.
 !
-PRE_LRL147 "PRED LRG REAL 147"  15216  NULL        PRICE              17  REAL64           9
+PH_MK_ACVL "PH MKT ACVOL"       15216  NULL        PRICE              17  REAL64           9
+!
+! Phone (inter-office) market accumulated volume.
+!
 PRE_LRL148 "PRED LRG REAL 148"  15217  NULL        PRICE              17  REAL64           9
 PRE_LRL149 "PRED LRG REAL 149"  15218  NULL        PRICE              17  REAL64           9
 PRE_LRL150 "PRED LRG REAL 150"  15219  NULL        PRICE              17  REAL64           9
