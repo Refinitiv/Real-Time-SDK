@@ -107,6 +107,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 
 	/* Initialize the error information pool for the session management */
 	rsslInitQueue(&pReactorImpl->reactorWorker.errorInfoPool);
+	rsslInitQueue(&pReactorImpl->reactorWorker.errorInfoInUsedPool);
 	RSSL_MUTEX_INIT(&pReactorImpl->reactorWorker.errorInfoPoolLock);
 
 	/* Initialize error information pool */
@@ -120,6 +121,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 			return RSSL_RET_FAILURE;
 		}
 
+		rsslInitQueueLink(&pReactorErrorInfoImpl->poolLink);
 		rsslQueueAddLinkToBack(&pReactorImpl->reactorWorker.errorInfoPool, &pReactorErrorInfoImpl->poolLink);
 	}
 
@@ -306,6 +308,14 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 			RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorErrorInfoImpl, poolLink, pLink);
 			free(pReactorErrorInfoImpl);
 		}
+
+		/* Free RsslReactorErrorInfoImpl from the Reactor worker's in used pool if any */
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->errorInfoInUsedPool)))
+		{
+			RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorErrorInfoImpl, poolLink, pLink);
+			free(pReactorErrorInfoImpl);
+		}
+
 		RSSL_MUTEX_UNLOCK(&pReactorWorker->errorInfoPoolLock);
 
 		RSSL_MUTEX_DESTROY(&pReactorWorker->errorInfoPoolLock);
@@ -2241,15 +2251,24 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
 	RsslQueueLink *pLink;
 	RsslReactorImpl *pReactorImpl = (RsslReactorImpl *)pReactorTokenSession->pReactor;
-	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
-
-	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
-	rsslCopyErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, &pReactorTokenSession->tokenSessionWorkerCerr);
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = NULL;
+	RsslBool notifyChannelWarning = RSSL_FALSE;
 
 	RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 	{
 		pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
 		pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+		/* Gets RsslReactorErrorInfoImpl for a channel from the pool. */
+		pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
+		rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+		rsslCopyErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, &pReactorTokenSession->tokenSessionWorkerCerr);
+
+		notifyChannelWarning = (pReactorChannel->reactorChannel.pRsslChannel && (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE));
+
+		/* Increase the reference count for notifying the channel warning  */
+		if (notifyChannelWarning)
+			pReactorErrorInfoImpl->referenceCount++;
 
 		// Notifies users with pAuthTokenEventCallback if exists otherwise the RSSL_RC_CET_WARNING event when the channel is active
 		if (pReactorConnectInfoImpl->base.pAuthTokenEventCallback)
@@ -2272,7 +2291,7 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 			}
 		}
 
-		if (pReactorChannel->reactorChannel.pRsslChannel && (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE))
+		if (notifyChannelWarning)
 		{
 			pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
 			rsslClearReactorTokenMgntEvent(pEvent);
@@ -2280,7 +2299,6 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 			pEvent->pTokenSessionImpl = pReactorTokenSession;
 			pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_CHANNEL_WARNING;
 			pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
-			pReactorErrorInfoImpl->referenceCount++;
 			pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
 			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)

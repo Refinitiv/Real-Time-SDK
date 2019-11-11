@@ -6293,12 +6293,13 @@ RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pRe
 	else
 	{
 		pReactorErrorInfoImpl = (RsslReactorErrorInfoImpl*)malloc(sizeof(RsslReactorErrorInfoImpl));
-		if (pReactorErrorInfoImpl)
-		{
-			rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
-			rsslInitQueueLink(&pReactorErrorInfoImpl->poolLink);
-		}
 	}
+
+	rsslInitQueueLink(&pReactorErrorInfoImpl->poolLink);
+	
+	/* Adds to the in used pool to ensure that the memory is released properly. */
+	rsslQueueAddLinkToBack(&pReactorWoker->errorInfoInUsedPool, &pReactorErrorInfoImpl->poolLink);
+
 	RSSL_MUTEX_UNLOCK(&pReactorWoker->errorInfoPoolLock);
 
 	return pReactorErrorInfoImpl;
@@ -6307,6 +6308,9 @@ RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pRe
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfoImpl, RsslReactorWorker *pReactorWoker)
 {
 	RSSL_MUTEX_LOCK(&pReactorWoker->errorInfoPoolLock);
+
+	/* Removes from the in used pool. */
+	rsslQueueRemoveLink(&pReactorWoker->errorInfoInUsedPool, &pReactorErrorInfoImpl->poolLink);
 
 	/* Keeps the RsslReactorErrorInfoImpl in the pool until reaches the maximum pool size to reduce memory consumption in the long run. */
 	if ( pReactorWoker->errorInfoPool.count < RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE)

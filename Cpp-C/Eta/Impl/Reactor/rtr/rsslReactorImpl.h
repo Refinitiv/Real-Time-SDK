@@ -438,6 +438,7 @@ typedef struct
 	RsslReactorTokenManagementImpl reactorTokenManagement;
 
 	RsslQueue errorInfoPool; /* Keeps a pool of RsslErrorInfo for notifying users with the token events. */
+	RsslQueue errorInfoInUsedPool; /* Keeps a pool of RsslErrorInfo in used */
 	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
 
 } RsslReactorWorker;

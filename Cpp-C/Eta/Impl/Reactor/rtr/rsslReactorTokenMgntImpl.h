@@ -160,14 +160,15 @@ RTR_C_INLINE void rsslClearReactorTokenManagementImpl(RsslReactorTokenManagement
  * able to reuse it from the pool. */
 typedef struct
 {
-	RsslQueueLink				poolLink;		/* For keeping in the RsslReactorWorker.errorInfoPool member */
+	RsslQueueLink				poolLink;		/* For keeping in the RsslReactorWorker.errorInfoPool or RsslReactorWorker.errorInfoInUsedPool member */
 	RsslErrorInfo				rsslErrorInfo;	/* Keeps the error message and its location */
 	RsslUInt32					referenceCount; /* Number of events that refers to this structure */
 } RsslReactorErrorInfoImpl;
 
 RTR_C_INLINE void rsslClearReactorErrorInfoImpl(RsslReactorErrorInfoImpl *pErrorInfoImpl)
 {
-	memset(pErrorInfoImpl, 0, sizeof(RsslReactorErrorInfoImpl));
+	memset(&pErrorInfoImpl->rsslErrorInfo, 0, sizeof(RsslErrorInfo));
+	pErrorInfoImpl->referenceCount = 0;
 }
 
 #ifdef __cplusplus
