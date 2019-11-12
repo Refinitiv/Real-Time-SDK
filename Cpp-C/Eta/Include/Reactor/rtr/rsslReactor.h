@@ -782,15 +782,15 @@ typedef enum
 
 /**
  * @brief Configuration options for submitting OAuth credential renewal.
- * The proxy configuration is used only when there is no RsslReactorChannel specified in rsslReactorSubmitOAuthCredentialRenewal()
+ * The proxy configuration is used only when rsslReactorSubmitOAuthCredentialRenewal() is called outside of the RsslReactorOAuthCredentialEventCallback method.
  * and your organization requires use of a proxy to get to the Internet.
  * @see RsslReactorAuthTokenEventCallback
  */
 typedef struct
 {
 	RsslReactorOAuthCredentialRenewalMode		renewalMode;				/*!< Specify a mode for submitting OAuth credential renewal */
-	RsslReactorAuthTokenEventCallback 			*pAuthTokenEventCallback;	/*!< Specify to get response from RsslReactorAuthTokenEventCallback when there is no RsslReactorChannel
-																			 * specified in the rsslReactorSubmitOAuthCredentialRenewal() */
+	RsslReactorAuthTokenEventCallback 			*pAuthTokenEventCallback;	/*!< Specify to get response from RsslReactorAuthTokenEventCallback when rsslReactorSubmitOAuthCredentialRenewal()
+																			 * is called outside of the RsslReactorOAuthCredentialEventCallback method. */
 	RsslBuffer									proxyHostName;				/*!<  @brief Proxy host name. */
 	RsslBuffer									proxyPort;					/*!<  @brief Proxy port. */
 	RsslBuffer									proxyUserName;				/*!<  @brief User Name for authenticated proxies. */
