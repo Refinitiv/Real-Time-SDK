@@ -496,14 +496,43 @@ public class TunnelStream
             _reactor._reactorLock.unlock();          
         }
     }
-    
+
+    /**
+     * Get information about tunnel stream
+     * @param tunnelStreamInfo
+     * @param errorInfo
+     * @return {@link ReactorReturnCodes#SUCCESS} in case succeed and data via {@link TunnelStreamInfo} info parameter
+     */
+    public int info(TunnelStreamInfo tunnelStreamInfo,  ReactorErrorInfo errorInfo) {
+        assert (errorInfo != null) : "errorInfo cannot be null";
+
+        if (tunnelStreamInfo == null) {
+            return _reactor.populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.INVALID_USAGE,
+                    "TunnelStream.info",
+                    "tunnelStreamInfo cannot be null");
+        }
+
+        if (!(tunnelStreamInfo instanceof TunnelStreamInfoImpl)) {
+            return _reactor.populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.INVALID_USAGE,
+                    "TunnelStream.info",
+                    "invalid tunnelStreamInfo parameter type");
+        }
+
+        ((TunnelStreamInfoImpl)tunnelStreamInfo).ordinaryBuffersUsed(_bufferPool.getBuffersUsed());
+        ((TunnelStreamInfoImpl)tunnelStreamInfo).bigBuffersUsed(_bigBufferPool.getBuffersUsed());
+
+        return  ReactorReturnCodes.SUCCESS;
+    }
+
     /**
      * Sends a buffer to the tunnel stream.
      *
      * @param buffer the buffer to send
      * @param options the options
      * @param errorInfo error structure to be populated in the event of failure
-     * @return {@link ReactorReturnCodes#SUCCESS}, if submit succeeded or
+     * @return info ReactorReturnCodes#SUCCESS}, if submit succeeded or
      * {@link ReactorReturnCodes#PERSISTENCE_FULL}, if the persistence file is full or
      * {@link ReactorReturnCodes#INVALID_ENCODING}, if the buffer encoding is invalid or
      * {@link ReactorReturnCodes#FAILURE}, if submit failed (refer to errorInfo for additional information)

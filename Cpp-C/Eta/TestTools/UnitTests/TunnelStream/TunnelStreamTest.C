@@ -25,6 +25,7 @@ void tunnelStreamMsgExchangeTest(bool authenticate, bool enableWatchlist);
 void tunnelStreamOpenWhileDisconnectedTest(bool enableWatchlist);
 void tunnelStreamLongNameTest(bool enableWatchlist);
 void tunnelStreamMaxMsgSizeTest(bool enableWatchlist);
+void tunnelStreamBufferUsedTest(bool enableWatchlist);
 
 int main(int argc, char *argv[])
 {
@@ -80,6 +81,51 @@ TEST(TunnelStream, tunnelStreamMaxMsgSizeTest_NoWatchlist)
 TEST(TunnelStream, tunnelStreamMaxMsgSizeTest_Watchlist)
 {
 	tunnelStreamMaxMsgSizeTest(true);
+}
+
+TEST(TunnelStream, tunnelStreamBufferUsedTest_NoWatchlist)
+{
+	tunnelStreamBufferUsedTest(false);
+}
+
+TEST(TunnelStream, tunnelStreamBufferUsedTest_Watchlist)
+{
+	tunnelStreamBufferUsedTest(true);
+}
+
+TEST(TunnelStream, tunnelStreamGetInfo_ErrorInfoArgTest)
+{
+	/* the structures will be ignored, used as real pointers */
+	RsslTunnelStream tunnelStream = { 0 };
+	RsslTunnelStreamInfo streamInfo = { 0 };
+
+	ASSERT_EQ(RSSL_RET_INVALID_ARGUMENT, rsslTunnelStreamGetInfo(&tunnelStream, &streamInfo, NULL));
+}
+
+TEST(TunnelStream, tunnelStreamGetInfo_TunnelStreamArgTest)
+{
+	/* the structure will be ignored, it is used as a pointer */
+	RsslTunnelStreamInfo streamInfo = { 0 };
+
+	RsslErrorInfo errorInfo;
+
+	ASSERT_EQ(RSSL_RET_INVALID_ARGUMENT, rsslTunnelStreamGetInfo(NULL, &streamInfo, &errorInfo));
+	ASSERT_EQ(RSSL_RET_INVALID_ARGUMENT, errorInfo.rsslError.rsslErrorId);
+	ASSERT_TRUE(strncmp("RsslTunnelStream not provided.", errorInfo.rsslError.text, strlen("RsslTunnelStream not provided.")) == 0);
+	ASSERT_EQ(RSSL_EIC_FAILURE, errorInfo.rsslErrorInfoCode);
+}
+
+TEST(TunnelStream, tunnelStreamGetInfo_StreamInfoArgTest)
+{
+	/* the structure will be ignored, it is used as a pointer */
+	RsslTunnelStream tunnelStream = { 0 };
+
+	RsslErrorInfo errorInfo;
+
+	ASSERT_EQ(RSSL_RET_INVALID_ARGUMENT, rsslTunnelStreamGetInfo(&tunnelStream, NULL, &errorInfo));
+	ASSERT_EQ(RSSL_RET_INVALID_ARGUMENT, errorInfo.rsslError.rsslErrorId);
+	ASSERT_TRUE(strncmp("ValuePtr not provided.", errorInfo.rsslError.text, strlen("ValuePtr not provided.")) == 0);
+	ASSERT_EQ(RSSL_EIC_FAILURE, errorInfo.rsslErrorInfoCode);
 }
 
 void tunnelStreamMsgExchangeTest(bool authenticate, bool enableWatchlist)
@@ -622,8 +668,225 @@ void tunnelStreamMaxMsgSizeTest(bool enableWatchlist)
 		tsGetBufferOptions.size = maxMsgSizes[i];
 		ASSERT_TRUE((pBuffer = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
 
+		RsslTunnelStreamInfo streamInfo;
+		rsslClearTunnelStreamInfo(&streamInfo);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pConsTunnelStream, &streamInfo, &errorInfo));
+		ASSERT_EQ(1, streamInfo.buffersUsed);
+
 		/* Provider gets a tunnelstream buffer. This should succeed. */
 		ASSERT_TRUE((pBuffer = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+		rsslClearTunnelStreamInfo(&streamInfo);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+		ASSERT_EQ(1, streamInfo.buffersUsed);
+
+		/* Close the tunnelstreams. */
+		rsslClearTunnelStreamCloseOptions(&tsCloseOptions);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslReactorCloseTunnelStream(pProvTunnelStream, &tsCloseOptions, &errorInfo));
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslReactorCloseTunnelStream(pConsTunnelStream, &tsCloseOptions, &errorInfo));
+
+		TestReactorComponent::closeSession(&consumer, &provider);
+		consumerReactor.close();
+		providerReactor.close();
+	}
+}
+
+void tunnelStreamBufferUsedTest(bool enableWatchlist)
+{
+	int maxMsgSizes[] = { 1000, 6144, 12000 };
+	RsslErrorInfo errorInfo;
+	RsslTunnelStreamCloseOptions tsCloseOptions;
+	RsslTunnelStreamGetBufferOptions tsGetBufferOptions;
+	const int BUFFERS_TO_TEST = 5;
+	RsslBuffer* pConsBuffers[BUFFERS_TO_TEST]; /* few buffers will be got */
+	RsslBuffer* pProvBuffers[BUFFERS_TO_TEST]; /* few buffers will be got */
+
+	/* Test getting buffers with different maxMsgSizes. */
+	for (int i = 0; i < 3; i++)
+	{
+		RsslTunnelStream* pConsTunnelStream;
+		RsslTunnelStream* pProvTunnelStream;
+
+		/* Create reactors. */
+		TestReactor consumerReactor = TestReactor();
+		TestReactor providerReactor = TestReactor();
+
+		/* Create consumer. */
+		Consumer consumer = Consumer(&consumerReactor);
+		RsslReactorOMMConsumerRole* pConsumerRole = &consumer.reactorRole()->ommConsumerRole;
+		RsslRDMLoginRequest loginRequest;
+		rsslInitDefaultRDMLoginRequest(&loginRequest, 1);
+		RsslRDMDirectoryRequest directoryRequest;
+		rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+		pConsumerRole->pLoginRequest = &loginRequest;
+		pConsumerRole->pDirectoryRequest = &directoryRequest;
+		pConsumerRole->base.channelEventCallback = consumer.channelEventCallback;
+		pConsumerRole->loginMsgCallback = consumer.loginMsgCallback;
+		pConsumerRole->directoryMsgCallback = consumer.directoryMsgCallback;
+		pConsumerRole->dictionaryMsgCallback = consumer.dictionaryMsgCallback;
+		pConsumerRole->base.defaultMsgCallback = consumer.defaultMsgCallback;
+		pConsumerRole->watchlistOptions.enableWatchlist = enableWatchlist;
+
+		/* Create provider. */
+		TunnelStreamProvider provider = TunnelStreamProvider(&providerReactor);
+		TunnelStreamProvider::maxMsgSize(maxMsgSizes[i]);
+		TunnelStreamProvider::maxFragmentSize(maxMsgSizes[i] / 2);
+		RsslReactorOMMProviderRole* pProviderRole = &provider.reactorRole()->ommProviderRole;
+		pProviderRole->base.channelEventCallback = provider.channelEventCallback;
+		pProviderRole->loginMsgCallback = provider.loginMsgCallback;
+		pProviderRole->directoryMsgCallback = provider.directoryMsgCallback;
+		pProviderRole->dictionaryMsgCallback = provider.dictionaryMsgCallback;
+		pProviderRole->base.defaultMsgCallback = provider.defaultMsgCallback;
+		pProviderRole->tunnelStreamListenerCallback = provider.tunnelStreamListenerCallback;
+
+		/* Connect the consumer and provider. Setup login & directory streams automatically. */
+		ConsumerProviderSessionOptions opts = ConsumerProviderSessionOptions();
+		opts.setupDefaultLoginStream(true);
+		opts.setupDefaultDirectoryStream(true);
+		provider.bind(&opts);
+		TestReactor::openSession(&consumer, &provider, &opts);
+
+		/* Open a TunnelStream. */
+		RsslTunnelStreamOpenOptions tsOpenOpts;
+		rsslClearTunnelStreamOpenOptions(&tsOpenOpts);
+		char name[] = "Tunnel1";
+		tsOpenOpts.name = name;
+		tsOpenOpts.statusEventCallback = consumer.tunnelStreamStatusEventCallback;
+		tsOpenOpts.defaultMsgCallback = consumer.tunnelStreamDefaultMsgCallback;
+		tsOpenOpts.classOfService.dataIntegrity.type = RDM_COS_DI_RELIABLE;
+		tsOpenOpts.classOfService.flowControl.type = RDM_COS_FC_BIDIRECTIONAL;
+		tsOpenOpts.streamId = 5;
+		tsOpenOpts.serviceId = (RsslUInt16)defaultService()->serviceId;
+		tsOpenOpts.domainType = RSSL_DMT_SYSTEM;
+		tsOpenOpts.userSpecPtr = &consumer;
+
+		OpenedTunnelStreamInfo* pOpenedTsInfo = consumer.openTunnelStream(&provider, &tsOpenOpts);
+		ASSERT_TRUE(pOpenedTsInfo != NULL);
+		pConsTunnelStream = pOpenedTsInfo->consumerTunnelStream();
+		pProvTunnelStream = pOpenedTsInfo->providerTunnelStream();
+		delete pOpenedTsInfo;
+
+		/* Test tunnel stream accessors */
+		ASSERT_EQ(5, pConsTunnelStream->streamId);
+		if (!enableWatchlist) /* Watchlist will likely use different stream ID. */
+			ASSERT_EQ(5, pProvTunnelStream->streamId);
+		ASSERT_EQ(RSSL_DMT_SYSTEM, pConsTunnelStream->domainType);
+		ASSERT_EQ(RSSL_DMT_SYSTEM, pProvTunnelStream->domainType);
+		ASSERT_EQ(defaultService()->serviceId, pConsTunnelStream->serviceId);
+		ASSERT_EQ(defaultService()->serviceId, pProvTunnelStream->serviceId);
+		ASSERT_EQ(consumer.reactorChannel(), pConsTunnelStream->pReactorChannel);
+		ASSERT_EQ(provider.reactorChannel(), pProvTunnelStream->pReactorChannel);
+		ASSERT_TRUE(strncmp("Tunnel1", pConsTunnelStream->name, strlen("Tunnel1")) == 0);
+		ASSERT_TRUE(strncmp("Tunnel1", pProvTunnelStream->name, strlen("Tunnel1")) == 0);
+		ASSERT_EQ(&consumer, pConsTunnelStream->userSpecPtr);
+		ASSERT_EQ(NULL, pProvTunnelStream->userSpecPtr);
+		ASSERT_EQ(RSSL_STREAM_OPEN, pConsTunnelStream->state.streamState);
+		ASSERT_EQ(RSSL_DATA_OK, pConsTunnelStream->state.dataState);
+		ASSERT_EQ(RSSL_SC_NONE, pConsTunnelStream->state.code);
+		ASSERT_EQ(RSSL_STREAM_OPEN, pProvTunnelStream->state.streamState);
+		ASSERT_EQ(RSSL_DATA_OK, pProvTunnelStream->state.dataState);
+		ASSERT_EQ(RSSL_SC_NONE, pProvTunnelStream->state.code);
+
+		/* Test consumer tunnel stream class of service values */
+		ASSERT_EQ(RSSL_RWF_PROTOCOL_TYPE, pConsTunnelStream->classOfService.common.protocolType);
+		ASSERT_EQ(RSSL_RWF_MAJOR_VERSION, pConsTunnelStream->classOfService.common.protocolMajorVersion);
+		ASSERT_EQ(RSSL_RWF_MINOR_VERSION, pConsTunnelStream->classOfService.common.protocolMinorVersion);
+		ASSERT_EQ(maxMsgSizes[i], pConsTunnelStream->classOfService.common.maxMsgSize);
+		ASSERT_EQ(maxMsgSizes[i] / 2, pConsTunnelStream->classOfService.common.maxFragmentSize);
+		ASSERT_EQ(RDM_COS_AU_NOT_REQUIRED, pConsTunnelStream->classOfService.authentication.type);
+		ASSERT_EQ(RDM_COS_FC_BIDIRECTIONAL, pConsTunnelStream->classOfService.flowControl.type);
+		ASSERT_EQ(RDM_COS_DI_RELIABLE, pConsTunnelStream->classOfService.dataIntegrity.type);
+		ASSERT_EQ(RDM_COS_GU_NONE, pConsTunnelStream->classOfService.guarantee.type);
+
+		/* Test provider tunnel stream class of service values */
+		ASSERT_EQ(RSSL_RWF_PROTOCOL_TYPE, pProvTunnelStream->classOfService.common.protocolType);
+		ASSERT_EQ(RSSL_RWF_MAJOR_VERSION, pProvTunnelStream->classOfService.common.protocolMajorVersion);
+		ASSERT_EQ(RSSL_RWF_MINOR_VERSION, pProvTunnelStream->classOfService.common.protocolMinorVersion);
+		ASSERT_EQ(maxMsgSizes[i], pProvTunnelStream->classOfService.common.maxMsgSize);
+		ASSERT_EQ(maxMsgSizes[i] / 2, pProvTunnelStream->classOfService.common.maxFragmentSize);
+		ASSERT_EQ(RDM_COS_AU_NOT_REQUIRED, pProvTunnelStream->classOfService.authentication.type);
+		ASSERT_EQ(RDM_COS_FC_BIDIRECTIONAL, pProvTunnelStream->classOfService.flowControl.type);
+		ASSERT_EQ(RDM_COS_DI_RELIABLE, pProvTunnelStream->classOfService.dataIntegrity.type);
+		ASSERT_EQ(RDM_COS_GU_NONE, pProvTunnelStream->classOfService.guarantee.type);
+
+		/* Consumer gets a tunnelstream buffer. This should fail. */
+		rsslClearTunnelStreamGetBufferOptions(&tsGetBufferOptions);
+		tsGetBufferOptions.size = maxMsgSizes[i] + 1;
+		ASSERT_FALSE((pConsBuffers[0] = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+		/* Provider gets a tunnelstream buffer. This should fail. */
+		ASSERT_FALSE((pProvBuffers[0] = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+		/* Consumer gets a tunnelstream buffer. This should succeed. */
+		tsGetBufferOptions.size = maxMsgSizes[i];
+		ASSERT_TRUE((pConsBuffers[0] = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+		RsslTunnelStreamInfo streamInfo;
+		rsslClearTunnelStreamInfo(&streamInfo);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pConsTunnelStream, &streamInfo, &errorInfo));
+		ASSERT_EQ(1, streamInfo.buffersUsed);
+
+		/* Provider gets a tunnelstream buffer. This should succeed. */
+		ASSERT_TRUE((pProvBuffers[0] = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+		rsslClearTunnelStreamInfo(&streamInfo);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+		ASSERT_EQ(1, streamInfo.buffersUsed);
+
+		/* repeate getting tunnelstream buffers to check GetInfo value consistency */
+		for (int i = 1; i < BUFFERS_TO_TEST; ++i)
+		{
+			ASSERT_TRUE((pConsBuffers[i] = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pConsTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i + 1, streamInfo.buffersUsed);
+
+			ASSERT_TRUE((pProvBuffers[i] = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i + 1, streamInfo.buffersUsed);
+
+		}
+
+		/* release the tunnelstream buffers and check the numbers */
+		for (int i = BUFFERS_TO_TEST - 1; i >= 0; --i)
+		{
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamReleaseBuffer(pConsBuffers[i], &errorInfo));
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pConsTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i, streamInfo.buffersUsed);
+
+			/* check it twice : provider buffer is not released yet */
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i + 1, streamInfo.buffersUsed);
+
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamReleaseBuffer(pProvBuffers[i], &errorInfo));
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i, streamInfo.buffersUsed);
+		}
+
+		/* do it again : getting tunnelstream buffers to check GetInfo value consistency */
+		for (int i = 0; i < BUFFERS_TO_TEST; ++i)
+		{
+			ASSERT_TRUE((pConsBuffers[i] = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pConsTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i + 1, streamInfo.buffersUsed);
+
+			ASSERT_TRUE((pProvBuffers[i] = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
+
+			rsslClearTunnelStreamInfo(&streamInfo);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamGetInfo(pProvTunnelStream, &streamInfo, &errorInfo));
+			ASSERT_EQ(i + 1, streamInfo.buffersUsed);
+
+		}
 
 		/* Close the tunnelstreams. */
 		rsslClearTunnelStreamCloseOptions(&tsCloseOptions);

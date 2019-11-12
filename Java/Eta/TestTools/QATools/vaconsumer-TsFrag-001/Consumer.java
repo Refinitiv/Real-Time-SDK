@@ -72,6 +72,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
 
 /**
  * <p>
@@ -447,6 +448,15 @@ public class Consumer implements ConsumerCallback
                                 }
                             }
                         }
+                        //API QA
+                        ChannelInfo chnlInfo = chnlInfoList.get(0);
+                        if(chnlInfo != null && chnlInfo.tunnelStream != null)
+                        {
+                                TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+                                chnlInfo.tunnelStream.info(tunnelStreamInfo, errorInfo);
+                                System.out.println("Number of used buffer = " + tunnelStreamInfo.buffersUsed() + " after dispatching");
+                        }
+                        //END API QA
                     }
                     catch (CancelledKeyException e)
                     {

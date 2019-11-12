@@ -183,3 +183,7 @@ void bufferPoolCleanup(BufferPool *pBufferPool)
 	pBufferPool->_maxFragmentSize = 0;
 }
 
+RsslUInt bufferPoolGetUsed(BufferPool *pBufferPool)
+{
+	return rsslQueueGetElementCount(&pBufferPool->_appBuffers);
+}

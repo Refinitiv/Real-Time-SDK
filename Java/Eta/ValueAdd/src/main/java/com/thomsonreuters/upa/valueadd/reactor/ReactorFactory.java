@@ -280,8 +280,19 @@ public class ReactorFactory
     public static ReactorServiceDiscoveryOptions createReactorServiceDiscoveryOptions()
     {
         return new ReactorServiceDiscoveryOptions();
-    }     
-    
+    }
+
+    /**
+     * Creates {@link TunnelStreamInfo}
+     *
+     * @return the tunnel info
+     * @see TunnelStreamInfo
+     */
+    public static TunnelStreamInfo createTunnelStreamInfo()
+    {
+        return new TunnelStreamInfoImpl();
+    }
+
     /**
      * Creates a new Reactor object.
      *
@@ -716,6 +727,6 @@ public class ReactorFactory
             wlView.clear();
         }
         return wlView;
-    }    
-    
+    }
+
 }

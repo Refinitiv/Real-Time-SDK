@@ -1165,6 +1165,22 @@ int main(int argc, char **argv)
 			printf("rsslReactorDispatch() failed: %s\n", rsslErrorInfo.rsslError.text);
 			cleanUpAndExit(-1);
 		}
+                 //API QA
+                {
+                        RsslTunnelStreamInfo tunnelStreamInfo;
+                        rsslClearTunnelStreamInfo(&tunnelStreamInfo);
+
+                        ChannelCommand channelCommand = chanCommands[0];
+                        if (rsslTunnelStreamGetInfo(channelCommand.simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream, &tunnelStreamInfo, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+                        {
+                                printf("rsslTunnelStreamGetInfo() failed: %s\n", rsslErrorInfo.rsslError.text);
+                        }
+                        else
+                        {
+                                printf("Number of used buffer = %llu after dispatching\n", tunnelStreamInfo.buffersUsed);
+                        }
+                }
+                //END API QA
 
 	} while(ret >= RSSL_RET_SUCCESS);
 

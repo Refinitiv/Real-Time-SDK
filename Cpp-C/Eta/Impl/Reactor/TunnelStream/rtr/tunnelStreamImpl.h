@@ -273,6 +273,10 @@ void tunnelStreamReleaseBuffer(
  * Returns TunnelStreamReturnCodes. */
 RsslRet tunnelStreamClose(RsslTunnelStream *pTunnel, RsslTunnelStreamCloseOptions *pOptions, RsslErrorInfo *pErrorInfo);
 
+/* Get a tunnel stream information.
+ * Returns TunnelStreamReturnCodes. */
+RsslRet tunnelStreamGetInfo(TunnelStreamImpl* pTunnelImpl, RsslTunnelStreamInfo *pInfo, RsslErrorInfo *pErrorInfo);
+
 /* Adds a buffer with a timeout (used by substreams when sending queue messages). */
 void tunnelStreamAddTimeoutBuffer(TunnelStreamImpl *pTunnelImpl, TunnelBufferImpl *pBufferImpl,
 		RsslInt64 expireTime);

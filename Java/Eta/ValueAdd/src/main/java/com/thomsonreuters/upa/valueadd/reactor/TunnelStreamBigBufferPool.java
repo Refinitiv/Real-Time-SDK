@@ -86,4 +86,8 @@ public class TunnelStreamBigBufferPool
 		_currentNumBuffers--;
 		buffer.pool().pushBack(buffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK);
 	}
+
+	int getBuffersUsed(){
+		return _currentNumBuffers;
+	}
 }

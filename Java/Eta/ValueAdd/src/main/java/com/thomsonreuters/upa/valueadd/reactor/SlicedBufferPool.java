@@ -12,6 +12,7 @@ class SlicedBufferPool
     int _maxMsgSize;
     int _maxNumUserBuffers;
     int _currentNumUserBuffers;
+    int _currentNumUserBuffersByApplication;
     
     SlicedBufferPool(int maxMsgSize, int numBuffers)
     {
@@ -209,16 +210,24 @@ class SlicedBufferPool
     void getUserBufferSlice(TunnelStreamBuffer bufferImpl, int length)
     {
         boolean maxUserBuffersReached = false;
-        
+
+        if (_currentUserBuffer != null && _currentUserBuffer._position==0)
+            _currentNumUserBuffersByApplication++;
+
         if (_currentUserBuffer == null || (_currentUserBuffer._data.limit() - _currentUserBuffer._position) < length)
         {
             _currentUserBuffer = _userBufferList.pop();
+
+            if (_currentUserBuffer != null && _currentUserBuffer._position==0)
+                _currentNumUserBuffersByApplication++;
+
             if (_currentUserBuffer == null || (_currentUserBuffer._data.limit() - _currentUserBuffer._position) < length)
             {
                 if (_currentNumUserBuffers < _maxNumUserBuffers)
                 {
                     _currentUserBuffer = new SliceableBuffer();
                     _currentNumUserBuffers++;
+                    _currentNumUserBuffersByApplication++;
                 }
                 else
                 {
@@ -273,7 +282,14 @@ class SlicedBufferPool
             {
                 _userBufferList.push(parentBuffer);
             }
+
+            if (bufferImpl._isUserBuffer)
+                _currentNumUserBuffersByApplication--;
         }
+    }
+
+    int getBuffersUsed() {
+        return _currentNumUserBuffersByApplication;
     }
 }
 

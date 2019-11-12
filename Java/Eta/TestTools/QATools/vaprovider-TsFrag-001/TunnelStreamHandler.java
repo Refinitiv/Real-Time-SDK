@@ -33,6 +33,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
 
 /* Handles TunnelStream connections for the VA Provider. */
 class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback
@@ -184,6 +185,10 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             // singleOpen behavior
             _loginRefresh.attrib().applyHasSingleOpen();
             _loginRefresh.attrib().singleOpen(0);
+			
+            // APIQA:
+            System.out.println("Get tunnel stream buffer size = 1024 by calling TunnelStream.getBuffer()");
+            // END APIQA:
 
             TransportBuffer buffer = _tunnelStream.getBuffer(1024, event.errorInfo());
             if (buffer == null)
@@ -191,6 +196,19 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
                 System.out.println("defaultMsgCallback failed: Unable to get a buffer from TunnelStream <" + event.errorInfo().error().text() + ">");
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
+			
+            // APIQA:
+            TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+            if(_tunnelStream.info(tunnelStreamInfo, event.errorInfo()) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(event.errorInfo().error().errorId())
+                + "(" + event.errorInfo().error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.getBuffer()");
+            }
+            // END APIQA:
 
             _encodeIter.clear();
             ret = _encodeIter.setBufferAndRWFVersion(buffer, event.tunnelStream().classOfService().common().protocolMajorVersion(), event.tunnelStream().classOfService().common()
@@ -216,6 +234,19 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
                 _tunnelStream.releaseBuffer(buffer, event.errorInfo());
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
+			
+			// APIQA:
+            tunnelStreamInfo.clear();
+            if(_tunnelStream.info(tunnelStreamInfo, event.errorInfo()) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(event.errorInfo().error().errorId())
+                + "(" + event.errorInfo().error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.submit()");
+            }
+            // END APIQA:
 
             System.out.println("Login Refresh sent by Provider TunnelStreamHandler\n");
         }
@@ -248,6 +279,10 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
 
             // END APIQA
 
+			// APIQA:
+            System.out.println("Get tunnel stream buffer size = " + resultString.length() + " by calling TunnelStream.getBuffer()");
+            // END APIQA:
+			
             // get buffer to encode response message into
             // APIQA:
             // TransportBuffer buffer =
@@ -260,6 +295,19 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
                 System.out.println("defaultMsgCallback failed: Unable to get a buffer from TunnelStream <" + event.errorInfo().error().text() + ">");
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
+			
+            // APIQA:
+            TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+            if(_tunnelStream.info(tunnelStreamInfo, event.errorInfo()) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(event.errorInfo().error().errorId())
+                + "(" + event.errorInfo().error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.getBuffer()");
+            }
+            // END APIQA:
 
             // put basic text message in buffer
             // APIQA:
@@ -277,6 +325,20 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
                 _tunnelStream.releaseBuffer(buffer, event.errorInfo());
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
+			
+            // APIQA:
+            tunnelStreamInfo.clear();
+            if(_tunnelStream.info(tunnelStreamInfo, event.errorInfo()) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(event.errorInfo().error().errorId())
+                + "(" + event.errorInfo().error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.submit()");
+            }
+            // END APIQA:
+			
         }
         else
         // not a login or opaque

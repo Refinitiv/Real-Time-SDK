@@ -160,3 +160,8 @@ void bigBufferPoolCleanup(BigBufferPool *pBigBufferPool)
 		}
 	}
 }
+
+RsslUInt bigBufferPoolGetUsed(BigBufferPool* pBigBufferPool)
+{
+	return pBigBufferPool->_currentNumBuffers;
+}

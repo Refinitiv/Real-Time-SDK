@@ -2957,6 +2957,12 @@ void tunnelStreamReleaseBuffer(
 	}
 }
 
+RsslRet tunnelStreamGetInfo(TunnelStreamImpl* pTunnelImpl, RsslTunnelStreamInfo *pInfo, RsslErrorInfo *pErrorInfo)
+{
+	pInfo->buffersUsed = bufferPoolGetUsed(&pTunnelImpl->_memoryBufferPool) + bigBufferPoolGetUsed(&pTunnelImpl->_bigBufferPool);
+	return RSSL_RET_SUCCESS;
+}
+
 static RsslRet _tunnelStreamHandleEstablished(TunnelStreamImpl *pTunnelImpl, RsslErrorInfo *pErrorInfo)
 {
 	RsslClassOfService *pCos = &pTunnelImpl->base.classOfService;

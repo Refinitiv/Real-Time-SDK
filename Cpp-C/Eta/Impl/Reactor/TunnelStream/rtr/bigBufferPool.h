@@ -22,6 +22,9 @@ PoolBuffer* bigBufferPoolGet(BigBufferPool *pBigBufferPool, RsslUInt32 size, Rss
 /* Releases big buffer memory to the pool. */
 void bigBufferPoolRelease(BigBufferPool *pBigBufferPool, PoolBuffer *pPoolBuffer);
 
+/* Retrieves a number of buffers in use. */
+RsslUInt bigBufferPoolGetUsed(BigBufferPool* pBigBufferPool);
+
 /* Cleans up the big buffer pool. */
 void bigBufferPoolCleanup(BigBufferPool *pBigBufferPool);
 

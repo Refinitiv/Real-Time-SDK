@@ -30,6 +30,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamOpenOptions;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
 
 /**
  * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives

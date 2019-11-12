@@ -102,12 +102,32 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 	{
 		bufferOpts.size = bufSizeProvider;
 	}
-	// END APIQA: 
+	// END APIQA:
+
+	// APIQA:
+	printf("Get tunnel stream buffer size = %u by calling rsslTunnelStreamGetBuffer()\n", bufferOpts.size);
+	// END APIQA:
+	
 	if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo)) == NULL)
 	{
 		printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
 		return;
 	}
+	
+	// APIQA:
+	{
+		RsslTunnelStreamInfo tunnelStreamInfo;
+		rsslClearTunnelStreamInfo(&tunnelStreamInfo);
+		if (rsslTunnelStreamGetInfo(pTunnelStream, &tunnelStreamInfo, &errorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslTunnelStreamGetInfo failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+		}
+		else
+		{
+			printf("RsslTunnelStreamInfo.buffersUsed = %llu after calling rsslTunnelStreamGetBuffer()\n", tunnelStreamInfo.buffersUsed);
+		}
+	}
+	// END APIQA:
 
 	rsslClearEncodeIterator(&eIter);
 	rsslSetEncodeIteratorRWFVersion(&eIter, pTunnelStream->classOfService.common.protocolMajorVersion,
@@ -162,6 +182,21 @@ static void simpleTunnelMsgHandlerSendMessage(SimpleTunnelMsgHandler *pSimpleTun
 			printf("rsslTunnelStreamReleaseBuffer(): Failed <%d:%s>\n", ret2, errorInfo.rsslError.text);
 		return;
 	}
+	
+	// APIQA:
+	{
+		RsslTunnelStreamInfo tunnelStreamInfo;
+		rsslClearTunnelStreamInfo(&tunnelStreamInfo);
+		if (rsslTunnelStreamGetInfo(pTunnelStream, &tunnelStreamInfo, &errorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslTunnelStreamGetInfo failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+		}
+		else
+		{
+			printf("RsslTunnelStreamInfo.buffersUsed = %llu after calling rsslTunnelStreamSubmit()\n", tunnelStreamInfo.buffersUsed);
+		}
+	}
+	// END APIQA:
 
 	++pSimpleTunnelMsgHandler->msgCount;
 }
@@ -292,12 +327,32 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 
 							rsslClearTunnelStreamGetBufferOptions(&bufferOpts);
 							bufferOpts.size = 1024;
+							
+							// APIQA:
+							printf("Get tunnel stream buffer size = %u by calling rsslTunnelStreamGetBuffer()\n", bufferOpts.size);
+							// END APIQA:
+							
 							if ((pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferOpts, &errorInfo))
 								== NULL)
 							{
 								printf("rsslTunnelStreamGetBuffer failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
 								break;
 							}
+							
+							// APIQA:
+							{
+								RsslTunnelStreamInfo tunnelStreamInfo;
+								rsslClearTunnelStreamInfo(&tunnelStreamInfo);
+								if (rsslTunnelStreamGetInfo(pTunnelStream, &tunnelStreamInfo, &errorInfo) != RSSL_RET_SUCCESS)
+								{
+									printf("rsslTunnelStreamGetInfo failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+								}
+								else
+								{
+									printf("RsslTunnelStreamInfo.buffersUsed = %llu after calling rsslTunnelStreamGetBuffer()\n", tunnelStreamInfo.buffersUsed);
+								}
+							}
+							// END APIQA
 
 							rsslClearRDMLoginRefresh(&loginRefresh);
 
@@ -371,6 +426,21 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 									printf("rsslTunnelStreamReleaseBuffer(): Failed <%d:%s>\n", ret2, errorInfo.rsslError.text);
 								break;
 							}
+							
+							// APIQA:
+							{
+								RsslTunnelStreamInfo tunnelStreamInfo;
+								rsslClearTunnelStreamInfo(&tunnelStreamInfo);
+								if (rsslTunnelStreamGetInfo(pTunnelStream, &tunnelStreamInfo, &errorInfo) != RSSL_RET_SUCCESS)
+								{
+									printf("rsslTunnelStreamGetInfo failed: %s(%s)\n", rsslRetCodeToString(errorInfo.rsslError.rsslErrorId), &errorInfo.rsslError.text);
+								}
+								else
+								{
+									printf("RsslTunnelStreamInfo.buffersUsed = %llu after calling rsslTunnelStreamSubmit()\n", tunnelStreamInfo.buffersUsed);
+								}
+							}
+							// END APIQA:
 
 							printf("Sent response to tunnel login request.\n\n");
 

@@ -49,6 +49,9 @@ void bufferPoolTrimUnusedLength(BufferPool *pBufferPool, PoolBuffer *pBuffer);
 /* Releases RsslBuffer memory to the buffer pool. */
 void bufferPoolRelease(BufferPool *pBufferPool, PoolBuffer *pBuffer);
 
+/* Retrieves a number of buffers in use */
+RsslUInt bufferPoolGetUsed(BufferPool* pBufferPool);
+
 /* Cleans up a buffer pool */
 void bufferPoolCleanup(BufferPool *pBufferPool);
 

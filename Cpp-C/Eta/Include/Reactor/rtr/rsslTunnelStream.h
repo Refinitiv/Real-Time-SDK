@@ -202,6 +202,35 @@ RSSL_VA_API RsslBuffer *rsslTunnelStreamGetBuffer(RsslTunnelStream *pTunnel,
 RSSL_VA_API RsslRet rsslTunnelStreamReleaseBuffer(RsslBuffer *pBuffer, RsslErrorInfo *pError);
 
 /**
+ * @brief Structure to obtain the tunnel stream information.
+ * @see rsslTunnelStreamGetInfo, rsslClearTunnelStreamInfo
+ */
+typedef struct
+{
+	RsslUInt buffersUsed;	/*!< The number of the buffers are in use. */
+} RsslTunnelStreamInfo;
+
+/**
+ * @brief Clears a RsslTunnelStreamInfo object.
+ * @see rsslTunnelStreamGetInfo, RsslTunnelStreamInfo
+ */
+RTR_C_INLINE void rsslClearTunnelStreamInfo(RsslTunnelStreamInfo *pInfo)
+{
+	pInfo->buffersUsed = 0;
+}
+
+/**
+ * @brief Retrieves the tunnel stream information.
+ * @param pTunnel The Tunnel Stream to retreive the tunnel stream information.
+ * @param pInfo Structure to obtain the tunnel stream information.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return RSSL_RET_SUCCESS, if retreiving of the tunnel stream information succeeded.
+ * @return failure codes, if an error occurred (errorInfo will be populated with information).
+ * @see RsslBuffer, RsslTunnelStream, RsslTunnelStreamInfo, RsslErrorInfo
+ */
+RSSL_VA_API RsslRet rsslTunnelStreamGetInfo(RsslTunnelStream *pTunnel, RsslTunnelStreamInfo *pInfo, RsslErrorInfo *pError);
+
+/**
  * @brief Options for submitting a buffer to a tunnel Stream.
  * @see rsslTunnelStreamSubmit
  */

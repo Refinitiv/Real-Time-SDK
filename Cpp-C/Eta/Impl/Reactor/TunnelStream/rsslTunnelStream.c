@@ -71,3 +71,36 @@ RSSL_VA_API RsslRet rsslTunnelStreamReleaseBuffer(RsslBuffer *pBuffer, RsslError
 
 	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 }
+
+RSSL_VA_API RsslRet rsslTunnelStreamGetInfo(RsslTunnelStream *pTunnel, RsslTunnelStreamInfo *pInfo, RsslErrorInfo *pErrorInfo)
+{
+	TunnelStreamImpl	*pTunnelImpl;
+	RsslReactorImpl		*pReactorImpl;
+	RsslRet ret;
+
+	if (pErrorInfo == NULL)
+		return RSSL_RET_INVALID_ARGUMENT;
+
+	if (pTunnel == NULL)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslTunnelStream not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if (pInfo == NULL)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "ValuePtr not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	pTunnelImpl = (TunnelStreamImpl*)pTunnel;
+	pReactorImpl = (RsslReactorImpl*)pTunnelImpl->_manager->_pParentReactor;
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	rsslClearTunnelStreamInfo(pInfo);
+	ret = tunnelStreamGetInfo(pTunnelImpl, pInfo, pErrorInfo);
+
+	return (reactorUnlockInterface(pReactorImpl), ret);
+}

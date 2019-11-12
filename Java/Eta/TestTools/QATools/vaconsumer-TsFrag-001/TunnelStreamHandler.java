@@ -18,6 +18,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamOpenOptions;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
 
 /**
  * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives
@@ -146,6 +147,10 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
 
         if (_chnlInfo != null && _chnlInfo.tunnelStream != null && _chnlInfo.isTunnelStreamUp)
         {
+            // APIQA:
+            System.out.println("Get tunnel stream buffer size = " + _tunnelBufSize + " by calling TunnelStream.getBuffer()");
+            // END APIQA:
+			
             // get buffer to encode message into
             // APIQA: get a buffer
             // TransportBuffer buffer = _chnlInfo.tunnelStream.getBuffer(1024,
@@ -158,6 +163,19 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                  + "(" + _errorInfo.error().text() + ")");
                 return;
             }
+			
+            // APIQA:
+            TunnelStreamInfo tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+            if(_chnlInfo.tunnelStream.info(tunnelStreamInfo, _errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                + "(" + _errorInfo.error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.getBuffer()");
+            }
+            // END APIQA:
 
             // put basic text message in buffer
             // APIQA: Fill in buffer with values 0 to 255 and repeat
@@ -187,6 +205,19 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                 _chnlInfo.tunnelStream.releaseBuffer(buffer, _errorInfo);
                 return;
             }
+			
+            // APIQA:
+            tunnelStreamInfo.clear();
+            if(_chnlInfo.tunnelStream.info(tunnelStreamInfo, _errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+            	System.out.println("TunnelStream.info() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                + "(" + _errorInfo.error().text() + ")");
+            }
+            else
+            {
+            	System.out.println("tunnelStreamInfo.buffersUsed() = " + tunnelStreamInfo.buffersUsed() + " after calling TunnelStream.submit()");
+            }
+            // END APIQA:
         }
     }
 
