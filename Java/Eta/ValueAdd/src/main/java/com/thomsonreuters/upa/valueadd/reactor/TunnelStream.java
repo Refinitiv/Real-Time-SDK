@@ -499,8 +499,8 @@ public class TunnelStream
 
     /**
      * Get information about tunnel stream
-     * @param tunnelStreamInfo
-     * @param errorInfo
+     * @param tunnelStreamInfo TunnelStreamInfo structure to be populated
+     * @param errorInfo error structure to be populated in the event of failure
      * @return {@link ReactorReturnCodes#SUCCESS} in case succeed and data via {@link TunnelStreamInfo} info parameter
      */
     public int info(TunnelStreamInfo tunnelStreamInfo,  ReactorErrorInfo errorInfo) {

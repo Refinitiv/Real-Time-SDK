@@ -768,6 +768,8 @@ public class ProviderPerfConfig
     /**
      *  Converts configuration parameters to a string with effective bindOptions values.
      *
+     * @param bindOptions the bind options to convert to string
+     *
      * @return the string
      */
     public static String convertToString(BindOptions bindOptions)
