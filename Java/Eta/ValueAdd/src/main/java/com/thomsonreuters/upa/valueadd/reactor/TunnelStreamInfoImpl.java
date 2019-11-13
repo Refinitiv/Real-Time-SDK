@@ -2,7 +2,7 @@ package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.util.Objects;
 
-public class TunnelStreamInfoImpl implements TunnelStreamInfo {
+class TunnelStreamInfoImpl implements TunnelStreamInfo {
 
     int _ordinaryBuffersUsed;
     int _bigBuffersUsed;
