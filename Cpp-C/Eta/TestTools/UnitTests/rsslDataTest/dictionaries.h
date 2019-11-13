@@ -1,7 +1,6 @@
 ///*
 // *|---------------------------------------------------------------
-// *|				Copyright (C) 2009 Reuters,				  --
-// *|		 1111 W. 22nd St, Oak Brook, IL. 60523		  --
+// *|		Copyright (C) 2019 Refinitiv,			  --
 // *| All rights reserved. Duplication or distribution prohibited --
 // *|---------------------------------------------------------------
 // */

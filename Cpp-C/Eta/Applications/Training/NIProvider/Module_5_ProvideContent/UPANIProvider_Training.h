@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright (C) 2019 Refinitiv. All rights reserved.
 */
 
 /*
@@ -45,8 +45,8 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Thomson 
- * Reuters recommends sending ping messages at intervals one-third the 
+ * the expected time frame, the connection can be terminated. Refinitiv 
+ * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
  * Detailed Descriptions:
@@ -136,7 +136,7 @@
  * b) Supported domain types and any item group information associated 
  * with the service.
  * 
- * At a minimum, Thomson Reuters recommends that the NIP send the Info, 
+ * At a minimum, Refinitiv recommends that the NIP send the Info, 
  * State, and Group filters for the Source Directory. Because this is provider 
  * instantiated, the NIP should use a streamId with a negative value.
  * 
@@ -167,7 +167,7 @@
  * dictionary typically defines type and formatting information and directs 
  * the application as to how to encode or decode specific pieces of information. 
  * Content that uses the RsslFieldList type requires the use of a field dictionary 
- * (usually the Thomson Reuters RDMFieldDictionary, though it could also be a 
+ * (usually the Refinitiv RDMFieldDictionary, though it could also be a 
  * user-defined or modified field dictionary).
  * 
  * Dictionaries may be available locally in a file for an OMM NIP appliation. In 
@@ -230,7 +230,7 @@ extern "C" {
 
 #define LOGIN_STREAM_ID 1
 
-/* At a minimum, Thomson Reuters recommends that the NIP send the Info, 
+/* At a minimum, Refinitiv recommends that the NIP send the Info, 
  * State, and Group filters for the Source Directory. Because this is provider 
  * instantiated, the NIP should use a streamId with a negative value. 
 */

@@ -1,4 +1,4 @@
-/* (C) Copyright 2018 Reuters, Oak Brook, IL, USA;  All rights reserved.      */
+/* Copyright (C) 2019 Refinitiv. All rights reserved.      */
 
 /*******************************************************************************
 * 
@@ -20,7 +20,7 @@
 #define Ema_Product_Minor		@Ema_VERSION_TWEAK@
 #define PRODNAME			"Elektron Message API EMA "
 #define PRODVERNAME			"@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@Ema_VERSION_TWEAK@"
-#define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
+#define COMPANYNAME			"Refinitiv"
 #define COPYRIGHTYEAR			"@esdk_year@"
 #define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
 #define DDATE				"@esdk_timestamp@ " COPYRIGHTYEAR

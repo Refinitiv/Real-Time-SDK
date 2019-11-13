@@ -8,10 +8,9 @@ ETA contains open source components. The transport, decoder and encoder componen
 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
 
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Thomson Reuters transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
+This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
 
-(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
+Copyright (C) 2019 Refinitiv. All rights reserved,
 
 # ETA C-Edition Documentation
 
@@ -41,7 +40,7 @@ The Elektron Transport API fully supports all OMM constructs and messages.
 - Can consume and provide:
 
     - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
-    - All Domain Models, including those defined by Thomson Reuters as well as other user-defined models.
+    - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
 
 - Consists of:
 
@@ -233,7 +232,7 @@ This will create all necessary soft links for UPA example makefiles to link.  It
 # Reference Information
 
     I-COS Questionnaire: 6211
-    Reuters Item Number: N/A
+    Refinitiv Item Number: N/A
     Product Name: Elektron Transport API - C Edition
     Release Number: 3.3.1
     Load Number: 1
@@ -246,7 +245,7 @@ This will create all necessary soft links for UPA example makefiles to link.  It
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Thomson Reuters Security Compliant
+    Security Compliance: Refinitiv Security Compliant
     Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
 
 # Notes:

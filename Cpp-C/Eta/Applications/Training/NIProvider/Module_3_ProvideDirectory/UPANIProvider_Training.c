@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided	--
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
  *| LICENSE.md for details.														--
- *| Copyright Thomson Reuters 2015. All rights reserved.						--
+ *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
  *|-------------------------------------------------------------------------------
  */
 
@@ -48,8 +48,8 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Thomson 
- * Reuters recommends sending ping messages at intervals one-third the 
+ * the expected time frame, the connection can be terminated. Refinitiv 
+ * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
  * Detailed Descriptions:
@@ -139,7 +139,7 @@
  * b) Supported domain types and any item group information associated 
  * with the service.
  * 
- * At a minimum, Thomson Reuters recommends that the NIP send the Info, 
+ * At a minimum, Refinitiv recommends that the NIP send the Info, 
  * State, and Group filters for the Source Directory. Because this is provider 
  * instantiated, the NIP should use a streamId with a negative value.
  * 
@@ -265,7 +265,7 @@ int main(int argc, char **argv)
 
 	/* UPA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -2051,7 +2051,7 @@ RsslRet sendSourceDirectoryResponse(RsslChannel* upaChannel, RsslUInt32 maxMsgSi
 	refreshFlags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_CLEAR_CACHE;
 
 	/* set filter flags */
-	/* At a minimum, Thomson Reuters recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
+	/* At a minimum, Refinitiv recommends that the NIP send the Info, State, and Group filters for the Source Directory. */
 	refreshKey.filter =	RDM_DIRECTORY_SERVICE_INFO_FILTER | \
 						RDM_DIRECTORY_SERVICE_STATE_FILTER| \
 						/* RDM_DIRECTORY_SERVICE_GROUP_FILTER | \ not applicable for refresh message - here for reference */
@@ -2531,7 +2531,7 @@ RsslRet sendSourceDirectoryResponse(RsslChannel* upaChannel, RsslUInt32 maxMsgSi
 		element.dataType = RSSL_DT_STATE;
 		element.name = RSSL_ENAME_STATUS;
 		/* The Status element can change the state of items provided by this service.
-		 * Prior to changing a service status, Thomson Reuters recommends that you issue item or group
+		 * Prior to changing a service status, Refinitiv recommends that you issue item or group
 		 * status messages to update item states.
 		 */
 		status.streamState = RSSL_STREAM_OPEN;

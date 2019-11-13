@@ -6,7 +6,7 @@ application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct
-(RDF-D), directly from an OMM Provider application, or from Thomson Reuters
+(RDF-D), directly from an OMM Provider application, or from 
 Advanced Distribution Server.
 
 The 330__Login__Streaming showcases usage of login stream in OMM Consumer.

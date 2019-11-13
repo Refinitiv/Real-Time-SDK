@@ -6,8 +6,7 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 ETA Java contains open source components.  The transport, decoder, encoder, and cache components are open source. 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls ETA dependent libraries from that location.
 
-(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
+Copyright (C) 2019 Refinitiv. All rights reserved,
 
 # ETA Java Documentation
 
@@ -34,7 +33,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 
    - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
 
-   - All Domain Models, including those defined by Thomson Reuters as well as other user-defined models.
+   - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
 
 - Consists of:
 
@@ -157,7 +156,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
 # Reference Information
 
     I-COS Questionnaire: 6314
-    Reuters Item Number: N/A
+    Refinitiv Item Number: N/A
     Product Name: Elektron Transport API - Java Edition
     Release Number: 3.3.1
     Load Number: 1
@@ -168,7 +167,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Thomson Reuters Security Compliant
+    Security Compliance: Refinitiv Security Compliant
     Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
 
 # Notes:

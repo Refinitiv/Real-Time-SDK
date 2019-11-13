@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 201__MarketPrice__TunnelingConnection illustrates the ability of the user
 to programmatically pass all http/https related configuration on OmmNiProviderConfig

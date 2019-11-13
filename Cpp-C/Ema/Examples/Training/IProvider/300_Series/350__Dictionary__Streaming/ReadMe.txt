@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates how to implement a provider to download dictionary 
-and provide OMM MarketPrice data to Thomson Reuters Advanced Distribution Hub.
+and provide OMM MarketPrice data to Advanced Distribution Hub.
 
 350__Dictionary__Streaming illustrates how to register for the dictionary domain, 
 create and publish one OMM streaming item then process received dictionary messages.

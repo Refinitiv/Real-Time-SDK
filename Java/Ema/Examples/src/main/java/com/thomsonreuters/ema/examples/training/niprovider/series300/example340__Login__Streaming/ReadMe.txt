@@ -5,7 +5,7 @@ Summary
 to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 340__Login__Streaming illustrates how to create and publish one OMM streaming item
 and register for and process received login messages. This application uses source

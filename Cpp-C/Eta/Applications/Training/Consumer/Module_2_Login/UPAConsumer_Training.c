@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided	--
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
  *| LICENSE.md for details.														--
- *| Copyright Thomson Reuters 2015. All rights reserved.						--
+ *| Copyright (C) 2019 Refinitiv. All rights reserved.						--
  *|-------------------------------------------------------------------------------
  */
 
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 
 	/* UPA provides clear functions for its structures (e.g., rsslClearDecodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_DECODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 
@@ -1293,7 +1293,7 @@ RsslRet sendLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo)
 
 	/* UPA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -1706,7 +1706,7 @@ RsslRet closeLoginStream(UpaChannelManagementInfo *upaChannelManagementInfo)
 
 	/* UPA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
 	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+	 * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
 	 * you use the clear functions over static initializers, because the clear functions are more efficient.
 	 */
 	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

@@ -6,7 +6,7 @@ OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library while using
 nested messaging feature and parsing of custom OMM Data data from an OMM
-Provider application, or from Thomson Reuters Advanced Distribution Server.
+Provider application, or from an Advanced Distribution Server.
 
 example400__Custom__NestedMessaging opens up a parent stream on which, when 
 this stream is open / ok, it opens a sub stream. This is also known as nested

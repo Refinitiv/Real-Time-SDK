@@ -8,7 +8,7 @@ Summary:
 Consumer applications often require a dictionary for encoding or decoding 
 specific pieces of information. This dictionary typically defines type and 
 formatting information. Content that uses the RsslFieldList type requires 
-the use of a field dictionary (usually the Thomson Reuters RDMFieldDictionary, 
+the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
 although it could also be a user-defined or user-modified field dictionary).
 A consumer application can choose whether to load necessary dictionary 
 information from a local file or download the information from an available 

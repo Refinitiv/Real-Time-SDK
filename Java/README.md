@@ -3,10 +3,9 @@ This is the Elektron SDK. This SDK is an all encompassing package of all Elektro
 
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
 
-The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Thomson Reuters low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
-(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
+Copyright (C) 2019 Refinitiv. All rights reserved,
 
 # New In This Release
 
@@ -22,11 +21,11 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 #### Supported Java Version 
 The Elektron-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8.
 
-Thomson Reuters fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
+Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
-Thomson Reuters will extend support to other platforms based on the following criteria:
+Refinitiv will extend support to other platforms based on the following criteria:
 - EMA Java is used with a J2SE 8 compliant JVM
-- All problems must be reproducible on one of the core platforms listed below. Thomson Reuters support teams will only be able to reproduce problems on the core platforms.
+- All problems must be reproducible on one of the core platforms listed below. Refinitiv support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
 The Elektron-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
@@ -171,9 +170,9 @@ To debug a encrypted consumer connection, you can add the following JVM argument
 This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
 
 
-# Obtaining the Thomson Reuters Field Dictionaries
+# Obtaining the Refinitiv Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
@@ -182,7 +181,7 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 # Maven Central
 
-For ease of product use, as of the ESDK 1.2 release, Thomson Reuters maintains its ESDK Jar files on Maven Central.
+For ease of product use, as of the ESDK 1.2 release, Refinitiv maintains its ESDK Jar files on Maven Central.
 
 You can download ESDK libraries and dependencies from Maven Central using several different tools, specific
 procedural instructions are not included here. Maven uses the following syntax to specify ESDK dependencies:

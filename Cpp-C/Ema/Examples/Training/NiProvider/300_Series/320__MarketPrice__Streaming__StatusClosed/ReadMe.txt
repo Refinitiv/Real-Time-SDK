@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 320__MarketPrice__Streaming__StatusClosed illustrates how to create and publish a single OMM
 streaming item, item status closed message and a source directory.

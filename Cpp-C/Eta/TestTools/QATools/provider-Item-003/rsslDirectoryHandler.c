@@ -1,5 +1,4 @@
-
-/*
+Refinitiv
  * This is the source directory handler for the rsslProvider application.
  * Only one source directory stream per channel is allowed by this simple
  * provider.  It provides functions for processing source directory requests

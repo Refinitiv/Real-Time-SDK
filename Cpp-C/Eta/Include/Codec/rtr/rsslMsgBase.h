@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -32,7 +32,7 @@ extern "C" {
  */
 typedef struct {
 	RsslUInt8			msgClass;		/*!< @brief Class of this message (Update, Refresh, Status, etc).  Populated from RsslMsgClasses enumeration */
-	RsslUInt8			domainType;		/*!< @brief Domain Type of this message, corresponds to a domain model definition Values less than 128 are Thomson Reuters defined domain models, values between 128 – 255 are user defined domain models. */
+	RsslUInt8			domainType;		/*!< @brief Domain Type of this message, corresponds to a domain model definition Values less than 128 are Refinitiv defined domain models, values between 128 – 255 are user defined domain models. */
 	RsslContainerType	containerType;	/*!< @brief Container type that is held in the encDataBody. */
 	RsslInt32			streamId;		/*!< @brief Unique signed-integer identifier associated with all messages flowing within a stream. Positive values indicate a consumer instantiated stream, negative values indicate a provider instantiated stream often associated with non-interactive providers. */
 	RsslMsgKey			msgKey;			/*!< @brief Key providing unique identifier information for an item stream. The msgKey, in conjunction with quality of service and domainType, is used to uniquely identify a stream. See \ref RsslMsgKey for more details.  */
@@ -95,7 +95,7 @@ RSSL_API const char* rsslMsgClassToOmmString(RsslUInt8 msgClass);
  */
  
 /**
- *	@defgroup RSSLWFDomainHelpers Thomson Reuters Domain Model Helper Functions
+ *	@defgroup RSSLWFDomainHelpers Reuters Domain Model Helper Functions
  * 	@{
  */
 

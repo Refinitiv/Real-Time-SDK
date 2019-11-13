@@ -6,7 +6,7 @@ application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM SymbolList data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
+directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 
 example270__SymbolList showcases opening and processing of a SymbolList item.

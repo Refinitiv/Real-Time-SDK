@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -94,7 +94,7 @@ static const RsslBuffer RSSL_OMMSTR_DMT_SYSTEM = { 6, (char*)"System" };
  
 /**
  *	@defgroup DomainCommon TRDM Common Enumerations
- *	@brief	The TRDM Common Enumerations are used across several Thomson Reuters Domain Models.
+ *	@brief	The TRDM Common Enumerations are used across several Reuters Domain Models.
  *	@{
  */
 

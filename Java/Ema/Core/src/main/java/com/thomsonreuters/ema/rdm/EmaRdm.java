@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.rdm;
@@ -10,8 +10,8 @@ package com.thomsonreuters.ema.rdm;
 /**
  * This file contains RDM constants and definitions.
  *
- * <p>Thomson Reuters Domain Models.
- * <br>This file contains the Thomson Reuters Domain Model specific definitions
+ * <p>Reuters Domain Models.
+ * <br>This file contains the Reuters Domain Model specific definitions
  * that can be used by the EMA applications.
  * <br>The definitions in this file will be made extensible in the future.</p>
  */

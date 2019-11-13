@@ -6,7 +6,7 @@ OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM MarketByOrder data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
+directly from an OMM Provider application, or from the Advanced
 Distribution Server.
 
 example210__MarketByOrder__Streaming showcases native or RWF decoding of received

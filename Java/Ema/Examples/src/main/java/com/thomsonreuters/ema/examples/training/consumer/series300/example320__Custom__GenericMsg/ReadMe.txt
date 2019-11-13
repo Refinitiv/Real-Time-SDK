@@ -6,8 +6,7 @@ OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
-Distribution Server.
+directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 example320__Custom__GenericMsg showcases usage of GenericMsg in OMM Consumer
 application. It demonstrates submission of a GenericMsg as well as receiving

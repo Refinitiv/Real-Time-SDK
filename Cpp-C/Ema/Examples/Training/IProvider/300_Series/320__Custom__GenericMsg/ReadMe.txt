@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of custom domain data to the Thomson Reuters Advanced Distribution Hub.
+of custom domain data to the Advanced Distribution Hub.
 
 320__Custom__GenericMsg illustrates how to create and publish a single
 streaming item of custom domain. This application uses source directory configured in the EmaConfig.xml

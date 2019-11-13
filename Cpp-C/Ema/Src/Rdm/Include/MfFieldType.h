@@ -1,7 +1,7 @@
 /*|-----------------------------------------------------------------------------
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 

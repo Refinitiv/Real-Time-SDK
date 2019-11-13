@@ -6,8 +6,7 @@ of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing and
 parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
-Distribution Server.
+directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the 
 programmatic configuration feature of EMA. In addition to file configuration,

@@ -1,4 +1,4 @@
-/* (C) Copyright 2018 Reuters, Oak Brook, IL, USA;  All rights reserved.      */
+/* Copyright (C) 2019 Refinitiv. All rights reserved.      */
 
 /*******************************************************************************
 * 
@@ -29,10 +29,10 @@
 #define RSSL_ETA_JNI_Product_Minor     @Eta_VERSION_TWEAK@   	// Release tweak number
 
 #define RSSL_ETA_JNI_Year				"@esdk_year@"
-#define RSSL_ETA_JNI_CompanyName		" Thomson Reuters, Oak Brook, IL"
+#define RSSL_ETA_JNI_CompanyName		" Refinitiv"
 #define RSSL_ETA_JNI_Version			RSSL_ETA_JNI_Release_Major,RSSL_ETA_JNI_Release_Minor,RSSL_ETA_JNI_Product_Major,RSSL_ETA_JNI_Product_Minor
 #define RSSL_ETA_JNI_VersionString		MKSTR(RSSL_ETA_JNI_Release_Major) "." MKSTR(RSSL_ETA_JNI_Release_Minor) "." MKSTR(RSSL_ETA_JNI_Product_Major) "." MKSTR(RSSL_ETA_JNI_Product_Minor) " (" BLDTYPE ")"
-#define RSSL_ETA_JNI_LegalCopyRight		"(C) Copyright " RSSL_ETA_JNI_Year RSSL_ETA_JNI_CompanyName ", All Rights Reserved. "
+#define RSSL_ETA_JNI_LegalCopyRight		"Copyright (C) " RSSL_ETA_JNI_Year RSSL_ETA_JNI_CompanyName ", All Rights Reserved. "
 #define RSSL_ETA_JNI_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
 #define RSSL_ETA_JNI_InternalName       "eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
 #define RSSL_ETA_JNI_ReleaseType		"@esdk_RELEASE_TYPE@"

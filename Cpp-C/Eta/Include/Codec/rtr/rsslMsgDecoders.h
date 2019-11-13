@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -93,7 +93,7 @@ RSSL_API RsslUInt8 rsslExtractMsgClass( const RsslDecodeIterator *pIter );
  * @brief Extract \ref RsslMsgBase::domainType from a buffer containing an encoded \ref RsslMsg. 
  *
  * @param pIter 			\ref RsslDecodeIterator with the \ref RsslBuffer that contains the encoded \ref RsslMsg set on it using \ref rsslSetDecodeIteratorBuffer().
- * @return The \ref RsslMsgBase::domainType enumeration contained in the buffer. See \ref RsslDomainTypes for Thomson Reuters Domain Model enumerations.
+ * @return The \ref RsslMsgBase::domainType enumeration contained in the buffer. See \ref RsslDomainTypes for Reuters Domain Model enumerations.
  * @see RsslMsgTypes
  */
 RSSL_API RsslUInt8 rsslExtractDomainType( const RsslDecodeIterator *pIter );

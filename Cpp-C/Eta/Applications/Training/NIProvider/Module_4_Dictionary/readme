@@ -19,7 +19,7 @@ Some data requires the use of a dictionary for encoding or decoding. This
 dictionary typically defines type and formatting information and directs 
 the application as to how to encode or decode specific pieces of information. 
 Content that uses the RsslFieldList type requires the use of a field dictionary 
-(usually the Thomson Reuters RDMFieldDictionary, though it could also be a 
+(usually the Refinitiv RDMFieldDictionary, though it could also be a 
 user-defined or modified field dictionary).
 
 Dictionaries may be available locally in a file for an OMM NIP appliation. In 

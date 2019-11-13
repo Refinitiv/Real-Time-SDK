@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,7 +20,7 @@
  *  The Transport API encoder/decoder does not provide any inherent threading or locking capability.  Separate iterator and type instances do not cause contention and do not share resources between instances.
  *  Any needed threading, locking, or thread-model implementation is at the discretion of the application.  Different application threads can encode or decode different messages without requiring a lock;
  *  thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers.  
- *  @note Though possible, Thomson Reuters recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
+ *  @note Though possible, Refinitiv recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
  *
  *	@subsection IterVers Iterator RWF Protocol Versioning 
  *	The Transport API iterators help the user to manage version information associated with the RWF content being exchanged.  When using the Transport API 
@@ -383,7 +383,7 @@
  *  The Transport API encoder/decoder does not provide any inherent threading or locking capability.  Separate iterator and type instances do not cause contention and do not share resources between instances.
  *  Any needed threading, locking, or thread-model implementation is at the discretion of the application.  Different application threads can encode or decode different messages without requiring a lock;
  *  thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers.  
- *  @note Though possible, Thomson Reuters recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
+ *  @note Though possible, Refinitiv recommends that you do not encode or decode related messages (messages flowing on the same stream) on different threads as this can impact the delivery order.
  *
  *  See \ref RsslIteratorVersion for information about encoding or decoding the correct version of RWF with the iterator.<BR>
  *  See \ref RsslDecodeIteratorType for information and examples related to the \ref RsslDecodeIterator.<BR>
@@ -5747,14 +5747,14 @@
  
 
 /**
- *	@defgroup RSSLWFDomain Thomson Reuters Domain Models
- *	@brief The Thomson Reuters Domain Model Package contains the enumerations and data structures used with Thomson Reuters provided domain message models. 
+ *	@defgroup RSSLWFDomain Reuters Domain Models
+ *	@brief The Reuters Domain Model Package contains the enumerations and data structures used with Refinitiv provided domain message models. 
  *	This content is available through the Thomson Reuters Enterprise Platform, EleKtron, Reuters Data Feed Direct, and various other sources. 
  *	@{
  *	
- *  @section TheRSSLWFDomainHelpers Thomson Reuters Domain Model Helper and Utility functions
- *  @defgroup RSSLWFDomainHelpers Thomson Reuters Domain Model Helper and Utility functions
- *  @brief Detailed information about the Thomson Reuters Domain Model Helper and Utility functions
+ *  @section TheRSSLWFDomainHelpers Reuters Domain Model Helper and Utility functions
+ *  @defgroup RSSLWFDomainHelpers Reuters Domain Model Helper and Utility functions
+ *  @brief Detailed information about the Reuters Domain Model Helper and Utility functions
  *  @{
  * 
  *  @}

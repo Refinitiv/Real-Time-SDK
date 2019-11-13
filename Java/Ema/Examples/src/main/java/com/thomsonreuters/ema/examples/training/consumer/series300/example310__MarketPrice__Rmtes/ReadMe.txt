@@ -6,7 +6,7 @@ application written to the EMA library showcasing RWF RMTES_STRING processing.
 
 This application demonstrates basic usage of the EMA library for accessing and
 parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly
-from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.
+from an OMM Provider application, or from an Advanced Distribution Server.
 
 example310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data
 type.

@@ -6,8 +6,7 @@ example of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
-Distribution Server.
+directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 example291__Custom__DownCast showcases usage of the so called downcast decoding
 method. In this method, application extracts a reference to a Data class object

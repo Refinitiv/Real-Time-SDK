@@ -93,7 +93,7 @@ See {@link com.thomsonreuters.upa.codec.EncodeIterator} for more information and
 <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
 <dt><b>Note:</b></dt>
 <dd>
-Though possible, Thomson Reuters recommends that you do not encode or decode related messages 
+Though possible, Refinitiv recommends that you do not encode or decode related messages 
 (messages flowing on the same stream) on different threads as this can impact the delivery order.
 </dd>
 </dl>

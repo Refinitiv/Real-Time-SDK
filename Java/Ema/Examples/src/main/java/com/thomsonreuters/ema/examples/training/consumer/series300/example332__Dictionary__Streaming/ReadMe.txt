@@ -6,8 +6,8 @@ OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed
-Direct (RDF-D), directly from an OMM Provider application, or from Thomson
-Reuters Advanced Distribution Server.
+Direct (RDF-D), directly from an OMM Provider application, or from an 
+Advanced Distribution Server.
 
 example332__Dictionary__Streaming showcases usage of dictionary stream in OMM
 Consumer. It demonstrates opening of dictionary stream as well as its processing.

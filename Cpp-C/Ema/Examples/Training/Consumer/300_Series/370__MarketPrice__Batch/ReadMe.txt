@@ -7,7 +7,7 @@ Consumer application written to the EMA library.
 This application demonstrates basic usage of the EMA library while opening
 multiple item stream via a single request (a.k.a., batch request) and parsing
 of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from
-an OMM Provider application, or from Thomson Reuters Advanced Distribution
+an OMM Provider application, or from the Advanced Distribution
 Server.
 
 The 370__MarketPrice__Batch showcases usage of batch request feature of OMM

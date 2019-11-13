@@ -6,8 +6,7 @@ application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D), directly
-from an OMM Provider application, or from Thomson Reuters Advanced Distribution
-Server.
+from an OMM Provider application, or from an Advanced Distribution Server.
 
 example290__Custom__Decode showcases decoding of items on custom OMM domain.
 Messages of a custom OMM domain may contain any container at any level of encoding.

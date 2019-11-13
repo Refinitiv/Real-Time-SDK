@@ -59,10 +59,10 @@ ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.3.1.L1'
 //=========================================================================================
 
 
-ext.vendor = 'Thomson Reuters'
-ext.javadoc_footer = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
-ext.javadoc_header = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
-ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Thomson Reuters. All Rights Reserved.</i>'
+ext.vendor = 'Refinitiv'
+ext.javadoc_footer = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
+ext.javadoc_header = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
+ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Refinitiv. All Rights Reserved.</i>'
 
 task downloadBinaryPack(type: Download) {
     description 'This task downloads the Elektron-SDK-BinaryPack file from GitHub.'

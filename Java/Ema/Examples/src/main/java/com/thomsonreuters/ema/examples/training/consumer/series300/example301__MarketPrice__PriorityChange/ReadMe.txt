@@ -7,8 +7,7 @@ to the item priority.
 
 This application demonstrates basic usage of the EMA library for accessing
 and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
-Distribution Server.
+directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 example301__MarketPrice__PriorityChange showcases reissue for priority feature
 of OMM Consumer. This application arbitrarily chooses to modify item's priority

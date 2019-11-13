@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 160__Login__AcceptDeny illustrates how to create and publish a single OMM
 streaming item. This application uses hardcoded source directory configuration.

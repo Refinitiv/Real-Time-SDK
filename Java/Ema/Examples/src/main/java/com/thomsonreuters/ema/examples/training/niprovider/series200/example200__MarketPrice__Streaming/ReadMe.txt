@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 200__MarketPrice__Streaming illustrates how to create and publish two OMM streaming
 items. This application uses source directory configured in the EmaConfig.xml file.

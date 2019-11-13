@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 360__MarketPrice_ConnectionRecovery illustrates how to create and publish one OMM item,
 and register for and process login events. The login events signify connection state.

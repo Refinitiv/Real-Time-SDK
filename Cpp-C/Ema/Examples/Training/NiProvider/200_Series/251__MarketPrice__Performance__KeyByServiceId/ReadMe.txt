@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the performance usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 251__MarketPrice__Performance illustrates how to efficiently create and publish a number
 of OMM items. This application uses source directory configured in the EmaConfig.xml file.

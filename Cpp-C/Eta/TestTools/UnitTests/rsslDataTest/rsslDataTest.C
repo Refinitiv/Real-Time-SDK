@@ -1,7 +1,6 @@
 ///*
 // *|---------------------------------------------------------------
-// *|				Copyright (C) 2009 Reuters,				  --
-// *|		 1111 W. 22nd St, Oak Brook, IL. 60523		  --
+// *|		Copyright (C) 2019 Refinitiv,			  --
 // *| All rights reserved. Duplication or distribution prohibited --
 // *|---------------------------------------------------------------
 // */
@@ -6796,7 +6795,7 @@ TEST(stringConversionTest,stringConversionTest)
 	RsslQos testQos;
 	RsslState testState;
 	RsslEnum testEnum, testEnumOut;
-	RsslBuffer testBuffer = {sizeof("Thomson Reuters"),  const_cast<char*>("Thomson Reuters")};
+	RsslBuffer testBuffer = {sizeof("Refinitiv"),  const_cast<char*>("Refinitiv")};
 
 	/* Int conversion test */
 	testInt = 987654321;

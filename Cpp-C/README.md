@@ -3,10 +3,9 @@ This is the Elektron SDK. This SDK is an all encompassing package of all Elektro
 
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
 
-The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Thomson Reuters low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
-(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
+Copyright (C) 2019 Refinitiv. All rights reserved,
 
 # New In This Release
 
@@ -209,9 +208,9 @@ Windows: Do not add "Win64" to the "VisualStudioVersion".  Example, When specify
 
 Starting with ESDK1.3.1, DACS and ANSI libraries are available for 32-bits in the BinaryPack.
 
-# Obtaining the Thomson Reuters Field Dictionaries
+# Obtaining the Refinitiv Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 

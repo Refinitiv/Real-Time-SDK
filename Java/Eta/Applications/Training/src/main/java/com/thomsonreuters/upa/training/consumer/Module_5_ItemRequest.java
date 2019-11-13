@@ -140,7 +140,7 @@
  * Consumer applications often require a dictionary for encoding or decoding 
  * specific pieces of information. This dictionary typically defines type and 
  * formatting information. Content that uses the FieldList type requires 
- * the use of a field dictionary (usually the Thomson Reuters RDMFieldDictionary, 
+ * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
  * although it could also be a user-defined or user-modified field dictionary).
  * A consumer application can choose whether to load necessary dictionary 
  * information from a local file or download the information from an available 
@@ -946,7 +946,7 @@ public class Module_5_ItemRequest
 
                                         dictionary.clear();
 
-                                        /* Will attempt to download the Thomson Reuters Field Dictionary (RDMFieldDictionary) from provider. */
+                                        /* Will attempt to download the Refinitiv Field Dictionary (RDMFieldDictionary) from provider. */
                                         if (!dictionariesLoadedInfo_fieldDictionaryLoaded)
                                         {
                                             /* check if Dictionary Domain Type is supported */
@@ -1993,7 +1993,7 @@ public class Module_5_ItemRequest
         /* Because the Source Directory domain uses an FilterList, a consumer can indicate the specific source related
          * information in which it is interested via a msgKey.filter. Each bit-value represented in the filter corresponds
          * to an information set that can be provided in response messages.
-         * Thomson Reuters recommends that a consumer application minimally request Info, State, and Group filters for the
+         * Refinitiv recommends that a consumer application minimally request Info, State, and Group filters for the
          * Source Directory:
          * - The Info filter contains the service name and serviceId data for all available services. When an appropriate
          *   service is discovered by the OMM Consumer, the serviceId associated with the service is used on subsequent
@@ -2858,7 +2858,7 @@ public class Module_5_ItemRequest
      * request message is encoded and sent by OMM consumer applications. Some data requires the use of a dictionary for
      * encoding or decoding. This dictionary typically defines type and formatting information and directs the application
      * as to how to encode or decode specific pieces of information. Content that uses the FieldList type requires the
-     * use of a field dictionary (usually the Thomson Reuters RDMFieldDictionary, though it could also be a user-defined or
+     * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be a user-defined or
      * modified field dictionary).
      * dictionaryName - The name of the dictionary to request
      */
@@ -3045,7 +3045,7 @@ public class Module_5_ItemRequest
         requestMsg.msgKey().applyHasServiceId();
         requestMsg.msgKey().applyHasNameType();
         requestMsg.msgKey().applyHasName();
-        /* msgKey.nameType Optional. When consuming from Thomson Reuters sources, typically set to
+        /* msgKey.nameType Optional. When consuming from Refinitiv sources, typically set to
          * InstrumentNameTypes.RIC (the "Reuters Instrument Code"). If this is not specified,
          * msgKey.nameType defaults to RDM_INSTRUMENT_NAME_TYPE_RIC.
          */

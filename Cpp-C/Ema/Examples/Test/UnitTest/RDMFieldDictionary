@@ -5,7 +5,6 @@
 ! document at any time without notice.
 !
 !   Version	 4.20.19_TREP_15.61		07/15/2015
-!	* Modified 07/15/2015 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.19.
 !
 !   RDM Field Dictionary
@@ -24,7 +23,7 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Thomson Reuters 2015
+! Copyright (C) 2019 Refinitiv 
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set

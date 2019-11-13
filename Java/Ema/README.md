@@ -1,10 +1,9 @@
 # Elektron Message API (EMA) Java Edition
 
-The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
+The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
 
 EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
-(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
+Copyright (C) 2019 Refinitiv. All rights reserved,
   
 # EMA Java Documentation
 
@@ -89,7 +88,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 # Reference Information
 
     I-COS Questionnaire: 6313
-    Reuters Item Number: N/A
+    Refinitiv Item Number: N/A
     Product Name: Elektron Message API - Java Edition
     Release Number: 3.3.1
     Load Number: 1
@@ -100,7 +99,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
-    Security Compliance: Thomson Reuters Security Compliant
+    Security Compliance: Refinitiv Security Compliant
     Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
 
 # Notes

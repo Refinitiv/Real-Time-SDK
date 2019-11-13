@@ -5,7 +5,7 @@ example161__Login__AcceptDeny__DomainRepresentations is an example of an OMM Int
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.
+of OMM MarketPrice data to the Advanced Distribution Hub.
 
 example161__Login__AcceptDeny__DomainRepresentations illustrates how to create and publish a single OMM
 streaming item. This application uses hardcoded source directory configuration.

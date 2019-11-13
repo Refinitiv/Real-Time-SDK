@@ -17,7 +17,7 @@ public interface FieldSetDefEntry
      * the set-defined {@link FieldList} content. Refers to specific name and
      * type information defined by an external field dictionary, such as the
      * RDMFieldDictionary. Negative fieldId values typically refer to user-defined
-     * values while positive fieldId values typically refer to Thomson Reuters
+     * values while positive fieldId values typically refer to Refinitiv
      * -defined values.
      * 
      * @return the fieldId
@@ -29,7 +29,7 @@ public interface FieldSetDefEntry
      * the set-defined {@link FieldList} content. Refers to specific name and
      * type information defined by an external field dictionary, such as the
      * RDMFieldDictionary. Negative fieldId values typically refer to user-defined
-     * values while positive fieldId values typically refer to Thomson Reuters
+     * values while positive fieldId values typically refer to Refinitiv
      * -defined values. Must be in the range of -32768 - 32767.
      * 
      * @param fieldId the fieldId to set

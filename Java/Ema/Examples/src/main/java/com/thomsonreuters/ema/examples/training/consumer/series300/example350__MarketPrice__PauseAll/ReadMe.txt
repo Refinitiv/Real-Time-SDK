@@ -7,7 +7,7 @@ OMM Consumer application written to the EMA library.
 This application demonstrates basic usage of the EMA library for opening
 login and item streams and pausing item response messages from Reuters Data
 Feed Direct (RDF-D), directly from an OMM Provider application, or from
-Thomson Reuters Advanced Distribution Server with login stream.
+an Advanced Distribution Server with login stream.
 
 example350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.
 It sends a single pause request on login stream to pause all open items.

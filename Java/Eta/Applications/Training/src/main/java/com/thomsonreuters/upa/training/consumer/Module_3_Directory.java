@@ -1876,7 +1876,7 @@ public class Module_3_Directory
         /* Because the Source Directory domain uses an FilterList, a consumer can indicate the specific source related
          * information in which it is interested via a msgKey.filter. Each bit-value represented in the filter corresponds
          * to an information set that can be provided in response messages.
-         * Thomson Reuters recommends that a consumer application minimally request Info, State, and Group filters for the
+         * Refinitiv recommends that a consumer application minimally request Info, State, and Group filters for the
          * Source Directory:
          * - The Info filter contains the service name and serviceId data for all available services. When an appropriate
          *   service is discovered by the OMM Consumer, the serviceId associated with the service is used on subsequent

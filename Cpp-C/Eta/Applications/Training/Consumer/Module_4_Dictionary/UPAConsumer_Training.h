@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright (C) 2019 Refinitiv. All rights reserved.
 */
 
 /*
@@ -150,7 +150,7 @@
  * Consumer applications often require a dictionary for encoding or decoding 
  * specific pieces of information. This dictionary typically defines type and 
  * formatting information. Content that uses the RsslFieldList type requires 
- * the use of a field dictionary (usually the Thomson Reuters RDMFieldDictionary, 
+ * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
  * although it could also be a user-defined or user-modified field dictionary).
  * A consumer application can choose whether to load necessary dictionary 
  * information from a local file or download the information from an available 
@@ -345,7 +345,7 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
  * request message is encoded and sent by OMM consumer applications. Some data requires the use of a dictionary for 
  * encoding or decoding. This dictionary typically defines type and formatting information and directs the application 
  * as to how to encode or decode specific pieces of information. Content that uses the RsslFieldList type requires the 
- * use of a field dictionary (usually the Thomson Reuters RDMFieldDictionary, though it could also be a user-defined or 
+ * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be a user-defined or 
  * modified field dictionary).
  * upaChannelInfo - The channel management information including the channel to send the Dictionary request message buffer to and
  *					the obtained source directory service discovery information that is used for sending Dictionary Request

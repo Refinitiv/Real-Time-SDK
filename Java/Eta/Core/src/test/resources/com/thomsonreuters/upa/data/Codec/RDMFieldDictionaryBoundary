@@ -26,7 +26,7 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Thomson Reuters 2012
+! Copyright (C) 2019 Refinitiv
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set

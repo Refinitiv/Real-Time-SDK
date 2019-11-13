@@ -24,13 +24,13 @@ uploadArchives {
             pom.project {
                 name "$archivesBaseName"
                     packaging 'jar'
-                    url 'https://github.com/thomsonreuters/Elektron-SDK'
+                    url 'https://github.com/Refinitiv/Elektron-SDK'
                     description 'Elektron Transport API (ETA) Java Edition'
 
                     scm {
-                        connection 'scm:git:git://github.com/thomsonreuters/Elektron-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:thomsonreuters/Elektron-SDK.git'
-                            url 'http://github.com/thomsonreuters/Elektron-SDK/tree/master'
+                        connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
+                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
+                            url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
                     }
 
                 developers {

@@ -5,7 +5,7 @@ Summary
 written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub. It
+of OMM MarketPrice data to the Advanced Distribution Hub. It
 also demonstrates retrieving and displaying information about the channel used
 in that connection.
 

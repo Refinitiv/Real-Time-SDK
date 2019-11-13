@@ -6,7 +6,7 @@ OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing,
 posting and parsing of MarketPrice data directly directly from and to an OMM
-Provider application, or to Thomson Reuters Advanced Distribution Server.
+Provider application, or to an Advanced Distribution Server.
 
 example341__MarketPrice__OffStreamPost showcases the usage of the off stream posting
 feature in OMM Consumer. It submits OMM Data for the open item on the login

@@ -6,7 +6,7 @@ written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in accessing and
 parsing OMM MarketPrice data from either Reuters Data Feed Direct (RDF-D), directly
-from an OMM Provider application, or from the Thomson Reuters Advanced Distribution
+from an OMM Provider application, or from the Advanced Distribution
 Server.
 
 example100__MarketPrice__Streaming illustrates how to open and process a single OMM

@@ -6,7 +6,7 @@ application written to the EMA library showcasing closing of a streaming request
 
 This application demonstrates basic usage of the EMA library for accessing and
 parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly
-from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.
+from an OMM Provider application, or from Advanced Distribution Server.
 
 The 300__MarketPrice__Close showcases closing of an item. This application
 arbitrarily chooses to close an item after a number of received updates.

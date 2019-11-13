@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,7 +30,7 @@ extern "C" {
 typedef struct {
 	RsslMsgBase			msgBase;		/*!< @brief Common message header members (streamId, domainType, msgKey, etc.), msgKey is optional and typically not sent as streamId can be used to match updates to a specific item stream */
 	RsslUInt16			flags;			/*!< @brief Flag values used to indicate optional member presence and/or stream behavior.  The available options are defined by values present in  \ref RsslUpdateFlags. */
-	RsslUInt8			updateType;		/*!< @brief Indicates domain-specific information about the type of content contained in this update. See rsslRDM.h for domain-specific enumerations for usage with the Thomson Reuters Domain Models. */
+	RsslUInt8			updateType;		/*!< @brief Indicates domain-specific information about the type of content contained in this update. See rsslRDM.h for domain-specific enumerations for usage with the Reuters Domain Models. */
 	RsslUInt32			seqNum;			/*!< @brief Sequence number intended to help with temporal ordering. Typically, this will be incremented with every message, but may have gaps depending on the sequencing algorithm being used.  Presence is indicated by \ref RsslUpdateFlags::RSSL_UPMF_HAS_SEQ_NUM. */
 	RsslUInt16			conflationCount;/*!< @brief Number of updates conflated into this update.  A value of 0 means that this update is not conflated.  Presence is indicated by \ref RsslUpdateFlags::RSSL_UPMF_HAS_CONF_INFO. */
 	RsslUInt16			conflationTime;	/*!< @brief Time period(in miliseconds) over which updates were conflated.  Presence is indicated by \ref RsslUpdateFlags::RSSL_UPMF_HAS_CONF_INFO. */

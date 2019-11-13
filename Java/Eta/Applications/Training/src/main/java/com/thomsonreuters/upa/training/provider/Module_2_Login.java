@@ -34,8 +34,8 @@
  * In this module, after establishing a connection, ping messages might 
  * need to be exchanged. The negotiated ping timeout is available via 
  * the Channel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Thomson 
- * Reuters recommends sending ping messages at intervals one-third the 
+ * the expected time frame, the connection can be terminated. Refinitiv 
+ * recommends sending ping messages at intervals one-third the 
  * size of the ping timeout.
  *
  * Detailed Descriptions:
@@ -43,7 +43,7 @@
  * might need to exchange ping messages. A negotiated ping timeout is available 
  * via Channel corresponding to each connection (this value might differ on
  * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Thomson Reuters 
+ * are not sent or received within the expected time frame. Refinitiv 
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
  * Ping or heartbeat messages are used to indicate the continued presence of 
  * an application. These are typically only required when no other information is 
@@ -1489,7 +1489,7 @@ public class Module_2_Login
 
         /* UPA provides clear functions for its structures as well as static initializers. 
          * These functions are tuned to be efficient and avoid initializing unnecessary
-         * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+         * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
          * you use the clear functions over static initializers, because the clear functions are more efficient.
          */
         /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -1842,7 +1842,7 @@ public class Module_2_Login
         Error error = TransportFactory.createError();
 
         /* UPA provides clear functions for its structuresas well as static initializers.These functions are tuned to be efficient and avoid initializing unnecessary
-         * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
+         * structure members, and allow for optimal structure use and reuse. In general, Refinitiv recommends that
          * you use the clear functions over static initializers, because the clear functions are more efficient.
          */
         /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */

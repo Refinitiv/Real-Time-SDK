@@ -7,7 +7,7 @@ example of OMM Consumer application written to the EMA library.
 This application demonstrates basic usage of the EMA library for accessing
 and searching with a list of field IDs of OMM MarketPrice data from Reuters
 Data Feed Direct (RDF-D), directly from an OMM Provider application, or from
-Thomson Reuters Advanced Distribution Server.
+Advanced Distribution Server.
 
 
 Detailed Description
