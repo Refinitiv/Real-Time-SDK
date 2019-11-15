@@ -84,6 +84,7 @@ This release supports encryption for TLS 1.0, TLS 1.1 and TLS 1.2.
 **Future Deprecation Notice:** 
 In the next major release of ESDK, support for TLS 1.0 will be dropped.
 
+
 ##### Generating a keystore file
 The **keystore** file is used to contain your own private keys and public key certificates
 which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. 
@@ -103,8 +104,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.2
-- ADH 3.3.2
+- ADS 3.3.3
+- ADH 3.3.3
 - DACS 7.2
 
 # Documentation
@@ -113,12 +114,12 @@ Please refer to top level README.md and to Java/Eta/README.MD or Java/Ema/README
 
 # Installation & Build
 
-Please refer to Installation Guides located in Cpp-C/Eta/Docs and Cpp-C/Ema/Docs for detailed instructions. In this section are some basic details.
+Please refer to Installation Guides for [ETA](Java/Eta/Docs/ESDK_J_Installation_Java.pdf) and [EMA](Java/Ema/Docs/ESDK_J_Installation_Java.pdf) for detailed instructions. In this section are some basic details.
 
-## Common Setup
+## Install ESDK 
 This section shows the required setup needed before you can build any of the Java APIs.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
 ## Building ESDK
 
@@ -183,45 +184,45 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 For ease of product use, as of the ESDK 1.2 release, Refinitiv maintains its ESDK Jar files on Maven Central.
 
-You can download ESDK libraries and dependencies from Maven Central using several different tools, specific
-procedural instructions are not included here. Maven uses the following syntax to specify ESDK dependencies:
+You can download ESDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify ESDK dependencies (this is sample code) :
 
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.3.1.0</version>
+		<version>3.4.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.3.1.0</version>
+		<version>3.4.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.3.1.0</version>
+		<version>3.4.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.3.1.0</version>
+		<version>3.4.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.3.1.0</version>
+		<version>3.4.0.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.1.0'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.1.0'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.1.0'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.1.0'                         compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.1.0'  
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.4.0.0'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.4.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.4.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.4.0.0'
+        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.4.0.0'
 
 # Developing 
 

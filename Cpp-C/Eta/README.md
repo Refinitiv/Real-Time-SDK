@@ -6,7 +6,7 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 
 ETA contains open source components. The transport, decoder and encoder components are open source. The reliable multicast transport and VA cache component are closed source.
 
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. The BinaryPack is also available in the [release section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases) and is auto pulled by ESDK build via CMake. 
 
 This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
 
@@ -165,56 +165,57 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib               eta3.3.1.G2
-    librsslVA.lib             eta3.3.1.G2
-    librsslVACache.lib        eta3.3.1.G2
-    libansi.lib               eta3.3.1.G2
-    libdacs.lib               eta3.3.1.G2
+    librssl.lib               eta3.4.0.L1
+    librsslVA.lib             eta3.4.0.L1
+    librsslVACache.lib        eta3.4.0.L1
+    libansi.lib               eta3.4.0.L1
+    libdacs.lib               eta3.4.0.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.3.1.G2
-    librssl.lib               eta3.3.1.G2
-    librssl.pdb               eta3.3.1.G2
-    librsslVA.dll             eta3.3.1.G2
-    librsslVA.lib             eta3.3.1.G2
-    librsslVA.pdb             eta3.3.1.G2
-    librsslVACache.dll        eta3.3.1.G2
-    librsslVACache.lib        eta3.3.1.G2
-    librsslVACache.pdb        eta3.3.1.G2
+    librssl.dll               eta3.4.0.L1
+    librssl.lib               eta3.4.0.L1
+    librssl.pdb               eta3.4.0.L1
+    librsslVA.dll             eta3.4.0.L1
+    librsslVA.lib             eta3.4.0.L1
+    librsslVA.pdb             eta3.4.0.L1
+    librsslVACache.dll        eta3.4.0.L1
+    librsslVACache.lib        eta3.4.0.L1
+    librsslVACache.pdb        eta3.4.0.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
-In addition, several versions of a shared library can co-exist on the machine.  This allows for easy upgrade of functionality by deploying a newer shared library.  It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
+In addition, several versions of a shared library can co-exist on the machine. This allows for easy upgrade of functionality by deploying a newer shared library. It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-To help with this, Transport API provides several versioning mechanisms for its shared libraries.  Each library is provided with its package version appended to the end.  For example, librssl-eta3.0.1.L1.so.  Embedded in this library is a shared object name (soname) that conveys binary compatibility information. (For example, assuming that the embedded soname is librssl.so.1.  If binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2.) This naming convention is intended to help protect applications from using a non-compatible version of the shared library.   This applies to all shared libraries of UPA. 
+To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.4.0.L1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
 
-The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. This script is provided at the base level of the package, and can be run as follows: 
+The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.4.0.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.4.0.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.4.0.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
 
 	./LinuxSoLink
     
-This will create all necessary soft links for UPA example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
 
 ##### Static Library Manifest
 
-    Library Name                       Package Version
+    Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.3.1.G2
-    librsslVA.a                        eta3.3.1.G2
-    librsslVACache.a                   eta3.3.1.G2
-    libansi.lib                        eta3.3.1.G2
-    libdacs.lib                        eta3.3.1.G2
+    librssl.a                          eta3.4.0.L1
+    librsslVA.a                        eta3.4.0.L1
+    librsslVACache.a                   eta3.4.0.L1
+    libansi.lib                        eta3.4.0.L1
+    libdacs.lib                        eta3.4.0.L1
 
 ##### Shared Library Manifest
 
-    Library Name                       Binary Version       Package Version
+    Library                            Binary Version       Package Version
     -------------                      --------------       ----------------
-    librssl.so.3.3.1.2                 librssl.so.9         eta3.3.1.G2
-    librsslVA.so.3.3.1.2               librsslVA.so.12      eta3.3.1.G2
-    librsslVACache.so.3.3.1.2          librsslVACache.so.3  eta3.3.1.G2
+    librssl.so.3.4.0.0                 librssl.so.10         eta3.4.0.L1
+    librsslVA.so.3.4.0.0               librsslVA.so.13       eta3.4.0.L1
+
+    librsslVACache.so.3.4.0.0          librsslVACache.so.3   eta3.4.0.L1
+    librsslRelMcast.so.3.4.0.0         librsslRelMcast.so.1  eta3.4.0.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -234,19 +235,19 @@ This will create all necessary soft links for UPA example makefiles to link.  It
     I-COS Questionnaire: 6211
     Refinitiv Item Number: N/A
     Product Name: Elektron Transport API - C Edition
-    Release Number: 3.3.1
+    Release Number: 3.4.0
     Load Number: 1
-    Windows Load ID: eta3.3.1.L1.win
-        Supersedes: eta3.3.0.L1.win.rrg
-    Linux Load ID: eta3.3.1.L1.linux
-        Supersedes: eta3.3.0.L1.linux.rrg
+    Windows Load ID: eta3.4.0.L1.win
+        Supersedes: eta3.3.1.L1.win.rrg
+    Linux Load ID: eta3.4.0.L1.linux
+        Supersedes: eta3.3.1.L1.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

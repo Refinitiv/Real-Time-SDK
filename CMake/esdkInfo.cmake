@@ -15,7 +15,7 @@ set(esdk_INTERNAL_RELEASE_TWEAK L1)
 set(esdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 10 )
-set( librsslVA_SO_VERSION 12 )
+set( librsslVA_SO_VERSION 13 )
 set( libema_SO_VERSION 8 )
 
 set(Ansi_VERSION_MAJOR 1)

@@ -36,7 +36,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - High Water Mark setting on socket channel
 		
-- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceEnable,MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
+- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceEnable, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 	
 ## Consumer Features:
 - Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.   
@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.3.1.2.jar         ema3.3.1.G2
+    ema-3.4.0.0.jar         ema3.4.0.L1
 
 # EMA Java Issues and Workarounds
  
@@ -90,17 +90,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6313
     Refinitiv Item Number: N/A
     Product Name: Elektron Message API - Java Edition
-    Release Number: 3.3.1
+    Release Number: 3.4.0
     Load Number: 1
-    Load ID: ema3.3.1.L1.java
-        Supersedes: ema3.3.0.L1.java
+    Load ID: ema3.4.0.L1.java
+        Supersedes: ema3.3.1.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
 
 # Notes
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

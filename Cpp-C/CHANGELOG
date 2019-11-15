@@ -15,20 +15,54 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.1.G2 aka EMA 3.3.1.G2 and ETA 3.3.1.G2
+CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.4.0.L1 aka EMA 3.4.0.L1 and ETA 3.4.0.L1
 ----------------------------------------------------------------------------------------
+
+New Features Added
+------------------
+This release adds Server Side Encryption support in EMA and ETA.
+
 
 Customer Issues Resolved
 ------------------
 
-Both ETA C and EMA C++
-----------------------
-[Case Number: 07573905,08051848, GitHub # 103,108] - [ESDK-3265] - Sporadic crash in ESDK consumers with service interruptions 
-[Case Number: 07010347] - [ESDK-2562] - Shared pool buffers actively queued upon client disconnection are not cleaned up correctly 
+[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[GitHub # 118] - [ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient)
+[ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
+[ESDK-3503] - Memory Growth with ESDK 1.3.X: Remove error struct from event to avoid memory usage
+[GitHub # 120] - [ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter
+
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+ESDK C++/C Release 1.4.0.L1 (Nov 15, 2019)
+---------------------------------------------
+
+EMA C++ 3.4.0.L1 Issues Resolved
+--------------------------------
+[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[ESDK-3417] - Documentation Issue: Specify in EMA Config guide, the precedence of configuration vectors
+[ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient [GitHub # 118])
+[ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub # 120]
+
+ETA C 3.4.0.L1 Issues Resolved
+--------------------------------
+[ESDK-755] - Trying to establish more than 2 encrypted connections fails returning an error, when using ETAC provider
+[ESDK-3503] - Memory Growth with ESDK 1.3.X: Remove error struct from event to avoid memory usage
+[ESDK-3504] - Add option for maxOutputBuffer on ProvPerf
+[ESDK-3505] - Add ability of upacTransportPerf to support compressionType lz4 as the input argument
+[ESDK-3538] - Uptick version on non-open source libs only when binary version changes
+
+Both ETA C and EMA C++ 3.4.0.L1 Issues Resolved
+-----------------------------------------------
+[ESDK-3181] - ESDKC Server side encryption support
+[ESDK-3202] - ESDK Documentation: Remove classic portal, refer to VARefman
+[ESDK-3204] - ESDK Documentation: Fix copyright link after removal of classic portal from esdk repository
+[ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
+[ESDK-3340] - Rebrand ESDK documentation 
 
 ---------------------------------------------
 ESDK C++/C Release 1.3.1.G2 (Oct 18, 2019)

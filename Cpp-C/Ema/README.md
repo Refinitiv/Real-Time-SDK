@@ -34,8 +34,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 
 - File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
 
-- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
-  on Consumer/IProvider/NiProvider instance level.
+- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceXXX, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 
 ## Consumer Features:
 
@@ -101,40 +100,40 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.3.1.G2
+    libema.lib                ema3.4.0.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.3.1.G2
-    libema.dll                ema3.3.1.G2
+    libema.lib                ema3.4.0.L1
+    libema.dll                ema3.4.0.L1
 
 #### Linux
     
-Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application.  The library use can be confirmed by using the ldd command on the application.  This will show the shared library dependencies and where they are being resolved to.  
+Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
-In addition, several versions of a shared library can co-exist on the machine.  This allows for easy upgrade of functionality by deploying a newer shared library.  It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
+In addition, several versions of a shared library can co-exist on the machine. This allows for easy upgrade of functionality by deploying a newer shared library. It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-To help with this, the EMA API provides several versioning mechanisms for its shared libraries.  Each library is provided with its package version appended to the end.  For example, libema.so.3.1.  Embedded in this library is a shared object name (soname) that conveys binary compatibility information. (For example, assuming that the embedded soname is libema.so.1.  If binary compatibility were to change in EMA, this embedded soname would be updated to be libema.so.2.) This naming convention is intended to help protect applications from using a non-compatible version of the shared library.  
+To help with this, the EMA API provides several versioning mechanisms for its shared libraries.  Each library is provided with its package version appended to the end.  For example, libema.so.3.1.0.0. Embedded in this library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is libema.so.1, if binary compatibility were to change in EMA, this embedded soname would be updated to be libema.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library.  
 
 The API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. This script is provided at the base level of the package, and can be run as follows: 
 
 	./LinuxSoLink
     
-This will create all necessary soft links for example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
+This will create all necessary soft links for example makefiles to link. It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.
 
 ##### Static Library Manifest
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.3.1.G2
+    libema.a                    ema3.4.0.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.3.1.2           libema.so.7          ema3.3.1.G2
+    libema.so.3.4.0.0           libema.so.8          ema3.4.0.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -152,19 +151,19 @@ This will create all necessary soft links for example makefiles to link.  It is 
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Elektron Message API - C++ Edition
-    Release Number: 3.3.1
+    Release Number: 3.4.0
     Load Number: 1
-    Windows Load ID: ema3.3.1.L1.win
-        Supersedes: ema3.3.0.L1.win
-    Linux Load ID: ema3.3.1.L1.linux
-        Supersedes: ema3.3.0.L1.linux
+    Windows Load ID: ema3.4.0.L1.win
+        Supersedes: ema3.3.1.L1.win
+    Linux Load ID: ema3.4.0.L1.linux
+        Supersedes: ema3.3.1.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.38_TREP_19.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

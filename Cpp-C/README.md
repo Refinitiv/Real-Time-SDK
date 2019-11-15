@@ -114,10 +114,8 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption for TLS 1.0, TLS 1.1 and TLS 1.2.  
+This release supports encryption for TLS 1.2.  
 
-**Future Deprecation Notice:** 
-In the next major release of ESDK, support for TLS 1.0 will be dropped.
 
 ### Interoperability
 
@@ -130,8 +128,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.2
-- ADH 3.3.2
+- ADS 3.3.3
+- ADH 3.3.3
 - DACS 7.2
 
 # Documentation
@@ -140,12 +138,12 @@ Please refer to top level README.md and to Cpp-C/Eta/README.MD or Cpp-C/Ema/READ
 
 # Installation and Build
 
-Please refer to Installation Guides located in Cpp-C/Eta/Docs and Cpp-C/Ema/Docs for detailed instructions. In this section are some basic details.
+Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/ESDK_C_Installation_Guide.pdf) or [EMA](Cpp-C/Ema/Docs/ESDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install ESDK 
 There are 3 ways to install Eletron SDK:
 
-Obtain the source **from this repository**. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. Please note that the build will auto pull the appropriate BinaryPack which is also available in the [releases section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases).
 
 Elektron SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
 
@@ -197,6 +195,8 @@ Note that only the following Windows compilers are supported.
 - Visual Studio 14 2015
 - Visual Studio 12 2013
 - Visual Studio 11 2012
+
+Note that your installation of Visual Studio needs to be updated to add Microsoft Foundation Classes per Microsoft when encountering this build error: fatal error RC105: cannot open include file 'afxres.h'.
 
 **32 bit support**:
 
