@@ -106,7 +106,7 @@ This release has been tested with the following:
 
 - ADS 3.3.3
 - ADH 3.3.3
-- DACS 7.2
+- DACS 7.3
 
 # Documentation
   

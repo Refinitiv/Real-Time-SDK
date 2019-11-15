@@ -20,7 +20,7 @@ CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.4.0.L1 aka EMA 3.4.0.L1 and ETA 3.4.0.L
 
 Customer Issues Resolved
 ------------------
-[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[Case Number: 07652023] - [ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
 [GitHub # 114] - [ESDK-3476] - Upgrade httpcomponents-core dependency 
 [ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
 
@@ -35,7 +35,7 @@ ESDK Java Release 1.4.0.L1 (Nov 15, 2019)
 
 EMA Java 3.4.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error [Case Number: 07652023]
 [ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub #120]
 
 ETA Java 3.4.0.L1 Issues Resolved

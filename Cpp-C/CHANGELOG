@@ -26,8 +26,8 @@ This release adds Server Side Encryption support in EMA and ETA.
 Customer Issues Resolved
 ------------------
 
-[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
-[GitHub # 118] - [ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient)
+[Case Number: 07652023] - [ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[Case Number: 08003411 GitHub # 118] - [ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient)
 [ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
 [ESDK-3503] - Memory Growth with ESDK 1.3.X: Remove error struct from event to avoid memory usage
 [GitHub # 120] - [ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter
@@ -43,9 +43,9 @@ ESDK C++/C Release 1.4.0.L1 (Nov 15, 2019)
 
 EMA C++ 3.4.0.L1 Issues Resolved
 --------------------------------
-[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
+[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error [Case Number: 07652023]
 [ESDK-3417] - Documentation Issue: Specify in EMA Config guide, the precedence of configuration vectors
-[ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient [GitHub # 118])
+[ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient [Case Number: 08003411 GitHub # 118])
 [ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub # 120]
 
 ETA C 3.4.0.L1 Issues Resolved
