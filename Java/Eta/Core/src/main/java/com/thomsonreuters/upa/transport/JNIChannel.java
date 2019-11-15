@@ -280,29 +280,29 @@ public class JNIChannel extends UpaNode implements Channel
         assert (readArgs != null) : "readArgs cannot be null";
         assert (error != null) : "error cannot be null";
 
-        try
+        if (_readLock.trylock())
         {
-            if (_readLock.trylock())
+            try
             {
                 return rsslRead(this, (ReadArgsImpl)readArgs, (ErrorImpl)error);
             }
-            else
+            catch (Exception e)
             {
-                // failed to obtain the lock
-                ((ReadArgsImpl)readArgs).readRetVal(TransportReturnCodes.READ_IN_PROGRESS);
+                ((ReadArgsImpl)readArgs).readRetVal(TransportReturnCodes.FAILURE);
+                setError(error, this, TransportReturnCodes.FAILURE, error.sysError(),
+                        "JNI rsslRead() exception: " + error.text());
                 return null;
             }
+            finally
+            {
+                _readLock.unlock();
+            }
         }
-        catch (Exception e)
+        else
         {
-            ((ReadArgsImpl)readArgs).readRetVal(TransportReturnCodes.FAILURE);
-            setError(error, this, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslRead() exception: " + error.text());
+            // failed to obtain the lock
+            ((ReadArgsImpl)readArgs).readRetVal(TransportReturnCodes.READ_IN_PROGRESS);
             return null;
-        }
-        finally
-        {
-            _readLock.unlock();
         }
     }
 

@@ -1126,9 +1126,9 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
         setHTTPHeaders();
 
-        try
+        if (_readLock.trylock())
         {
-            if (_readLock.trylock())
+            try
             {
                 // return FAILURE if channel not active
                 if (_state != ChannelState.ACTIVE)
@@ -1156,7 +1156,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 if (_httpReconnectState)
                 {
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                        System.out.println(" RECON rcvACKnewChannel = " + rcvACKnewChannel + 
+                        System.out.println(" RECON rcvACKnewChannel = " + rcvACKnewChannel +
                                            " rcvEndOfResponseOldChannel = " + rcvEndOfResponseOldChannel);
                     if (rcvACKnewChannel && rcvEndOfResponseOldChannel)
                     {
@@ -1259,42 +1259,43 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                         break;
                 }
             }
-            else
+            catch (CompressorException e)
             {
-                // failed to obtain the lock
-                returnValue = TransportReturnCodes.READ_IN_PROGRESS;
-            }
-        }
-        catch (CompressorException e)
-        {
-            if (!_httpReconnectState)
-                _state = ChannelState.CLOSED;
-            if (_httpProxy)
-            {
-                _proxyAuthenticator = null;
-                close(error); // needed for recovery through a proxy
-            }
+                if (!_httpReconnectState)
+                    _state = ChannelState.CLOSED;
+                if (_httpProxy)
+                {
+                    _proxyAuthenticator = null;
+                    close(error); // needed for recovery through a proxy
+                }
 
-            returnValue = TransportReturnCodes.FAILURE;
-            populateErrorDetails(error, TransportReturnCodes.FAILURE, "CompressorException: " + e.getLocalizedMessage());
-        }
-        catch (Exception e)
-        {
-            if (!_httpReconnectState)
-                _state = ChannelState.CLOSED;
-            if (_httpProxy)
-            {
-                _proxyAuthenticator = null;
-                close(error); // needed for recovery through a proxy
+                returnValue = TransportReturnCodes.FAILURE;
+                populateErrorDetails(error, TransportReturnCodes.FAILURE, "CompressorException: " + e.getLocalizedMessage());
             }
+            catch (Exception e)
+            {
+                if (!_httpReconnectState)
+                    _state = ChannelState.CLOSED;
+                if (_httpProxy)
+                {
+                    _proxyAuthenticator = null;
+                    close(error); // needed for recovery through a proxy
+                }
 
-            returnValue = TransportReturnCodes.FAILURE;
-            populateErrorDetails(error, TransportReturnCodes.FAILURE, e.getLocalizedMessage());
+                returnValue = TransportReturnCodes.FAILURE;
+                populateErrorDetails(error, TransportReturnCodes.FAILURE, e.getLocalizedMessage());
+            }
+            finally
+            {
+                _readLock.unlock();
+            }
         }
-        finally
+        else
         {
-            _readLock.unlock();
+            // failed to obtain the lock
+            returnValue = TransportReturnCodes.READ_IN_PROGRESS;
         }
+
         ((ReadArgsImpl)readArgs).readRetVal(returnValue);
 
         return data;

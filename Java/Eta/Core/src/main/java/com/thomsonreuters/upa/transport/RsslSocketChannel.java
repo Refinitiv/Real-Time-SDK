@@ -1211,9 +1211,9 @@ class RsslSocketChannel extends UpaNode implements Channel
         TransportBuffer data = null; // the data returned to the user
         int returnValue;
 
-        try
+        if (_readLock.trylock())
         {
-            if (_readLock.trylock())
+            try
             {
                 // return FAILURE if channel not active
                 if (_state != ChannelState.ACTIVE)
@@ -1340,70 +1340,70 @@ class RsslSocketChannel extends UpaNode implements Channel
                         break;
                 }
             }
-            else
+            catch (CompressorException e)
             {
-                // failed to obtain the lock
-                returnValue = TransportReturnCodes.READ_IN_PROGRESS;
+                _state = ChannelState.CLOSED;
+                returnValue = TransportReturnCodes.FAILURE;
+                error.channel(this);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                populateErrorDetails(error, TransportReturnCodes.FAILURE, "CompressorException: " + e.getLocalizedMessage());
             }
-        }
-        catch (CompressorException e)
-        {
-            _state = ChannelState.CLOSED;
-            returnValue = TransportReturnCodes.FAILURE;
-            error.channel(this);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            populateErrorDetails(error, TransportReturnCodes.FAILURE, "CompressorException: " + e.getLocalizedMessage());
-        }
-        catch (Exception e)
-        {
-            if (_providerHelper != null && _providerHelper._wininetControl)
+            catch (Exception e)
             {
-                // should be on original RsslChannel
-                if (RsslHttpSocketChannelProvider.debugPrint)
-                    System.out.println(" Wininet consumer closed the old control socket.");
-
-                // check to see if streaming channel is still there in case of hard killing
-                if (_providerHelper._needCloseOldChannel)
+                if (_providerHelper != null && _providerHelper._wininetControl)
                 {
-                    returnValue = _providerHelper.switchWininetSession(error);
+                    // should be on original RsslChannel
+                    if (RsslHttpSocketChannelProvider.debugPrint)
+                        System.out.println(" Wininet consumer closed the old control socket.");
+
+                    // check to see if streaming channel is still there in case of hard killing
+                    if (_providerHelper._needCloseOldChannel)
+                    {
+                        returnValue = _providerHelper.switchWininetSession(error);
+                    }
+                    else
+                    {
+                        error.channel(this);
+                        error.errorId(TransportReturnCodes.FAILURE);
+                        error.sysError(0);
+                        error.text("Channel closed already...");
+                        _providerHelper.closeStreamingSocket();
+                        returnValue = TransportReturnCodes.FAILURE;
+                    }
+                }
+                else if (_providerHelper != null)
+                {
+                    returnValue = TransportReturnCodes.FAILURE;
+                    if (returnValue == TransportReturnCodes.FAILURE)
+                    {
+                        if (RsslHttpSocketChannelProvider.debugPrint)
+                            System.out.println("Java channel error.......");
+                        error.channel(this);
+                        error.errorId(TransportReturnCodes.FAILURE);
+                        error.sysError(0);
+                        error.text("Java channel error.......");
+                        _needCloseSocket = true;
+                        _providerHelper.closeStreamingSocket();
+                    }
                 }
                 else
                 {
-                    error.channel(this);
-                    error.errorId(TransportReturnCodes.FAILURE);
-                    error.sysError(0);
-                    error.text("Channel closed already...");
-                    _providerHelper.closeStreamingSocket();
-                    returnValue = TransportReturnCodes.FAILURE;
-                }
-            }
-            else if (_providerHelper != null)
-            {
-                returnValue = TransportReturnCodes.FAILURE;
-                if (returnValue == TransportReturnCodes.FAILURE)
-                {
-                    if (RsslHttpSocketChannelProvider.debugPrint)
-                        System.out.println("Java channel error.......");
-                    error.channel(this);
-                    error.errorId(TransportReturnCodes.FAILURE);
-                    error.sysError(0);
-                    error.text("Java channel error.......");
                     _needCloseSocket = true;
-                    _providerHelper.closeStreamingSocket();
+                    _state = ChannelState.CLOSED;
+                    returnValue = TransportReturnCodes.FAILURE;
+                    populateErrorDetails(error, TransportReturnCodes.FAILURE, e.getLocalizedMessage());
                 }
             }
-            else
+            finally
             {
-                _needCloseSocket = true;
-                _state = ChannelState.CLOSED;
-                returnValue = TransportReturnCodes.FAILURE;
-                populateErrorDetails(error, TransportReturnCodes.FAILURE, e.getLocalizedMessage());
+                _readLock.unlock();
             }
         }
-        finally
+        else
         {
-            _readLock.unlock();
+            // failed to obtain the lock
+            returnValue = TransportReturnCodes.READ_IN_PROGRESS;
         }
 
         ((ReadArgsImpl)readArgs).readRetVal(returnValue);
