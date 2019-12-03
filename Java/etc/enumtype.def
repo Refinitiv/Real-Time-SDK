@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.39
 !tag Build_RDMD  4.20.39
-!tag DT_Version  19.91
-!tag Date        28-Oct-2019
+!tag DT_Version  20.01
+!tag Date        25-Nov-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8666,6 +8666,10 @@ ORDER_EXID 13603
    1584        "CCL"   CRYPTO COIN COMPARISON LTD
    1585        "KAI"   KAIKO
    1586        "SNE"   SENER (Government of Mexico)
+   1587        "EBE"   EURONEXT BLOCK (MTF)(EU)
+   1588        "JLC"   JLC Network Technology Co., Ltd
+   1589        "EIG"   ENERGY INTELLIGENCE
+   1590        "FAB"   First Abu Dhabi Bank
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16446,6 +16450,8 @@ AMR_TP_CD  12936
       8   "LV_PY_MT"   Level-Payment Mortgages
       9   "TI_PY_MT"   Tiered-Payment Mortgages
      10   "REVR_MRT"   Reverse Mortgages
+     11   "FIX_REVR"   Fixed Rate Reverse
+     12   "ARM_REVR"   ARM Rate Reverse
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17162,6 +17168,8 @@ AVGPRC_TP2 13082
       5   "RPD INDX"   Reference Price Data Index. A volume-weighted reference price for each half hour settlement period each day.
       6   "ID3     "   A weighted average price of the hourly and 15-minute products of the last three hours prior to delivery.
       7   "TGe24   "   Arithmetic Average of the prices of transactions concluded during the first fixing at particular hours throughout the day N-1 for the same delivery date.
+      8   "12M AVG "   12 Months rolling Average Price
+      9   "60M AVG "   60 Months rolling Average Price
 !
 ! ACRONYM    FID
 ! -------    ---
