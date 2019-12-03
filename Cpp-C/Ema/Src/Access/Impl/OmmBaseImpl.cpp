@@ -1582,37 +1582,7 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 	dispatchOpts.maxMessages = count;
 
 	RsslRet reactorRetCode = RSSL_RET_SUCCESS;
-
 	UInt64 loopCount = 0;
-	do
-	{
-		_userLock.lock();
-		reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
-		_userLock.unlock();
-		++loopCount;
-	}
-	while ( reactorRetCode > RSSL_RET_SUCCESS && !bMsgDispRcvd && loopCount < 5 );
-
-	if ( reactorRetCode < RSSL_RET_SUCCESS )
-	{
-		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		{
-			EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
-			temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
-				.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
-				.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
-				.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
-
-			_userLock.lock();
-			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-			_userLock.unlock();
-		}
-
-		return -2;
-	}
-
-	if ( bMsgDispRcvd )
-		return 0;
 
 	endTime = GetTime::getMicros();
 
@@ -1620,8 +1590,6 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 	{
 		if ( userTimeoutExists )
 			TimeOut::execute( *this );
-
-		return bMsgDispRcvd ? 0 : -1;
 	}
 
 	if ( timeOut >= 0 )
@@ -1649,11 +1617,19 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 		fd_set useExceptFds = _exceptFds;
 
 		struct timeval selectTime;
-		if ( timeOut >= 0 )
+		if ( timeOut > 0 )
 		{
 			selectTime.tv_sec = static_cast<long>( timeOut / 1000000 );
 			selectTime.tv_usec = timeOut % 1000000;
+
 			selectRetCode = select( FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime );
+		}
+		else if (timeOut == 0)
+		{
+			selectTime.tv_sec = 0;
+			selectTime.tv_usec = 0;
+
+			selectRetCode = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 		}
 		else if ( timeOut < 0 )
 			selectRetCode = select( FD_SETSIZE, &useReadFds, NULL, &useExceptFds, NULL );
@@ -1668,11 +1644,18 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 
 		struct timespec ppollTime;
 
-		if ( timeOut >= 0 )
+		if ( timeOut > 0 )
 		{
 			ppollTime.tv_sec = timeOut / static_cast<long long>( 1e6 );
 			ppollTime.tv_nsec = timeOut % static_cast<long long>( 1e6 ) * static_cast<long long>( 1e3 );
 			selectRetCode = ppoll( _eventFds, _eventFdsCount, &ppollTime, 0 );
+		}
+		else if (timeOut == 0)
+		{
+			ppollTime.tv_sec = 0;
+			ppollTime.tv_nsec = 0;
+
+			selectRetCode = ppoll(_eventFds, _eventFdsCount, &ppollTime, 0);
 		}
 		else if ( timeOut < 0 )
 			selectRetCode = ppoll( _eventFds, _eventFdsCount, 0, 0 );
