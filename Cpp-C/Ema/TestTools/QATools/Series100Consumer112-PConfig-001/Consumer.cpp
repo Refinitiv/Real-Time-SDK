@@ -110,8 +110,6 @@ void printHelp()
         << " -plogin User name on proxy server \n"
         << " -ppasswd Password on proxy server \n"
         << " -pdomain Proxy Domain \n"
-		<< " -spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections \n"
-		<< " -spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections \n"
 		<< " -spTLSv1.2 enable use of cryptopgrahic protocol TLSv1.2 used with linux encrypted connections \n"
 		<< " -libsslName name of the libssl.so shared library used with linux encrypted connections. \n"
 		<< " -libcryptoName name of the libcrypto.so shared library used with linux encrypted connections \n" << endl;
@@ -151,14 +149,6 @@ int main( int argc, char* argv[] )
             {
                 config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
             }
-			else if (strcmp(argv[i], "-spTLSv1") == 0)
-			{
-				securityProtocol |= OmmConsumerConfig::ENC_TLSV1;
-			}
-			else if (strcmp(argv[i], "-spTLSv1.1") == 0)
-			{
-				securityProtocol |= OmmConsumerConfig::ENC_TLSV1_1;
-			}
 			else if (strcmp(argv[i], "-spTLSv1.2") == 0)
 			{
 				securityProtocol |= OmmConsumerConfig::ENC_TLSV1_2;

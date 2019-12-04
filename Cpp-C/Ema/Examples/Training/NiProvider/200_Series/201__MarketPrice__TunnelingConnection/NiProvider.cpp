@@ -60,14 +60,6 @@ int main( int argc, char* argv[] )
 			{
 				config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
 			}
-			else if (strcmp(argv[i], "-spTLSv1") == 0)
-			{
-				securityProtocol |= OmmNiProviderConfig::ENC_TLSV1;
-			}
-			else if (strcmp(argv[i], "-spTLSv1.1") == 0)
-			{
-				securityProtocol |= OmmNiProviderConfig::ENC_TLSV1_1;
-			}
 			else if (strcmp(argv[i], "-spTLSv1.2") == 0)
 			{
 				securityProtocol |= OmmNiProviderConfig::ENC_TLSV1_2;
