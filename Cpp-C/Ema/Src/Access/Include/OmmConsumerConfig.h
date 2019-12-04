@@ -188,7 +188,7 @@ public :
 	OmmConsumerConfig& tunnelingProxyPort(const EmaString& proxyPort);
 
 	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system, 
-		of values TLSv1, TLSv1.1, and TLSv1.2. The highest value of TLS will be selected by 
+		of values TLSv1.2. The highest value of TLS will be selected by 
 		the Rssl API first, then it will roll back if the encryption handshake fails. 
 		The protocol defaults to TLSv1.2. 
 		Use OmmConsumerConfig::EncryptedProtocolTypes flags to set allowed protocols.
