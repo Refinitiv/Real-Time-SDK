@@ -19,8 +19,6 @@ void printHelp()
 		<< " -plogin User name on proxy server \n"
 		<< " -ppasswd Password on proxy server \n"
 		<< " -pdomain Proxy Domain \n"
-		<< " -spTLSv1 enable use of cryptographic protocol TLSv1 used with linux encrypted connections \n"
-		<< " -spTLSv1.1 enable use of cryptographic protocol TLSv1.1 used with linux encrypted connections \n"
 		<< " -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections \n"
 		<< " -libsslName name of the libssl.so shared library used with linux encrypted connections. \n"
 		<< " -libcryptoName name of the libcrypto.so shared library used with linux encrypted connections \n" << endl;
