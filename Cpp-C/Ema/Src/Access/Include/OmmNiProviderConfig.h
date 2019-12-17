@@ -59,8 +59,6 @@ public :
 	enum EncryptionProtocolTypes
 	{
 		ENC_NONE = 0x00,			/*!< (0x00) No encryption. */
-		ENC_TLSV1 = 0x01,			/*!< (0x02) Encryption using TLSv1 protocol */
-		ENC_TLSV1_1 = 0x02,			/*!< (0x04) Encryption using TLSv1.1 protocol */
 		ENC_TLSV1_2 = 0x04			/*!< (0x08) Encryption using TLSv1.2 protocol */
 	};
 
@@ -191,7 +189,7 @@ public :
 	OmmNiProviderConfig& tunnelingProxyPort(const EmaString& proxyPort);
 
 	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system,
-		of values TLSv1, TLSv1.1, and TLSv1.2. The highest value of TLS will be selected by
+		of values TLSv1.2. The highest value of TLS will be selected by
 		the Rssl API first, then it will roll back if the encryption handshake fails.
 		The protocol defaults to TLSv1.2.
 		Use OmmNiProviderConfig::EncryptedProtocolTypes flags to set allowed protocols.
