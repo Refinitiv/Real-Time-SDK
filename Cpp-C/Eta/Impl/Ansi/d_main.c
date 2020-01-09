@@ -20,6 +20,10 @@
 #define toascii(c) ((c)&0x7f)
 #endif
 
+#if defined(WIN32) && __STDC__
+#define toascii __toascii
+#endif
+
 PARSEPTR	parse_ptr;		/* pointer to internal parser state */
 short 	PAGECOLS=80;
 short 	PAGEROWS=25;

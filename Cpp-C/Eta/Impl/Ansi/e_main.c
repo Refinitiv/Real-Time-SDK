@@ -233,6 +233,7 @@ int qa_encode( pageptr , str, maxstrlen, len, fade_enable, u_list )
 	}
 #ifdef ATTRIBUTES
 	db_flag = 0;
+	sv_cur_attr = 0;
 #endif
 
 	start_str = str;
