@@ -15,19 +15,28 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.4.0.L1 aka EMA 3.4.0.L1 and ETA 3.4.0.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.4.0.G1 aka EMA 3.4.0.G1 and ETA 3.4.0.G1
 ----------------------------------------------------------------------------------------
 
 Customer Issues Resolved
 ------------------
-[Case Number: 07652023] - [ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
-[GitHub # 114] - [ESDK-3476] - Upgrade httpcomponents-core dependency 
-[ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
+[GitHub # 110] - [ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider 
 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+--------------------------------------------
+ESDK Java Release 1.4.0.G1 (Jan 10, 2020)
+--------------------------------------------
+
+EMA Java 3.4.0.G1 Issues Resolved
+---------------------------------
+[ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider [GitHub # 110] 
+
+Both ETA Java and EMA Java 3.4.0.L1 Issues Resolved
+---------------------------------------------------
+[ESDK-3594] - Documentation changes with addtional rebranding changes
 
 --------------------------------------------
 ESDK Java Release 1.4.0.L1 (Nov 15, 2019)

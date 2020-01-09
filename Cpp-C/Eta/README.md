@@ -165,25 +165,25 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib               eta3.4.0.L1
-    librsslVA.lib             eta3.4.0.L1
-    librsslVACache.lib        eta3.4.0.L1
-    libansi.lib               eta3.4.0.L1
-    libdacs.lib               eta3.4.0.L1
+    librssl.lib               eta3.4.0.G1
+    librsslVA.lib             eta3.4.0.G1
+    librsslVACache.lib        eta3.4.0.G1
+    libansi.lib               eta3.4.0.G1
+    libdacs.lib               eta3.4.0.G1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.4.0.L1
-    librssl.lib               eta3.4.0.L1
-    librssl.pdb               eta3.4.0.L1
-    librsslVA.dll             eta3.4.0.L1
-    librsslVA.lib             eta3.4.0.L1
-    librsslVA.pdb             eta3.4.0.L1
-    librsslVACache.dll        eta3.4.0.L1
-    librsslVACache.lib        eta3.4.0.L1
-    librsslVACache.pdb        eta3.4.0.L1
+    librssl.dll               eta3.4.0.G1
+    librssl.lib               eta3.4.0.G1
+    librssl.pdb               eta3.4.0.G1
+    librsslVA.dll             eta3.4.0.G1
+    librsslVA.lib             eta3.4.0.G1
+    librsslVA.pdb             eta3.4.0.G1
+    librsslVACache.dll        eta3.4.0.G1
+    librsslVACache.lib        eta3.4.0.G1
+    librsslVACache.pdb        eta3.4.0.G1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -201,21 +201,21 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.4.0.L1
-    librsslVA.a                        eta3.4.0.L1
-    librsslVACache.a                   eta3.4.0.L1
-    libansi.lib                        eta3.4.0.L1
-    libdacs.lib                        eta3.4.0.L1
+    librssl.a                          eta3.4.0.G1
+    librsslVA.a                        eta3.4.0.G1
+    librsslVACache.a                   eta3.4.0.G1
+    libansi.lib                        eta3.4.0.G1
+    libdacs.lib                        eta3.4.0.G1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version       Package Version
     -------------                      --------------       ----------------
-    librssl.so.3.4.0.0                 librssl.so.10         eta3.4.0.L1
-    librsslVA.so.3.4.0.0               librsslVA.so.13       eta3.4.0.L1
+    librssl.so.3.4.0.0                 librssl.so.10         eta3.4.0.G1
+    librsslVA.so.3.4.0.0               librsslVA.so.13       eta3.4.0.G1
 
-    librsslVACache.so.3.4.0.0          librsslVACache.so.3   eta3.4.0.L1
-    librsslRelMcast.so.3.4.0.0         librsslRelMcast.so.1  eta3.4.0.L1
+    librsslVACache.so.3.4.0.0          librsslVACache.so.3   eta3.4.0.G1
+    librsslRelMcast.so.3.4.0.0         librsslRelMcast.so.1  eta3.4.0.G1
 
 
 # ETA C-Edition Issues and Workarounds
