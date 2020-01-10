@@ -168,7 +168,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.

@@ -100,7 +100,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
 
 # Notes
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

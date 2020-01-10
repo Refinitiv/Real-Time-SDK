@@ -211,11 +211,11 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Binary Version       Package Version
     -------------                      --------------       ----------------
-    librssl.so.3.4.0.0                 librssl.so.10         eta3.4.0.G1
-    librsslVA.so.3.4.0.0               librsslVA.so.13       eta3.4.0.G1
+    librssl.so.3.4.0.1                 librssl.so.10         eta3.4.0.G1
+    librsslVA.so.3.4.0.1               librsslVA.so.13       eta3.4.0.G1
 
-    librsslVACache.so.3.4.0.0          librsslVACache.so.3   eta3.4.0.G1
-    librsslRelMcast.so.3.4.0.0         librsslRelMcast.so.1  eta3.4.0.G1
+    librsslVACache.so.3.4.0.1          librsslVACache.so.3   eta3.4.0.G1
+    librsslRelMcast.so.3.4.0.l         librsslRelMcast.so.1  eta3.4.0.G1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -247,7 +247,7 @@ The Transport API provides a helpful script that will create soft links for the 
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
