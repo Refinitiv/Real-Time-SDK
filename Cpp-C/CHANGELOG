@@ -15,27 +15,35 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.4.0.L1 aka EMA 3.4.0.L1 and ETA 3.4.0.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.4.0.G1 aka EMA 3.4.0.G1 and ETA 3.4.0.G1
 ----------------------------------------------------------------------------------------
-
-New Features Added
-------------------
-This release adds Server Side Encryption support in EMA and ETA.
-
 
 Customer Issues Resolved
 ------------------
-
-[Case Number: 07652023] - [ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error
-[Case Number: 08003411 GitHub # 118] - [ESDK-3495] - Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient)
-[ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
-[ESDK-3503] - Memory Growth with ESDK 1.3.X: Remove error struct from event to avoid memory usage
-[GitHub # 120] - [ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter
+[GitHub # 110] - [ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider 
+[Case Number: 04035985 GitHub #124] - [ESDK-126] - Fix to Ansi library build and runtime issues 
 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+ESDK C++/C Release 1.4.0.G1 (Jan 10, 2020)
+---------------------------------------------
+
+EMA C++ 3.4.0.G1 Issues Resolved
+--------------------------------
+[ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider [GitHub # 110] 
+[ESDK-3596] - Removed TLS 1.0 and 1.1 enumerations from EMA interface
+
+ETA C 3.4.0.G1 Issues Resolved
+--------------------------------
+[ESDK-126] - Fix to Ansi library build and runtime issues [Case Number: 04035985 GitHub #124]
+
+Both ETA C and EMA C++ 3.4.0.G1 Issues Resolved
+-----------------------------------------------
+[ESDK-3594] - Documentation changes with addtional rebranding changes
 
 ---------------------------------------------
 ESDK C++/C Release 1.4.0.L1 (Nov 15, 2019)

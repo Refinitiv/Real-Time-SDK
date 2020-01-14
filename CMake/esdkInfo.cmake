@@ -11,7 +11,7 @@ unset(esdk_DEPENDS_LIST)
 # esdk Version information
 #[====================================================================]
 set(esdk_INTERNAL_API_VERSION_MAJOR 3)
-set(esdk_INTERNAL_RELEASE_TWEAK L1)
+set(esdk_INTERNAL_RELEASE_TWEAK G1)
 set(esdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 10 )

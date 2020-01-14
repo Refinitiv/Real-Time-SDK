@@ -114,22 +114,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.4.0.0.jar               eta3.4.0.L1       The ETA - Java Edition library.  Includes
+    upa-3.4.0.1.jar               eta3.4.0.G1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.4.0.0.jar       eta3.4.0.L1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.4.0.1.jar       eta3.4.0.G1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.4.0.0.jar  eta3.4.0.L1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.4.0.1.jar  eta3.4.0.G1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.4.0.0.jar          eta3.4.0.L1       The ANSI decoders and encoders.
+    ansipage-3.4.0.0.jar          eta3.4.0.G1       The ANSI decoders and encoders.
                   
 
-    ETAC/UPA/RSSL JNI Libs        eta3.4.0.L1       The JNI libraries for Reliable Multicast
+    ETAC/UPA/RSSL JNI Libs        eta3.4.0.G1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -168,7 +168,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_19.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.
