@@ -18,7 +18,7 @@ OmmNiProviderConfig::OmmNiProviderConfig() :
 	try {
 		_pImpl = new OmmNiProviderConfigImpl( EmaString() );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !_pImpl )
 		throwMeeException( "Failed to allocate memory for OmmNiProviderConfigImpl in OmmNiProviderConfig()" );
@@ -30,7 +30,7 @@ OmmNiProviderConfig::OmmNiProviderConfig( const EmaString & path ) :
 	try {
 		_pImpl = new OmmNiProviderConfigImpl( path );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !_pImpl )
 		throwMeeException( "Failed to allocate memory for OmmNiProviderConfigImpl in OmmNiProviderConfig()" );

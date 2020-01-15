@@ -42,7 +42,7 @@ FieldListDecoder::FieldListDecoder() :
 	{
 		_pDataDictionary = new DataDictionary(false);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in FieldListDecoder::FieldListDecoder().");
 	}

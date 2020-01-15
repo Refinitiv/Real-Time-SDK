@@ -22,7 +22,7 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config ) :
 		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl( config );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !_pImpl )
 		throwMeeException( "Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& )." );
@@ -36,7 +36,7 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& cli
 		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl(config, client, closure);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pImpl)
 		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
@@ -50,7 +50,7 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClien
 		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl( config, client );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !_pImpl )
 		client.onMemoryExhaustion( "Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& , OmmConsumerErrorClient& )." );
@@ -64,7 +64,7 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adm
 		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl(config, adminClient, errorClient, closure);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pImpl)
 		errorClient.onMemoryExhaustion("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& , OmmConsumerErrorClient& ).");

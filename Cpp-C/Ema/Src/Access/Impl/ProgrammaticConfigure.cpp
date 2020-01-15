@@ -2040,7 +2040,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				}
 			}
 		}
-		catch ( std::bad_alloc )
+		catch ( std::bad_alloc& )
 		{
 			const char* temp = "Failed to allocate memory for ChannelConfig. Out of memory!";
 			throwMeeException( temp );
@@ -2404,7 +2404,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
 			}
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			const char* temp = "Failed to allocate memory for ServerConfig. Out of memory!";
 			throwMeeException(temp);

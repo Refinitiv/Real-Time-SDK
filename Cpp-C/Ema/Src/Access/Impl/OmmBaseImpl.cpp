@@ -178,7 +178,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		client.onMemoryExhaustion( "Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )" );
 	}
@@ -219,7 +219,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		errorClient.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
 	}
@@ -258,7 +258,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		client.onMemoryExhaustion( "Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmNiProviderErrorClient& )" );
 	}
@@ -299,7 +299,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		errorClient.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
 	}
@@ -637,7 +637,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 		newChannelConfig->name.set( channelName );
 		_activeConfig.configChannelSet.push_back( newChannelConfig );
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp( "Failed to allocate memory for SocketChannelConfig." );
 		throwMeeException( temp );
@@ -686,7 +686,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
 			newChannelConfig = socketChannelCfg;
 		}
-		catch (std::bad_alloc)
+		catch ( std::bad_alloc& )
 		{
 			const char* temp("Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)");
 			throwMeeException(temp);
@@ -735,7 +735,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 				socketChannelCfg = new SocketChannelConfig(DEFAULT_HOST_NAME, getActiveConfig().defaultServiceName(), channelType);
 				newChannelConfig = socketChannelCfg;
 			}
-			catch (std::bad_alloc)
+			catch (std::bad_alloc&)
 			{
 				const char* temp("Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)");
 				throwMeeException(temp);
@@ -814,7 +814,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			relMcastChannelCfg = new ReliableMcastChannelConfig();
 			newChannelConfig = relMcastChannelCfg;
 		}
-		catch ( std::bad_alloc )
+		catch ( std::bad_alloc& )
 		{
 			const char* temp( "Failed to allocate memory for ReliableMcastChannelConfig. (std::bad_alloc)" );
 			throwMeeException( temp );

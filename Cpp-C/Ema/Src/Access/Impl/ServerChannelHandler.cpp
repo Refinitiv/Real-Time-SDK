@@ -312,7 +312,7 @@ ServerChannelHandler* ServerChannelHandler::create(OmmServerBaseImpl* ommServerB
 	{
 		serverChannelHandler = new ServerChannelHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!serverChannelHandler)
 		ommServerBaseImpl->handleMee("Failed to create ServerChannelHandler");

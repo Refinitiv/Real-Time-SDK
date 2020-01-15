@@ -12,7 +12,7 @@ EnumType::EnumType()
 	{
 		_pImpl = new EnumTypeImpl();
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in EnumType::EnumType()");
 	}
