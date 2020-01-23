@@ -33,7 +33,8 @@ DataDictionaryImpl::DataDictionaryImpl(bool ownRsslDataDictionary) :
 	_pDictionaryEntryList(0),
 	_pEnumTypeTableList(0),
 	_ownRsslDataDictionary(ownRsslDataDictionary),
-	_pfieldNameToIdHash(0)
+	_pfieldNameToIdHash(0),
+	_dataAccessMutex()
 {
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
 	_errorText.data = (char*)malloc(sizeof(char) * _errorText.length);
@@ -64,7 +65,8 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 	_pDictionaryEntryList(0),
 	_pEnumTypeTableList(0),
 	_ownRsslDataDictionary(true),
-	_pfieldNameToIdHash(0)
+	_pfieldNameToIdHash(0),
+	_dataAccessMutex()
 {
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
 	_errorText.data = (char*)malloc(sizeof(char) * _errorText.length);
@@ -118,6 +120,8 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 
 void DataDictionaryImpl::setRsslDataDictionary(const RsslDataDictionary* rsslDataDictionary)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (_pDictionaryEntryList)
 	{
 		_pDictionaryEntryList->clear();
@@ -142,6 +146,11 @@ void DataDictionaryImpl::setRsslDataDictionary(const RsslDataDictionary* rsslDat
 		}
 
 		_pRsslDataDictionary = const_cast<RsslDataDictionary*>(rsslDataDictionary);
+
+		if (rsslDataDictionary->isInitialized)
+		{
+			fieldNameToIdMap();
+		}
 	}
 }
 
@@ -182,6 +191,8 @@ DataDictionaryImpl::~DataDictionaryImpl()
 
 void DataDictionaryImpl::clear()
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (_ownRsslDataDictionary)
 	{
 		_loadedFieldDictionary = false;
@@ -208,16 +219,22 @@ void DataDictionaryImpl::clear()
 
 Int32 DataDictionaryImpl::getMinFid() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	return _pRsslDataDictionary->minFid;
 }
 
 Int32 DataDictionaryImpl::getMaxFid() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	return _pRsslDataDictionary->maxFid;
 }
 
 const EmaVector<DictionaryEntry>& DataDictionaryImpl::getEntries() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( !_pDictionaryEntryList )
 	{
 		_pDictionaryEntryList = new EmaVector<DictionaryEntry>(_pRsslDataDictionary->numberOfEntries);
@@ -257,6 +274,8 @@ const EmaVector<DictionaryEntry>& DataDictionaryImpl::getEntries() const
 
 const thomsonreuters::ema::access::EmaVector<EnumTypeTable>& DataDictionaryImpl::getEnumTables() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_pEnumTypeTableList)
 	{
 		_pEnumTypeTableList = new EmaVector<EnumTypeTable>(_pRsslDataDictionary->enumTableCount);
@@ -296,11 +315,15 @@ const thomsonreuters::ema::access::EmaVector<EnumTypeTable>& DataDictionaryImpl:
 
 thomsonreuters::ema::access::Int32 DataDictionaryImpl::getInfoDictionaryId() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	return _pRsslDataDictionary->info_DictionaryId;
 }
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldVersion() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	_stringInfoFieldVersion.setInt(_pRsslDataDictionary->infoField_Version.data, _pRsslDataDictionary->infoField_Version.length,
 		_pRsslDataDictionary->infoField_Version.length > 0 ? true : false );
 	return _stringInfoFieldVersion.toString();
@@ -315,6 +338,8 @@ const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumRecordT
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumDisplayTemplateVersion() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	_stringInfoEnumDTVersion.setInt(_pRsslDataDictionary->infoEnum_DT_Version.data, _pRsslDataDictionary->infoEnum_DT_Version.length,
 		_pRsslDataDictionary->infoEnum_DT_Version.length > 0 ? true : false);
 	return _stringInfoEnumDTVersion.toString();
@@ -322,13 +347,17 @@ const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumDisplay
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldFilename() const
 {
-	_stringInfoFieldFilename.setInt(_pRsslDataDictionary->infoField_Filename.data, _pRsslDataDictionary->infoField_Filename.length, 
+	MutexLocker lock(_dataAccessMutex);
+
+	_stringInfoFieldFilename.setInt(_pRsslDataDictionary->infoField_Filename.data, _pRsslDataDictionary->infoField_Filename.length,
 		_pRsslDataDictionary->infoField_Filename.length > 0 ? true : false);
 	return _stringInfoFieldFilename.toString();
 }
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldDescription() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	_stringInfoFieldDesc.setInt(_pRsslDataDictionary->infoField_Desc.data, _pRsslDataDictionary->infoField_Desc.length,
 		_pRsslDataDictionary->infoField_Desc.length > 0 ? true : false);
 	return _stringInfoFieldDesc.toString();
@@ -336,20 +365,26 @@ const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldDescri
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldBuild() const
 {
-	_stringInfoFieldBuild.setInt(_pRsslDataDictionary->infoField_Build.data, _pRsslDataDictionary->infoField_Build.length, 
+	MutexLocker lock(_dataAccessMutex);
+
+	_stringInfoFieldBuild.setInt(_pRsslDataDictionary->infoField_Build.data, _pRsslDataDictionary->infoField_Build.length,
 		_pRsslDataDictionary->infoField_Build.length > 0 ? true : false);
 	return _stringInfoFieldBuild.toString();
 }
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getFieldDate() const
 {
-	_stringInfoFieldDate.setInt(_pRsslDataDictionary->infoField_Date.data, _pRsslDataDictionary->infoField_Date.length, 
+	MutexLocker lock(_dataAccessMutex);
+
+	_stringInfoFieldDate.setInt(_pRsslDataDictionary->infoField_Date.data, _pRsslDataDictionary->infoField_Date.length,
 		_pRsslDataDictionary->infoField_Date.length > 0 ? true : false);
 	return _stringInfoFieldDate.toString();
 }
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumFilename() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	_stringInfoEnumFilename.setInt(_pRsslDataDictionary->infoEnum_Filename.data, _pRsslDataDictionary->infoEnum_Filename.length,
 		_pRsslDataDictionary->infoEnum_Filename.length > 0 ? true : false);
 	return _stringInfoEnumFilename;
@@ -357,14 +392,18 @@ const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumFilenam
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumDescription() const
 {
-	_stringInfoEnumDesc.setInt(_pRsslDataDictionary->infoEnum_Desc.data, _pRsslDataDictionary->infoEnum_Desc.length, 
+	MutexLocker lock(_dataAccessMutex);
+
+	_stringInfoEnumDesc.setInt(_pRsslDataDictionary->infoEnum_Desc.data, _pRsslDataDictionary->infoEnum_Desc.length,
 		_pRsslDataDictionary->infoEnum_Desc.length > 0 ? true : false);
 	return _stringInfoEnumDesc.toString();
 }
 
 const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumDate() const
 {
-	_stringInfoEnumDate.setInt(_pRsslDataDictionary->infoEnum_Date.data, _pRsslDataDictionary->infoEnum_Date.length, 
+	MutexLocker lock(_dataAccessMutex);
+
+	_stringInfoEnumDate.setInt(_pRsslDataDictionary->infoEnum_Date.data, _pRsslDataDictionary->infoEnum_Date.length,
 		_pRsslDataDictionary->infoEnum_Date.length > 0 ? true : false);
 
 	return _stringInfoEnumDate.toString();
@@ -372,6 +411,8 @@ const thomsonreuters::ema::access::EmaString& DataDictionaryImpl::getEnumDate() 
 
 bool DataDictionaryImpl::hasEntry(thomsonreuters::ema::access::Int32 fieldId) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( _loadedFieldDictionary )
 	{
 		if ( getDictionaryEntry(_pRsslDataDictionary, fieldId) != 0 )
@@ -385,6 +426,8 @@ bool DataDictionaryImpl::hasEntry(thomsonreuters::ema::access::Int32 fieldId) co
 
 const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_loadedFieldDictionary)
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -408,6 +451,8 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 
 bool DataDictionaryImpl::hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( !_loadedFieldDictionary )
 	{
 		return false;
@@ -420,6 +465,8 @@ bool DataDictionaryImpl::hasEntry(const thomsonreuters::ema::access::EmaString& 
 
 const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( !_loadedFieldDictionary )
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -446,6 +493,8 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::a
 
 bool DataDictionaryImpl::hasEnumType(thomsonreuters::ema::access::Int32 fieldId, thomsonreuters::ema::access::Int32 value) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( _loadedFieldDictionary && _loadedEnumTypeDef )
 	{
 		RsslDictionaryEntry* rsslDictionaryEntry = getDictionaryEntry(_pRsslDataDictionary, fieldId);
@@ -464,6 +513,8 @@ bool DataDictionaryImpl::hasEnumType(thomsonreuters::ema::access::Int32 fieldId,
 
 const EnumType& DataDictionaryImpl::getEnumType(Int32 fieldId, Int32 value) const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( !_loadedEnumTypeDef )
 	{
 		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -492,6 +543,8 @@ const EnumType& DataDictionaryImpl::getEnumType(Int32 fieldId, Int32 value) cons
 
 void DataDictionaryImpl::loadFieldDictionary(const thomsonreuters::ema::access::EmaString& filename)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( _ownRsslDataDictionary )
 	{
 		if (rsslLoadFieldDictionary(filename.c_str(), _pRsslDataDictionary, &_errorText) < RSSL_RET_SUCCESS)
@@ -506,6 +559,7 @@ void DataDictionaryImpl::loadFieldDictionary(const thomsonreuters::ema::access::
 		}
 		else
 		{
+			fieldNameToIdMap();
 			_loadedFieldDictionary = true;
 		}
 	}
@@ -517,6 +571,8 @@ void DataDictionaryImpl::loadFieldDictionary(const thomsonreuters::ema::access::
 
 void DataDictionaryImpl::loadEnumTypeDictionary(const thomsonreuters::ema::access::EmaString& filename)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( _ownRsslDataDictionary )
 	{
 		if (rsslLoadEnumTypeDictionary(filename.c_str(), _pRsslDataDictionary, &_errorText) < RSSL_RET_SUCCESS)
@@ -543,6 +599,8 @@ void DataDictionaryImpl::loadEnumTypeDictionary(const thomsonreuters::ema::acces
 void DataDictionaryImpl::encodeFieldDictionary(thomsonreuters::ema::access::Series& series,
 	thomsonreuters::ema::access::UInt32 verbosity)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_loadedFieldDictionary)
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -591,6 +649,8 @@ void DataDictionaryImpl::encodeFieldDictionary(thomsonreuters::ema::access::Seri
 
 bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid, UInt32 verbosity, UInt32 fragmentationSize)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_loadedFieldDictionary)
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -657,6 +717,8 @@ bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid
 
 void DataDictionaryImpl::decodeFieldDictionary(const Series& series, UInt32 verbosity)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (_ownRsslDataDictionary)
 	{
 		RsslBuffer rsslBuffer;
@@ -685,6 +747,7 @@ void DataDictionaryImpl::decodeFieldDictionary(const Series& series, UInt32 verb
 			throwIueException( errorText, retCode );
 		}
 
+		fieldNameToIdMap();
 		_loadedFieldDictionary = true;
 	}
 	else
@@ -695,6 +758,8 @@ void DataDictionaryImpl::decodeFieldDictionary(const Series& series, UInt32 verb
 
 void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosity)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_loadedEnumTypeDef)
 	{
 		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -742,6 +807,8 @@ void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosi
 bool DataDictionaryImpl::encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::Int32& currenCount,
 	thomsonreuters::ema::access::UInt32 verbosity, thomsonreuters::ema::access::UInt32 fragmentationSize)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_loadedEnumTypeDef)
 	{
 		throwIueException( "The enumerated types dictionary was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -807,6 +874,8 @@ bool DataDictionaryImpl::encodeEnumTypeDictionary(thomsonreuters::ema::access::S
 
 void DataDictionaryImpl::decodeEnumTypeDictionary(const Series& series, UInt32 verbosity)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if (_ownRsslDataDictionary)
 	{
 		RsslBuffer rsslBuffer;
@@ -845,6 +914,8 @@ void DataDictionaryImpl::decodeEnumTypeDictionary(const Series& series, UInt32 v
 
 thomsonreuters::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(const thomsonreuters::ema::access::Series& series)
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	RsslBuffer rsslBuffer;
 	rsslBuffer.data = (char *)series.getAsHex().c_buf();
 	rsslBuffer.length = series.getAsHex().length();
@@ -878,6 +949,8 @@ thomsonreuters::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(co
 
 DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() const
 {
+	MutexLocker lock(_dataAccessMutex);
+
 	if ( _loadedFieldDictionary )
 	{
 		if ( _pfieldNameToIdHash == 0 )
@@ -885,10 +958,12 @@ DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() co
 			_pfieldNameToIdHash = new FieldNameToIdHash(_pRsslDataDictionary->numberOfEntries);
 		}
 
-		if ( _pfieldNameToIdHash->empty() )
+		if ( _pfieldNameToIdHash->empty() || _pfieldNameToIdHash->size() != _pRsslDataDictionary->numberOfEntries )
 		{
 			RsslDictionaryEntry* rsslDictionaryEntry = 0;
 			EmaString fieldName;
+
+			_pfieldNameToIdHash->clear();
 
 			for (Int32 index = _pRsslDataDictionary->minFid; index <= _pRsslDataDictionary->maxFid; index++)
 			{
@@ -913,6 +988,8 @@ void DataDictionaryImpl::throwIueForQueryOnly()
 
 const thomsonreuters::ema::access::EmaString&  DataDictionaryImpl::toString() const
 {	  
+	MutexLocker lock(_dataAccessMutex);
+
 	if (!_pRsslDataDictionary->isInitialized)
 	{
 		_stringToString.clear().append("DataDictionary is not initialized");

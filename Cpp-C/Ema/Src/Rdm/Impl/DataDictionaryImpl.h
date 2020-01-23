@@ -17,6 +17,7 @@
 #include "EnumTypeImpl.h"
 #include "EnumTypeTableImpl.h"
 #include "HashTable.h"
+#include "Mutex.h"
 
 namespace thomsonreuters {
 
@@ -136,6 +137,8 @@ private:
 	bool _loadedFieldDictionary;
 	bool _loadedEnumTypeDef;
 	bool _ownRsslDataDictionary;
+
+	mutable thomsonreuters::ema::access::Mutex _dataAccessMutex;
 };
 
 }

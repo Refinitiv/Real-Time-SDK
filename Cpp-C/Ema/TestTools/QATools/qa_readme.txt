@@ -237,6 +237,10 @@ Series300Consumer332-Dict-004
 Series300Consumer332-Dict-005
     Alters consumer to request the dictionary only, with no item requests.
 
+Series300Consumer332-Dict-007
+    Alters consumer to create multiple threads that call DataDictionary.entry()
+
+
 Module:  Series300Consumer333
 -----------------------------
 

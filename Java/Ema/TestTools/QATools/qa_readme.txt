@@ -285,6 +285,9 @@ Series300Consumer332-Dict-005
 Series300Consumer332-Dict-006
     Alters consumer to request invalid the dictionary. Uses dictionary name RWFEnum1
 
+Series300Consumer332-Dict-007
+    Alters consumer to create multiple threads that call DataDictionary.entry()
+
 Module:  Series300Consumer333 
 Series300Consumer333-GenM-001
    Alters consumer send genericMsg with connection status on login stream to provider,
