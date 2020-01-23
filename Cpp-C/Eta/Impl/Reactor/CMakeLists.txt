@@ -242,6 +242,7 @@ DEBUG_PRINT(librsslVA_tmp)
 
         target_link_libraries( librsslVA_shared 
 										librssl_shared 
+										librsslJsonConverter
 										LibXml2::LibXml2
 										CJSON::CJSON
 										wininet.lib
@@ -273,7 +274,7 @@ DEBUG_PRINT(librsslVA_tmp)
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
 
-		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON)
+		target_link_libraries( librsslVA_shared librssl_shared librsslJsonConverter LibXml2::LibXml2 CJSON::CJSON)
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(esdk librsslVA librsslVA_shared)

@@ -61,6 +61,7 @@ else()
 
                 #Transport source files
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripccomp.c
+                ${Eta_SOURCE_DIR}/Impl/Transport/rwsutils.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripchttp.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripcssldh.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripcsslutils.c
@@ -68,6 +69,7 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslSeqMcastTransportImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslSocketTransportImpl.c
+                ${Eta_SOURCE_DIR}/Impl/Transport/rsslWebSocketTransportImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslUniShMemTransportImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/shmemtrans.c
 				${Eta_SOURCE_DIR}/Impl/Util/rsslCurlJIT.c
@@ -81,6 +83,7 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripcflip.h
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripch.h
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripchttp.h
+                ${Eta_SOURCE_DIR}/Impl/Transport/rtr/rwsutils.h
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripcinetutils.h
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripcplat.h
                 ${Eta_SOURCE_DIR}/Impl/Transport/rtr/ripcssljit.h
@@ -228,13 +231,19 @@ else()
 											ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD
 												"${_rssl_tmp_dir}/lib/Release_MD"
 								)
-		target_compile_options(librssl_tmp PRIVATE ${RCDEV_DEBUG_TYPE_FLAGS_STATIC})
+		target_compile_options(librssl_tmp 
+						PRIVATE 
+							${RCDEV_DEBUG_TYPE_FLAGS_STATIC} 
+							"/D REAL_SHA1_INIT")
 
 	else()
 		set_target_properties(librssl_tmp PROPERTIES 
 											ARCHIVE_OUTPUT_DIRECTORY
 												"${_rssl_tmp_dir}/lib"
 								)
+		target_compile_options(librssl_tmp 
+						PRIVATE
+							"-D REAL_SHA1_INIT")
 	endif()
 
     target_include_directories(librssl_tmp
@@ -247,15 +256,16 @@ else()
 											${Eta_SOURCE_DIR}/Include/Codec
 											${Eta_SOURCE_DIR}/Include/Util
 											${Eta_SOURCE_DIR}/Include/Transport
+											${Eta_SOURCE_DIR}/Include/Converter
 											${Eta_SOURCE_DIR}/Include
 											${Eta_BINARY_DIR}/Include
 											.
 								)
 
     if (CMAKE_HOST_WIN32)
-		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp librsslJsonConverter wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
 	else()
-		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp librsslJsonConverter ZLIB::ZLIB LZ4::LZ4)
 	endif()
 
 
@@ -275,9 +285,11 @@ else()
 							COMMAND ${CMAKE_LINKER} /LIB 
 													/OUT:"$<TARGET_FILE:librssl>" 
 													/LTCG "$<TARGET_FILE:librssl_tmp>"
+														  "$<TARGET_FILE:librsslJsonConverter> "
 														  "$<TARGET_FILE:ZLIB::ZLIB>"
 														  "$<TARGET_FILE:LZ4::LZ4>"
 							DEPENDS $<TARGET_FILE:librssl_tmp> 
+									$<TARGET_FILE:librsslJsonConverter> 
 									$<TARGET_FILE:ZLIB::ZLIB> 
 									$<TARGET_FILE:LZ4::LZ4>
 							COMMENT "Linking objects for static librssl ..."
@@ -288,11 +300,13 @@ else()
 		file(MAKE_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch")
 		add_custom_command(TARGET librssl POST_BUILD
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librssl_tmp>
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslJsonConverter>
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:ZLIB::ZLIB>
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LZ4::LZ4>
 							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librssl> *.o
 							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch
 							DEPENDS $<TARGET_FILE:librssl_tmp> 
+									$<TARGET_FILE:librsslJsonConverter> 
 									$<TARGET_FILE:ZLIB::ZLIB> 
 									$<TARGET_FILE:LZ4::LZ4>
 							COMMENT "Archiving objects for librssl ..."
@@ -317,6 +331,7 @@ else()
 											${Eta_SOURCE_DIR}/Include/Codec
 											${Eta_SOURCE_DIR}/Include/Util
 											${Eta_SOURCE_DIR}/Include/Transport
+											${Eta_SOURCE_DIR}/Include/Converter
 											${Eta_SOURCE_DIR}/Include
 											${Eta_BINARY_DIR}/Include
 											.
@@ -336,6 +351,7 @@ else()
                                         "/D RSSL_IMPORTS"
                                     PRIVATE
                                         "/D RSSL_EXPORTS" 
+					"/D REAL_SHA1_INIT"
                                         ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
                                         ${RCDEV_TYPE_CHECK_FLAG}
                                         $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
@@ -360,6 +376,11 @@ else()
                             )
      
 	else()
+		
+	target_compile_options(librssl_shared 
+					PRIVATE
+						"-D REAL_SHA1_INIT")
+
         set_target_properties( librssl_shared 
                                 PROPERTIES 
                                     PREFIX "" 

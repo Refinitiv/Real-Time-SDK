@@ -56,6 +56,7 @@ static char srvrHostname[128];
 static char srvrPortNo[128];
 static char serviceName[128];
 static char itemName[128];
+static char protocolList[128];
 static char interfaceName[128];
 static char traceOutputFile[128];
 static char proxyHostname[128];
@@ -102,6 +103,8 @@ static const char *defaultSrvrHostname = "localhost";
 static const char *defaultSrvrPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
 /* default item name */
 static const char *defaultItemName = "TRI";
 /* default interface name */
@@ -141,6 +144,7 @@ int main(int argc, char **argv)
 	snprintf(srvrHostname, 128, "%s", defaultSrvrHostname);
 	snprintf(srvrPortNo, 128, "%s", defaultSrvrPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
 	snprintf(interfaceName, 128, "%s", defaultInterface);
 	setUsername((char *)"");
 	setAuthenticationToken((char *)"");
@@ -265,6 +269,11 @@ int main(int argc, char **argv)
 				i += 2;
 				snprintf(serviceName, 128, "%s", argv[i-1]);
 			}
+			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
+			{
+				i += 2;
+				snprintf(protocolList, 128, "%s", argv[i-1]);
+			}
 			else if (strcmp("-c", argv[i]) == 0)
 			{
 				i += 1;				
@@ -276,6 +285,8 @@ int main(int argc, char **argv)
 					connType = RSSL_CONN_TYPE_ENCRYPTED;
 				else if (0 == strcmp(argv[i], "reliableMCast") || 0 == strcmp(argv[i], "4"))
 					connType = RSSL_CONN_TYPE_RELIABLE_MCAST;
+				else if (0 == strcmp(argv[i], "websocket") || 0 == strcmp(argv[i], "7"))
+					connType = RSSL_CONN_TYPE_WEBSOCKET;
 				else 
 				{
 					connType = (RsslConnectionTypes)atoi(argv[i]);	
@@ -289,6 +300,8 @@ int main(int argc, char **argv)
 					encryptedConnType = RSSL_CONN_TYPE_SOCKET;
 				else if (0 == strcmp(argv[i], "http") || 0 == strcmp(argv[i], "2"))
 					encryptedConnType = RSSL_CONN_TYPE_HTTP;
+				else if (0 == strcmp(argv[i], "websocket") || 0 == strcmp(argv[i], "7"))
+					encryptedConnType = RSSL_CONN_TYPE_WEBSOCKET;
 				else
 				{
 					encryptedConnType = (RsslConnectionTypes)atoi(argv[i]);
@@ -423,7 +436,7 @@ int main(int argc, char **argv)
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
-				printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td]\n", argv[0], argv[0]);
+				printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td] [-pl \"<sub-protocol list>\"]\n", argv[0], argv[0]);
 				printf("\n -mp or -mpps For each occurance, requests item using Market Price domain. (-mpps for private stream)\n");
 				printf(" -mbo or -mbops For each occurance, requests item using Market By Order domain. (-mbops for private stream)\n");
 				printf(" -mbp or -mbpps For each occurance, requests item using Market By Price domain. (-mbpps for private stream)\n");
@@ -439,7 +452,7 @@ int main(int argc, char **argv)
 				printf(" -ax Specifies the Authentication Extended information.\n");
 				printf(" -aid Specifies the Application ID.\n");
 				printf("\n -runtime adjusts the time the application runs.\n");
-				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET and HTTP(Windows only).\n");
+				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET, WEBSOCKET and HTTP(Windows only).\n");
 				printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
 				printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
 				printf("\n -ph specifies the proxy host\n");
@@ -909,6 +922,9 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 	if (connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType != RSSL_CONN_TYPE_INIT)
 		copts.encryptionOpts.encryptedProtocol = encryptedConnType;
 	
+	if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		copts.wsOpts.protocols = protocolList;
+
 	copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	copts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;

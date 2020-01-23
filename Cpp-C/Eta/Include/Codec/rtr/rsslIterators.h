@@ -28,6 +28,7 @@ extern "C" {
  * @see rsslConnectOpts, rsslBindOpts, rsslConnect, rsslBind
  */
 #define     RSSL_RWF_PROTOCOL_TYPE  0 
+#define     RSSL_JSON_PROTOCOL_TYPE  2 
 
 /**
  * @brief Version Major number for the version of RWF supported by this Message and Data package

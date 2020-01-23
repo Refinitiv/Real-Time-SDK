@@ -2,6 +2,7 @@
 set( SOURCE_FILES
         dictionaryProvider.c              loginProvider.c
         provPerfConfig.c                  upacProvPerf.c 
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c

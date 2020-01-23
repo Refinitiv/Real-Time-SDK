@@ -11,6 +11,8 @@
 
 #include "rtr/rsslSocketTransportImpl.h"
 
-extern RsslInt32 ipcHttpHdrComplete(char*, RsslInt32, RsslInt32);
+RsslInt32 iseof(char *data, RsslInt32 offset, RsslInt32 datalen);
+RsslInt32 ripcHttpHdrToUpper(char* data, RsslInt32 datalen, RsslInt32 startOffset);
+RsslInt32 ipcHttpHdrComplete(char*, RsslInt32, RsslInt32);
 
 #endif /* __ripchttp_h */

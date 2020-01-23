@@ -23,6 +23,8 @@
 #include "rtr/rsslRestClientImpl.h"
 #include "rtr/rtratomic.h"
 #include "rtr/rsslReactorTokenMgntImpl.h"
+#include "rtr/rsslJsonConverter.h"
+#include "rtr/debugPrint.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -166,6 +168,9 @@ typedef struct
 
 	RsslBuffer						temporaryURL; /* Temporary URL for redirect */
 	RsslUInt32						temporaryURLBufLength;
+
+	/* For Websocket connections */
+	RsslBool						sendWSPingMessage; /* This is used to force sending ping message even though some messages is flushed to network. */
 
 } RsslReactorChannelImpl;
 
@@ -387,6 +392,9 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	rsslClearBuffer(&pReactorChannel->temporaryURL);
 	pReactorChannel->temporaryURLBufLength = 0;
 
+	/* Additional WebSocket options */
+	pReactorChannel->sendWSPingMessage = RSSL_FALSE; 
+
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
 
@@ -453,7 +461,7 @@ typedef enum
 
 /* RsslReactorImpl
  * The Reactor handles reading messages and commands from the application.
- * Primary responsiblities include:
+ * Primary responsibilities include:
  *   - Reading messages from transport
  *   - Calling back the application via callback functions, decoding messages to the RDM structs when appropriate.
  *   - Adding and removing channels in response to network events or requests from user.
@@ -517,6 +525,13 @@ struct _RsslReactorImpl
 	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
 	RsslBool			rsslWorkerStarted;
 	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
+
+	
+	RsslBool			jsonConverterInitialized; 	/* This is used to indicate whether the RsslJsonConverter is initialized */
+	RsslJsonConverter	*pJsonConverter; 
+	RsslDataDictionary	**pDictionaryList; /* Creates a list of pointer to pointer with the size of 1. */
+	RsslReactorServiceNameToIdCallback	*pServiceNameToIdCallback; /* Sets a callback specified by users */
+	void				*userSpecPtr; /* Users's closure for callback functions */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)

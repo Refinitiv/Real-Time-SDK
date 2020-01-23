@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "providerThreads.h"
@@ -177,6 +177,7 @@ void providerThreadInit(ProviderThread *pProvThread,
 		ChannelActiveCallback *processActiveChannel,
 		ChannelInactiveCallback *processInactiveChannel,
 		MsgCallback *processMsg,
+		MsgConverterCallback *convertMsg,
 		RsslInt32 providerIndex,
 		ProviderType providerType)
 {
@@ -275,7 +276,7 @@ void providerThreadInit(ProviderThread *pProvThread,
 	RSSL_MUTEX_INIT(&pProvThread->newClientSessionsLock);
 	rsslInitQueue(&pProvThread->newClientSessionsList);
 	pProvThread->clientSessionsCount = 0;
-	initChannelHandler(&pProvThread->channelHandler, processActiveChannel, processInactiveChannel, processMsg, (void*)pProvThread);
+	initChannelHandler(&pProvThread->channelHandler, processActiveChannel, processInactiveChannel, processMsg, convertMsg, (void*)pProvThread);
 
 	pProvThread->cpuId = -1;
 
@@ -850,8 +851,8 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
 		{
-			if (ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer, NULL,
-					latencyStartTime) < RSSL_RET_SUCCESS)
+			if (pSession->pWritingBuffer && 
+				(ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer, NULL, latencyStartTime) < RSSL_RET_SUCCESS))
 				return ret;
 		}
 		else
@@ -1038,6 +1039,9 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *pSession, RsslError *pError)
 {
+	RsslChannel *pChannel = pSession->pChannelInfo->pChannel;
+	RsslBuffer *pMsgBuffer = 0;
+	RsslError	  error;
 	RsslUInt32 outBytes;
 	RsslUInt32 uncompOutBytes;
 	RsslRet ret;
@@ -1048,7 +1052,38 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
-		pSession->lastWriteRet = ret = rsslWrite(pSession->pChannelInfo->pChannel, pSession->pWritingBuffer, RSSL_HIGH_PRIORITY, providerThreadConfig.writeFlags, &outBytes, &uncompOutBytes, pError);
+		pMsgBuffer = 0;
+
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			RsslErrorInfo	eInfo;
+
+			do {
+					/* convert message to JSON */
+				if ((pMsgBuffer = rjcMsgConvertToJson(&(pProvThread->rjcSess), pChannel,
+														pSession->pWritingBuffer, &eInfo)) == NULL)
+				{
+					//fprintf(stderr, "writeCurrentBuffer(): Failed to convert RWF > JSON %s\n", eInfo.rsslError.text);
+					
+					if ((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS)
+					{
+						printf("rsslFlush() failed with return code %d - <%s>\n", 
+								ret, pError->text);
+						return ret;
+					}
+				}
+
+			} while (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS);
+		}
+
+		pSession->lastWriteRet = ret = rsslWrite(pChannel, 
+												(pMsgBuffer != 0 ? 
+												 pMsgBuffer : 
+												 pSession->pWritingBuffer), 
+												 RSSL_HIGH_PRIORITY, 
+												 providerThreadConfig.writeFlags, &outBytes, 
+												 &uncompOutBytes, pError);
+
 	}
 	else // use UPA VA Reactor
 	{
@@ -1066,12 +1101,18 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 	{
 		if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 		{
-			if (rtrUnlikely((ret = rsslFlush(pSession->pChannelInfo->pChannel, pError)) < RSSL_RET_SUCCESS))
+			if (rtrUnlikely((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS))
 			{
 				printf("rsslFlush() failed with return code %d - <%s>\n", ret, pError->text);
 				return ret;
 			}
-			pSession->lastWriteRet = ret = rsslWrite(pSession->pChannelInfo->pChannel, pSession->pWritingBuffer, RSSL_HIGH_PRIORITY, providerThreadConfig.writeFlags, &outBytes, &uncompOutBytes, pError);
+			pSession->lastWriteRet = ret = rsslWrite(pChannel, 
+													(pMsgBuffer != 0 ? 
+													 pMsgBuffer : 
+													 pSession->pWritingBuffer), 
+													 RSSL_HIGH_PRIORITY, 
+													 providerThreadConfig.writeFlags, 
+													 &outBytes, &uncompOutBytes, pError);
 		}
 		else // use UPA VA Reactor
 		{
@@ -1089,6 +1130,10 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 	if (ret >= RSSL_RET_SUCCESS)
 	{
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && 
+			ret >= RSSL_RET_SUCCESS && pSession->pWritingBuffer != 0)
+			rsslReleaseBuffer(pSession->pWritingBuffer, &error);
+
 		pSession->pWritingBuffer = 0;
 		return ret;
 	}
@@ -1098,7 +1143,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 		case RSSL_RET_WRITE_FLUSH_FAILED:
 			/* If FLUSH_FAILED is received, check the channel state.
 			 * if it is still active, it's okay, just need to flush. */
-			if (pSession->pChannelInfo->pChannel->state == RSSL_CH_STATE_ACTIVE)
+			if (pChannel->state == RSSL_CH_STATE_ACTIVE)
 			{
 				pSession->pWritingBuffer = 0;
 				pSession->lastWriteRet = 1;
@@ -1106,7 +1151,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 			}
 			/* Otherwise treat as error, fall through to default. */
 		default:
-			if (pSession->pChannelInfo->pChannel->state == RSSL_CH_STATE_ACTIVE)
+			if (pChannel->state == RSSL_CH_STATE_ACTIVE)
 			{
 				printf("rsslWrite() failed: %s(%s)\n", rsslRetCodeToString(pError->rsslErrorId), 
 						pError->text);
@@ -1210,6 +1255,8 @@ RsslRet getItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession,
 RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession, RsslBool allowPack)
 {
 	RsslError error;
+	RsslRet ret;
+	RsslChannel *pChannel = pSession->pChannelInfo->pChannel;
 
 	countStatIncr(&pProvThread->msgSentCount);
 
@@ -1218,7 +1265,6 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 	 *   (This will also prevent any latency updates from sitting in the pack for a tick). */
 	if (pSession->packedBufferCount == (providerThreadConfig.totalBuffersPerPack - 1) || !allowPack)
 	{
-		RsslRet ret;
 		ret = writeCurrentBuffer(pProvThread, pSession, &error);
 		return ret;
 	}
@@ -1229,7 +1275,34 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 
 		if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 		{
-			pSession->pWritingBuffer = rsslPackBuffer(pSession->pChannelInfo->pChannel, pSession->pWritingBuffer, &error);
+			RsslBuffer *pMsgBuffer = 0;
+
+			pMsgBuffer = 0;
+			if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+			{
+				RsslErrorInfo eInfo;
+					/* convert message to JSON */
+				do {
+					if ((pMsgBuffer = rjcMsgConvertToJson(&(pProvThread->rjcSess), pChannel,
+															pSession->pWritingBuffer, &eInfo)) == NULL)
+					{
+						//fprintf(stderr, "sendItemMsgBuffer(): Failed to convert RWF > JSON %s\n", eInfo.rsslError.text);
+
+						if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
+						{
+							printf("rsslFlush() failed with return code %d - <%s>\n", 
+									ret, error.text);
+							return ret;
+						}
+					}
+
+				} while (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS);
+
+				memcpy(pSession->pWritingBuffer->data, pMsgBuffer->data, pMsgBuffer->length);
+				pSession->pWritingBuffer->length = pMsgBuffer->length;
+				rsslReleaseBuffer(pMsgBuffer, &eInfo.rsslError);
+			}
+			pSession->pWritingBuffer = rsslPackBuffer(pChannel, pSession->pWritingBuffer, &error);
 			if (!pSession->pWritingBuffer)
 			{
 				printf("rsslPackBuffer failed: %d <%s>", error.rsslErrorId, error.text);
@@ -1365,7 +1438,8 @@ void providerThreadReceiveNewChannels(ProviderThread *pProvThread)
 void providerInit(Provider *pProvider, ProviderType providerType,
 		ChannelActiveCallback *processActiveChannel,
 		ChannelInactiveCallback *processInactiveChannel,
-		MsgCallback *processMsg)
+		MsgCallback *processMsg,
+		MsgConverterCallback *convertMsg)
 {
 	RsslInt32 i;
 
@@ -1392,7 +1466,7 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 	for(i = 0; i < providerThreadConfig.threadCount; ++i)
 	{
 		providerThreadInit(&pProvider->providerThreadList[i],
-				processActiveChannel, processInactiveChannel, processMsg,
+				processActiveChannel, processInactiveChannel, processMsg, convertMsg,
 				i, providerType);
 		pProvider->providerThreadList[i].cpuId = providerThreadConfig.threadBindList[i];
 	}

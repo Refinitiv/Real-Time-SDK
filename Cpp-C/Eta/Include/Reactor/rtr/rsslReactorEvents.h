@@ -296,6 +296,25 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialEvent(RsslReactorOAuthCredentia
 }
 
 /**
+ * @brief This event occurs when the Reactor needs to convert from a service name to a service Id.
+ * @see RsslReactor
+ */
+
+typedef struct
+{
+	void				*pUserSpec;		/*!< User-specified pointer given when specifying the callback for this event. */
+} RsslReactorServiceNameToIdEvent;
+
+/**
+ * @brief Clears an RsslReactorServiceNameToIdEvent.
+ * @see RsslReactorServiceNameToIdEvent
+ */
+RTR_C_INLINE void rsslClearReactorServiceNameToIdEvent(RsslReactorServiceNameToIdEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorServiceNameToIdEvent));
+}
+
+/**
  *	@}
  */
 

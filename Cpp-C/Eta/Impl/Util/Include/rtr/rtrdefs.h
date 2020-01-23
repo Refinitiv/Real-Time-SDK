@@ -40,6 +40,6 @@ extern "C" {
 #  define RTPOSTCONDITION(a)
 #endif
 
-#define   rtr_offsetof(s, m)  (int)(&(((s *)0)->m))
+#define   rtr_offsetof(s, m)  (size_t)(&(((s *)0)->m))
 
 #endif

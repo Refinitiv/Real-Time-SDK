@@ -438,6 +438,11 @@ void ipcUninitialize()
 	return;
 }
 
+int prependTransportHdr(void *transport, rtr_msgb_t *buf, int length, RsslError *error)
+{
+	return length;
+}
+
 int ipcGetSockName(RsslSocket fd, struct sockaddr *address, int *address_len, void *transport)
 {
 	RsslInt32 ret = RSSL_RET_SUCCESS;
@@ -1181,16 +1186,10 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 	ripcSocketOption	sockopts;
 	RsslServerSocketChannel	*rsslServerSocketChannel = (RsslServerSocketChannel*)srvr->transportInfo;
 
-#ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslServerSocketChannel -- ipcSrvrAccept (before accept)\n");
-#endif
 	IPC_MUTEX_UNLOCK(rsslServerSocketChannel);
 
 	fdtemp = accept(rsslServerSocketChannel->stream, (struct sockaddr *)0, (socklen_t *)0);
 
-#ifdef MUTEX_DEBUG
-	printf("LOCK rsslServerSocketChannel -- ipcSrvrAccept (after accept)\n");
-#endif
 	IPC_MUTEX_LOCK(rsslServerSocketChannel);
 
 	if (rsslServerSocketChannel->stream == RIPC_INVALID_SOCKET)
@@ -1236,8 +1235,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 		return RIPC_INVALID_SOCKET;
 	}
 
-	if (rtrUnlikely(getConndebug()))
-		printf("\nripcNewUser: accept client "SOCKET_PRINT_TYPE"\n", fdtemp);
+	_DEBUG_TRACE_CONN("ripcNewUser: accept client fd "SOCKET_PRINT_TYPE"\n", fdtemp)
 
 	if (ipcSessSetMode(fdtemp, rsslServerSocketChannel->session_blocking, rsslServerSocketChannel->tcp_nodelay, error, __LINE__) < 0)
 	{
@@ -1553,6 +1551,20 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 	}
 
 	return sock_fd;
+}
+
+int ipcSetProtFuncs()
+{
+	ripcProtocolFuncs  func;
+
+	func.readTransportConnMsg = ipcReadTransportMsg;  // call readTransport
+	func.readTransportMsg = ipcReadTransportMsg;  // call readTransport
+	func.readPrependTransportHdr = ipcReadPrependTransportHdr; // Not defined, only a stub
+	func.prependTransportHdr = ipcPrependTransportHdr;  // Not defined, only a stub
+	func.getPoolBuffer = ipcGetPoolBuffer;  // Get a buffer from the socketChannel inputbuffer pool
+	func.getGlobalBuffer = ipcAllocGblMsg;  // Get a simple buffer from the global pool
+	
+	return (ipcSetProtocolHdrFuncs(RSSL_CONN_TYPE_SOCKET, &func));
 }
 
 int ipcSetSockFuncs()

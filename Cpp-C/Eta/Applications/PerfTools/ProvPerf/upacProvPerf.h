@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* upacProvPerf.h
@@ -43,6 +43,16 @@ void processInactiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannelI
 
 /* Callback for received messages. */
 RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer);
+
+/* Callback for received messages. */
+RsslBuffer *convertMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer);
+
+/* Callback for Reactor RWF/JSON converter messages. */
+RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, RsslUInt16* pServiceId);
+
+/* Callback for Reactor RWF/JSON converter messages. */
+RsslRet serviceNameToIdReactorCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
 
 /* Clean up and exit application. */
 void cleanUpAndExit();

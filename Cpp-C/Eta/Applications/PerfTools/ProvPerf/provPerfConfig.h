@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* provPerfConfig.h
@@ -38,6 +38,8 @@ typedef struct
 	char				serverCert[255];			/* Server certificate file location */
 	char				serverKey[255];				/* Server private key file location */
 	char				cipherSuite[255];			/* Server cipher suite */
+
+	char				protocolList[255];			/* List of supported WebSocket sub-protocols */
 } ProvPerfConfig;
 
 /* Contains the global application configuration */

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -96,7 +96,8 @@ typedef enum {
 	RSSL_CONN_TYPE_UNIDIR_SHMEM		= 3,  /*!< (3) Channel is using a shared memory connection */
 	RSSL_CONN_TYPE_RELIABLE_MCAST	= 4,   /*!< (4) Channel is a reliable multicast based connection. This can be on a unified/mesh network where send and receive networks are the same or a segmented network where send and receive networks are different */
 	RSSL_CONN_TYPE_EXT_LINE_SOCKET  = 5,   /*!< (5) Channel is using an extended line socket transport */	
-	RSSL_CONN_TYPE_SEQ_MCAST		= 6    /*!< (6) Channel is an unreliable, sequenced multicast connection for reading from an Elektron Direct Feed system. This is a client-only, read-only transport. This transport is supported on Linux only. */
+	RSSL_CONN_TYPE_SEQ_MCAST		= 6,   /*!< (6) Channel is an unreliable, sequenced multicast connection for reading from an Elektron Direct Feed system. This is a client-only, read-only transport. This transport is supported on Linux only. */
+	RSSL_CONN_TYPE_WEBSOCKET		= 7    /*!< (7) WebSocket Channel. */
 } RsslConnectionTypes;
 
 /**
@@ -478,6 +479,18 @@ typedef enum {
 } RsslEncryptionProtocolTypes;
 
 
+/** @brief Options used for configuring a WebSocket connection (::RSSL_CONN_TYPE_WEBSOCKET).
+ * @see rsslConnect
+ * @see RsslConnectOptions
+ * @see RsslBindOptions
+ */
+typedef struct {
+	char			*protocols;			/*!< @brief The left-to-right priority ordered, white space delineated list of supported/preferred protocols */
+	RsslUInt64		maxMsgSize;	 /*!<  @brief Maximum size of messages that the WebSocket transport will read on client side. */
+} RsslWSocketOpts;
+
+#define RSSL_INIT_WEBSOCKET_OPTS { 0, 61440}
+
 
 /** @brief Options used for configuring an encrypted tunneled connection (::RSSL_CONN_TYPE_ENCRYPTED).
  *  see rsslConnect
@@ -528,7 +541,7 @@ typedef struct {
 } RsslUnifiedNetwork;
 
 /**
- * @brief Options used for configuring a segmented network (seperate send and receive networks).
+ * @brief Options used for configuring a segmented network (separate send and receive networks).
  * @see rsslConnect
  * @see RsslConnectionInfo
  * @see RsslConnectOptions
@@ -568,7 +581,7 @@ typedef struct {
 	char				*objectName;			/*!< @brief When using connection type of ::RSSL_CONN_TYPE_HTTP or ::RSSL_CONN_TYPE_ENCRYPTED, this can be used as an object name to pass with the URL in underlying HTTP connection messages */
 	RsslConnectionTypes	connectionType;			/*!< @brief If ::RSSL_CONN_TYPE_ENCRYPTED this will use encryption, if ::RSSL_CONN_TYPE_HTTP this will use unencrypted http tunneling, if ::RSSL_CONN_TYPE_UNIDIR_SHMEM this will use server to client shared memory */
 	RsslConnectionInfo	connectionInfo;			/*!< @brief Information about the network hosts/addresses, ports, and network interface cards to leverage during connection.  This configuration offers configuration for various network topologies and can be used for all connection types.  */
-	RsslCompTypes		compressionType;		/*!< @brief Which compression type, if any, to attempt to negotiate. Compression is only supported for connectionType of SOCKET, HTTP, or ENCRYPTED */	
+	RsslCompTypes		compressionType;		/*!< @brief Which compression type, if any, to attempt to negotiate. Compression is only supported for connectionType of SOCKET, WSOCKET, HTTP, or ENCRYPTED */	
 	RsslBool			blocking;				/*!< @brief If RSSL_TRUE, the connection will block. */
 	RsslBool			tcp_nodelay;			/*!< @deprecated DEPRECATED: Only used with connectionType of SOCKET.  If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslConnectOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types */
 	RsslUInt32			pingTimeout;			/*!< @brief The desired amount of time to use to timeout the server. */
@@ -580,7 +593,7 @@ typedef struct {
 	RsslUInt32			sysSendBufSize;			/*!< @brief The size (in kilobytes) of the system's send buffer used for this connection, where applicable.  Setting of 0 indicates to use default sizes.  This can also be set or changed via rsslIoctl(), however setting prior to connection may allow for larger sizes to be specified.  */
 	RsslUInt32			sysRecvBufSize;			/*!< @brief The size (in kilobytes) of the system's receive buffer used for this connection, where applicable.  Setting of 0 indicates to use default sizes.  This can also be set or changed via rsslIoctl(), however setting prior to connection may allow for larger sizes to be specified. */
 	void				*userSpecPtr;			/*!< @brief A user specified pointer, returned as userSpecPtr of the RsslChannel. */
-	RsslTcpOpts			tcpOpts;				/*!< @brief TCP transport specific options (used by ::RSSL_CONN_TYPE_SOCKET, ::RSSL_CONN_TYPE_ENCRYPTED, ::RSSL_CONN_TYPE_HTTP). */
+	RsslTcpOpts			tcpOpts;				/*!< @brief TCP transport specific options (used by ::RSSL_CONN_TYPE_SOCKET, ::RSSL_CONN_TYPE_WEBSOCKET, ::RSSL_CONN_TYPE_ENCRYPTED, ::RSSL_CONN_TYPE_HTTP). */
 	RsslMCastOpts		multicastOpts;			/*!< @brief Multicast transport specific options (used by ::RSSL_CONN_TYPE_RELIABLE_MCAST). */
 	RsslShmemOpts		shmemOpts;				/*!< @brief shmem transport specific options (used by ::RSSL_CONN_TYPE_UNIDIR_SHMEM). */
 	RsslSeqMCastOpts	seqMulticastOpts;		/*!< @brief Sequenced Multicast transport specific options (used by ::RSSL_CONN_TYPE_SEQ_MCAST). */
@@ -588,13 +601,14 @@ typedef struct {
 	char*				componentVersion;		/*!< @brief User defined component version information*/
 	RsslEncryptionOpts  encryptionOpts;
 	RsslELOpts			extLineOptions;			/* Extended Line specific options */
+	RsslWSocketOpts		wsOpts;					/*!< @brief WebSocket specific options (::RSSL_CONN_TYPE_WEBSOCKET) */
 } RsslConnectOptions;
 
 /**
  * @brief RSSL Connect Options initialization
  * @see RsslConnectOptions
  */
-#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS, 0, RSSL_INIT_ENCRYPTION_OPTS, RSSL_INIT_EL_OPTS }
+#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS, 0, RSSL_INIT_ENCRYPTION_OPTS, RSSL_INIT_EL_OPTS, RSSL_INIT_WEBSOCKET_OPTS }
 
 
 /**
@@ -669,7 +683,8 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyUserName = NULL;
 	opts->proxyOpts.proxyPasswd = NULL;
 	opts->proxyOpts.proxyDomain = NULL;
-	
+	opts->wsOpts.maxMsgSize = 61440;
+	opts->wsOpts.protocols = NULL;
 }
 
 /**
@@ -852,6 +867,7 @@ typedef struct {
 	void			*userSpecPtr;			/*!< @brief A user specified pointer, returned as userSpecPtr of the RsslServer. */ 
 	RsslTcpOpts		tcpOpts;				/*!< @brief TCP transport specific options (used by RSSL_CONN_TYPE_SOCKET and RSSL_CONN_TYPE_HTTP). */
 	char*			componentVersion;		/*!< @brief User defined component version information */
+	RsslWSocketOpts	wsOpts;					/*!< @brief WebSocket transport options for RSSL_CONN_TYPE_WEBSOCKET */
 	RsslBindEncryptionOpts encryptionOpts;	/*!< @brief Encryption options. */
 } RsslBindOptions;
 
@@ -860,7 +876,7 @@ typedef struct {
  * @brief RSSL Bind Options initialization
  * @see RsslBindOptions
  */
-#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0, RSSL_INIT_BIND_ENCRYPTION_OPTS }
+#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0, RSSL_INIT_WEBSOCKET_OPTS, RSSL_INIT_BIND_ENCRYPTION_OPTS }
 
 /**
  * @brief Clears RSSL Bind Options 
@@ -899,6 +915,8 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->sysSendBufSize = 0;
 	opts->sysRecvBufSize = 0;
 	opts->componentVersion = NULL;
+	opts->wsOpts.maxMsgSize = 61440;
+;	opts->wsOpts.protocols = NULL;
 	opts->encryptionOpts.cipherSuite = NULL;
 	opts->encryptionOpts.dhParams = NULL;
 	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
@@ -1603,7 +1621,7 @@ RSSL_API RsslRet rsslEncryptBuffer(const RsslChannel *chnl, const RsslBuffer* bu
  * generally bufferToDecrypt->length bytes will be sufficient space for decryptedOutput buffer to 
  * perform proper decryption.
  * bufferToDecrypt and the buffer for decrypted output 
- * can be passed to to rsslDecryptBuffer(), which will attempt decryption.  
+ * can be passed to rsslDecryptBuffer(), which will attempt decryption.  
  * If the RsslChannel has a valid decryption key and the passed in buffers are valid, contents will be decrypted.
  * If the RsslChannel does not have a valid decryption key, most likely due to the connection not having the ability
  * to perform proper key exchange, contents will not be decrypted and an error will be returned.  
@@ -1654,7 +1672,7 @@ RSSL_API RsslUInt32 rsslCalculateHexDumpOutputSize(const RsslBuffer *bufferToHex
 RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuffer* hexDumpOutput, RsslUInt32 valuesPerLine, RsslError *error);
 
 /**
-* @brief Will convert buffer's contents to a formatted hex dump without appened string representation
+* @brief Will convert buffer's contents to a formatted hex dump without append string representation
 *
 * Typical use:<BR>
 * User populates bufferToHexDump with content they want to encrypt.
@@ -1677,11 +1695,11 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 */
 
 typedef enum {
-	RSSL_DEBUG_IPC_DUMP_IN = 0x0001, /*!<(0x0001) Dump incoming IPC messages as they are recieved from the network */
+	RSSL_DEBUG_IPC_DUMP_IN = 0x0001, /*!<(0x0001) Dump incoming IPC messages as they are received from the network */
 	RSSL_DEBUG_IPC_DUMP_OUT = 0x0002, /*!<(0x0002) Dump outgoing IPC messages as they are written to the network */
 	RSSL_DEBUG_IPC_DUMP_COMP = 0x0004, /*!<(0x0004) If compression is enabled, dump compressed IPC message */
 	RSSL_DEBUG_IPC_DUMP_INIT = 0x0008, /*!<(0x0008) Dump channel IPC initialization messages */
-	RSSL_DEBUG_RSSL_DUMP_IN = 0x0010, /*!<(0x0010) Dump incoming RSSL messages as they are recieved from the transport */
+	RSSL_DEBUG_RSSL_DUMP_IN = 0x0010, /*!<(0x0010) Dump incoming RSSL messages as they are received from the transport */
 	RSSL_DEBUG_RSSL_DUMP_OUT = 0x0020, /*!<(0x0020) Dump outgoing RSSL messages as they are passed to the transport */
 } RsslDebugFlags;
 
@@ -1690,7 +1708,7 @@ typedef enum {
 *
 * Typical use:<BR>
 * This function takes function pointers as arguments.  Internally,
-* when recieving or sending data, we call these functions and pass
+* when receiving or sending data, we call these functions and pass
 * them the message as a char*.  This allows the application to perform
 * whatever type of tracing or debugging is desired.
 * After setting the functions with this call, the debug flags must be

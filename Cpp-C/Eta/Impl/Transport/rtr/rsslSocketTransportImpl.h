@@ -31,13 +31,18 @@ extern "C" {
 #include "rtr/application_signing.h"
 #include "rtr/cutilsmplcbuffer.h"
 #include "rtr/rsslQueue.h"
+#include "rtr/debugPrint.h"
 #include <stdio.h>
 #include "curl/curl.h"
 
+#define RIPC_MAX_CONN_HDR_LEN  V10_MIN_CONN_HDR + MAX_RSSL_ERROR_TEXT 
+
 #define RSSL_RSSL_SOCKET_IMPL_FAST(ret)		ret RTR_FASTCALL
 
-#define RIPC_RWF_PROTOCOL_TYPE 0 /* TODO must match definition for RWF in RSSL */
-#define RIPC_TRWF_PROTOCOL_TYPE 1 /* TODO must match definition for TRWF in RSSL */
+#define RIPC_RWF_PROTOCOL_TYPE 0 /* must match definition for RWF in RSSL */
+#define RIPC_TRWF_PROTOCOL_TYPE 1 /* must match definition for TRWF in RSSL */
+#define RIPC_JSON_PROTOCOL_TYPE 2 /* must match definition for JSON2 in RSSL */
+#define RIPC_MAX_PROTOCOL_TYPE 3 /* must match definition for TRWF in RSSL */
 
 /* Current number of bytes in the compression bitmap */
 #define RIPC_COMP_BITMAP_SIZE 1
@@ -46,7 +51,8 @@ extern "C" {
 #define RIPC_OPENSSL_TRANSPORT  1
 #define RIPC_WININET_TRANSPORT  2
 #define RIPC_EXT_LINE_SOCKET_TRANSPORT 5
-#define RIPC_MAX_TRANSPORTS     RIPC_EXT_LINE_SOCKET_TRANSPORT + 1
+#define RIPC_WEBSOCKET_TRANSPORT   7
+#define RIPC_MAX_TRANSPORTS     RIPC_WEBSOCKET_TRANSPORT + 1
 #define RIPC_MAX_SSL_PROTOCOLS  4		/* TLSv1, TLSv1.1, TLSv1.2 */
 
 typedef enum {
@@ -61,6 +67,7 @@ typedef enum {
 		if ((session)->mutex) \
 		{ \
 		  (void) RSSL_MUTEX_LOCK((session)->mutex);	\
+		  _DEBUG_MUTEX_TRACE("IPC_MUTEX_LOCK", session, (session)->mutex)\
 		} \
 	}
 
@@ -69,6 +76,7 @@ typedef enum {
 		if ((session)->mutex) \
 		{ \
 		  (void) RSSL_MUTEX_UNLOCK((session)->mutex);	\
+		  _DEBUG_MUTEX_TRACE("IPC_MUTEX_UNLOCK", session, (session)->mutex)\
 		} \
 	}
 
@@ -108,7 +116,11 @@ typedef enum {
 	RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK = 14,
 	RIPC_INT_ST_CLIENT_WAIT_HTTP_ACK = 15,  /* wininet client is waiting for our HTTP connection response with session ID */
 	RIPC_INT_ST_WAIT_CLIENT_KEY = 16,  /* we have sent our server key exchange info, waiting on client side before we can go active */
-	RIPC_INT_ST_SEND_CLIENT_KEY = 17	/* client is in the third phase of handshake, needs to have a state to know it should send the client key if interrupted. */
+	RIPC_INT_ST_SEND_CLIENT_KEY = 17,	/* client is in the third phase of handshake, needs to have a state to know it should send the client key if interrupted. */
+	RIPC_INT_ST_WS_SEND_OPENING_HANDSHAKE = 18,	/* client needs to send the initial WebSocket handshake. This could 
+												 * possibly be apart of _CLIENT_TRANSPORT_INIT. So, this_ ST may not be needed */
+	RIPC_INT_ST_WS_WAIT_HANDSHAKE_RESPONSE = 19,	/* client is waiting/ready to receive the Servers WebSocket handshake */
+	RIPC_INT_ST_WS_CLOSED_PENDING = 20			/* WebSocket session is waiting for a closed from it's peer */
 } ripcIntState;
 
 #if defined(_WIN32) 
@@ -241,6 +253,18 @@ typedef struct {
 } ripcTransportFuncs;
 
 typedef struct {
+
+	RsslInt32(*readTransportConnMsg)(void *, char *, int , ripcRWFlags , RsslError *);
+	RsslInt32(*readTransportMsg)(void *, char *, int , ripcRWFlags , RsslError *);
+	RsslInt32(*readPrependTransportHdr)(void *, char *, int, ripcRWFlags, int*, RsslError *);
+	RsslInt32(*prependTransportHdr)(void *, rtr_msgb_t *, RsslError *);
+	rtr_msgb_t *(*getPoolBuffer)(rtr_bufferpool_t *, size_t);
+	rtr_msgb_t *(*getGlobalBuffer)(size_t);
+
+} ripcProtocolFuncs;
+
+
+typedef struct {
 	char	        *next_in;			/* Buffer to compress */
 	unsigned int	avail_in;			/* Number of bytes to compress */
 	char	        *next_out;			/* Buffer to place compressed data */
@@ -251,12 +275,12 @@ typedef struct {
 } ripcCompBuffer;
 
 typedef struct {
-	void*	(*compressInit)(int compressionLevel, RsslError*);
-	void*	(*decompressInit)(RsslError*);
+	void*	(*compressInit)(int compressionLevel, int useInit2, RsslError*);
+	void*	(*decompressInit)(int useInit2, RsslError*);
 	void(*compressEnd)(void *compressInfo);
 	void(*decompressEnd)(void *compressInfo);
-	int(*compress)(void *compressInfo, ripcCompBuffer *buf, RsslError *error);
-	int(*decompress)(void *compressInfo, ripcCompBuffer *buf, RsslError *error);
+	int(*compress)(void *compressInfo, ripcCompBuffer *buf, int resetContext, RsslError *error);
+	int(*decompress)(void *compressInfo, ripcCompBuffer *buf, int resetContext, RsslError *error);
 } ripcCompFuncs;
 
 typedef struct {
@@ -288,7 +312,8 @@ typedef struct {
 	RsslBool	mountNak;
 	RsslSocket	stream;
 	RsslChannelState	state;		/* channel state */
-
+	void		*rwsServer;
+	
 	/* Different Transport information */
 	void			*transportInfo; /* For normal cases, the transport is
 									* the OS calls read/write. For Secure
@@ -347,6 +372,24 @@ typedef struct
     char *curlError;
 } RsslLibcurlThreadInfo;
 
+typedef enum
+{
+	RWS_ST_INIT			= 0,
+	RWS_ST_CONNECTING	= 1,
+	RWS_ST_ACTIVE		= 2,
+	RWS_ST_CLOSING		= 3
+} rwsConnState_t;
+
+typedef struct headerLine {
+	char		*data;		/* NULL terminates string of one HTTP header line */
+	RsslBuffer field;		/* A pointer to the start of the header field and length */
+	RsslBuffer value;		/* A pointer to the start of the field-value and length */
+} headerLine_t;
+
+typedef struct rwsHttpHdr {
+	int				total;
+	headerLine_t	*lines;
+} rwsHttpHdr_t;
 
 typedef struct
 {
@@ -374,6 +417,7 @@ typedef struct
 	RsslUInt8			majorVersion;
 	RsslUInt8			minorVersion;
 	RsslUInt8			protocolType;			/* protocol type, e.g RWF */
+	rtr_bufferpool_t	*gblInputBufs;
 	rtr_bufferpool_t		*bufPool;
 	rtr_dfltcbufferpool_t	*guarBufPool;
 	RsslMutex			*mutex;
@@ -399,6 +443,7 @@ typedef struct
 	RsslUInt32			sessionID;				/* used for tunneling connection */
 	RsslUInt8			intState;				/* internal state */
 	RsslUInt8			workState;
+	ripcCompFuncs		*compressFuncs;
 	RsslUInt16			inDecompress;
 	RsslCompTypes		outCompression;
 	ripcCompFuncs		*inDecompFuncs;
@@ -417,6 +462,8 @@ typedef struct
 	RsslUInt32			safeLZ4 : 1;			/* limits LZ4 compression to only packets that wont span multiple buffers */
 
 	ripcTransportFuncs	*transportFuncs; /* The transport functions to use */
+
+	ripcProtocolFuncs	*protocolFuncs; /* The protocol Hdr functions to use */
 
 	RsslUInt32			keyExchange : 1; /* indicates whether we should be exchanging encryption keys on the handshake */
 	RsslUInt8			usingWinInet;	/* indicates whether we are using wininet - needed for proxy override */
@@ -443,6 +490,7 @@ typedef struct
 	rtr_msgb_t			*inputBuffer;
 	rtr_msgb_t			*curInputBuf;
 	RsslUInt32			inputBufCursor;
+	RsslUInt32			inBufProtOffset;    /* # of bytes in the inputBuffer related to the WebSocket protocol header length total */
 	RsslInt32			readSize;
 	RsslUInt32			bytesOutLastMsg;	/* # of bytes in the last sent message */
 	RIPC_SESS_VERS		*version;			/* Session version information */
@@ -469,6 +517,9 @@ typedef struct
 	CURL*				curlHandle;
 	RsslLibcurlThreadInfo curlThreadInfo;
 
+	rtr_msgb_t			*rwsLargeMsgBufferList;
+	void				*rwsSession;
+	rwsHttpHdr_t		*hsReceived;
 	/* Different Transport information */
 	void				*transportInfo;		/* For normal cases, the transport is
 											* the OS calls read/write. For Secure
@@ -509,6 +560,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->safeLZ4 = 0;
 	rsslSocketChannel->keyExchange = 0;
 	rsslSocketChannel->transportFuncs = 0; 
+	rsslSocketChannel->protocolFuncs = 0; 
 	rsslSocketChannel->transportInfo = 0; 
 	rsslSocketChannel->sendBufSize = 0;
 	rsslSocketChannel->recvBufSize = 0;
@@ -563,6 +615,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->minorVersion = 0;
 	rsslSocketChannel->inputBuffer = 0;
 	rsslSocketChannel->inputBufCursor = 0;
+	rsslSocketChannel->inBufProtOffset = 0;
 	rsslSocketChannel->curInputBuf = 0;
 	rsslSocketChannel->readSize = 0;
 	rsslSocketChannel->bytesOutLastMsg = 0;
@@ -604,7 +657,11 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->sslProtocolBitmap = RSSL_ENC_NONE;
 	rsslSocketChannel->sslEncryptedProtocolType = 0;
 	rsslSocketChannel->sslCAStore = 0;
+
+	rsslSocketChannel->rwsSession = 0;
+	rsslSocketChannel->rwsLargeMsgBufferList = 0;
 }
+
 
 RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSocketChannel);
 
@@ -671,27 +728,64 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketSrvrIoctl(rsslServerImpl *rsslSrvr
 /* Contains code necessary to cleanup the server socket channel */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvrImpl, RsslError *error);
 
+/* Socket Channel functions for active WS connections using a non-RWF protocol */
+/* Contains code necessary to close a socket connection (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error);
+
+/* Contains code necessary to read from a socket connection (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslChnlImpl, RsslReadOutArgs *readOutArgs, RsslRet *readRet, RsslError *error);
+
+/* Contains code necessary to write/queue data going to a socket connection (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnlImpl, rsslBufferImpl *rsslBufImpl, RsslWriteInArgs *writeInArgs, RsslWriteOutArgs *writeOutArgs, RsslError *error);
+
+/* Contains code necessary to obtain a buffer to put data in for writing to socket connection (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelImpl *rsslChnlImpl, RsslUInt32 size, RsslBool packedBuffer, RsslError *error);
+
+/* Contains code necessary for buffer packing with socket connection buffer (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketPackBuffer(rsslChannelImpl *rsslChnlImpl, rsslBufferImpl *rsslBufImpl, RsslError *error);
+
+/* Contains code necessary to send a ping message (or flush queued data) on socket connection (client or server side) */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketPing(rsslChannelImpl *rsslChnlImpl, RsslError *error);
+
+
+
+
 RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_nodelay, RsslError *error, RsslInt32 line);
 
 RsslInt32 getProtocolNumber();
 
 RsslUInt8 getConndebug();
 
-#define IPC_NULL_PTR(ptr,func,ptrname,err) \
-	(( ptr == 0 ) ? ipcNullPtr(func,ptrname,__FILE__,__LINE__,err) : 0 )
+#define IPC_NULL_PTR(__ptr,__fnm,__ptrname,__err) \
+	(( __ptr == 0 ) ? ipcNullPtr((char*)(__fnm == 0?__FUNCTION__:__fnm),__ptrname,__FILE__,__LINE__,__err) : 0 )
 
+rtr_msgb_t * ipcAllocGblMsg(size_t length);
+rtr_msgb_t * ipcDupGblMsg(rtr_msgb_t * buffer);
+void _rsslBufferMap(rsslBufferImpl *buffer, rtr_msgb_t *ripcBuffer);
+rtr_msgb_t *ipcDataBuffer(RsslSocketChannel *rsslSocketChannel, RsslInt32 size, RsslError *error);
 extern RsslRet ipcNullPtr(char*, char*, char*, int, RsslError*);
 extern rtr_msgb_t *ipcIntReadSess(RsslSocketChannel*, RsslRet*, int*, int*, int*, int*, int*, int*, RsslError*);
 extern ripcSessInit ipcIntSessInit(RsslSocketChannel*, ripcSessInProg*, RsslError*);
 extern RsslRet ipcFlushSession(RsslSocketChannel*, RsslError*);
 
 extern ripcSessInit ipcProcessHdr(RsslSocketChannel*, ripcSessInProg*, RsslError*, int cc);
+ripcSessInit ipcConnecting(RsslSocketChannel *, ripcSessInProg *, RsslError *);
 extern ripcSessInit ipcWaitAck(RsslSocketChannel*, ripcSessInProg*, RsslError*, char*, int);
-extern RsslRet ipcSetCompFunc(int, ripcCompFuncs*);
+extern RsslRet ipcSetCompFunc(RsslInt32, ripcCompFuncs*);
+ripcCompFuncs *ipcGetCompFunc(RsslInt32);
+RsslRet ipcSetSocketChannelProtocolHdrFuncs(RsslSocketChannel * , RsslInt32 );
+RsslRet ipcSetProtocolHdrFuncs(RsslInt32 , ripcProtocolFuncs *);
 extern RsslRet ipcSetTransFunc(int, ripcTransportFuncs*);
 extern RsslRet ipcSetSSLFuncs(ripcSSLFuncs*);
 extern RsslRet ipcSetSSLTransFunc(int, ripcTransportFuncs*);
 extern RsslRet ipcLoadOpenSSL(RsslError *error);
+
+RsslInt32 ipcReleaseDataBuffer(RsslSocketChannel *, rtr_msgb_t *, RsslError *);
+rtr_msgb_t *ipcGetPoolBuffer(rtr_bufferpool_t *, size_t );
+rtr_msgb_t *ipcGetGlobalBuffer(RsslInt32 );
+RsslInt32 ipcReadTransportMsg(void *, char *, int , ripcRWFlags , RsslError *);
+RsslInt32 ipcReadPrependTransportHdr(void *, char *, int, ripcRWFlags, int *, RsslError *);
+RsslInt32 ipcPrependTransportHdr(void *, rtr_msgb_t *, RsslError *);
 
 extern RsslRet ipcShutdownServer(RsslServerSocketChannel* socket, RsslError *error);
 extern RsslRet ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error);

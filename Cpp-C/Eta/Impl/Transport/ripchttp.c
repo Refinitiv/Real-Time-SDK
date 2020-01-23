@@ -7,6 +7,8 @@
  */
 
 #include <stdio.h>
+#include "rtr/rsslSocketTransportImpl.h"
+#include "rtr/rwsutils.h"
 #include "rtr/ripchttp.h"
 #include "rtr/ripcutils.h"
 #include "rtr/ripcflip.h"
@@ -14,15 +16,10 @@
 #include <errno.h>
 #include <string.h>
 #endif
-
 #include "rtr/rsslErrors.h"
 
 static char CHAR_CR     = '\r';
 static char CHAR_LF     = '\n';
-
-extern void (*ripcDumpInFunc)(char *buf, size_t len, RsslUInt64 opaque);
-extern void(*ripcDumpOutFunc)(char *buf, size_t len, RsslUInt64 opaque);
-extern void(*ripcDumpTextFunc)(char *text, RsslUInt64 opaque);
 
 /*-------------------------------------------------------------------
  * iseof
@@ -32,7 +29,7 @@ extern void(*ripcDumpTextFunc)(char *text, RsslUInt64 opaque);
  * recognize both LF and CR-LF as the end-of-line.
  * Returns 0 if there is no end-of-line at offset.
  *-----------------------------------------------------------------*/
-static RsslInt32 iseof(char *data, RsslInt32 offset, RsslInt32 datalen)
+RsslInt32 iseof(char *data, RsslInt32 offset, RsslInt32 datalen)
 {
     if (data[offset] == CHAR_CR)
     {
@@ -46,6 +43,7 @@ static RsslInt32 iseof(char *data, RsslInt32 offset, RsslInt32 datalen)
     }
     return 0;
 }
+
 
 RsslInt32 ripcHttpHdrToUpper(char* data, RsslInt32 datalen, RsslInt32 startOffset)
 {
@@ -124,62 +122,6 @@ RsslInt32 ipcHttpHdrComplete(char *data, RsslInt32 datalen, RsslInt32 startOffse
     
     /* here we are if not yet complete */
     return 0;
-}
-
-static RsslInt32 URLdecode(char *encoded, RsslInt32 length, char *pDecode)
-{
-	char *pDecBeg;
-	char *pEncode;
-	char *pEnd=encoded+length;
-	RsslInt32 Hi;
-	RsslInt32 Lo;
-	RsslInt32 Result;
-
-	pDecBeg=pDecode;
-	pEncode=encoded;
-
-	while (pEncode < pEnd)
-	{
-		if (*pEncode == '+')
-		{
-			*pDecode++ = ' ';
-			pEncode++;
-		}
-		else if (*pEncode == '%')
-		{
-			pEncode++;
-			if (isxdigit(pEncode[0]) && (isxdigit(pEncode[1])))
-			{
-				Hi = pEncode[0];
-				if ('0' <= Hi && Hi <= '9')
-					Hi -= '0';
-				else if ('a' <= Hi && Hi <= 'f')
-					Hi -= ('a'-10);
-				else if ('A' <= Hi && Hi <= 'F')
-					Hi -= ('A'-10);
-
-				Lo = pEncode[1];
-				if ('0' <= Lo && Lo <= '9')
-					Lo -= '0';
-				else if ('a' <= Lo && Lo <= 'f')
-					Lo -= ('a'-10);
-				else if ('A' <= Lo && Lo <= 'F')
-					Lo -= ('A'-10);
-
-				Result = Lo + (16 * Hi);
-				*pDecode++ = (char)Result;
-				pEncode += 2;
-			}
-			else
-				return(-1);
-		}
-		else
-		{
-			*pDecode++ = *pEncode;
-			pEncode++;
-		}
-	}
-	return (RsslInt32)(pDecode - pDecBeg);
 }
 
 

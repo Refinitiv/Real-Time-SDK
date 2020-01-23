@@ -1,0 +1,4 @@
+Notes on cpp-base64 encoder modifications from original source
+==============================================================
+
+- Renamed base64.cpp to base64.C so that RDEV could build it

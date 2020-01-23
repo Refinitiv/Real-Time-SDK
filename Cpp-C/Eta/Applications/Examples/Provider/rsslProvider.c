@@ -36,6 +36,7 @@ RsslError error;
 RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
+static char protocolList[128];
 static char traceOutputFile[128];
 static char certFile[128];
 static char keyFile[128];
@@ -57,6 +58,8 @@ static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
 
 void exitWithUsage()
 {
@@ -65,6 +68,8 @@ void exitWithUsage()
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf("\tWebSocket connection arguments:\n");
+	printf("\t   -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols );
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -91,6 +96,7 @@ int main(int argc, char **argv)
 	
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
 	snprintf(certFile, 128, "\0");
 	snprintf(keyFile, 128, "\0");
 	snprintf(cipherSuite, 128, "\0");
@@ -131,6 +137,11 @@ int main(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(serviceName, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(protocolList, 128, "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-id", argv[iargs]))
 		{
@@ -526,6 +537,7 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	
 	sopts.guaranteedOutputBuffers = 500;
 	sopts.serviceName = portno;
+	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;

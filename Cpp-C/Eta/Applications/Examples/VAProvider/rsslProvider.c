@@ -40,6 +40,7 @@ static fd_set	exceptFds;
 RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
+static char protocolList[128];
 static char traceOutputFile[128];
 static char certFile[128];
 static char keyFile[128];
@@ -64,11 +65,13 @@ static void initializeCacheDictionary();
 static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
 
 void exitWithUsage()
 {
 	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
-	printf("\tAdditional encyrption options:\n");
+	printf("\tAdditional encryption options:\n");
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
@@ -183,6 +186,17 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 }
 
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (strncmp(&serviceName[0], pServiceName->data, pServiceName->length) == 0)
+	{
+		*pServiceId = (RsslUInt16)getServiceId();
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
 RsslReactor *pReactor = 0;
 
 int main(int argc, char **argv)
@@ -208,10 +222,14 @@ int main(int argc, char **argv)
 
 	RsslReactorDispatchOptions dispatchOpts;
 	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
 	time_t nextSendTime;
+
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
 	snprintf(certFile, 128, "\0");
 	snprintf(keyFile, 128, "\0");
 	snprintf(cipherSuite, 128, "\0");
@@ -252,6 +270,11 @@ int main(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(serviceName, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(protocolList, 128, "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-id", argv[iargs]))
 		{
@@ -335,9 +358,7 @@ int main(int argc, char **argv)
 		cleanUpAndExit();
 	}
 
-
-
-	/* Initialiize client session information */
+	/* Initialize client session information */
 	for (i = 0; i < MAX_CLIENT_SESSIONS; i++)
 	{
 		clearClientSessionInfo(&clientSessions[i]);
@@ -381,6 +402,16 @@ int main(int argc, char **argv)
 
 	initializeCacheDictionary();
 
+	jsonConverterOptions.pDictionary = getDictionary();
+	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
+
 	/* Initialize run-time */
 	initRuntime();
 
@@ -389,6 +420,7 @@ int main(int argc, char **argv)
 	
 	sopts.guaranteedOutputBuffers = 500;
 	sopts.serviceName = portNo;
+	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;

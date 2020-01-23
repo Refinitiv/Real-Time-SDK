@@ -341,6 +341,27 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 	}
 
+	/* Checks whether the JSON converter has been initialized and cleaning up associated memory. */
+	if (pReactorImpl->jsonConverterInitialized == RSSL_TRUE)
+	{
+		pReactorImpl->jsonConverterInitialized = RSSL_FALSE;
+
+		rsslJsonUninitialize();
+
+		if (pReactorImpl->pJsonConverter)
+		{
+			RsslJsonConverterError rjcError;
+			rsslDestroyRsslJsonConverter(pReactorImpl->pJsonConverter, &rjcError);
+			pReactorImpl->pJsonConverter = NULL;
+		}
+
+		if (pReactorImpl->pDictionaryList)
+		{
+			free(pReactorImpl->pDictionaryList);
+			pReactorImpl->pDictionaryList = NULL;
+		}
+	}
+
 	/* For EDP token management and service discovery */
 	free(pReactorImpl->accessTokenRespBuffer.data);
 	free(pReactorImpl->tokenInformationBuffer.data);
@@ -1132,6 +1153,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									"Failed to unregister write notification for initializing channel.");
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 						}
+
 						ret = rsslInitChannel(pReactorChannel->reactorChannel.pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
 
 
@@ -1197,7 +1219,12 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							/* Flush */
 							ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-							pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+
+							/* Checks whether the users wants the Reactor to always a ping message for the JSON protocol by not updating the lastPingSentMs field */
+							if (pReactorChannel->sendWSPingMessage == RSSL_FALSE)
+							{
+								pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+							}
 
 							if (ret < 0)
 							{
@@ -1274,44 +1301,54 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
 		{
+			RsslBool sendPingMessage = RSSL_TRUE;
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
 
-			/* Check if the elapsed time is greater than our ping-send interval. */
-			if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor )
+			/* Checks whether to send a ping message for the JSON protocol. */
+			if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 			{
+				sendPingMessage = pReactorChannel->sendWSPingMessage; 
+			}
 
-				/* If so, send a ping. */
-				ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-				if (ret < 0)
+			if (sendPingMessage)
+			{
+				/* Check if the elapsed time is greater than our ping-send interval. */
+				if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor)
 				{
-					rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
+					/* If so, send a ping. */
+					ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
+					if (ret < 0)
+					{
+						rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+					}
+					else
+					{
+						if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
+						{
+							RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+							rsslClearReactorChannelPingEvent(pEvent);
+
+							pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+							if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+								== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							}
+						}
+
+						pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+						_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+					}
 				}
 				else
 				{
-					if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
-					{
-						RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
-						rsslClearReactorChannelPingEvent(pEvent);
-
-						pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-
-						if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
-							== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-						{
-							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-						}
-					}
-
-					pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
-					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+					/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
+					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
 				}
-			}
-			else
-			{
-				/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
-				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
 			}
 
 			/* Process any channels that are waiting for a timeout. */

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* providerThreads.h
@@ -19,10 +19,11 @@
 #include "statistics.h"
 #include "rtr/rsslQueue.h"
 #include "hashTable.h"
-
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslReactorChannel.h"
 #include "rtr/rsslReactor.h"
+#include "rjConverter.h"
+#include "rtr/rsslJsonConverter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,6 +160,9 @@ typedef struct
 	RsslMCastStats prevMCastStats;
 	TimeRecordQueue messageEncodeTimeRecords;	/* Measurement of encoding time */
 	TimeRecordQueue	updateDecodeTimeRecords;	/* Time spent decoding msgs. */
+
+	rjConverterSession		rjcSess;
+
 } ProviderThread;
 
 /* Represents one channel's session.  Stores information about items requested. */
@@ -190,6 +194,7 @@ void providerThreadInit(ProviderThread *pProvThread,
 		ChannelActiveCallback *processActiveChannel,
 		ChannelInactiveCallback *processInactiveChannel,
 		MsgCallback *processMsg,
+		MsgConverterCallback *convCallback,
 		RsslInt32 providerIndex,
 		ProviderType providerType);
 
@@ -344,7 +349,8 @@ typedef struct
 void providerInit(Provider *pProvider, ProviderType providerType,
 		ChannelActiveCallback *processActiveChannel,
 		ChannelInactiveCallback *processInactiveChannel,
-		MsgCallback *processMsg);
+		MsgCallback *processMsg,
+		MsgConverterCallback *convCallback);
 
 /* Starts all provider threads. */
 void startProviderThreads(Provider *pProvider, RSSL_THREAD_DECLARE(threadFunction,pArg));

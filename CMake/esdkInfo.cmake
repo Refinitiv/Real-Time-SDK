@@ -14,9 +14,10 @@ set(esdk_INTERNAL_API_VERSION_MAJOR 3)
 set(esdk_INTERNAL_RELEASE_TWEAK G1)
 set(esdk_RELEASE_TYPE rrg)
 
-set( librssl_SO_VERSION 10 )
-set( librsslVA_SO_VERSION 13 )
+set( librssl_SO_VERSION 11 )
+set( librsslVA_SO_VERSION 14 )
 set( libema_SO_VERSION 8 )
+set( librsslJsonConverter_SO_VERSION 1 )
 
 set(Ansi_VERSION_MAJOR 1)
 set(Ansi_VERSION_MINOR 0)
@@ -39,6 +40,7 @@ if (DEFINED esdk_VERSION)
 	set(librssl_SO_VERSION ${librssl_SO_VERSION} CACHE INTERNAL "")
 	set(librsslVA_SO_VERSION ${librsslVA_SO_VERSION} CACHE INTERNAL "")
 	set(libema_SO_VERSION ${libema_SO_VERSION} CACHE INTERNAL "")
+	set(librsslJsonConverter_SO_VERSION ${librsslJsonConverter_SO_VERSION} CACHE INTERNAL "")
 endif()
 
 # Build Timestamp

@@ -75,6 +75,7 @@ static RsslTransportServerFuncs   serverTransFuncs[RSSL_MAX_TRANSPORTS];
 /* used by each transport to set its functions into the array */
 RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFuncs *funcs )
 {
+	_DEBUG_TRACE_INIT("transportType %d\n", transportType) 
 	if (transportType >= RSSL_MAX_TRANSPORTS)
 		return(RSSL_RET_FAILURE);
 
@@ -84,11 +85,17 @@ RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFunc
 
 RsslRet rsslSetTransportServerFunc( int transportType, RsslTransportServerFuncs *funcs )
 {
+	_DEBUG_TRACE_INIT("transportType %d\n", transportType) 
 	if (transportType >= RSSL_MAX_TRANSPORTS)
 		return(RSSL_RET_FAILURE);
 
 	serverTransFuncs[transportType] = *funcs;
 	return(RSSL_RET_SUCCESS);
+}
+
+RsslTransportChannelFuncs* rsslGetTransportChannelFunc(int transportType)
+{
+	return &(channelTransFuncs[transportType]);
 }
 
 /* Static Mutex Functions */
@@ -1134,7 +1141,7 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 			rsslChnlImpl->channelFuncs = &(channelTransFuncs[RSSL_SEQ_MCAST_TRANSPORT]);
 		break;
 		default:
-			/* handles all HTTP/ENCRYPTED/SOCKET cases */
+			/* handles all HTTP/ENCRYPTED/(W)SOCKET cases */
 			rsslChnlImpl->channelFuncs = &(channelTransFuncs[RSSL_SOCKET_TRANSPORT]);
 	}		
 

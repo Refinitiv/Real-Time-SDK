@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "upacProvPerf.h"
@@ -55,10 +55,34 @@ static void signal_handler(int sig)
 
 extern void startProviderThreads(Provider *pProvider, RSSL_THREAD_DECLARE(threadFunction,pArg));
 
+RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, RsslUInt16* pServiceId)
+{
+	if (strncmp(&directoryConfig.serviceName[0], pServiceName->data, pServiceName->length) == 0)
+	{
+		*pServiceId = (RsslUInt16)directoryConfig.serviceId;
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
+RsslRet serviceNameToIdReactorCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (strncmp(&directoryConfig.serviceName[0], pServiceName->data, pServiceName->length) == 0)
+	{
+		*pServiceId = (RsslUInt16)directoryConfig.serviceId;
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
+
 RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 {
 
 	ProviderThread *pProvThread = (ProviderThread*)pArg;
+	RsslErrorInfo rsslErrorInfo;
 
 	TimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
@@ -73,6 +97,16 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 	}
 
 	nextTickTime = getTimeNano() + nsecPerTick;
+
+	pProvThread->rjcSess.options.pDictionary = pProvThread->pDictionary;
+	pProvThread->rjcSess.options.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;
+	pProvThread->rjcSess.options.pServiceNameToIdCallback = serviceNameToIdCallback;
+
+	if (rjcSessionInitialize(&(pProvThread->rjcSess), &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("RWF/JSON Converter failed: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
 
 	/* this is the main loop */
 	while(rtrLikely(!signal_shutdown))
@@ -112,7 +146,9 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactorDispatchOptions dispatchOptions;
 	RsslCreateReactorOptions reactorOpts;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
 
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	rsslClearReactorDispatchOptions(&dispatchOptions);
 
 	if (pProvThread->cpuId >= 0)
@@ -130,6 +166,15 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	if (!(pProvThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
+
+	jsonConverterOptions.pDictionary = pProvThread->pDictionary;
+	jsonConverterOptions.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdReactorCallback;
+	if (rsslReactorInitJsonConverter(pProvThread->pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON converter: %s\n", rsslErrorInfo.rsslError.text);
 		cleanUpAndExit();
 	}
 
@@ -559,7 +604,7 @@ int main(int argc, char **argv)
 	providerInit(&provider, PROVIDER_INTERACTIVE,
 			processActiveChannel,
 			processInactiveChannel,
-			processMsg);
+			processMsg, convertMsg);
 
 	if (provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
@@ -585,6 +630,7 @@ int main(int argc, char **argv)
 	sopts.sysRecvBufSize = provPerfConfig.recvBufSize;
 	sopts.connectionType = RSSL_CONN_TYPE_SOCKET;
 	sopts.maxFragmentSize = provPerfConfig.maxFragmentSize;
+	sopts.wsOpts.protocols = provPerfConfig.protocolList;
 
 	sopts.connectionType = provPerfConfig.connType;
 
@@ -831,13 +877,54 @@ void processInactiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannelI
 		providerSessionDestroy(pProvThread, pProvSession);
 }
 
+RsslBuffer *convertMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer)
+{
+	ProviderThread *pProvThread = (ProviderThread*)pChannelHandler->pUserSpec;
+	RsslChannel *pChannel = pChannelInfo->pChannel;
+	RsslErrorInfo eInfo;
+	RsslBuffer *pMsgBuffer;
+
+	pMsgBuffer = 0;
+				/* convert message to JSON */
+	if ((pMsgBuffer = rjcMsgConvertToJson(&(pProvThread->rjcSess), pChannel, pBuffer, &eInfo)) == NULL)
+		fprintf(stderr, "convertMsg(): Failed to convert RWF > JSON %s\n", 
+						(eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS ?
+							"Out of pool buffers" : eInfo.rsslError.text));
+
+	return pMsgBuffer;
+}
+
 RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer)
 {
 	RsslRet ret = RSSL_RET_SUCCESS; RsslMsg msg = RSSL_INIT_MSG;
+	RsslRet	cRet = RSSL_RET_SUCCESS;
 	RsslDecodeIterator dIter;
 	ProviderThread *pProvThread = (ProviderThread*)pChannelHandler->pUserSpec;
 	RsslChannel *pChannel = pChannelInfo->pChannel;
+	RsslBuffer	*origBuffer = 0;
+	RsslBuffer decodedMsg = RSSL_INIT_BUFFER;
+	//RsslBuffer *decodedMsg = 0;
+	RsslInt16	numConverted = 0;
 	
+
+	do {
+	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		RsslErrorInfo	pErr;
+
+		origBuffer = pBuffer;
+
+		cRet = rjcMsgConvertFromJson(&(pProvThread->rjcSess), pChannel, &decodedMsg, 
+									 (numConverted == 0 ?  origBuffer : NULL), &pErr);
+		numConverted++;
+
+// rjcDEBUG fprintf(stderr, "\n\trjcMsgConvertFromJson: ret(%d)\n", cRet);
+		if (cRet == RSSL_RET_SUCCESS && decodedMsg.length > 0)
+			pBuffer = &decodedMsg;
+	
+		if (cRet == RSSL_RET_END_OF_CONTAINER)
+			break;
+	}
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
 	
@@ -862,11 +949,7 @@ RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, R
 			ret = processDirectoryRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
 			break;
 		case RSSL_DMT_DICTIONARY:
-			ret = processDictionaryRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
-			break;
-		case RSSL_DMT_MARKET_PRICE:
-			if (xmlMsgDataHasMarketPrice)
-				ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
+			ret = processDictionaryRequest(pChannelHandler, pChannelInfo, &msg, &dIter); break; case RSSL_DMT_MARKET_PRICE: if (xmlMsgDataHasMarketPrice) ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
 			else
 				ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
 						msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
@@ -884,7 +967,6 @@ RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, R
 			break;
 	}
 
-
 	if (ret < RSSL_RET_SUCCESS) 
 	{
 		printf("Failed to process request from domain %d: %d\n", msg.msgBase.domainType, ret);
@@ -894,6 +976,8 @@ RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, R
 		/* The function sent a message and indicated that we need to flush. */
 		providerThreadRequestChannelFlush(pProvThread, pChannelInfo);
 	}
+
+	} while (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && cRet != RSSL_RET_END_OF_CONTAINER);
 
 	return ret;
 }
