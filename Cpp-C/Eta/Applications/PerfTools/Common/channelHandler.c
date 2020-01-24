@@ -58,7 +58,7 @@ RsslRet channelHandlerWriteChannel(ChannelHandler *pHandler, ChannelInfo *pChann
 	RsslBuffer	*pMsgBuffer;
 
 	pMsgBuffer = 0;
-	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	if (pHandler->convCallback && pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 	{
 		/* convert message to JSON */
 		if ((pMsgBuffer = (pHandler->convCallback)(pHandler, pChannelInfo, pBuffer)) == NULL)

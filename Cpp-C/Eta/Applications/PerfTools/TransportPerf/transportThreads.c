@@ -142,7 +142,7 @@ void transportThreadInit(TransportThread *pThread,
 	}
 
 	pThread->currentTicks = 0;
-	initChannelHandler(&pThread->channelHandler, processActiveChannel, processInactiveChannel, processMsg, (void*)pThread);
+	initChannelHandler(&pThread->channelHandler, processActiveChannel, processInactiveChannel, processMsg, NULL, (void*)pThread);
 	latencyRandomArrayIterInit(&pThread->randArrayIter);
 }
 
