@@ -48,7 +48,7 @@ RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, R
 RsslBuffer *convertMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer);
 
 /* Callback for Reactor RWF/JSON converter messages. */
-RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, RsslUInt16* pServiceId);
+RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, void *, RsslUInt16* pServiceId);
 
 /* Callback for Reactor RWF/JSON converter messages. */
 RsslRet serviceNameToIdReactorCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);

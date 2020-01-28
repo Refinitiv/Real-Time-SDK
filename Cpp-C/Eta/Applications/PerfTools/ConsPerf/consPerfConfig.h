@@ -76,6 +76,7 @@ typedef struct
 	char				caStore[255];				/* Certificate authority location */
 	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */
 
+	char				protocolList[256];			/* List of supported WebSocket sub-protocols */
 	RsslInt32 _requestsPerTick;
 	RsslInt32 _requestsPerTickRemainder;
 } ConsPerfConfig;

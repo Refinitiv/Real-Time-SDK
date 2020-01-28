@@ -55,8 +55,10 @@ static void signal_handler(int sig)
 
 extern void startProviderThreads(Provider *pProvider, RSSL_THREAD_DECLARE(threadFunction,pArg));
 
-RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, RsslUInt16* pServiceId)
+RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, void* userSecPtr, RsslUInt16* pServiceId)
 {
+	ProviderThread *pProvThread = (ProviderThread*)userSecPtr;
+
 	if (strncmp(&directoryConfig.serviceName[0], pServiceName->data, pServiceName->length) == 0)
 	{
 		*pServiceId = (RsslUInt16)directoryConfig.serviceId;
@@ -68,6 +70,8 @@ RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, RsslUInt16* pServiceId
 
 RsslRet serviceNameToIdReactorCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
 {
+	ProviderThread *pProvThread = (ProviderThread*)pEvent->pUserSpec;
+
 	if (strncmp(&directoryConfig.serviceName[0], pServiceName->data, pServiceName->length) == 0)
 	{
 		*pServiceId = (RsslUInt16)directoryConfig.serviceId;
@@ -100,6 +104,7 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 
 	pProvThread->rjcSess.options.pDictionary = pProvThread->pDictionary;
 	pProvThread->rjcSess.options.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;
+	pProvThread->rjcSess.options.userSpecPtr = (void*)pProvThread;
 	pProvThread->rjcSess.options.pServiceNameToIdCallback = serviceNameToIdCallback;
 
 	if (rjcSessionInitialize(&(pProvThread->rjcSess), &rsslErrorInfo) != RSSL_RET_SUCCESS)
@@ -171,6 +176,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 
 	jsonConverterOptions.pDictionary = pProvThread->pDictionary;
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;
+	jsonConverterOptions.userSpecPtr = (void*)pProvThread;
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdReactorCallback;
 	if (rsslReactorInitJsonConverter(pProvThread->pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

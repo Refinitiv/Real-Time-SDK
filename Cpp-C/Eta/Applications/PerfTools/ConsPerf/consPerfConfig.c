@@ -65,6 +65,8 @@ static void clearConsPerfConfig()
 
 	snprintf(consPerfConfig.caStore, sizeof(consPerfConfig.caStore), "");
 	consPerfConfig.tlsProtocolFlags = 0;
+
+	snprintf(consPerfConfig.protocolList, sizeof(consPerfConfig.protocolList), "");
 }
 
 void exitConfigError(char **argv)
@@ -204,6 +206,8 @@ void initConsPerfConfig(int argc, char **argv)
 				consPerfConfig.connectionType = RSSL_CONN_TYPE_HTTP;
 			else if(strcmp("encrypted", argv[iargs]) == 0)
 				consPerfConfig.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+			else if(strcmp("websocket", argv[iargs]) == 0)
+				consPerfConfig.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else
 			{
 				printf("Config Error: Unknown connection type \"%s\"\n", argv[iargs]);
@@ -218,6 +222,8 @@ void initConsPerfConfig(int argc, char **argv)
 
 			if (strcmp("socket", argv[iargs]) == 0)
 				consPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("websocket", argv[iargs]) == 0)
+				consPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (strcmp("http", argv[iargs]) == 0)
 			{
 #ifdef Linux  
@@ -314,6 +320,11 @@ void initConsPerfConfig(int argc, char **argv)
 		else if(strcmp("-watchlist", argv[iargs]) == 0)
 		{
 			++iargs; consPerfConfig.useWatchlist = RSSL_TRUE;
+		}
+		else if (strcmp("-pl", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(consPerfConfig.protocolList, sizeof(consPerfConfig.protocolList), "%s", argv[iargs++]);
 		}
 		else if (strcmp("-castore", argv[iargs]) == 0)
 		{
@@ -431,6 +442,8 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 			return "http";
 		case RSSL_CONN_TYPE_ENCRYPTED:
 			return "encrypted";
+		case RSSL_CONN_TYPE_WEBSOCKET:
+			return "websocket";
 		default:
 			return "unknown";
 	}
@@ -501,7 +514,8 @@ void printConsPerfConfig(FILE *file)
 		"               Tick Rate: %u\n"
 		" Reactor/Watchlist Usage: %s\n"
 		"       CA store location: %s\n"
-		"      TLS Protocol flags: %i\n",
+		"      TLS Protocol flags: %i\n"
+		"        WS Protocol List: %s\n",
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
 		consPerfConfig.serviceName,
@@ -530,7 +544,8 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.ticksPerSec,
 		reactorWatchlistUsageString,
 		consPerfConfig.caStore,
-		consPerfConfig.tlsProtocolFlags
+		consPerfConfig.tlsProtocolFlags,
+		consPerfConfig.protocolList
 	  );
 
 	fprintf(file,
@@ -547,11 +562,12 @@ void exitWithUsage()
 	printf(	"Options:\n"
 			"  -?                                   Shows this usage\n"
 			"\n"
-			"  -connType <type>                     Type of connection(\"socket\", \"http\", \"encrypted\")\n"
-			"  -encryptedConnType <type>            Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"http\")\n"
+			"  -connType <type>                     Type of connection(\"socket\", \"websocket\", \"http\", \"encrypted\")\n"
+			"  -encryptedConnType <type>            Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"websocket\", \"http\")\n"
 			"  -h <hostname>                        Name of host to connect to\n"
 			"  -p <port number>                     Port number to connect to\n"
 			"  -if <interface name>                 Name of network interface to use\n"
+			"  -pl \"<list>\"                         List of desired WS sub-protocols in order of preference(',' | white space delineated)\n"
 			"\n"
 			"  -outputBufs <count>                  Number of output buffers(configures guaranteedOutputBuffers in RsslConnectOptions)\n"
 			"  -inputBufs <count>                   Number of input buffers(configures numInputBufs in RsslConnectOptions)\n"
@@ -591,8 +607,8 @@ void exitWithUsage()
 			"  -nanoTime                            Assume latency has nanosecond precision instead of microsecond.\n"
 			"  -measureDecode                       Measure decode time of updates.\n"
 			"\n"
-			"  -castore								File location of the certificate authority store.\n"
-			"  -spTLSv1.2							Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			"  -castore                             File location of the certificate authority store.\n"
+			"  -spTLSv1.2                           Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
 			"\n"
 	);
 #ifdef _WIN32

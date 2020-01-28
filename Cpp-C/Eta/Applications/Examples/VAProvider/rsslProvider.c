@@ -54,6 +54,10 @@ static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 
+static RsslUInt32 maxFragmentSize = 0;
+static RsslUInt32 guaranteedOutputBuffers = 0;
+static RsslUInt32 maxOutputBuffers = 0;
+
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
 static RsslVACacheInfo cacheInfo;
@@ -71,7 +75,12 @@ static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
 void exitWithUsage()
 {
 	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
-	printf("\tAdditional encryption options:\n");
+	printf("Additional options:\n");
+	printf("  -outputBufs <count>   \tNumber of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n");
+	printf("  -maxOutputBufs <count>\tMax number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n");
+	printf("  -maxFragmentSize <size>\tMax size of buffers(configures maxFragmentSize in RsslBindOptions)\n");
+
+	printf("Additional encryption options:\n");
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
@@ -293,6 +302,21 @@ int main(int argc, char **argv)
 			xmlTrace = RSSL_TRUE;
 			snprintf(traceOutputFile, 128, "RsslVAProvider\0");
 		}
+		else if (0 == strcmp("-maxFragmentSize", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &maxFragmentSize);
+		}
+		else if (0 == strcmp("-maxOutputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &maxOutputBuffers);
+		}
+		else if (0 == strcmp("-outputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &guaranteedOutputBuffers);
+		}
 		else if (0 == strcmp("-runtime", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
@@ -430,6 +454,15 @@ int main(int argc, char **argv)
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;
+
+	if (guaranteedOutputBuffers)
+		sopts.guaranteedOutputBuffers = guaranteedOutputBuffers;
+
+	if (maxOutputBuffers)
+		sopts.maxOutputBuffers = maxOutputBuffers;
+
+	if (maxFragmentSize)
+		sopts.maxFragmentSize = maxFragmentSize;
 
 	/* Create the server. */
 	if (!(rsslSrvr = rsslBind(&sopts, &rsslErrorInfo.rsslError)))

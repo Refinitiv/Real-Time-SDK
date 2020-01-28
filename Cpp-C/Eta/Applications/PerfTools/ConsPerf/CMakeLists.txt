@@ -2,6 +2,7 @@
 set( SOURCE_FILES
   consPerfConfig.c                  consumerThreads.c               marketByOrderDecoder.c
   marketPriceDecoder.c              upacConsPerf.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c

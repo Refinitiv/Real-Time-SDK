@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-typedef RsslRet rjcServiceNameToIdCallback(RsslBuffer* , RsslUInt16* ); 
+typedef RsslRet rjcServiceNameToIdCallback(RsslBuffer*, void *, RsslUInt16* ); 
 
 typedef struct {
 	rjcServiceNameToIdCallback	*pServiceNameToIdCallback;	/*!< Callback function that handles conversion from service name to ID. */
@@ -46,13 +46,11 @@ RTR_C_INLINE void rjcClearSession(rjConverterSession *rjcSession)
 	memset(rjcSession, 0, sizeof(rjConverterSession));
 }
 
-RsslRet rjcResetConverterState(rjConverterSession *sess, RsslBuffer *pBuffer, RsslErrorInfo *pError);
-void rjcSessionUninitialize(rjConverterSession *rjcSession);
-RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pError);
-RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pChannel, 
-								RsslBuffer *rwfBuffer, RsslErrorInfo *pError);
-RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChannel,
-								RsslBuffer *rwfBuffer, RsslBuffer *jsonBuffer, RsslErrorInfo *pError);
+RsslRet rjcResetConverterState(rjConverterSession *, RsslBuffer *, RsslErrorInfo *);
+void rjcSessionUninitialize(rjConverterSession *);
+RsslRet rjcSessionInitialize(rjConverterSession *, RsslErrorInfo *);
+RsslBuffer *rjcMsgConvertToJson(rjConverterSession *, RsslChannel *, RsslBuffer *, RsslErrorInfo *);
+RsslRet rjcMsgConvertFromJson(rjConverterSession *, RsslChannel *, RsslBuffer *, RsslBuffer *, RsslErrorInfo *);
 
 
 #ifdef __cplusplus

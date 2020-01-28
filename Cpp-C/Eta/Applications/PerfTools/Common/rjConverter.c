@@ -46,7 +46,7 @@ static RsslRet _rjcServiceNameToIdCallback(RsslBuffer *pServiceName, void *closu
 	rjConverterSession *sess = (rjConverterSession*)closure;
 
 	if (sess != NULL)
-		return (*sess->options.pServiceNameToIdCallback)(pServiceName, pServiceId);
+		return (*sess->options.pServiceNameToIdCallback)(pServiceName, sess->options.userSpecPtr, pServiceId);
 	else
 		return RSSL_RET_FAILURE;
 }
@@ -357,6 +357,8 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 
 					// Reply with JSON PONG message to the sender
 					ret = _rjcSendJsonMessage(pChannel, pBuffer, RSSL_WRITE_NO_FLAGS, pError);
+					if (ret == RSSL_RET_SUCCESS)
+						ret = RSSL_RET_READ_PING;
 				}
 				else
 				{
@@ -368,6 +370,7 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 			case RSSL_JSON_MC_PONG:
 			{
 				failedToConvertJSONMsg = RSSL_FALSE;
+				ret = RSSL_RET_READ_PING;
 				break;
 			}
 			default: // RSSL_JSON_MC_ERROR
