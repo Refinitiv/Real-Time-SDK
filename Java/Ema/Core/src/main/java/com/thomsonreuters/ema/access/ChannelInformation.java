@@ -166,6 +166,14 @@ public interface ChannelInformation
 	public String hostname();
 
 	/**
+	 * Gets port being used by channel. Valid for SOCKET connection type
+	 * see @{@link ConnectionType}
+	 *
+	 * @return port number
+	 */
+	public int port();
+
+	/**
 	 *  Gets the IP address of the connected client
 	 *  <p>This is set only for IProvider applications</p>
 	 * @return the string IP address
@@ -275,6 +283,13 @@ public interface ChannelInformation
 	 * @param hostname is the host name associated with the channel
 	 */
 	public void hostname(String hostname);
+
+	/**
+	 * Sets port number
+	 *
+	 * @param port port to use by channel
+	 */
+	public void port(int port);
 
 	/** Sets the IP address of the connected client
 	 * <p>This is set only for IProvider applications</p>

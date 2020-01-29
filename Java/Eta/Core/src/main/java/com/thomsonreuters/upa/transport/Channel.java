@@ -439,9 +439,19 @@ public interface Channel
     public int connectionType();
 
     /**
-     * For NIProvider and Consumer applications, the host name associated with the {@link Channel}.
+     * For NIProvider and Consumer applications, remote server host name associated with the {@link Channel}.
      * 
      * @return the host name
      */
     public String hostname();
+
+    /**
+     * For NIProvider and Consumer applications, remote server port number associated with the {@link Channel}.
+     * Relevant for Socket connection, zero for other
+     * 
+     * @return the port number
+     */
+    default public int port() {
+        return 0;
+    }
 }

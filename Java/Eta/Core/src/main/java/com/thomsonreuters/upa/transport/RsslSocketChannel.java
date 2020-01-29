@@ -1,10 +1,7 @@
 package com.thomsonreuters.upa.transport;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 
@@ -248,6 +245,7 @@ class RsslSocketChannel extends UpaNode implements Channel
 
     protected String _host = null;
     protected String _port = null;
+    protected int _portIntValue = 0;
 
     // for http tunneling
     protected boolean _http = false;
@@ -2783,6 +2781,7 @@ class RsslSocketChannel extends UpaNode implements Channel
 
         _host = opts.unifiedNetworkInfo().address();
         _port = opts.unifiedNetworkInfo().serviceName();
+        _portIntValue = ((UnifiedNetworkInfoImpl)opts.unifiedNetworkInfo()).port();
     }
 
     int connect(ConnectOptions opts, Error error)
@@ -3142,6 +3141,12 @@ class RsslSocketChannel extends UpaNode implements Channel
     public String hostname()
     {
     	return _host;
+    }
+
+    @Override
+    public int port()
+    {
+        return _portIntValue;
     }
 
     @Override @Deprecated

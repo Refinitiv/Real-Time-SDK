@@ -859,6 +859,12 @@ public class ReactorChannel extends VaNode
 		return channel().hostname();
     }
 
+    public int port() {
+        if (channel() == null)
+            return 0;
+        return channel().port();
+    }
+
     /**
      * When a {@link ReactorChannel} becomes active for a client or server, this is
      * populated with the negotiated minor version number that is associated

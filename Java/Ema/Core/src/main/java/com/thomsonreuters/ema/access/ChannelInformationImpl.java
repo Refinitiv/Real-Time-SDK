@@ -13,7 +13,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.ema.access.ChannelInformation;
 
 class ChannelInformationImpl implements ChannelInformation
 {
@@ -56,6 +55,7 @@ class ChannelInformationImpl implements ChannelInformation
 		_protocolType = ProtocolType.UNKNOWN;
 		_pingTimeout = _majorVersion = _minorVersion = 0;
 		_ipAddress = _hostname = _componentInfo = null;
+		_port = 0;
 		_maxFragmentSize = 0;
 		_maxOutputBuffers = 0;
 		_guaranteedOutputBuffers = 0;
@@ -106,6 +106,8 @@ class ChannelInformationImpl implements ChannelInformation
 			_hostname = reactorChannel.hostname();
 		}
 
+		_port = reactorChannel.port();
+
 		if (reactorChannel.channel() != null) {
 			_connectionType = reactorChannel.channel().connectionType();
 			_protocolType = reactorChannel.channel().protocolType();
@@ -123,7 +125,7 @@ class ChannelInformationImpl implements ChannelInformation
 	@Override
 	public String toString() {
 		_stringBuilder.setLength(0);
-		_stringBuilder.append("hostname: " + _hostname + "\n\tIP address: " + _ipAddress
+		_stringBuilder.append("hostname: " + _hostname + "\n\tIP address: " + _ipAddress + "\n\tport: " + _port
 				+ "\n\tconnected component info: " + _componentInfo + "\n\tchannel state: ");
 		
 		switch (_channelState)
@@ -194,6 +196,11 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 
 	@Override
+	public int port() {
+		return _port;
+	}
+
+	@Override
 	public String ipAddress() {
 		return _ipAddress;
 	}
@@ -244,6 +251,11 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 
 	@Override
+	public void port(int port) {
+		_port = port;
+	}
+
+	@Override
 	public void ipAddress(String ipAddress) {
 		_ipAddress = ipAddress;
 	}
@@ -288,6 +300,7 @@ class ChannelInformationImpl implements ChannelInformation
 	private int _connectionType;
 	private String _hostname;
 	private String _ipAddress;
+	private int _port;
 	private String _componentInfo;
 	private int _protocolType;
 	private int _majorVersion;

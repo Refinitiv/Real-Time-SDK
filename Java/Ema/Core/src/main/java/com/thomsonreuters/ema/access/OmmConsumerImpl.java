@@ -515,6 +515,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 			channelInformation.hostname(reactorChannel.hostname());
 			channelInformation.ipAddress("not available for OmmConsumer connections");
+			channelInformation.port(reactorChannel.port());
 
 			if (reactorChannel.channel() == null ) {
 				channelInformation.componentInfo("unavailable");
