@@ -474,7 +474,8 @@ typedef struct
 											* the OS calls read/write. For Secure
 											* Sockets we use SSLRead/SSLWrite calls.
 											*/
-	void				*newTransportInfo;	
+	void				*newTransportInfo;
+	RsslUInt16			port;				/* port number that was used to connect to the server (for Consumer, NiProvider). */
 } RsslSocketChannel;
 
 
@@ -592,6 +593,8 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->clientHostname = 0;
 
 	rsslSocketChannel->clientIP = 0;
+
+	rsslSocketChannel->port = 0;
 
 	rsslSocketChannel->outComponentVer = 0;
 	rsslSocketChannel->outComponentVerLen = 0;

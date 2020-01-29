@@ -71,9 +71,10 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 		// this should work for consumers and interactive providers
 		if (_channel != null) {
 			_channelInfo.set(_channel);
-			if (_ommProvider == null)
+			if (_ommProvider == null) {
 				_channelInfo.ipAddress("not available for OmmConsumer connections");
-			else if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE)
+				_channelInfo.port(_channel.port());
+			} else if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE)
 				_channelInfo.ipAddress("not available for OmmNiProvider connections");			
 			return _channelInfo;
 		}

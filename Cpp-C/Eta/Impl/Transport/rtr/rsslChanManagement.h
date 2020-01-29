@@ -369,6 +369,7 @@ RTR_C_ALWAYS_INLINE void _rsslCleanChan(rsslChannelImpl *chnl)
 	chnl->Channel.clientIP = 0;
 	chnl->Channel.clientHostname = 0;
 	chnl->Channel.hostname = 0;
+	chnl->Channel.port = 0;
 
 	chnl->Channel.pingTimeout = 0;
 

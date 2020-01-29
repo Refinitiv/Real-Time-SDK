@@ -144,6 +144,12 @@ public:
   */
   const EmaString& getHostname() const { return _hostname; }
 
+  /** Gets the port number that was used to connect to the server ADS/ADH (Consumer, NiProvider).
+	  Valid for SOCKET connection type
+	  @return port number
+  */
+  const UInt16 port() const { return _port; }
+
   /** Gets the IP address of the connected client
 	  @return string representation of this object's IP address
 	  \remark see discussion of this class at the top of this file for more information.
@@ -246,6 +252,12 @@ public:
 	  @return reference to this object
   */
   ChannelInformation& hostname(const EmaString& hostname);
+
+  /** Specifies port number that was used to connect to the server (Consumer, NiProvider)
+	  @param[in] port specifies port number
+	  @return reference to this object
+   */
+  ChannelInformation& port(const UInt16 port);
 
   /** Specifies the IP address of the connected client
 	  @param[in] ipAddress specifies IP address as a string
@@ -355,6 +367,7 @@ private:
   ConnectionType _connectionType;
   EmaString _hostname;
   EmaString _ipAddress;
+  UInt16 _port;
   EmaString _connectedComponentInfo;
   ProtocolType _protocolType;
   UInt32 _majorVersion;

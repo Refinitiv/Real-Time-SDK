@@ -205,6 +205,7 @@ RTR_C_ALWAYS_INLINE void _rsslSocketToChannel(rsslChannelImpl *chnl, RsslSocketC
 
 	// valid for rsslConnect
 	chnl->Channel.hostname = sckt->hostName;
+	chnl->Channel.port = sckt->port;
 
 	return;
 }
@@ -7684,6 +7685,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	rsslSocketChannel->clientIP = 0;
 	rsslSocketChannel->connType = RSSL_CONN_TYPE_INIT;
 
+	rsslSocketChannel->port = 0;
+
 	switch(opts->connectionType)
 	{
 		case RSSL_CONN_TYPE_EXT_LINE_SOCKET:
@@ -8055,6 +8058,10 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	rsslSocketChannel->majorVersion = (RsslUInt8)rsslSocketChannel->majorVersion;
 
 	rsslSocketChannel->inDecompress = opts->compressionType;
+
+	// the port number that was used to connect to the server
+	// portnum is not used here because returns either the proxy port(if specified) or the server port
+	rsslSocketChannel->port = htons(ipcGetServByName(rsslSocketChannel->serverName));
 
 	if (rsslSocketChannel->proxyPort && (rsslSocketChannel->proxyPort[0] != '\0') && (rsslSocketChannel->usingWinInet == 0))
 	{

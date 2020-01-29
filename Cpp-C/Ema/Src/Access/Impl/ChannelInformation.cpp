@@ -21,7 +21,8 @@ ChannelInformation::ChannelInformation( const EmaString& connectedComponentInfo,
 						  const ChannelState channelState, const ConnectionType connectionType,
 						  const ProtocolType protocolType, const UInt32 majorVersion,
 						  const UInt32 minorVersion, const UInt32 pingTimeout ) :
-  _connectedComponentInfo( connectedComponentInfo ),  _hostname( hostname ), _ipAddress( ipAddress ),
+  _connectedComponentInfo( connectedComponentInfo ),  _hostname( hostname ),
+  _ipAddress( ipAddress ), _port(0),
   _channelState( channelState ), _connectionType( connectionType ), _protocolType( protocolType ),
   _majorVersion( majorVersion ), _minorVersion( minorVersion ), _pingTimeout( pingTimeout ) 
  {
@@ -41,6 +42,7 @@ ChannelInformation::~ChannelInformation() {}
 const EmaString& ChannelInformation::toString() const {
   _toString.clear().append( "hostname: " ).append( _hostname )
 	.append( "\n\tIP address: " ).append( _ipAddress )
+	.append( "\n\tport: " ).append( _port )
 	.append( "\n\tconnected component info: " ).append( _connectedComponentInfo )
 	.append( "\n\tchannel state: " );
   switch( _channelState ) {
@@ -102,6 +104,7 @@ void ChannelInformation::clear() {
   _connectionType = Unidentified;
   _hostname.clear();
   _ipAddress.clear();
+  _port = 0;
   _connectedComponentInfo.clear();
   _protocolType = UnknownEnum;
   _majorVersion = _minorVersion = _pingTimeout = 0;
@@ -124,6 +127,10 @@ ChannelInformation& ChannelInformation::hostname(const EmaString& value) {
 ChannelInformation& ChannelInformation::ipAddress(const EmaString& value) {
   _ipAddress = value;
   return *this;
+}
+ChannelInformation& ChannelInformation::port(const UInt16 value) {
+	_port = value;
+	return *this;
 }
 ChannelInformation& ChannelInformation::connectedComponentInfo(const EmaString& value) {
   _connectedComponentInfo = value;
@@ -209,10 +216,12 @@ void thomsonreuters::ema::access::getChannelInformationImpl(const RsslReactorCha
 	return;
 
   if (implType == OmmCommonImpl::IProviderEnum) {
-	ci.hostname(rsslChannel->clientHostname).ipAddress(rsslChannel->clientIP);
+	ci.hostname(rsslChannel->clientHostname)
+		.ipAddress(rsslChannel->clientIP);
   }
   else {
-	ci.hostname(rsslChannel->hostname);
+	ci.hostname(rsslChannel->hostname)
+		.port(rsslChannel->port);
 	if (implType == OmmCommonImpl::NiProviderEnum)
 	  ci.ipAddress("not available for OmmNiProvider connections");
 	else

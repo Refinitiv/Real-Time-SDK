@@ -1747,7 +1747,7 @@ int _ipcdGetSockName( RsslSocket fd )
 	{
 		tmp = (char*)inet_ntoa(addr.sin_addr);
 		strcpy(strIpAddr, tmp);
-		printf("_ipcdGetSockName() addr=%s port=%d\n", strIpAddr, net2host_u16(addr.sin_port));
+		printf("_ipcdGetSockName() addr=%s port=%u\n", strIpAddr, net2host_u16(addr.sin_port));
 	}
 	else
 		printf("<%s:%d> _ipcdGetSockName() failed (%d)\n", __FILE__,__LINE__,errno);

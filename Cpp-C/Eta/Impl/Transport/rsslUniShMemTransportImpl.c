@@ -252,6 +252,7 @@ rsslChannelImpl* rsslUniShMemAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOpti
 	strncpy(rsslChnlImpl->Channel.clientHostname, "localhost", 32);
 	rsslChnlImpl->Channel.clientIP = (char*)_rsslMalloc(32);
 	strncpy(rsslChnlImpl->Channel.clientIP, "127.0.0.1", 32);
+	rsslChnlImpl->Channel.port = 0;
 
 	if (!opts->userSpecPtr)
 	{
