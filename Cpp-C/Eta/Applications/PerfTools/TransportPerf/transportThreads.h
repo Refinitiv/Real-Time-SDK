@@ -24,6 +24,12 @@ extern "C" {
 
 #define ALWAYS_SEND_LATENCY_MSG (-1)
 
+#define	_FIELD_MSGLEN_SIZE	4
+#define MSGLEN_SZ			_FIELD_MSGLEN_SIZE 
+
+#define	_FIELD_DATA_SIZE	8
+#define SEQNUM_SZ			_FIELD_DATA_SIZE
+
 /* TransportThreadConfig
  * Provides the global configuration for TransportThreads. */
 typedef struct
