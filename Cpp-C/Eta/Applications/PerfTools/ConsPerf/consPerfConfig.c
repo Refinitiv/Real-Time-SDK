@@ -206,7 +206,7 @@ void initConsPerfConfig(int argc, char **argv)
 				consPerfConfig.connectionType = RSSL_CONN_TYPE_HTTP;
 			else if(strcmp("encrypted", argv[iargs]) == 0)
 				consPerfConfig.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
-			else if(strcmp("websocket", argv[iargs]) == 0)
+			else if((strcmp("websocket", argv[iargs]) == 0) || (strcmp("webSocket", argv[iargs]) == 0) || (strcmp("WebSocket", argv[iargs]) == 0))
 				consPerfConfig.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else
 			{
