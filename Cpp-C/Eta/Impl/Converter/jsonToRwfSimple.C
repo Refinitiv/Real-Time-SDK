@@ -18,18 +18,47 @@
 
 #include "rtr/jsonToRwfSimple.h"
 #include "rtr/jsonSimpleDefs.h"
+#include "rtr/EnumTableDefinition.h"
+
+ //Use 1 to 3 byte variable UTF encoding
+#define MaxUTF8Bytes 3
 
 jsonToRwfSimple::jsonToRwfSimple(int bufSize, unsigned int flags, RsslUInt16 srvcId, int numTokens, int incSize) :
 	_defaultServiceId(srvcId),
 	_viewTokPtr(0),
 	_batchReqTokPtr(0),
 	_batchCloseTokPtr(0),
+	_enumTableDefinition(0),
+	_pDictionaryEntry(0),
 	jsonToRwfBase(bufSize, flags, numTokens, incSize)
 {
+	/* Temporary buffer to convert from rmtes to utf8 */
+	_utf8Buf = new char[1024];
+	_utf8BufSz = 1024;
+	memset(&_utf8Buf[0], 0, _utf8BufSz);
 }
 
 jsonToRwfSimple::~jsonToRwfSimple()
 {
+	if (_enumTableDefinition)
+	{
+		EnumTableDefinition** pEnumTableDefinitionTemp = NULL;
+		EnumTableDefinition*  pEnumTableDef = NULL;
+
+		for (int i = RSSL_MIN_FID; i <= RSSL_MAX_FID; i++)
+		{
+			pEnumTableDef = _enumTableDefinition[i];
+			if (pEnumTableDef)
+			{
+				pEnumTableDef->decreaseRefCount();
+			}
+		}
+
+		pEnumTableDefinitionTemp = (EnumTableDefinition**)&_enumTableDefinition[RSSL_MIN_FID < 0 ? (RSSL_MIN_FID) : 0];
+
+		free(pEnumTableDefinitionTemp);
+		_enumTableDefinition = NULL;
+	}
 }
 
 bool jsonToRwfSimple::encodeMsgPayload(RsslMsg *rsslMsgPtr, jsmntok_t *dataTokPtr)
@@ -5101,12 +5130,15 @@ bool jsonToRwfSimple::processFieldList(jsmntok_t ** const tokPtr, void* setDb)
 		}
 		(*tokPtr)++;
 
+		_pDictionaryEntry = NULL;
+
 		if (def)
 		{
 			voidPtr = 0;
 			bufPtr = &fieldEntry.encData;
 
 			fieldEntry.dataType = def->rwfType;
+			_pDictionaryEntry = def;
 
 			if (fieldEntry.dataType < RSSL_DT_SET_PRIMITIVE_MAX)
 			{
@@ -8172,8 +8204,89 @@ bool jsonToRwfSimple::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer *
 {
 	if ((*tokPtr)->type == JSMN_STRING && (_flags & JSON_FLAG_ALLOW_ENUM_DISPLAY_STRINGS))
 	{
-		/* If the type is string, the enum may be expanded. Converting back to RWF is not supported, but we may
-		 * blank the entry for use in testing. */
+		if (_pDictionaryEntry && _pDictionaryEntry->pEnumTypeTable)
+		{
+			RsslBuffer displayValue;
+			RsslBuffer outBuffer = RSSL_INIT_BUFFER;
+			RsslEnumTypeTable* pEnumTypeTable = _pDictionaryEntry->pEnumTypeTable;
+			EnumTableDefinition* pEnumTableDefinition = _enumTableDefinition[_pDictionaryEntry->fid];
+			RsslEnumType* pEnumType = NULL;
+			RsslUInt32 hashSum;
+			RsslHashLink *rsslHashLink;
+			int enumValue;
+
+			displayValue.data = &_jsonMsg[(*tokPtr)->start];
+			displayValue.length = (RsslUInt32)((*tokPtr)->end - (*tokPtr)->start);
+			hashSum = rsslHashBufferSum(&displayValue);
+
+			if (pEnumTableDefinition != NULL)
+			{
+				if (pEnumTableDefinition->findEnumDefinition(&displayValue, hashSum, &enumValue))
+				{
+					_intVar = enumValue;
+					*ptrVoidPtr = &_intVar;
+					*ptrBufPtr = 0;
+					(*tokPtr)++;
+					return true;
+				}
+				else
+				{
+					if (pEnumTableDefinition->addEnumDefinition(pEnumTypeTable, &displayValue, hashSum, &enumValue) != RSSL_RET_SUCCESS)
+					{
+						_error = true;
+						error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
+						return false;
+					}
+
+					/* Checks whether found the enum value*/
+					if (enumValue != -1) 
+					{
+						_intVar = enumValue;
+						*ptrVoidPtr = &_intVar;
+						*ptrBufPtr = 0;
+						(*tokPtr)++;
+						return true;
+					}
+				}
+			}
+			else
+			{
+				RsslFieldId fieldId;
+				pEnumTableDefinition = new EnumTableDefinition(this, pEnumTypeTable->maxValue);
+
+				if (pEnumTableDefinition == NULL)
+				{
+					_error = true;
+					error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
+					return false;
+				}
+
+				if (pEnumTableDefinition->addEnumDefinition(pEnumTypeTable, &displayValue, hashSum, &enumValue) != RSSL_RET_SUCCESS)
+				{
+					_error = true;
+					error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
+					return false;
+				}
+
+				for (int index = 0; index < pEnumTypeTable->fidReferenceCount; index++)
+				{
+					fieldId = pEnumTypeTable->fidReferences[index];
+
+					_enumTableDefinition[fieldId] = pEnumTableDefinition;
+				}
+
+				/* Checks whether found the enum value*/
+				if (enumValue != -1)
+				{
+					_intVar = enumValue;
+					*ptrVoidPtr = &_intVar;
+					*ptrBufPtr = 0;
+					(*tokPtr)++;
+					return true;
+				}
+			}
+		}
+
 		*ptrVoidPtr = 0;
   		_bufVar.length = 0;
 		_bufVar.data = 0;
@@ -9079,4 +9192,88 @@ RsslBuffer* jsonToRwfSimple::errorText()
 			break;
 		}
 		return &_errorText;
+}
+
+bool jsonToRwfSimple::rmtesToUtf8(const RsslBuffer &buffer, RsslBuffer& outBuffer)
+{
+	RsslRmtesCacheBuffer rmtesCacheBuf;
+	RsslBuffer			rutf8Buff;
+	int rmtesLen = buffer.length;
+	RsslRet retCode;
+
+	/* If an RMTES strings contains only displayable Ascii characters, skip conversion to UTF8. */
+	RsslUInt32 i;
+	for (i = 0; i < buffer.length; ++i)
+	{
+		if (buffer.data[i] < ' ' || buffer.data[i] == 0x7F)
+			break;
+	}
+
+	if (i == buffer.length)
+	{
+		outBuffer = buffer;
+		return true;
+	}
+
+	rmtesCacheBuf.data = buffer.data;
+	rmtesCacheBuf.length = rmtesLen;
+	rmtesCacheBuf.allocatedLength = rmtesLen;
+
+	// +1 for the NULL byte added by the _cutil ucs2 to utf8_ conversion routine
+	int  utf8BufSz = rmtesLen * MaxUTF8Bytes + 1;
+	if (utf8BufSz > _utf8BufSz)
+	{
+		// Reallocate buffer
+		delete[] _utf8Buf;
+		_utf8Buf = new char[utf8BufSz];
+		_utf8BufSz = utf8BufSz;
+	}
+
+	rutf8Buff.data = _utf8Buf;
+	rutf8Buff.length = _utf8BufSz;
+
+	retCode = rsslRMTESToUTF8(&rmtesCacheBuf, &rutf8Buff);
+
+	while (retCode == RSSL_RET_BUFFER_TOO_SMALL)
+	{
+		delete[] _utf8Buf;
+		_utf8BufSz += _utf8BufSz;
+		_utf8Buf = new char[_utf8BufSz];
+
+		rutf8Buff.data = _utf8Buf;
+		rutf8Buff.length = _utf8BufSz;
+		retCode = rsslRMTESToUTF8(&rmtesCacheBuf, &rutf8Buff);
+	}
+
+	if (retCode == RSSL_RET_SUCCESS && rutf8Buff.length > 0)
+	{
+		outBuffer = rutf8Buff;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+RsslRet jsonToRwfSimple::initializeEnumTableDefinition()
+{
+	// Checks to ensure that the Enum Table Definition hasn't been initialized.
+	if (_enumTableDefinition == 0 )
+	{
+		EnumTableDefinition** newEnumTableDef = (EnumTableDefinition**)calloc((RSSL_MAX_FID - RSSL_MIN_FID + 1), sizeof(EnumTableDefinition*));
+
+		if (newEnumTableDef == NULL)
+		{
+			_error = true;
+
+			error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		_enumTableDefinition = (EnumTableDefinition**)&newEnumTableDef[RSSL_MIN_FID < 0 ? -(RSSL_MIN_FID) : 0];
+	}
+
+	return RSSL_RET_SUCCESS;
 }

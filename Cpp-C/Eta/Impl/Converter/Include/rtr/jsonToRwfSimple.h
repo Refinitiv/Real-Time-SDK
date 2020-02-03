@@ -10,6 +10,8 @@
 #define __rtr_jsonToRwfSimple
 #include "jsonToRwfBase.h"
 
+class EnumTableDefinition; // forward declaration
+
 class jsonToRwfSimple : public jsonToRwfBase
 {
  public:
@@ -38,17 +40,38 @@ class jsonToRwfSimple : public jsonToRwfBase
 		else _flags &= ~JSON_FLAG_CATCH_UNEXPECTED_FIDS;
 	}
 
-  inline void setAllowEnumDisplayStrings(RsslBool allow)
+  inline bool setAllowEnumDisplayStrings(RsslBool allow)
   {
-	  if (allow) _flags |= JSON_FLAG_ALLOW_ENUM_DISPLAY_STRINGS;
-	  else _flags &= ~JSON_FLAG_ALLOW_ENUM_DISPLAY_STRINGS;
+	  if (allow) 
+	  {
+		  _flags |= JSON_FLAG_ALLOW_ENUM_DISPLAY_STRINGS;
+		  
+		  if (initializeEnumTableDefinition() != RSSL_RET_SUCCESS)
+		  {
+			  return false;
+		  }
+	  }
+	  else
+	  {
+		  _flags &= ~JSON_FLAG_ALLOW_ENUM_DISPLAY_STRINGS;
+	  }
+
+	  return true;
   }
+
+  bool rmtesToUtf8(const RsslBuffer &buffer, RsslBuffer& pOutBuffer);
 
  private:
 	RsslUInt16		_defaultServiceId;
 	jsmntok_t *		_viewTokPtr;
 	jsmntok_t *		_batchReqTokPtr;
 	jsmntok_t *		_batchCloseTokPtr;
+	EnumTableDefinition**		_enumTableDefinition;
+	const RsslDictionaryEntry*	_pDictionaryEntry;
+
+	// Buffers used for RMTES to UTF8 conversion
+	char* _utf8Buf;
+	int _utf8BufSz;
 
 	inline bool isTokenTrue(jsmntok_t *tok)
 	{
@@ -112,5 +135,8 @@ class jsonToRwfSimple : public jsonToRwfBase
 	bool getContainerType(jsmntok_t* tok, RsslContainerType* formatPtr);
 	bool getVectorAction(jsmntok_t* tok, RsslUInt8* action);
 	//	bool getDataFormat(jsmntok_t * tok, RsslContainerType* formatPtr);
+
+	RsslRet initializeEnumTableDefinition();
 };
+
 #endif

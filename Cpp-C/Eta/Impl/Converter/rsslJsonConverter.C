@@ -200,7 +200,14 @@ RSSL_RJC_API RsslRet rsslJsonConverterSetProperty(RsslJsonConverter pConverter, 
 		case RSSL_JSON_CPC_ALLOW_ENUM_DISPLAY_STRINGS:
 		{
 			RsslBool *pFlag = (RsslBool*)value;
-			pJsonToRwfSimple->setAllowEnumDisplayStrings(*pFlag);
+			
+			if (pJsonToRwfSimple->setAllowEnumDisplayStrings(*pFlag) == false)
+			{
+				snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "<%s:%d> %s", pJsonToRwfSimple->errorFile(), *pJsonToRwfSimple->errorLineNum(), pJsonToRwfSimple->errorText()->data);
+				pError->rsslErrorId = RSSL_RET_FAILURE;
+				return RSSL_RET_FAILURE;
+			}
+			
 			return RSSL_RET_SUCCESS;
 		}
 

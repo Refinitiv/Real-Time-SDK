@@ -156,7 +156,9 @@ jsonToRwfBase::jsonToRwfBase(int bufSize, unsigned int flags, int numTokens, int
 	_errorLineNum(0),
 	_errorTextLen(0),
 	_bufSize(bufSize),
-	_flags(flags)
+	_flags(flags),
+	_dictionaryList(0),
+	_dictionaryCount(0)
 {
 	rsslBlankTime(&_timeVar);
 

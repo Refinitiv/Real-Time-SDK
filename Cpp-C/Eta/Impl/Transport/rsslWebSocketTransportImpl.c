@@ -454,7 +454,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 	if (size > rsslChnlImpl->maxMsgSize)
 	{
 		_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 0010 rsslSocketGetBuffer() Cannot get a buffer size(%d) larger than maximum message size(%d) for JSON protocol session.\n", 
 				__FILE__, __LINE__, size, rsslChnlImpl->maxMsgSize);
 		return NULL;
