@@ -1,5 +1,5 @@
 # file,location
 rsslConsumer.c,Applications/Examples/VAConsumer
 rsslConsumer.h,Applications/Examples/VAConsumer
-rsslVAMarketPriceItems.c,Application/Examples/VACommon
-rsslVAMarketPriceItems.h,Application/Examples/VACommon
+rsslVAMarketPriceItems.c,Applications/Examples/VACommon
+rsslVAMarketPriceItems.h,Applications/Examples/VACommon
