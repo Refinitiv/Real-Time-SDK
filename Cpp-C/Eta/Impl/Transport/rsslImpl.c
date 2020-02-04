@@ -500,10 +500,11 @@ RTR_C_ALWAYS_INLINE void _rsslXMLDumpComment(rsslChannelImpl *rsslChnlImpl, cons
 typedef enum {
 	traceRead = 1,
 	traceWrite = 2,
-	tracePack = 3
+	tracePack = 3,
+	traceDump = 4
 } traceOperation;
 
-void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslBuffer *buffer, RsslRet *retTrace, traceOperation op, RsslError *error)
+void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, RsslBuffer *buffer, RsslRet *retTrace, traceOperation op, RsslError *error)
 {
 	RsslDecodeIterator dIter;
 	RsslMsg msg = RSSL_INIT_MSG;
@@ -561,11 +562,13 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslBuffer *buffer, RsslR
 			snprintf(message, sizeof(message), "Outgoing Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 		else if (op == tracePack)
 		  snprintf(message, sizeof(message), "Pack Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
+		else if (op == traceDump)
+			snprintf(message, sizeof(message), "Dump Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 		
 		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
 
 		/* XML dump RWF messages */
-		if (rsslChnlImpl->Channel.protocolType == RSSL_RWF_PROTOCOL_TYPE)
+		if (protocolType == RSSL_RWF_PROTOCOL_TYPE)
 		{
 			if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 			{
@@ -586,11 +589,26 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslBuffer *buffer, RsslR
 					decodeMsgToXML(stdout, &msg, NULL, &dIter);
 			}
 		}
+		else if (protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
+			{
+				fprintf(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, "<!-- JSON protocol\n");
+				dumpJSON(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, buffer);
+				fprintf(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, "\n-->");
+				fputc('\n', rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
+			}
+			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
+			{
+				dumpJSON(stdout, buffer);
+				fputc('\n', stdout);
+			}
+		}
 
 		/* Do a hex dump of the message if we cant decode it, if it's not RWF, or if they asked for it */
 		if (ret != RSSL_RET_SUCCESS									|| 
 			(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_HEX)	||
-			rsslChnlImpl->Channel.protocolType != RSSL_RWF_PROTOCOL_TYPE)
+			(protocolType != RSSL_RWF_PROTOCOL_TYPE && protocolType != RSSL_JSON_PROTOCOL_TYPE) )
 		{
 			if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 			{
@@ -1440,11 +1458,11 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 				char timeVal[33];
 				int numChars = 0;
 				
-				/* tracing is only intended for RWF data */
-				if (rsslChnlImpl->Channel.protocolType != RSSL_RWF_PROTOCOL_TYPE)
+				/* tracing is only intended for RWF or JSON data */
+				if ( (rsslChnlImpl->Channel.protocolType != RSSL_RWF_PROTOCOL_TYPE) && (rsslChnlImpl->Channel.protocolType != RSSL_JSON_PROTOCOL_TYPE) )
 				{
 					_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Code RSSL_TRACE was specified, but the channel's protocolType is not RSSL_RWF_PROTOCOL_TYPE.\n", __FILE__, __LINE__);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Code RSSL_TRACE was specified, but the channel's protocolType is not RSSL_RWF_PROTOCOL_TYPE or RSSL_JSON_PROTOCOL_TYPE.\n", __FILE__, __LINE__);
 					return RSSL_RET_FAILURE;
 				}
 
@@ -1625,7 +1643,7 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	{
 		if ((retBuf != NULL) && (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_READ))
 		{
-			_rsslTraceStartMsg(rsslChnlImpl, retBuf, readRet, traceRead, error);
+			_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, retBuf, readRet, traceRead, error);
 			_rsslTraceEndMsg(rsslChnlImpl, readRet, RSSL_TRUE);
 		}
 		/* check if we read a ping */
@@ -1728,7 +1746,7 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 			ret = RSSL_RET_SUCCESS;
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
 			{
-				_rsslTraceStartMsg(rsslChnlImpl, buffer, &ret, traceWrite, error);
+				_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, traceWrite, error);
 			}
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl, &writeInArgs, &writeOutArgs, error);
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
@@ -1833,7 +1851,7 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 			ret = RSSL_RET_SUCCESS;
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
 			{
-				_rsslTraceStartMsg(rsslChnlImpl, buffer, &ret, traceWrite, error);
+				_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, traceWrite, error);
 			}
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl,  writeInArgs, writeOutArgs, error);
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
@@ -2143,7 +2161,7 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 	{
 		RsslBuffer *retBuffer;
 		RsslRet ret = RSSL_RET_SUCCESS;
-		_rsslTraceStartMsg(rsslChnlImpl, buffer, &ret, tracePack, error);
+		_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, tracePack, error);
 		retBuffer = (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
 		if (retBuffer == NULL) ret = error->rsslErrorId;
 		_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_FALSE);
@@ -2259,7 +2277,7 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	if (rsslBufImpl->owner == 1)
 	{
 		/* I allocated it - now free it */
-		_rsslFree(buffer->data);
+		_rsslFree(rsslBufImpl->pOriginMem);
 	}
 
 	(*(rsslChnlImpl->channelFuncs->channelReleaseBuffer))(rsslChnlImpl, rsslBufImpl, error);
@@ -2685,3 +2703,49 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 	return RSSL_RET_SUCCESS;
 }
 
+RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, RsslBuffer* buffer, RsslError *error)
+{
+	rsslChannelImpl *rsslChnlImpl = 0;
+	rsslBufferImpl *rsslBufImpl = 0;
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	if (rtrUnlikely(!initialized))
+	{
+		_rsslSetError(error, channel, RSSL_RET_INIT_NOT_INITIALIZED, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslDumpBuffer() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
+		return RSSL_RET_INIT_NOT_INITIALIZED;
+	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(channel, "rsslDumpBuffer", "channel", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslDumpBuffer", "buffer", error)))
+		return RSSL_RET_FAILURE;
+
+	/* valid cases are a buffer with length was passed in, or it is a packed buffer and
+	   a 0 length buffer is passed in - this signifys that nothing is written into the last portion of the buffer */
+	if (rtrLikely((buffer->length > 0) || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
+	{
+		rsslChnlImpl = (rsslChannelImpl*)channel;
+		rsslBufImpl = (rsslBufferImpl*)buffer;
+
+		if (rtrUnlikely( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_DUMP)  && (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT))) )
+		{
+			_rsslTraceStartMsg(rsslChnlImpl, protocolType, buffer, &ret, traceDump, error);
+		
+			_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_TRUE);
+		
+			_rsslTraceClosed(rsslChnlImpl, &ret);
+		}
+
+		return ret;
+	}
+	else
+	{
+		/* trying to write empty buffer */
+		_rsslSetError(error, channel, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWrite() Error: 0009 Buffer of length zero cannot be dumped\n", __FILE__, __LINE__);
+
+		return RSSL_RET_FAILURE;
+	}
+}

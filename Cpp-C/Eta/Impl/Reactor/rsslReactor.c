@@ -2036,81 +2036,110 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		RsslDecodeIterator dIter;
 		RsslMsg rsslMsg;
 
-		/* Added checking to ensure that the JSON converter is initialized properly.*/
-		if (pReactorImpl->pJsonConverter == 0)
+		if (pReactorChannel->pWriteCallAgainUserBuffer == NULL)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The JSON converter library has not been initialized properly.");
-			return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
-		}
-
-		rsslClearMsg(&rsslMsg);
-		rsslClearDecodeIterator(&dIter);
-		rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->reactorChannel.pRsslChannel->majorVersion, 
-									pReactorChannel->reactorChannel.pRsslChannel->minorVersion);
-
-		rsslSetDecodeIteratorBuffer(&dIter, buffer);
-
-		ret = rsslDecodeMsg(&dIter, &rsslMsg);
-
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			RsslConvertRsslMsgToJsonOptions rjcOptions;
-			RsslGetJsonMsgOptions getJsonMsgOptions;
-			RsslJsonConverterError rjcError;
-			RsslBuffer jsonBuffer;
-
-			rsslClearConvertRsslMsgToJsonOptions(&rjcOptions);
-			rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
-			if ((rsslConvertRsslMsgToJson(pReactorImpl->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
+			/* Added checking to ensure that the JSON converter is initialized properly.*/
+			if (pReactorImpl->pJsonConverter == 0)
 			{
-				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-								"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The JSON converter library has not been initialized properly.");
 				return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
 			}
 
-			rsslClearGetJsonMsgOptions(&getJsonMsgOptions); 
-			getJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
-			getJsonMsgOptions.streamId = rsslMsg.msgBase.streamId;
-			getJsonMsgOptions.isCloseMsg = (rsslMsg.msgBase.msgClass == RSSL_MC_CLOSE) ? RSSL_TRUE : RSSL_FALSE;
+			rsslClearMsg(&rsslMsg);
+			rsslClearDecodeIterator(&dIter);
+			rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->reactorChannel.pRsslChannel->majorVersion,
+				pReactorChannel->reactorChannel.pRsslChannel->minorVersion);
 
-			if ((ret = rsslGetConverterJsonMsg(pReactorImpl->pJsonConverter, &getJsonMsgOptions,
-											&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
+			rsslSetDecodeIteratorBuffer(&dIter, buffer);
+
+			ret = rsslDecodeMsg(&dIter, &rsslMsg);
+
+			if (ret == RSSL_RET_SUCCESS)
 			{
-				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-								"Failed to get converted JSON message. Error text: %s", rjcError.text);
-				return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
-			}
+				RsslConvertRsslMsgToJsonOptions rjcOptions;
+				RsslGetJsonMsgOptions getJsonMsgOptions;
+				RsslJsonConverterError rjcError;
+				RsslBuffer jsonBuffer;
 
-			/* Copies JSON data format to the buffer that belongs to RsslChannel */
-			pMsgBuffer = rsslReactorGetBuffer(&pReactorChannel->reactorChannel, jsonBuffer.length, RSSL_FALSE, pError);
+				rsslClearConvertRsslMsgToJsonOptions(&rjcOptions);
+				rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+				if ((rsslConvertRsslMsgToJson(pReactorImpl->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+					return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+				}
 
-			if (pMsgBuffer)
-			{
-				pMsgBuffer->length = jsonBuffer.length;
-				memcpy(pMsgBuffer->data, jsonBuffer.data, jsonBuffer.length);
-			}
-			else
-			{
-				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"Failed to get a buffer for sending JSON message. Error text: %s", pError->rsslError.text);
-				return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
-			}
+				rsslClearGetJsonMsgOptions(&getJsonMsgOptions);
+				getJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+				getJsonMsgOptions.streamId = rsslMsg.msgBase.streamId;
+				getJsonMsgOptions.isCloseMsg = (rsslMsg.msgBase.msgClass == RSSL_MC_CLOSE) ? RSSL_TRUE : RSSL_FALSE;
 
-			releaseUserBuffer = RSSL_TRUE; /* Release the passed in buffer when using a new buffer for the JSON message */
+				if ((ret = rsslGetConverterJsonMsg(pReactorImpl->pJsonConverter, &getJsonMsgOptions,
+					&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"Failed to get converted JSON message. Error text: %s", rjcError.text);
+					return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+				}
 
-			ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel, 
+				/* Copies JSON data format to the buffer that belongs to RsslChannel */
+				pMsgBuffer = rsslReactorGetBuffer(&pReactorChannel->reactorChannel, jsonBuffer.length, RSSL_FALSE, pError);
+
+				if (pMsgBuffer)
+				{
+					pMsgBuffer->length = jsonBuffer.length;
+					memcpy(pMsgBuffer->data, jsonBuffer.data, jsonBuffer.length);
+				}
+				else
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"Failed to get a buffer for sending JSON message. Error text: %s", pError->rsslError.text);
+					return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+				}
+
+				releaseUserBuffer = RSSL_TRUE; /* Release the passed in buffer when using a new buffer for the JSON message */
+
+				ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel,
 					pMsgBuffer,
 					pSubmitOptions->priority,
-					pSubmitOptions->writeFlags, 
+					pSubmitOptions->writeFlags,
 					pSubmitOptions->pBytesWritten ? pSubmitOptions->pBytesWritten : &dummyBytesWritten,
 					pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
 					&pError->rsslError);
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					"rsslDecodeMsg() failed to decode the passed in buffer as RWF messages.");
+				return (reactorUnlockInterface((RsslReactorImpl*)pReactor), ret);
+			}
 		}
 		else
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__, 
-							"rsslDecodeMsg() failed to decode the passed in buffer as RWF messages.");
-			return (reactorUnlockInterface((RsslReactorImpl*)pReactor), ret);
+			if (pReactorChannel->pUserBufferWriteCallAgain == buffer)
+			{
+				pMsgBuffer = pReactorChannel->pWriteCallAgainUserBuffer;
+
+				releaseUserBuffer = RSSL_TRUE; /* Release the passed in buffer when using the buffer for the JSON message */
+
+				ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel,
+					pMsgBuffer,
+					pSubmitOptions->priority,
+					pSubmitOptions->writeFlags,
+					pSubmitOptions->pBytesWritten ? pSubmitOptions->pBytesWritten : &dummyBytesWritten,
+					pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
+					&pError->rsslError);
+
+				pReactorChannel->pWriteCallAgainUserBuffer = NULL;
+				pReactorChannel->pUserBufferWriteCallAgain = NULL;
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					"Expected to receive the same user's buffer from the RSSL_RET_WRITE_CALL_AGAIN return value to write data again.");
+				return (reactorUnlockInterface((RsslReactorImpl*)pReactor), ret);
+			}
 		}
 	}
 	else
@@ -2147,7 +2176,15 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 				 * We will request flushing to make the buffers available.
 				 * RSSL_RET_WRITE_CALL_AGAIN will still be returned to the application.  It should attempt to call rsslReactorSubmit() again later. */
 				pReactorChannel->writeRet = 1;
-				releaseUserBuffer = RSSL_FALSE;
+
+				/* Sends for the converted JSON message */
+				if (releaseUserBuffer == RSSL_TRUE)
+				{
+					pReactorChannel->pWriteCallAgainUserBuffer = pMsgBuffer;
+					pReactorChannel->pUserBufferWriteCallAgain = buffer;
+					releaseUserBuffer = RSSL_FALSE;
+				}
+
 				break;
 			default:
 			{
@@ -2180,7 +2217,12 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 			rsslReleaseBuffer(buffer, &rsslError);
 		}
 
-		ret =  _reactorSendFlushRequest(pReactorImpl, pReactorChannel, pError);
+		/* Returns the error when flush failed */
+		if (_reactorSendFlushRequest(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+		{
+			return (reactorUnlockInterface(pReactorImpl), pError->rsslError.rsslErrorId);
+		}
+
 		return (reactorUnlockInterface(pReactorImpl), ret);
 	}
 
@@ -2461,6 +2503,9 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 	pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_DOWN;
 	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 	pEvent->channelEvent.pError = pError;
+
+	pReactorChannel->pWriteCallAgainUserBuffer = NULL;
+	pReactorChannel->pUserBufferWriteCallAgain = NULL;
 	}
 
 	/* Bring down tunnel streams. */
@@ -2654,6 +2699,9 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 		}
 
 		_reactorMoveChannel(&pReactorImpl->closingChannels, pReactorChannel);
+
+		pReactorChannel->pWriteCallAgainUserBuffer = NULL;
+		pReactorChannel->pUserBufferWriteCallAgain = NULL;
 
 		/* Send request to worker to close this channel */
 		rsslClearReactorChannelEventImpl(pEvent);
@@ -4345,6 +4393,9 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 						case RSSL_JSON_MC_RSSL_MSG:
 						{
 							failedToConvertJSONMsg = RSSL_FALSE;
+
+							rsslDumpBuffer(pReactorChannel->reactorChannel.pRsslChannel, RSSL_RWF_PROTOCOL_TYPE, &decodedMsg, &pError->rsslError);
+
 							ret = _processRsslRwfMessage(pReactorImpl, pReactorChannel, &readOutArgs, &decodedMsg, pError);
 							break;
 						}

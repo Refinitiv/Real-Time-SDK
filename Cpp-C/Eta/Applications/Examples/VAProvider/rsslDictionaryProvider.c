@@ -18,6 +18,7 @@
 
 #include "rsslProvider.h"
 #include "rsslDictionaryProvider.h"
+#include "rsslDirectoryHandler.h"
 #include "rsslVASendMessage.h"
 
 #if defined(_WIN32)
@@ -264,7 +265,7 @@ static RsslRet sendFieldDictionaryRefresh(RsslReactor *pReactor, RsslReactorChan
 	dictionaryRefresh.verbosity = dictionaryReqInfo->dictionaryRequest.verbosity;
 	dictionaryRefresh.dictionaryName = fieldDictionaryDownloadName;
 	dictionaryRefresh.pDictionary = dictionary;
-
+	dictionaryRefresh.serviceId = (RsslUInt16)getServiceId();
 	dictionaryRefresh.state.streamState = RSSL_STREAM_OPEN;
 	dictionaryRefresh.state.dataState = RSSL_DATA_OK;
 	dictionaryRefresh.state.code = RSSL_SC_NONE;
@@ -369,7 +370,7 @@ static RsslRet sendEnumTypeDictionaryRefresh(RsslReactor *pReactor, RsslReactorC
 	dictionaryRefresh.verbosity = dictionaryReqInfo->dictionaryRequest.verbosity;
 	dictionaryRefresh.dictionaryName = enumTypeDictionaryDownloadName;
 	dictionaryRefresh.pDictionary = dictionary;
-
+	dictionaryRefresh.serviceId = (RsslUInt16)getServiceId();
 	dictionaryRefresh.state.streamState = RSSL_STREAM_OPEN;
 	dictionaryRefresh.state.dataState = RSSL_DATA_OK;
 	dictionaryRefresh.state.code = RSSL_SC_NONE;

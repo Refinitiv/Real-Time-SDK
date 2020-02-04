@@ -134,7 +134,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				rsslClearTraceOptions(&traceOptions);
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -442,7 +442,7 @@ int main(int argc, char **argv)
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
 	
-	sopts.guaranteedOutputBuffers = 500;
+	sopts.guaranteedOutputBuffers = 2000;
 	sopts.serviceName = portNo;
 	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;

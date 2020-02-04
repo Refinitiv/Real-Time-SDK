@@ -53,7 +53,9 @@ rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, 
 	_numTokens(numTokens),
 	_incSize(incSize),
 	_pstr(0),
-	_size(0)
+	_size(0),
+	_dictionaryList(0),
+	_dictionaryCount(0)
 {
 
 	/* Add in a buffer for a worst case 8 byte memcpy by int */

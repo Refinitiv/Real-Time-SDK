@@ -1546,7 +1546,8 @@ typedef enum {
 	RSSL_TRACE_HEX					= 0x00000008, /*< (0x00000008) Display hex values of all messages */
 	RSSL_TRACE_TO_FILE_ENABLE		= 0x00000010, /*< (0x00000010) Enables tracing to a file*/ 
 	RSSL_TRACE_TO_MULTIPLE_FILES    = 0x00000020, /*< (0x00000020) If set, starts writing to a new file if traceMsgMaxFileSize is reached. If disabled, file writing stops when traceMsgMaxFileSize is reached*/
-	RSSL_TRACE_TO_STDOUT			= 0x00000040  /*< (0x00000040) Writes the xml trace to stdout. If a non-null value is also provided for traceMsgFileName, writing will be done to stdout and the specified file*/
+	RSSL_TRACE_TO_STDOUT			= 0x00000040, /*< (0x00000040) Writes the xml trace to stdout. If a non-null value is also provided for traceMsgFileName, writing will be done to stdout and the specified file*/
+	RSSL_TRACE_DUMP					= 0x00000080  /*< (0x00000080) Trace dump to enable the rsslDumpBuffer() method to dump RWF or JSON messages. */
 } RsslTraceCodes;
 
 /**
@@ -1729,6 +1730,19 @@ RSSL_API RsslRet rsslSetDebugFunctions(
 	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	RsslError *error);
+
+/**
+* @brief Dump the passed in RWF or JSON messages according to the RsslTraceCodes option for a particular channel.
+* The RSSL_TRACE_DUMP flag must be set for this function to take effect.
+*
+* @param channel RSSL Channel to dump messages.
+* @param protocolType The protocol type either RSSL_RWF_PROTOCOL_TYPE(0) or RSSL_JSON_PROTOCOL_TYPE(2).
+* @param buffer RsslBuffer contains messages according to the protocol type.
+* @param error RsslError, to be populated in event of an error
+* @return RsslRet return value indicating success or failure type.
+*/
+RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, RsslBuffer* buffer, RsslError *error);
+
 /**
  *	@}
  */ 

@@ -52,6 +52,8 @@ RSSL_API const char* getStreamStateAsString( RsslUInt8 code);
 RSSL_API const char* getDataStateAsString( RsslUInt8 code);
 RSSL_API const char* getNakCodeAsString(RsslUInt8 code);
 
+RSSL_API int dumpJSON(FILE * file, const RsslBuffer *input);
+
 #ifdef __cplusplus
 }
 #endif

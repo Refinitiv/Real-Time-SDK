@@ -43,7 +43,7 @@ set(rsslJCSrcFiles  rsslJsonConverter.C
 					rwfToJsonSimple.C
 					jsonToRwfBase.C
 					jsmn.C 
-
+					EnumTableDefinition.C
 					Include/rtr/jsmn.h
 					Include/rtr/jsonSimpleDefs.h
 					Include/rtr/jsonToRsslMsgDecoder.h
@@ -54,6 +54,7 @@ set(rsslJCSrcFiles  rsslJsonConverter.C
 					Include/rtr/rwfToJsonSimple.h
 					Include/rtr/rwfToJsonConverter.h
 					Include/rtr/rjcstring.h
+					Include/rtr/EnumTableDefinition.h
 					)
 
 set(rsslJCIncFiles 
@@ -94,6 +95,7 @@ set_target_properties( librsslJsonConverter PROPERTIES PREFIX "" )
 target_include_directories(librsslJsonConverter
 							PRIVATE
 								${Eta_SOURCE_DIR}/Include/Codec
+								${Eta_SOURCE_DIR}/Include/Transport
 								${Eta_SOURCE_DIR}/Include/Util
 								${Eta_SOURCE_DIR}/Impl/Util/Include
 								Include
@@ -110,6 +112,7 @@ add_library( librsslJsonConverter_shared SHARED
 target_include_directories(librsslJsonConverter_shared
 									PRIVATE
 										${Eta_SOURCE_DIR}/Include/Codec
+										${Eta_SOURCE_DIR}/Include/Transport
 										${Eta_SOURCE_DIR}/Include/Util
 										${Eta_SOURCE_DIR}/Impl/Util/Include
 										Include

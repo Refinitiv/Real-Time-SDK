@@ -142,7 +142,8 @@ typedef struct {
 typedef enum {
 	BUFFER_IMPL_NONE = 0,
 	BUFFER_IMPL_FIRST_FRAG_HEADER = 1,
-	BUFFER_IMPL_SUBSEQ_FRAG_HEADER = 2
+	BUFFER_IMPL_SUBSEQ_FRAG_HEADER = 2,
+	BUFFER_IMPL_LAST_FRAG_HEADER = 3
 } fragmentationHeaderTypes;
 
 typedef struct {
@@ -157,7 +158,8 @@ typedef struct {
 	rsslChannelImpl *RsslChannel;	/* channel that currently owns this buffer */
 	int	priority;					/* which priority queue to write to */
 	void			*bufferInfo;		/* The new type to abstract the underlying transport's buffer type*/	
-	RsslUInt8		fragmentationFlag; /* indicate wheter the buffer is used for fragmentation*/
+	RsslUInt8		fragmentationFlag; /* indicate whether the buffer is used for fragmentation*/
+	char*		    pOriginMem;		/* This is actual memory allocation. For fragmentation only.*/
 } rsslBufferImpl;
 
 /**
@@ -291,6 +293,7 @@ RTR_C_ALWAYS_INLINE void _rsslCleanBuffer(rsslBufferImpl *buffer)
 	buffer->integrity = 0;
 	buffer->bufferInfo = NULL;
 	buffer->owner = 0;
+	buffer->pOriginMem = 0;
 	buffer->fragId = 0;
 	buffer->writeCursor = 0;
 	buffer->packingOffset = 0;
