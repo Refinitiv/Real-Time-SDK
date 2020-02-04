@@ -75,6 +75,8 @@ vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebug
 
 vaconsumer-Ws-001: Alter VAConsumer to add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnumField
 
+vaconsumer-Ws-002: Alter VAConsumer to post enum FIDs add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnumField
+
 Module:  Watchlist Consumer
 ---------------------------
 
