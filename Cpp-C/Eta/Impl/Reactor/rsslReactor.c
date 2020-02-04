@@ -4345,6 +4345,9 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 						case RSSL_JSON_MC_RSSL_MSG:
 						{
 							failedToConvertJSONMsg = RSSL_FALSE;
+
+							rsslDumpBuffer(pReactorChannel->reactorChannel.pRsslChannel, RSSL_RWF_PROTOCOL_TYPE, &decodedMsg, &pError->rsslError);
+
 							ret = _processRsslRwfMessage(pReactorImpl, pReactorChannel, &readOutArgs, &decodedMsg, pError);
 							break;
 						}
