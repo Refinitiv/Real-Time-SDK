@@ -342,8 +342,6 @@ typedef struct rwsServer {
 } rwsServer_t;
 
 typedef struct rwsSession {
-	//TODO RsslQueue		*hs;
-	//rwsHandshake_t	hs;
 	rwsServer_t		*server;
 	RsslUInt64      actualInBuffLen;
 	RsslUInt64      inputReadCursor;
@@ -364,7 +362,6 @@ typedef struct rwsSession {
 	char			*userAgent;
 	char			*protocolName;
 	char			*protocolList;
-	//TODO RsslQueue		*cookie;
 	rwsCookies_t	cookies;
 	RsslBuffer		keyRecv;
 	RsslBuffer		keyAccept;
@@ -378,14 +375,15 @@ typedef struct rwsSession {
 	rwsComp_t		comp;
 	RsslUInt32		maxPayload;
 	rtr_msgb_t		*reassemblyBuffer;
-	RsslBool		reassemblyUnfinished;	/* xxxxxxxxxxxxxxx */
-	RsslBool		reassemblyCompressed;	/* xxxxxxxxxxxxxxx */
+	RsslBool		reassemblyUnfinished;
+	RsslBool		reassemblyCompressed;
 	RsslBool		recvGetReq;
 	RsslBool		recvClose;
 	RsslBool		sentClose;
 	RsslBool		pingRecvd;
 	RsslBool		sendPong;
 	RsslBool		isClient;
+	RsslBool		finBit; /* For supporting fragmented message */
 	RsslUInt64		maxMsgSize; /* Stores the maximum message size for WebSocket client */
 } rwsSession_t;
 
@@ -436,7 +434,7 @@ RsslInt32 rwsReadPrependTransportHdr(void *, char *, int, ripcRWFlags, int *,Rss
 RsslRet rwsWriteWebSocket(RsslSocketChannel *, rsslBufferImpl *, RsslInt32, RsslInt32 *, RsslInt32 *, RsslInt32, RsslError *);
 RsslInt32 rwsWriteAndFlush(RsslSocketChannel *, rtr_msgb_t *, int *, RsslError *);
 RsslUInt8 rwsGetWsHdrSize(RsslUInt64 , RsslInt32 );
-RsslUInt8 rwsWriteWsHdrBuffer(char * , RsslUInt64 , rwsSession_t *, RsslInt32 , rwsOpCodes_t );
+RsslUInt8 rwsWriteWsHdrBuffer(char * , RsslUInt64 , rwsSession_t *, RsslBool, RsslInt32 , rwsOpCodes_t );
 RsslUInt8 rwsWriteWsHdr(rtr_msgb_t * msgb, rtr_msgb_t * msgb2, rwsSession_t * wsSess, RsslInt32 compressed, rwsOpCodes_t opCode);
 RsslInt32 rwsPrependWsHdr(void *, rtr_msgb_t *msgb, RsslError *error);
 RsslInt32 rwsSendPingData(RsslSocketChannel *, RsslBuffer *, RsslError *);

@@ -442,7 +442,7 @@ int main(int argc, char **argv)
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
 	
-	sopts.guaranteedOutputBuffers = 500;
+	sopts.guaranteedOutputBuffers = 2000;
 	sopts.serviceName = portNo;
 	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;

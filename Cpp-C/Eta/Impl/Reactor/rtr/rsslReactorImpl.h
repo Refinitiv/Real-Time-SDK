@@ -115,6 +115,8 @@ typedef struct
 	RsslRDMMsg rdmMsg;				/* The typed message that has been decoded */
 	RsslReactorChannelSetupState channelSetupState;
 	RsslBuffer *pWriteCallAgainBuffer; /* Used when WRITE_CALL_AGAIN is returned from an internal rsslReactorSubmit() call. */
+	RsslBuffer *pWriteCallAgainUserBuffer; /* Used when WRITE_CALL_AGAIN is returned for writing JSON buffer from an rsslReactorSubmit() call by users' applications.*/
+	RsslBuffer *pUserBufferWriteCallAgain; /* Keeps the user's buffer to ensure that user passes it again. */
 
 	RsslReactorChannelRole channelRole;
 
@@ -355,6 +357,8 @@ RTR_C_INLINE void rsslResetReactorChannelState(RsslReactorImpl *pReactorImpl, Rs
 	pReactorChannel->readRet = 0;
 	pReactorChannel->writeRet = 0;
 	pReactorChannel->pWriteCallAgainBuffer = 0;
+	pReactorChannel->pWriteCallAgainUserBuffer = 0;
+	pReactorChannel->pUserBufferWriteCallAgain = 0;
 }
 
 

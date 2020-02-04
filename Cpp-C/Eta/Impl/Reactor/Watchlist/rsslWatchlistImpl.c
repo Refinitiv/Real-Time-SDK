@@ -3760,7 +3760,7 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 			case RSSL_RET_WRITE_CALL_AGAIN:
 				assert(!pWatchlistImpl->base.pWriteCallAgainBuffer);
 				pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
-				pWatchlistImpl->base.pWriteCallAgainBuffer = pWriteBuffer;
+				pWatchlistImpl->base.pWriteCallAgainBuffer = pOutputBuffer;
 				return RSSL_RET_SUCCESS;
 			default:
 			{
