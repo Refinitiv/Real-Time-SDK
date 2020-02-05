@@ -190,6 +190,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pNotifierEvent)
 			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
@@ -202,6 +203,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -216,6 +218,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -230,6 +233,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -244,6 +248,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -258,6 +263,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);

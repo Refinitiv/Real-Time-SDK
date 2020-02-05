@@ -511,6 +511,7 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, 
 	RsslRet ret = RSSL_RET_SUCCESS;
 	char message[128];
 	RsslInt64 filePos = 0;
+	rsslBufferImpl *pRsslBufferImpl = (rsslBufferImpl *)buffer;
 
 	if (buffer == NULL)
 		return;
@@ -591,16 +592,30 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, 
 		}
 		else if (protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
+			RsslBuffer *pDumpJSON = buffer;
+			RsslBuffer tempBuffer = RSSL_INIT_BUFFER;
+			rtr_msgb_t	*ripcBuffer = (rtr_msgb_t*)(pRsslBufferImpl->bufferInfo);
+
+			if (buffer->length == 0 && pRsslBufferImpl->packingOffset > 1) // Indicates packed buffer
+			{
+				if (ripcBuffer)
+				{
+					tempBuffer.data = ripcBuffer->buffer + 1;
+					tempBuffer.length = pRsslBufferImpl->packingOffset - 2;
+					pDumpJSON = &tempBuffer;
+				}
+			}
+
 			if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 			{
 				fprintf(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, "<!-- JSON protocol\n");
-				dumpJSON(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, buffer);
+				dumpJSON(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, pDumpJSON);
 				fprintf(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, "\n-->");
 				fputc('\n', rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 			}
 			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
 			{
-				dumpJSON(stdout, buffer);
+				dumpJSON(stdout, pDumpJSON);
 				fputc('\n', stdout);
 			}
 		}

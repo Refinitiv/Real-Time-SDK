@@ -24,7 +24,7 @@
 #include "rtr/rtratomic.h"
 #include "rtr/rsslReactorTokenMgntImpl.h"
 #include "rtr/rsslJsonConverter.h"
-#include "rtr/debugPrint.h"
+#include "rtr/rsslHashTable.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -67,6 +67,21 @@ typedef enum
 	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3,
 	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4,
 } RsslReactorChannelInfoImplState;
+
+/* RsslReactorPackedBufferImpl
+*  - Keeps track the length of the packed buffer */
+typedef struct
+{
+	RsslHashLink hashLink;
+	RsslUInt32 totalSize;
+	RsslUInt32 remainingSize;
+
+} RsslReactorPackedBufferImpl;
+
+RTR_C_INLINE void rsslClearReactorPackedBufferImpl(RsslReactorPackedBufferImpl* pReactorPackedBufferImpl)
+{
+	memset(pReactorPackedBufferImpl, 0, sizeof(RsslReactorPackedBufferImpl));
+}
 
 /* RsslReactorConnectInfoImpl
 * - Handles a channel information including token management */
@@ -173,6 +188,7 @@ typedef struct
 
 	/* For Websocket connections */
 	RsslBool						sendWSPingMessage; /* This is used to force sending ping message even though some messages is flushed to network. */
+	RsslHashTable					packedBufferHashTable; /* The hash table to keep track of packed buffers */
 
 } RsslReactorChannelImpl;
 
@@ -318,6 +334,33 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 	return RSSL_RET_SUCCESS;
 }
 
+RTR_C_INLINE void _rsslCleanUpPackedBufferHashTable(RsslReactorChannelImpl *pReactorChannel)
+{
+	if (pReactorChannel->packedBufferHashTable.queueList)
+	{
+		if (pReactorChannel->packedBufferHashTable.elementCount > 0)
+		{
+			RsslUInt32 index;
+			RsslQueueLink *pLink = NULL;
+			RsslReactorPackedBufferImpl *pPackedBufferImpl;
+			for (index = 0; index < pReactorChannel->packedBufferHashTable.queueCount; index++)
+			{
+				RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannel->packedBufferHashTable.queueList[index], pLink)
+				{
+					pPackedBufferImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorPackedBufferImpl, hashLink, pLink);
+
+					rsslHashTableRemoveLink(&pReactorChannel->packedBufferHashTable, &pPackedBufferImpl->hashLink);
+
+					free(pPackedBufferImpl);
+				}
+			}
+		}
+
+		rsslHashTableCleanup(&pReactorChannel->packedBufferHashTable);
+	}
+}
+
+
 /* All RsslReactorChannelImpl's member variables must be reset properly in rsslResetReactorChannel
    as the RsslReactorChannelImpl can be reused from the channel pool */
 RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pReactorChannel)
@@ -400,6 +443,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->sendWSPingMessage = RSSL_FALSE; 
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
+
+	memset(&pReactorChannel->packedBufferHashTable, 0, sizeof(RsslHashTable));
 }
 
 /* Verify that the given RsslReactorChannel is valid for this RsslReactor */

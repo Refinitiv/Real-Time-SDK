@@ -10,7 +10,6 @@
 #include "rtr/rsslWatchlist.h"
 #include "rtr/tunnelStreamImpl.h"
 #include "rtr/msgQueueEncDec.h"
-#include "rtr/debugPrint.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -222,6 +221,11 @@ static RsslRet _reactorSubmit(RsslReactorImpl *pReactorImpl, RsslReactorChannelI
 
 static void _reactorMoveChannel(RsslQueue *pNewList, RsslReactorChannelImpl *pReactorChannel)
 { 
+	if (pNewList == &pReactorChannel->pParentReactor->channelPool)
+	{
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
+	}
+
 	if (pReactorChannel->reactorParentQueue)
 	{
 		rsslQueueRemoveLink(pReactorChannel->reactorParentQueue, &pReactorChannel->reactorQueueLink);
@@ -2004,6 +2008,8 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 	RsslUInt32 dummyBytesWritten, dummyUncompBytesWritten;
 	RsslBuffer *pMsgBuffer = NULL; /* The buffer to send JSON message to network only. */
 	RsslBool releaseUserBuffer = RSSL_FALSE; /* Release when it writes user's buffer successfully. */
+	RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
+	RsslHashLink *pHashLink;
 
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
@@ -2030,8 +2036,20 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "rsslReactorSubmit may not be used when watchlist is enabled.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_INVALID_ARGUMENT);
 	}
+
+	/* Checks if there is a packed buffer for the JSON protocol */
+	if (pReactorChannel->packedBufferHashTable.elementCount > 0)
+	{
+		pHashLink = rsslHashTableFind(&pReactorChannel->packedBufferHashTable, (void*)buffer, NULL);
+
+		if (pHashLink != NULL)
+		{
+			pPackedBufferImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorPackedBufferImpl, hashLink, pHashLink);
+			buffer->length = 0;
+		}
+	}
 	
-	if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	if ( (pReactorChannel->reactorChannel.pRsslChannel->protocolType) == RSSL_JSON_PROTOCOL_TYPE && (pPackedBufferImpl == NULL) )
 	{
 		RsslDecodeIterator dIter;
 		RsslMsg rsslMsg;
@@ -2170,6 +2188,14 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 				/* rsslWrite has the message, but attempted to flush and failed.  This is okay, just need to keep flushing. */
 				ret = RSSL_RET_SUCCESS;
 				pReactorChannel->writeRet = 1;
+
+				if (pPackedBufferImpl && pHashLink)
+				{
+					rsslHashTableRemoveLink(&pReactorChannel->packedBufferHashTable, pHashLink);
+
+					free(pPackedBufferImpl);
+				}
+
 				break;
 			case RSSL_RET_WRITE_CALL_AGAIN:
 				/* The message is a fragmented message and was only partially written because there were not enough output buffers in RSSL to send it.
@@ -2207,6 +2233,13 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		/* The message was written to RSSL but has not yet been fully written to the network.  Flushing is needed to complete sending. */
 		pReactorChannel->writeRet = ret;
 		ret = RSSL_RET_SUCCESS;
+
+		if (pPackedBufferImpl && pHashLink)
+		{
+			rsslHashTableRemoveLink(&pReactorChannel->packedBufferHashTable, pHashLink);
+
+			free(pPackedBufferImpl);
+		}
 	}
 
 	if (pReactorChannel->writeRet > 0)
@@ -5041,6 +5074,244 @@ RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, R
 	}
 
 	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+}
+
+RsslUInt32 packedBufferHashU64Sum(void* pReactorPackedBufferImpl)
+{
+	return (RsslUInt32)((RsslUInt64)pReactorPackedBufferImpl);
+}
+
+RsslBool packedBufferHashU64Compare(void *element1, void *element2)
+{
+	return (element1 == element2);
+}
+
+RSSL_VA_API RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *channel, RsslUInt32 size, RsslBool packedBuffer, RsslErrorInfo *pError)
+{
+	RsslRet ret;
+	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)channel;
+	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
+	RsslBuffer *pBuffer = NULL;
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return pBuffer;
+
+	/* Since the application passed in this channel, make sure it is valid for this reactor and that it is active. */
+	if (!pReactorChannel || !rsslReactorChannelIsValid(pReactorImpl, pReactorChannel, pError))
+		return (reactorUnlockInterface(pReactorImpl), pBuffer);
+		
+	if (packedBuffer && (channel->protocolType == RSSL_JSON_PROTOCOL_TYPE) )
+	{
+		RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
+		if (pReactorChannel->packedBufferHashTable.queueList == NULL)
+		{
+			if (rsslHashTableInit(&pReactorChannel->packedBufferHashTable, 10, packedBufferHashU64Sum,
+				packedBufferHashU64Compare, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize RsslHashTable for handling packed buffer.");
+				return (reactorUnlockInterface(pReactorImpl), pBuffer);
+			}
+		}
+
+		pPackedBufferImpl = (RsslReactorPackedBufferImpl*)malloc(sizeof(RsslReactorPackedBufferImpl));
+
+		if (!pPackedBufferImpl)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create RsslReactorPackedBufferImpl for handling packed buffer.");
+			return (reactorUnlockInterface(pReactorImpl), pBuffer);
+		}
+
+		rsslClearReactorPackedBufferImpl(pPackedBufferImpl);
+
+		pBuffer = rsslGetBuffer(channel->pRsslChannel, size, packedBuffer, &pError->rsslError);
+		if (!pBuffer)
+		{
+			rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+			return (reactorUnlockInterface(pReactorImpl), pBuffer);
+		}
+
+		pPackedBufferImpl->totalSize = size; /* Keeps the size of the packed buffer */
+		pPackedBufferImpl->remainingSize = size;
+
+		rsslHashTableInsertLink(&pReactorChannel->packedBufferHashTable, &pPackedBufferImpl->hashLink, pBuffer, NULL);
+	}
+	else
+	{
+		pBuffer = rsslGetBuffer(channel->pRsslChannel, size, packedBuffer, &pError->rsslError);
+		if (!pBuffer)
+			rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	}
+
+	return (reactorUnlockInterface(pReactorImpl), pBuffer);
+}
+
+RSSL_VA_API RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *channel, RsslBuffer *pBuffer, RsslErrorInfo *pError)
+{
+	RsslRet ret = RSSL_RET_FAILURE;
+	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)channel;
+	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	if (pReactorChannel && pReactorChannel->packedBufferHashTable.elementCount > 0)
+	{
+		RsslHashLink *pHashLink;
+		RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
+
+		pHashLink = rsslHashTableFind(&pReactorChannel->packedBufferHashTable, pBuffer, NULL);
+
+		if (pHashLink != NULL)
+		{
+			pPackedBufferImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorPackedBufferImpl, hashLink, pHashLink);
+
+			rsslHashTableRemoveLink(&pReactorChannel->packedBufferHashTable, pHashLink);
+
+			free(pPackedBufferImpl);
+		}
+	}
+		
+	ret = rsslReleaseBuffer(pBuffer, &pError->rsslError);
+	if (ret != RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+
+	return (reactorUnlockInterface(pReactorImpl), ret);
+}
+
+RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError)
+{
+	RsslRet ret;
+	RsslBuffer *pNewBuffer = NULL;
+	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)pChannel;
+	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return pNewBuffer;
+
+	/* Since the application passed in this channel, make sure it is valid for this reactor and that it is active. */
+	if (!pReactorChannel || !rsslReactorChannelIsValid(pReactorImpl, pReactorChannel, pError))
+		return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+	}
+
+	if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel is not active.");
+		return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+	}
+
+	if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		RsslDecodeIterator dIter;
+		RsslMsg rsslMsg;
+		RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
+
+		if (pReactorChannel->packedBufferHashTable.elementCount > 0)
+		{
+			RsslHashLink *pHashLink;
+			pHashLink = rsslHashTableFind(&pReactorChannel->packedBufferHashTable, pBuffer, NULL);
+
+			if (pHashLink != NULL)
+			{
+				pPackedBufferImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorPackedBufferImpl, hashLink, pHashLink);
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to find the packed buffer handling for JSON protocol.");
+				return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+			}
+		}
+
+		/* Added checking to ensure that the JSON converter is initialized properly.*/
+		if (pReactorImpl->pJsonConverter == 0)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The JSON converter library has not been initialized properly.");
+			return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+		}
+
+		rsslClearMsg(&rsslMsg);
+		rsslClearDecodeIterator(&dIter);
+		rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->reactorChannel.pRsslChannel->majorVersion,
+			pReactorChannel->reactorChannel.pRsslChannel->minorVersion);
+
+		rsslSetDecodeIteratorBuffer(&dIter, pBuffer);
+
+		ret = rsslDecodeMsg(&dIter, &rsslMsg);
+
+		if (ret == RSSL_RET_SUCCESS)
+		{
+			RsslConvertRsslMsgToJsonOptions rjcOptions;
+			RsslGetJsonMsgOptions getJsonMsgOptions;
+			RsslJsonConverterError rjcError;
+			RsslBuffer jsonBuffer;
+			RsslUInt32 neededSize;
+
+			rsslClearConvertRsslMsgToJsonOptions(&rjcOptions);
+			rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+			if ((rsslConvertRsslMsgToJson(pReactorImpl->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+				return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+			}
+
+			rsslClearGetJsonMsgOptions(&getJsonMsgOptions);
+			getJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+			getJsonMsgOptions.streamId = rsslMsg.msgBase.streamId;
+			getJsonMsgOptions.isCloseMsg = (rsslMsg.msgBase.msgClass == RSSL_MC_CLOSE) ? RSSL_TRUE : RSSL_FALSE;
+
+			if ((ret = rsslGetConverterJsonMsg(pReactorImpl->pJsonConverter, &getJsonMsgOptions,
+				&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to get converted JSON message. Error text: %s", rjcError.text);
+				return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+			}
+
+			if (pPackedBufferImpl->totalSize == pPackedBufferImpl->remainingSize)
+			{
+				neededSize = jsonBuffer.length;
+			}
+			else
+			{
+				neededSize = jsonBuffer.length + 1; /* Plus 1 for handling ',' for JSON array */
+			}
+
+			if (neededSize < pPackedBufferImpl->remainingSize)
+			{
+				pPackedBufferImpl->remainingSize -= neededSize;
+
+				pBuffer->length = jsonBuffer.length;
+				memcpy(pBuffer->data, jsonBuffer.data, pBuffer->length);
+
+				pNewBuffer = rsslPackBuffer(pReactorChannel->reactorChannel.pRsslChannel, pBuffer, &pError->rsslError);
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_BUFFER_TOO_SMALL, __FILE__, __LINE__,
+					"Failed to pack buffer as the required buffer size(%d) is larger than the remaining packed buffer size(%d).", neededSize, pPackedBufferImpl->remainingSize);
+				return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+			}
+		}
+		else
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+				"rsslDecodeMsg() failed to decode the passed in buffer as RWF messages.");
+			return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
+		}
+	}
+	else
+	{
+		pNewBuffer = rsslPackBuffer(pReactorChannel->reactorChannel.pRsslChannel, pBuffer, &pError->rsslError);
+		if (!pNewBuffer)
+			rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	}
+
+	return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
 }
 
 RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl)
