@@ -1581,9 +1581,36 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 						{
 						case RSSL_CONN_TYPE_ENCRYPTED:
-							transport = RSSL_RD_TP_TCP;
+						{
+							if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_SOCKET)
+							{
+								transport = RSSL_RD_TP_TCP;
+							}
+							else if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
+							{
+								transport = RSSL_RD_TP_WEBSOCKET;
+							}
+							else
+							{
+								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
+
+								/* Notify error back to the application via the channel event */
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+								continue;
+							}
+
 							break;
+						}
 						default:
+
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 								"Invalid connection type(%d) for requesting EDP-RT service discovery.",
 								transport);
@@ -2890,8 +2917,35 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 						{
 						case RSSL_CONN_TYPE_ENCRYPTED:
-							transport = RSSL_RD_TP_TCP;
+						{
+							if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_SOCKET)
+							{
+								transport = RSSL_RD_TP_TCP;
+							}
+							else if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
+							{
+								transport = RSSL_RD_TP_WEBSOCKET;
+							}
+							else
+							{
+								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
+
+								/* Notify error back to the application via the channel event */
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+									return;
+								}
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+								continue;
+							}
+
 							break;
+						}
 						default:
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 								"Invalid connection type(%d) for requesting EDP-RT service discovery.",

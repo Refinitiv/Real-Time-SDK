@@ -6674,8 +6674,27 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 		switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 		{
 		case RSSL_CONN_TYPE_ENCRYPTED:
-			transport = RSSL_RD_TP_TCP;
+		{
+			if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_SOCKET)
+			{
+				transport = RSSL_RD_TP_TCP;
+			}
+			else if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				transport = RSSL_RD_TP_WEBSOCKET;
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+					"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.",
+					pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+
+				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
 			break;
+		}
 		default:
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 				"Invalid connection type(%d) for requesting EDP-RT service discovery.",
