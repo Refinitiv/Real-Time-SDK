@@ -60,6 +60,8 @@ static void clearTransportPerfConfig()
 	snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "");
 	snprintf(transportPerfConfig.serverKey, sizeof(transportPerfConfig.serverKey), "");
 
+	snprintf(transportPerfConfig.protocolList, sizeof(transportPerfConfig.protocolList), "");
+
 	transportPerfConfig.appType = APPTYPE_SERVER;
 	transportPerfConfig.busyRead = RSSL_FALSE;
 }
@@ -103,10 +105,20 @@ void initTransportPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			snprintf(transportPerfConfig.summaryFilename, sizeof(transportPerfConfig.summaryFilename), "%s_%d.out", argv[iargs], getpid());
 		}
+		else if (strcmp("-summaryFileStatic", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportPerfConfig.summaryFilename, sizeof(transportPerfConfig.summaryFilename), "%s.out", argv[iargs]);
+		}
 		else if (strcmp("-statsFile", argv[iargs]) == 0)
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			snprintf(transportThreadConfig.statsFilename, sizeof(transportThreadConfig.statsFilename), "%s_%d", argv[iargs],getpid());
+		}
+		else if (strcmp("-statsFileStatic", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportThreadConfig.statsFilename, sizeof(transportThreadConfig.statsFilename), "%s", argv[iargs]);
 		}
 		else if (strcmp("-writeStatsInterval", argv[iargs]) == 0)
 		{
@@ -147,6 +159,8 @@ void initTransportPerfConfig(int argc, char **argv)
 
 			if (0 == strcmp(argv[iargs], "socket"))
 				transportPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[iargs], "websocket"))
+				transportPerfConfig.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (0 == strcmp(argv[iargs], "http"))
 				transportPerfConfig.connectionType = RSSL_CONN_TYPE_HTTP;
 			else if (0 == strcmp(argv[iargs], "encrypted"))
@@ -166,6 +180,8 @@ void initTransportPerfConfig(int argc, char **argv)
 
 			if (strcmp("socket", argv[iargs]) == 0)
 				transportPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("websocket", argv[iargs]) == 0)
+				transportPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (strcmp("http", argv[iargs]) == 0)
 			{
 #ifdef Linux  
@@ -352,6 +368,11 @@ void initTransportPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "%s", argv[iargs]);
 		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(transportPerfConfig.protocolList, sizeof(transportPerfConfig.protocolList), "%s", argv[iargs]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -425,6 +446,8 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 	{
 		case RSSL_CONN_TYPE_SOCKET:
 			return "socket";
+		case RSSL_CONN_TYPE_WEBSOCKET:
+			return "websocket";
 		case RSSL_CONN_TYPE_HTTP:
 			return "http";
 		case RSSL_CONN_TYPE_ENCRYPTED:
@@ -467,7 +490,7 @@ void printTransportPerfConfig(FILE *file)
 	for(i = 1; i < transportPerfConfig.threadCount; ++i)
 		threadStringPos += snprintf(threadString + threadStringPos, 128 - threadStringPos, ",%d", transportPerfConfig.threadBindList[i]);
 
-	fprintf(file, 	"--- TEST INPUTS ---\n\n");
+	fprintf(file, 	"\n--- TEST INPUTS ---\n\n");
 	
 	fprintf(file, 	
 			"               Runtime: %u sec\n"
@@ -515,6 +538,9 @@ void printTransportPerfConfig(FILE *file)
 				transportPerfConfig.hostName,
 				transportPerfConfig.portNo);
 	}
+
+	if(transportPerfConfig.protocolList[0])
+		fprintf(file, "   WebSocket protocols: %s\n", transportPerfConfig.protocolList);
 
 	fprintf(file,
 			"              App Type: %s\n"
@@ -595,8 +621,16 @@ void exitWithUsage()
 			"\n"
 			"  -appType <type>            Type of application(server, client)\n"
 			"\n"
-			"  -connType <type>           Type of connection(\"socket\", \"http\", \"encrypted\", \"reliableMCast\", \"shmem\", \"seqMCast\")\n"
-			"  -encryptedConnType <type>  Encrypted connection protocol for a client connection only. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"http\")\n"
+			"  -connType <type>           Type of connection:\n"
+			"                                   (\"socket\",\"websocket\", \"http\", \"encrypted\", \"reliableMCast\", \"shmem\", \"seqMCast\")\n"
+			"  -encryptedConnType <type>  Encrypted connection protocol for a client connection only. Only used if the \"encrypted\" connection\n"
+			"                             type is selected. \"http\" type is only supported on Windows. (\"socket\",\"websocket\", \"http\")\n"
+			"\n"
+			"  -pl \"<sub-protocol list>\"  WebSocket sub-protocol list for requesting a protocol or listing only supported protocols respectivly\n"
+			"                             for client and server 'appType'. White-space or comma delinated list in order of preference\n"
+			"                             (\"rssl.rwf, rssl.json.v2, tr_json2\")\n"
+			"                                               NOTE: 'tr_json2' is deprecated and replaced by rssl.json.v2\n"
+			"\n"
 			"  -outputBufs <count>        Number of output buffers(configures guaranteedOutputBuffers in the RSSL bind/connection options)\n"
 			"  -maxFragmentSize <count>   Max size of buffers(configures maxFragmentSize in the RSSL bind/connection options)\n"
 			"  -sendBufSize <size>        System Send Buffer Size(configures sysSendBufSize in the RSSL bind/connection options)\n"

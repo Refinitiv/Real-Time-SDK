@@ -171,7 +171,7 @@ TransportSession *transportSessionCreate(TransportThread *pHandler, RsslChannel 
 
 	/* If the buffer is to be packed, add some additional bytes for each message. */
 	if (transportThreadConfig.totalBuffersPerPack > 1)
-		pSession->maxMsgBufSize += transportThreadConfig.totalBuffersPerPack * 8;
+		pSession->maxMsgBufSize += transportThreadConfig.totalBuffersPerPack * SEQNUM_SZ;
 
 
 	pSession->sendSequenceNumber = 0;
@@ -193,6 +193,7 @@ static RsslRet transportSessionSendMsg(TransportThread *pHandler, TransportSessi
 	RsslRet ret;
 	RsslChannel *chnl = pSession->pChannelInfo->pChannel;
 	RsslUInt64 currentTime;
+	RsslInt32 offset = 0;
 
 	/* Add latency timestamp, if appropriate. */
 	if (sendLatency)
@@ -203,7 +204,7 @@ static RsslRet transportSessionSendMsg(TransportThread *pHandler, TransportSessi
 	if (rtrUnlikely((ret = getMsgBuffer(pSession)) < RSSL_RET_SUCCESS))
 		return ret;
 
-	assert(sizeof(currentTime) == 8 && sizeof(pSession->sendSequenceNumber == 8));
+	assert(sizeof(currentTime) == SEQNUM_SZ && sizeof(pSession->sendSequenceNumber == SEQNUM_SZ));
 
 	if (pSession->pWritingBuffer->length < transportThreadConfig.msgSize)
 	{
@@ -212,12 +213,23 @@ static RsslRet transportSessionSendMsg(TransportThread *pHandler, TransportSessi
 	}
 
 	/* Zero out message. */
-	memset(pSession->pWritingBuffer->data, 0x0, transportThreadConfig.msgSize);
+	memset(pSession->pWritingBuffer->data, 0, transportThreadConfig.msgSize);
 
 	/* Add seqnuence number */
-	memcpy(pSession->pWritingBuffer->data, &pSession->sendSequenceNumber, 8);
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		assert(sizeof(transportThreadConfig.msgSize == MSGLEN_SZ));
 
-	memcpy(pSession->pWritingBuffer->data + 8, &currentTime, 8);
+		memcpy(pSession->pWritingBuffer->data, &transportThreadConfig.msgSize, MSGLEN_SZ);
+											   //sizeof(transportThreadConfig.msgSize));
+		offset += sizeof(transportThreadConfig.msgSize);
+	}
+
+	/* Add seqnuence number */
+	memcpy(pSession->pWritingBuffer->data + offset, &pSession->sendSequenceNumber, SEQNUM_SZ);
+	offset += SEQNUM_SZ;
+
+	memcpy(pSession->pWritingBuffer->data + offset, &currentTime, SEQNUM_SZ);
 
 	pSession->pWritingBuffer->length = transportThreadConfig.msgSize;
 

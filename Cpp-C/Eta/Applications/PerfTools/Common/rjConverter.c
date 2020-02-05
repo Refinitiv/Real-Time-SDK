@@ -85,6 +85,9 @@ void rjcSessionUninitialize(rjConverterSession *rjcSession)
 	if (rjcSession->pJsonConverter != 0)
 		rsslDestroyRsslJsonConverter(rjcSession->pJsonConverter, &rjcError);
 
+	if (rjcSession->convBuff.data)
+		free(rjcSession->convBuff.data);
+
 	if (rjcSession->pDictionaryList)
 		free(rjcSession->pDictionaryList);
 }
@@ -107,7 +110,12 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 	}
 
 	rsslClearCreateRsslJsonConverterOptions(&rjcOptions);
-	
+
+	rjcSession->convBuff.length = RJC_MAX_BUFFER;
+	rjcSession->convBuff.data = (char*)malloc(rjcSession->convBuff.length);
+
+	rjcSession->options.catchUnknownJsonFids = RSSL_TRUE;
+
 	/* Initialize string table */
 	rsslJsonInitialize();
 
@@ -203,7 +211,7 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 	}
 
 	/* When converting from JSON to RWF, catch unknown JSON keys. */
-	flag = RSSL_TRUE;
+	flag = rjcSession->options.catchUnknownJsonKeys;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_KEYS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
@@ -215,7 +223,7 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 	}
 
 	/* When converting from JSON to RWF, catch unknown JSON FIDS. */
-	flag = RSSL_TRUE;
+	flag = rjcSession->options.catchUnknownJsonFids;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_FIDS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
@@ -231,7 +239,7 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 	 * However, conversion from display strings to RWF is not currently supported.  
 	 * Setting the property below will cause display strings to be converted to blank, 
 	 * instead of resulting in errors. */
-	flag = RSSL_FALSE;
+	flag = RSSL_TRUE;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_ALLOW_ENUM_DISPLAY_STRINGS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
@@ -308,6 +316,9 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 						error.rsslErrorId, error.text);
 
 	}
+	else
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, 
+						__FILE__, __LINE__, "rsslDecodeMsg() failed: %d", ret);
 
 	return pMsgBuffer;
 }
@@ -319,7 +330,6 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 	RsslDecodeJsonMsgOptions *decodeOptions;
 	RsslJsonMsg *jsonMsg;
 	RsslRet	ret;
-	RsslBool failedToConvertJSONMsg = RSSL_TRUE;
 
 	if (pJsonBuffer != NULL)
 	{
@@ -336,11 +346,9 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 	{
 		if (ret == RSSL_RET_SUCCESS)
 		{
-
 			switch(jsonMsg->msgBase.msgClass) {
 			case RSSL_JSON_MC_RSSL_MSG:
 			{
-				failedToConvertJSONMsg = RSSL_FALSE;
 				break;
 			}
 			case RSSL_JSON_MC_PING:
@@ -349,27 +357,26 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 				RsslBuffer PONG_MESSAGE = { 15, (char*)"{\"Type\":\"Pong\"}" };
 
 				RsslBuffer *pBuffer = rsslGetBuffer(pChannel, PONG_MESSAGE.length, RSSL_FALSE, &err);
-				failedToConvertJSONMsg = RSSL_FALSE;
-
 				if (pBuffer)
 				{
 					memcpy(pBuffer->data, PONG_MESSAGE.data, PONG_MESSAGE.length);
 
 					// Reply with JSON PONG message to the sender
 					ret = _rjcSendJsonMessage(pChannel, pBuffer, RSSL_WRITE_NO_FLAGS, pError);
-					if (ret == RSSL_RET_SUCCESS)
+					if (ret != RSSL_RET_FAILURE)
 						ret = RSSL_RET_READ_PING;
 				}
 				else
 				{
 					ret = RSSL_RET_FAILURE;
+					snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
+						"Failed to get buffer for Ping response :%s", err.text);
 				}
 
 				break;
 			}
 			case RSSL_JSON_MC_PONG:
 			{
-				failedToConvertJSONMsg = RSSL_FALSE;
 				ret = RSSL_RET_READ_PING;
 				break;
 			}
@@ -385,7 +392,6 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 				
 				snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
 							"Received JSON error message: %s.", &jsonMessage[0]);
-				failedToConvertJSONMsg = RSSL_FALSE;
 				ret = RSSL_RET_FAILURE;
 
 				break;
@@ -393,7 +399,7 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 			}
 		} // if == _RET_SUCCESS 
 		else
-			failedToConvertJSONMsg = RSSL_TRUE; // Reset the flag to its initial state. 
+			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", rjcError.text);
 	}
 
 	return ret;

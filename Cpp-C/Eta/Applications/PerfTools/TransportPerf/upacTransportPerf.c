@@ -72,50 +72,90 @@ static void signal_handler(int sig)
 
 static void printSummaryStats(FILE *file);
 
+#define _BUFFER_DUMP(__buf, __len)\
+	   { int i=0; fprintf(stderr, "%15s (%u) : '", "Buffer Hex Dump", __len);\
+			for (i=0; i < __len; i++){\
+				fprintf(stderr, "%s%02x%s", (!(i%16)?"\n\t0x":""), (unsigned char)__buf[i], \
+											(i+1<__len?" ":"")); }\
+				fprintf(stderr, "' \n");\
+		}
+
+#define IS_DELIMITER(ch) ((ch=='[' || ch==']' || ch==','))
+
 RsslRet processMsg(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, RsslBuffer *pMsgBuf)
 {
 	SessionHandler *pHandler = (SessionHandler*)pChanHandler->pUserSpec;
 	TransportSession *pSession = (TransportSession*)pChannelInfo->pUserSpec;
+	RsslChannel *pChannel = pChannelInfo->pChannel;
 	TimeValue timeTracker;
+	RsslInt32 offset = 0;
+	RsslUInt32 msgLen = 0;
 
-	countStatIncr(&pHandler->transportThread.msgsReceived);
 	countStatAdd(&pHandler->transportThread.bytesReceived, pMsgBuf->length);
 
-	if (pMsgBuf->length < 16)
+	//_BUFFER_DUMP(pMsgBuf->data, pMsgBuf->length)
+	do
 	{
-		printf("Error: Message was too small to be valid(length %u).\n", pMsgBuf->length);
-		return RSSL_RET_FAILURE;
-	}
+		countStatIncr(&pHandler->transportThread.msgsReceived);
 
-	if (pSession->receivedFirstSequenceNumber)
-	{
-		RsslUInt64 recvSequenceNumber;
-
-		memcpy(&recvSequenceNumber, pMsgBuf->data, 8);
-
-		if (pSession->recvSequenceNumber != recvSequenceNumber)
+		if (pMsgBuf->length < (MSGLEN_SZ + (SEQNUM_SZ * 2)))
 		{
-			printf("Error: Received out-of-order sequence number(%llu instead of %llu).\n", recvSequenceNumber, pSession->recvSequenceNumber);
+			printf("Error: Message was too small to be valid(length %u).\n", pMsgBuf->length);
 			return RSSL_RET_FAILURE;
 		}
 
-		++pSession->recvSequenceNumber;
-
-		memcpy(&timeTracker, pMsgBuf->data + 8, 8);
-
-		if (timeTracker)
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
-			timeRecordSubmit(&pHandler->latencyRecords, timeTracker, getTimeNano(), 1000);
+			if (IS_DELIMITER(pMsgBuf->data[offset]))
+			{
+				if (pMsgBuf->data[offset] == ']' || offset + 1 >= pMsgBuf->length)
+					break;
+
+				offset++;
+			}
+
+			memcpy(&msgLen, pMsgBuf->data + offset, MSGLEN_SZ);
+			offset += MSGLEN_SZ;
 		}
-		return RSSL_RET_SUCCESS;
-	}
-	else
-	{
-		memcpy(&pSession->recvSequenceNumber, pMsgBuf->data, 8);
-		pSession->receivedFirstSequenceNumber = RSSL_TRUE;
-		++pSession->recvSequenceNumber;
-		return RSSL_RET_SUCCESS;
-	}
+
+		if (pSession->receivedFirstSequenceNumber)
+		{
+			RsslUInt64 recvSequenceNumber;
+
+			memcpy(&recvSequenceNumber, pMsgBuf->data + offset, SEQNUM_SZ);
+
+			if (pSession->recvSequenceNumber != recvSequenceNumber)
+			{
+				printf("Error: Received out-of-order sequence number(%llu instead of %llu).\n", 
+						recvSequenceNumber, pSession->recvSequenceNumber);
+				return RSSL_RET_FAILURE;
+			}
+
+			++pSession->recvSequenceNumber;
+
+			memset(&timeTracker, 0, sizeof(TimeValue ));
+			memcpy(&timeTracker, pMsgBuf->data + offset + SEQNUM_SZ, SEQNUM_SZ);
+
+			if (timeTracker)
+			{
+				timeRecordSubmit(&pHandler->latencyRecords, timeTracker, getTimeNano(), 1000);
+			}
+		}
+		else
+		{
+			memcpy(&pSession->recvSequenceNumber, pMsgBuf->data + offset, SEQNUM_SZ);
+			pSession->receivedFirstSequenceNumber = RSSL_TRUE;
+			++pSession->recvSequenceNumber;
+		}
+
+		/* For WS JSON protocol, these should always be = 0 */
+		if (offset) 
+			offset += (msgLen - MSGLEN_SZ);
+
+	/* Intended for WS JSON unpacking, for RWF this does not need to loop */
+	} while(pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && offset < pMsgBuf->length); 
+
+	return RSSL_RET_SUCCESS;
 }
 
 RsslRet processMsgReflect(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, RsslBuffer *pInBuf)
@@ -156,6 +196,7 @@ RsslRet processMsgReflect(ChannelHandler *pChanHandler, ChannelInfo *pChannelInf
 	
 	ret = rsslWrite(chnl, pOutBuffer, RSSL_HIGH_PRIORITY, transportThreadConfig.writeFlags, &outBytes, &uncompOutBytes, &error);
 	/* call flush and write again */
+//fprintf(stderr, "After rsslWrite-1 ret %d err '%s'\n", ret, error.text);
 	while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
 	{
 		if (rtrUnlikely((ret = rsslFlush(chnl, &error)) < RSSL_RET_SUCCESS))
@@ -164,6 +205,7 @@ RsslRet processMsgReflect(ChannelHandler *pChanHandler, ChannelInfo *pChannelInf
 			return ret;
 		}
 		ret = rsslWrite(chnl, pOutBuffer, RSSL_HIGH_PRIORITY, transportThreadConfig.writeFlags, &outBytes, &uncompOutBytes, &error);
+//fprintf(stderr, "\tAfter rsslWrite-2 ret %d err '%s'\n", ret, error.text);
 	}
 
 	if (ret >= RSSL_RET_SUCCESS)
@@ -261,11 +303,11 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 	printf ("\n\n");
 
 	if (transportThreadConfig.totalBuffersPerPack > 1
-			&& (transportThreadConfig.msgSize + 8) * transportThreadConfig.totalBuffersPerPack > channelInfo.maxFragmentSize)
+			&& (transportThreadConfig.msgSize + SEQNUM_SZ) * transportThreadConfig.totalBuffersPerPack > channelInfo.maxFragmentSize)
 	{
 		printf("Error(Channel "SOCKET_PRINT_TYPE"): MaxFragmentSize %u is too small for packing buffer size %u\n",
 				pChannelInfo->pChannel->socketId, channelInfo.maxFragmentSize, 
-				(transportThreadConfig.msgSize + 8) * transportThreadConfig.totalBuffersPerPack);
+				(transportThreadConfig.msgSize + SEQNUM_SZ) * transportThreadConfig.totalBuffersPerPack);
 		exit(-1);
 	}
 
@@ -865,6 +907,8 @@ static RsslServer* bindRsslServer(RsslError* error)
 	sopts.serviceName = transportPerfConfig.portNo;
 	sopts.sysSendBufSize = transportPerfConfig.sendBufSize;
 	sopts.sysRecvBufSize = transportPerfConfig.recvBufSize;
+	sopts.wsOpts.protocols = transportPerfConfig.protocolList;
+
 	if (transportPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED) 
 	{
 		sopts.encryptionOpts.serverCert = transportPerfConfig.serverCert;
@@ -959,6 +1003,11 @@ static RsslChannel* startConnection()
 		copts.encryptionOpts.encryptedProtocol = transportPerfConfig.encryptedConnectionType;
 		copts.encryptionOpts.openSSLCAStore = transportPerfConfig.caStore;
 	}
+
+	if (transportPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET ||
+		(transportPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && 
+		copts.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET ) )
+		copts.wsOpts.protocols = transportPerfConfig.protocolList;
 
 	if(copts.connectionType == RSSL_CONN_TYPE_SEQ_MCAST)
 	{

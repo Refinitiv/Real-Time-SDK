@@ -1045,6 +1045,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 	RsslUInt32 outBytes;
 	RsslUInt32 uncompOutBytes;
 	RsslRet ret;
+	RsslBool releaseBuffer = RSSL_FALSE;
 
 	assert(pSession->pWritingBuffer);
 
@@ -1054,7 +1055,8 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 	{
 		pMsgBuffer = 0;
 
-		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		/* Convert RWF msg to Json only if there is room (i.e. pWritingBuffer->length > 0 */
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && pSession->pWritingBuffer->length > 0)
 		{
 			RsslErrorInfo	eInfo;
 
@@ -1063,23 +1065,38 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 				if ((pMsgBuffer = rjcMsgConvertToJson(&(pProvThread->rjcSess), pChannel,
 														pSession->pWritingBuffer, &eInfo)) == NULL)
 				{
-					//fprintf(stderr, "writeCurrentBuffer(): Failed to convert RWF > JSON %s\n", eInfo.rsslError.text);
-					
-					if ((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS)
+					if (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
 					{
-						printf("rsslFlush() failed with return code %d - <%s>\n", 
-								ret, pError->text);
-						return ret;
+						if ((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS)
+						{
+							printf("rsslFlush() failed with return code %d - <%s>\n", 
+									ret, pError->text);
+							return ret;
+						}
+					}
+					else
+					{
+						fprintf(stderr, 
+								"writeCurrentBuffer(): Failed to convert RWF > JSON %s\n", 
+								eInfo.rsslError.text);
+						rsslReleaseBuffer(pSession->pWritingBuffer, &eInfo.rsslError);
+						return RSSL_RET_FAILURE;
 					}
 				}
 
 			} while (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS);
+
+			if (pMsgBuffer != NULL)
+			{
+				memcpy(pSession->pWritingBuffer->data, pMsgBuffer->data, pMsgBuffer->length);
+				pSession->pWritingBuffer->length = pMsgBuffer->length;
+				rsslReleaseBuffer(pMsgBuffer, &eInfo.rsslError);
+				pMsgBuffer = 0;
+			}
 		}
 
 		pSession->lastWriteRet = ret = rsslWrite(pChannel, 
-												(pMsgBuffer != 0 ? 
-												 pMsgBuffer : 
-												 pSession->pWritingBuffer), 
+												 pSession->pWritingBuffer, 
 												 RSSL_HIGH_PRIORITY, 
 												 providerThreadConfig.writeFlags, &outBytes, 
 												 &uncompOutBytes, pError);
@@ -1107,9 +1124,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 				return ret;
 			}
 			pSession->lastWriteRet = ret = rsslWrite(pChannel, 
-													(pMsgBuffer != 0 ? 
-													 pMsgBuffer : 
-													 pSession->pWritingBuffer), 
+													 pSession->pWritingBuffer, 
 													 RSSL_HIGH_PRIORITY, 
 													 providerThreadConfig.writeFlags, 
 													 &outBytes, &uncompOutBytes, pError);
@@ -1128,12 +1143,11 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 	countStatIncr(&pProvThread->bufferSentCount);
 
+	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		rsslReleaseBuffer(pSession->pWritingBuffer, &error);
+
 	if (ret >= RSSL_RET_SUCCESS)
 	{
-		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && 
-			ret >= RSSL_RET_SUCCESS && pSession->pWritingBuffer != 0)
-			rsslReleaseBuffer(pSession->pWritingBuffer, &error);
-
 		pSession->pWritingBuffer = 0;
 		return ret;
 	}
@@ -1301,6 +1315,7 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 				memcpy(pSession->pWritingBuffer->data, pMsgBuffer->data, pMsgBuffer->length);
 				pSession->pWritingBuffer->length = pMsgBuffer->length;
 				rsslReleaseBuffer(pMsgBuffer, &eInfo.rsslError);
+				
 			}
 			pSession->pWritingBuffer = rsslPackBuffer(pChannel, pSession->pWritingBuffer, &error);
 			if (!pSession->pWritingBuffer)

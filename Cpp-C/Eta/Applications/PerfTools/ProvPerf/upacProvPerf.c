@@ -274,12 +274,15 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			FD_SET(pReactorChannel->socketId, &pProviderThread->exceptfds);
 
 #ifdef ENABLE_XML_TRACE
-			RsslTraceOptions traceOptions;
-			rsslClearTraceOptions(&traceOptions);
-			traceOptions.traceMsgFileName = "upacProvPerf";
-			traceOptions.traceMsgMaxFileSize = 1000000000;
-			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
-			rsslIoctl(pChannelInfo->pChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
+			{
+				RsslError error;
+				RsslTraceOptions traceOptions;
+				rsslClearTraceOptions(&traceOptions);
+				traceOptions.traceMsgFileName = "upacProvPerf";
+				traceOptions.traceMsgMaxFileSize = 1000000000;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
+			}
 #endif
 
 			if (provPerfConfig.highWaterMark > 0)
@@ -903,85 +906,96 @@ RsslBuffer *convertMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInf
 RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslBuffer* pBuffer)
 {
 	RsslRet ret = RSSL_RET_SUCCESS; RsslMsg msg = RSSL_INIT_MSG;
-	RsslRet	cRet = RSSL_RET_SUCCESS;
+	RsslRet	cRet = 0;
 	RsslDecodeIterator dIter;
 	ProviderThread *pProvThread = (ProviderThread*)pChannelHandler->pUserSpec;
 	RsslChannel *pChannel = pChannelInfo->pChannel;
 	RsslBuffer	*origBuffer = 0;
 	RsslBuffer decodedMsg = RSSL_INIT_BUFFER;
-	//RsslBuffer *decodedMsg = 0;
 	RsslInt16	numConverted = 0;
 	
 
 	do {
-	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
-	{
-		RsslErrorInfo	pErr;
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			RsslErrorInfo	pErr;
 
-		origBuffer = pBuffer;
+			origBuffer = pBuffer;
 
-		cRet = rjcMsgConvertFromJson(&(pProvThread->rjcSess), pChannel, &decodedMsg, 
-									 (numConverted == 0 ?  origBuffer : NULL), &pErr);
-		numConverted++;
+			if((cRet = rjcMsgConvertFromJson(&(pProvThread->rjcSess), pChannel, &decodedMsg, 
+										 (numConverted == 0 ?  origBuffer : NULL), &pErr)) == RSSL_RET_FAILURE)
+			{
+				ret = cRet;
+				printf("Error in Json Conversion, fd="SOCKET_PRINT_TYPE" error: %s\n", 
+																pChannel->socketId, pErr.rsslError.text);
+				break;
+			}
+			numConverted++;
 
-// rjcDEBUG fprintf(stderr, "\n\trjcMsgConvertFromJson: ret(%d)\n", cRet);
-		if (cRet == RSSL_RET_SUCCESS && decodedMsg.length > 0)
-			pBuffer = &decodedMsg;
-	
-		if (cRet == RSSL_RET_END_OF_CONTAINER)
-			break;
-	}
-	/* clear decode iterator */
-	rsslClearDecodeIterator(&dIter);
-	
-	/* set version info */
-	rsslSetDecodeIteratorRWFVersion(&dIter, pChannel->majorVersion, pChannel->minorVersion);
+			if (cRet == RSSL_RET_SUCCESS && decodedMsg.length > 0)
+				pBuffer = &decodedMsg;
+		
+			if (cRet == RSSL_RET_END_OF_CONTAINER)
+				break;
 
-	rsslSetDecodeIteratorBuffer(&dIter, pBuffer);
+			if (cRet != RSSL_RET_SUCCESS)
+				continue;
+		}
+		/* clear decode iterator */
+		rsslClearDecodeIterator(&dIter);
+		
+		/* set version info */
+		rsslSetDecodeIteratorRWFVersion(&dIter, pChannel->majorVersion, pChannel->minorVersion);
 
-	ret = rsslDecodeMsg(&dIter, &msg);				
-	if (ret != RSSL_RET_SUCCESS)
-	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, pChannel->socketId, pBuffer->length);
-		cleanUpAndExit();
-	}
+		rsslSetDecodeIteratorBuffer(&dIter, pBuffer);
 
-	switch ( msg.msgBase.domainType )
-	{
-		case RSSL_DMT_LOGIN:
-			ret = processLoginRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
-			break;
-		case RSSL_DMT_SOURCE:
-			ret = processDirectoryRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
-			break;
-		case RSSL_DMT_DICTIONARY:
-			ret = processDictionaryRequest(pChannelHandler, pChannelInfo, &msg, &dIter); break; case RSSL_DMT_MARKET_PRICE: if (xmlMsgDataHasMarketPrice) ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
-			else
+		ret = rsslDecodeMsg(&dIter, &msg);				
+		if (ret != RSSL_RET_SUCCESS)
+		{
+			printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, pChannel->socketId, pBuffer->length);
+			cleanUpAndExit();
+		}
+
+		switch ( msg.msgBase.domainType )
+		{
+			case RSSL_DMT_LOGIN:
+				ret = processLoginRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
+				break;
+			case RSSL_DMT_SOURCE:
+				ret = processDirectoryRequest(pChannelHandler, pChannelInfo, &msg, &dIter);
+				break;
+			case RSSL_DMT_DICTIONARY:
+				ret = processDictionaryRequest(pChannelHandler, pChannelInfo, &msg, &dIter); 
+				break; 
+			case RSSL_DMT_MARKET_PRICE: 
+				if (xmlMsgDataHasMarketPrice) 
+					ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
+				else
+					ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
+							msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+				break;
+			case RSSL_DMT_MARKET_BY_ORDER:
+				if (xmlMsgDataHasMarketByOrder)
+					ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
+				else
+					ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
+							msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+				break;
+			default:
 				ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
 						msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
-		case RSSL_DMT_MARKET_BY_ORDER:
-			if (xmlMsgDataHasMarketByOrder)
-				ret = processItemRequest(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, &msg, &dIter);
-			else
-				ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
-						msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
-		default:
-			ret = sendItemRequestReject(pProvThread, (ProviderSession*)pChannelInfo->pUserSpec, 
-					msg.msgBase.streamId, msg.msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
-	}
+				break;
+		}
 
-	if (ret < RSSL_RET_SUCCESS) 
-	{
-		printf("Failed to process request from domain %d: %d\n", msg.msgBase.domainType, ret);
-	}
-	else if (ret > RSSL_RET_SUCCESS)
-	{
-		/* The function sent a message and indicated that we need to flush. */
-		providerThreadRequestChannelFlush(pProvThread, pChannelInfo);
-	}
+		if (ret < RSSL_RET_SUCCESS) 
+		{
+			printf("Failed to process request from domain %d: %d\n", msg.msgBase.domainType, ret);
+		}
+		else if (ret > RSSL_RET_SUCCESS)
+		{
+			/* The function sent a message and indicated that we need to flush. */
+			providerThreadRequestChannelFlush(pProvThread, pChannelInfo);
+		}
 
 	} while (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && cRet != RSSL_RET_END_OF_CONTAINER);
 

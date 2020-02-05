@@ -67,20 +67,21 @@ RsslRet channelHandlerWriteChannel(ChannelHandler *pHandler, ChannelInfo *pChann
 			return RSSL_RET_FAILURE;
 		}
 	}
+	else
+		pMsgBuffer = pBuffer;
 
 	/* Write buffer */
-	ret = rsslWrite(pChannel, (pMsgBuffer != 0 ? pMsgBuffer : pBuffer), RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes, &error);
+	ret = rsslWrite(pChannel, pMsgBuffer, RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes, &error);
 
 	if (ret >= RSSL_RET_SUCCESS)
 	{
-		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && 
-			ret == RSSL_RET_SUCCESS && pBuffer != 0)
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 			rsslReleaseBuffer(pBuffer, &error);
 
 		return ret;
 	}
 
-	if (pMsgBuffer != 0)
+	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		rsslReleaseBuffer(pMsgBuffer, &error);
 
 	switch (ret)

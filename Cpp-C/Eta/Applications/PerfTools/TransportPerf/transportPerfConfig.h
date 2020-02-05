@@ -67,6 +67,7 @@ typedef struct
 	char				caStore[255];
 	char				serverCert[255];
 	char				serverKey[255];
+	char				protocolList[128];			/* List of desired or supported sub-protocols for respective client or server websocket connection.*/
 
 } TransportPerfConfig;
 
