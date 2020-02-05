@@ -49,6 +49,7 @@
 
 static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
+static RsslBool isConsumerChannelUp = RSSL_FALSE;
 
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
@@ -283,7 +284,7 @@ int main(int argc, char **argv)
 			printf("time() failed.\n");
 		}
 
-		if (pConsumerChannel && !runTimeExpired)
+		if (pConsumerChannel && isConsumerChannelUp && !runTimeExpired)
 		{
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				handleSimpleTunnelMsgHandler(pReactor, pConsumerChannel, &simpleTunnelMsgHandler);
@@ -1168,6 +1169,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
 			}
 
+			isConsumerChannelUp = RSSL_TRUE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
@@ -1188,6 +1190,8 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			pConsumerChannel = NULL;
 			rsslReactorCloseChannel(pReactor, pReactorChannel, &rsslErrorInfo);
 			exit(-1);
+
+			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
@@ -1200,6 +1204,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
+			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_WARNING:
