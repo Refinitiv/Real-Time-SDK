@@ -493,7 +493,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 			rsslBufImpl->writeCursor = 0;
 			rsslBufImpl->fragId = 0;
 			rsslBufImpl->owner = 0;
-			_rsslFree(rsslBufImpl->pOriginMem);
+			_rsslFree(rsslBufImpl->buffer.data);
 			rsslBufImpl->buffer.length = 0;
 			ripcBuffer->priority = rsslBufImpl->priority;
 		}
@@ -640,7 +640,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 		}
 		/* set me as owner */
 		rsslBufImpl->owner = 1;
-		rsslBufImpl->pOriginMem = rsslBufImpl->buffer.data;
 		rsslBufImpl->buffer.length = size;
 	}
 	else

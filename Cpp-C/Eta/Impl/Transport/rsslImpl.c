@@ -2292,7 +2292,7 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	if (rsslBufImpl->owner == 1)
 	{
 		/* I allocated it - now free it */
-		_rsslFree(rsslBufImpl->pOriginMem);
+		_rsslFree(buffer->data);
 	}
 
 	(*(rsslChnlImpl->channelFuncs->channelReleaseBuffer))(rsslChnlImpl, rsslBufImpl, error);

@@ -159,7 +159,6 @@ typedef struct {
 	int	priority;					/* which priority queue to write to */
 	void			*bufferInfo;		/* The new type to abstract the underlying transport's buffer type*/	
 	RsslUInt8		fragmentationFlag; /* indicate whether the buffer is used for fragmentation*/
-	char*		    pOriginMem;		/* This is actual memory allocation. For fragmentation only.*/
 } rsslBufferImpl;
 
 /**
@@ -293,7 +292,6 @@ RTR_C_ALWAYS_INLINE void _rsslCleanBuffer(rsslBufferImpl *buffer)
 	buffer->integrity = 0;
 	buffer->bufferInfo = NULL;
 	buffer->owner = 0;
-	buffer->pOriginMem = 0;
 	buffer->fragId = 0;
 	buffer->writeCursor = 0;
 	buffer->packingOffset = 0;

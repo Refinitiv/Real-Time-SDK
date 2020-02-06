@@ -9581,7 +9581,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			rsslBufImpl->writeCursor = 0;
 			rsslBufImpl->fragId = 0;
 			rsslBufImpl->owner = 0;
-			_rsslFree(rsslBufImpl->pOriginMem);
+			_rsslFree(rsslBufImpl->buffer.data);
 			rsslBufImpl->buffer.length = 0;
 		}
 
@@ -9734,7 +9734,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 		}
 		/* set me as owner */
 		rsslBufImpl->owner = 1;
-		rsslBufImpl->pOriginMem = rsslBufImpl->buffer.data;
 	}
 	else
 	{
