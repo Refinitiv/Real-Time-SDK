@@ -7396,6 +7396,14 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 					flags |= RSSL_MKF_HAS_FILTER;
 					(*tokPtr)++;
 				}
+				else if (compareStrings(*tokPtr, JSON_FIELDS))
+				{
+					flags |= RSSL_MKF_HAS_ATTRIB;
+					keyPtr->attribContainerType = RSSL_DT_FIELD_LIST;
+					(*tokPtr)++;
+					*attribTokPtr = *tokPtr;
+					skipObject(tokPtr);
+				}
 				else if (_flags & JSON_FLAG_CATCH_UNEXPECTED_KEYS)
 				{
 					unexpectedKey(*tokPtr, __LINE__, __FILE__, &JSON_KEY);

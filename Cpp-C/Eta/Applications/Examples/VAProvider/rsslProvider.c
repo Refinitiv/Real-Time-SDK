@@ -719,6 +719,7 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 		case RSSL_DMT_MARKET_BY_PRICE:
 		case RSSL_DMT_YIELD_CURVE:
 		case RSSL_DMT_SYMBOL_LIST:
+		case RSSL_DMT_CONTRIBUTION:
 			if (processItemRequest(pReactor, pReactorChannel, pRsslMsg, &dIter) != RSSL_RET_SUCCESS)
 			{
 				removeClientSessionForChannel(pReactor, pReactorChannel);
