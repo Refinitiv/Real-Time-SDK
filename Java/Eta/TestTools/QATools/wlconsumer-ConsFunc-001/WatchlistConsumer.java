@@ -2262,7 +2262,8 @@ public class WatchlistConsumer implements ConsumerCallback
 	    	if (chnlInfo.loginRefresh == null ||
 	    		chnlInfo.serviceInfo == null ||
 	    		chnlInfo.reactorChannel == null ||
-	    		chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+	    		chnlInfo.reactorChannel.state() != ReactorChannel.State.READY ||
+	    		!isRequestedServiceUp(chnlInfo))
             {
                 continue;
             }
