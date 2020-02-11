@@ -122,9 +122,9 @@ if( UNIX )
 	endif()
 
     if( ${RCDEV_HOST_SYSTEM_BITS} STREQUAL "32")
-        set(CMAKE_POSITION_INDEPENDENT_CODE 0)
-		rcdev_set_flags(CMAKE_SHARED_LINKER_FLAGS _compilerBitFlags)
-		rcdev_set_flags(CMAKE_EXE_LINKER_FLAGS _compilerBitFlags)
+		set(CMAKE_POSITION_INDEPENDENT_CODE 0)
+		set(CMAKE_SHARED_LINKER_FLAGS "${_compilerBitFlags}" CACHE STRING "" FORCE)
+		set(CMAKE_EXE_LINKER_FLAGS "${_compilerBitFlags}" CACHE STRING "" FORCE)
     endif()
 
 else()
