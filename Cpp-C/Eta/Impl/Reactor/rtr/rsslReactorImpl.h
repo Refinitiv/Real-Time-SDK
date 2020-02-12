@@ -580,12 +580,16 @@ struct _RsslReactorImpl
 	RsslJsonConverter	*pJsonConverter; 
 	RsslDataDictionary	**pDictionaryList; /* Creates a list of pointer to pointer with the size of 1. */
 	RsslReactorServiceNameToIdCallback	*pServiceNameToIdCallback; /* Sets a callback specified by users */
+	RsslReactorJsonConversionEventCallback	*pJsonConversionEventCallback; /* Sets a callback specified by users to receive JSON error message. */
 	void				*userSpecPtr; /* Users's closure for callback functions */
+	RsslErrorInfo		*pJsonErrorInfo; /* Place holder for JSON error messages */
+	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 {
 	memset(pReactorImpl, 0, sizeof(RsslReactorImpl));
+	pReactorImpl->closeChannelFromFailure = RSSL_TRUE;
 }
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);

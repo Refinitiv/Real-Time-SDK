@@ -1515,6 +1515,17 @@ static void sendItemRequests(RsslReactor *pReactor, RsslReactorChannel *pReactor
 	pCommand->itemsRequested = RSSL_TRUE;
 }
 
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+
 RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
 {
 	ChannelCommand *pCommand;
@@ -1800,6 +1811,7 @@ int main(int argc, char **argv)
 
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

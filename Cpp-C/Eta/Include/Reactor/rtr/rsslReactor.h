@@ -85,6 +85,12 @@ typedef RsslReactorCallbackRet RsslReactorServiceEndpointEventCallback(RsslReact
 typedef RsslReactorCallbackRet RsslReactorOAuthCredentialEventCallback(RsslReactor*, RsslReactorOAuthCredentialEvent*);
 
 /**
+ * @brief Signature of an Json Conversion Event Callback function.
+ * @see RsslReactorJsonConversionEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorJsonConversionEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorJsonConversionEvent*);
+
+/**
  * @brief Signature of a callback function to convert from a service name to a service Id.
  * @param pReactor The Reactor associated with this event. 
  * @param pServiceName The name of the service that the callback will look up to find the appropriate ID.
@@ -94,6 +100,7 @@ typedef RsslReactorCallbackRet RsslReactorOAuthCredentialEventCallback(RsslReact
  * @see RsslReactorServiceNameToIdEvent
  */
 typedef RsslRet RsslReactorServiceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
 
 /**
  * @brief Enumerated types indicating the role of a connection.
@@ -881,13 +888,15 @@ RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, R
  * @see rsslReactorInitJsonConverter
  */
 typedef struct {
-	RsslDataDictionary						*pDictionary;				/*!< the RsslDataDictionary to initialize the RWF/JSON converter. */
-	void									*userSpecPtr; 				/*!< user-specified pointer which will be retrieved in the callback function. */
-	RsslUInt16								defaultServiceId;			/*!< Specify a default service ID for a request if both service name and ID are not set. */
-	RsslReactorServiceNameToIdCallback		*pServiceNameToIdCallback;	/*!< Callback function that handles conversion from service name to ID. */
-	RsslBool								jsonExpandedEnumFields;		/*!< Expand enumerated values in field entries to their display values for JSON protocol. */
-	RsslBool								catchUnknownJsonKeys;		/*!< When converting from JSON to RWF, catch unknown JSON keys. */
-	RsslBool								catchUnknownJsonFids;		/*!< When converting from JSON to RWF, catch unknown JSON field IDs. */
+	RsslDataDictionary						*pDictionary;					/*!< the RsslDataDictionary to initialize the RWF/JSON converter. */
+	void									*userSpecPtr; 					/*!< user-specified pointer which will be retrieved in the callback function. */
+	RsslUInt16								defaultServiceId;				/*!< Specify a default service ID for a request if both service name and ID are not set. */
+	RsslReactorServiceNameToIdCallback		*pServiceNameToIdCallback;		/*!< Callback function that handles conversion from service name to ID. */
+	RsslReactorJsonConversionEventCallback	*pJsonConversionEventCallback;	/*!< Callback function that receives RsslReactorJsonConversionEvent when the JSON converter failed to convert message. */
+	RsslBool								jsonExpandedEnumFields;			/*!< Expand enumerated values in field entries to their display values for JSON protocol. */
+	RsslBool								catchUnknownJsonKeys;			/*!< When converting from JSON to RWF, catch unknown JSON keys. */
+	RsslBool								catchUnknownJsonFids;			/*!< When converting from JSON to RWF, catch unknown JSON field IDs. */
+	RsslBool								closeChannelFromFailure;		/*!< Closes the channel when the Reactor failed to parse JSON message or received JSON error message. */
 } RsslReactorJsonConverterOptions;
 
 /**
@@ -898,6 +907,7 @@ RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterO
 {
 	memset(pReactorJsonConverterOptions, 0, sizeof(RsslReactorJsonConverterOptions));
 	pReactorJsonConverterOptions->catchUnknownJsonFids = RSSL_TRUE;
+	pReactorJsonConverterOptions->closeChannelFromFailure = RSSL_TRUE;
 }
 
 /**

@@ -528,6 +528,22 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 
 		goto FailedToInitJsonConverter;
 	}
+
+	/* Checks whether the callback method is set by users to receive JSON error message */
+	if (pReactorJsonConverterOptions->pJsonConversionEventCallback)
+	{
+		/* Allocates memory for holding JSON error messages when the conversion failed. */
+		pReactorImpl->pJsonErrorInfo = (RsslErrorInfo*)malloc(sizeof(RsslErrorInfo));
+
+		if (pReactorImpl->pJsonErrorInfo == NULL)
+		{
+			goto FailedToInitJsonConverter;
+		}
+
+		pReactorImpl->pJsonConversionEventCallback = pReactorJsonConverterOptions->pJsonConversionEventCallback;
+	}
+
+	pReactorImpl->closeChannelFromFailure = pReactorJsonConverterOptions->closeChannelFromFailure;
 	
 	pReactorImpl->jsonConverterInitialized = RSSL_TRUE;
 
@@ -1996,6 +2012,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 	}
 	else
 	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 }
@@ -4399,6 +4416,8 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 			RsslJsonMsg jsonMsg;
 			RsslBool failedToConvertJSONMsg = RSSL_TRUE;
 
+			rjcError.rsslErrorId = RSSL_RET_SUCCESS;
+
 			/* Added checking to ensure that the JSON converter is initialized properly.*/
 			if (pReactorImpl->pJsonConverter == 0)
 			{
@@ -4418,6 +4437,7 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 				{
 					if (ret != RSSL_RET_SUCCESS)
 					{	/* Failed to convert a JSON message. */
+						rjcError.rsslErrorId = ret;
 						break;
 					}
 
@@ -4430,6 +4450,10 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 							rsslDumpBuffer(pReactorChannel->reactorChannel.pRsslChannel, RSSL_RWF_PROTOCOL_TYPE, &decodedMsg, &pError->rsslError);
 
 							ret = _processRsslRwfMessage(pReactorImpl, pReactorChannel, &readOutArgs, &decodedMsg, pError);
+
+							if (ret < RSSL_RET_SUCCESS)
+								return ret;
+
 							break;
 						}
 						case RSSL_JSON_MC_PING:
@@ -4479,16 +4503,17 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 			}
 			else
 			{
-				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to parse JSON data with error message: %s.", &rjcError.text[0]);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to parse JSON message: %s.", &rjcError.text[0]);
 				failedToConvertJSONMsg = RSSL_FALSE;
+				rjcError.rsslErrorId = ret;
 			}
 
 			if (ret < RSSL_RET_SUCCESS)
 			{
+				RsslGetJsonErrorParams errorParams;
+				RsslBuffer outputBuffer = RSSL_INIT_BUFFER;
 				if (failedToConvertJSONMsg) /* Send JSON error message back when it fails to decode JSON message */
 				{
-					RsslGetJsonErrorParams errorParams;
-					RsslBuffer outputBuffer = RSSL_INIT_BUFFER;
 					if ( (ret = rsslGetJsonSimpleErrorParams(pReactorImpl->pJsonConverter, &decodeOptions,
 						&rjcError, &errorParams, pMsgBuf, jsonMsg.jsonRsslMsg.rsslMsg.msgBase.streamId)) == RSSL_RET_SUCCESS )
 					{
@@ -4511,7 +4536,44 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 					}
 				}
 
-				return ret;
+				/* Notifies JSON conversion error messages if the callback is specified by users */
+				if ( (pReactorImpl->pJsonConversionEventCallback) && (rjcError.rsslErrorId != RSSL_RET_SUCCESS) )
+				{
+					RsslReactorCallbackRet cret = RSSL_RC_CRET_SUCCESS;
+					RsslReactorJsonConversionEvent jsonConversionEvent;
+
+					rsslClearReactorJsonConversionEvent(&jsonConversionEvent);
+
+					if(failedToConvertJSONMsg)
+						rsslSetErrorInfo(pReactorImpl->pJsonErrorInfo, RSSL_EIC_FAILURE, rjcError.rsslErrorId, __FILE__, __LINE__, "Failed to convert JSON message: %s", outputBuffer.data);
+					else
+						rsslSetErrorInfo(pReactorImpl->pJsonErrorInfo, RSSL_EIC_FAILURE, rjcError.rsslErrorId, __FILE__, __LINE__, "Failed to convert JSON message: %s", &rjcError.text[0]);
+
+
+					jsonConversionEvent.pError = pReactorImpl->pJsonErrorInfo;
+					jsonConversionEvent.pUserSpec = pReactorImpl->userSpecPtr;
+
+					_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+					cret = (*pReactorImpl->pJsonConversionEventCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &jsonConversionEvent);
+					_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+					if (cret != RSSL_RC_CRET_SUCCESS)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Error return code %d from callback.", cret);
+						return RSSL_RET_FAILURE;
+					}
+				}
+
+				/* Don't closes the channel when this function can reply the JSON ERROR message back. */
+				if (pReactorImpl->closeChannelFromFailure && (ret != RSSL_RET_SUCCESS) )
+				{
+					/* Closes the channel when fails to convert the data */
+					rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+					if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+						return RSSL_RET_FAILURE;
+					pReactorChannel->readRet = 0;
+					return RSSL_RET_SUCCESS; /* Problem handled, so return success */
+				}
 			}
 
 			return RSSL_RET_SUCCESS;

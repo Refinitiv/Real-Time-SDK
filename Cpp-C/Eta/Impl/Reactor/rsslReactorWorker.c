@@ -366,6 +366,12 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 			free(pReactorImpl->pDictionaryList);
 			pReactorImpl->pDictionaryList = NULL;
 		}
+
+		if (pReactorImpl->pJsonErrorInfo)
+		{
+			free(pReactorImpl->pJsonErrorInfo);
+			pReactorImpl->pJsonErrorInfo = NULL;
+		}
 	}
 
 	/* For EDP token management and service discovery */
