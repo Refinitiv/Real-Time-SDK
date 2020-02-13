@@ -73,13 +73,15 @@ vaconsumer-ChnlStats-004: Alters VAConsumer to create 2 connections with 1 react
 
 vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
 
-vaconsumer-Ws-001: Alter VAConsumer to add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnumField
+vaconsumer-Ws-001: Alter VAConsumer to add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnum
 
-vaconsumer-Ws-002: Alter VAConsumer to post enum FIDs add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnumField
+vaconsumer-Ws-002: Alter VAConsumer to post enum FIDs add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnum
 
 vaconsumer-Ws-003: Alter VAConsumer to send request as json packed buffer instead of batch request.
 
 vaconsumer-Ws-004: Alter VAConsumer to test handle error case when it sends request as json packed buffer.
+
+vaconsumer-Ws-005: Alter VAConsumer to send Post Key Attribute as FieldList and Domain Contribution.
 
 Module:  Watchlist Consumer
 ---------------------------

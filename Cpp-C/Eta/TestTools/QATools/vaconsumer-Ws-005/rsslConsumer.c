@@ -62,10 +62,6 @@ static time_t statisticInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
-//API QA
-static RsslBool testCompressionZlib = RSSL_FALSE;
-static RsslBool jsonExpandEnum = RSSL_FALSE;
-//END API QA
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -158,10 +154,6 @@ void printUsageAndExit(char *appName)
 			"\n -libcurlName specifies the name of the libcurl shared object"
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
-		  // API QA
-		    "\n -testCompressionZlib turns on Zlib compression.\n"
-		    "\n -jsonExpandEnum changes jsonExpandEnumField from default (FALSE) to TRUE.\n"
-		   // END API QA
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
 
@@ -202,18 +194,6 @@ void parseCommandLine(int argc, char **argv)
 				enableSessionMgnt = RSSL_TRUE;
 				break;
 			}
-			// API QA
-			if (strcmp("-testCompressionZlib", argv[i]) == 0)
-			{
-				testCompressionZlib = RSSL_TRUE;
-				break;
-			}
-			if (strcmp("-jsonExpandEnum", argv[i]) == 0)
-				{
-				jsonExpandEnum = RSSL_TRUE;
-				break;
-				}
-			//END API QA
 		}
 
 		snprintf(libcryptoName, sizeof(libcryptoName), "");
@@ -375,10 +355,6 @@ void parseCommandLine(int argc, char **argv)
 				if (strstr(argv[i], "-webSocket") != 0)
 				{
 					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
-					// API QA
-					if (testCompressionZlib)
-						pCommand->cInfo.rsslConnectOptions.compressionType = RSSL_COMP_ZLIB;
-					// End API QA
 					pCommand->cInfo.rsslConnectOptions.wsOpts.protocols = protocolList;
 				}
 				
@@ -1539,17 +1515,6 @@ static void sendItemRequests(RsslReactor *pReactor, RsslReactorChannel *pReactor
 	pCommand->itemsRequested = RSSL_TRUE;
 }
 
-RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
-{
-	if (pEvent->pError)
-	{
-		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
-	}
-
-	return RSSL_RC_CRET_SUCCESS;
-}
-
-
 RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
 {
 	ChannelCommand *pCommand;
@@ -1835,11 +1800,6 @@ int main(int argc, char **argv)
 
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
-	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
-	//API QA
-	if (jsonExpandEnum)
-		jsonConverterOptions.jsonExpandedEnumFields = RSSL_TRUE;
-	//END API QA
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -2087,14 +2047,6 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 
 	switch ( pMsg->msgBase.domainType )
 	{
-		//APIQA
-		case RSSL_DMT_LOGIN:
-			ret=decodeGenericMsgDataBody(pChannel, pMsg);
-			break;
-		case RSSL_DMT_SOURCE:
-			ret=decodeGenericMsgDataBody(pChannel, pMsg);
-			break;
-		 //END APIQA
 		case RSSL_DMT_MARKET_PRICE:
 			if (processMarketPriceResponse(pReactor, pChannel, pMsgEvent, pMsg, &dIter) != RSSL_RET_SUCCESS)
 			{
@@ -2140,6 +2092,15 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 				closeConnection(pReactor, pChannel, pCommand);
 			}
 			break;
+		//API QA
+		case RSSL_DMT_CONTRIBUTION:
+			printf("Received Domain Type %d\n: ", pMsg->msgBase.domainType);
+			if(pMsg->msgBase.msgClass==RSSL_MC_ACK)
+			{
+				printf("\nReceived AckMsg for stream %i \n", pMsg->msgBase.streamId);
+			}
+			break;
+        // END API QA
 		default:
 			printf("Unhandled Domain Type %d received on channel "SOCKET_PRINT_TYPE"\n", pMsg->msgBase.domainType, pChannel->socketId);
 			break;
@@ -2147,60 +2108,6 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 
 	return cret;
 }
-
-//APIQA
-/* Decodes a GenericMsg payload.
-* GenericMsg from provider contain ElementList with one ElementEntry  */
-RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *pRsslMsg)
-{
-	RsslDecodeIterator dIter;
-	RsslRet ret;
-	RsslElementList eList;
-	RsslElementEntry eEntry;
-	RsslLocalElementSetDefDb eSet;
-	RsslInt tempInt;
-
-	if (pRsslMsg->msgBase.containerType != RSSL_DT_ELEMENT_LIST)
-	{
-		printf("  Incorrect container type: %u\n", pRsslMsg->msgBase.containerType);
-		return RSSL_RET_FAILURE;
-	}
-
-	rsslClearDecodeIterator(&dIter);
-	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->pRsslChannel->majorVersion,
-		pReactorChannel->pRsslChannel->minorVersion);
-	rsslSetDecodeIteratorBuffer(&dIter, &pRsslMsg->msgBase.encDataBody);
-
-	if ((ret = rsslDecodeElementList(&dIter, &eList, &eSet)) != RSSL_RET_SUCCESS)
-	{
-		printf("rsslDecodeElementList() failed: %d(%s)\n", ret, rsslRetCodeToString(ret));
-		return RSSL_RET_FAILURE;
-	}
-	while ((ret = rsslDecodeElementEntry(&dIter, &eEntry)) !=
-		RSSL_RET_END_OF_CONTAINER)
-	{
-		if (ret != RSSL_RET_SUCCESS)
-		{
-			printf("rsslDecodeElementEntry() failed: %d(%s)\n", ret, rsslRetCodeToString(ret));
-			return ret;
-		}
-		ret = rsslDecodeInt(&dIter, &tempInt);
-		if (ret != RSSL_RET_SUCCESS)
-		{
-			printf("rsslDecodeInt() failed: %d(%s)\n", ret, rsslRetCodeToString(ret));
-			return ret;
-		}
-		printf(" ===== API QA prints =====");
-		printf("\n");
-		printf(" Received Generic Message DOMAIN : %s\n", rsslDomainTypeToString(pRsslMsg->msgBase.domainType));
-		printf(" dataEntry data : of ElementEntry is:   %d\n", tempInt);
-		printf("\n");
-
-	}
-	return RSSL_RET_SUCCESS;
-}
-//END APIQA
-
 
 /*
  * Cleans up and exits the application.

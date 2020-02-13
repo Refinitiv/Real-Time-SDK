@@ -32,7 +32,9 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent);
 
 void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, ChannelCommand *pCommand);
+//API QA
 RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *pRsslMsg);
+//END API QA
 
 void dumpHexBuffer(const RsslBuffer * buffer);
 
