@@ -64,7 +64,7 @@ static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
 //API QA
 static RsslBool testCompressionZlib = RSSL_FALSE;
-static RsslBool jsonExpandEnumField = RSSL_FALSE;
+static RsslBool jsonExpandEnum = RSSL_FALSE;
 //END API QA
 
 #define MAX_CHAN_COMMANDS 4
@@ -158,10 +158,10 @@ void printUsageAndExit(char *appName)
 			"\n -libcurlName specifies the name of the libcurl shared object"
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
-		    // API QA
+		  // API QA
 		    "\n -testCompressionZlib turns on Zlib compression.\n"
-		    "\n -jsonExpandEnumField changes jsonExpandEnumField from default (FALSE) to TRUE.\n"
-		    // END API QA
+		    "\n -jsonExpandEnum changes jsonExpandEnumField from default (FALSE) to TRUE.\n"
+		   // END API QA
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
 
@@ -208,11 +208,11 @@ void parseCommandLine(int argc, char **argv)
 				testCompressionZlib = RSSL_TRUE;
 				break;
 			}
-			if (strcmp("-jsonExpandEnumField", argv[i]) == 0)
-			{
-				jsonExpandEnumField = RSSL_TRUE;
+			if (strcmp("-jsonExpandEnum", argv[i]) == 0)
+				{
+				jsonExpandEnum = RSSL_TRUE;
 				break;
-			}
+				}
 			//END API QA
 		}
 
@@ -1144,14 +1144,6 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++; // Do nothing as the parameter is already handled
 			}
-			else if (strcmp("-testCompressionZlib", argv[i]) == 0)
-			{
-				i++; // Do nothing as the parameter is already handled
-			}
-			else if (strcmp("-jsonExpandEnumField", argv[i]) == 0)
-			{
-				i++; // Do nothing as the parameter is already handled
-			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -1547,6 +1539,17 @@ static void sendItemRequests(RsslReactor *pReactor, RsslReactorChannel *pReactor
 	pCommand->itemsRequested = RSSL_TRUE;
 }
 
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+
 RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
 {
 	ChannelCommand *pCommand;
@@ -1832,9 +1835,11 @@ int main(int argc, char **argv)
 
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
 	//API QA
-	if (jsonExpandEnumField)
+	if (jsonExpandEnum)
 		jsonConverterOptions.jsonExpandedEnumFields = RSSL_TRUE;
+	//END API QA
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -2084,10 +2089,12 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 	{
 		//APIQA
 		case RSSL_DMT_LOGIN:
-			return decodeGenericMsgDataBody(pChannel, pMsg);
+			ret=decodeGenericMsgDataBody(pChannel, pMsg);
+			break;
 		case RSSL_DMT_SOURCE:
-			return decodeGenericMsgDataBody(pChannel, pMsg);
-		//END APIQA
+			ret=decodeGenericMsgDataBody(pChannel, pMsg);
+			break;
+		 //END APIQA
 		case RSSL_DMT_MARKET_PRICE:
 			if (processMarketPriceResponse(pReactor, pChannel, pMsgEvent, pMsg, &dIter) != RSSL_RET_SUCCESS)
 			{
@@ -2140,6 +2147,7 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 
 	return cret;
 }
+
 //APIQA
 /* Decodes a GenericMsg payload.
 * GenericMsg from provider contain ElementList with one ElementEntry  */
@@ -2154,9 +2162,9 @@ RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 
 	if (pRsslMsg->msgBase.containerType != RSSL_DT_ELEMENT_LIST)
 	{
-	printf("  Incorrect container type: %u\n", pRsslMsg->msgBase.containerType);
-	return RSSL_RET_FAILURE;
-    }
+		printf("  Incorrect container type: %u\n", pRsslMsg->msgBase.containerType);
+		return RSSL_RET_FAILURE;
+	}
 
 	rsslClearDecodeIterator(&dIter);
 	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->pRsslChannel->majorVersion,
@@ -2192,6 +2200,8 @@ RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 	return RSSL_RET_SUCCESS;
 }
 //END APIQA
+
+
 /*
  * Cleans up and exits the application.
  */
@@ -2392,6 +2402,7 @@ static RsslRet decodeEntryFromCache(ChannelCommand *pCommand, RsslPayloadEntryHa
 		case RSSL_DMT_YIELD_CURVE:
 			ret = decodeYieldCurvePayload(&pCommand->dictionary, &dIter, &localFieldSetDefDb);
 			break;
+
 		default:
 			break;
 		}

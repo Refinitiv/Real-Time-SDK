@@ -1,0 +1,3 @@
+# file,location
+rsslConsumer.c,Applications/Examples/VAConsumer
+rsslPostHandler.c,Applications/Examples/VAConsumer

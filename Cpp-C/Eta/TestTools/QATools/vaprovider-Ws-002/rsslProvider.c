@@ -72,12 +72,8 @@ static const char *defaultServiceName = "DIRECT_FEED";
 /* default sub-protocol list */
 static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
 //API QA
-static RsslBool testCompressionZlib = RSSL_FALSE;
-static RsslBool jsonExpandEnum = RSSL_FALSE;
-static RsslInt32 compressionLevel = 3;
-static RsslBool sendGenericMessage = RSSL_FALSE;
+static RsslBool catchUnknownJsonKeys = RSSL_FALSE;
 //END API QA
-
 void exitWithUsage()
 {
 	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
@@ -91,12 +87,8 @@ void exitWithUsage()
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 	//API QA
-	printf(" -testCompressionZlib turns on Zlib compression\n");
-	printf(" -compressionLevel specifies Zlib compression level\n");
-	printf(" -jsonExpandEnum changes jsonExpandEnumField from default (FALSE)to TRUE\n");
-	printf(" -sendGenericMessage sends generic message to consumer\n");
+	printf(" -catchUnknownJsonKeys changes catchUnknownJsonKeys from default (FALSE)to TRUE\n");
 	//END API QA
-
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -365,26 +357,10 @@ int main(int argc, char **argv)
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
 		}
-		//API QA
-		else if (0 == strcmp("-testCompressionZlib", argv[iargs]))
+		else if (0 == strcmp("-catchUnknownJsonKeys", argv[iargs]))
 		{
-			testCompressionZlib = RSSL_TRUE;
+			catchUnknownJsonKeys = RSSL_TRUE;
 		}
-		else if (0 == strcmp("-compressionLevel", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitWithUsage();
-			compressionLevel = atoi(argv[iargs]);
-		}
-		else if (0 == strcmp("-jsonExpandEnum", argv[iargs]))
-		{
-			jsonExpandEnum = RSSL_TRUE;
-		}
-		else if (0 == strcmp("-sendGenericMessage", argv[iargs]))
-		{
-			sendGenericMessage = RSSL_TRUE;
-		}
-		//END API QA
-
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -474,8 +450,8 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
 	//API QA
-	if (jsonExpandEnum)
-		jsonConverterOptions.jsonExpandedEnumFields = RSSL_TRUE;
+	if (catchUnknownJsonKeys)
+		jsonConverterOptions.catchUnknownJsonKeys = RSSL_TRUE;
 	//END API QA
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -495,13 +471,6 @@ int main(int argc, char **argv)
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
-	//API QA
-	if (testCompressionZlib)
-	{
-		sopts.compressionType = RSSL_COMP_ZLIB;
-		sopts.compressionLevel = compressionLevel;
-	}
-	//END API QA
 	sopts.connectionType = connType;
 	sopts.encryptionOpts.serverCert = certFile;
 	sopts.encryptionOpts.serverPrivateKey = keyFile;
@@ -768,17 +737,6 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 				removeClientSessionForChannel(pReactor, pReactorChannel);
 				return RSSL_RC_CRET_SUCCESS;
 			}
-			// APIQA
-			if (sendGenericMessage) {
-				if (pRsslMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE) 
-				{
-					fprintf(stderr, "----------APIQA: Sending a generic message on the LOGIN domain \n\n");
-					sendGenericMessageLogin(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
-					fprintf(stderr, "----------APIQA: Sending a generic message on the SOURCE directory domain \n\n");
-					sendGenericMessageSource(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
-				}
-			}
-			// APIQA
 			break;
 		default:
 			switch(pRsslMsg->msgBase.msgClass)
