@@ -32,6 +32,7 @@ set_target_properties( ProvPerf_shared
 
 target_link_libraries( ProvPerf_shared 
 							librsslVA_shared 
+							librsslJsonConverter_shared
 							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 						)
@@ -44,6 +45,7 @@ target_include_directories(ProvPerf
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/Common>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/ProvPerf>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/NIProvPerf>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 
 set_target_properties( ProvPerf

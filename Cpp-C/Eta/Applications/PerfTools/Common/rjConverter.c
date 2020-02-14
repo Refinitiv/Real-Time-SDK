@@ -98,8 +98,6 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 	RsslJsonConverterError rjcError;
 	RsslJsonDictionaryListProperty dlProperty;
 	RsslBool flag = RSSL_TRUE;
-	RsslRet ret;
-
 
 	if (rjcSession->jsonConverterInitialized == RSSL_TRUE)
 	{

@@ -13,6 +13,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 				LANGUAGE C
 				PATHROOT   ${Eta_SOURCE_DIR}/Libs
 				LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
+				           ${Eta_SOURCE_DIR}/Include/Converter
 					   ${Eta_SOURCE_DIR}/Include/Util
 					   ${Eta_SOURCE_DIR}/Impl/Util/Include
 					   ${Eta_SOURCE_DIR}/Impl/Converter/Include
@@ -25,6 +26,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 				LANGUAGE C
 				PATHROOT   ${Eta_SOURCE_DIR}/Libs
 				LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
+				           ${Eta_SOURCE_DIR}/Include/Converter
 					   ${Eta_SOURCE_DIR}/Include/Util
 					   ${Eta_SOURCE_DIR}/Impl/Util/Include
 					   ${Eta_SOURCE_DIR}/Impl/Converter/Include

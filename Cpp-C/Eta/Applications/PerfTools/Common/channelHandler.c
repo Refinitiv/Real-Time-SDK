@@ -63,7 +63,7 @@ RsslRet channelHandlerWriteChannel(ChannelHandler *pHandler, ChannelInfo *pChann
 		/* convert message to JSON */
 		if ((pMsgBuffer = (pHandler->convCallback)(pHandler, pChannelInfo, pBuffer)) == NULL)
 		{
-			printf("channelHandlerWriteChannel() Failed to convert RWF > JSON - <%s>\n");
+			printf("channelHandlerWriteChannel() Failed to convert RWF > JSON \n");
 			return RSSL_RET_FAILURE;
 		}
 	}

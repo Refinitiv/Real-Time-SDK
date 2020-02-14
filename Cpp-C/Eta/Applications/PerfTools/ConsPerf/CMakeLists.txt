@@ -23,7 +23,7 @@ target_include_directories(ConsPerf_shared
 set_target_properties( ConsPerf_shared 
 							PROPERTIES 
 								OUTPUT_NAME ConsPerf )
-target_link_libraries( ConsPerf_shared librsslVA_shared 
+target_link_libraries( ConsPerf_shared librsslVA_shared librsslJsonConverter_shared 
 								LibXml2::LibXml2 
 								${SYSTEM_LIBRARIES} )
 
@@ -32,6 +32,7 @@ target_include_directories(ConsPerf
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 set_target_properties( ConsPerf 
 							PROPERTIES 
