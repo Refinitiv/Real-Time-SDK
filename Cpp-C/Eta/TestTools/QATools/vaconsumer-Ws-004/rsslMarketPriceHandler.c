@@ -750,8 +750,8 @@ RsslRet sendMarketPriceItemRequests(RsslReactor *pReactor, RsslReactorChannel* p
 				printf("\nConnected Provider does not support Batch Requests.  Sending Market Price requests as individual request messages.\n");
 			//API QA
 			//msgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_TRUE, &rsslErrorInfo);
-			//RsslBuffer *pOriginMsgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_TRUE, &rsslErrorInfo);
-			RsslBuffer *pOriginMsgBuf = rsslReactorGetBuffer(pReactorChannel, 60, RSSL_TRUE, &rsslErrorInfo);
+			RsslBuffer *pOriginMsgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_TRUE, &rsslErrorInfo);
+			//RsslBuffer *pOriginMsgBuf = rsslReactorGetBuffer(pReactorChannel, 60, RSSL_TRUE, &rsslErrorInfo);
 
 			msgBuf = pOriginMsgBuf;
 
