@@ -57,7 +57,7 @@ TEST_F(MiscTests, PingAndPong)
 
 	/* Ping */
 	_jsonBuffer.data = (char*)"{\"Type\":\"Ping\"}";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -80,7 +80,7 @@ TEST_F(MiscTests, PingAndPong)
 
 	/* Pong */
 	_jsonBuffer.data = (char*)"{\"Type\":\"Pong\"}";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -134,7 +134,7 @@ TEST_F(MiscTests, PackedMessages)
 
 	/* One message */
 	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -162,7 +162,7 @@ TEST_F(MiscTests, PackedMessages)
 
 	/* Two messages */
 	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}]";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -202,7 +202,7 @@ TEST_F(MiscTests, PackedMessages)
 
 	/* Three messages */
 	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}],{\"ID\":6,\"Key\":{\"Name\":\"TINY\"}}";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -255,7 +255,7 @@ TEST_F(MiscTests, PackedMessages)
 
 	/* Message and Ping */
 	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"Type\":\"Ping\"}]";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;
@@ -293,7 +293,7 @@ TEST_F(MiscTests, PackedMessages)
 
 	/* Pong and Message */
 	_jsonBuffer.data = (char*)"[{\"Type\":\"Pong\"},{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
-	_jsonBuffer.length = strlen(_jsonBuffer.data);
+	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
 	ASSERT_GE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_SUCCESS) ;

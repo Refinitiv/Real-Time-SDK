@@ -134,14 +134,14 @@ TEST_P(ArrayTypesTestFixture, ArrayTypesTest)
 	RsslBuffer arrayAsciiStrings[2] = {{7, (char*)"String1"}, {7, (char*)"String2"}};
 
 	/* Utf8String */
-	char UTF8_UPTICK[] = { 0xe2, 0x87, 0xa7, 0x00 };
-	char UTF8_DOWNTICK[] = { 0xe2, 0x87, 0xa9, 0x00 };
+	char UTF8_UPTICK[] = { (char)0xe2,(char)0x87, (char)0xa7, (char)0x00 };
+	char UTF8_DOWNTICK[] = { (char)0xe2, (char)0x87, (char)0xa9, (char)0x00 };
 	RsslBuffer arrayUtf8Strings[2] = {{3, UTF8_UPTICK}, {3, UTF8_DOWNTICK}};
 
 	/* RmtesString */
 	/* The RMTES Strings used in this test match the corresponding UTF8 strings when converted to JSON. */
-	char RMTES_UPTICK[] = { 0xde, 0x00 };
-	char RMTES_DOWNTICK[] = { 0xfe, 0x00 };
+	char RMTES_UPTICK[] = { (char)0xde, (char)0x00 };
+	char RMTES_DOWNTICK[] = { (char)0xfe, (char)0x00 };
 	RsslBuffer arrayRmtesStrings[2] = {{1, RMTES_UPTICK}, {1, RMTES_DOWNTICK}};
 
 	rsslClearUpdateMsg(&updateMsg);

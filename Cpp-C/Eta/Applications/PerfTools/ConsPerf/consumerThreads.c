@@ -1975,6 +1975,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	RsslDecodeIterator dIter;
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
+	TimeValue decodetime;
 
 	RsslBool loggedIn = RSSL_FALSE;
 
@@ -2046,14 +2047,19 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 								messageBuff.data = pConsumerThread->rjcSess.convBuff.data;
 								messageBuff.length = pConsumerThread->rjcSess.convBuff.length;
 
+								decodetime = getTimeNano();
 								cRet = rjcMsgConvertFromJson(&(pConsumerThread->rjcSess), 
 															 pConsumerThread->pChannel, 
 															 &messageBuff, 
 															 (numConverted == 0 ? msgBuf:NULL), &errInf);
 								numConverted++;
+								decodetime = getTimeNano() - decodetime;
 
+							
 								if (cRet == RSSL_RET_END_OF_CONTAINER)
+								{
 									break;
+								}
 
 								if (cRet != RSSL_RET_SUCCESS)
 									continue;

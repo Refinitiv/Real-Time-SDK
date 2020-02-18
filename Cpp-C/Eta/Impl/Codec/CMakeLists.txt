@@ -199,6 +199,43 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Transport/rtr/rsslTransport.h
                 ${Eta_BINARY_DIR}/Include/rsslVersion.h
                 )
+
+	set(rsslJsonConverterFiles
+		${Eta_SOURCE_DIR}/Impl/Converter/rsslJsonConverter.C
+		${Eta_SOURCE_DIR}/Impl/Converter/rwfToJsonConverter.C 
+		${Eta_SOURCE_DIR}/Impl/Converter/rwfToJsonBase.C
+		${Eta_SOURCE_DIR}/Impl/Converter/jsonToRwfConverter.C
+		${Eta_SOURCE_DIR}/Impl/Converter/jsonToRsslMsgDecoder.C
+		${Eta_SOURCE_DIR}/Impl/Converter/jsonToRwfSimple.C
+		${Eta_SOURCE_DIR}/Impl/Converter/rwfToJsonSimple.C
+		${Eta_SOURCE_DIR}/Impl/Converter/jsonToRwfBase.C
+		${Eta_SOURCE_DIR}/Impl/Converter/jsmn.C 
+		${Eta_SOURCE_DIR}/Impl/Converter/EnumTableDefinition.C
+
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsmn.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsonSimpleDefs.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsonToRsslMsgDecoder.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsonToRwfBase.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsonToRwfSimple.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/jsonToRwfConverter.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rwfToJsonBase.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rwfToJsonSimple.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rwfToJsonConverter.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rjcstring.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/EnumTableDefinition.h
+
+		${Eta_SOURCE_DIR}/Include/Converter/rtr/rsslJsonConverter.h
+
+		${Eta_SOURCE_DIR}/Include/Codec/rtr/rsslDataDictionary.h 
+		${Eta_SOURCE_DIR}/Include/Util/rtr/rsslTypes.h
+		${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/custmem.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rjchexdmp.h
+		${Eta_SOURCE_DIR}/Impl/Converter/Include/rtr/rjcbuffer.h
+		${Eta_SOURCE_DIR}/Impl/Converter/rjcstring.C
+		${Eta_SOURCE_DIR}/Impl/Converter/rjchexdmp.C
+		${Eta_SOURCE_DIR}/Impl/Converter/rjcbuffer.C
+	)
+
     if (CMAKE_HOST_WIN32)
         set(rsslWinInetSrcFiles 
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripcinetutils.c
@@ -319,12 +356,13 @@ else()
 	##          -- Build librssl SHARED LIBRARY --
 
     add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} )
 
     target_include_directories(librssl_shared
 										PRIVATE
 											../Transport
-
+											${Eta_SOURCE_DIR}/Impl/Util/Include
+											${Eta_SOURCE_DIR}/Impl/Converter/Include
 										PUBLIC
 											../Util/Include
 											${Eta_SOURCE_DIR}/Include/RDM

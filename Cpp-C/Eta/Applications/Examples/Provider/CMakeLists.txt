@@ -11,6 +11,20 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSendMessage.c
   ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSymbolListItems.c
   ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslDictionaryProvider.c
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslJsonSession.c
+
+  rsslDirectoryHandler.h        rsslItemHandler.h
+  rsslLoginHandler.h            rsslProvider.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslDirectoryEncodeDecode.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslItemEncode.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslLoginEncodeDecode.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslMarketByOrderItems.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslMarketByPriceItems.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslMarketPriceItems.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSendMessage.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSymbolListItems.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslDictionaryProvider.h
+  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslJsonSession.h
   )
 
 add_executable( Provider_shared ${SOURCE_FILES} )

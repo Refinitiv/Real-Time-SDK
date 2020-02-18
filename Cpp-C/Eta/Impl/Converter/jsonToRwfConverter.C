@@ -1056,7 +1056,7 @@ bool jsonToRwfConverter::processUpdateMsg(jsmntok_t ** const tokPtr, RsslMsg *rs
 			rsslUpdateMsgApplyHasConfInfo(&rsslMsgPtr->updateMsg);
 			break;
 		}
-		case 'o':	// Discardable					// MJD: maybe better letter ?
+		case 'o':	// Discardable
 		{
 			(*tokPtr)++;
 			if ((*tokPtr)->type != JSMN_PRIMITIVE)
@@ -3499,10 +3499,6 @@ bool jsonToRwfConverter::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** co
 								       &_jsonMsg[(*tokPtr)->end]);
 					(*tokPtr)++;
 				}
-				else
-				{
-					// MJD Error?
-				}
 				break;
 			}
 			case 'h':
@@ -3855,7 +3851,6 @@ bool jsonToRwfConverter::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPt
 
 	(*tokPtr)++;
 
-	// MJD - check this conditional
 	while( (*tokPtr) < _tokensEndPtr &&
 			(*tokPtr)->end < keyTok->end)
 	{

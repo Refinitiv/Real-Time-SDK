@@ -12,6 +12,7 @@
 
 #include "rsslDictionaryProvider.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 #if defined(_WIN32)
 #include <windows.h>
 #else
@@ -1043,7 +1044,19 @@ RsslRet processDictionaryResponse(RsslChannel *chnl, RsslMsg* msg, RsslDecodeIte
 				if (!isEnumTypeDictionaryLoaded())
 					printf("Field Dictionary complete, waiting for Enum Table...\n");
 				else
+				{
 					printf("Field Dictionary complete.\n");
+					if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+					{
+						RsslError error;
+						/* We have our dictionary, so set it on the Json converter */
+						if (rsslJsonSessionSetDictionary((RsslJsonSession*)(chnl->userSpecPtr), getDictionary(), &error) == RSSL_RET_FAILURE)
+						{
+							printf("\nUnable to set the dictionary on the Json Converter.  Additional information: %s\n", error.text);
+							return RSSL_RET_FAILURE;
+						}
+					}
+				}
 			}
 		} 
 		else if (msg->msgBase.streamId == enumDictionaryStreamId)
@@ -1061,7 +1074,19 @@ RsslRet processDictionaryResponse(RsslChannel *chnl, RsslMsg* msg, RsslDecodeIte
 				if (!isFieldDictionaryLoaded())
 					printf("Enumerated Types Dictionary complete, waiting for Field Dictionary...\n");
 				else
+				{
 					printf("Enumerated Types Dictionary complete.\n");
+					if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+					{
+						RsslError error;
+						/* We have our dictionary, so set it on the Json converter */
+						if (rsslJsonSessionSetDictionary((RsslJsonSession*)(chnl->userSpecPtr), getDictionary(), &error) == RSSL_RET_FAILURE)
+						{
+							printf("\nUnable to set the dictionary on the Json Converter.  Additional information: %s\n", error.text);
+							return RSSL_RET_FAILURE;
+						}
+					}
+				}
 			}
 		}
 		else

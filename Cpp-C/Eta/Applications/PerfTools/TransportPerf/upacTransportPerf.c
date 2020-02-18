@@ -108,7 +108,7 @@ RsslRet processMsg(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, Rssl
 		{
 			if (IS_DELIMITER(pMsgBuf->data[offset]))
 			{
-				if (pMsgBuf->data[offset] == ']' || offset + 1 >= pMsgBuf->length)
+				if (pMsgBuf->data[offset] == ']' || (RsslUInt32)(offset + 1) >= pMsgBuf->length)
 					break;
 
 				offset++;
@@ -153,7 +153,7 @@ RsslRet processMsg(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, Rssl
 			offset += (msgLen - MSGLEN_SZ);
 
 	/* Intended for WS JSON unpacking, for RWF this does not need to loop */
-	} while(pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && offset < pMsgBuf->length); 
+	} while(pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && (RsslUInt32)offset < pMsgBuf->length); 
 
 	return RSSL_RET_SUCCESS;
 }

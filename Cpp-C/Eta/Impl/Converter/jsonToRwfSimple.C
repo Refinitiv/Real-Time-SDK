@@ -164,7 +164,7 @@ bool jsonToRwfSimple::encodeBatchView(RsslMsg *rsslMsgPtr)
 		u64 = RDM_VIEW_TYPE_FIELD_ID_LIST;
 		if ((_rsslRet = rsslEncodeElementEntry(&_iter, &ee, &u64)) < RSSL_RET_SUCCESS)
 		{
-			// MJD error
+			// error
 			return false;
 		}
 
@@ -186,7 +186,6 @@ bool jsonToRwfSimple::encodeBatchView(RsslMsg *rsslMsgPtr)
 		}
 
 		tok = _viewTokPtr;
-		// MJD move fidName here
 		tok++;
 		for (int i = 0; i < _viewTokPtr->size; i++)
 		{
@@ -195,7 +194,7 @@ bool jsonToRwfSimple::encodeBatchView(RsslMsg *rsslMsgPtr)
 			case JSMN_STRING:
 				{
 					// Look up by name
-					RsslBuffer fidName = { (tok->end - tok->start), &_jsonMsg[tok->start]};
+					RsslBuffer fidName = { (rtrUInt32)(tok->end - tok->start), &_jsonMsg[tok->start]};
 					if ((def = rsslDictionaryGetEntryByFieldName(_dictionaryList[0], &fidName)))
 					{
 						i64 = def->fid;
@@ -313,7 +312,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 	jsmntok_t *curMsgTok = *msgTok;
 	RsslMsg *rsslMsgPtr = &jsonMsgPtr->jsonRsslMsg.rsslMsg;
 
-	// MJD SIMPLIFIED defaults
+	// SIMPLIFIED defaults
 	rsslMsgPtr->msgBase.msgClass = RSSL_MC_REQUEST;
 	rsslMsgPtr->msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	rsslMsgPtr->msgBase.containerType = RSSL_DT_NO_DATA;
@@ -344,7 +343,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 					else if (tok->type == JSMN_ARRAY)
 					{
 
-						// MJD - error if we already have a data
+						// error if we already have a data
 						// Assume for now that this is a batch close request
 						// We'll error out later if it's not a close message
 						rsslMsgPtr->msgBase.streamId = 0;
@@ -871,7 +870,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -892,7 +891,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -904,7 +903,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -925,7 +924,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -937,7 +936,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -959,7 +958,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -980,7 +979,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -1001,7 +1000,7 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 				{
 					if (dataTokPtr)
 					{
-						// MJD Error We've already found a container
+						// Error We've already found a container
 						return false;
 					}
 					tok++;
@@ -1020,16 +1019,16 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 		{
 			if (compareStrings(tok, JSON_XML))
 			{
-			  if (dataTokPtr)
-		{
-			    // MJD Error We've already found a container
-				return false;
-			  }
-			  tok++;
-			  dataTokPtr = tok;
-			  rsslMsgPtr->msgBase.containerType = RSSL_DT_XML;
-			  skipObject(&tok);
-			}
+				if (dataTokPtr)
+				{
+					// Error We've already found a container
+					return false;
+				}
+				tok++;
+				dataTokPtr = tok;
+				rsslMsgPtr->msgBase.containerType = RSSL_DT_XML;
+				skipObject(&tok);
+				}
 			else
 			{
 				tok++;
@@ -1041,15 +1040,15 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 		{
 			if (compareStrings(tok, JSON_OPAQUE))
 			{
-			  if (dataTokPtr)
-		{
-			    // MJD Error We've already found a container
-			return false;
-		}
-			  tok++;
-			  dataTokPtr = tok;
-			  rsslMsgPtr->msgBase.containerType = RSSL_DT_OPAQUE;
-			  skipObject(&tok);
+				if (dataTokPtr)
+				{
+					// Error We've already found a container
+					return false;
+				}
+				tok++;
+				dataTokPtr = tok;
+				rsslMsgPtr->msgBase.containerType = RSSL_DT_OPAQUE;
+				skipObject(&tok);
 			}
 			else
 			{
@@ -1354,7 +1353,6 @@ bool jsonToRwfSimple::processRequestMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 					// Save the view start token index and move past
 					rsslMsgPtr->msgBase.containerType = RSSL_DT_ELEMENT_LIST;
 					rsslRequestMsgApplyHasView(&rsslMsgPtr->requestMsg);
-					// MJD - error if data or view already set ???
 					_viewTokPtr = *tokPtr;
 					*dataPtr = _viewTokPtr;
 					skipObject(tokPtr);
@@ -5065,14 +5063,11 @@ bool jsonToRwfSimple::processFieldList(jsmntok_t ** const tokPtr, void* setDb)
 {
 	RsslFieldList fieldList;
 	RsslFieldEntry fieldEntry;
-	RsslFieldId fieldId;
 	void *voidPtr = 0;
 	RsslBuffer *bufPtr;
 	const RsslDictionaryEntry *def;
 
 	jsmntok_t *fieldListTok = *tokPtr;
-
-	// MJD - handle empty case
 
 	if ((*tokPtr)->type != JSMN_OBJECT)
 	{
@@ -5099,7 +5094,7 @@ bool jsonToRwfSimple::processFieldList(jsmntok_t ** const tokPtr, void* setDb)
 		{
 		case JSMN_STRING:
 			{
-				RsslBuffer fidName = { ((*tokPtr)->end - (*tokPtr)->start), &_jsonMsg[(*tokPtr)->start]};
+				RsslBuffer fidName = { (rtrUInt32)(((*tokPtr)->end - (*tokPtr)->start)), &_jsonMsg[(*tokPtr)->start]};
 				def = rsslDictionaryGetEntryByFieldName(_dictionaryList[0], &fidName);
 				if (def)
 					fieldEntry.fieldId = def->fid;
@@ -6795,8 +6790,6 @@ bool jsonToRwfSimple::processMsg(jsmntok_t ** const tokPtr, void* setDb)
 	RsslJsonMsg jsonMsg;
 	rsslClearJsonMsg(&jsonMsg);
 
-	// MJD - need to locally store _viewTokPtr and _batchReqTokPtr ????
-
 	if ((*tokPtr)->type != JSMN_OBJECT)
 	{
 		unexpectedTokenType(JSMN_OBJECT, *tokPtr, __LINE__, __FILE__, &JSON_MESSAGE);
@@ -6830,7 +6823,6 @@ bool jsonToRwfSimple::processJson(jsmntok_t ** const tokPtr, void* setDb)
 		return false;
 	}
 
-	// MJD could optimize this by encoding directly to buffer returned by rsslEncodeNonRWFDataTypeInit()
 	memcpy(buffer.data, jsonBuffer.data, jsonBuffer.length);
 	buffer.length = jsonBuffer.length;
 
@@ -6854,7 +6846,6 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 	int eLoc = 0;
 	bool foundE = false;
 	bool foundDecimal = false;
-	jsmntok_t *realTok;
 
 	*ptrBufPtr = 0;
 	*ptrVoidPtr = &_realVar;
@@ -6892,12 +6883,12 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 			}
 			if (foundE)
 			{
-				_realVar.value = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[i]);
+				_realVar.value = rtr_atoll_size(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[i]);
 				if (foundDecimal == true)
 				{
 					_realVar.value = _realVar.value*(int)pow(10, (i - decimalLoc - 1));
 
-					_realVar.value += rtr_atoi_size(&_jsonMsg[decimalLoc], &_jsonMsg[i]);
+					_realVar.value += rtr_atoll_size(&_jsonMsg[decimalLoc], &_jsonMsg[i]);
 				}
 
 				if (_jsonMsg[i+1] == '-')
@@ -6946,7 +6937,7 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 			{
 				RsslBuffer buf;
 				buf.data = &_jsonMsg[(*tokPtr)->start];
-				buf.length = &_jsonMsg[(*tokPtr)->end] - &_jsonMsg[(*tokPtr)->start];
+				buf.length = (rtrUInt32)(&_jsonMsg[(*tokPtr)->end] - &_jsonMsg[(*tokPtr)->start]);
 				if ((_rsslRet = rsslNumericStringToReal(&_realVar, &buf)) < RSSL_RET_SUCCESS)
 				{
 					error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
@@ -6968,7 +6959,7 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 				{
 					RsslBuffer buf;
 					buf.data = &_jsonMsg[(*tokPtr)->start];
-					buf.length = &_jsonMsg[(*tokPtr)->end] - &_jsonMsg[(*tokPtr)->start];
+					buf.length = (rtrUInt32)(&_jsonMsg[(*tokPtr)->end] - &_jsonMsg[(*tokPtr)->start]);
 					if ((_rsslRet = rsslNumericStringToReal(&_realVar, &buf)) < RSSL_RET_SUCCESS)
 					{
 						error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
@@ -6985,7 +6976,6 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 		}
 	case JSMN_OBJECT:
 		{
-			// MJD ToDo
 			return false;
 			break;
 		}
@@ -7180,7 +7170,7 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 						{
 							if (_rsslServiceNameToIdCallback)
 							{
-								RsslBuffer serviceName = { (*tokPtr)->end - (*tokPtr)->start, &_jsonMsg[(*tokPtr)->start] };
+								RsslBuffer serviceName = { (rtrUInt32)((*tokPtr)->end - (*tokPtr)->start), &_jsonMsg[(*tokPtr)->start] };
 								if (_rsslServiceNameToIdCallback(&serviceName, _closure, &keyPtr->serviceId) != RSSL_RET_SUCCESS)
 									keyPtr->serviceId = 0;
 							}
@@ -7420,10 +7410,6 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 			{
 				if (compareStrings(*tokPtr, JSON_ELEMENTS))
 				{
-					if (flags & RSSL_MKF_HAS_ATTRIB)
-					{
-						// MJD Error - already had data
-					}
 					flags |= RSSL_MKF_HAS_ATTRIB;
 					keyPtr->attribContainerType = RSSL_DT_ELEMENT_LIST;
 					(*tokPtr)++;
@@ -8220,7 +8206,6 @@ bool jsonToRwfSimple::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer *
 			EnumTableDefinition* pEnumTableDefinition = _enumTableDefinition[_pDictionaryEntry->fid];
 			RsslEnumType* pEnumType = NULL;
 			RsslUInt32 hashSum;
-			RsslHashLink *rsslHashLink;
 			int enumValue;
 
 			displayValue.data = &_jsonMsg[(*tokPtr)->start];
@@ -8276,7 +8261,7 @@ bool jsonToRwfSimple::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer *
 					return false;
 				}
 
-				for (int index = 0; index < pEnumTypeTable->fidReferenceCount; index++)
+				for (unsigned int index = 0; index < pEnumTypeTable->fidReferenceCount; index++)
 				{
 					fieldId = pEnumTypeTable->fidReferences[index];
 
@@ -8462,7 +8447,6 @@ bool jsonToRwfSimple::processDate(jsmntok_t ** const tokPtr, RsslBuffer ** const
 		}
 	case JSMN_OBJECT:
 		{
-			// MJD Todo
 			return false;
 			break;
 		}
@@ -8513,7 +8497,6 @@ bool jsonToRwfSimple::processTime(jsmntok_t ** const tokPtr, RsslBuffer ** const
 		}
 	case JSMN_OBJECT:
 		{
-			// MJD Todo
 			return false;
 			break;
 		}
@@ -8564,7 +8547,6 @@ bool jsonToRwfSimple::processDateTime(jsmntok_t ** const tokPtr, RsslBuffer ** c
 		}
 	case JSMN_OBJECT:
 		{
-			// MJD Todo
 			return false;
 		}
 	default:

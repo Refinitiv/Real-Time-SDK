@@ -5,8 +5,9 @@
  * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
-#include "rjConverter.h"
-#include "rtr/rsslReactor.h"
+#include "rsslJsonSession.h"
+#include "rtr/rsslTransport.h"
+#include "rtr/rsslMessagePackage.h"
 #include <stdio.h>  
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,7 @@
 
 #define RSSL_MAX_JSON_ERROR_MSG_SIZE 1101
 
-static RsslRet _rjcSendJsonMessage(RsslChannel *pChannel, RsslBuffer *pBuffer, RsslUInt8 wrtFlags, RsslErrorInfo *pError)
+static RsslRet _rsslJsonSessionSendJsonMessage(RsslChannel *pChannel, RsslBuffer *pBuffer, RsslUInt8 wrtFlags, RsslError *pError)
 {
 	RsslUInt32  bWritten, ucbWritten;
 	RsslError	error;	
@@ -27,31 +28,29 @@ static RsslRet _rjcSendJsonMessage(RsslChannel *pChannel, RsslBuffer *pBuffer, R
 	{
 		if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
 		{
-			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
-						"rsslFlush() failed with return code %d - <%s>\n", ret, error.text);
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rsslFlush() failed with return code %d - <%s>\n", ret, error.text);
 			return ret;
 		}
 		ret = rsslWrite(pChannel, pBuffer, RSSL_HIGH_PRIORITY, wrtFlags, &bWritten, &ucbWritten, &error);
 	}
 
 	if (ret != RSSL_RET_SUCCESS)
-		snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
-					"rsslWrite() failed with return code %d - <%s>\n", ret, error.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rsslWrite() failed with return code %d - <%s>\n", ret, error.text);
 
 	return ret;
 }
 
-static RsslRet _rjcServiceNameToIdCallback(RsslBuffer *pServiceName, void *closure, RsslUInt16 *pServiceId)
+static RsslRet _rsslJsonSessionServiceNameToIdCallback(RsslBuffer *pServiceName, void *closure, RsslUInt16 *pServiceId)
 {
-	rjConverterSession *sess = (rjConverterSession*)closure;
+	RsslJsonSession *sess = (RsslJsonSession*)closure;
 
 	if (sess != NULL)
-		return (*sess->options.pServiceNameToIdCallback)(pServiceName, sess->options.userSpecPtr, pServiceId);
+		return (*sess->options.pServiceNameToIdCallback)(pServiceName, pServiceId);
 	else
 		return RSSL_RET_FAILURE;
 }
 
-RsslRet rjcResetConverterState(rjConverterSession *sess, RsslBuffer *pBuffer, RsslErrorInfo *pError)
+RsslRet rsslJsonSessionResetState(RsslJsonSession *sess, RsslBuffer *pBuffer, RsslError *pError)
 {
 	RsslRet	ret;
 	RsslJsonConverterError error;
@@ -70,83 +69,52 @@ RsslRet rjcResetConverterState(rjConverterSession *sess, RsslBuffer *pBuffer, Rs
 								sess->state.buffer, &error);
 
 	if (ret != RSSL_RET_SUCCESS)
-		snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, "rjcError: %s", error.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rjcError: %s", error.text);
 	
 	return ret;
 }
 
 
-void rjcSessionUninitialize(rjConverterSession *rjcSession)
+void rsslJsonSessionUninitialize(RsslJsonSession *rjcSession)
 {
 	RsslJsonConverterError rjcError;
-
-	rsslJsonUninitialize();
 
 	if (rjcSession->pJsonConverter != 0)
 		rsslDestroyRsslJsonConverter(rjcSession->pJsonConverter, &rjcError);
 
-	if (rjcSession->convBuff.data)
-		free(rjcSession->convBuff.data);
-
 	if (rjcSession->pDictionaryList)
 		free(rjcSession->pDictionaryList);
+
+	rjcSession->jsonSessionInitialized = RSSL_FALSE;
 }
 
-RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pError)
+RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError)
 {
 	RsslCreateJsonConverterOptions rjcOptions;
 	RsslJsonConverterError rjcError;
-	RsslJsonDictionaryListProperty dlProperty;
 	RsslBool flag = RSSL_TRUE;
 
-	if (rjcSession->jsonConverterInitialized == RSSL_TRUE)
+
+	if (rjcSession->jsonSessionInitialized == RSSL_TRUE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"The RsslJsonConverter has been initialized");
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,	"This Json Session has been initialized");
 
 		return RSSL_RET_FAILURE;
 	}
 
 	rsslClearCreateRsslJsonConverterOptions(&rjcOptions);
-
-	rjcSession->convBuff.length = RJC_MAX_BUFFER;
-	rjcSession->convBuff.data = (char*)malloc(rjcSession->convBuff.length);
-
-	rjcSession->options.catchUnknownJsonFids = RSSL_TRUE;
-
-	/* Initialize string table */
-	rsslJsonInitialize();
-
+	
 	rjcSession->pJsonConverter = rsslCreateRsslJsonConverter(&rjcOptions, &rjcError);
 	if (rjcSession->pJsonConverter == NULL)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create RsslJsonConverter: %s", rjcError.text);
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to create RsslJsonConverter: %s", rjcError.text);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
-
-	rjcSession->pDictionaryList = malloc(sizeof(RsslDataDictionary*) * 1); /* RsslJsonConverter supports only one RsslDataDictionary */
-	if (rjcSession->pDictionaryList == NULL)
+	
+	if(rjcSession->options.pDictionary != NULL)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory to keep a list of RsslDataDictionary");
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
-	}
-
-	/* Set RsslDataDictionary specified users */
-	rjcSession->pDictionaryList[0] = rjcSession->options.pDictionary;
-
-	/* Set dictionary list. */
-	rsslClearConverterDictionaryListProperty(&dlProperty);
-	dlProperty.dictionaryListLength = 1;
-	dlProperty.pDictionaryList = rjcSession->pDictionaryList;
-	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
-								RSSL_JSON_CPC_DICTIONARY_LIST, 
-								&dlProperty, &rjcError) != RSSL_RET_SUCCESS)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: dictionary list [%s]",
-		rjcError.text);
-
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		if(rsslJsonSessionSetDictionary(rjcSession, rjcSession->options.pDictionary, pError) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
 	}
 
 	/* Checks whether the callback method is set by users */
@@ -156,7 +124,7 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 
 		rsslJsonClearServiceNameToIdCallbackProperty(&svcNameToIdCbProperty);
 
-		svcNameToIdCbProperty.callback = _rjcServiceNameToIdCallback;
+		svcNameToIdCbProperty.callback = _rsslJsonSessionServiceNameToIdCallback;
 		svcNameToIdCbProperty.closure = rjcSession;
 
 		/* Set service-name/ID callbacks. */
@@ -164,11 +132,10 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 			RSSL_JSON_CPC_SERVICE_NAME_TO_ID_CALLBACK,
 			&svcNameToIdCbProperty, &rjcError) != RSSL_RET_SUCCESS)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Failed setting RsslJsonConverter property: service name to ID callback [%s]",
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: service name to ID callback [%s]",
 				rjcError.text);
 
-			return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+			return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 		}
 	}
 
@@ -177,10 +144,9 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 								RSSL_JSON_CPC_DEFAULT_SERVICE_ID, 
 								&rjcSession->options.defaultServiceId, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: default service ID [%s]", rjcError.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: default service ID [%s]", rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 
 	/* When converting from RWF to JSON, add a QoS range on requests that do not specify a QoS */
@@ -189,10 +155,9 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 								RSSL_JSON_CPC_USE_DEFAULT_DYNAMIC_QOS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: add default QoS range [%s]", rjcError.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: add default QoS range [%s]", rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 
 	/* Expand enumerated values in field entries to their display values. 
@@ -202,61 +167,88 @@ RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pErr
 								RSSL_JSON_CPC_EXPAND_ENUM_FIELDS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: expand enum fields [%s]", rjcError.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: expand enum fields [%s]", rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 
 	/* When converting from JSON to RWF, catch unknown JSON keys. */
-	flag = rjcSession->options.catchUnknownJsonKeys;
+	flag = RSSL_TRUE;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_KEYS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: catch unknown JSON keys [%s]", rjcError.text);
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: catch unknown JSON keys [%s]", rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 
 	/* When converting from JSON to RWF, catch unknown JSON FIDS. */
-	flag = rjcSession->options.catchUnknownJsonFids;
+	flag = RSSL_TRUE;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_FIDS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: catch unknown JSON fields [%s]",
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: catch unknown JSON fields [%s]",
 		rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 
 	/* Enumerated values in RWF are translated to display strings in simplified JSON. 
 	 * However, conversion from display strings to RWF is not currently supported.  
 	 * Setting the property below will cause display strings to be converted to blank, 
 	 * instead of resulting in errors. */
-	flag = RSSL_TRUE;
+	flag = RSSL_FALSE;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_ALLOW_ENUM_DISPLAY_STRINGS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: blank on enum display error [%s]",
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: blank on enum display error [%s]",
 		rjcError.text);
 
-		return (rjcSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
+		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 	
-	rjcSession->jsonConverterInitialized = RSSL_TRUE;
+	rjcSession->jsonSessionInitialized = RSSL_TRUE;
 
 	return RSSL_RET_SUCCESS;
 
 }
 
-RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pChannel, 
-								RsslBuffer *rwfBuffer, RsslErrorInfo *pError)
+RsslRet rsslJsonSessionSetDictionary(RsslJsonSession *rjcSession, RsslDataDictionary* dataDict, RsslError *pError)
+{
+	RsslJsonConverterError rjcError;
+	RsslJsonDictionaryListProperty dlProperty;
+	
+	rjcSession->pDictionaryList = malloc(sizeof(RsslDataDictionary*) * 1); /* RsslJsonConverter supports only one RsslDataDictionary */
+	if (rjcSession->pDictionaryList == NULL)
+	{
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to allocate memory to keep a list of RsslDataDictionary");
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Set RsslDataDictionary specified users */
+	rjcSession->pDictionaryList[0] = dataDict;
+
+	/* Set dictionary list. */
+	rsslClearConverterDictionaryListProperty(&dlProperty);
+	dlProperty.dictionaryListLength = 1;
+	dlProperty.pDictionaryList = rjcSession->pDictionaryList;
+	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
+								RSSL_JSON_CPC_DICTIONARY_LIST, 
+								&dlProperty, &rjcError) != RSSL_RET_SUCCESS)
+	{
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: dictionary list [%s]", rjcError.text);
+
+		return RSSL_RET_FAILURE;
+	}
+	
+	return RSSL_RET_SUCCESS;
+}
+
+RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslChannel *pChannel, 
+								RsslBuffer *rwfBuffer, RsslError *pError)
 {
 	RsslDecodeIterator dIter;
 	RsslMsg rsslMsg;
@@ -282,8 +274,7 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 		rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
 		if ((rsslConvertRsslMsgToJson(rjcSession->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-							"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
 			return NULL;
 		}
 
@@ -295,8 +286,7 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 		if ((ret = rsslGetConverterJsonMsg(rjcSession->pJsonConverter, &getJsonMsgOptions,
 										&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-							"Failed to get converted JSON message. Error text: %s", rjcError.text);
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to get converted JSON message. Error text: %s", rjcError.text);
 			return NULL;
 		}
 
@@ -308,21 +298,15 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 			memcpy(pMsgBuffer->data, jsonBuffer.data, jsonBuffer.length);
 		}
 		else
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, error.rsslErrorId, 
-						__FILE__, __LINE__, 
-						"Failed to get buffer for converted msg. (%d) %s", 
-						error.rsslErrorId, error.text);
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to get buffer for converted msg. (%d) %s", error.rsslErrorId, error.text);
 
 	}
-	else
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, 
-						__FILE__, __LINE__, "rsslDecodeMsg() failed: %d", ret);
 
 	return pMsgBuffer;
 }
 
-RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChannel,
-								RsslBuffer *decodedMsg, RsslBuffer *pJsonBuffer, RsslErrorInfo *pError)
+RsslRet rsslJsonSessionMsgConvertFromJson(RsslJsonSession *rjcSession, RsslChannel *pChannel,
+								RsslBuffer *decodedMsg, RsslBuffer *pJsonBuffer, RsslError *pError)
 {
 	RsslJsonConverterError rjcError;
 	RsslDecodeJsonMsgOptions *decodeOptions;
@@ -331,7 +315,7 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 
 	if (pJsonBuffer != NULL)
 	{
-		if ((ret = rjcResetConverterState(rjcSession, pJsonBuffer, pError)) != RSSL_RET_SUCCESS)
+		if ((ret = rsslJsonSessionResetState(rjcSession, pJsonBuffer, pError)) != RSSL_RET_SUCCESS)
 			// Check to see if need to send JSON error msg
 			return RSSL_RET_FAILURE;
 	}
@@ -345,6 +329,7 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 	{
 		if (ret == RSSL_RET_SUCCESS)
 		{
+
 			switch(jsonMsg->msgBase.msgClass) {
 			case RSSL_JSON_MC_RSSL_MSG:
 			{
@@ -356,20 +341,21 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 				RsslBuffer PONG_MESSAGE = { 15, (char*)"{\"Type\":\"Pong\"}" };
 
 				RsslBuffer *pBuffer = rsslGetBuffer(pChannel, PONG_MESSAGE.length, RSSL_FALSE, &err);
+
 				if (pBuffer)
 				{
 					memcpy(pBuffer->data, PONG_MESSAGE.data, PONG_MESSAGE.length);
 
 					// Reply with JSON PONG message to the sender
-					ret = _rjcSendJsonMessage(pChannel, pBuffer, RSSL_WRITE_NO_FLAGS, pError);
+					ret = _rsslJsonSessionSendJsonMessage(pChannel, pBuffer, RSSL_WRITE_DIRECT_SOCKET_WRITE, pError);
 					if (ret != RSSL_RET_FAILURE)
+					{
 						ret = RSSL_RET_READ_PING;
+					}
 				}
 				else
 				{
 					ret = RSSL_RET_FAILURE;
-					snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
-						"Failed to get buffer for Ping response :%s", err.text);
 				}
 
 				break;
@@ -388,8 +374,8 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 						jsonMsg->msgBase.jsonMsgBuffer.length > RSSL_MAX_JSON_ERROR_MSG_SIZE ?
 						RSSL_MAX_JSON_ERROR_MSG_SIZE : 
 						jsonMsg->msgBase.jsonMsgBuffer.length);
-				
-				snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
+			
+				snprintf(pError->text, MAX_RSSL_ERROR_TEXT, 
 							"Received JSON error message: %s.", &jsonMessage[0]);
 				ret = RSSL_RET_FAILURE;
 
@@ -398,7 +384,9 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 			}
 		} // if == _RET_SUCCESS 
 		else
-			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", rjcError.text);
+		{
+			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "%s", rjcError.text);
+		}
 	}
 
 	return ret;

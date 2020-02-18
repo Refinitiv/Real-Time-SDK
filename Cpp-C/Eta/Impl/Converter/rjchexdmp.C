@@ -21,15 +21,15 @@ int RJCHexDump::buffer_size_needed( int len )
 };
 
 void RJCHexDump::hex_dump(	const char *ptr, int len,
-							const char *put_buf, int max_buf)
+							const char *put_buf, unsigned int max_buf)
 {
 	unsigned char	byte;
-	unsigned long   cur_position=(unsigned long)put_buf;
+	char*   cur_position=(char*)put_buf;
 	long    cur_cursor = 0;
 
 	outchar[0] = '\0';
 
-	if (!check_size((unsigned long)put_buf,cur_position,max_buf))
+	if (!check_size((char*)put_buf,cur_position,max_buf))
 		return;
 
 	while (cur_cursor < len)
@@ -41,7 +41,7 @@ void RJCHexDump::hex_dump(	const char *ptr, int len,
 		if ((cur_cursor % 16) == 0)
 		{
 			cur_position = startline(cur_position,0);
-			if (!check_size((unsigned long)put_buf,cur_position,max_buf))
+			if (!check_size((char*)put_buf,cur_position,max_buf))
 				return;
 		}
 	}
@@ -51,7 +51,7 @@ void RJCHexDump::hex_dump(	const char *ptr, int len,
 	*(char*)(cur_position) = '\0';
 
 		/* If we have gone over a boundary, write this. */
-	if (cur_position >= ((unsigned long)put_buf + (unsigned int) max_buf))
+	if (cur_position >= (put_buf + max_buf))
 	{
 		//cout<<"Hex dump has gone over a boundary. Memory";
 		//cout<<"is most likely been corrupted."<<endl;
@@ -60,16 +60,16 @@ void RJCHexDump::hex_dump(	const char *ptr, int len,
 	}
 };
 
-short RJCHexDump::check_size(	unsigned long start,
-								unsigned long current,
-								int max)
+short RJCHexDump::check_size(	char* start,
+								char* current,
+								unsigned int max)
 {
 	unsigned long cur_chars;
 
-	cur_chars = current - start;
-	if ((cur_chars + (unsigned int) char_per_line) > (unsigned int) max)
+	cur_chars = (unsigned long)(current - start);
+	if ((cur_chars + (unsigned int) char_per_line) > max)
 	{
-		if ((cur_chars + 4) <= (unsigned int) max)
+		if ((cur_chars + 4) <= max)
 		{
 			sprintf((char*)current,"INC");
 			return 0;
@@ -78,7 +78,7 @@ short RJCHexDump::check_size(	unsigned long start,
 	return 1;
 };
 
-unsigned long RJCHexDump::startline(unsigned long loc,
+char* RJCHexDump::startline(char* loc,
 									unsigned long cursor )
 {
 	short left;
@@ -105,13 +105,13 @@ unsigned long RJCHexDump::startline(unsigned long loc,
 	return loc;
 };
 
-unsigned long RJCHexDump::addline(	unsigned long location,
+char* RJCHexDump::addline(	char* location,
 									unsigned char	byte )
 {
 	int	t1;
-	unsigned long return_value;
+	char* return_value;
 
-	sprintf((char*)location,(eobyte & 1 ? "%2.2x " : "%2.2x"),byte);
+	sprintf(location,(eobyte & 1 ? "%2.2x " : "%2.2x"),byte);
 	if (eobyte & 1)
 		return_value = location + 3;
 	else

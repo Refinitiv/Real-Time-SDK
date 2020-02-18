@@ -15,6 +15,7 @@
 #include "rsslYieldCurveHandler.h"
 #include "rsslSymbolListHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 /* source directory response information */
 static RsslSourceDirectoryResponseInfo sourceDirectoryResponseInfo[MAX_SOURCE_DIRECTORY_SERVICES];
@@ -45,6 +46,25 @@ void setDirectoryFilter(int initialFilter, int reissueFilter)
 void setServiceName(char* servicename)
 {
 	serviceName = servicename;
+}
+
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id)
+{
+	int i = 0;
+	for (i = 0; i < MAX_SOURCE_DIRECTORY_SERVICES; i++)
+	{
+		if (strlen(sourceDirectoryResponseInfo[i].ServiceGeneralInfo.ServiceName) == name->length)
+		{
+
+			if (!strncmp(sourceDirectoryResponseInfo[i].ServiceGeneralInfo.ServiceName, name->data, name->length))
+			{
+				*Id = (RsslUInt16)sourceDirectoryResponseInfo[i].ServiceId;
+			}
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	return RSSL_RET_FAILURE;
 }
 
 /*

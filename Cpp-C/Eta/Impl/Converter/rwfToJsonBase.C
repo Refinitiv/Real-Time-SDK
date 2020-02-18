@@ -143,7 +143,7 @@ int rwfToJsonBase::resize(int newSize)
 int rwfToJsonBase::resizeAndRealloc(int newSize)
 {
 	char* tempBuf = 0;
-	int ptrCount = _pstr - _buf;
+	int ptrCount = (int)(_pstr - _buf);
 	/* Add in a buffer for a worst case 8 byte memcpy by int */
 	if ((tempBuf = (char*)malloc(newSize+8)) == 0)
 	{
@@ -282,7 +282,7 @@ void rwfToJsonBase::initializeIntToStringTable()
 
 		value = i;
 		RTR_NEW_DO_LONG_TO_STRING(quo,rem,value, tstr);
-		len = strlen(tstr);
+		len = (unsigned int)strlen(tstr);
 
 		if (len < 7)
 		{	// should always hit here
@@ -452,7 +452,7 @@ void rwfToJsonBase::largeUInt32ToString(RsslUInt32 value, int hint, bool verifyB
 		tstr = _intToStringTable[tquo];
 		len = _intToStringTableLengths[tquo];
 
-		if (len < hint)
+		if (len < (RsslUInt32)hint)
 		{
 			hint -= len;
 			if (verifyBufferSize && verifyJsonMessageSize(hint) == 0) return;
@@ -500,7 +500,7 @@ void rwfToJsonBase::largeUInt64ToString(RsslUInt64 value, int hint)
 		tstr = _intToStringTable[tquo];
 		len = _intToStringTableLengths[tquo];
 
-		if (len < hint)
+		if (len < (RsslUInt32)hint)
 		{
 			hint -= len;
 			if (verifyJsonMessageSize(hint) == 0) return;
@@ -513,7 +513,7 @@ void rwfToJsonBase::largeUInt64ToString(RsslUInt64 value, int hint)
 	}
 	else if (value <= UINT_MAX)
 	{
-		largeUInt32ToString(tquo, hint);
+		largeUInt32ToString((RsslUInt32)tquo, hint);
 	}
 	else
 	{
@@ -561,11 +561,11 @@ const RsslBuffer* rwfToJsonBase::getAjaxMsg(RsslUInt32 streamId, bool solicited)
 	*_pstr++ = ';';
 	*_pstr = 0;		// Just in case someone prints it, won't get copied
 
-	len = _pstr - _buf - MAX_MSG_PREQUEL;
+	len = (int)(_pstr - _buf - MAX_MSG_PREQUEL);
 
 	_pstr = streamIdString;
 	uInt32ToString(streamId);
-	streamIdStringLen = _pstr - streamIdString;
+	streamIdStringLen = (int)(_pstr - streamIdString);
 
 	len += AJAX_FIXED_PREQUEL + streamIdStringLen;
 	msgStart = _buf + MAX_MSG_PREQUEL - (AJAX_FIXED_PREQUEL + streamIdStringLen);
@@ -632,7 +632,7 @@ bool rwfToJsonBase::buildJsonTerminateStream(RJCBuffer &oMsg, int errorCode, RJC
 	writeOe();
 	writeValue(");");
 
-	oMsg.set_count(_pstr - oMsg.to_c(1));
+	oMsg.set_count((int)(_pstr - oMsg.to_c(1)));
 
 	_pstr = pstrSaved;
 	_size = sizeSaved;
@@ -703,7 +703,6 @@ int rwfToJsonBase::processXml(RsslDecodeIterator *iterPtr, const RsslBuffer *enc
 ///////////////////////////////////
 int rwfToJsonBase::processAnsiPage(RsslDecodeIterator *iterPtr, const RsslBuffer *encDataBufPtr, void *setDb, bool writeTag = true)
 {
-	// MJD ToDo ????
 	return 0;
 }
 ///////////////////////////////////
@@ -758,9 +757,6 @@ int rwfToJsonBase::processPrimitive(int primitiveType, RsslBuffer *bufPtr)
 
 int rwfToJsonBase::processUnknown(RsslDecodeIterator *iterPtr)
 {
-	// MJD ToDo
-	// MJD I think we just return 0
-	//     should be an error?
 	return 0;
 }
 ///////////////////////////////////
@@ -1168,7 +1164,7 @@ void rwfToJsonBase::rmtesToUtf8(const RsslBuffer &buffer)
 		if (verifyJsonMessageSize(rutf8Buff.length*3+2) == 0) return;
 		
 		*_pstr++ = '\"';
-		for(i = 0; i < rutf8Buff.length; i++)
+		for(i = 0; i < (int)rutf8Buff.length; i++)
 		{
 			if ( !(*fromPtr & 0x80))
 			{

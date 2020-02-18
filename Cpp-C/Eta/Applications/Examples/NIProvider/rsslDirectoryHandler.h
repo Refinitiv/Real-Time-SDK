@@ -18,6 +18,8 @@ void setServiceId(RsslUInt64 serviceid);
 RsslUInt64 getServiceId();
 RsslRet sendSourceDirectoryResponse(RsslChannel* chnl);
 
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id);
+
 #ifdef __cplusplus
 };
 #endif

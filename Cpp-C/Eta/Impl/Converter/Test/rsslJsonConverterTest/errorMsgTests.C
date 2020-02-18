@@ -81,7 +81,7 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 	if(params.customJsonMessage)
 	{
 		_jsonBuffer.data = params.customJsonMessage;
-		_jsonBuffer.length = strlen(params.customJsonMessage);
+		_jsonBuffer.length = (rtrUInt32)strlen(params.customJsonMessage);
 	}
 
 	/* Check Error */

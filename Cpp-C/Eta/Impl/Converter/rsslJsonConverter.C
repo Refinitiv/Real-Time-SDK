@@ -277,7 +277,6 @@ RSSL_RJC_API RsslRet rsslGetJsonSimpleErrorParams(RsslJsonConverter pConverter, 
 {
 	RsslJsonConverterImpl *pConverterImpl = (RsslJsonConverterImpl*)pConverter;
 	jsonToRwfBase *pIntConverter;
-	RsslRet ret;
 
 	switch(pOptions->jsonProtocolType)
 	{

@@ -52,6 +52,26 @@ RsslUInt64 getServiceId()
 	return serviceId;
 }
 
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id)
+{
+	int i = 0;
+	for (i = 0; i < MAX_SOURCE_DIRECTORY_SERVICES; i++)
+	{
+		if (strlen(serviceName) == name->length)
+		{
+
+			if (!strncmp(serviceName, name->data, name->length))
+			{
+				*Id = (RsslUInt16)serviceId;
+			}
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
+
 /*
  * Sends a source directory response to a channel.  This consists
  * of getting a message buffer, setting the source directory response

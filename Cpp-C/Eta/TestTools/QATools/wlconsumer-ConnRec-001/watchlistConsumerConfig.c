@@ -55,11 +55,11 @@ static void addItem(char *itemName, RsslUInt8 domainType, RsslBool symbolListDat
 void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
-		" or %s [-c <Connection Type> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
+		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
 			" -c           Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
-			" -clientId    Specifies an unique ID for application making the request to EDP token service.\n"
+			" -clientId    Specifies an unique ID for application making the request to EDP token service (mandatory).\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
 			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
 			" -query       Quries EDP service discovery to get an endpoint according the specified connection type and location.\n"
@@ -524,6 +524,15 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			printf("Config Error: Unknown option %s\n", argv[i]);
 			printUsageAndExit(argc, argv);
 		}
+	}
+
+	if (!watchlistConsumerConfig.enableSessionMgnt)
+	{
+		if (strlen(watchlistConsumerConfig.hostName) == 0)
+			snprintf(watchlistConsumerConfig.hostName, 255, "%s", defaultHostName);
+
+		if (strlen(watchlistConsumerConfig.port) == 0)
+			snprintf(watchlistConsumerConfig.port, 255, "%s", defaultPort);
 	}
 
 	if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST)

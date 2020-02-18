@@ -413,9 +413,6 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 	/* Encode FilterList field. */
 	if (params.filterList)
 	{
-		RsslFilterList filterList;
-		RsslFilterEntry filterEntry;
-
 		rsslClearFieldEntry(&fieldEntry);
 		fieldEntry.fieldId = FILTERLIST_FIELD.fieldId;
 		fieldEntry.dataType = RSSL_DT_FILTER_LIST;

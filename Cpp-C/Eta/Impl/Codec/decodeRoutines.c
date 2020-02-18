@@ -1053,7 +1053,7 @@ RSSL_API int dumpJSON(FILE * file, const RsslBuffer *input)
 	char h;
 	if (input->length > 0)  /* skip stuff below for empty string */
 	{
-		for (; i < input->length; i++)
+		for (; i < (int)input->length; i++)
 		{
 			h = *c;
 			if (h < 0x20 || h > 0x7e)

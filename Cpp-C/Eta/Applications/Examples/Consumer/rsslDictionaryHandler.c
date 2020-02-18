@@ -14,6 +14,7 @@
 #include "rsslYieldCurveHandler.h"
 #include "rsslSymbolListHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 /* data dictionary */
 static RsslDataDictionary dictionary;
@@ -328,6 +329,16 @@ RsslRet processDictionaryResponse(RsslChannel *chnl, RsslMsg* msg, RsslDecodeIte
 
 		if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded())
 		{
+			if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+			{
+				RsslError error;
+				/* We have our dictionary, so set it on the Json converter */
+				if (rsslJsonSessionSetDictionary((RsslJsonSession*)(chnl->userSpecPtr), getDictionary(), &error) == RSSL_RET_FAILURE)
+				{
+					printf("\nUnable to set the dictionary on the Json Converter.  Additional information: %s\n", error.text);
+					return RSSL_RET_FAILURE;
+				}
+			}
 			printf("Dictionary ready, requesting item...\n\n");
 
 			/* send item request */

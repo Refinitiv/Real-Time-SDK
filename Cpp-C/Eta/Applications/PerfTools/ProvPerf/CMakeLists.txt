@@ -14,6 +14,21 @@ set( SOURCE_FILES
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
+
+		dictionaryProvider.h              loginProvider.h
+        provPerfConfig.h                  upacProvPerf.h 
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/providerThreads.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.h
   )
 
 add_executable( ProvPerf_shared ${SOURCE_FILES} )

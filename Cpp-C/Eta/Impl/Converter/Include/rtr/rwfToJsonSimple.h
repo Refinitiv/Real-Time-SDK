@@ -102,7 +102,7 @@ public:
 
 inline void rwfToJsonSimple::writeStringVar(const char* value, bool comma)
 {
-	if (verifyJsonMessageSize(strlen(value) + 4) == 0) return;
+	if (verifyJsonMessageSize((int)strlen(value) + 4) == 0) return;
 	
 	if (comma)
 		*_pstr++ = _COMMA_CHAR;
@@ -122,7 +122,7 @@ inline void rwfToJsonSimple::writeBufVar(const RsslBuffer *buf, bool comma)
 	if (comma)
 		*_pstr++ = _COMMA_CHAR;
 	*_pstr++ = _DOUBLE_QUOTE_CHAR;
-	for (int i = 0; i < buf->length; i++) 
+	for (int i = 0; i < (int)buf->length; i++) 
 	{
 		*_pstr++ = buf->data[i]; 
 	}
@@ -135,7 +135,7 @@ inline void rwfToJsonSimple::writeBufString(const RsslBuffer *buf)
 	if (verifyJsonMessageSize(buf->length + 2) == 0) return;
 
 	*_pstr++ = _DOUBLE_QUOTE_CHAR;
-	for (int i = 0; i < buf->length; i++) 
+	for (int i = 0; i < (int)buf->length; i++) 
 	{
 		*_pstr++ = buf->data[i]; 
 	}
@@ -159,7 +159,7 @@ inline void rwfToJsonSimple::writeJsonErrorMessage(RsslBuffer *message)
 	if (verifyJsonMessageSize(message->length * 6 + 2) == 0) return; // Assumes worst case scenario
 
 	*_pstr++ = _DOUBLE_QUOTE_CHAR;
-	for(int i = 0; i < message->length; i++) {
+	for(int i = 0; i < (int)message->length; i++) {
 	  switch(message->data[i])
 	  {
 	  case '\"':

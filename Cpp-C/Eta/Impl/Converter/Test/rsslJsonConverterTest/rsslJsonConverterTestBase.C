@@ -20,8 +20,8 @@ bool cmdlPrintRsslBuffer;	/* Print RWF buffers after conversion from JSON. */
 
 /* Used for the RMTES and UTF8 buffers. The RMTES and UTF8 values below are the same string in their respective formats.
  * (both represent an upward arrow) */
-const char RMTES_UPTICK[] = { 0xde, 0x00 };
-const char UTF8_UPTICK[] = { 0xe2, 0x87, 0xa7, 0x00 };
+const char RMTES_UPTICK[] = { (const char)0xde, (const char)0x00 };
+const char UTF8_UPTICK[] = { (const char)0xe2, (const char)0x87, (const char)0xa7, (const char)0x00 };
 
 /* Sample content */
 const RsslBuffer		MSG_KEY_NAME			= {4, (char*)"TINY"};
@@ -117,7 +117,6 @@ void MsgConversionTestBase::initTestData()
 	RsslRet ret;
 	char errorTextBuf[255];
 	RsslBuffer errorText = {255, errorTextBuf};
-	RsslJsonConverterError converterError;
 
 	ifstream rdmFieldDictionaryFile;
 	const char *testDictionaryFileName = "RDMFieldDictionary.converterTest";
@@ -527,7 +526,7 @@ void MsgConversionTestBase::checkJsonBase64String(const RsslBuffer *pExpectedBuf
 	ASSERT_TRUE(jsonStringValue->IsString());
 	std::string encodedString(jsonStringValue->GetString(), jsonStringValue->GetStringLength());
 	std::string decodedString = base64_decode(encodedString);
-	RsslBuffer decodedBuffer = { decodedString.length(), (char*)decodedString.c_str() };
+	RsslBuffer decodedBuffer = { (RsslUInt32)decodedString.length(), (char*)decodedString.c_str() };
 	EXPECT_TRUE(rsslBufferIsEqual(pExpectedBuffer, &decodedBuffer));
 }
 

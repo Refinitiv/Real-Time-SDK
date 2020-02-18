@@ -441,8 +441,8 @@ TEST_F(VectorTests, VectorEntryActionsTest)
 	RsslVectorEntry vectorEntry;
 
 	const RsslUInt32 TOTAL_COUNT_HINT = 5;
-	const RsslUInt VECTOR_INDEX_ARRAY[5] = {1,2,3,4,5};
-	const RsslUInt VECTOR_ACTION_ARRAY[5] = { RSSL_VTEA_INSERT_ENTRY, RSSL_VTEA_UPDATE_ENTRY,
+	const RsslUInt32 VECTOR_INDEX_ARRAY[5] = {1,2,3,4,5};
+	const RsslUInt8 VECTOR_ACTION_ARRAY[5] = { RSSL_VTEA_INSERT_ENTRY, RSSL_VTEA_UPDATE_ENTRY,
 												RSSL_VTEA_SET_ENTRY, RSSL_VTEA_CLEAR_ENTRY, RSSL_VTEA_DELETE_ENTRY };
 
 	rsslClearUpdateMsg(&updateMsg);

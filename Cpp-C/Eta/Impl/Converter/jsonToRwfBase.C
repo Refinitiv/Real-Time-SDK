@@ -398,7 +398,7 @@ bool jsonToRwfBase::encodeRsslMsg(RsslMsg *rsslMsgPtr, jsmntok_t ** const msgTok
 
 		if (_rsslRet == RSSL_RET_ENCODE_REQMSG_KEY_ATTRIB)
 		{
-			// MJD need to determine dataFormat from specific message since it's not in msg Base
+			// need to determine dataFormat from specific message since it's not in msg Base
 			// Only valid for some message types
 
 			RsslUInt8 reqKeyFormat;
@@ -524,8 +524,6 @@ int jsonToRwfBase::parseJsonBuffer(const RsslBuffer *bufPtr, int offset)
 
 int jsonToRwfBase::decodeJsonMsg(RsslJsonMsg &jsonMsg)
 {
-	jsmnerr_t ret;
-
 	if (_curMsgTok == _tokensEndPtr)
 		return 0;
 
@@ -598,7 +596,6 @@ bool jsonToRwfBase::processOpaque(jsmntok_t ** const tokPtr, void* setDb)
 			error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 			return false;
 		}
-		// MJD could optimize this by encoding directly to buffer returned by rsslEncodeNonRWFDataTypeInit()
 		memcpy(buffer.data, opaqueBuffer.data, opaqueBuffer.length);
 		buffer.length = opaqueBuffer.length;
 
@@ -639,7 +636,6 @@ bool jsonToRwfBase::processXML(jsmntok_t ** const tokPtr, void* setDb)
 			error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 			return false;
 		}
-		// MJD could optimize this by encoding directly to buffer returned by rsslEncodeNonRWFDataTypeInit()
 		memcpy(buffer.data, xmlBuffer.data, xmlBuffer.length);
 		buffer.length = xmlBuffer.length;
 
@@ -698,7 +694,7 @@ bool jsonToRwfBase::processInteger(jsmntok_t ** const tokPtr, RsslBuffer ** cons
 
 	if (_jsonMsg[(*tokPtr)->start] != 'n')
 	{
-		_intVar = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
+		_intVar = rtr_atoll_size(&_jsonMsg[(*tokPtr)->start],
 					&_jsonMsg[(*tokPtr)->end]);
 
 		*ptrVoidPtr = &_intVar;
@@ -725,7 +721,7 @@ bool jsonToRwfBase::processUnsignedInteger(jsmntok_t ** const tokPtr, RsslBuffer
 
 	if (_jsonMsg[(*tokPtr)->start] != 'n')
 	{
-		_uintVar = rtr_atoui_size(&_jsonMsg[(*tokPtr)->start],
+		_uintVar = rtr_atoull_size(&_jsonMsg[(*tokPtr)->start],
 					 &_jsonMsg[(*tokPtr)->end]);
 
 		*ptrVoidPtr = &_uintVar;
@@ -939,7 +935,6 @@ bool jsonToRwfBase::processState(jsmntok_t ** const tokPtr, RsslBuffer ** const 
 
 bool jsonToRwfBase::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer ** const ptrBufPtr, void** const  ptrVoidPtr)
 {
-	// MJD: for now just process as an integer ??
 	return processInteger(tokPtr, ptrBufPtr, ptrVoidPtr);
 }
 
@@ -1080,7 +1075,7 @@ bool jsonToRwfBase::processAsciiString(jsmntok_t ** const tokPtr, RsslBuffer ** 
 		*toAddr = *fromAddr;
 	}
 
-	(*ptrBufPtr)->length = toAddr - &_jsonMsg[(*tokPtr)->start];
+	(*ptrBufPtr)->length = (rtrUInt32)(toAddr - &_jsonMsg[(*tokPtr)->start]);
 	(*ptrBufPtr)->data = &_jsonMsg[(*tokPtr)->start];
 	(*tokPtr)++;
 	return true;

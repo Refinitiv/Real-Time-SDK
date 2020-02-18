@@ -55,7 +55,7 @@ class jsonToRwfBase
 	jsmntok_t	*errorToken();
 	char *jsonMsg();
 
-	RsslBuffer _outBuf;	// MJD need to move
+	RsslBuffer _outBuf;	// need to move
 	bool _error;
 	const char *_errorFile;
 	char *_jsonMsg;
@@ -127,7 +127,6 @@ class jsonToRwfBase
 	virtual bool processGenericMsg(jsmntok_t ** const msg, RsslMsg *rsslMsgPtr, jsmntok_t ** const dataPtr, jsmntok_t ** const attribPtr, jsmntok_t ** const reqKeyattrib) = 0;
 	virtual bool processPostMsg(jsmntok_t ** const msg, RsslMsg *rsslMsgPtr, jsmntok_t ** const dataPtr, jsmntok_t ** const attribPtr, jsmntok_t ** const reqKeyattrib) = 0;
 
-	// MJD Not sure why these need to be public ??
 	// Primitive Handlers.
 	bool processPrimitive(int primitiveType, jsmntok_t** const , RsslBuffer** const , void** const );
 	typedef bool (jsonToRwfBase::*primitiveHandlerPtr)(jsmntok_t** const , RsslBuffer** const , void** const );

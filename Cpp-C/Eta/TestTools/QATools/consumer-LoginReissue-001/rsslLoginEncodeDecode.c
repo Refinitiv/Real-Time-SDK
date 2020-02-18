@@ -14,7 +14,7 @@
 #include <unistd.h>
 #endif
 
-static const char *blankUserName = "\0";
+static char *blankUserName = "\0";
 
 /*
  * Encodes the login request.  Returns success if encoding
@@ -23,6 +23,7 @@ static const char *blankUserName = "\0";
  * loginReqInfo - The login request information to be encoded
  * msgBuf - The message buffer to encode the login request into
  */
+// APIQA
 RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo, RsslBuffer* msgBuf, int shouldPause)
 {
 	RsslRet ret = 0;

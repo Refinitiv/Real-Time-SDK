@@ -13,9 +13,9 @@
 #include "rtr/rsslMsg.h"
 
  /* Used when exporting or importing as Windows DLL or linking as static library */
-#if defined(RSSL_RJC_EXPORTS)
+#if defined(RSSL_RJC_EXPORTS) || defined(RSSL_EXPORTS)
 #define 	RSSL_RJC_API			RTR_API_EXPORT
-#elif defined(RSSL_RJC_IMPORTS)
+#elif defined(RSSL_RJC_IMPORTS) || defined(RSSL_IMPORTS)
 #define 	RSSL_RJC_API				RTR_API_IMPORT
 #else
 #define 	RSSL_RJC_API

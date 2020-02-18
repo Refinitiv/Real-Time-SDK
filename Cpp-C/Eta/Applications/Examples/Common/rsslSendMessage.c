@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #endif
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 RsslUInt32 outBytesTotal;
 RsslUInt32 uncompOutBytesTotal;
@@ -29,9 +30,26 @@ RsslRet sendMessage(RsslChannel* chnl, RsslBuffer* msgBuf)
 	RsslUInt32 outBytes = 0;
     RsslUInt32 uncompOutBytes = 0;
     RsslUInt8 writeFlags = RSSL_WRITE_NO_FLAGS;
+	RsslBuffer* tempBuf;
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		tempBuf = rsslJsonSessionMsgConvertToJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, msgBuf, &error);
+
+		if (tempBuf == NULL)
+		{
+			printf("\nRsslJson conversion failed with text: %s\n", error.text);
+			rsslReleaseBuffer(msgBuf, &error);
+			return RSSL_RET_FAILURE;
+		}
+	}
+	else
+	{
+		tempBuf = msgBuf;
+	}
 
     /* send the request */
-    if ((retval = rsslWrite(chnl, msgBuf, RSSL_HIGH_PRIORITY, writeFlags, &outBytes, &uncompOutBytes, &error)) > RSSL_RET_FAILURE)
+    if ((retval = rsslWrite(chnl, tempBuf, RSSL_HIGH_PRIORITY, writeFlags, &outBytes, &uncompOutBytes, &error)) > RSSL_RET_FAILURE)
 
 	{
 		/* set write fd if there's still data queued */
@@ -58,7 +76,7 @@ RsslRet sendMessage(RsslChannel* chnl, RsslBuffer* msgBuf)
 				{
 					printf("rsslFlush() failed with return code %d - <%s>\n", retval, error.text);
 				}
-               retval = rsslWrite(chnl, msgBuf, RSSL_HIGH_PRIORITY, writeFlags, &outBytes, &uncompOutBytes, &error);
+               retval = rsslWrite(chnl, tempBuf, RSSL_HIGH_PRIORITY, writeFlags, &outBytes, &uncompOutBytes, &error);
 				if (showTransportDetails == RSSL_TRUE)
 				{
 					outBytesTotal += outBytes;
@@ -83,9 +101,14 @@ RsslRet sendMessage(RsslChannel* chnl, RsslBuffer* msgBuf)
 		{
 			/* rsslWrite failed, release buffer */
 			printf("rsslWrite() failed with return code %d - <%s>\n", retval, error.text);
-			rsslReleaseBuffer(msgBuf, &error);
+			rsslReleaseBuffer(tempBuf, &error);
 			return RSSL_RET_FAILURE;
 		}
+	}
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		rsslReleaseBuffer(msgBuf, &error);
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -101,10 +124,27 @@ RsslRet sendMessageEx(RsslChannel* chnl, RsslBuffer* msgBuf, RsslWriteInArgs *wr
 	RsslError error;
 	RsslRet	retval = 0;
 	RsslWriteOutArgs writeOutArgs;
+	RsslBuffer* tempBuf;
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		tempBuf = rsslJsonSessionMsgConvertToJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, msgBuf, &error);
+
+		if (tempBuf == NULL)
+		{
+			printf("\nRsslJson conversion failed with text: %s\n", error.text);
+			rsslReleaseBuffer(msgBuf, &error);
+			return RSSL_RET_FAILURE;
+		}
+	}
+	else
+	{
+		tempBuf = msgBuf;
+	}
 
 	/* send the request */
 	rsslClearWriteOutArgs(&writeOutArgs);
-	if ((retval = rsslWriteEx(chnl, msgBuf, writeInArgs, &writeOutArgs, &error)) > RSSL_RET_FAILURE)
+	if ((retval = rsslWriteEx(chnl, tempBuf, writeInArgs, &writeOutArgs, &error)) > RSSL_RET_FAILURE)
 	{
 		/* set write fd if there's still data queued */
 		/* flush is done by application */
@@ -130,7 +170,7 @@ RsslRet sendMessageEx(RsslChannel* chnl, RsslBuffer* msgBuf, RsslWriteInArgs *wr
 				{
 					printf("rsslFlush() failed with return code %d - <%s>\n", retval, error.text);
 				}
-				retval = rsslWriteEx(chnl, msgBuf, writeInArgs, &writeOutArgs, &error);
+				retval = rsslWriteEx(chnl, tempBuf, writeInArgs, &writeOutArgs, &error);
 				if (showTransportDetails == RSSL_TRUE)
 				{
 					outBytesTotal += writeOutArgs.bytesWritten;
@@ -155,9 +195,14 @@ RsslRet sendMessageEx(RsslChannel* chnl, RsslBuffer* msgBuf, RsslWriteInArgs *wr
 		{
 			/* rsslWrite failed, release buffer */
 			printf("rsslWrite() failed with return code %d - <%s>\n", retval, error.text);
-			rsslReleaseBuffer(msgBuf, &error);
+			rsslReleaseBuffer(tempBuf, &error);
 			return RSSL_RET_FAILURE;
 		}
+	}
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		rsslReleaseBuffer(msgBuf, &error);
 	}
 
 	return RSSL_RET_SUCCESS;

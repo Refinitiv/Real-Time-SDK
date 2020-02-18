@@ -826,7 +826,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 	for(; updatesLeft > 0; --updatesLeft)
 	{
-		RsslUInt latencyStartTime;
+		RsslUInt latencyStartTime = 0;
 		RsslQueueLink *pLink = rotatingQueueNext(&pSession->updateItemList);
 
 		/* When appropriate, provide a latency timestamp for the updates. */

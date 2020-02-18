@@ -54,7 +54,7 @@ void RJCBuffer::HexDump(RJCString& aBuffer, int offset)
 	hex_dump( (_area + offset), (_count - offset),
 				aBuffer.to_c(), aBuffer.capacity() );
 	int size = ((_count - offset) / 16 + 1) * 60;
-	int count = aBuffer.capacity() < size ?
+	int count = aBuffer.capacity() < (unsigned int)size ?
 							aBuffer.capacity() : size;
 	aBuffer.setCount(count);
 };

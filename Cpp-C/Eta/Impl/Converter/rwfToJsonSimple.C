@@ -63,30 +63,31 @@ const RsslBuffer *rwfToJsonSimple::getJsonMsg(RsslInt32 streamId, bool solicited
 
 	if (!close)
 	{
-	len = _pstr - _buf - MAX_MSG_SIMPLIFIED_PREQUEL;
-	_pstr = streamIdString;
-	int32ToStringOffBuffer(streamId);
-	streamIdStringLen = _pstr - streamIdString;
-	_pstr = streamIdString;
+		len = (int)(_pstr - _buf - MAX_MSG_SIMPLIFIED_PREQUEL);
+		_pstr = streamIdString;
+		int32ToStringOffBuffer(streamId);
+		streamIdStringLen = (int)(_pstr - streamIdString);
+		_pstr = streamIdString;
 
-	len += JSON_FIXED_SIMPLFIED_PREQUEL + streamIdStringLen;
+		len += JSON_FIXED_SIMPLFIED_PREQUEL + streamIdStringLen;
 
-	msgStart = _buf + MAX_MSG_SIMPLIFIED_PREQUEL - ( JSON_FIXED_SIMPLFIED_PREQUEL + streamIdStringLen);
+		msgStart = _buf + MAX_MSG_SIMPLIFIED_PREQUEL - ( JSON_FIXED_SIMPLFIED_PREQUEL + streamIdStringLen);
 
-	_pstr = msgStart;
-	_buffer.data = msgStart;
-	_buffer.length = len;
+		_pstr = msgStart;
+		_buffer.data = msgStart;
+		_buffer.length = len;
 
-	writeOb();
-	writeBufVar(&JSON_ID, false);
+		writeOb();
+		writeBufVar(&JSON_ID, false);
 	
-	if (verifyJsonMessageSize(streamIdStringLen) == 0) return 0;
-	doSimpleMemCopy(_pstr,streamIdString,streamIdStringLen);
+		if (verifyJsonMessageSize(streamIdStringLen) == 0) 
+			return 0;
+		doSimpleMemCopy(_pstr,streamIdString,streamIdStringLen);
 	}
 	else // close message, don't alter buffer since stream id(s) already added
 	{
 		_buffer.data = _buf + MAX_MSG_SIMPLIFIED_PREQUEL;
-		_buffer.length = _pstr - _buffer.data;
+		_buffer.length = (RsslUInt32)(_pstr - _buffer.data);
 		writeOb();
 	}
 	_pstr = pstrSave;
@@ -103,28 +104,28 @@ int rwfToJsonSimple::processMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMsg, bool
 {
 	if (iMsg.msgBase.msgClass != RSSL_MC_CLOSE)
 	{
-	if (!first)
-	{
-		_firstMsg = false;
-		// For embedded messages include the entire message base
-		writeOb();
-		writeBufVar(&JSON_ID, false);
-		uInt32ToString(iMsg.msgBase.streamId);
-	}
-	writeBufVar(&JSON_TYPE, true);
+		if (!first)
+		{
+			_firstMsg = false;
+			// For embedded messages include the entire message base
+			writeOb();
+			writeBufVar(&JSON_ID, false);
+			uInt32ToString(iMsg.msgBase.streamId);
+		}
+		writeBufVar(&JSON_TYPE, true);
 
-	if (const char* msgType = rsslMsgClassToOmmString(iMsg.msgBase.msgClass))
-	{
-		writeString(msgType);
-	}
-	if (iMsg.msgBase.domainType != RSSL_DMT_MARKET_PRICE)
-	{
-		writeBufVar(&JSON_DOMAIN, true);
-		if (const char* domain = rsslDomainTypeToOmmString(iMsg.msgBase.domainType))
-			writeString(domain);
-		else
-			uInt32ToString(iMsg.msgBase.domainType);
-	}
+		if (const char* msgType = rsslMsgClassToOmmString(iMsg.msgBase.msgClass))
+		{
+			writeString(msgType);
+		}
+		if (iMsg.msgBase.domainType != RSSL_DMT_MARKET_PRICE)
+		{
+			writeBufVar(&JSON_DOMAIN, true);
+			if (const char* domain = rsslDomainTypeToOmmString(iMsg.msgBase.domainType))
+				writeString(domain);
+			else
+				uInt32ToString(iMsg.msgBase.domainType);
+		}
 	}
 	else // close message, everything written by processCloseMsg except writeOb
 	{
@@ -377,7 +378,7 @@ int rwfToJsonSimple::processRequestMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMs
 		{
 			RsslInt fid;
 			rsslDecodeInt(&aIter, &fid);
-			int32ToString(fid);
+			int32ToString((RsslInt32)fid);
 		}
 	}
 	writeAe();  // End of View
@@ -711,7 +712,7 @@ int rwfToJsonSimple::processCloseMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMsg)
 				comma = true;
 			RsslInt fid;
 			rsslDecodeInt(&aIter, &fid);
-			int32ToString(fid);
+			int32ToString((RsslInt32)fid);
 	}
 		writeAe();  // End of Batch
 	}
@@ -962,14 +963,12 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 
 	if (keyPtr->flags == RSSL_MKF_NONE)
 	{
-		// MJD - was an error but assume that an empty key is valid
 		writeOb();
 		writeOe();
 		return 1;
 	}
 
 	writeOb();
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasServiceId((RsslMsgKey*)keyPtr))
 	{
 		writeBufVar(&JSON_KEY_SERVICE, comma);
@@ -986,7 +985,6 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 		comma = true;
 	}
 
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasNameType((RsslMsgKey*)keyPtr) && keyPtr->nameType != 1)
 	{
 		writeBufVar(&JSON_KEY_NAME_TYPE, comma);
@@ -1004,7 +1002,6 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasName((RsslMsgKey*)keyPtr))
 	{
 		// workaround for RSSL requiring name if nametype is provided
@@ -1020,7 +1017,6 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 				comma = true;
 		}
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasFilter((RsslMsgKey*)keyPtr))
 	{
 		writeBufVar(&JSON_KEY_FILTER, comma);
@@ -1028,7 +1024,6 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasIdentifier((RsslMsgKey*)keyPtr))
 	{
 		writeBufVar(&JSON_KEY_IDENTIFIER, comma);
@@ -1036,7 +1031,7 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
+
 	if (rsslMsgKeyCheckHasAttrib((RsslMsgKey*)keyPtr))
 	{
 		RsslDecodeIterator dIter;
@@ -1128,7 +1123,7 @@ int rwfToJsonSimple::processState(const RsslState* statePtr)
 	{
 		writeBufVar(&JSON_TEXT, true);
 		writeJsonString('"');
-		for(int i = 0; i < statePtr->text.length; i++) 
+		for(int i = 0; i < (int)statePtr->text.length; i++) 
 		{
 			switch(statePtr->text.data[i])
 			{
@@ -1204,8 +1199,6 @@ int rwfToJsonSimple::processFieldList(RsslDecodeIterator *iterPtr, const RsslBuf
 	const RsslDictionaryEntry *def;
 	RsslFieldList fieldList;
 	RsslFieldEntry field;
-
-	// MJD - handle null fieldList
 
  	RsslRet retVal = 0;
 	bool comma = false;
@@ -1294,7 +1287,6 @@ int rwfToJsonSimple::processElementList(RsslDecodeIterator *iterPtr, const RsslB
 
 	if (encDataBufPtr->length == 0)
 	{
-		// MJD - what if no tag ????
 		writeEmptyObject();
 		return 1;
 	}
@@ -1385,7 +1377,6 @@ int rwfToJsonSimple::processFilterList(RsslDecodeIterator *iterPtr, const RsslBu
 
 	if (encDataBufPtr->length == 0)
 	{
-		// MJD - what if no tag ????
 		writeEmptyObject();
 		return 1;
 	}
@@ -1625,8 +1616,6 @@ int rwfToJsonSimple::processMap(RsslDecodeIterator *iterPtr, const RsslBuffer *e
 	bool comma = false;
 
 	rsslClearMap(&map);
-
-	// MJD - check for empty map
 
 	if ((retVal = rsslDecodeMap(iterPtr, &map)) < RSSL_RET_SUCCESS)
 	{
@@ -2274,7 +2263,7 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 	// Count up all escaped characters
 	if (_errorOriginalMessage)
 	{
-		for(int i = 0; i < _errorOriginalMessage->length; i++) {
+		for(int i = 0; i < (int)_errorOriginalMessage->length; i++) {
 			switch(_errorOriginalMessage->data[i])
 			{
 			case '\"':
@@ -2295,7 +2284,7 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 		}
 	}
 
-	int estimatedErrorMaxLength = (_errorOriginalMessage ? _errorOriginalMessage->length : 0) + (_errorFile ? strlen(_errorFile) : 0) + charsToEscape + 207;
+	int estimatedErrorMaxLength = (_errorOriginalMessage ? _errorOriginalMessage->length : 0) + (_errorFile ? (int)strlen(_errorFile) : 0) + charsToEscape + 207;
 
 	if(estimatedErrorMaxLength  > _maxLen)
 	{

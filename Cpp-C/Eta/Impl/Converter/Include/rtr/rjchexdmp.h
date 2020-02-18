@@ -48,14 +48,14 @@ protected:
 	char	outchar[20];
 
 
-	short check_size(	unsigned long start,
-						unsigned long current,
-						int max );
+	short check_size(	char* start,
+						char* current,
+						unsigned int max );
 
-	unsigned long startline(	unsigned long loc,
+	char* startline(	char* loc,
 								unsigned long cursor );
 	
-	unsigned long addline(	unsigned long location,
+	char* addline(	char* location,
 							unsigned char byte );
 
 
@@ -68,7 +68,7 @@ public:
 		// _TAG01 Other
 
 	void hex_dump(	const char *in_buf, int in_buf_len,
-					const char *out_buf, int out_buf_len );
+					const char *out_buf, unsigned int out_buf_len );
 	    // Hex dump from `in_buf' and put output into `out_buf'.
 		// _TAG01 Other
 

@@ -70,11 +70,11 @@ const RsslBuffer *rwfToJsonConverter::getJsonMsg(RsslInt32 streamId, bool solici
 
 	*_pstr = 0;		// Just in case someone prints it, won't get copied
 
-	len = _pstr - _buf - MAX_MSG_PREQUEL; 
+	len = (int)(_pstr - _buf - MAX_MSG_PREQUEL); 
 
 	_pstr = streamIdString;
 	int32ToStringOffBuffer(streamId);
-	streamIdStringLen = _pstr - streamIdString;
+	streamIdStringLen = (int)(_pstr - streamIdString);
 
 	len += JSON_FIXED_PREQUEL + streamIdStringLen;
 	msgStart = _buf + MAX_MSG_PREQUEL - (JSON_FIXED_PREQUEL + streamIdStringLen);
@@ -761,13 +761,11 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 
 	if (keyPtr->flags == RSSL_MKF_NONE)
 	{
-		// MJD - was an error but assume that an empty key is valid
 		writeOb();
 		writeOe();
 		return 1;
 	}
 	writeOb();
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasServiceId((RsslMsgKey*)keyPtr))
 	{
 		writeVar('s', comma);
@@ -776,7 +774,6 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 			comma = true;
 
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasNameType((RsslMsgKey*)keyPtr))
 	{
 		writeVar('t', comma);
@@ -784,7 +781,6 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasName((RsslMsgKey*)keyPtr))
 	{
 	  	// workaround for RSSL requiring name if nametype is provided
@@ -799,7 +795,6 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 				comma = true;
 		}
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasFilter((RsslMsgKey*)keyPtr))
 	{
 		writeVar('x', comma);
@@ -807,7 +802,6 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasIdentifier((RsslMsgKey*)keyPtr))
 	{
 		writeVar('i', comma);
@@ -815,7 +809,6 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 		if (!comma)
 			comma = true;
 	}
-	// MJD - Had to cast away const mr #rssl2297
 	if (rsslMsgKeyCheckHasAttrib((RsslMsgKey*)keyPtr))
 	{
 		writeVar('a', comma);
@@ -909,7 +902,7 @@ int rwfToJsonConverter::processState(const RsslState* statePtr)
 	{
 		writeVar('t', true);
 		*_pstr++ = '"';
-		for(int i = 0; i < statePtr->text.length; i++) 
+		for(int i = 0; i < (int)statePtr->text.length; i++) 
 		{
 			switch(statePtr->text.data[i])
 			{

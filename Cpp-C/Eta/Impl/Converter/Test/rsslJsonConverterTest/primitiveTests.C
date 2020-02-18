@@ -680,7 +680,6 @@ class HugeFloatDoubleTestFixture : public MsgConversionTestBase, public ::testin
 /* Test large values of floats/doubles from JSON. */
 TEST_P(HugeFloatDoubleTestFixture, HugeFloatDoubleTest)
 {
-	RsslGenericMsg genericMsg;
 	RsslMsg rsslMsg;
 	RsslFieldList fieldList;
 	RsslFieldEntry fieldEntry;

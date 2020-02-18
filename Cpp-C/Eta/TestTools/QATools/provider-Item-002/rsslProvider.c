@@ -28,6 +28,7 @@
 #include "rsslDictionaryProvider.h"
 #include "rsslItemHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 static fd_set	readfds;
 static fd_set	exceptfds;
@@ -36,12 +37,21 @@ RsslError error;
 RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
+static char protocolList[128];
 static char traceOutputFile[128];
+static char certFile[128];
+static char keyFile[128];
+static char cipherSuite[128];
+static char libsslName[255];
+static char libcryptoName[255];
+static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 1200;
 static time_t rsslProviderRuntime = 0;
 static RsslUInt32 clientSessionCount;
 static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
+static RsslBool userSpecCipher = RSSL_FALSE;
+static RsslBool jsonEnumExpand = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
@@ -50,10 +60,36 @@ static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
+
+/*
+* Clears the client session information.
+* clientSessionInfo - The client session information to be cleared
+*/
+void clearClientSessionInfo(RsslClientSessionInfo* clientSessionInfo)
+{
+	clientSessionInfo->clientChannel = 0;
+	clientSessionInfo->nextReceivePingTime = 0;
+	clientSessionInfo->nextSendPingTime = 0;
+	clientSessionInfo->receivedClientMsg = RSSL_FALSE;
+	clientSessionInfo->pingsInitialized = RSSL_FALSE;
+	rsslJCClearSession(&clientSessionInfo->jsonSession);
+	clientSessionInfo->jsonSession.options.pServiceNameToIdCallback = &serviceNameToIdCallback;
+	clientSessionInfo->jsonSession.options.jsonExpandedEnumFields = jsonEnumExpand;
+}
+
 
 void exitWithUsage()
 {
-	printf(	"Usage: -p <port number> -s <service name> -id <service ID> -runtime <seconds>\n");
+	printf("Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf("\tAdditional encyrption options:\n");
+	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf("\tWebSocket connection arguments:\n");
+	printf("\t   -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols );
+	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -75,13 +111,46 @@ int main(int argc, char **argv)
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	RsslRet	retval = 0;
 	int iargs;
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 	rsslClearReadOutArgs(&readOutArgs);
+	
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
+	snprintf(certFile, 128, "\0");
+	snprintf(keyFile, 128, "\0");
+	snprintf(cipherSuite, 128, "\0");
+	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for(iargs = 1; iargs < argc; ++iargs)
 	{
-		if (0 == strcmp("-p", argv[iargs]))
+		if (strcmp("-libsslName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libsslName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libsslName = libsslName;
+		}
+		else if (strcmp("-libcryptoName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libcryptoName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libcryptoName = libcryptoName;
+		}
+		else if (0 == strcmp("-c", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			if (0 == strcmp(argv[iargs], "socket") || 0 == strcmp(argv[iargs], "0"))
+				connType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[iargs], "encrypted") || 0 == strcmp(argv[iargs], "1"))
+				connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else if (0 == strcmp(argv[iargs], "encrypted") || 0 == strcmp(argv[iargs], "1"))
+				connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else
+			{
+				connType = (RsslConnectionTypes)atoi(argv[iargs]);
+			}
+		}
+		else if (0 == strcmp("-p", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(portNo, 128, "%s", argv[iargs]);
@@ -90,6 +159,11 @@ int main(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(serviceName, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(protocolList, 128, "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-id", argv[iargs]))
 		{
@@ -116,6 +190,26 @@ int main(int argc, char **argv)
 		{
 			++iargs; if (iargs == argc) exitWithUsage();
 			timeToRun = atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(certFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(keyFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-cipher", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(cipherSuite, 128, "%s", argv[iargs]);
+			userSpecCipher = RSSL_TRUE;
+		}
+		else if (strcmp("-jsonEnumExpand", argv[iargs]) == 0)
+		{
+			jsonEnumExpand = RSSL_TRUE;
 		}
 		else
 		{
@@ -161,13 +255,16 @@ int main(int argc, char **argv)
 		printf("\nNo local dictionary found, will try to request it from ADH if it supports the Provider Dictionary Download\n");
 	}
 
+	/* Clear the Json session, and initialize the Json converter */
+	rsslJsonInitialize();
+
 	/* Initialize run-time */
 	initRuntime();
 
 
 	/* Initialize RSSL */
 	/* RSSL_LOCK_NONE is used since this is a single threaded application. */
-	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+	if (rsslInitializeEx(&initOpts, &error) != RSSL_RET_SUCCESS)
 	{
 		printf("rsslInitialize(): failed <%s>\n",error.text);
 		/* WINDOWS: wait for user to enter something before exiting  */
@@ -377,6 +474,26 @@ static void readFromChannel(RsslChannel* chnl)
 							printf("Connection is from %s device.\n", chanInfo.componentInfo[i]->componentVersion.data);
 						}
 					}
+
+					/* If the connection protocol is JSON, intitalize the Json converter */
+					if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+					{
+						if (rsslJsonSessionInitialize((RsslJsonSession*)chnl->userSpecPtr, &error) != RSSL_RET_SUCCESS)
+						{
+							printf("Unable to initialize the Json Converter.  Error text: %s\n", error.text);
+							cleanUpAndExit();
+						}
+
+						if (isDictionaryReady() == RSSL_TRUE)
+						{
+							/* We have our dictionary, so set it on the Json converter.  If we do not, the application will attempt to request it from the ADH */
+							if (rsslJsonSessionSetDictionary((RsslJsonSession*)(chnl->userSpecPtr), getDictionary(), &error) == RSSL_RET_FAILURE)
+							{
+								printf("\nUnable to set the dictionary on the Json Converter.  Additional information: %s\n", error.text);
+								cleanUpAndExit();
+							}
+						}
+					}
 				}
 				break;
 
@@ -475,9 +592,16 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	
 	sopts.guaranteedOutputBuffers = 500;
 	sopts.serviceName = portno;
+	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	sopts.connectionType = connType;
+	sopts.encryptionOpts.serverCert = certFile;
+	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (userSpecCipher == RSSL_TRUE)
+		sopts.encryptionOpts.cipherSuite = cipherSuite;
 
 	if ((srvr = rsslBind(&sopts, error)) != 0)
 	{
@@ -537,6 +661,8 @@ static void createNewClientSession(RsslServer *srvr)
 			{
 				clientSessions[i].clientChannel = sckt;
 				clientSessionFound = RSSL_TRUE;
+				/* Set the Json session to the user spec ptr.  This will be initialized if the channel negotiates to use the JSON protocol. */
+				sckt->userSpecPtr = &(clientSessions[i].jsonSession);
 				break;
 			}
 		}
@@ -709,6 +835,31 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslRet ret = 0;
 	RsslMsg msg = RSSL_INIT_MSG;
 	RsslDecodeIterator dIter;
+	RsslBuffer tempBuffer;
+	char tempBuf[MAX_MSG_SIZE];
+	RsslError error;
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		tempBuffer.length = MAX_MSG_SIZE;
+		tempBuffer.data = tempBuf;
+
+		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+
+		if (ret == RSSL_RET_FAILURE)
+		{
+			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (ret == RSSL_RET_READ_PING)
+			return RSSL_RET_SUCCESS;
+	}
+	else
+	{
+		tempBuffer.length = buffer->length;
+		tempBuffer.data = buffer->data;
+	}
 	
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
@@ -716,7 +867,7 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 	/* set version info */
 	rsslSetDecodeIteratorRWFVersion(&dIter, chnl->majorVersion, chnl->minorVersion);
 
-	rsslSetDecodeIteratorBuffer(&dIter, buffer);
+	rsslSetDecodeIteratorBuffer(&dIter, &tempBuffer);
 
 	ret = rsslDecodeMsg(&dIter, &msg);				
 	if (ret != RSSL_RET_SUCCESS)
@@ -911,6 +1062,8 @@ void cleanUpAndExit()
 
 	/* free memory for dictionary */
 	freeDictionary();
+
+	rsslJsonUninitialize();
 
 	rsslUninitialize();
 

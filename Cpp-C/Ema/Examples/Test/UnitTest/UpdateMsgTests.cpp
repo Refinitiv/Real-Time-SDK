@@ -1030,7 +1030,7 @@ TEST(UpdateMsgTests, testUpdateMsgClone)
 	}
 	catch (const OmmException& ex)
 	{
-		EXPECT_FALSE(true) << "UpdateMsg Clone - exception not expected";
+		EXPECT_FALSE(true) << "UpdateMsg Clone - exception not expected. Text: "<< ex.getText();
 	}
 
 	rsslDeleteDataDictionary(&dictionary);
@@ -1176,7 +1176,7 @@ TEST(UpdateMsgTests, testUpdateMsgEditClone)
 	}
 	catch (const OmmException& ex)
 	{
-		EXPECT_FALSE(true) << "UpdateMsg Edit Clone - exception not expected";
+		EXPECT_FALSE(true) << "UpdateMsg Edit Clone - exception not expected. Text: " << ex.getText();
 	}
 
 	rsslDeleteDataDictionary(&dictionary);

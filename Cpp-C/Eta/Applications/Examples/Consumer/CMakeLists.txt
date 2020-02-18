@@ -8,6 +8,17 @@ set( SOURCE_FILES
       ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslLoginEncodeDecode.c     
       ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSendMessage.c
       ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslMarketPriceItems.c
+	  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslJsonSession.c
+
+	  rsslConsumer.h           rsslDictionaryHandler.h        rsslDirectoryHandler.h
+      rsslMarketPriceHandler.h rsslMarketByOrderHandler.h     rsslMarketByPriceHandler.h
+      rsslSymbolListHandler.h  rsslYieldCurveHandler.h        rsslPostHandler.h
+	  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslDirectoryEncodeDecode.h	
+      ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslLoginConsumer.h
+      ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslLoginEncodeDecode.h     
+      ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslSendMessage.h
+      ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslMarketPriceItems.h
+	  ${EtaExamples_SOURCE_DIR}/Examples/Common/rsslJsonSession.h
   )
 
 add_executable( Consumer_shared ${SOURCE_FILES} )

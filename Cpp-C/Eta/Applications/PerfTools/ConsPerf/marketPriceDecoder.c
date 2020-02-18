@@ -70,6 +70,9 @@ RsslRet decodeMPUpdate(RsslDecodeIterator *pIter, RsslMsg *msg, ConsumerThread* 
 	RsslUInt postTimeTracker = 0;
 	RsslUInt genMsgTimeTracker = 0;
 
+	// Zero out the primitive before decoding 
+	memset(&primitive, 0, sizeof(RsslPrimitive));
+
 	/* decode field list */
 	if ((ret = rsslDecodeFieldList(pIter, &fList, 0)) == RSSL_RET_SUCCESS)
 	{

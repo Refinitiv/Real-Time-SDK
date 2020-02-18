@@ -440,7 +440,6 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 		RsslVectorEntry vectorEntry;
 		RsslFilterList filterList;
 		RsslFilterEntry filterEntry;
-		RsslBuffer decodeBuffer;
 		RsslMsg rsslMsg;
 		RsslBuffer *pInnerEncData;
 

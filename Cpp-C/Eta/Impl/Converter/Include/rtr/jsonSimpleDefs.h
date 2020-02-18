@@ -118,6 +118,5 @@ static const RsslBuffer JSON_FILE = { 4, (char*)"File"};
 static const RsslBuffer JSON_LINE = { 4, (char*)"Line"};
 static const RsslBuffer JSON_OFFSET = { 6, (char*)"Offset"};
 
-// MJD temp
 static const RsslBuffer RDM_OMMSTR_LOGIN_USER_AUTHENTICATION_TOKEN = {10,(char*)"AuthnToken"};
 #endif

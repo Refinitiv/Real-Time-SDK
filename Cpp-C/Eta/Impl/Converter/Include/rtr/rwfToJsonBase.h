@@ -435,7 +435,7 @@ inline void rwfToJsonBase::writeString(const char* value, int len)
 // This function will escape control/special characters if needed.
 inline void rwfToJsonBase::writeSafeString(const char* value)
 {
-	int len = strlen(value);
+	int len = (int)strlen(value);
 	writeSafeString(value, len);
 }
 
@@ -538,7 +538,7 @@ inline void rwfToJsonBase::writeFieldId(RsslUInt32 fidNum, bool comma)
 inline void rwfToJsonBase::writeValue(const char* value)
 {
 	size_t len = strlen(value);
-	if (verifyJsonMessageSize(len) == 0) return;
+	if (verifyJsonMessageSize((int)len) == 0) return;
 
 	(len <= 42) ? doSimpleMemCopy(_pstr, value, (unsigned int)len) : memcpy(_pstr, value, (unsigned int)len);
 	_pstr += len;
@@ -564,7 +564,7 @@ inline void rwfToJsonBase::writeCharDQ(char val)
 inline void rwfToJsonBase::writeValueDQ(const char* value)
 {
 	size_t len = strlen(value);
-	if (verifyJsonMessageSize(len + 2) == 0) return;
+	if (verifyJsonMessageSize((int)len + 2) == 0) return;
 	*_pstr++ = _DOUBLE_QUOTE_CHAR;
 	(len <= 42) ? doSimpleMemCopy(_pstr, value, len) :
 		memcpy(_pstr, value, len);
