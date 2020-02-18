@@ -8,6 +8,8 @@
 #ifndef _RTR_REACTOR_CHANNEL_H
 #define _RTR_REACTOR_CHANNEL_H
 
+#include "rtr/rsslVAExports.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -95,16 +97,10 @@ RTR_C_INLINE RsslInt32 rsslReactorChannelBufferUsage(RsslReactorChannel *pReacto
  * @param packedBuffer whether the buffer allows packing multiple messages via rsslReactorPackBuffer().
  * @param pError Error structure to be populated in the event of failure.
  * @return The buffer for writing the message.
- * @return NULL, if an error occured. pError will be populated with information.
+ * @return NULL, if an error occurred. pError will be populated with information.
  * @see RsslReactor, RsslErrorInfo, rsslReactorPackBuffer, rsslReactorSubmit, rsslReactorReleaseBuffer
  */
-RTR_C_INLINE RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *pReactorChannel, RsslUInt32 size, RsslBool packedBuffer, RsslErrorInfo *pError)
-{
-	RsslBuffer *pBuffer = rsslGetBuffer(pReactorChannel->pRsslChannel, size, packedBuffer, &pError->rsslError);
-	if (!pBuffer)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return pBuffer;
-}
+RSSL_VA_API RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *pReactorChannel, RsslUInt32 size, RsslBool packedBuffer, RsslErrorInfo *pError);
 
 /**
  * @brief Returns an unwritten buffer to the RsslReactorChannel.
@@ -114,14 +110,7 @@ RTR_C_INLINE RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *pReactorChanne
  * @return RsslRet codes.
  * @see RsslReactor, RsslReactorChannel, RsslErrorInfo, rsslReactorGetBuffer, rsslReactorSubmit
  */
-RTR_C_INLINE RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *unused, RsslBuffer *pBuffer, RsslErrorInfo *pError)
-{
-	RsslRet ret = rsslReleaseBuffer(pBuffer, &pError->rsslError);
-	if (ret != RSSL_RET_SUCCESS)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return ret;
-}
-
+RSSL_VA_API RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *pReactorChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError);
 
 /**
  * @brief Packs an RsslBuffer and returns a new position in the buffer for writing another message.
@@ -132,13 +121,7 @@ RTR_C_INLINE RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *unused, RsslBu
  * @return NULL, if an error occurred.
  * @see RsslReactor, RsslReactorChannel, RsslBuffer, RsslErrorInfo
  */
-RTR_C_INLINE RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pReactorChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError)
-{
-	RsslBuffer *pNewBuffer = rsslPackBuffer(pReactorChannel->pRsslChannel, pBuffer, &pError->rsslError);
-	if (!pNewBuffer)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return pNewBuffer;
-}
+RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pReactorChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError);
 
 /**
  * @brief Changes some aspects of the RsslReactorChannel.

@@ -792,7 +792,7 @@ int main(int argc, char **argv)
 	providerInit(&provider, PROVIDER_NONINTERACTIVE,
 			processActiveChannel,
 			processInactiveChannel,
-			processMsg);
+			processMsg, NULL);
 
 	// set up a signal handler so we can cleanup before exit
 	signal(SIGINT, signal_handler);

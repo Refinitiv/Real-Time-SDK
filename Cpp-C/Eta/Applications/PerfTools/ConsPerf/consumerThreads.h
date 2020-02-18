@@ -27,6 +27,8 @@ extern "C" {
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslReactor.h"
+#include "rjConverter.h"
+#include "rtr/rsslJsonConverter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -193,6 +195,8 @@ typedef struct {
 	RsslQueue				refreshCompleteQueue;		/* Refresh complete queue. */
 	RotatingQueue           postItemQueue;              /* Post item queue. */
 	RotatingQueue           genMsgItemQueue;            /* Generic message item queue. */
+
+	rjConverterSession		rjcSess;
 } ConsumerThread;
 
 /* Shorthand for consumerThread's RsslError struct. */

@@ -36,7 +36,8 @@ typedef struct RsslTransServerFuncs RsslTransServerFuncs;
 #define RSSL_UNIDIRECTION_SHMEM_TRANSPORT  1
 #define RSSL_RRCP_TRANSPORT 2
 #define RSSL_SEQ_MCAST_TRANSPORT 3
-#define RSSL_MAX_TRANSPORTS     RSSL_SEQ_MCAST_TRANSPORT + 1
+#define RSSL_WEBSOCKET_TRANSPORT   4
+#define RSSL_MAX_TRANSPORTS     RSSL_WEBSOCKET_TRANSPORT + 1
 
 /* used for all connection types to control locking */
 extern RsslLockingTypes multiThread;  /* 0 == No Locking; 1 == All locking; 2 == Only global locking */
@@ -46,6 +47,9 @@ extern unsigned char memoryDebug;
 
 /* max ripc fragment size */
 #define RSSL_MAX_MSG_SIZE 6*1024
+
+/* default max JSON message fragment size */
+#define RSSL_MAX_JSON_MSG_SIZE 6*1024*10
 
 /* number of pool buffers */
 #define RSSL_POOL_SIZE 1048576  
@@ -138,7 +142,8 @@ typedef struct {
 typedef enum {
 	BUFFER_IMPL_NONE = 0,
 	BUFFER_IMPL_FIRST_FRAG_HEADER = 1,
-	BUFFER_IMPL_SUBSEQ_FRAG_HEADER = 2
+	BUFFER_IMPL_SUBSEQ_FRAG_HEADER = 2,
+	BUFFER_IMPL_LAST_FRAG_HEADER = 3
 } fragmentationHeaderTypes;
 
 typedef struct {
@@ -153,7 +158,7 @@ typedef struct {
 	rsslChannelImpl *RsslChannel;	/* channel that currently owns this buffer */
 	int	priority;					/* which priority queue to write to */
 	void			*bufferInfo;		/* The new type to abstract the underlying transport's buffer type*/	
-	RsslUInt8		fragmentationFlag; /* indicate wheter the buffer is used for fragmentation*/
+	RsslUInt8		fragmentationFlag; /* indicate whether the buffer is used for fragmentation*/
 } rsslBufferImpl;
 
 /**
@@ -267,7 +272,7 @@ typedef struct RsslTransServerFuncs {
 /* used by each transport to set its functions into the array */
 RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFuncs *funcs );
 RsslRet rsslSetTransportServerFunc( int transportType, RsslTransportServerFuncs *funcs );
-
+RsslTransportChannelFuncs* rsslGetTransportChannelFunc(int transportType);
 
 /**********************************
  *  INLINE UTILITY/HELPER FUNCTIONS

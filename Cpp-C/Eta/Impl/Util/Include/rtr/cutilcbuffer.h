@@ -106,6 +106,8 @@ typedef struct rtr_msgb {
 	unsigned short  fragOffset;
 	int				priority;   /* which priority queue to write to */
 	void			*local;		/* Local storage for however owns the rtr_msgb_t */
+	unsigned short	protocolHdr;
+	unsigned short	protocolHdrLength;		/* Maximum length of data block */
 } rtr_msgb_t;
 
 

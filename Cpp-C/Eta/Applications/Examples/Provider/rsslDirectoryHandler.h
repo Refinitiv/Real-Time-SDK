@@ -24,6 +24,8 @@ static RsslBool keyHasMinFilterFlags(RsslMsgKey* key);
 void closeSrcDirectoryChnlStream(RsslChannel* chnl);
 static void closeSrcDirectoryStream(RsslInt32 streamId);
 
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id);
+
 #ifdef __cplusplus
 };
 #endif

@@ -40,11 +40,23 @@ static fd_set	exceptFds;
 RsslServer *rsslSrvr;
 static char portNo[128];
 static char serviceName[128];
+static char protocolList[128];
 static char traceOutputFile[128];
+static char certFile[128];
+static char keyFile[128];
+static char cipherSuite[128];
+static char libsslName[255];
+static char libcryptoName[255];
+static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 300;
 static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
+static RsslBool userSpecCipher = RSSL_FALSE;
+
+static RsslUInt32 maxFragmentSize = 0;
+static RsslUInt32 guaranteedOutputBuffers = 0;
+static RsslUInt32 maxOutputBuffers = 0;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
@@ -57,10 +69,21 @@ static void initializeCacheDictionary();
 static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
 
 void exitWithUsage()
 {
-	printf(	"Usage: -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf("Additional options:\n");
+	printf("  -outputBufs <count>   \tNumber of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n");
+	printf("  -maxOutputBufs <count>\tMax number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n");
+	printf("  -maxFragmentSize <size>\tMax size of buffers(configures maxFragmentSize in RsslBindOptions)\n");
+
+	printf("Additional encryption options:\n");
+	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -111,7 +134,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				rsslClearTraceOptions(&traceOptions);
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -172,6 +195,17 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 }
 
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (strncmp(&serviceName[0], pServiceName->data, pServiceName->length) == 0)
+	{
+		*pServiceId = (RsslUInt16)getServiceId();
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
 RsslReactor *pReactor = 0;
 
 int main(int argc, char **argv)
@@ -196,11 +230,131 @@ int main(int argc, char **argv)
 	RsslCreateReactorOptions reactorOpts;
 
 	RsslReactorDispatchOptions dispatchOpts;
-
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
 	time_t nextSendTime;
 
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
+
+	snprintf(portNo, 128, "%s", defaultPortNo);
+	snprintf(serviceName, 128, "%s", defaultServiceName);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
+	snprintf(certFile, 128, "\0");
+	snprintf(keyFile, 128, "\0");
+	snprintf(cipherSuite, 128, "\0");
+	connType = RSSL_CONN_TYPE_SOCKET;
+	setServiceId(1);
+	for (iargs = 1; iargs < argc; ++iargs)
+	{
+		if (strcmp("-libsslName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libsslName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libsslName = libsslName;
+	}
+		else if (strcmp("-libcryptoName", argv[iargs]) == 0)
+	{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(libcryptoName, 255, "%s", argv[iargs]);
+			initOpts.jitOpts.libcryptoName = libcryptoName;
+	}
+		else if (0 == strcmp("-c", argv[iargs]))
+	{
+			++iargs; if (iargs == argc) exitWithUsage();
+			if (0 == strcmp(argv[iargs], "socket") || 0 == strcmp(argv[iargs], "0"))
+				connType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[iargs], "encrypted") || 0 == strcmp(argv[iargs], "1"))
+				connType = RSSL_CONN_TYPE_ENCRYPTED;
+			else
+			{
+				connType = (RsslConnectionTypes)atoi(argv[iargs]);
+			}
+		}
+		else if (0 == strcmp("-p", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(portNo, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-s", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(serviceName, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(protocolList, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-id", argv[iargs]))
+		{
+			long tmpId = 0;
+			++iargs; if (iargs == argc) exitWithUsage();
+			tmpId = atol(argv[iargs]);
+			if (tmpId < 0)
+			{
+				printf("ServiceId must be positive.\n");
+				exitWithUsage();
+			}
+			setServiceId(tmpId);
+		}
+		else if (0 == strcmp("-x", argv[iargs]))
+		{
+			xmlTrace = RSSL_TRUE;
+			snprintf(traceOutputFile, 128, "RsslVAProvider\0");
+		}
+		else if (0 == strcmp("-maxFragmentSize", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &maxFragmentSize);
+		}
+		else if (0 == strcmp("-maxOutputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &maxOutputBuffers);
+		}
+		else if (0 == strcmp("-outputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			sscanf(argv[iargs], "%u", &guaranteedOutputBuffers);
+		}
+		else if (0 == strcmp("-runtime", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			timeToRun = atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-cache", argv[iargs]))
+		{
+			cacheOption = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(certFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(keyFile, 128, "%s", argv[iargs]);
+		}
+		else if (0 == strcmp("-cipher", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(cipherSuite, 128, "%s", argv[iargs]);
+			userSpecCipher = RSSL_TRUE;
+		}
+		else
+		{
+			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
+			exitWithUsage();
+		}
+	}
+	printf("portNo: %s\n", portNo);
+	printf("serviceName: %s\n", serviceName);
+	printf("serviceId: %llu\n", getServiceId());
+
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
-	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+	if (rsslInitializeEx(&initOpts, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
 	{
 		printf("rsslInitialize(): failed <%s>\n",rsslErrorInfo.rsslError.text);
 		/* WINDOWS: wait for user to enter something before exiting  */
@@ -228,58 +382,7 @@ int main(int argc, char **argv)
 		cleanUpAndExit();
 	}
 
-	snprintf(portNo, 128, "%s", defaultPortNo);
-	snprintf(serviceName, 128, "%s", defaultServiceName);
-	setServiceId(1);
-	for(iargs = 1; iargs < argc; ++iargs)
-	{
-		if (0 == strcmp("-p", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitWithUsage();
-			snprintf(portNo, 128, "%s", argv[iargs]);
-		}
-		else if (0 == strcmp("-s", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitWithUsage();
-			snprintf(serviceName, 128, "%s", argv[iargs]);
-		}
-		else if (0 == strcmp("-id", argv[iargs]))
-		{
-			long tmpId = 0;
-			++iargs; if (iargs == argc) exitWithUsage();
-			tmpId = atol(argv[iargs]);
-			if (tmpId < 0)
-			{
-				printf("ServiceId must be positive.\n");
-				exitWithUsage();
-			}
-			setServiceId(tmpId);
-		}
-		else if (0 == strcmp("-x", argv[iargs]))
-		{
-			xmlTrace = RSSL_TRUE;
-			snprintf(traceOutputFile, 128, "RsslVAProvider\0");
-		}
-		else if (0 == strcmp("-runtime", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitWithUsage();
-			timeToRun = atoi(argv[iargs]);
-		}
-		else if (0 == strcmp("-cache", argv[iargs]))
-		{
-			cacheOption = RSSL_TRUE;
-		}
-		else
-		{
-			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
-			exitWithUsage();
-		}
-	}
-	printf("portNo: %s\n", portNo);
-	printf("serviceName: %s\n", serviceName);
-	printf("serviceId: %llu\n", getServiceId());
-
-	/* Initialiize client session information */
+	/* Initialize client session information */
 	for (i = 0; i < MAX_CLIENT_SESSIONS; i++)
 	{
 		clearClientSessionInfo(&clientSessions[i]);
@@ -323,17 +426,43 @@ int main(int argc, char **argv)
 
 	initializeCacheDictionary();
 
+	jsonConverterOptions.pDictionary = getDictionary();
+	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
+
 	/* Initialize run-time */
 	initRuntime();
 
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
 	
-	sopts.guaranteedOutputBuffers = 500;
+	sopts.guaranteedOutputBuffers = 2000;
 	sopts.serviceName = portNo;
+	sopts.wsOpts.protocols = protocolList;
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	sopts.connectionType = connType;
+	sopts.encryptionOpts.serverCert = certFile;
+	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (userSpecCipher == RSSL_TRUE)
+		sopts.encryptionOpts.cipherSuite = cipherSuite;
+
+	if (guaranteedOutputBuffers)
+		sopts.guaranteedOutputBuffers = guaranteedOutputBuffers;
+
+	if (maxOutputBuffers)
+		sopts.maxOutputBuffers = maxOutputBuffers;
+
+	if (maxFragmentSize)
+		sopts.maxFragmentSize = maxFragmentSize;
 
 	/* Create the server. */
 	if (!(rsslSrvr = rsslBind(&sopts, &rsslErrorInfo.rsslError)))

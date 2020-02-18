@@ -14,6 +14,9 @@
 
 #ifndef RTR_QUAD_32_ALIGN
 
+#define rwfSetBit(___dptr,___bitn) RTR_SET_BIT(___dptr,___bitn)
+#define rwfUnSetBit(___dptr,___bitn) RTR_UNSET_BIT(___dptr,___bitn)
+#define rwfGetBit(___dval,___bitn) RTR_GET_BIT(___dval,___bitn)
 #define rwfPut8(___dptr,___sval) RTR_PUT_8(___dptr,___sval)
 #define rwfGet8(___dval,___sptr) RTR_GET_8(___dval,___sptr)
 #define rwfPut16(___dptr,___sval) RTR_PUT_16(___dptr,___sval)
@@ -1607,6 +1610,8 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetReal64(rtrInt64 *svalptr, rtrUInt8 *fvalptr, 
 
 
 
+#define rwfPutBit(___dptr,___bitn) RTR_PUT_BIT(___dptr,___bitn)
+#define rwfGetBit(___dval,___bitn) RTR_GET_BIT(___dval,___bitn)
 #define rwfPut8(___dptr,___sval) RTR_PUT_8(___dptr,___sval)
 #define rwfGet8(___dval,___sptr) RTR_GET_8(___dval,___sptr)
 #define rwfPut16(___dptr,___sval) RTR_PUT_16(___dptr,___sval)

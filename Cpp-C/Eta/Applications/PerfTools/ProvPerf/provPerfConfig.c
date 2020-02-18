@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "provPerfConfig.h"
@@ -28,7 +28,7 @@ static void clearProvPerfConfig()
 	provPerfConfig.guaranteedOutputBuffers = 5000;
 	/* In the case that client doesn't supply -maxOutputBufs as the input argument, application should remain old functionality
 	   see rsslClearBindOpts(...) */
-	provPerfConfig.maxOutputBuffers = 50;
+	provPerfConfig.maxOutputBuffers = 5000;
 	provPerfConfig.maxFragmentSize = 6144;
 	provPerfConfig.sendBufSize = 0;
 	provPerfConfig.recvBufSize = 0;
@@ -44,6 +44,7 @@ static void clearProvPerfConfig()
 	snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), "");
 	snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "");
 
+	snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "");
 }
 
 void exitConfigError(char **argv)
@@ -293,6 +294,11 @@ void initProvPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), argv[iargs]);
 		}
+		else if (0 == strcmp("-pl", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), argv[iargs]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -360,7 +366,8 @@ void printProvPerfConfig(FILE *file)
 			"           Display Stats: %s\n"
 			"             Private Key: %s\n"
 			"             Server Cert: %s\n"
-			"                  Cipher: %s\n",
+			"                  Cipher: %s\n"
+			"        WS Protocol List: %s\n",
 			provPerfConfig.runTime,
 			provPerfConfig.connType,
 			provPerfConfig.portNo,
@@ -382,7 +389,8 @@ void printProvPerfConfig(FILE *file)
 			(provPerfConfig.displayStats ? "Yes" : "No"),
 			provPerfConfig.serverKey,
 			provPerfConfig.serverCert,
-			provPerfConfig.cipherSuite
+			provPerfConfig.cipherSuite,
+			provPerfConfig.protocolList
 		  );
 
 	fprintf(file, 
@@ -482,9 +490,11 @@ void exitWithUsage()
 			"\n"
 			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
 			"\n"
-			"  -keyfile								Server private key for OpenSSL encryption.\n"
-			"  -cert								Server certificate for openSSL encryption.\n"
-			"  -cipher								Optional OpenSSL formatted cipher string.\n"
+			"  -pl \"<list>\"                         List of supported WS sub-protocols in order of preference(',' | white space delineated)\n"
+			"\n"
+			"  -keyfile                             Server private key for OpenSSL encryption.\n"
+			"  -cert                                Server certificate for openSSL encryption.\n"
+			"  -cipher                              Optional OpenSSL formatted cipher string.\n"
 			"\n"
 			);
 #ifdef _WIN32

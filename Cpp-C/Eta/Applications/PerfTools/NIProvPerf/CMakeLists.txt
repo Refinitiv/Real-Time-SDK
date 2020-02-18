@@ -1,6 +1,7 @@
 
 set( SOURCE_FILES
   niProvPerfConfig.c              upacNIProvPerf.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
@@ -27,7 +28,7 @@ set_target_properties( NIProvPerf_shared
 							OUTPUT_NAME NIProvPerf 
 						)
 target_link_libraries( NIProvPerf_shared 
-						librsslVA_shared 
+						librsslVA_shared librsslJsonConverter_shared
                         LibXml2::LibXml2 
                         ${SYSTEM_LIBRARIES} 
 						)
@@ -39,6 +40,7 @@ target_include_directories(NIProvPerf
 							$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/Common>
 							$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/ProvPerf>
 							$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/NIProvPerf>
+							$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 						)
 set_target_properties( NIProvPerf 
 						PROPERTIES 

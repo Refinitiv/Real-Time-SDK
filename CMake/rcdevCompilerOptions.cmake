@@ -29,12 +29,61 @@
 #     i.e.
 #			set_property(CACHE CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_U} ${CMAKE_CXX_FLAGS_DEBUG}
 #
+
+if (NOT _def_rcdev_add_if_not_set)
+set(_def_rcdev_add_if_not_set 1)
+function(rcdev_add_if_not_set _outstring _flags _xtra_flags)
+	# Break up the two lists into CMake lists
+	if (WIN32)
+		set(_delChar "/")
+	else()
+		set(_delChar "-")
+	endif()
+
+	# create two lists for current flags and xtra flags to be added
+	string(REPLACE " ${_delChar}" ";${_delChar}" _flList ${_flags})
+	string(REPLACE " ${_delChar}" ";${_delChar}" _xflList ${_xtra_flags})
+
+	unset(_append)
+	foreach( _xflg ${_xflList})
+		unset(_found_flag)
+		# Check each flag in flList if this xtra flag exists
+		# message("Checking xtra flag '${_xflg}':")
+		foreach( _flg ${_flList})
+
+			if("${_xflg}" STREQUAL "${_flg}")
+				# If the xtra flag exists, set a found flag
+				# and break to process the next xtra flag
+				#message("\t'${_xflg}' ='s '${_flg}'")
+				set(_found_flag 1)
+				break()
+			endif()
+		endforeach()
+
+		# If the xtra flag was not in the flList then
+		# append it to a new local list
+		if (NOT _found_flag)
+			string(APPEND _append " ${_xflg}")
+		endif()
+	endforeach()
+
+	# If there are new flags from xtra list to add,
+	# then append the new local list and set it to  
+	# the parent scope
+	if (NOT ("x${_append}x" STREQUAL "xx"))
+		set(${_outstring} "${_flags}${_append}" PARENT_SCOPE)
+	endif()
+
+endfunction()
+endif()
+
 macro(rcdev_set_flags _flags _xtra_flags)
 
-	# if _orig_xtra has not been set or has changed then add it to _flags
-	if (NOT (_orig_${_xtra_flags} STREQUAL ${_xtra_flags}))
-		set(_orig_${_xtra_flags} "${${_xtra_flags}}" CACHE INTERNAL "")
-		set(${_flags} "${${_flags}} ${${_xtra_flags}}" CACHE STRING "" FORCE)
+	rcdev_add_if_not_set(_rcdev_output ${${_flags}} ${${_xtra_flags}})
+
+	if (NOT ("x${_rcdev_output}x" STREQUAL "xx"))
+		set(${_flags} "${_rcdev_output}" CACHE STRING "" FORCE)
+		unset(_rcdev_output)
 	endif()
 
 endmacro()
@@ -73,10 +122,11 @@ if( UNIX )
 	endif()
 
     if( ${RCDEV_HOST_SYSTEM_BITS} STREQUAL "32")
-        set(CMAKE_POSITION_INDEPENDENT_CODE 0)
-		rcdev_set_flags(CMAKE_SHARED_LINKER_FLAGS _compilerBitFlags)
-		rcdev_set_flags(CMAKE_EXE_LINKER_FLAGS _compilerBitFlags)
+		set(CMAKE_POSITION_INDEPENDENT_CODE 0)
+		set(CMAKE_SHARED_LINKER_FLAGS "${_compilerBitFlags}" CACHE STRING "" FORCE)
+		set(CMAKE_EXE_LINKER_FLAGS "${_compilerBitFlags}" CACHE STRING "" FORCE)
     endif()
+
 else()
 
 	# Enable PDB files for Release_MD
@@ -143,6 +193,9 @@ else()
 	set(CMAKE_EXE_LINKER_FLAGS_RELEASE_MD "${CMAKE_EXE_LINKER_FLAGS_INIT} /LTCG /INCREMENTAL:NO /NODEFAULTLIB:MSVCRTD ${_pdb_linker_flags}"  CACHE STRING "")
   
 endif()
+
+DEBUG_PRINT(CMAKE_C_FLAGS)
+DEBUG_PRINT(CMAKE_CXX_FLAGS)
 
 unset(_compilerBitFlags)
 # end build flags

@@ -3644,8 +3644,91 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 	RsslRet ret;
 	RsslUInt32 bytes, uncompBytes;
 	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pWatchlistImpl->base.watchlist.pUserSpec;
+	RsslReactorImpl *pReactorImpl = pReactorChannelImpl->pParentReactor;
+	RsslBuffer *pOutputBuffer = pWriteBuffer;
+	RsslBuffer *pMsgBuffer = NULL; /* The buffer to send JSON message to network only. */
+	RsslBool releaseUserBuffer = RSSL_FALSE; /* Release when it writes user's buffer successfully. */
 
-	if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pWriteBuffer, RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes,
+	/* Calls JSON converter when the protocol type is simplified JSON. */
+	if (pWatchlistImpl->base.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		RsslDecodeIterator dIter;
+		RsslMsg rsslMsg;
+
+		/* Added checking to ensure that the JSON converter is initialized properly.*/
+		if (pReactorImpl->pJsonConverter == 0)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The JSON converter library has not been initialized.");
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslClearMsg(&rsslMsg);
+		rsslClearDecodeIterator(&dIter);
+		rsslSetDecodeIteratorRWFVersion(&dIter, pWatchlistImpl->base.pRsslChannel->majorVersion,
+			pWatchlistImpl->base.pRsslChannel->minorVersion);
+
+		rsslSetDecodeIteratorBuffer(&dIter, pOutputBuffer);
+
+		ret = rsslDecodeMsg(&dIter, &rsslMsg);
+
+		if (ret == RSSL_RET_SUCCESS)
+		{
+			RsslConvertRsslMsgToJsonOptions rjcOptions;
+			RsslGetJsonMsgOptions getJsonMsgOptions;
+			RsslJsonConverterError rjcError;
+			RsslBuffer jsonBuffer;
+
+			rsslClearConvertRsslMsgToJsonOptions(&rjcOptions);
+			rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+			if ((rsslConvertRsslMsgToJson(pReactorImpl->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+				return RSSL_RET_FAILURE;
+			}
+
+			rsslClearGetJsonMsgOptions(&getJsonMsgOptions);
+			getJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2; /* Supported only for Simplified JSON */
+			getJsonMsgOptions.streamId = rsslMsg.msgBase.streamId;
+			getJsonMsgOptions.isCloseMsg = (rsslMsg.msgBase.msgClass == RSSL_MC_CLOSE) ? RSSL_TRUE : RSSL_FALSE;
+
+			if ((ret = rsslGetConverterJsonMsg(pReactorImpl->pJsonConverter, &getJsonMsgOptions,
+				&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to get converted JSON message. Error text: %s", rjcError.text);
+				return RSSL_RET_FAILURE;
+			}
+
+			/* Copies JSON data format to the buffer that belongs to RsslChannel */
+			pMsgBuffer = rsslReactorGetBuffer(&pReactorChannelImpl->reactorChannel, jsonBuffer.length, RSSL_FALSE, pError);
+
+			if (pMsgBuffer)
+			{
+				pMsgBuffer->length = jsonBuffer.length;
+				memcpy(pMsgBuffer->data, jsonBuffer.data, jsonBuffer.length);
+			}
+			else
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to get a buffer for sending JSON message. Error text: %s", pError->rsslError.text);
+				return RSSL_RET_FAILURE;
+			}
+
+			releaseUserBuffer = RSSL_TRUE; /* Release the passed in buffer when using a new buffer for the JSON message */
+
+			/* Updated the output buffer with the JSON message buffer. */
+			pOutputBuffer = pMsgBuffer;
+		}
+		else
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+				"rsslDecodeMsg() failed to decode the passed in buffer as RWF messages.");
+			return ret;
+		}
+	}
+
+	if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pOutputBuffer, RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes,
 					&pError->rsslError)) < RSSL_RET_SUCCESS)
 	{
 		/* Collect write statistics */
@@ -3658,21 +3741,40 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 		switch(ret)
 		{
 			case RSSL_RET_WRITE_FLUSH_FAILED:
+			{
 				if (pWatchlistImpl->base.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 				{
 					pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
+
+					if (releaseUserBuffer)
+					{
+						RsslError rsslError;
+						rsslReleaseBuffer(pWriteBuffer, &rsslError);
+					}
+
 					return 1;
 				}
 				else
 					return ret;
+			}
 			case RSSL_RET_WRITE_CALL_AGAIN:
 				assert(!pWatchlistImpl->base.pWriteCallAgainBuffer);
 				pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
-				pWatchlistImpl->base.pWriteCallAgainBuffer = pWriteBuffer;
+				pWatchlistImpl->base.pWriteCallAgainBuffer = pOutputBuffer;
 				return RSSL_RET_SUCCESS;
 			default:
+			{
 				rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+
+				/* Releases the additional buffer for sending JSON messages. */
+				if (pMsgBuffer)
+				{
+					RsslError rsslError;
+					rsslReleaseBuffer(pMsgBuffer, &rsslError);
+				}
+
 				return ret;
+			}
 
 		}
 	}
@@ -3686,6 +3788,12 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 		}
 
 		pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
+	}
+
+	if (releaseUserBuffer)
+	{
+		RsslError rsslError;
+		rsslReleaseBuffer(pWriteBuffer, &rsslError);
 	}
 
 	return ret;

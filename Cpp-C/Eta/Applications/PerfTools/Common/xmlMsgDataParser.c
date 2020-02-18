@@ -219,6 +219,9 @@ static RsslRet initPrimitive(RsslPrimitive *primitive, RsslDataType dataType, xm
 
 	RsslRet ret = RSSL_RET_FAILURE;
 
+	// Zero out the primitive before encoding
+	memset(primitive, 0, sizeof(RsslPrimitive));
+
 	switch(dataType)
 	{
 		case RSSL_DT_INT: 

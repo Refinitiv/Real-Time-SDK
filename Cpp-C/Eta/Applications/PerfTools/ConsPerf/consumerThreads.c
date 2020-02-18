@@ -58,6 +58,44 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryMsgEvent *pDictionaryMsgEvent);
 RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent);
 
+RsslRet serviceNameToIdCallback(RsslBuffer* pServiceName, void* userSpecPtr, RsslUInt16* pServiceId)
+{
+	ConsumerThread *pConsumerThread = (ConsumerThread *)userSpecPtr;
+
+	if (pConsumerThread->pDesiredService && pConsumerThread->pDesiredService->serviceId)
+	{
+		if (pConsumerThread->pDesiredService->info.serviceName.length == pServiceName->length &&
+			(strncmp(pConsumerThread->pDesiredService->info.serviceName.data, 
+						pServiceName->data, pServiceName->length) == 0) )
+		{
+			*pServiceId = (RsslUInt16)pConsumerThread->pDesiredService->serviceId;
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	fprintf(stderr, "Failed to convert service name to Id in callback\n");
+	return RSSL_RET_FAILURE;
+}
+
+RsslRet serviceNameToIdReactorCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	/*
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pEvent->pUserSpec;
+	if (pConsumerThread->pDesiredService && pConsumerThread->pDesiredService->serviceId)
+	{
+		if (pConsumerThread->pDesiredService->info.serviceName.length == pServiceName->length &&
+			(strncmp(pConsumerThread->pDesiredService->info.serviceName.data, 
+						pServiceName->data, pServiceName->length) == 0) )
+		{
+			*pServiceId = (RsslUInt16)pConsumerThread->pDesiredService->serviceId;
+			return RSSL_RET_SUCCESS;
+		}
+	}
+	return RSSL_RET_FAILURE;
+	*/
+	return (serviceNameToIdCallback(pServiceName, pEvent->pUserSpec, pServiceId));
+}
+
 RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, ConsumerThread* pConsumerThread)
 {
 	RsslRet ret;
@@ -94,8 +132,35 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 	{
 		RsslUInt32 bytesWritten, uncompBytesWritten;
 		RsslRet ret;
+		RsslBuffer *pBuffer;
 
-		ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
+		pBuffer = 0;
+
+		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			RsslErrorInfo	eInfo;
+
+			do {
+					/* convert message to JSON */
+				if ((pBuffer = rjcMsgConvertToJson(&(pConsumerThread->rjcSess), 
+														pConsumerThread->pChannel,
+														msgBuf, &eInfo)) == NULL)
+				{
+					if ((ret = rsslFlush(pConsumerThread->pChannel, &pConsumerThread->threadRsslError)) < RSSL_RET_SUCCESS)
+					{
+						rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+						return ret;
+					}
+				}
+
+			} while (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS);
+		}
+		else
+			pBuffer = msgBuf;
+
+		ret = rsslWrite(pConsumerThread->pChannel, pBuffer, 
+								RSSL_HIGH_PRIORITY, 0, &bytesWritten, 
+								&uncompBytesWritten, &pConsumerThread->threadRsslError);
 
 		/* call flush and write again */
 		while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
@@ -105,7 +170,9 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
 				return ret;
 			}
-			ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
+			ret = rsslWrite(pConsumerThread->pChannel, pBuffer, 
+								RSSL_HIGH_PRIORITY, 0, &bytesWritten, 
+								&uncompBytesWritten, &pConsumerThread->threadRsslError);
 		}
 
 		if (ret > RSSL_RET_SUCCESS || ret == RSSL_RET_WRITE_FLUSH_FAILED && pConsumerThread->pChannel->state == RSSL_CH_STATE_ACTIVE)
@@ -117,6 +184,8 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
 			return ret;
 		}
+		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+			rsslReleaseBuffer(msgBuf, &pConsumerThread->threadRsslError);
 	}
 	else
 	{
@@ -910,6 +979,11 @@ static RsslRet connectChannel(ConsumerThread* pConsumerThread)
 		copts.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
 	}
 
+	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || 
+		(consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && 
+		 consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET) )
+		copts.wsOpts.protocols = consPerfConfig.protocolList;
+
 	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		copts.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
@@ -1010,7 +1084,9 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	RsslReactorConnectInfo cInfo;
 	RsslErrorInfo rsslErrorInfo;
 	RsslRet ret = 0;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
 
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	rsslClearCreateReactorOptions(&reactorOpts);
 	rsslClearReactorConnectOptions(&cOpts);
 	rsslClearReactorConnectInfo(&cInfo);
@@ -1021,6 +1097,17 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
 		return RSSL_RET_FAILURE;
 	}
+
+	jsonConverterOptions.pDictionary = pConsumerThread->pDictionary;
+	jsonConverterOptions.defaultServiceId = 1;
+	jsonConverterOptions.userSpecPtr = (void*)pConsumerThread;
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdReactorCallback;
+	if (rsslReactorInitJsonConverter(pConsumerThread->pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON converter: %s\n", rsslErrorInfo.rsslError.text);
+		return RSSL_RET_FAILURE;
+	}
+
 
 	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
@@ -1042,6 +1129,11 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	{
 		cInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
 	}
+
+	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || 
+		(consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && 
+		 consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET) )
+		cInfo.rsslConnectOptions.wsOpts.protocols = consPerfConfig.protocolList;
 
 	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
@@ -1121,6 +1213,7 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 
 	RsslRet ret = 0;
 	RsslError closeError;
+	RsslErrorInfo rsslErrorInfo;
 
 	RsslBool haveMarketPricePostItems = RSSL_FALSE, haveMarketByOrderPostItems = RSSL_FALSE;
 	RsslBool haveMarketPriceGenMsgItems = RSSL_FALSE, haveMarketByOrderGenMsgItems = RSSL_FALSE;
@@ -1358,6 +1451,17 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 	
 	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE)
 	{
+		pConsumerThread->rjcSess.options.pDictionary = pConsumerThread->pDictionary;
+		pConsumerThread->rjcSess.options.defaultServiceId = 1;
+		pConsumerThread->rjcSess.options.userSpecPtr = (void*)pConsumerThread;
+		pConsumerThread->rjcSess.options.pServiceNameToIdCallback = serviceNameToIdCallback;
+
+		if (rjcSessionInitialize(&(pConsumerThread->rjcSess), &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("RWF/JSON Converter failed: %s\n", rsslErrorInfo.rsslError.text);
+			return RSSL_RET_FAILURE;
+		}
+
 		if ((ret = connectChannel(pConsumerThread)) < RSSL_RET_SUCCESS)
 		{
 			return ret;
@@ -1871,6 +1975,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	RsslDecodeIterator dIter;
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
+	TimeValue decodetime;
 
 	RsslBool loggedIn = RSSL_FALSE;
 
@@ -1925,123 +2030,166 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 		{
 			if (pConsumerThread->pChannel != NULL && FD_ISSET(pConsumerThread->pChannel->socketId, &useRead))
 			{
+				RsslBuffer messageBuff = RSSL_INIT_BUFFER;
+				RsslRet	cRet;
+				RsslInt16 numConverted = 0;
+
 				do{
 					if ((msgBuf = rsslRead(pConsumerThread->pChannel,&readret,&pConsumerThread->threadRsslError)) != 0)
 					{	
-						pConsumerThread->receivedPing = RSSL_TRUE;
+						numConverted = 0;
 
-						/* clear decode iterator */
-						rsslClearDecodeIterator(&dIter);
-		
-						/* set version info */
-						rsslSetDecodeIteratorRWFVersion(&dIter, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion);
-
-						rsslSetDecodeIteratorBuffer(&dIter, msgBuf);
-
-						ret = rsslDecodeMsg(&dIter, &msg);	
-
-						if (ret != RSSL_RET_SUCCESS)
-						{
-							rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-									(char*)"rsslDecodeMsg() failed: %d(%s)", ret, rsslRetCodeToString(ret));
-							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-							shutdownThreads = RSSL_TRUE;
-							return RSSL_THREAD_RETURN();
-						}
-
-						switch(msg.msgBase.domainType)
-						{
-							case RSSL_DMT_LOGIN:
+						do {
+							if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 							{
-								char memoryChar[1024];
-								RsslBuffer memoryBuffer = { 4000, memoryChar };
-								RsslRDMLoginMsg loginMsg;
+								RsslErrorInfo	errInf;
+								
+								messageBuff.data = pConsumerThread->rjcSess.convBuff.data;
+								messageBuff.length = pConsumerThread->rjcSess.convBuff.length;
 
-								if ((ret = rsslDecodeRDMLoginMsg(&dIter, &msg, &loginMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
-								{
-									rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-									shutdownThreads = RSSL_TRUE;
-									return RSSL_THREAD_RETURN();
-								} 
+								decodetime = getTimeNano();
+								cRet = rjcMsgConvertFromJson(&(pConsumerThread->rjcSess), 
+															 pConsumerThread->pChannel, 
+															 &messageBuff, 
+															 (numConverted == 0 ? msgBuf:NULL), &errInf);
+								numConverted++;
+								decodetime = getTimeNano() - decodetime;
 
-								if (processLoginResp(pConsumerThread, &loginMsg) < RSSL_RET_SUCCESS)
+							
+								if (cRet == RSSL_RET_END_OF_CONTAINER)
 								{
-									return RSSL_THREAD_RETURN();
+									break;
 								}
 
-								if (!loggedIn)
+								if (cRet != RSSL_RET_SUCCESS)
+									continue;
+							}
+							else
+							{
+								messageBuff.data = msgBuf->data;
+								messageBuff.length = msgBuf->length;
+							}
+
+							pConsumerThread->receivedPing = RSSL_TRUE;
+
+							/* clear decode iterator */
+							rsslClearDecodeIterator(&dIter);
+			
+							/* set version info */
+							rsslSetDecodeIteratorRWFVersion(&dIter,	
+														pConsumerThread->pChannel->majorVersion, 
+														pConsumerThread->pChannel->minorVersion);
+
+							rsslSetDecodeIteratorBuffer(&dIter, &messageBuff);
+
+							ret = rsslDecodeMsg(&dIter, &msg);	
+
+							if (ret != RSSL_RET_SUCCESS)
+							{
+								rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, 
+									RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+									(char*)"rsslDecodeMsg() failed: %d(%s) #Conv(%d) cRet%d(%s)", 
+									ret, rsslRetCodeToString(ret), numConverted, 
+									cRet, rsslRetCodeToString(cRet));
+								rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+								shutdownThreads = RSSL_TRUE;
+								return RSSL_THREAD_RETURN();
+							}
+
+							switch(msg.msgBase.domainType)
+							{
+								case RSSL_DMT_LOGIN:
 								{
-									if ( (ret = sendDirectoryRequest(pConsumerThread, DIRECTORY_STREAM_ID)) != RSSL_RET_SUCCESS)
+									char memoryChar[1024];
+									RsslBuffer memoryBuffer = { 4000, memoryChar };
+									RsslRDMLoginMsg loginMsg;
+
+									if ((ret = rsslDecodeRDMLoginMsg(&dIter, &msg, &loginMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
+									{
+										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+										shutdownThreads = RSSL_TRUE;
+										return RSSL_THREAD_RETURN();
+									} 
+
+									if (processLoginResp(pConsumerThread, &loginMsg) < RSSL_RET_SUCCESS)
+									{
+										return RSSL_THREAD_RETURN();
+									}
+
+									if (!loggedIn)
+									{
+										if ( (ret = sendDirectoryRequest(pConsumerThread, DIRECTORY_STREAM_ID)) != RSSL_RET_SUCCESS)
+										{
+											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+											shutdownThreads = RSSL_TRUE;
+											return RSSL_THREAD_RETURN();
+										}
+
+										loggedIn = RSSL_TRUE;
+									}
+									break;
+								}
+
+								case RSSL_DMT_SOURCE:
+								{
+									char memoryChar[16384];
+									RsslBuffer memoryBuffer = { 16384, memoryChar };
+									RsslRDMDirectoryMsg directoryMsg;
+
+									printf("Received source directory response.\n\n");
+
+									/* Found our service already, ignore the message. */
+									if (pConsumerThread->pDesiredService)
+										break;
+
+									if ((ret = rsslDecodeRDMDirectoryMsg(&dIter, &msg, &directoryMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
 									{
 										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 										shutdownThreads = RSSL_TRUE;
 										return RSSL_THREAD_RETURN();
 									}
 
-									loggedIn = RSSL_TRUE;
-								}
-								break;
-							}
+									if (processSourceDirectoryResp(pConsumerThread, &directoryMsg) < RSSL_RET_SUCCESS)
+									{
+										return RSSL_THREAD_RETURN();
+									}
 
-							case RSSL_DMT_SOURCE:
-							{
-								char memoryChar[16384];
-								RsslBuffer memoryBuffer = { 16384, memoryChar };
-								RsslRDMDirectoryMsg directoryMsg;
-
-								printf("Received source directory response.\n\n");
-
-								/* Found our service already, ignore the message. */
-								if (pConsumerThread->pDesiredService)
 									break;
-
-								if ((ret = rsslDecodeRDMDirectoryMsg(&dIter, &msg, &directoryMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
-								{
-									rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-									shutdownThreads = RSSL_TRUE;
-									return RSSL_THREAD_RETURN();
 								}
 
-								if (processSourceDirectoryResp(pConsumerThread, &directoryMsg) < RSSL_RET_SUCCESS)
+								case RSSL_DMT_DICTIONARY:
 								{
-									return RSSL_THREAD_RETURN();
+									char memoryChar[1024];
+									RsslBuffer memoryBuffer = { 1024, memoryChar };
+									RsslRDMDictionaryMsg dictionaryMsg;
+
+
+									if ((ret = rsslDecodeRDMDictionaryMsg(&dIter, &msg, &dictionaryMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
+									{
+										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+										shutdownThreads = RSSL_TRUE;
+										return RSSL_THREAD_RETURN();
+									}
+									
+									if (processDictionaryResp(pConsumerThread, &dictionaryMsg, &dIter) < RSSL_RET_SUCCESS)
+									{
+										return RSSL_THREAD_RETURN();
+									}
+
+									break;
 								}
 
-								break;
+								default:
+								{
+									if (processDefaultMsgResp(pConsumerThread, &msg, &dIter) < RSSL_RET_SUCCESS)
+									{
+										return RSSL_THREAD_RETURN();
+									}
+
+									break;
+								}
 							}
-
-							case RSSL_DMT_DICTIONARY:
-							{
-								char memoryChar[1024];
-								RsslBuffer memoryBuffer = { 1024, memoryChar };
-								RsslRDMDictionaryMsg dictionaryMsg;
-
-
-								if ((ret = rsslDecodeRDMDictionaryMsg(&dIter, &msg, &dictionaryMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
-								{
-									rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-									shutdownThreads = RSSL_TRUE;
-									return RSSL_THREAD_RETURN();
-								}
-								
-								if (processDictionaryResp(pConsumerThread, &dictionaryMsg, &dIter) < RSSL_RET_SUCCESS)
-								{
-									return RSSL_THREAD_RETURN();
-								}
-
-								break;
-							}
-
-							default:
-							{
-								if (processDefaultMsgResp(pConsumerThread, &msg, &dIter) < RSSL_RET_SUCCESS)
-								{
-									return RSSL_THREAD_RETURN();
-								}
-
-								break;
-							}
-						}
+						} while (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && cRet != RSSL_RET_END_OF_CONTAINER);
 					}
 					else
 					{

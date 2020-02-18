@@ -69,6 +69,26 @@ RsslUInt64 getServiceId()
 	return serviceId;
 }
 
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id)
+{
+	int i = 0;
+	for (i = 0; i < MAX_SOURCE_DIRECTORY_SERVICES; i++)
+	{
+		if (strlen(serviceName) == name->length)
+		{
+
+			if (!strncmp(serviceName, name->data, name->length))
+			{
+				*Id = (RsslUInt16)serviceId;
+			}
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
+
 /*
  * Gets a source directory request information structure for a channel.
  * chnl - The channel to get the source directory request information structure for

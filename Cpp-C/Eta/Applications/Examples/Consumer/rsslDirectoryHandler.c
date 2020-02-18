@@ -15,6 +15,7 @@
 #include "rsslYieldCurveHandler.h"
 #include "rsslSymbolListHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 /* source directory response information */
 static RsslSourceDirectoryResponseInfo sourceDirectoryResponseInfo[MAX_SOURCE_DIRECTORY_SERVICES];
@@ -32,6 +33,25 @@ static RsslBool serviceNameFound = RSSL_FALSE;
 void setServiceName(char* servicename)
 {
 	serviceName = servicename;
+}
+
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id)
+{
+	int i = 0;
+	for (i = 0; i < MAX_SOURCE_DIRECTORY_SERVICES; i++)
+	{
+		if (strlen(sourceDirectoryResponseInfo[i].ServiceGeneralInfo.ServiceName) == name->length)
+		{
+
+			if (!strncmp(sourceDirectoryResponseInfo[i].ServiceGeneralInfo.ServiceName, name->data, name->length))
+			{
+				*Id = (RsslUInt16)sourceDirectoryResponseInfo[i].ServiceId;
+			}
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	return RSSL_RET_FAILURE;
 }
 
 /*
@@ -204,6 +224,17 @@ RsslRet processSourceDirectoryResponse(RsslChannel* chnl, RsslMsg* msg, RsslDeco
 		}
 		else
 		{
+			
+			if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+			{
+				RsslError error;
+				/* We have our dictionary, so set it on the Json converter */
+				if (rsslJsonSessionSetDictionary((RsslJsonSession*)(chnl->userSpecPtr), getDictionary(), &error) == RSSL_RET_FAILURE)
+				{
+					printf("\nUnable to set the dictionary on the Json Converter.  Additional information: %s\n", error.text);
+					return RSSL_RET_FAILURE;
+				}
+			}
 			if (sendSymbolListRequests(chnl) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
 

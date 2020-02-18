@@ -105,6 +105,7 @@ extern int ipcReadyWrite(RsslSocket fd);
 extern int ipcReadyRead(RsslSocket fd);
 extern int ipcReadyException(RsslSocket fd);
 extern int ipcConnected(RsslSocket fd);
+extern int ipcSetProtFuncs();
 extern int ipcSetSockFuncs();
 
 

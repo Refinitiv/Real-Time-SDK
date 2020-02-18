@@ -358,21 +358,7 @@ RsslRet encodeMBOMap(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter, Rss
 		RsslOrderInfo *order = &mboItem->orders[i];
 		RsslBuffer tmpBuf;
 
-		if (order->lifetime == 0)
-		{
-			/* Delete the order */
-			rsslClearMapEntry(&mapEntry);
-			mapEntry.flags = RSSL_MPEF_NONE;
-			mapEntry.action = RSSL_MPEA_DELETE_ENTRY;
-			tmpBuf.data = order->ORDER_ID;
-			tmpBuf.length = (RsslUInt32)strlen(tmpBuf.data);
-			if ((ret = rsslEncodeMapEntry(encodeIter, &mapEntry, &tmpBuf)) < RSSL_RET_SUCCESS)
-			{
-				printf("rsslEncodeMapEntry() failed with return code: %d\n", ret);
-				return ret;
-			}
-		}
-		else
+		if (order->lifetime != 0)
 		{
 
 			/* encode map entry */
@@ -530,6 +516,29 @@ RsslRet encodeMBOMap(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter, Rss
 			if ((ret = rsslEncodeMapEntryComplete(encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 			{
 				printf("rsslEncodeMapEntryComplete() failed with return code: %d\n", ret);
+				return ret;
+			}
+		}
+	}
+
+	/* Adds the RSSL_MPEA_DELETE_ENTRY action after others if any */
+	for (i = 0; i < MAX_ORDERS; ++i)
+	{
+		/* Encode the map entry representing each order */
+		RsslOrderInfo *order = &mboItem->orders[i];
+		RsslBuffer tmpBuf;
+
+		if (order->lifetime == 0)
+		{
+			/* Delete the order */
+			rsslClearMapEntry(&mapEntry);
+			mapEntry.flags = RSSL_MPEF_NONE;
+			mapEntry.action = RSSL_MPEA_DELETE_ENTRY;
+			tmpBuf.data = order->ORDER_ID;
+			tmpBuf.length = (RsslUInt32)strlen(tmpBuf.data);
+			if ((ret = rsslEncodeMapEntry(encodeIter, &mapEntry, &tmpBuf)) < RSSL_RET_SUCCESS)
+			{
+				printf("rsslEncodeMapEntry() failed with return code: %d\n", ret);
 				return ret;
 			}
 		}

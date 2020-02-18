@@ -73,6 +73,16 @@ vaconsumer-ChnlStats-004: Alters VAConsumer to create 2 connections with 1 react
 
 vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
 
+vaconsumer-Ws-001: Alter VAConsumer to add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnum
+
+vaconsumer-Ws-002: Alter VAConsumer to post enum FIDs add test options for Websocket transport which are; -testCompressionZlib, -jsonExpandEnum
+
+vaconsumer-Ws-003: Alter VAConsumer to send request as json packed buffer instead of batch request.
+
+vaconsumer-Ws-004: Alter VAConsumer to test handle error case when it sends request as json packed buffer.
+
+vaconsumer-Ws-005: Alter VAConsumer to send Post Key Attribute as FieldList and Domain Contribution.
+
 Module:  Watchlist Consumer
 ---------------------------
 
@@ -185,6 +195,7 @@ vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream mess
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
 
+vaprovider-Ws-001: Alter VAProvider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel, -sendGenericMessage and -jsonExpandEnumField
 
 Module:  NIProvider 
 -----------------

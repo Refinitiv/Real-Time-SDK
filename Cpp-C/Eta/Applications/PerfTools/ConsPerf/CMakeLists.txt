@@ -2,6 +2,7 @@
 set( SOURCE_FILES
   consPerfConfig.c                  consumerThreads.c               marketByOrderDecoder.c
   marketPriceDecoder.c              upacConsPerf.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c
@@ -11,6 +12,19 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
+
+    consPerfConfig.h                  consumerThreads.h               marketByOrderDecoder.h
+  marketPriceDecoder.h              upacConsPerf.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.h
   )
 
 add_executable( ConsPerf_shared ${SOURCE_FILES} )
@@ -22,7 +36,7 @@ target_include_directories(ConsPerf_shared
 set_target_properties( ConsPerf_shared 
 							PROPERTIES 
 								OUTPUT_NAME ConsPerf )
-target_link_libraries( ConsPerf_shared librsslVA_shared 
+target_link_libraries( ConsPerf_shared librsslVA_shared librsslJsonConverter_shared 
 								LibXml2::LibXml2 
 								${SYSTEM_LIBRARIES} )
 
@@ -31,6 +45,7 @@ target_include_directories(ConsPerf
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 set_target_properties( ConsPerf 
 							PROPERTIES 

@@ -45,6 +45,7 @@
 #include "rsslDictionaryProvider.h"
 #include "rsslItemHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 
 static fd_set	readfds;
@@ -57,6 +58,7 @@ static char infraHostname[128];
 static char infraPortNo[128];
 static char serviceName[128];
 static char interfaceName[128];
+static char protocolList[128];
 static char sendAddr[128];
 static char recvAddr[128];
 static char sendPort[128];
@@ -68,7 +70,14 @@ static char hsmPort[128];
 static char hsmInterface[128];
 static char traceOutputFile[128];
 static char hsmInterval = 5;
+static char proxyHostname[128];
+static char proxyPort[128];
+static char proxyUserName[128];
+static char proxyPasswd[128];
+static char proxyDomain[128];
 static RsslConnectionTypes connType = RSSL_CONN_TYPE_SOCKET;
+static RsslConnectionTypes encryptedConnType = RSSL_CONN_TYPE_INIT;
+static char sslCAStore[255];
 static RsslUInt32 pingTimeout;
 static time_t nextReceivePingTime = 0;
 static RsslBool receivedInfraMsg = RSSL_FALSE;
@@ -78,6 +87,11 @@ static RsslBool shouldRecoverConnection = RSSL_TRUE;
 static RsslBool isInLoginSuspectState = RSSL_TRUE;
 static RsslBool sAddr = RSSL_FALSE;
 static RsslBool rAddr = RSSL_FALSE;
+static RsslBool jsonEnumExpand = RSSL_FALSE;
+
+static char libsslName[255];
+static char libcryptoName[255];
+static char libcurlName[255];
 
 static RsslBool xmlTrace = RSSL_FALSE;
 
@@ -93,12 +107,26 @@ static const char *defaultServiceName = "DIRECT_FEED";
 static const char *defaultItemName = "TRI";
 static const char *defaultInterface = "";
 
+/* Default Proxy info */
+static const char *defaultProxyHost = "";
+static const char *defaultProxyPort = "";
+static const char *defaultProxyUserName = "";
+static const char *defaultProxyPasswd = "";
+static const char *defaultProxyDomain = "";
+static const char *defaultCAStore = "";
+
 static RsslBool directorySent = RSSL_FALSE;
 
 /* For TREP authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 static RsslBool isLoginReissue;
+
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
+
+/* Json session */
+static RsslJsonSession jsonSession;
 
 /* 
  * Prints example usage and exits. 
@@ -107,7 +135,7 @@ void printUsageAndExit(char *appName)
 {
 
 	/* exit and display usage */
-	printf("Usage: %s or\n%s [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [-runtime <seconds>] [-td]\n", appName, appName);
+	printf("Usage: %s or\n%s [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [-runtime <seconds>] [-td] [-pl <websocket protocol list>]\n", appName, appName);
 	printf(" -mp For each occurance, provides item using Market Price domain.\n");
 	printf(" -mbo For each occurance, provides item using Market By Order domain.\n");
 	printf(" -id allows user to specify optional serviceId.\n");
@@ -125,6 +153,19 @@ void printUsageAndExit(char *appName)
 	printf("[-u <UnicastPort>] [-i <Interface>]\n");
 	printf("\nIf using Host Stat Messages on a Reliable Multicast connection:\n");
 	printf("[-hsmAddr <Address>] [-hsmPort <Port>] [-hsmInterface <Interface>] [-hsmInterval <Seconds>] \n");
+	printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET and HTTP(Windows only).\n");
+	printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
+	printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
+	printf("\n -ph specifies the proxy host\n");
+	printf(" -pp specifies the proxy port\n");
+	printf(" -plogin specifies the proxy user name\n");
+	printf(" -ppasswod specifies the proxy password\n");
+	printf(" -pdomain specifies the proxy domain\n");
+	printf("\n -libcurlName specifies the name of the libcurl shared object\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptName specifies the name of libcrypto shared object\n");
+	printf(" -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
+	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
 
 	/* WINDOWS: wait for user to enter something before exiting  */
 #ifdef _WIN32
@@ -151,6 +192,7 @@ int main(int argc, char **argv)
 	int itemNameStartArg = 4;
 	static RsslBool itemProvided = RSSL_FALSE;
 	time_t currentTime;
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 #ifdef _WIN32
 	int rcvBfrSize = 65535;
 	int sendBfrSize = 65535;
@@ -163,6 +205,7 @@ int main(int argc, char **argv)
 	snprintf(infraPortNo, 128, "%s",  defaultInfraPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(interfaceName, 128, "%s", defaultInterface);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
 	snprintf(sendAddr, 128, "%s", "");
 	snprintf(recvAddr, 128, "%s", "");
 	snprintf(sendPort, 128, "%s", "");
@@ -171,6 +214,10 @@ int main(int argc, char **argv)
 	snprintf(hsmAddress, 128, "%s", "");
 	snprintf(hsmPort, 128, "%s", "");
 	snprintf(hsmInterface, 128, "%s", "");
+	snprintf(proxyUserName, 128, "%s", "");
+	snprintf(proxyPasswd, 128, "%s", "");
+	snprintf(proxyDomain, 128, "%s", "");
+	snprintf(sslCAStore, 255, "%s", "");
 	
 
 	setUsername((char *)"");
@@ -194,7 +241,25 @@ int main(int argc, char **argv)
 
 		while(i < argc)
 		{
-			if(strcmp("-uname", argv[i]) == 0)
+			if (strcmp("-libsslName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libsslName, 255, "%s", argv[i - 1]);
+				initOpts.jitOpts.libsslName = libsslName;
+			}
+			else if (strcmp("-libcryptoName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libcryptoName, 255, "%s", argv[i - 1]);
+				initOpts.jitOpts.libcryptoName = libcryptoName;
+			}
+			else if (strcmp("-libcurlName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libcurlName, 255, "%s", argv[i - 1]);
+				initOpts.jitOpts.libcurlName = libcurlName;
+			}
+			else if(strcmp("-uname", argv[i]) == 0)
 			{
 				i += 2;
 				setUsername(argv[i-1]);
@@ -228,6 +293,31 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				snprintf(interfaceName, 128, "%s", argv[i-1]);
+			}
+			else if (strcmp("-ph", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyHostname, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-pp", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyPort, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-plogin", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyUserName, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-ppasswd", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyPasswd, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-pdomain", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyDomain, 128, "%s", argv[i - 1]);
 			}
 			else if(strcmp("-u", argv[i]) == 0)
 			{
@@ -266,6 +356,41 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				snprintf(recvPort, 128, "%s", argv[i-1]);
+			}
+			else if (strcmp("-c", argv[i]) == 0)
+			{
+				i += 1;
+				if (0 == strcmp(argv[i], "socket") || 0 == strcmp(argv[i], "0"))
+					connType = RSSL_CONN_TYPE_SOCKET;
+				else if (0 == strcmp(argv[i], "http") || 0 == strcmp(argv[i], "2"))
+					connType = RSSL_CONN_TYPE_HTTP;
+				else if (0 == strcmp(argv[i], "encrypted") || 0 == strcmp(argv[i], "1"))
+					connType = RSSL_CONN_TYPE_ENCRYPTED;
+				else if (0 == strcmp(argv[i], "reliableMCast") || 0 == strcmp(argv[i], "4"))
+					connType = RSSL_CONN_TYPE_RELIABLE_MCAST;
+				else
+				{
+					connType = (RsslConnectionTypes)atoi(argv[i]);
+				}
+				i += 1;
+			}
+			else if (strcmp("-ec", argv[i]) == 0)
+			{
+				i += 1;
+				if (0 == strcmp(argv[i], "socket") || 0 == strcmp(argv[i], "0"))
+					encryptedConnType = RSSL_CONN_TYPE_SOCKET;
+				else if (0 == strcmp(argv[i], "http") || 0 == strcmp(argv[i], "2"))
+					encryptedConnType = RSSL_CONN_TYPE_HTTP;
+				else
+				{
+					encryptedConnType = (RsslConnectionTypes)atoi(argv[i]);
+				}
+				i += 1;
+			}
+			else if (strcmp("-castore", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			}
 			else if(strcmp("-hsmAddr", argv[i]) == 0)
 			{
@@ -323,6 +448,16 @@ int main(int argc, char **argv)
 				i += 2;
 				timeToRun = atoi(argv[i-1]);
 			}
+			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
+			{
+				i += 2;
+				snprintf(protocolList, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-jsonEnumExpand", argv[i]) == 0)
+			{
+				i++;
+				jsonEnumExpand = RSSL_TRUE;
+			}
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
@@ -333,7 +468,7 @@ int main(int argc, char **argv)
 
 		printf("\nInput arguments...\n\n");
 
-		if (sAddr || rAddr)
+		if (connType == RSSL_CONN_TYPE_RELIABLE_MCAST || sAddr || rAddr)
 		{	
 			connType = RSSL_CONN_TYPE_RELIABLE_MCAST;
 			printf("Using Reliable Multicast Connection Type\n");
@@ -354,8 +489,10 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			connType = RSSL_CONN_TYPE_SOCKET;
+			if(connType == RSSL_CONN_TYPE_SOCKET)
 			printf("Using TCP Socket Connection Type\n");
+			else if(connType == RSSL_CONN_TYPE_ENCRYPTED)
+				printf("Using Encrypted TCP Socket Connection Type\n");
 			printf("infraHostname: %s\n", infraHostname);
 			printf("infraPortNo: %s\n", infraPortNo);
 		}
@@ -388,7 +525,7 @@ int main(int argc, char **argv)
 
 	/* Initialize RSSL */
 	/* RSSL_LOCK_NONE is used since this is a single threaded application. */
-	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+	if (rsslInitializeEx(&initOpts, &error) != RSSL_RET_SUCCESS)
 	{
 		printf("rsslInitialize(): failed <%s>\n",error.text);
 		/* WINDOWS: wait for user to enter something before exiting  */
@@ -398,6 +535,13 @@ int main(int argc, char **argv)
 #endif
 		exit(RSSL_RET_FAILURE);
 	}
+
+	/* Clear the Json session, and initialize the Json converter */
+	rsslJCClearSession(&jsonSession);
+	rsslJsonInitialize();
+	jsonSession.options.pServiceNameToIdCallback = &serviceNameToIdCallback;
+	jsonSession.options.jsonExpandedEnumFields = jsonEnumExpand;
+
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&exceptfds);
@@ -469,6 +613,16 @@ int main(int argc, char **argv)
 									for (i = 0; i < chanInfo.componentInfoCount; i++)
 									{
 										printf("Connected to %s device.\n", chanInfo.componentInfo[i]->componentVersion.data);
+									}
+								}
+
+								/* If the connection protocol is JSON, intitalize the Json converter */
+								if (rsslNIProviderChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+								{
+									if (rsslJsonSessionInitialize(&jsonSession, &error) != RSSL_RET_SUCCESS)
+									{
+										printf("Unable to initialize the Json Converter.  Error text: %s\n", error.text);
+										cleanUpAndExit();
 									}
 								}
 							}
@@ -756,6 +910,17 @@ static RsslChannel* connectToInfrastructure(RsslConnectionTypes connType,  RsslE
 	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 	copts.connectionType = connType;
 
+	copts.proxyOpts.proxyHostName = proxyHostname;
+	copts.proxyOpts.proxyPort = proxyPort;
+	copts.proxyOpts.proxyUserName = proxyUserName;
+	copts.proxyOpts.proxyPasswd = proxyPasswd;
+	copts.proxyOpts.proxyDomain = proxyDomain;
+
+	copts.encryptionOpts.openSSLCAStore = sslCAStore;
+
+	if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		copts.wsOpts.protocols = protocolList;
+
 	if (connType == RSSL_CONN_TYPE_RELIABLE_MCAST && enableHostStatMessages)
 	{
 		/* Enable publishing Host Stat Messages. */
@@ -764,6 +929,8 @@ static RsslChannel* connectToInfrastructure(RsslConnectionTypes connType,  RsslE
 		copts.multicastOpts.hsmInterface = hsmInterface;
 		copts.multicastOpts.hsmInterval = hsmInterval;
 	}
+	else if (connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType != RSSL_CONN_TYPE_INIT)
+		copts.encryptionOpts.encryptedProtocol = encryptedConnType;
 
 	if ( (chnl = rsslConnect(&copts,error)) != 0)
 	{
@@ -922,6 +1089,31 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslRet ret = 0;
 	RsslMsg msg = RSSL_INIT_MSG;
 	RsslDecodeIterator dIter;
+	RsslBuffer tempBuffer;
+	char tempBuf[MAX_MSG_SIZE];
+	RsslError error;
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		tempBuffer.length = MAX_MSG_SIZE;
+		tempBuffer.data = tempBuf;
+
+		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+
+		if (ret == RSSL_RET_FAILURE)
+		{
+			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (ret == RSSL_RET_READ_PING)
+			return RSSL_RET_SUCCESS;
+	}
+	else
+	{
+		tempBuffer.length = buffer->length;
+		tempBuffer.data = buffer->data;
+	}
 	
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
@@ -1073,6 +1265,8 @@ void cleanUpAndExit()
 
 	/* free memory for dictionary */
 	freeDictionary();
+
+	rsslJsonUninitialize();
 
 	rsslUninitialize();
 

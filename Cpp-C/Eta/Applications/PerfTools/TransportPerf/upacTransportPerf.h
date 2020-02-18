@@ -32,6 +32,14 @@
 extern "C" {
 #endif
 
+#ifndef MSGLEN_SZ 
+#define MSGLEN_SZ	_FIELD_MSGLEN_SIZE
+#endif
+
+#ifndef SEQNUM_SZ 
+#define SEQNUM_SZ	_FIELD_DATA_SIZE
+#endif
+
 typedef enum {
 	ROLE_UNINIT			= 0x00,
 	ROLE_WRITER			= 0x01,

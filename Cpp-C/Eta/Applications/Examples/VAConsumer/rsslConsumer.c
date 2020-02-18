@@ -74,6 +74,7 @@ char userNameBlock[128];
 char passwordBlock[128];
 char clientIdBlock[128];
 static char traceOutputFile[128];
+static char protocolList[128];
 char authnTokenBlock[1024];
 char authnExtendedBlock[1024];
 char appIdBlock[128];
@@ -95,6 +96,8 @@ static char libcryptoName[255];
 static char libcurlName[255];
 
 static char sslCAStore[255];
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf";
 
 static void displayCache(ChannelCommand *pCommand);
 static void displayCacheDomain(ChannelCommand *pCommand, RsslUInt8 domainType, RsslBool privateStreams, RsslInt32 itemCount, ItemRequest items[]);
@@ -110,7 +113,7 @@ static char _bufferArray[6144];
 void printUsageAndExit(char *appName)
 {
 	
-	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
+	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedWebSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
 			"\n -tcp specifies a socket connection while -encrypted specifies a encrypted connection to open and a list of items to request:\n"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
@@ -121,7 +124,9 @@ void printUsageAndExit(char *appName)
 			"\n         The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)\n"
 			"\n         Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl"
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
+			"\n -webSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
+			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
 			"\n -uname specifies the username used when logging into the provider. The machine ID for ERT in cloud (mandatory).\n"
 			"\n -passwd specifies the password used when logging into the provider. The password for ERT in cloud (mandatory).\n"
@@ -176,6 +181,7 @@ void parseCommandLine(int argc, char **argv)
 		RsslBool useTunnelStreamAuthentication = RSSL_FALSE;
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
+		snprintf(protocolList, 128, "%s", defaultProtocols);
 		snprintf(proxyHost, sizeof(proxyHost), "");
 		snprintf(proxyPort, sizeof(proxyPort), "");
 		snprintf(proxyUserName, sizeof(proxyUserName), "");
@@ -304,6 +310,11 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				snprintf(proxyDomain, sizeof(proxyDomain), "%s", argv[i - 1]);
 			}
+			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
+			{
+				i += 2;
+				snprintf(protocolList, 128, "%s", argv[i-1]);
+			}
 			else if (strcmp("-cache", argv[i]) == 0)
 			{
 				i++;
@@ -319,8 +330,12 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
 			}
-			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || (strcmp("-encrypted", argv[i]) == 0) 
-				|| (strcmp("-encryptedHttp", argv[i]) == 0) || (strcmp("-encryptedSocket", argv[i]) == 0))
+			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || 
+					(strcmp("-webSocket", argv[i]) == 0) || 
+					(strcmp("-encrypted", argv[i]) == 0) || 
+					(strcmp("-encryptedHttp", argv[i]) == 0) || 
+					(strcmp("-encryptedWebSocket", argv[i]) == 0) || 
+					(strcmp("-encryptedSocket", argv[i]) == 0))
 			{
 				char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
 
@@ -337,6 +352,12 @@ void parseCommandLine(int argc, char **argv)
 				useTunnelStreamAuthentication = RSSL_FALSE;
 				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
+				if (strstr(argv[i], "-webSocket") != 0)
+				{
+					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+					pCommand->cInfo.rsslConnectOptions.wsOpts.protocols = protocolList;
+				}
+				
 				if (strstr(argv[i], "-encrypted") != 0)
 				{
 					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
@@ -350,6 +371,11 @@ void parseCommandLine(int argc, char **argv)
 					printUsageAndExit(argv[0]);
 #endif
 					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
+				}
+				else if (strcmp("-encryptedWebSocket", argv[i]) == 0)
+				{
+					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
+					pCommand->cInfo.rsslConnectOptions.wsOpts.protocols = protocolList;
 				}
 				else if (strcmp("-encryptedSocket", argv[i]) == 0)
 				{
@@ -1101,7 +1127,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 
 			/* Check channel-specific options. */
-			if (pCommand != NULL && (i >= argc || strcmp("-c", argv[i]) == 0 || strcmp("-tcp", argv[i]) == 0))
+			if (pCommand != NULL && (i >= argc || strcmp("-c", argv[i]) == 0 || strcmp("-tcp", argv[i]) == 0 || strcmp("-webSocket", argv[i]) == 0))
 			{
 				/* If service not specified for tunnel stream, use the service given for other items instead. */
 				if (pCommand->tunnelMessagingEnabled && hasTunnelStreamServiceName == RSSL_FALSE)
@@ -1330,7 +1356,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				rsslClearTraceOptions(&traceOptions);
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1489,6 +1515,39 @@ static void sendItemRequests(RsslReactor *pReactor, RsslReactorChannel *pReactor
 	pCommand->itemsRequested = RSSL_TRUE;
 }
 
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	ChannelCommand *pCommand;
+	int i = 0;
+
+	for (i = 0; i < channelCommandCount; i++)
+	{
+		pCommand = &chanCommands[i];
+
+		if (pCommand->serviceNameFound)
+		{
+			if (strncmp(&pCommand->serviceName[0], pServiceName->data, pServiceName->length) == 0)
+			{
+				*pServiceId = (RsslUInt16)pCommand->serviceId;
+				return RSSL_RET_SUCCESS;
+			}
+		}
+	}
+
+	return RSSL_RET_FAILURE;
+}
+
 /*** MAIN ***/
 int main(int argc, char **argv)
 {
@@ -1503,7 +1562,10 @@ int main(int argc, char **argv)
 	RsslRDMDirectoryRequest dirRequest;
 	RsslReactorDispatchOptions dispatchOpts;
 	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
+
 	rsslClearReactorOAuthCredential(&oAuthCredential);
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	if ((ret = rsslPayloadCacheInitialize()) != RSSL_RET_SUCCESS)
 	{
@@ -1745,6 +1807,16 @@ int main(int argc, char **argv)
 
 		printf("\n");
 
+	}
+
+	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
+		exit(-1);
 	}
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);

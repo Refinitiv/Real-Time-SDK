@@ -45,6 +45,7 @@
 #include "rsslDictionaryProvider.h"
 #include "rsslItemHandler.h"
 #include "rsslSendMessage.h"
+#include "rsslJsonSession.h"
 
 
 static fd_set	readfds;
@@ -57,6 +58,7 @@ static char infraHostname[128];
 static char infraPortNo[128];
 static char serviceName[128];
 static char interfaceName[128];
+static char protocolList[128];
 static char sendAddr[128];
 static char recvAddr[128];
 static char sendPort[128];
@@ -85,6 +87,7 @@ static RsslBool shouldRecoverConnection = RSSL_TRUE;
 static RsslBool isInLoginSuspectState = RSSL_TRUE;
 static RsslBool sAddr = RSSL_FALSE;
 static RsslBool rAddr = RSSL_FALSE;
+static RsslBool jsonEnumExpand = RSSL_FALSE;
 
 static char libsslName[255];
 static char libcryptoName[255];
@@ -119,6 +122,12 @@ static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 static RsslBool isLoginReissue;
 
+/* default sub-protocol list */
+static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
+
+/* Json session */
+static RsslJsonSession jsonSession;
+
 /* 
  * Prints example usage and exits. 
  */
@@ -126,7 +135,7 @@ void printUsageAndExit(char *appName)
 {
 
 	/* exit and display usage */
-	printf("Usage: %s or\n%s [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [-runtime <seconds>] [-td]\n", appName, appName);
+	printf("Usage: %s or\n%s [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [-runtime <seconds>] [-td] [-pl <websocket protocol list>]\n", appName, appName);
 	printf(" -mp For each occurance, provides item using Market Price domain.\n");
 	printf(" -mbo For each occurance, provides item using Market By Order domain.\n");
 	printf(" -id allows user to specify optional serviceId.\n");
@@ -155,6 +164,8 @@ void printUsageAndExit(char *appName)
 	printf("\n -libcurlName specifies the name of the libcurl shared object\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptName specifies the name of libcrypto shared object\n");
+	printf(" -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
+	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
 
 	/* WINDOWS: wait for user to enter something before exiting  */
 #ifdef _WIN32
@@ -194,6 +205,7 @@ int main(int argc, char **argv)
 	snprintf(infraPortNo, 128, "%s",  defaultInfraPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(interfaceName, 128, "%s", defaultInterface);
+	snprintf(protocolList, 128, "%s", defaultProtocols);
 	snprintf(sendAddr, 128, "%s", "");
 	snprintf(recvAddr, 128, "%s", "");
 	snprintf(sendPort, 128, "%s", "");
@@ -436,6 +448,16 @@ int main(int argc, char **argv)
 				i += 2;
 				timeToRun = atoi(argv[i-1]);
 			}
+			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
+			{
+				i += 2;
+				snprintf(protocolList, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-jsonEnumExpand", argv[i]) == 0)
+			{
+				i++;
+				jsonEnumExpand = RSSL_TRUE;
+			}
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
@@ -514,6 +536,13 @@ int main(int argc, char **argv)
 		exit(RSSL_RET_FAILURE);
 	}
 
+	/* Clear the Json session, and initialize the Json converter */
+	rsslJCClearSession(&jsonSession);
+	rsslJsonInitialize();
+	jsonSession.options.pServiceNameToIdCallback = &serviceNameToIdCallback;
+	jsonSession.options.jsonExpandedEnumFields = jsonEnumExpand;
+
+
 	FD_ZERO(&readfds);
 	FD_ZERO(&exceptfds);
 	FD_ZERO(&wrtfds);
@@ -584,6 +613,16 @@ int main(int argc, char **argv)
 									for (i = 0; i < chanInfo.componentInfoCount; i++)
 									{
 										printf("Connected to %s device.\n", chanInfo.componentInfo[i]->componentVersion.data);
+									}
+								}
+
+								/* If the connection protocol is JSON, intitalize the Json converter */
+								if (rsslNIProviderChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+								{
+									if (rsslJsonSessionInitialize(&jsonSession, &error) != RSSL_RET_SUCCESS)
+									{
+										printf("Unable to initialize the Json Converter.  Error text: %s\n", error.text);
+										cleanUpAndExit();
 									}
 								}
 							}
@@ -873,6 +912,9 @@ static RsslChannel* connectToInfrastructure(RsslConnectionTypes connType,  RsslE
 
 	copts.encryptionOpts.openSSLCAStore = sslCAStore;
 
+	if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+		copts.wsOpts.protocols = protocolList;
+
 	if (connType == RSSL_CONN_TYPE_RELIABLE_MCAST && enableHostStatMessages)
 	{
 		/* Enable publishing Host Stat Messages. */
@@ -1041,6 +1083,31 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslRet ret = 0;
 	RsslMsg msg = RSSL_INIT_MSG;
 	RsslDecodeIterator dIter;
+	RsslBuffer tempBuffer;
+	char tempBuf[MAX_MSG_SIZE];
+	RsslError error;
+
+	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		tempBuffer.length = MAX_MSG_SIZE;
+		tempBuffer.data = tempBuf;
+
+		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+
+		if (ret == RSSL_RET_FAILURE)
+		{
+			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (ret == RSSL_RET_READ_PING)
+			return RSSL_RET_SUCCESS;
+	}
+	else
+	{
+		tempBuffer.length = buffer->length;
+		tempBuffer.data = buffer->data;
+	}
 	
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
@@ -1192,6 +1259,8 @@ void cleanUpAndExit()
 
 	/* free memory for dictionary */
 	freeDictionary();
+
+	rsslJsonUninitialize();
 
 	rsslUninitialize();
 

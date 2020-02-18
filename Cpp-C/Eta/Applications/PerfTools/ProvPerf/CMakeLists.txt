@@ -2,6 +2,7 @@
 set( SOURCE_FILES
         dictionaryProvider.c              loginProvider.c
         provPerfConfig.c                  upacProvPerf.c 
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
@@ -13,6 +14,21 @@ set( SOURCE_FILES
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
+
+		dictionaryProvider.h              loginProvider.h
+        provPerfConfig.h                  upacProvPerf.h 
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/providerThreads.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.h
+        ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.h
   )
 
 add_executable( ProvPerf_shared ${SOURCE_FILES} )
@@ -31,6 +47,7 @@ set_target_properties( ProvPerf_shared
 
 target_link_libraries( ProvPerf_shared 
 							librsslVA_shared 
+							librsslJsonConverter_shared
 							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 						)
@@ -43,6 +60,7 @@ target_include_directories(ProvPerf
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/Common>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/ProvPerf>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/PerfTools/NIProvPerf>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 
 set_target_properties( ProvPerf

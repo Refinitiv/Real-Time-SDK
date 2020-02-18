@@ -25,6 +25,8 @@ RsslRet closeSourceDirectoryStream(RsslChannel* chnl);
 /* returns select attributes from the source directory response - useful to query information about services */
 RsslRet getSourceDirectoryResponseInfo(RsslUInt serviceId, RsslSourceDirectoryResponseInfo** rsslSourceDirectoryResponseInfo);
 
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id);
+
 #ifdef __cplusplus
 };
 #endif

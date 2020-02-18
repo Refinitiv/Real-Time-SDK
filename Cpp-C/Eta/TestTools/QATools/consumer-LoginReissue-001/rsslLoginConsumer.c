@@ -270,7 +270,7 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 	RsslBuffer tempBuffer;
 	RsslElementList	elementList;
 	RsslElementEntry	element;
-	RsslInt code;
+	RsslUInt code;
 
 	tempBuffer.data = tempData;
 	tempBuffer.length = 1024;
@@ -390,7 +390,7 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 							/* Authentication Error Text */
 							else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
 							{
-								printf("	Authentication Error Code: %.*s\n", element.encData.length, element.encData.data);
+								printf("	Authentication Error text: %.*s\n", element.encData.length, element.encData.data);
 							}
 						}
 						else

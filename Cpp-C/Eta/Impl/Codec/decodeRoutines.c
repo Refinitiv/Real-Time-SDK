@@ -1045,3 +1045,28 @@ RSSL_API RsslRet decodeKeyOpaque(FILE * file,
 
 	return RSSL_RET_SUCCESS;
 }
+
+RSSL_API int dumpJSON(FILE * file, const RsslBuffer *input)
+{
+	int i = 0;
+	const char * c = input->data;
+	char h;
+	if (input->length > 0)  /* skip stuff below for empty string */
+	{
+		for (; i < (int)input->length; i++)
+		{
+			h = *c;
+			if (h < 0x20 || h > 0x7e)
+			{
+				fprintf(file, "(");
+				fprintf(file, "0x%02x", (unsigned char)h);
+				fprintf(file, ")");
+			}
+			else /* printable */
+				fprintf(file, "%c", h);
+			c++;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}

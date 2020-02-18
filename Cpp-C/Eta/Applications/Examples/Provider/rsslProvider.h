@@ -4,6 +4,8 @@
 #define _RTR_RSSL_PROVIDER_H
 
 #include "rtr/rsslTransport.h"
+#include "rsslJsonSession.h"
+#include "rsslDirectoryHandler.h"
 #if defined(_WIN32)
 #include <winsock2.h>
 #include <time.h>
@@ -28,6 +30,7 @@ typedef struct {
 	time_t nextSendPingTime;
 	RsslBool receivedClientMsg;
 	RsslBool pingsInitialized;
+	RsslJsonSession jsonSession;
 } RsslClientSessionInfo;
 
 static void readFromChannel(RsslChannel* chnl);
@@ -43,19 +46,6 @@ static void removeChannel(RsslChannel* chnl);
 static void setReceivedClientMsgForChannel(RsslChannel *chnl);
 static void removeClientSessionForChannel(RsslChannel *chnl);
 void cleanUpAndExit();
-
-/*
- * Clears the client session information.
- * clientSessionInfo - The client session information to be cleared
- */
-RTR_C_INLINE void clearClientSessionInfo(RsslClientSessionInfo* clientSessionInfo)
-{
-	clientSessionInfo->clientChannel = 0;
-	clientSessionInfo->nextReceivePingTime = 0;
-	clientSessionInfo->nextSendPingTime = 0;
-	clientSessionInfo->receivedClientMsg = RSSL_FALSE;
-	clientSessionInfo->pingsInitialized = RSSL_FALSE;
-}
 
 #ifdef __cplusplus
 };

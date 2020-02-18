@@ -85,6 +85,24 @@ typedef RsslReactorCallbackRet RsslReactorServiceEndpointEventCallback(RsslReact
 typedef RsslReactorCallbackRet RsslReactorOAuthCredentialEventCallback(RsslReactor*, RsslReactorOAuthCredentialEvent*);
 
 /**
+ * @brief Signature of an Json Conversion Event Callback function.
+ * @see RsslReactorJsonConversionEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorJsonConversionEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorJsonConversionEvent*);
+
+/**
+ * @brief Signature of a callback function to convert from a service name to a service Id.
+ * @param pReactor The Reactor associated with this event. 
+ * @param pServiceName The name of the service that the callback will look up to find the appropriate ID.
+ * @param pServiceId An RsslUInt16 that the callback should populate with the translated ID.
+ * @param pEvent An RsslReactorServiceNameToIdEvent that provides additional information for the callback.
+ * @return RSSL_RET_SUCCESS if a matching ID was found, RSSL_RET_FAILURE otherwise.
+ * @see RsslReactorServiceNameToIdEvent
+ */
+typedef RsslRet RsslReactorServiceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
+
+/**
  * @brief Enumerated types indicating the role of a connection.
  * @see RsslReactorChannelRoleBase, RsslReactorOMMConsumerRole, RsslReactorOMMProviderRole, RsslReactorOMMNIProviderRole
  */
@@ -482,6 +500,15 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnectOptions *pOpts, RsslReactorChannelRole *pRole, RsslErrorInfo *pError );
 
 /**
+ * @brief Configuration options to accept a connection on server-side for the WebSocket connection.
+ * @see RsslReactorAcceptOptions, rsslReactorAccept
+ */
+typedef struct
+{
+	RsslBool		sendPingMessage; /*!< This is used to configure the Reactor to periodically send a ping message to clients. */
+} RsslReactorWSocketAcceptOptions;
+
+/**
  * @brief Configuration options for creating an RsslReactor server-side connection.
  * @see rsslReactorAccept
  */
@@ -491,6 +518,8 @@ typedef struct
 	RsslUInt32			initializationTimeout;	/*!< Time(in seconds) to wait for successful initialization of a channel. 
 												 * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
 	RsslUInt32			connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
+
+	RsslReactorWSocketAcceptOptions   wsocketAcceptOptions; /*!< This is additional accept options for WebSocket connection. */
 
 } RsslReactorAcceptOptions;
 
@@ -503,6 +532,7 @@ RTR_C_INLINE void rsslClearReactorAcceptOptions(RsslReactorAcceptOptions *pOpts)
 	rsslClearAcceptOpts(&pOpts->rsslAcceptOptions);
 	pOpts->initializationTimeout = 60;
 	pOpts->connectionDebugFlags = 0;
+	pOpts->wsocketAcceptOptions.sendPingMessage = RSSL_TRUE;
 }
 
 /**
@@ -852,6 +882,44 @@ RTR_C_INLINE void rsslClearReactorChannelStatistic(RsslReactorChannelStatistic *
  */
 RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
 	RsslReactorChannelStatistic *pRsslReactorChannelStatistic, RsslErrorInfo *pError);
+
+/**
+ * @brief Configuration options for initializing JSON converter.
+ * @see rsslReactorInitJsonConverter
+ */
+typedef struct {
+	RsslDataDictionary						*pDictionary;					/*!< the RsslDataDictionary to initialize the RWF/JSON converter. */
+	void									*userSpecPtr; 					/*!< user-specified pointer which will be retrieved in the callback function. */
+	RsslUInt16								defaultServiceId;				/*!< Specify a default service ID for a request if both service name and ID are not set. */
+	RsslReactorServiceNameToIdCallback		*pServiceNameToIdCallback;		/*!< Callback function that handles conversion from service name to ID. */
+	RsslReactorJsonConversionEventCallback	*pJsonConversionEventCallback;	/*!< Callback function that receives RsslReactorJsonConversionEvent when the JSON converter failed to convert message. */
+	RsslBool								jsonExpandedEnumFields;			/*!< Expand enumerated values in field entries to their display values for JSON protocol. */
+	RsslBool								catchUnknownJsonKeys;			/*!< When converting from JSON to RWF, catch unknown JSON keys. */
+	RsslBool								catchUnknownJsonFids;			/*!< When converting from JSON to RWF, catch unknown JSON field IDs. */
+	RsslBool								closeChannelFromFailure;		/*!< Closes the channel when the Reactor failed to parse JSON message or received JSON error message. */
+} RsslReactorJsonConverterOptions;
+
+/**
+ * @brief Clears an RsslReactorJsonConverterOptions object.
+ * @see RsslReactorJsonConverterOptions
+ */
+RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterOptions *pReactorJsonConverterOptions)
+{
+	memset(pReactorJsonConverterOptions, 0, sizeof(RsslReactorJsonConverterOptions));
+	pReactorJsonConverterOptions->catchUnknownJsonFids = RSSL_TRUE;
+	pReactorJsonConverterOptions->closeChannelFromFailure = RSSL_TRUE;
+}
+
+/**
+ * @brief Initializes an RsslReactor to be able to convert payloads to and from RWF and JSON protocol
+ * @param pReactor The reactor that will handle the request.
+ * @param pDictionary the RsslDataDictionary to initialize the RWF/JSON converter
+ * @param pError Error structure to be populated in the event of an error.
+ * @return RSSL_RET_SUCCESS, if initialization succeeded
+ * @return failure codes, if the RsslReactor was shut down due to a failure.
+ * @see RsslReactorJsonConverterOptions, RsslErrorInfo
+ */
+RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReactorJsonConverterOptions *pReactorJsonConverterOptions, RsslErrorInfo *pError);
 
 /**
  *	@}

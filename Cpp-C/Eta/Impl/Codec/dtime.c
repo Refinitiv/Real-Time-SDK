@@ -10,6 +10,7 @@
 #include "rtr/rsslRetCodes.h"
 #include "rtr/rwfConvert.h"
 #include "rtr/rsslDataUtils.h"
+#include "rtr/decoderTools.h"
 #include <ctype.h>
 #include <time.h>
 
@@ -17,129 +18,6 @@
 static const char * months[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
 #define MAX_DECIMAL_DIGITS 9
-
-/* Converts the ISO8601 date string to RsslDate. Expects ISO8601 date string in format 'YYYYMMDD'.
- * E.g ISO8601 date string '20170912' is converted to year 2017, month 9 and day 12 in the output RsslDate.
- */
-RsslRet iso8601DateStringToDate(RsslDate * oDate,  const char* isoDate)
-{
-	int i = 0;
-	int len = (RsslUInt32) strlen(isoDate);
-	
-	if( len != 8 )
-		return RSSL_RET_FAILURE;
-
-	oDate->year = 0;
-	oDate->month = 0;
-	oDate->day = 0;
-    for(; isoDate[i] &&  i < 4; ++i)
-	{
-		if( isdigit(isoDate[i]) )
-			oDate->year = oDate->year *10 + (isoDate[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	}
-    for(; isoDate[i] &&  i < 6; ++i)
-	{
-		if( isdigit(isoDate[i]) )
-			oDate->month = oDate->month *10 + (isoDate[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	}
-    for(; isoDate[i] &&  i < 8; ++i)
-	{
-		if( isdigit(isoDate[i]) )
-			oDate->day = oDate->day *10 + (isoDate[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	}
-	return RSSL_RET_SUCCESS;
-}
-
-/* Converts the ISO8601 time string into hours, minutes and seconds. 
- * Expects only the portion before comma/decimal of ISO8601 time string ['HHMMSS,nnnnnnnnn'].
- * E.g from the time string '101555,678009700' the portion '101555' before the comma is converted to 10 hours, 15 minutes and 55 seconds.
- */
-RsslRet iso8601TimeStringToTime( RsslTime *oTime, const char * isoTime)
-{
-	int i = 0;
-	oTime->hour = 0;
-	oTime->minute = 0;
-	oTime->second = 0;
-    for(; isoTime[i] &&  i < 2; ++i)
-	{
-		if( isdigit(isoTime[i]) )
-			oTime->hour = oTime->hour *10 + (isoTime[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	}
-    for(; isoTime[i] &&  i < 4; ++i)
-	{
-		if( isdigit(isoTime[i]) )
-			oTime->minute = oTime->minute *10 + (isoTime[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	}
-    for(; isoTime[i] &&  i < 6; ++i)
-	{
-		if( isdigit(isoTime[i]) )
-			oTime->second = oTime->second *10 + (isoTime[i] - '0');
-		else
-			return RSSL_RET_FAILURE;
-	} 
-	return RSSL_RET_SUCCESS;
-}
-
-/* Converts the ISO8601 time string fractional seconds represented after comma/decimal into milli, micro and nano seconds. 
- * Expects only the portion after comma/decimal of the ISO8601 time string ['HH:MM:SS,nnnnnnnnn'].
- * E.g from the time string '10:15:55,678009700' Or '101555,678009700', the portion '678009700' after the comma is converted to 678 milli, 9 micro and 700 nano seconds.
- */
-RsslRet iso8601FractionalStringTimeToTime(RsslTime * oTime,  const char * isoFractionalTime)
-{
-	int i = 0;
-	int placeValue = 100;
-
-	oTime->millisecond = 0;
-	oTime->microsecond = 0;
-	oTime->nanosecond = 0;
-
-	for (;  isoFractionalTime[i] && i < 3; ++i )
-	{
-		if( isdigit(isoFractionalTime[i] ))
-		{
-			oTime->millisecond =  oTime->millisecond  + (isoFractionalTime[i] -'0') * placeValue;
-			placeValue = placeValue / 10;
-		}
-		else
-			return RSSL_RET_SUCCESS;
-	}
-
-	placeValue = 100;
-	for (;  isoFractionalTime[i] && i < 6; ++i )
-	{
-		if( isdigit(isoFractionalTime[i] ))
-		{
-			oTime->microsecond =  oTime->microsecond + (isoFractionalTime[i] -'0') * placeValue ;
-			placeValue = placeValue / 10;
-		}
-		else
-			return RSSL_RET_SUCCESS;
-	}
-	
-	placeValue = 100;
-	for (;  isoFractionalTime[i] && i < MAX_DECIMAL_DIGITS; ++i )
-	{
-		if( isdigit(isoFractionalTime[i] ))
-		{
-			oTime->nanosecond =  oTime->nanosecond + (isoFractionalTime[i] -'0') * placeValue;
-			placeValue = placeValue / 10;
-		}
-		else
-			return RSSL_RET_SUCCESS;
-	}
-
-	return RSSL_RET_SUCCESS;
-}
 
 /* Converts RsslDateTime to blank string only if the all portions of RsslDateTime are blank. 
  * Returns RSSL_FALSE if any one portion is not blank.
@@ -621,8 +499,16 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	RsslUInt8 u8;
 	RsslUInt16 u16;
 	int a, b, c;
+	int year = 0;
+	int month = 0;
+	int day = 0;
+	int tmpInt = 0;
 	char monthStr[32];
-	char isoDate[9];
+	int i = 0;
+	int numberCount = 0;
+	char* end;
+
+	RSSL_ASSERT(oDate && iDateString, Invalid parameters or parameters passed in as NULL);
 
 	if (iDateString->data == NULL || iDateString->length == 0)
 	{
@@ -633,31 +519,206 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 		return RSSL_RET_BLANK_DATA;
 	}
 
-	if (sscanf(iDateString->data, "%4d-%2d-%2d", &a, &b, &c ) == 3)
-	{ /* Read ISO 8601 datetime format yyyy-mm-dd e.g. 2017-08-12 */
-		oDate->day = c;
-		oDate->month = b;
-		oDate->year = a;
+	tmp = iDateString->data;
+	end = iDateString->data + iDateString->length;
+
+	rsslClearDate(oDate);
+
+	/* Check for yyyy year case first */
+	while (tmp <= end && isdigit(*tmp))
+	{
+		tmpInt = tmpInt * 10 + (*tmp - '0');
+		++numberCount;
+		++tmp;
+	}
+
+	/* If it's a 4 digit year and nothing else, return the year */
+	if (numberCount == 4 && (tmp == end || *tmp == '\0'))
+	{
+		oDate->year = tmpInt;
 		return RSSL_RET_SUCCESS;
 	}
-	if (sscanf(iDateString->data, "%4d-%2d", &a, &b ) == 2)
-	{ /* Read ISO 8601 datetime format yyyy-mm e.g. 2017-08 */
-		oDate->day = 0;
-		oDate->month = b;
-		oDate->year = a;
-		return RSSL_RET_SUCCESS;
+	
+	/* Covers following ISO 8601 cases:
+		yyyy-mm-dd
+		yyyy-mm */
+	if (numberCount == 4 && !isspace(*tmp) && *tmp != '/')
+	{
+		year = tmpInt;
+		/* Check for - */
+		if (*tmp == '-')
+		{
+			numberCount = 0;
+			tmpInt = 0;
+			++tmp;
+
+			/* Get the month */
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+
+			if (numberCount != 2)
+				return RSSL_RET_INVALID_DATA;
+
+			month = tmpInt;
+
+			/* If we're at the end, no date, return what we have. */
+			if (tmp == end || *tmp == '\0')
+			{
+				oDate->year = year;
+				oDate->month = month;
+				return RSSL_RET_SUCCESS;
+			}
+
+			if (*tmp == '-')
+			{
+				numberCount = 0;
+				tmpInt = 0;
+				++tmp;
+
+				/* Get the day */
+				while (tmp <= end && isdigit(*tmp))
+				{
+					tmpInt = tmpInt * 10 + (*tmp - '0');
+					++numberCount;
+					++tmp;
+				}
+
+				if (numberCount != 2)
+					return RSSL_RET_INVALID_DATA;
+
+				day = tmpInt;
+
+				/* Make sure we're a the end of the buffer */
+				if (tmp == end || *tmp == '\0')
+				{
+					oDate->year = year;
+					oDate->month = month;
+					oDate->day = day;
+					return RSSL_RET_SUCCESS;
+				}
+				else
+					return RSSL_RET_INVALID_DATA;
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
-	if (sscanf(iDateString->data, "--%2d-%2d", &b, &c ) == 2 || sscanf(iDateString->data, "--%2d%2d", &b, &c ) == 2)
-	{ /* Read ISO 8601 datetime format --mm-dd e.g. --03-31 */
-		oDate->year = 0;
-		oDate->day = c;
-		oDate->month = b;
-		return RSSL_RET_SUCCESS;
-	}
-	if (sscanf(iDateString->data, "%8s", isoDate ) == 1)
-	{ /* Read ISO 8601 datetime format yyyymmdd e.g. 20170812 */
-		if( iso8601DateStringToDate(oDate, isoDate) == RSSL_RET_SUCCESS )
+	/* Covers:
+		yyyymmdd */
+	else if (numberCount == 8)
+	{
+		tmp = iDateString->data;
+		/* We've already verified that it is 8 consecutive digits, so parse the entire thing */
+		for (i = 0; i < 4; i++)
+		{
+			oDate->year = oDate->year * 10 + (*tmp - '0');
+			++tmp;
+		}
+
+		for (i = 0; i < 2; i++)
+		{
+			oDate->month = oDate->month * 10 + (*tmp - '0');
+			++tmp;
+		}
+
+		for (i = 0; i < 2; i++)
+		{
+			oDate->day = oDate->day * 10 + (*tmp - '0');
+			++tmp;
+		}
+
+		/* Check to make sure there's nothing left in the buffer */
+		if (tmp == end || *tmp == '\0')
 			return RSSL_RET_SUCCESS;
+		else
+		{
+			rsslClearDate(oDate);
+			return RSSL_RET_INVALID_DATA;
+		}
+	}
+	/* Covers:
+		--mm-dd
+		--mmdd
+	*/
+	else if (numberCount == 0 && *tmp == '-')
+	{
+		/* Bounds check to make sure the first two characters are in the buffer */
+		if ((tmp + 2) >= end)
+			return RSSL_RET_INVALID_DATA;
+		tmp++;
+		if (*tmp != '-')
+			return RSSL_RET_INVALID_DATA;
+
+		tmp++;
+
+		/* Get the month */
+		tmpInt = 0;
+		for(i = 0; i < 2; i++)
+		{
+			if (isdigit(*tmp))
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+			else
+				return RSSL_RET_INVALID_DATA;
+			++tmp;
+		}
+
+		/* If there arne't 2 digits or this is the end of the buffer, error out */
+		if (tmp == end || *tmp == '/0')
+			return RSSL_RET_INVALID_DATA;
+
+		month = tmpInt;
+
+		if (isdigit(*tmp))
+		{
+			/* Get the day */
+			numberCount = 0;
+			tmpInt = 0;
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+
+			/* Make sure that there were 2 digits, and that we're at the end of the buffer */
+			if (numberCount != 2 && (tmp != end || *tmp != '/0'))
+				return RSSL_RET_INVALID_DATA;
+
+			oDate->day = tmpInt;
+			oDate->month = month;
+
+			return RSSL_RET_SUCCESS;
+		}
+		else if (*tmp == '-')
+		{
+			++tmp;
+			/* Get the day */
+			numberCount = 0;
+			tmpInt = 0;
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+
+			/* Make sure that there were 2 digits, and that we're at the end of the buffer */
+			if (numberCount != 2 && (tmp != end || *tmp != '/0'))
+				return RSSL_RET_INVALID_DATA;
+
+			oDate->day = tmpInt;
+			oDate->month = month;
+
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
 	if (sscanf(iDateString->data, "%d/%d/%d", &a, &b, &c) == 3)
@@ -688,29 +749,6 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 		}
 		return RSSL_RET_SUCCESS;
 	}	
-
-	if (sscanf(iDateString->data, "%d%d%d", &a, &b, &c) == 3)
-	{
-		if (a > 255) // assume year here is greater than MAX UINT
-		{
-			oDate->day = c;
-			oDate->month = b;
-			oDate->year = a;
-		}
-		else if (c < 100) // assume year here is less than 100, then add 1900
-		{
-			oDate->day = b;
-			oDate->month = a;
-			oDate->year = c + 1900;
-		}
-		else
-		{
-			oDate->day = b;
-			oDate->month = a;
-			oDate->year = c;
-		}
-		return RSSL_RET_SUCCESS;
-	}
 
 	if (isdigit(iDateString->data[3]))
 	{
@@ -803,19 +841,27 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	return RSSL_RET_SUCCESS;
 }
 
+
+/* This function handles converting both ETA formatted time strings and ISO8601 formats.  Time zones for ISO format are currently ignored.*/
+
 RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTimeString)
 {
 	char * tmp;
 	RsslUInt8 u8;
 	RsslUInt16 u16;
+	int tmpInt = 0;
 	int min = 0;
 	int sec = 0;
 	int hour = 0;
 	int milli = 0;
 	int micro = 0;
 	int nano = 0;
-	char isoTime[7];
-	char isoFractionalTime[10];
+	int numberCount = 0;
+	char* end;
+	int placeValue = 0;
+	int i;
+	
+	RSSL_ASSERT(oTime && iTimeString, Invalid parameters or parameters passed in as NULL);
 
 	if (iTimeString->data == NULL || iTimeString->length == 0)
 	{
@@ -828,148 +874,352 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 
 		return RSSL_RET_BLANK_DATA;
 	}
+
+	tmp = iTimeString->data;
+	end = iTimeString->data + iTimeString->length;
+
+	rsslClearTime(oTime);
 	
-	if (sscanf(iTimeString->data, "%2d:%2d:%2d.%9s", &hour, &min, &sec, isoFractionalTime) == 4)
-	{ /* Read ISO hh:mm:ss,nnnnnnnnn e.g. 08:37:48,009216350 */
-		oTime->hour = hour;
-		oTime->minute = min;
-		oTime->second = sec; 
-		return iso8601FractionalStringTimeToTime(oTime, isoFractionalTime);
-	}
-	if (sscanf(iTimeString->data, "%2d:%2d:%2d,%9s", &hour, &min, &sec, isoFractionalTime) == 4)
-	{ /* Read ISO hh:mm:ss,nnnnnnnnn e.g. 08:37:48.009216350 */
-		oTime->hour = hour;
-		oTime->minute = min;
-		oTime->second = sec; 
-		return iso8601FractionalStringTimeToTime(oTime, isoFractionalTime);
-	}
-
-	if (sscanf(iTimeString->data, "%6s.%9s", isoTime, isoFractionalTime) == 2)
-	{ /* Read ISO hhmmss.nnnnnnnnn e.g. 083756.009216350 Or digits < 9 after decimal */
-		if( strlen(isoTime) == 6 && iso8601TimeStringToTime(oTime, isoTime) == RSSL_RET_SUCCESS)
-		{
-			if( iso8601FractionalStringTimeToTime(oTime, isoFractionalTime) == RSSL_RET_SUCCESS)
-				return RSSL_RET_SUCCESS;
-		}
-	}
-	if (sscanf(iTimeString->data, "%6s,%9s", isoTime, isoFractionalTime) == 2)
-	{ /* Read ISO hhmmss,nnnnnnnnn e.g. 083756,009216350 Or digits < 9 after comma */
-		if( strlen(isoTime) == 6 && iso8601TimeStringToTime(oTime, isoTime) == RSSL_RET_SUCCESS)
-		{
-			if( iso8601FractionalStringTimeToTime(oTime, isoFractionalTime) == RSSL_RET_SUCCESS)
-				 return RSSL_RET_SUCCESS;
-		}
-	}
-	if (sscanf(iTimeString->data, "%6s", isoTime) == 1)
-	{ /* Read ISO hhmm e.g. 0837 Or hhmmss e.g. 083756 */
-	 size_t tLen = strlen(isoTime);
-	 if( (tLen== 4 || tLen == 6)  && iso8601TimeStringToTime(oTime, isoTime) == RSSL_RET_SUCCESS)
-			return RSSL_RET_SUCCESS;
-	}
-
-	if (sscanf(iTimeString->data, "%d:%d:%d:%d:%d:%d", &hour, &min, &sec, &milli, &micro, & nano) >= 2)
+	/* Check for ISO case of hh:mm:ss first*/
+	while (tmp <= end && isdigit(*tmp))
 	{
-		oTime->hour = hour;
-		oTime->minute = min;
-		oTime->second = sec; 
-		oTime->millisecond = milli;
-		oTime->microsecond = micro;
-		oTime->nanosecond = nano;
-
-		return RSSL_RET_SUCCESS;
+		tmpInt = tmpInt * 10 + (*tmp - '0');
+		++numberCount;
+		++tmp;
 	}
 
-	if (sscanf(iTimeString->data, "%d%d%d%d%d%d", &hour, &min, &sec, &milli, &micro, &nano) >= 2)
+	/* If there are 2 characters in the first number, this is minimally hh:mm.
+		It can also be:
+			hh:mm:ss
+			hh:mm:ss:mmm
+			hh:mm:ss:mmm:mmm
+			hh:mm:ss:mmm:mmm:nnn
+			hh:mm:ss.nnnnnnnnn
+			hh:mm:ss,nnnnnnnnn */
+	if (numberCount == 2 && *tmp == ':')
 	{
-		oTime->hour = hour;
-		oTime->minute = min;
-		oTime->second = sec;
-		oTime->millisecond = milli;
-		oTime->microsecond = micro;
-		oTime->nanosecond = nano;
+		hour = tmpInt;
+		tmpInt = 0;
 
-		return RSSL_RET_SUCCESS;
-	}
-
-	if (iTimeString->length > 0)
-	{
-		tmp = iTimeString->data;
-
-		while (isspace(*tmp))
-			tmp++; /* skip whitespace */
-		
-		/* if all whitespaces init to blank */
-		if (tmp == iTimeString->data + iTimeString->length)
-		{
-			oTime->hour = 255;
-			oTime->minute = 255;
-			oTime->second = 255;
-			oTime->millisecond = 65535;
-			oTime->microsecond = 2047;
-			oTime->nanosecond = 2047;
-
-			return RSSL_RET_BLANK_DATA;
-		}
-
-		for (u8 = 0; isdigit(*tmp); tmp++)
-			u8 = u8 * 10 + (*tmp - '0');
-		oTime->hour = u8;
-		if (*tmp != ':')
-        {
+		tmp++;
+		if (tmp == end || *tmp == '\0')
 			return RSSL_RET_INVALID_DATA;
-        }
+
+		tmpInt = 0;
+		numberCount = 0;
+		
+		while (tmp <= end && isdigit(*tmp))
+		{
+			tmpInt = tmpInt * 10 + (*tmp - '0');
+			++numberCount;
+			++tmp;
+			
+		}
+		min = tmpInt;
+		
+		if (numberCount != 2)
+			return RSSL_RET_INVALID_DATA;
+		/* Check to see if we're at the end or if there's a time zone(which will be dropped) */
+		if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+		{
+			oTime->hour = hour;
+			oTime->minute = min;
+			return RSSL_RET_SUCCESS;
+		}
+
+		if (tmp == end || *tmp == '\0' || *tmp != ':')
+			return RSSL_RET_INVALID_DATA;
+		tmp++;
+		tmpInt = 0;
+		numberCount = 0;
+
+		while (tmp <= end && isdigit(*tmp))
+		{
+			tmpInt = tmpInt * 10 + (*tmp - '0');
+			++numberCount;
+			++tmp;
+		}
+		sec = tmpInt;
+
+		if (numberCount != 2)
+			return RSSL_RET_INVALID_DATA;
+		/* Check to see if we're at the end or if there's a time zone(which will be dropped) */
+		if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+		{
+			oTime->hour = hour;
+			oTime->minute = min;
+			oTime->second = sec;
+			return RSSL_RET_SUCCESS;
+		}
+
+		tmpInt = 0;
+		numberCount = 0;
+		if (tmp == end)
+			return RSSL_RET_INVALID_DATA;
+		else if (*tmp == ':')
+		{
+			tmpInt = 0;
+
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+			milli = tmpInt;
+
+			if (numberCount != 3)
+				return RSSL_RET_INVALID_DATA;
+			if (tmp == end )
+			{
+				oTime->hour = hour;
+				oTime->minute = min;
+				oTime->second = sec;
+				oTime->millisecond = milli;
+				return RSSL_RET_SUCCESS;
+			}
+
+			tmp++;
+			tmpInt = 0;
+			numberCount = 0;
+			if (tmp == end || *tmp != ':')
+				return RSSL_RET_INVALID_DATA;
+
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+			micro = tmpInt;
+
+			if (numberCount != 3)
+				return RSSL_RET_INVALID_DATA;
+			if (tmp == end)
+			{
+				oTime->hour = hour;
+				oTime->minute = min;
+				oTime->second = sec;
+				oTime->millisecond = milli;
+				oTime->microsecond = micro;
+				return RSSL_RET_SUCCESS;
+			}
+
+			tmp++;
+			tmpInt = 0;
+			numberCount = 0;
+			if (tmp == end || *tmp != ':')
+				return RSSL_RET_INVALID_DATA;
+
+			while (tmp <= end && isdigit(*tmp))
+			{
+				tmpInt = tmpInt * 10 + (*tmp - '0');
+				++numberCount;
+				++tmp;
+			}
+			nano = tmpInt;
+
+			if (numberCount != 3)
+				return RSSL_RET_INVALID_DATA;
+			else
+			{
+				oTime->hour = hour;
+				oTime->minute = min;
+				oTime->second = sec;
+				oTime->millisecond = milli;
+				oTime->microsecond = micro;
+				oTime->nanosecond = nano;
+				return RSSL_RET_SUCCESS;
+			}
+		}
+		else if (*tmp == '.' || *tmp == ',')
+		{
+			++tmp;
+			if (tmp == end)
+				return RSSL_RET_INVALID_DATA;
+
+			oTime->hour = hour;
+			oTime->minute = min;
+			oTime->second = sec;
+
+			placeValue = 100;
+			for (i = 0; i < 3; ++i)
+			{
+				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					return RSSL_RET_SUCCESS;
+				else if (isdigit(*tmp))
+				{
+					oTime->millisecond = oTime->millisecond + (*tmp - '0') * placeValue;
+					placeValue = placeValue / 10;
+				}
+				else
+				{
+					memset(oTime, 0, sizeof(RsslTime));
+					return RSSL_RET_INVALID_DATA;
+				}
+				tmp++;
+			}
+
+			placeValue = 100;
+			for (i = 0; i < 3; ++i)
+			{
+				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					return RSSL_RET_SUCCESS;
+				else if (isdigit(*tmp))
+				{
+					oTime->microsecond = oTime->microsecond + (*tmp - '0') * placeValue;
+					placeValue = placeValue / 10;
+				}
+				else
+				{
+					memset(oTime, 0, sizeof(RsslTime));
+					return RSSL_RET_INVALID_DATA;
+				}
+				tmp++;
+			}
+
+			placeValue = 100;
+			for (i = 0; i < 3; ++i)
+			{
+				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					return RSSL_RET_SUCCESS;
+				else if (isdigit(*tmp))
+				{
+					oTime->nanosecond = oTime->nanosecond + (*tmp - '0') * placeValue;
+					placeValue = placeValue / 10;
+				}
+				else
+				{
+					memset(oTime, 0, sizeof(RsslTime));
+					return RSSL_RET_INVALID_DATA;
+				}
+				tmp++;
+			}
+
+			/* We've parsed all available data, and are ignoring any time zone specification */
+			return RSSL_RET_SUCCESS;
+		}
 		else
-			tmp++;
-
-		for (u8 = 0; isdigit(*tmp); tmp++)
-			u8 = u8 * 10 + (*tmp - '0');
-		oTime->minute = u8;
-
-		while (isspace(*tmp))
-			tmp++;
-
-		if ((tmp < iTimeString->data + iTimeString->length) && (*tmp == ':'))
-		{
-			tmp++;
-			for (u8 = 0; isdigit(*tmp); tmp++)
-				u8 = u8 * 10 + (*tmp - '0');
-			oTime->second = u8;
-		}
-
-		while (isspace(*tmp))
-			tmp++;
-
-		if ((tmp < iTimeString->data + iTimeString->length) && (*tmp == ':'))
-		{
-			tmp++;
-			for (u16 = 0; isdigit(*tmp); tmp++)
-				u16 = u16 * 10 + (*tmp - '0');
-			oTime->millisecond =u16;
-		}
-
-		while (isspace(*tmp))
-			tmp++;
-
-		if ((tmp < iTimeString->data + iTimeString->length) && (*tmp == ':'))
-		{
-			tmp++;
-			for (u16 = 0; isdigit(*tmp); tmp++)
-				u16 = u16 * 10 + (*tmp - '0');
-			oTime->microsecond =u16;
-		}
-
-		while (isspace(*tmp))
-			tmp++;
-
-		if ((tmp < iTimeString->data + iTimeString->length) && (*tmp == ':'))
-		{
-			tmp++;
-			for (u16 = 0; isdigit(*tmp); tmp++)
-				u16 = u16 * 10 + (*tmp - '0');
-			oTime->nanosecond =u16;
-		}		
+			return RSSL_RET_INVALID_DATA;
 	}
-	else
+	/* This covers: 
+		hhmm
+		hhmmss
+		hhmmss.nnnnnnnnn
+		hhmmss,nnnnnnnnn */
+	else if (numberCount == 6 || numberCount == 4)
+	{
+		
+		/* reset tmp to the beginning */
+		tmp = iTimeString->data;
+		/* Since we've verified that this is exactly 6 digits, we can just parse hhmmss */
+		for (i = 0; i < 2; ++i)
+		{
+			oTime->hour = oTime->hour * 10 + (*tmp - '0');
+			tmp++;
+		}
+		
+		for (i = 0; i < 2; ++i)
+		{
+			oTime->minute = oTime->minute * 10 + (*tmp - '0');
+			tmp++;
+		}
+
+		if(numberCount == 6)
+		{
+			for (i = 0; i < 2; ++i)
+			{
+				oTime->second = oTime->second * 10 + (*tmp - '0');
+				tmp++;
+			}
+
+			/* Ignoring ISO time zone formatting */
+			if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+			{
+				return RSSL_RET_SUCCESS;
+			}
+			else if (*tmp == '.' || *tmp == ',')
+			{
+				++tmp;
+				if (tmp == end)
+					return RSSL_RET_INVALID_DATA;
+
+				placeValue = 100;
+				for (i = 0; i < 3; ++i)
+				{
+					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+						return RSSL_RET_SUCCESS;
+					else if (isdigit(*tmp))
+					{
+						oTime->millisecond = oTime->millisecond + (*tmp - '0') * placeValue;
+						placeValue = placeValue / 10;
+					}
+					else
+					{
+						memset(oTime, 0, sizeof(RsslTime));
+						return RSSL_RET_INVALID_DATA;
+					}
+					tmp++;
+				}
+
+				placeValue = 100;
+				for (i = 0; i < 3; ++i)
+				{
+					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+						return RSSL_RET_SUCCESS;
+					else if (isdigit(*tmp))
+					{
+						oTime->microsecond = oTime->microsecond + (*tmp - '0') * placeValue;
+						placeValue = placeValue / 10;
+					}
+					else
+					{
+						memset(oTime, 0, sizeof(RsslTime));
+						return RSSL_RET_INVALID_DATA;
+					}
+					tmp++;
+				}
+
+				placeValue = 100;
+				for (i = 0; i < 3; ++i)
+				{
+					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+						return RSSL_RET_SUCCESS;
+					else if (isdigit(*tmp))
+					{
+						oTime->nanosecond = oTime->nanosecond + (*tmp - '0') * placeValue;
+						placeValue = placeValue / 10;
+					}
+					else
+					{
+						memset(oTime, 0, sizeof(RsslTime));
+						return RSSL_RET_INVALID_DATA;
+					}
+					tmp++;
+				}
+
+				/* We've parsed all available data, and are ignoring any time zone specification */
+				return RSSL_RET_SUCCESS;
+			}
+			else
+				return RSSL_RET_INVALID_DATA;
+		}
+		else if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+		{
+			return RSSL_RET_SUCCESS;
+		}
+		else
+			return RSSL_RET_INVALID_DATA;
+	}
+
+	/* Catchall for remaining alternate formats */
+	tmp = iTimeString->data;
+
+	while (isspace(*tmp))
+		tmp++; /* skip whitespace */
+		
+	/* if all whitespaces init to blank */
+	if (tmp == end || *tmp == '\0')
 	{
 		oTime->hour = 255;
 		oTime->minute = 255;
@@ -977,10 +1227,63 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		oTime->millisecond = 65535;
 		oTime->microsecond = 2047;
 		oTime->nanosecond = 2047;
-
+		//printf("9\n");
 		return RSSL_RET_BLANK_DATA;
 	}
 
+	for (u8 = 0; isdigit(*tmp); tmp++)
+		u8 = u8 * 10 + (*tmp - '0');
+	oTime->hour = u8;
+	
+	while ((*tmp == ':') || isspace(*tmp))
+		tmp++;
+
+	if (tmp == end || *tmp == '\0')
+		return RSSL_RET_INVALID_DATA;
+
+	for (u8 = 0; isdigit(*tmp); tmp++)
+		u8 = u8 * 10 + (*tmp - '0');
+	oTime->minute = u8;
+
+	while ((*tmp == ':') || isspace(*tmp))
+		tmp++;
+
+	if ((tmp < end))
+	{
+		for (u8 = 0; isdigit(*tmp); tmp++)
+			u8 = u8 * 10 + (*tmp - '0');
+		oTime->second = u8;
+	}
+
+	while ((*tmp == ':') || isspace(*tmp))
+		tmp++;
+
+	if ((tmp < end))
+	{
+		for (u16 = 0; isdigit(*tmp); tmp++)
+			u16 = u16 * 10 + (*tmp - '0');
+		oTime->millisecond =u16;
+	}
+
+	while ((*tmp == ':') || isspace(*tmp))
+		tmp++;
+
+	if ((tmp < end))
+	{
+		for (u16 = 0; isdigit(*tmp); tmp++)
+			u16 = u16 * 10 + (*tmp - '0');
+		oTime->microsecond =u16;
+	}
+
+	while ((*tmp == ':') || isspace(*tmp))
+		tmp++;
+
+	if ((tmp < end))
+	{
+		for (u16 = 0; isdigit(*tmp); tmp++)
+			u16 = u16 * 10 + (*tmp - '0');
+		oTime->nanosecond =u16;
+	}		
 	return RSSL_RET_SUCCESS;
 }
 
@@ -994,9 +1297,12 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
 	int nano = 0;
 	int a, b, c;
 	char monthStr[32];
-	char isoDate[9];
-	char isoTime[7];
-	char isoFractionalTime[10];
+	char* tmp;
+	char* end;
+	int curr = 0;
+	int tlocation = -1;
+	RsslBuffer tmpBuf;
+	RsslRet ret;
 
 	if (iDateTimeString->data == NULL || iDateTimeString->length == 0)
 	{
@@ -1014,114 +1320,62 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
 		return RSSL_RET_BLANK_DATA;
 	}
 
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%2d:%2d:%2d.%9s", &a, &b, &c, &hour, &minute, &second, isoFractionalTime) == 7)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThh:mm:ss.nnnnnnnnn e.g. 2017-08-12T23:20:50.550967845  Or digits < 9 after decimal */
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		oDateTime->time.hour = hour;
-		oDateTime->time.minute = minute;
-		oDateTime->time.second = second;
-		if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-			return RSSL_RET_SUCCESS;
+	rsslClearDateTime(oDateTime);
+
+	tmp = iDateTimeString->data;
+	end = iDateTimeString->data + iDateTimeString->length;
+
+	/* Find out if the string is ISO 8601 encoded.  This is the case if the string has a 'T' in it, and no spaces. */
+	while (tmp < end)
+	{
+		if (*tmp == 'T')
+		{
+			tlocation = curr;
+			break;
+		}
+		else if (isspace(*tmp))
+		{
+			tlocation = -1;
+			break;
+		}
+		tmp++;
+		curr++;
 	}
 
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%2d:%2d:%2d,%9s", &a, &b, &c, &hour, &minute, &second, isoFractionalTime) == 7)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThh:mm:ss,nnnnnnnnn e.g 2017-08-12T23:20:50,550967845  Or digits < 9 after comma */
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		oDateTime->time.hour = hour;
-		oDateTime->time.minute = minute;
-		oDateTime->time.second = second;
-		if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-			return RSSL_RET_SUCCESS;
+	/* If there is a 'T' character and no space in the buffer, then setup the temp buffer for the beginning to the 'T' character for date */
+	if (tlocation != -1)
+	{
+		/* Get the date out of the string. */
+		tmpBuf.data = iDateTimeString->data;
+		tmpBuf.length = tlocation;
+		ret = rsslDateStringToDate(&(oDateTime->date), &tmpBuf);
+		if (ret != RSSL_RET_SUCCESS)
+		{
+			rsslClearDateTime(oDateTime);
+			return ret;
+		}
 
-	}
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%2d:%2d:%2d", &a, &b, &c, &hour, &minute, &second ) == 6)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThh:mm:ss e.g. 2017-08-12T23:20:50*/
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		oDateTime->time.hour = hour;
-		oDateTime->time.minute = minute;
-		oDateTime->time.second = second;
-		return  RSSL_RET_SUCCESS;
-	}
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%2d:%2d", &a, &b, &c, &hour, &minute) == 5)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThh:mm e.g. 2017-08-12T23:20*/
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		oDateTime->time.hour = hour;
-		oDateTime->time.minute = minute;
-		return  RSSL_RET_SUCCESS;
-	}
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%6s,%9s", &a, &b, &c, isoTime, isoFractionalTime) == 5)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThhmmss,nnnnnnnnn e.g. 2017-08-12T232050,932123456 Or digits < 9 after comma */
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		if( strlen(isoTime) == 6 && iso8601TimeStringToTime( &(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
+		/* Get the time out of the string */
+		/* check to make sure there is anything left in the string after the 'T' */
+		if ((RsslUInt32)tlocation + 1 >= iDateTimeString->length)
 		{
-			if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-				 return RSSL_RET_SUCCESS;
+			rsslClearDateTime(oDateTime);
+			return RSSL_RET_INVALID_DATA;
 		}
-	}
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%6s.%9s", &a, &b, &c, isoTime, isoFractionalTime) == 5)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThhmmss.nnnnnnnnn e.g. 2017-08-12T232050.932123456 Or digits < 9 after decimal*/
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		if( strlen(isoTime) == 6 && iso8601TimeStringToTime( &(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
+
+		tmpBuf.data = iDateTimeString->data + tlocation + 1;
+		tmpBuf.length = iDateTimeString->length - tlocation - 1;
+
+		ret = rsslTimeStringToTime(&(oDateTime->time), &tmpBuf);
+		if (ret != RSSL_RET_SUCCESS)
 		{
-			if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-				 return RSSL_RET_SUCCESS;
+			rsslClearDateTime(oDateTime);
+			return ret;
 		}
-	}
-	if (sscanf(iDateTimeString->data, "%4d-%2d-%2dT%6s", &a, &b, &c, isoTime) == 4)
-	{ /* Read ISO 8601 datetime format yyyy-mm-ddThhmm e.g. 2017-08-12T2320 Or yyyy-mm-ddThhmmss e.g. 2017-08-12T232015 */
-		size_t tLen = strlen(isoTime);
-		oDateTime->date.day = c;
-		oDateTime->date.month = b;
-		oDateTime->date.year = a;
-		if( (tLen== 4 || tLen == 6)  &&  iso8601TimeStringToTime(&(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
-			return  RSSL_RET_SUCCESS;
+
+		return RSSL_RET_SUCCESS;
 	}
 
-	if (sscanf(iDateTimeString->data, "%8sT%6s,%9s", isoDate, isoTime, isoFractionalTime) == 3)
-	{ /* Read ISO 8601 datetime format yyyymmddThhmmss,nnnnnnnnn e.g 20071119T083748,550967845 Or digits < 9 after comma*/
-		if( iso8601DateStringToDate(&(oDateTime->date), isoDate) == RSSL_RET_SUCCESS )
-		{
-			if( strlen(isoTime) == 6 && iso8601TimeStringToTime( &(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
-			{
-				if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-					 return RSSL_RET_SUCCESS;
-			}
-		}
-	}
-
-	if (sscanf(iDateTimeString->data, "%8sT%6s.%9s", isoDate, isoTime, isoFractionalTime) == 3)
-	{ /* Read ISO 8601 datetime format yyyymmddThhmmss.nnnnnnnnn e.g 20071119T083748.550967845 Or digits < 9 after decimal */
-		if( iso8601DateStringToDate(&(oDateTime->date), isoDate) == RSSL_RET_SUCCESS )
-		{
-			if( strlen(isoTime) == 6 && iso8601TimeStringToTime( &(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
-			{
-				if( iso8601FractionalStringTimeToTime( &(oDateTime->time), isoFractionalTime) == RSSL_RET_SUCCESS)
-					 return RSSL_RET_SUCCESS;
-			}
-		}
-	}
-
-	if (sscanf(iDateTimeString->data, "%8sT%6s", isoDate, isoTime) == 2)
-	{ /* Read ISO 8601 datetime format yyyymmddThhmmss e.g 20071119T083748 Or  yyyymmddThhmm 20071119T0837 */
-		if( iso8601DateStringToDate(&(oDateTime->date), isoDate) == RSSL_RET_SUCCESS )
-		{
-			size_t tLen = strlen(isoTime);
-			if( (tLen== 4 || tLen == 6)  &&  iso8601TimeStringToTime(&(oDateTime->time), isoTime) == RSSL_RET_SUCCESS)
-				return  RSSL_RET_SUCCESS;				
-		}
-	}
 
 	if (sscanf(iDateTimeString->data, "%d/%d/%d %d:%d:%d:%d:%d:%d", &a, &b, &c, &hour, &minute, &second, &millisecond, &micro, & nano) >= 5)
 	{

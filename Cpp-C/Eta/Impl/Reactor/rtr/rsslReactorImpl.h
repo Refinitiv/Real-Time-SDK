@@ -23,6 +23,8 @@
 #include "rtr/rsslRestClientImpl.h"
 #include "rtr/rtratomic.h"
 #include "rtr/rsslReactorTokenMgntImpl.h"
+#include "rtr/rsslJsonConverter.h"
+#include "rtr/rsslHashTable.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -65,6 +67,21 @@ typedef enum
 	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3,
 	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4,
 } RsslReactorChannelInfoImplState;
+
+/* RsslReactorPackedBufferImpl
+*  - Keeps track the length of the packed buffer */
+typedef struct
+{
+	RsslHashLink hashLink;
+	RsslUInt32 totalSize;
+	RsslUInt32 remainingSize;
+
+} RsslReactorPackedBufferImpl;
+
+RTR_C_INLINE void rsslClearReactorPackedBufferImpl(RsslReactorPackedBufferImpl* pReactorPackedBufferImpl)
+{
+	memset(pReactorPackedBufferImpl, 0, sizeof(RsslReactorPackedBufferImpl));
+}
 
 /* RsslReactorConnectInfoImpl
 * - Handles a channel information including token management */
@@ -113,6 +130,8 @@ typedef struct
 	RsslRDMMsg rdmMsg;				/* The typed message that has been decoded */
 	RsslReactorChannelSetupState channelSetupState;
 	RsslBuffer *pWriteCallAgainBuffer; /* Used when WRITE_CALL_AGAIN is returned from an internal rsslReactorSubmit() call. */
+	RsslBuffer *pWriteCallAgainUserBuffer; /* Used when WRITE_CALL_AGAIN is returned for writing JSON buffer from an rsslReactorSubmit() call by users' applications.*/
+	RsslBuffer *pUserBufferWriteCallAgain; /* Keeps the user's buffer to ensure that user passes it again. */
 
 	RsslReactorChannelRole channelRole;
 
@@ -166,6 +185,10 @@ typedef struct
 
 	RsslBuffer						temporaryURL; /* Temporary URL for redirect */
 	RsslUInt32						temporaryURLBufLength;
+
+	/* For Websocket connections */
+	RsslBool						sendWSPingMessage; /* This is used to force sending ping message even though some messages is flushed to network. */
+	RsslHashTable					packedBufferHashTable; /* The hash table to keep track of packed buffers */
 
 } RsslReactorChannelImpl;
 
@@ -311,6 +334,33 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 	return RSSL_RET_SUCCESS;
 }
 
+RTR_C_INLINE void _rsslCleanUpPackedBufferHashTable(RsslReactorChannelImpl *pReactorChannel)
+{
+	if (pReactorChannel->packedBufferHashTable.queueList)
+	{
+		if (pReactorChannel->packedBufferHashTable.elementCount > 0)
+		{
+			RsslUInt32 index;
+			RsslQueueLink *pLink = NULL;
+			RsslReactorPackedBufferImpl *pPackedBufferImpl;
+			for (index = 0; index < pReactorChannel->packedBufferHashTable.queueCount; index++)
+			{
+				RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannel->packedBufferHashTable.queueList[index], pLink)
+				{
+					pPackedBufferImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorPackedBufferImpl, hashLink, pLink);
+
+					rsslHashTableRemoveLink(&pReactorChannel->packedBufferHashTable, &pPackedBufferImpl->hashLink);
+
+					free(pPackedBufferImpl);
+				}
+			}
+		}
+
+		rsslHashTableCleanup(&pReactorChannel->packedBufferHashTable);
+	}
+}
+
+
 /* All RsslReactorChannelImpl's member variables must be reset properly in rsslResetReactorChannel
    as the RsslReactorChannelImpl can be reused from the channel pool */
 RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pReactorChannel)
@@ -350,6 +400,8 @@ RTR_C_INLINE void rsslResetReactorChannelState(RsslReactorImpl *pReactorImpl, Rs
 	pReactorChannel->readRet = 0;
 	pReactorChannel->writeRet = 0;
 	pReactorChannel->pWriteCallAgainBuffer = 0;
+	pReactorChannel->pWriteCallAgainUserBuffer = 0;
+	pReactorChannel->pUserBufferWriteCallAgain = 0;
 }
 
 
@@ -387,7 +439,12 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	rsslClearBuffer(&pReactorChannel->temporaryURL);
 	pReactorChannel->temporaryURLBufLength = 0;
 
+	/* Additional WebSocket options */
+	pReactorChannel->sendWSPingMessage = RSSL_FALSE; 
+
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
+
+	memset(&pReactorChannel->packedBufferHashTable, 0, sizeof(RsslHashTable));
 }
 
 /* Verify that the given RsslReactorChannel is valid for this RsslReactor */
@@ -453,7 +510,7 @@ typedef enum
 
 /* RsslReactorImpl
  * The Reactor handles reading messages and commands from the application.
- * Primary responsiblities include:
+ * Primary responsibilities include:
  *   - Reading messages from transport
  *   - Calling back the application via callback functions, decoding messages to the RDM structs when appropriate.
  *   - Adding and removing channels in response to network events or requests from user.
@@ -517,11 +574,22 @@ struct _RsslReactorImpl
 	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
 	RsslBool			rsslWorkerStarted;
 	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
+
+	
+	RsslBool			jsonConverterInitialized; 	/* This is used to indicate whether the RsslJsonConverter is initialized */
+	RsslJsonConverter	*pJsonConverter; 
+	RsslDataDictionary	**pDictionaryList; /* Creates a list of pointer to pointer with the size of 1. */
+	RsslReactorServiceNameToIdCallback	*pServiceNameToIdCallback; /* Sets a callback specified by users */
+	RsslReactorJsonConversionEventCallback	*pJsonConversionEventCallback; /* Sets a callback specified by users to receive JSON error message. */
+	void				*userSpecPtr; /* Users's closure for callback functions */
+	RsslErrorInfo		*pJsonErrorInfo; /* Place holder for JSON error messages */
+	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 {
 	memset(pReactorImpl, 0, sizeof(RsslReactorImpl));
+	pReactorImpl->closeChannelFromFailure = RSSL_TRUE;
 }
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);

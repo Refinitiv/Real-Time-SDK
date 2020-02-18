@@ -190,6 +190,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pNotifierEvent)
 			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
@@ -202,6 +203,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -216,6 +218,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -230,6 +233,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -244,6 +248,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -258,6 +263,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
+		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
@@ -338,6 +344,33 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		{
 			rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
 				"Failed to uninitialize RsslRestClient. Text: %s", rsslError.text);
+		}
+	}
+
+	/* Checks whether the JSON converter has been initialized and cleaning up associated memory. */
+	if (pReactorImpl->jsonConverterInitialized == RSSL_TRUE)
+	{
+		pReactorImpl->jsonConverterInitialized = RSSL_FALSE;
+
+		rsslJsonUninitialize();
+
+		if (pReactorImpl->pJsonConverter)
+		{
+			RsslJsonConverterError rjcError;
+			rsslDestroyRsslJsonConverter(pReactorImpl->pJsonConverter, &rjcError);
+			pReactorImpl->pJsonConverter = NULL;
+		}
+
+		if (pReactorImpl->pDictionaryList)
+		{
+			free(pReactorImpl->pDictionaryList);
+			pReactorImpl->pDictionaryList = NULL;
+		}
+
+		if (pReactorImpl->pJsonErrorInfo)
+		{
+			free(pReactorImpl->pJsonErrorInfo);
+			pReactorImpl->pJsonErrorInfo = NULL;
 		}
 	}
 
@@ -1132,6 +1165,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									"Failed to unregister write notification for initializing channel.");
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 						}
+
 						ret = rsslInitChannel(pReactorChannel->reactorChannel.pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
 
 
@@ -1197,7 +1231,12 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							/* Flush */
 							ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-							pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+
+							/* Checks whether the users wants the Reactor to always a ping message for the JSON protocol by not updating the lastPingSentMs field */
+							if (pReactorChannel->sendWSPingMessage == RSSL_FALSE)
+							{
+								pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+							}
 
 							if (ret < 0)
 							{
@@ -1274,44 +1313,54 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
 		{
+			RsslBool sendPingMessage = RSSL_TRUE;
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
 
-			/* Check if the elapsed time is greater than our ping-send interval. */
-			if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor )
+			/* Checks whether to send a ping message for the JSON protocol. */
+			if (pReactorChannel->reactorChannel.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 			{
+				sendPingMessage = pReactorChannel->sendWSPingMessage; 
+			}
 
-				/* If so, send a ping. */
-				ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-				if (ret < 0)
+			if (sendPingMessage)
+			{
+				/* Check if the elapsed time is greater than our ping-send interval. */
+				if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor)
 				{
-					rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
+					/* If so, send a ping. */
+					ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
+					if (ret < 0)
+					{
+						rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+					}
+					else
+					{
+						if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
+						{
+							RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+							rsslClearReactorChannelPingEvent(pEvent);
+
+							pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+							if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+								== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							}
+						}
+
+						pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+						_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+					}
 				}
 				else
 				{
-					if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
-					{
-						RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
-						rsslClearReactorChannelPingEvent(pEvent);
-
-						pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-
-						if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
-							== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-						{
-							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-						}
-					}
-
-					pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
-					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+					/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
+					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
 				}
-			}
-			else
-			{
-				/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
-				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
 			}
 
 			/* Process any channels that are waiting for a timeout. */
@@ -1538,9 +1587,36 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 						{
 						case RSSL_CONN_TYPE_ENCRYPTED:
-							transport = RSSL_RD_TP_TCP;
+						{
+							if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_SOCKET)
+							{
+								transport = RSSL_RD_TP_TCP;
+							}
+							else if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
+							{
+								transport = RSSL_RD_TP_WEBSOCKET;
+							}
+							else
+							{
+								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
+
+								/* Notify error back to the application via the channel event */
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+								continue;
+							}
+
 							break;
+						}
 						default:
+
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 								"Invalid connection type(%d) for requesting EDP-RT service discovery.",
 								transport);
@@ -2847,8 +2923,35 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 						{
 						case RSSL_CONN_TYPE_ENCRYPTED:
-							transport = RSSL_RD_TP_TCP;
+						{
+							if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_SOCKET)
+							{
+								transport = RSSL_RD_TP_TCP;
+							}
+							else if (pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
+							{
+								transport = RSSL_RD_TP_WEBSOCKET;
+							}
+							else
+							{
+								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
+
+								/* Notify error back to the application via the channel event */
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+									return;
+								}
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+								continue;
+							}
+
 							break;
+						}
 						default:
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 								"Invalid connection type(%d) for requesting EDP-RT service discovery.",

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "channelHandler.h"
@@ -55,11 +55,34 @@ RsslRet channelHandlerWriteChannel(ChannelHandler *pHandler, ChannelInfo *pChann
 	RsslError error;
 	RsslUInt32 bytes, uncompBytes;
 	RsslChannel *pChannel = pChannelInfo->pChannel;
+	RsslBuffer	*pMsgBuffer;
+
+	pMsgBuffer = 0;
+	if (pHandler->convCallback && pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		/* convert message to JSON */
+		if ((pMsgBuffer = (pHandler->convCallback)(pHandler, pChannelInfo, pBuffer)) == NULL)
+		{
+			printf("channelHandlerWriteChannel() Failed to convert RWF > JSON\n");
+			return RSSL_RET_FAILURE;
+		}
+	}
+	else
+		pMsgBuffer = pBuffer;
 
 	/* Write buffer */
-	ret = rsslWrite(pChannel, pBuffer, RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes, &error);
+	ret = rsslWrite(pChannel, pMsgBuffer, RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes, &error);
+
 	if (ret >= RSSL_RET_SUCCESS)
+	{
+		if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+			rsslReleaseBuffer(pBuffer, &error);
+
 		return ret;
+	}
+
+	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		rsslReleaseBuffer(pMsgBuffer, &error);
 
 	switch (ret)
 	{

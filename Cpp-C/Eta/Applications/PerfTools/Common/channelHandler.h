@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* channelHandler.h
@@ -59,6 +59,7 @@ typedef struct _ChannelHandler ChannelHandler;
 typedef RsslRet ChannelActiveCallback(ChannelHandler*, ChannelInfo*);
 typedef RsslRet MsgCallback(ChannelHandler*, ChannelInfo*, RsslBuffer*);
 typedef void ChannelInactiveCallback(ChannelHandler*, ChannelInfo*, RsslError*);
+typedef RsslBuffer *MsgConverterCallback(ChannelHandler*, ChannelInfo*, RsslBuffer*);
 
 /* Maintains a list of open RsslChannels and handles transport-related functionality on them
  * such as reading, initializing, flushing, and pings. */
@@ -69,6 +70,7 @@ struct _ChannelHandler {
 	void					*pUserSpec;					/* Pointer to application-specified data. */
 	ChannelActiveCallback	*channelActiveCallback;		/* Function to be called when a channel finishes initializing and becomes active. */
 	ChannelInactiveCallback	*channelInactiveCallback;	/* Function to be called when a channel is closed. */
+	MsgConverterCallback	*convCallback;				/* Function to be called when a channel needs to call Json protocol converter. */
 };
 
 /* Requests that the ChannelHandler begin calling rsslFlush() for a channel.  Used when a call to rsslWrite()
@@ -83,6 +85,7 @@ RTR_C_INLINE void initChannelHandler(ChannelHandler *pHandler,
 		ChannelActiveCallback *channelActiveCallback,
 		ChannelInactiveCallback *channelInactiveCallback,
 		MsgCallback *msgCallback,
+		MsgConverterCallback *convCallback,
 		void *pUserSpec)
 {
 	rsslInitQueue(&pHandler->activeChannelList);
@@ -90,6 +93,7 @@ RTR_C_INLINE void initChannelHandler(ChannelHandler *pHandler,
 	pHandler->channelActiveCallback = channelActiveCallback;
 	pHandler->channelInactiveCallback = channelInactiveCallback;
 	pHandler->msgCallback = msgCallback;
+	pHandler->convCallback = convCallback;
 	pHandler->pUserSpec = pUserSpec;
 }
 

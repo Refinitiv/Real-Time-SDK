@@ -144,6 +144,10 @@ RTR_C_ALWAYS_INLINE void __rtr_bswap64ToDouble(rtrDouble *___to, rtrUInt64 ___fr
 #endif
 
 
+#define RTR_SET_BIT(___dptr,___bitn)	( ((rtrUInt8*)(___dptr))[0] |=  (1 << ___bitn) )
+#define RTR_UNSET_BIT(___dptr,___bitn)	( ((rtrUInt8*)(___dptr))[0] &= ~(1 <<  ___bitn) )
+#define RTR_GET_BIT(___dval,___bitn)	( (___dval >> ___bitn) & 0x01 )
+
 #define RTR_PUT_8(___dptr,___sval) (*((rtrUInt8*)___dptr) = ___sval, 1)
 #define RTR_GET_8(___dval,___sptr) (___dval = *((rtrUInt8*)___sptr), 1)
 

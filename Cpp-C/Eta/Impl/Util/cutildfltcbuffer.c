@@ -156,6 +156,8 @@ static int rtr_dfltcIncreasePool( rtr_dfltcbufferpool_t *pool, int bufs )
 			mblk->datab = 0;
 			mblk->flags = 0;
 			mblk->protocol = 0;
+			mblk->protocolHdr = 0;
+			mblk->protocolHdrLength = 0;
 			mblk->fragOffset = 0;
 			mblk->priority = 0;
 			if (rtr_cbufferCppOverhead && rtr_cbufferCppInit)
@@ -224,6 +226,8 @@ static int rtr_dfltcIncreaseMblks( rtr_dfltcbufferpool_t *pool, int bufs )
 			mblk->datab = 0;
 			mblk->flags = rtr_dfltcMsgbPutInFreeList;
 			mblk->protocol = 0;
+			mblk->protocolHdr = 0;
+			mblk->protocolHdrLength = 0;
 			mblk->fragOffset = 0;
 			mblk->priority = 0;
 			mblk->pool = &(pool->bufpool);
@@ -374,6 +378,8 @@ static rtr_msgb_t *rtr_dfltcIntAllocMsg(rtr_dfltcbufferpool_t* rtr_dfltcpool, si
 			mblk->maxLength = size;
 			mblk->datab = dblk;
 			mblk->protocol = 0;
+			mblk->protocolHdr = 0;
+			mblk->protocolHdrLength = 0;
 			mblk->fragOffset = 0;
 			mblk->priority = 0;
 
@@ -613,6 +619,8 @@ rtr_msgb_t *rtr_dfltcAllocMaxMsg(rtr_bufferpool_t *pool)
 	mblk->maxLength = dblk->length;
 	mblk->datab = dblk;
 	mblk->protocol = 0;
+	mblk->protocolHdr = 0;
+	mblk->protocolHdrLength = 0;
 	mblk->fragOffset = 0;
 	mblk->priority = 0;
 	dblk->numRefs++;
@@ -683,6 +691,8 @@ rtr_msgb_t *rtr_dfltcDupMsg(rtr_bufferpool_t *pool, rtr_msgb_t *curmblk)
 		newmblk->maxLength = curmblk->maxLength;
 		newmblk->datab = curmblk->datab;
 		newmblk->protocol = curmblk->protocol;
+		newmblk->protocolHdr = curmblk->protocolHdr;
+		newmblk->protocolHdrLength = curmblk->protocolHdrLength;
 		newmblk->fragOffset = curmblk->fragOffset;
 		newmblk->priority = curmblk->priority;
 	
