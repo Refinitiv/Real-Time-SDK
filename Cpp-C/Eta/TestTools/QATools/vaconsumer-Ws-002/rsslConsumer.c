@@ -158,10 +158,10 @@ void printUsageAndExit(char *appName)
 			"\n -libcurlName specifies the name of the libcurl shared object"
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
-		  // API QA
-		    "\n -testCompressionZlib turns on Zlib compression.\n"
-		    "\n -jsonExpandEnum changes jsonExpandEnumField from default (FALSE) to TRUE.\n"
-		   // END API QA
+		        // API QA
+		        "\n -testCompressionZlib turns on Zlib compression.\n"
+		        "\n -jsonExpandEnum changes jsonExpandEnumField from default (FALSE) to TRUE.\n"
+		        // END API QA
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
 
@@ -209,10 +209,10 @@ void parseCommandLine(int argc, char **argv)
 				break;
 			}
 			if (strcmp("-jsonExpandEnum", argv[i]) == 0)
-				{
+			{
 				jsonExpandEnum = RSSL_TRUE;
 				break;
-				}
+			}
 			//END API QA
 		}
 
