@@ -669,7 +669,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 		}
 
 		/* If there arne't 2 digits or this is the end of the buffer, error out */
-		if (tmp == end || *tmp == '/0')
+		if (tmp == end || *tmp == '\0')
 			return RSSL_RET_INVALID_DATA;
 
 		month = tmpInt;
@@ -687,7 +687,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			}
 
 			/* Make sure that there were 2 digits, and that we're at the end of the buffer */
-			if (numberCount != 2 && (tmp != end || *tmp != '/0'))
+			if (numberCount != 2 && (tmp != end || *tmp != '\0'))
 				return RSSL_RET_INVALID_DATA;
 
 			oDate->day = tmpInt;
@@ -709,7 +709,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			}
 
 			/* Make sure that there were 2 digits, and that we're at the end of the buffer */
-			if (numberCount != 2 && (tmp != end || *tmp != '/0'))
+			if (numberCount != 2 && (tmp != end || *tmp != '\0'))
 				return RSSL_RET_INVALID_DATA;
 
 			oDate->day = tmpInt;
