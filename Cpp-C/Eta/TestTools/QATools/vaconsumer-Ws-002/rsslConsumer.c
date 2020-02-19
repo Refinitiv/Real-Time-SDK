@@ -1144,6 +1144,16 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++; // Do nothing as the parameter is already handled
 			}
+                        //API QA
+			else if (strcmp("-testCompressionZlib", argv[i]) == 0)
+			{
+				i++; // Do nothing as the parameter is already handled
+			}
+			else if (strcmp("-jsonExpandEnum", argv[i]) == 0)
+			{
+				i++; // Do nothing as the parameter is already handled
+			}
+			//END API QA
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
