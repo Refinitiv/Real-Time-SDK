@@ -53,7 +53,7 @@ RsslRet rsslJsonSessionSetDictionary(RsslJsonSession *rjcSession, RsslDataDictio
 RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslChannel *pChannel, 
 								RsslBuffer *rwfBuffer, RsslError *pError);
 RsslRet rsslJsonSessionMsgConvertFromJson(RsslJsonSession *rjcSession, RsslChannel *pChannel,
-								RsslBuffer *rwfBuffer, RsslBuffer *jsonBuffer, RsslError *pError);
+								RsslBuffer *rwfBuffer, RsslError *pError);
 #ifdef __cplusplus
 };
 #endif

@@ -199,7 +199,7 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 	 * However, conversion from display strings to RWF is not currently supported.  
 	 * Setting the property below will cause display strings to be converted to blank, 
 	 * instead of resulting in errors. */
-	flag = RSSL_FALSE;
+	flag = RSSL_TRUE;
 	if (rsslJsonConverterSetProperty(rjcSession->pJsonConverter,
 								RSSL_JSON_CPC_ALLOW_ENUM_DISPLAY_STRINGS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
@@ -306,19 +306,13 @@ RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslCha
 }
 
 RsslRet rsslJsonSessionMsgConvertFromJson(RsslJsonSession *rjcSession, RsslChannel *pChannel,
-								RsslBuffer *decodedMsg, RsslBuffer *pJsonBuffer, RsslError *pError)
+								RsslBuffer *decodedMsg, RsslError *pError)
 {
 	RsslJsonConverterError rjcError;
 	RsslDecodeJsonMsgOptions *decodeOptions;
 	RsslJsonMsg *jsonMsg;
 	RsslRet	ret;
 
-	if (pJsonBuffer != NULL)
-	{
-		if ((ret = rsslJsonSessionResetState(rjcSession, pJsonBuffer, pError)) != RSSL_RET_SUCCESS)
-			// Check to see if need to send JSON error msg
-			return RSSL_RET_FAILURE;
-	}
 	decodeOptions = &(rjcSession->state.decodeOptions);	
 	jsonMsg = &(rjcSession->state.jsonMsg);	
 

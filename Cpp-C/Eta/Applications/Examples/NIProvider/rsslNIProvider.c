@@ -1086,99 +1086,112 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslBuffer tempBuffer;
 	char tempBuf[MAX_MSG_SIZE];
 	RsslError error;
+	RsslRet jsonRet = RSSL_RET_END_OF_CONTAINER;
+	RsslBool setJsonBuffer = RSSL_FALSE;
 
-	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	do
 	{
-		tempBuffer.length = MAX_MSG_SIZE;
-		tempBuffer.data = tempBuf;
-
-		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
-
-		if (ret == RSSL_RET_FAILURE)
+		if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
-			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+			if (setJsonBuffer == RSSL_FALSE)
+			{
+				if ((ret = rsslJsonSessionResetState((RsslJsonSession*)(chnl->userSpecPtr), buffer, &error)) != RSSL_RET_SUCCESS)
+					// Check to see if need to send JSON error msg
+					return RSSL_RET_FAILURE;
+
+				setJsonBuffer = RSSL_TRUE;
+			}
+			tempBuffer.length = MAX_MSG_SIZE;
+			tempBuffer.data = tempBuf;
+
+			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, &error);
+
+			if (jsonRet == RSSL_RET_FAILURE)
+			{
+				printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+				return RSSL_RET_FAILURE;
+			}
+
+			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
+				return RSSL_RET_SUCCESS;
+		}
+		else
+		{
+			tempBuffer.length = buffer->length;
+			tempBuffer.data = buffer->data;
+		}
+	
+		/* clear decode iterator */
+		rsslClearDecodeIterator(&dIter);
+	
+		/* set version info */
+		rsslSetDecodeIteratorRWFVersion(&dIter, chnl->majorVersion, chnl->minorVersion);
+
+		rsslSetDecodeIteratorBuffer(&dIter, buffer);
+
+		ret = rsslDecodeMsg(&dIter, &msg);				
+		if (ret != RSSL_RET_SUCCESS)
+		{
+			printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, buffer->length);
 			return RSSL_RET_FAILURE;
 		}
 
-		if (ret == RSSL_RET_READ_PING)
-			return RSSL_RET_SUCCESS;
-	}
-	else
-	{
-		tempBuffer.length = buffer->length;
-		tempBuffer.data = buffer->data;
-	}
-	
-	/* clear decode iterator */
-	rsslClearDecodeIterator(&dIter);
-	
-	/* set version info */
-	rsslSetDecodeIteratorRWFVersion(&dIter, chnl->majorVersion, chnl->minorVersion);
-
-	rsslSetDecodeIteratorBuffer(&dIter, buffer);
-
-	ret = rsslDecodeMsg(&dIter, &msg);				
-	if (ret != RSSL_RET_SUCCESS)
-	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, buffer->length);
-		return RSSL_RET_FAILURE;
-	}
-
-	switch ( msg.msgBase.domainType )
-	{
-		case RSSL_DMT_LOGIN:
-			if (processLoginResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
-			{
-				if (isLoginStreamClosed())
+		switch ( msg.msgBase.domainType )
+		{
+			case RSSL_DMT_LOGIN:
+				if (processLoginResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
 				{
-					return RSSL_RET_FAILURE;
+					if (isLoginStreamClosed())
+					{
+						return RSSL_RET_FAILURE;
+					}
+					else if (isLoginStreamClosedRecoverable())
+					{
+						recoverConnection();
+					}
+					else if (isLoginStreamSuspect())
+					{
+						resetRefreshComplete();
+						isInLoginSuspectState = RSSL_TRUE;
+					}
 				}
-				else if (isLoginStreamClosedRecoverable())
+				else
 				{
-					recoverConnection();
+					if (isInLoginSuspectState)
+					{
+						isInLoginSuspectState = RSSL_FALSE;
+					}
 				}
-				else if (isLoginStreamSuspect())
+				break;
+			case RSSL_DMT_DICTIONARY:
+				if (msg.msgBase.msgClass == RSSL_MC_REQUEST)
 				{
-					resetRefreshComplete();
-					isInLoginSuspectState = RSSL_TRUE;
+					if (isDictionaryReady())
+					{
+						if (processDictionaryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+						{
+							return RSSL_RET_FAILURE;
+						}
+					}
+					else
+						return RSSL_RET_FAILURE;
 				}
-			}
-			else
-			{
-				if (isInLoginSuspectState)
+				else
 				{
-					isInLoginSuspectState = RSSL_FALSE;
-				}
-			}
-			break;
-		case RSSL_DMT_DICTIONARY:
-			if (msg.msgBase.msgClass == RSSL_MC_REQUEST)
-			{
-				if (isDictionaryReady())
-				{
-					if (processDictionaryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+					if (processDictionaryResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
 					{
 						return RSSL_RET_FAILURE;
 					}
 				}
-				else
-					return RSSL_RET_FAILURE;
-			}
-			else
-			{
-				if (processDictionaryResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+				break;
+			default:
+				if (sendNotSupportedStatus(chnl, &msg) != RSSL_RET_SUCCESS)
 				{
 					return RSSL_RET_FAILURE;
 				}
-			}
-			break;
-		default:
-			if (sendNotSupportedStatus(chnl, &msg) != RSSL_RET_SUCCESS)
-			{
-				return RSSL_RET_FAILURE;
-			}
-			break;
-	}
+				break;
+		}
+	} while (jsonRet != RSSL_RET_END_OF_CONTAINER);
 
 	return RSSL_RET_SUCCESS;
 }

@@ -832,136 +832,149 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslBuffer tempBuffer;
 	char tempBuf[MAX_MSG_SIZE];
 	RsslError error;
+	RsslRet jsonRet = RSSL_RET_END_OF_CONTAINER;
+	RsslBool setJsonBuffer = RSSL_FALSE;
 
-	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	do
 	{
-		tempBuffer.length = MAX_MSG_SIZE;
-		tempBuffer.data = tempBuf;
-
-		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
-
-		if (ret == RSSL_RET_FAILURE)
+		if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
-			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+			if (setJsonBuffer == RSSL_FALSE)
+			{
+				if ((ret = rsslJsonSessionResetState((RsslJsonSession*)(chnl->userSpecPtr), buffer, &error)) != RSSL_RET_SUCCESS)
+					// Check to see if need to send JSON error msg
+					return RSSL_RET_FAILURE;
+
+				setJsonBuffer = RSSL_TRUE;
+			}
+			tempBuffer.length = MAX_MSG_SIZE;
+			tempBuffer.data = tempBuf;
+
+			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, &error);
+
+			if (jsonRet == RSSL_RET_FAILURE)
+			{
+				printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
+				return RSSL_RET_FAILURE;
+			}
+
+			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
+				return RSSL_RET_SUCCESS;
+		}
+		else
+		{
+			tempBuffer.length = buffer->length;
+			tempBuffer.data = buffer->data;
+		}
+	
+		/* clear decode iterator */
+		rsslClearDecodeIterator(&dIter);
+	
+		/* set version info */
+		rsslSetDecodeIteratorRWFVersion(&dIter, chnl->majorVersion, chnl->minorVersion);
+
+		rsslSetDecodeIteratorBuffer(&dIter, &tempBuffer);
+
+		ret = rsslDecodeMsg(&dIter, &msg);				
+		if (ret != RSSL_RET_SUCCESS)
+		{
+			printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, buffer->length);
+			removeClientSessionForChannel(chnl);
 			return RSSL_RET_FAILURE;
 		}
 
-		if (ret == RSSL_RET_READ_PING)
-			return RSSL_RET_SUCCESS;
-	}
-	else
-	{
-		tempBuffer.length = buffer->length;
-		tempBuffer.data = buffer->data;
-	}
-	
-	/* clear decode iterator */
-	rsslClearDecodeIterator(&dIter);
-	
-	/* set version info */
-	rsslSetDecodeIteratorRWFVersion(&dIter, chnl->majorVersion, chnl->minorVersion);
-
-	rsslSetDecodeIteratorBuffer(&dIter, &tempBuffer);
-
-	ret = rsslDecodeMsg(&dIter, &msg);				
-	if (ret != RSSL_RET_SUCCESS)
-	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, buffer->length);
-		removeClientSessionForChannel(chnl);
-		return RSSL_RET_FAILURE;
-	}
-
-	switch ( msg.msgBase.domainType )
-	{
-		case RSSL_DMT_LOGIN:
-			if (processLoginRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
-			{
-				removeClientSessionForChannel(chnl);
-				return RSSL_RET_FAILURE;
-			}
-			if (!isDictionaryReady())
-			{
-				 RsslLoginRequestInfo* loginReqInfo = findLoginReqInfo(chnl);
-				 if (loginReqInfo->SupportProviderDictionaryDownload)
-				 {
-					sendDictionaryRequests(chnl);
-					printf("Send Dictionary Request\n");
-				 }
-				 else
-				 {
-					printf("\nDictionary could not be downloaded, the connection does not support Provider Dictionary Download\n");
-					cleanUpAndExit();
-				 }
-			}
-
-			break;
-		case RSSL_DMT_SOURCE:
-			if (processSourceDirectoryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
-			{
-				removeClientSessionForChannel(chnl);
-				return RSSL_RET_FAILURE;
-			}
-			break;
-		case RSSL_DMT_DICTIONARY:
-			if (msg.msgBase.msgClass == RSSL_MC_REQUEST)
-			{
-				if (isDictionaryReady())
+		switch ( msg.msgBase.domainType )
+		{
+			case RSSL_DMT_LOGIN:
+				if (processLoginRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
 				{
-			if (processDictionaryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
-			{
-				removeClientSessionForChannel(chnl);
-				return RSSL_RET_FAILURE;
-			}
+					removeClientSessionForChannel(chnl);
+					return RSSL_RET_FAILURE;
+				}
+				if (!isDictionaryReady())
+				{
+					 RsslLoginRequestInfo* loginReqInfo = findLoginReqInfo(chnl);
+					 if (loginReqInfo->SupportProviderDictionaryDownload)
+					 {
+						sendDictionaryRequests(chnl);
+						printf("Send Dictionary Request\n");
+					 }
+					 else
+					 {
+						printf("\nDictionary could not be downloaded, the connection does not support Provider Dictionary Download\n");
+						cleanUpAndExit();
+					 }
+				}
+
+				break;
+			case RSSL_DMT_SOURCE:
+				if (processSourceDirectoryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+				{
+					removeClientSessionForChannel(chnl);
+					return RSSL_RET_FAILURE;
+				}
+				break;
+			case RSSL_DMT_DICTIONARY:
+				if (msg.msgBase.msgClass == RSSL_MC_REQUEST)
+				{
+					if (isDictionaryReady())
+					{
+				if (processDictionaryRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+				{
+					removeClientSessionForChannel(chnl);
+					return RSSL_RET_FAILURE;
+				}
+					}
+					else
+					{
+						removeClientSessionForChannel(chnl);
+						return RSSL_RET_FAILURE;
+					}
 				}
 				else
 				{
-					removeClientSessionForChannel(chnl);
-					return RSSL_RET_FAILURE;
+					if (processDictionaryResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+					{
+						removeClientSessionForChannel(chnl);
+						return RSSL_RET_FAILURE;
+					}
 				}
-			}
-			else
-			{
-				if (processDictionaryResponse(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
+				break;
+			case RSSL_DMT_MARKET_PRICE:
+			case RSSL_DMT_MARKET_BY_ORDER:
+			case RSSL_DMT_SYMBOL_LIST:
+			case RSSL_DMT_MARKET_BY_PRICE:
+			case RSSL_DMT_YIELD_CURVE:
+				if (isDictionaryReady() && processItemRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
 				{
 					removeClientSessionForChannel(chnl);
 					return RSSL_RET_FAILURE;
 				}
-			}
-			break;
-		case RSSL_DMT_MARKET_PRICE:
-		case RSSL_DMT_MARKET_BY_ORDER:
-		case RSSL_DMT_SYMBOL_LIST:
-		case RSSL_DMT_MARKET_BY_PRICE:
-		case RSSL_DMT_YIELD_CURVE:
-			if (isDictionaryReady() && processItemRequest(chnl, &msg, &dIter) != RSSL_RET_SUCCESS)
-			{
-				removeClientSessionForChannel(chnl);
-				return RSSL_RET_FAILURE;
-			}
-			break;
-		default:
-			switch(msg.msgBase.msgClass)                                                                                                                                                                    
-			{
-				case RSSL_MC_REQUEST:                                                                                                                                                                             
-					if (sendNotSupportedStatus(chnl, &msg) != RSSL_RET_SUCCESS)
-					{                                                                                                                                                                                             
-						removeClientSessionForChannel(chnl);
-						return RSSL_RET_FAILURE;
-					}                                                                                                                                                                                             
-					break;                                                                                                                                                                                        
+				break;
+			default:
+				switch(msg.msgBase.msgClass)                                                                                                                                                                    
+				{
+					case RSSL_MC_REQUEST:                                                                                                                                                                             
+						if (sendNotSupportedStatus(chnl, &msg) != RSSL_RET_SUCCESS)
+						{                                                                                                                                                                                             
+							removeClientSessionForChannel(chnl);
+							return RSSL_RET_FAILURE;
+						}                                                                                                                                                                                             
+						break;                                                                                                                                                                                        
 
-				case RSSL_MC_CLOSE:
-					printf("Received Close message with StreamId %d and unsupported domain %u\n\n",
-							msg.msgBase.streamId, msg.msgBase.domainType);
-					break;
+					case RSSL_MC_CLOSE:
+						printf("Received Close message with StreamId %d and unsupported domain %u\n\n",
+								msg.msgBase.streamId, msg.msgBase.domainType);
+						break;
 
-				default:
-					printf("Received unhandled message with MsgClass %u, StreamId %d and unsupported domain %u\n\n",
-							msg.msgBase.msgClass, msg.msgBase.streamId, msg.msgBase.domainType);
-					break;
-			}
-			break;
-	}
+					default:
+						printf("Received unhandled message with MsgClass %u, StreamId %d and unsupported domain %u\n\n",
+								msg.msgBase.msgClass, msg.msgBase.streamId, msg.msgBase.domainType);
+						break;
+				}
+				break;
+		}
+	} while (jsonRet != RSSL_RET_END_OF_CONTAINER);
 
 	return RSSL_RET_SUCCESS;
 }
