@@ -1584,6 +1584,12 @@ RsslInt32 ipcReadPrependTransportHdr(void* transport, char* buffer, int len, rip
 	return (0);
 }
 
+/* This is additional header length for transport protocol */
+RsslInt32 ipcAdditionalHeaderLength()
+{
+	return 0;
+}
+
 /* This additional call is needed for other transports to have the ability to parse their
  * protocol header before passing along what is being read within this abstracted call for
  * _SOCKET typ connection */
@@ -2121,7 +2127,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					else
 					{
 						compBuf.next_out = compressedmb1->buffer + headerLength;
-						compBuf.avail_out = (unsigned long)(compressedmb1->maxLength - headerLength - footer_size);
+						compBuf.avail_out = (unsigned long)(compressedmb1->maxLength - headerLength - footer_size - (*(rsslSocketChannel->protocolFuncs->additionalTransportHdrLength))());
 					}
 					/* comp inputs stay the same */
 					compBuf.next_in = msgb->buffer + headerLength;
@@ -2442,7 +2448,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						{
 							/* have to continue compressing */
 							compBuf.next_out = compressedmb2->buffer + headerLength;
-							compBuf.avail_out = (unsigned long)(compressedmb2->maxLength - headerLength - footer_size);
+							compBuf.avail_out = (unsigned long)(compressedmb2->maxLength - headerLength - footer_size - (*(rsslSocketChannel->protocolFuncs->additionalTransportHdrLength))());
 
 							if ((*(rsslSocketChannel->outCompFuncs->compress)) (rsslSocketChannel->c_stream_out, &compBuf, 0, error) < 0)
 							{
@@ -10623,6 +10629,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 			protHdrFuncs[i].readTransportMsg = 0;
 			protHdrFuncs[i].prependTransportHdr = 0;
 			protHdrFuncs[i].getPoolBuffer = 0;
+			protHdrFuncs[i].additionalTransportHdrLength = 0;
 		}
 		ipcSetProtFuncs();
 

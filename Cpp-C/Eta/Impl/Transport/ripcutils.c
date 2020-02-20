@@ -1561,6 +1561,7 @@ int ipcSetProtFuncs()
 	func.readTransportMsg = ipcReadTransportMsg;  // call readTransport
 	func.readPrependTransportHdr = ipcReadPrependTransportHdr; // Not defined, only a stub
 	func.prependTransportHdr = ipcPrependTransportHdr;  // Not defined, only a stub
+	func.additionalTransportHdrLength = ipcAdditionalHeaderLength; // Not defined, only a stub
 	func.getPoolBuffer = ipcGetPoolBuffer;  // Get a buffer from the socketChannel inputbuffer pool
 	func.getGlobalBuffer = ipcAllocGblMsg;  // Get a simple buffer from the global pool
 	

@@ -431,6 +431,7 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *, RsslRet *, RsslInt32 *, RsslIn
 RsslInt32 rwsReadWsConnMsg(void *, char *, int , ripcRWFlags , RsslError *);
 RsslInt32 rwsReadTransportMsg(void *, char * , int, ripcRWFlags , RsslError *error);
 RsslInt32 rwsReadPrependTransportHdr(void *, char *, int, ripcRWFlags, int *,RsslError *error);
+RsslInt32 rwsAdditionalHeaderLength();
 RsslRet rwsWriteWebSocket(RsslSocketChannel *, rsslBufferImpl *, RsslInt32, RsslInt32 *, RsslInt32 *, RsslInt32, RsslError *);
 RsslInt32 rwsWriteAndFlush(RsslSocketChannel *, rtr_msgb_t *, int *, RsslError *);
 RsslUInt8 rwsGetWsHdrSize(RsslUInt64 , RsslInt32 );
@@ -509,6 +510,7 @@ RTR_C_INLINE RsslRet rwsInitializeProtocolFuncs()
 	funcs.readTransportMsg = rwsReadTransportMsg;  /* intended for during data message flow with reading as much as possible */
 	funcs.readPrependTransportHdr = rwsReadPrependTransportHdr;
 	funcs.prependTransportHdr = rwsPrependWsHdr;
+	funcs.additionalTransportHdrLength = rwsAdditionalHeaderLength;
 	funcs.getPoolBuffer = rwsGetPoolBuffer;
 	funcs.getGlobalBuffer = rwsGetSimpleBuffer;
 	

@@ -258,6 +258,7 @@ typedef struct {
 	RsslInt32(*readTransportMsg)(void *, char *, int , ripcRWFlags , RsslError *);
 	RsslInt32(*readPrependTransportHdr)(void *, char *, int, ripcRWFlags, int*, RsslError *);
 	RsslInt32(*prependTransportHdr)(void *, rtr_msgb_t *, RsslError *);
+	RsslInt32(*additionalTransportHdrLength)(); /* This is additional header length for transport protocols */
 	rtr_msgb_t *(*getPoolBuffer)(rtr_bufferpool_t *, size_t);
 	rtr_msgb_t *(*getGlobalBuffer)(size_t);
 
@@ -789,6 +790,7 @@ rtr_msgb_t *ipcGetGlobalBuffer(RsslInt32 );
 RsslInt32 ipcReadTransportMsg(void *, char *, int , ripcRWFlags , RsslError *);
 RsslInt32 ipcReadPrependTransportHdr(void *, char *, int, ripcRWFlags, int *, RsslError *);
 RsslInt32 ipcPrependTransportHdr(void *, rtr_msgb_t *, RsslError *);
+RsslInt32 ipcAdditionalHeaderLength();
 
 extern RsslRet ipcShutdownServer(RsslServerSocketChannel* socket, RsslError *error);
 extern RsslRet ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error);
