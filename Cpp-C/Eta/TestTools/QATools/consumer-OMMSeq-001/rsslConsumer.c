@@ -1376,6 +1376,7 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	char tempBuf[65535];
 	RsslError error;
 	RsslRet jsonRet = RSSL_RET_END_OF_CONTAINER;
+	RsslBool setJsonBuffer = RSSL_FALSE;
 
 
 	/* If this is a packed JSON buffer, iterate over it until the conversion funciton returns RSSL_RET_END_OF_CONTAINER */
@@ -1383,10 +1384,19 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	{
 		if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
+			if (setJsonBuffer == RSSL_FALSE)
+			{
+				if ((ret = rsslJsonSessionResetState((RsslJsonSession*)(chnl->userSpecPtr), buffer, &error)) != RSSL_RET_SUCCESS)
+					// Check to see if need to send JSON error msg
+					return RSSL_RET_FAILURE;
+
+				setJsonBuffer = RSSL_TRUE;
+			}
+
 			tempBuffer.length = 65535;
 			tempBuffer.data = tempBuf;
 
-			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, &error);
 
 			if (jsonRet == RSSL_RET_FAILURE)
 			{
@@ -1395,7 +1405,7 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 			}
 
 			/* Pings cannot be packed */
-			if (jsonRet == RSSL_RET_READ_PING)
+			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
 				return RSSL_RET_SUCCESS;
 		}
 		else

@@ -838,21 +838,33 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 	RsslBuffer tempBuffer;
 	char tempBuf[MAX_MSG_SIZE];
 	RsslError error;
+	RsslRet jsonRet = RSSL_RET_END_OF_CONTAINER;
+	RsslBool setJsonBuffer = RSSL_FALSE;
 
+	do
+	{
 	if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 	{
+			if (setJsonBuffer == RSSL_FALSE)
+			{
+				if ((ret = rsslJsonSessionResetState((RsslJsonSession*)(chnl->userSpecPtr), buffer, &error)) != RSSL_RET_SUCCESS)
+					// Check to see if need to send JSON error msg
+					return RSSL_RET_FAILURE;
+
+				setJsonBuffer = RSSL_TRUE;
+			}
 		tempBuffer.length = MAX_MSG_SIZE;
 		tempBuffer.data = tempBuf;
 
-		ret = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, &error);
 
-		if (ret == RSSL_RET_FAILURE)
+			if (jsonRet == RSSL_RET_FAILURE)
 		{
 			printf("\nJson to RWF conversion failed.  Additional information: %s\n", error.text);
 			return RSSL_RET_FAILURE;
 		}
 
-		if (ret == RSSL_RET_READ_PING)
+			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
 			return RSSL_RET_SUCCESS;
 	}
 	else
@@ -968,6 +980,7 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 			}
 			break;
 	}
+	} while (jsonRet != RSSL_RET_END_OF_CONTAINER);
 
 	return RSSL_RET_SUCCESS;
 }

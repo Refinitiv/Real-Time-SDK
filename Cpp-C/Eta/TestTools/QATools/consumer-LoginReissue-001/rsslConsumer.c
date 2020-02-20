@@ -1,4 +1,11 @@
 /*
+ * This source code is provided under the Apache 2.0 license and is provided
+ * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
+ * LICENSE.md for details. 
+ * Copyright (C) 2019 Refinitiv. All rights reserved.
+*/
+
+/*
  * This is the main file for the rsslConsumer application. It is
  * a single-threaded client application. The application uses
  * either the operating parameters entered by the user or a default
@@ -1168,6 +1175,7 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	char tempBuf[65535];
 	RsslError error;
 	RsslRet jsonRet = RSSL_RET_END_OF_CONTAINER;
+	RsslBool setJsonBuffer = RSSL_FALSE;
 
 
 	/* If this is a packed JSON buffer, iterate over it until the conversion funciton returns RSSL_RET_END_OF_CONTAINER */
@@ -1175,10 +1183,19 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	{
 		if (chnl->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
+			if (setJsonBuffer == RSSL_FALSE)
+			{
+				if ((ret = rsslJsonSessionResetState((RsslJsonSession*)(chnl->userSpecPtr), buffer, &error)) != RSSL_RET_SUCCESS)
+					// Check to see if need to send JSON error msg
+					return RSSL_RET_FAILURE;
+
+				setJsonBuffer = RSSL_TRUE;
+			}
+
 			tempBuffer.length = 65535;
 			tempBuffer.data = tempBuf;
 
-			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, buffer, &error);
+			jsonRet = rsslJsonSessionMsgConvertFromJson((RsslJsonSession*)(chnl->userSpecPtr), chnl, &tempBuffer, &error);
 
 			if (jsonRet == RSSL_RET_FAILURE)
 			{
@@ -1187,7 +1204,7 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 			}
 
 			/* Pings cannot be packed */
-			if (jsonRet == RSSL_RET_READ_PING)
+			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
 				return RSSL_RET_SUCCESS;
 		}
 		else
