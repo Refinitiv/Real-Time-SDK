@@ -45,6 +45,7 @@ endif()
 									librsslJsonConverter 
 									librssl
 									GTest::Main
+									CJSON::CJSON
 									${SYSTEM_LIBRARIES} )
 
 	set_target_properties( rsslJsonConverterTest
