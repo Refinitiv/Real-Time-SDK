@@ -1,7 +1,15 @@
+/*|-----------------------------------------------------------------------------
+*| This source code is provided under the Apache 2.0 license –
+*| and is provided AS IS with no warranty or guarantee of fit for purpose. –
+*| See the project's LICENSE.md for details. –
+*| Copyright (C) 2020 Refinitiv. All rights reserved. –
+*|-----------------------------------------------------------------------------
+*/
+
 #include "rsslJsonConverterTestBase.h"
 
 using namespace std;
-using namespace rapidjson; 
+using namespace json; 
 
 /* Fixture for ElementListTests that has conversion code. */
 class ElementListTests : public MsgConversionTestBase
@@ -1521,11 +1529,9 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			ASSERT_EQ(RSSL_DT_JSON, elementEntry.dataType);
 			ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeBuffer(&_dIter, &decodeJsonBuffer));
 
-			document.Parse(decodeJsonBuffer.data, decodeJsonBuffer.length);
-			ASSERT_FALSE(document.HasParseError()) << "** JSON Parse Error (offset " << document.GetErrorOffset() << "): " 
-				<< GetParseError_En(document.GetParseError());
-
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&document));
+			document.Parse(decodeJsonBuffer.data);
+            ASSERT_TRUE(NULL == document.GetParseError()) << "** JSON Parse Error: " << document.GetParseError() << "\n";
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&Value(document)));
 			foundJsonElement = true;
 		}
 		else

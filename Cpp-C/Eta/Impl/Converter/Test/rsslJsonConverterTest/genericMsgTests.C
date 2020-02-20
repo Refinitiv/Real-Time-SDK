@@ -1,11 +1,21 @@
+/*|-----------------------------------------------------------------------------
+*| This source code is provided under the Apache 2.0 license –
+*| and is provided AS IS with no warranty or guarantee of fit for purpose. –
+*| See the project's LICENSE.md for details. –
+*| Copyright (C) 2020 Refinitiv. All rights reserved. –
+*|-----------------------------------------------------------------------------
+*/
+
 #include "rsslJsonConverterTestBase.h"
 
 using namespace std;
-using namespace rapidjson; 
+using namespace json; 
 
 /* Fixture for GenericMsgTests that has conversion code. */
 class GenericMsgTests : public MsgConversionTestBase
 {
+   public:
+	   GenericMsgTests() {}
 };
 
 /* Parameters for GenericMsg tests. */
@@ -59,6 +69,8 @@ class GenericMsgTestParams
 
 class GenericMsgMembersTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<GenericMsgTestParams>
 {
+  public:
+	  GenericMsgMembersTestFixture() {}
 };
 
 /* Test that converts a GenericMsg with a FieldList from RWF to JSON, and back to RWF. */

@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+*| This source code is provided under the Apache 2.0 license –
+*| and is provided AS IS with no warranty or guarantee of fit for purpose. –
+*| See the project's LICENSE.md for details. –
+*| Copyright (C) 2020 Refinitiv. All rights reserved. –
+*|-----------------------------------------------------------------------------
+*/
+
 #include "rsslJsonConverterTestBase.h"
 
 /* Fixture for ErrorMsgTests that has conversion code. */
@@ -75,8 +83,6 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 	ErrorMsgTestParams const &params = GetParam();
 
 	_jsonDocument.SetObject();
-
-	Document::AllocatorType& allocator = _jsonDocument.GetAllocator();
 
 	if(params.customJsonMessage)
 	{

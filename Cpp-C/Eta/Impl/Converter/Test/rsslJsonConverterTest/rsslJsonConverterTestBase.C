@@ -1,9 +1,17 @@
+/*|-----------------------------------------------------------------------------
+*| This source code is provided under the Apache 2.0 license –
+*| and is provided AS IS with no warranty or guarantee of fit for purpose. –
+*| See the project's LICENSE.md for details. –
+*| Copyright (C) 2020 Refinitiv. All rights reserved. –
+*|-----------------------------------------------------------------------------
+*/
+
 #include "rsslJsonConverterTestBase.h"
 #include <fstream>
 #include "cpp-base64/base64.h"
 
 using namespace std;
-using namespace rapidjson; 
+using namespace json;
 
 /** Size of the RSSL encoding buffer. */
 static const int RSSL_BUFFER_SIZE = 65535;
@@ -515,9 +523,8 @@ void MsgConversionTestBase::convertRsslToJson(RsslJsonProtocolType protocolType,
 	if (cmdlPrintJsonBuffer)
 		printf("** Converted JSON buffer: %.*s\n", _jsonBuffer.length, _jsonBuffer.data);
 
-	_jsonDocument.Parse(_jsonBuffer.data, _jsonBuffer.length);
-	ASSERT_FALSE(_jsonDocument.HasParseError()) << "** JSON Parse Error (offset " << _jsonDocument.GetErrorOffset() << "): " 
-		<< GetParseError_En(_jsonDocument.GetParseError());
+	_jsonDocument.Parse(_jsonBuffer.data);
+    ASSERT_TRUE(NULL == _jsonDocument.GetParseError()) << "** JSON Parse Error: " << _jsonDocument.GetParseError() << "\n";
 	ASSERT_TRUE(_jsonDocument.IsObject());
 }
 
@@ -655,9 +662,8 @@ void MsgConversionTestBase::getJsonToRsslError()
 		if (cmdlPrintJsonBuffer)
 			printf("** Error message buffer: %.*s\n", outBuffer.length, outBuffer.data);
 
-		_jsonDocument.Parse(outBuffer.data, outBuffer.length);
-		ASSERT_FALSE(_jsonDocument.HasParseError()) << "** JSON Parse Error (offset " << _jsonDocument.GetErrorOffset() << "): "
-			<< GetParseError_En(_jsonDocument.GetParseError());
+        _jsonDocument.Parse(outBuffer.data);
+        ASSERT_TRUE(NULL == _jsonDocument.GetParseError()) << "** JSON Parse Error: " << _jsonDocument.GetParseError()<<"\n";
 		ASSERT_TRUE(_jsonDocument.IsObject());
 	}
 }
