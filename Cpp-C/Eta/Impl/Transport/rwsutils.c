@@ -3967,6 +3967,11 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 	}
 }
 
+RsslInt32 rwsAdditionalHeaderLength()
+{
+	return RWS_MAX_HEADER_SIZE;
+}
+
 /*********************************************
  *	The following defines the functions need
  *	for writing ipc messages
