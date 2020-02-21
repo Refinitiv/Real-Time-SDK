@@ -11,7 +11,7 @@
 #include "gtest/gtest.h"
 
 #include <cjson/cJSON.h>
-#include "cJSONCppWrapper/cJsonCppWrapper.h"
+#include "cJsonCppWrapper/cJsonCppWrapper.h"
 
 #include "rtr/rsslJsonConverter.h"
 #ifdef _RSSLJC_SHARED_LIBRARY

@@ -38,8 +38,8 @@ endif()
 							PRIVATE
 								${Eta_SOURCE_DIR}/Impl/Converter/Include
 							PUBLIC
-								.
-								rsslJsonConverterTest
+								${Eta_SOURCE_DIR}/Impl/Converter/Test/rsslJsonConverterTest
+								${Eta_SOURCE_DIR}/Impl/Converter/Test
 							)
 	target_link_libraries( rsslJsonConverterTest 
 									librsslJsonConverter 
