@@ -670,7 +670,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(BUFFER_FIELD.fieldName.data));
 				ASSERT_TRUE(_jsonDocument["Fields"][BUFFER_FIELD.fieldName.data].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["Fields"][BUFFER_FIELD.fieldName.data]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["Fields"][BUFFER_FIELD.fieldName.data]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Fields"].HasMember(BUFFER_FIELD.fieldName.data));
@@ -711,7 +711,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.opaque)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(OPAQUE_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["Fields"][OPAQUE_FIELD.fieldName.data]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["Fields"][OPAQUE_FIELD.fieldName.data]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Fields"].HasMember(OPAQUE_FIELD.fieldName.data));
@@ -730,7 +730,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.fieldList)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(FIELDLIST_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Fields"][FIELDLIST_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Fields"][FIELDLIST_FIELD.fieldName.data], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Fields"].HasMember(FIELDLIST_FIELD.fieldName.data));
@@ -739,7 +739,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.elementList)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(ELEMENTLIST_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["Fields"][ELEMENTLIST_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["Fields"][ELEMENTLIST_FIELD.fieldName.data], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Fields"].HasMember(ELEMENTLIST_FIELD.fieldName.data));
@@ -748,42 +748,42 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.filterList)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(FILTERLIST_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(&_jsonDocument["Fields"][FILTERLIST_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(_jsonDocument["Fields"][FILTERLIST_FIELD.fieldName.data], params.protocolType));
 			}
 
 			/* Check Map field. */
 			if (params.map)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(MAP_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(&_jsonDocument["Fields"][MAP_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(_jsonDocument["Fields"][MAP_FIELD.fieldName.data], params.protocolType));
 			}
 
 			/* Check Message field. */
 			if (params.msg)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(MSG_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["Fields"][MSG_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["Fields"][MSG_FIELD.fieldName.data], params.protocolType));
 			}
 
 			/* Check Vector field. */
 			if (params.vector)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(VECTOR_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(&_jsonDocument["Fields"][VECTOR_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(_jsonDocument["Fields"][VECTOR_FIELD.fieldName.data], params.protocolType));
 			}
 
 			/* Check Series field. */
 			if (params.series)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(SERIES_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(&_jsonDocument["Fields"][SERIES_FIELD.fieldName.data], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(_jsonDocument["Fields"][SERIES_FIELD.fieldName.data], params.protocolType));
 			}
 
 			/* Check Json field. */
 			if (params.json)
 			{
 				ASSERT_TRUE(_jsonDocument["Fields"].HasMember(JSON_FIELD.fieldName.data));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&_jsonDocument["Fields"][JSON_FIELD.fieldName.data]));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(_jsonDocument["Fields"][JSON_FIELD.fieldName.data]));
 			}
 			break;
 		}
@@ -1065,7 +1065,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(BUFFER_FIELD.fieldIdString));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][BUFFER_FIELD.fieldIdString].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["d"]["d"][BUFFER_FIELD.fieldIdString]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["d"]["d"][BUFFER_FIELD.fieldIdString]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"].HasMember(BUFFER_FIELD.fieldIdString));
@@ -1106,7 +1106,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.opaque)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(OPAQUE_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["d"]["d"][OPAQUE_FIELD.fieldIdString]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["d"]["d"][OPAQUE_FIELD.fieldIdString]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"].HasMember(OPAQUE_FIELD.fieldIdString));
@@ -1125,7 +1125,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.fieldList)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(FIELDLIST_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["d"][FIELDLIST_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["d"][FIELDLIST_FIELD.fieldIdString], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"].HasMember(FIELDLIST_FIELD.fieldIdString));
@@ -1134,7 +1134,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.elementList)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(ELEMENTLIST_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["d"]["d"][ELEMENTLIST_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["d"]["d"][ELEMENTLIST_FIELD.fieldIdString], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"].HasMember(ELEMENTLIST_FIELD.fieldIdString));
@@ -1143,35 +1143,35 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 			if (params.filterList)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(FILTERLIST_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(&_jsonDocument["d"]["d"][FILTERLIST_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(_jsonDocument["d"]["d"][FILTERLIST_FIELD.fieldIdString], params.protocolType));
 			}
 
 			/* Check Map field. */
 			if (params.map)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(MAP_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(&_jsonDocument["d"]["d"][MAP_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(_jsonDocument["d"]["d"][MAP_FIELD.fieldIdString], params.protocolType));
 			}
 
 			/* Check Message field. */
 			if (params.msg)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(MSG_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["d"]["d"][MSG_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["d"]["d"][MSG_FIELD.fieldIdString], params.protocolType));
 			}
 
 			/* Check Vector field. */
 			if (params.vector)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(VECTOR_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(&_jsonDocument["d"]["d"][VECTOR_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(_jsonDocument["d"]["d"][VECTOR_FIELD.fieldIdString], params.protocolType));
 			}
 
 			/* Check Series field. */
 			if (params.series)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"].HasMember(SERIES_FIELD.fieldIdString));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(&_jsonDocument["d"]["d"][SERIES_FIELD.fieldIdString], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(_jsonDocument["d"]["d"][SERIES_FIELD.fieldIdString], params.protocolType));
 			}
 
 			/* (Json container type Not supported in JSON1) */
@@ -1424,7 +1424,7 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 
 			document.Parse(decodeJsonBuffer.data);
             ASSERT_TRUE(NULL == document.GetParseError()) << "** JSON Parse Error: " << document.GetParseError() << "\n";
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&Value(document)));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(Value(document)));
 			foundJsonField = true;
 		}
 		else

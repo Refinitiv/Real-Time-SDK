@@ -237,7 +237,7 @@ TEST_P(ArrayTypesTestFixture, ArrayTypesTest)
 			ASSERT_TRUE(_jsonDocument["Fields"][ARRAY_FIELD.fieldName.data].IsObject());
 
 			/* Check Array */
-			const Value& jsonArray = _jsonDocument["Fields"][ARRAY_FIELD.fieldName.data];
+			const Value jsonArray = _jsonDocument["Fields"][ARRAY_FIELD.fieldName.data];
 			ASSERT_TRUE(jsonArray.HasMember("Type"));
 			ASSERT_TRUE(jsonArray["Type"].IsString());
 			ASSERT_TRUE(jsonArray.HasMember("Data"));
@@ -462,12 +462,17 @@ TEST_P(ArrayTypesTestFixture, ArrayTypesTest)
 
 				case RSSL_DT_BUFFER:
 					ASSERT_STREQ("Buffer", jsonArray["Type"].GetString());
-
-					if (params.entryCount >= 1)
-						ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[0], &jsonArray["Data"][0]));
-
-					if (params.entryCount >= 2)
-						ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[1], &jsonArray["Data"][1]));
+                    
+                    if (params.entryCount >= 1)
+                    {
+                      Value jsonArrayData0 = jsonArray["Data"][0];
+                      ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[0], jsonArrayData0));
+                    }
+                    if (params.entryCount >= 2)
+                    {
+                      Value jsonArrayData1 = jsonArray["Data"][1];
+                      ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[1], jsonArrayData1));
+                    }
 					break;
 
 				case RSSL_DT_ASCII_STRING:
@@ -879,10 +884,15 @@ TEST_P(ArrayTypesTestFixture, ArrayTypesTest)
 
 				case RSSL_DT_BUFFER:
 					if (params.entryCount >= 1)
-						ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[0], &jsonArray["d"][0]));
-
-					if (params.entryCount >= 2)
-						ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[1], &jsonArray["d"][1]));
+                    {
+                        Value jsonArrayD0 = jsonArray["d"][0];
+					    ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[0], jsonArrayD0));
+                    }
+                    if (params.entryCount >= 2)
+                    {
+                      Value jsonArrayD1 = jsonArray["d"][1];
+                      ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&arrayBuffers[1], jsonArrayD1));
+                    }
 					break;
 
 				case RSSL_DT_ASCII_STRING:

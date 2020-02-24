@@ -182,7 +182,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("ExtHdr"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["ExtHdr"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["ExtHdr"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("ExtHdr"));
@@ -238,7 +238,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 			if (params.permData)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("PermData"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["PermData"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["PermData"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("PermData"));
@@ -264,7 +264,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 
 			/* Check nested UpdateMsg. */
 			ASSERT_TRUE(_jsonDocument.HasMember("Message"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["Message"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["Message"], params.protocolType));
 
 			break;
 		}
@@ -312,7 +312,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("e"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["e"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["e"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("e"));
@@ -368,7 +368,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 			if (params.permData)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("p"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["p"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["p"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("p"));
@@ -394,7 +394,7 @@ TEST_P(PostMsgMembersTestFixture, PostMsgMembersTest)
 
 			/* Check nested UpdateMsg. */
 			ASSERT_TRUE(_jsonDocument.HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["d"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["d"], params.protocolType));
 			break;
 		}
 

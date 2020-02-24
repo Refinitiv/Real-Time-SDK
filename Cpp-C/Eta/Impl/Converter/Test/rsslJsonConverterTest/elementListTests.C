@@ -18,30 +18,30 @@ class ElementListTests : public MsgConversionTestBase
 
 /** Most element entries follow a {"Type":"...", "Data": ... } format. Use this function to check correct name, correct Type member, 
  * and that the Data member is present. */
-static void checkJsonElementEntryNameAndFormat(const Value *entry, const char *name, const char* type)
+static void checkJsonElementEntryNameAndFormat(const Value &entry, const char *name, const char* type)
 {
-	ASSERT_TRUE((*entry).HasMember(name));
-	ASSERT_TRUE((*entry)[name].IsObject());
+	ASSERT_TRUE(entry.HasMember(name));
+	ASSERT_TRUE(entry[name].IsObject());
 
-	ASSERT_TRUE((*entry)[name].HasMember("Type"));
-	ASSERT_TRUE((*entry)[name]["Type"].IsString());
-	EXPECT_STREQ(type, (*entry)[name]["Type"].GetString());
+	ASSERT_TRUE(entry[name].HasMember("Type"));
+	ASSERT_TRUE(entry[name]["Type"].IsString());
+	EXPECT_STREQ(type, entry[name]["Type"].GetString());
 
-	ASSERT_TRUE((*entry)[name].HasMember("Data"));
+	ASSERT_TRUE(entry[name].HasMember("Data"));
 }
 
 /** Use this function to check correct name, correct Type member, and that the Data member is present for a JSON1 element. */
-static void checkJson1ElementEntryNameAndFormat(const Value *entry, const char *name, RsslDataTypes type)
+static void checkJson1ElementEntryNameAndFormat(const Value &entry, const char *name, RsslDataTypes type)
 {
-	ASSERT_TRUE((*entry).HasMember("n"));
-	ASSERT_TRUE((*entry)["n"].IsString());
-	EXPECT_STREQ(name, (*entry)["n"].GetString());
+	ASSERT_TRUE(entry.HasMember("n"));
+	ASSERT_TRUE(entry["n"].IsString());
+	EXPECT_STREQ(name, entry["n"].GetString());
 
-	ASSERT_TRUE((*entry).HasMember("t"));
-	ASSERT_TRUE((*entry)["t"].IsNumber());
-	EXPECT_EQ(type, (*entry)["t"].GetInt());
+	ASSERT_TRUE(entry.HasMember("t"));
+	ASSERT_TRUE(entry["t"].IsNumber());
+	EXPECT_EQ(type, entry["t"].GetInt());
 
-	ASSERT_TRUE((*entry).HasMember("d"));
+	ASSERT_TRUE(entry.HasMember("d"));
 }
 
 /* Parameters for ElementListTests tests. */
@@ -571,7 +571,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Int element. */
 			if (params.intValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], INT_FIELD.fieldName.data, "Int"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], INT_FIELD.fieldName.data, "Int"));
 				ASSERT_TRUE(_jsonDocument["Elements"][INT_FIELD.fieldName.data]["Data"].IsNumber());
 				EXPECT_EQ(rsslInt, _jsonDocument["Elements"][INT_FIELD.fieldName.data]["Data"].GetInt());
 			}
@@ -592,7 +592,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Float element. */
 			if (params.floatValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], FLOAT_FIELD.fieldName.data, "Float"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], FLOAT_FIELD.fieldName.data, "Float"));
 				ASSERT_TRUE(_jsonDocument["Elements"][FLOAT_FIELD.fieldName.data]["Data"].IsNumber());
 				EXPECT_NEAR(rsslFloat, _jsonDocument["Elements"][FLOAT_FIELD.fieldName.data]["Data"].GetFloat(), 0.099);
 			}
@@ -602,7 +602,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Double element. */
 			if (params.doubleValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DOUBLE_FIELD.fieldName.data, "Double"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DOUBLE_FIELD.fieldName.data, "Double"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DOUBLE_FIELD.fieldName.data]["Data"].IsNumber());
 				EXPECT_NEAR(rsslDouble, _jsonDocument["Elements"][DOUBLE_FIELD.fieldName.data]["Data"].GetDouble(), 0.099);
 			}
@@ -612,7 +612,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Real element. */
 			if (params.real)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], REAL_FIELD.fieldName.data, "Real"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], REAL_FIELD.fieldName.data, "Real"));
 				ASSERT_TRUE(_jsonDocument["Elements"][REAL_FIELD.fieldName.data]["Data"].IsNumber());
 				EXPECT_NEAR(39.05, _jsonDocument["Elements"][REAL_FIELD.fieldName.data]["Data"].GetDouble(), 0.099);
 			}
@@ -622,7 +622,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Date element. */
 			if (params.date)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DATE_FIELD.fieldName.data, "Date"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DATE_FIELD.fieldName.data, "Date"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DATE_FIELD.fieldName.data]["Data"].IsString());
 				EXPECT_STREQ("1955-11-12", _jsonDocument["Elements"][DATE_FIELD.fieldName.data]["Data"].GetString());
 			}
@@ -632,7 +632,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Time element. */
 			if (params.time)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], TIME_FIELD.fieldName.data, "Time"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], TIME_FIELD.fieldName.data, "Time"));
 				ASSERT_TRUE(_jsonDocument["Elements"][TIME_FIELD.fieldName.data]["Data"].IsString());
 				EXPECT_STREQ("22:04:00", _jsonDocument["Elements"][TIME_FIELD.fieldName.data]["Data"].GetString());
 			}
@@ -642,7 +642,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check DateTime element. */
 			if (params.dateTime)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DATETIME_FIELD.fieldName.data, "DateTime"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DATETIME_FIELD.fieldName.data, "DateTime"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DATETIME_FIELD.fieldName.data]["Data"].IsString());
 				EXPECT_STREQ("1955-11-12T22:04:00", _jsonDocument["Elements"][DATETIME_FIELD.fieldName.data]["Data"].GetString());
 			}
@@ -652,7 +652,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Qos element. */
 			if (params.qos)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], QOS_FIELD.fieldName.data, "Qos"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], QOS_FIELD.fieldName.data, "Qos"));
 
 				ASSERT_TRUE(_jsonDocument["Elements"][QOS_FIELD.fieldName.data]["Data"].IsObject());
 				ASSERT_TRUE(_jsonDocument["Elements"][QOS_FIELD.fieldName.data]["Data"].HasMember("Timeliness"));
@@ -669,7 +669,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check State element. */
 			if (params.state)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], STATE_FIELD.fieldName.data, "State"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], STATE_FIELD.fieldName.data, "State"));
 
 				ASSERT_TRUE(_jsonDocument["Elements"][STATE_FIELD.fieldName.data]["Data"].IsObject());
 				ASSERT_TRUE(_jsonDocument["Elements"][STATE_FIELD.fieldName.data]["Data"].HasMember("Stream"));
@@ -685,7 +685,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Enum element. */
 			if (params.enumValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ENUM_FIELD.fieldName.data, "Enum"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ENUM_FIELD.fieldName.data, "Enum"));
 				ASSERT_TRUE(_jsonDocument["Elements"][ENUM_FIELD.fieldName.data]["Data"].IsNumber());
 				EXPECT_EQ(rsslEnum, _jsonDocument["Elements"][ENUM_FIELD.fieldName.data]["Data"].GetInt());
 			}
@@ -695,7 +695,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Array element. */
 			if (params.array)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ARRAY_FIELD.fieldName.data, "Array"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ARRAY_FIELD.fieldName.data, "Array"));
 				ASSERT_TRUE(_jsonDocument["Elements"][ARRAY_FIELD.fieldName.data]["Data"].IsObject());
 
 				/* Check array type. */
@@ -721,8 +721,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Buffer element. */
 			if (params.buffer)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], BUFFER_FIELD.fieldName.data, "Buffer"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["Elements"][BUFFER_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], BUFFER_FIELD.fieldName.data, "Buffer"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["Elements"][BUFFER_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(BUFFER_FIELD.fieldName.data));
@@ -741,7 +741,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Utf8String element. */
 			if (params.utf8String)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], UTF8_STRING_FIELD.fieldName.data, "Utf8String"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], UTF8_STRING_FIELD.fieldName.data, "Utf8String"));
 				ASSERT_TRUE(_jsonDocument["Elements"][UTF8_STRING_FIELD.fieldName.data]["Data"].IsString());
 				EXPECT_STREQ(UTF8_STRING.data, _jsonDocument["Elements"][UTF8_STRING_FIELD.fieldName.data]["Data"].GetString());
 			}
@@ -751,7 +751,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check RmtesString element. */
 			if (params.rmtesString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], RMTES_STRING_FIELD.fieldName.data, "RmtesString"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], RMTES_STRING_FIELD.fieldName.data, "RmtesString"));
 				ASSERT_TRUE(_jsonDocument["Elements"][RMTES_STRING_FIELD.fieldName.data]["Data"].IsString());
 
 				/* RMTES content should be converted to UTF8 in JSON (and then back to the RMTES string when converted back to RWF). */
@@ -763,8 +763,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Opaque element. */
 			if (params.opaque)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], OPAQUE_FIELD.fieldName.data, "Opaque"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["Elements"][OPAQUE_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], OPAQUE_FIELD.fieldName.data, "Opaque"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["Elements"][OPAQUE_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(OPAQUE_FIELD.fieldName.data));
@@ -772,7 +772,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Xml element. */
 			if (params.xml)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], XML_FIELD.fieldName.data, "Xml"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], XML_FIELD.fieldName.data, "Xml"));
 				ASSERT_TRUE(_jsonDocument["Elements"][XML_FIELD.fieldName.data]["Data"].IsString());
 				EXPECT_STREQ(XML_BUFFER.data, _jsonDocument["Elements"][XML_FIELD.fieldName.data]["Data"].GetString());
 			}
@@ -782,8 +782,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check FieldList element. */
 			if (params.fieldList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], FIELDLIST_FIELD.fieldName.data, "FieldList"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Elements"][FIELDLIST_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], FIELDLIST_FIELD.fieldName.data, "FieldList"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Elements"][FIELDLIST_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(FIELDLIST_FIELD.fieldName.data));
@@ -791,8 +791,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check ElementList element. */
 			if (params.elementList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ELEMENTLIST_FIELD.fieldName.data, "ElementList"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["Elements"][ELEMENTLIST_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ELEMENTLIST_FIELD.fieldName.data, "ElementList"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["Elements"][ELEMENTLIST_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(ELEMENTLIST_FIELD.fieldName.data));
@@ -800,7 +800,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check FilterList element. */
 			if (params.filterList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], FILTERLIST_FIELD.fieldName.data, "FilterList"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], FILTERLIST_FIELD.fieldName.data, "FilterList"));
 				ASSERT_TRUE(_jsonDocument["Elements"][FILTERLIST_FIELD.fieldName.data]["Data"].IsObject());
 
 				ASSERT_TRUE(_jsonDocument["Elements"][FILTERLIST_FIELD.fieldName.data]["Data"].HasMember("Entries"));
@@ -816,14 +816,14 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 
 				ASSERT_TRUE(_jsonDocument["Elements"][FILTERLIST_FIELD.fieldName.data]["Data"]["Entries"][0].HasMember("Elements"));
 
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["Elements"][FILTERLIST_FIELD.fieldName.data]["Data"]["Entries"][0]["Elements"]));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["Elements"][FILTERLIST_FIELD.fieldName.data]["Data"]["Entries"][0]["Elements"]));
 
 			}
 
 			/* Check Map element. */
 			if (params.map)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], MAP_FIELD.fieldName.data, "Map"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], MAP_FIELD.fieldName.data, "Map"));
 				ASSERT_TRUE(_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"].IsObject());
 				ASSERT_TRUE(_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"].HasMember("Entries"));
 				ASSERT_TRUE(_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"]["Entries"].IsArray());
@@ -831,14 +831,14 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 
 				/* Map Entry */
 				ASSERT_TRUE(_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"]["Entries"][0].HasMember("Fields"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"]["Entries"][0]["Fields"]));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Elements"][MAP_FIELD.fieldName.data]["Data"]["Entries"][0]["Fields"]));
 			}
 
 			/* Check Vector element. */
 			if (params.vector)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], VECTOR_FIELD.fieldName.data, "Vector"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(&_jsonDocument["Elements"][VECTOR_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], VECTOR_FIELD.fieldName.data, "Vector"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(_jsonDocument["Elements"][VECTOR_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(VECTOR_FIELD.fieldName.data));
@@ -846,8 +846,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Series element. */
 			if (params.series)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], SERIES_FIELD.fieldName.data, "Series"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(&_jsonDocument["Elements"][SERIES_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], SERIES_FIELD.fieldName.data, "Series"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(_jsonDocument["Elements"][SERIES_FIELD.fieldName.data]["Data"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Elements"].HasMember(SERIES_FIELD.fieldName.data));
@@ -855,15 +855,15 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Message element. */
 			if (params.msg)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], MSG_FIELD.fieldName.data, "Msg"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["Elements"][MSG_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], MSG_FIELD.fieldName.data, "Msg"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["Elements"][MSG_FIELD.fieldName.data]["Data"]));
 			}
 
 			/* Check Json element. */
 			if (params.json)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], JSON_FIELD.fieldName.data, "Json"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&_jsonDocument["Elements"][JSON_FIELD.fieldName.data]["Data"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], JSON_FIELD.fieldName.data, "Json"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(_jsonDocument["Elements"][JSON_FIELD.fieldName.data]["Data"]));
 			}
 			break;
 		}
@@ -913,7 +913,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Int element. */
 			if (params.intValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], INT_FIELD.fieldName.data, RSSL_DT_INT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], INT_FIELD.fieldName.data, RSSL_DT_INT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNumber());
 				EXPECT_EQ(rsslInt, _jsonDocument["d"]["d"][currentEntry]["d"].GetInt());
 				++currentEntry;
@@ -922,7 +922,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check UInt element. */
 			if (params.uintValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], UINT_FIELD.fieldName.data, RSSL_DT_UINT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], UINT_FIELD.fieldName.data, RSSL_DT_UINT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNumber());
 				EXPECT_EQ(rsslUInt, _jsonDocument["d"]["d"][currentEntry]["d"].GetInt());
 				++currentEntry;
@@ -931,7 +931,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Float element. */
 			if (params.floatValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], FLOAT_FIELD.fieldName.data, RSSL_DT_FLOAT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], FLOAT_FIELD.fieldName.data, RSSL_DT_FLOAT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNumber());
 				EXPECT_NEAR(rsslFloat, _jsonDocument["d"]["d"][currentEntry]["d"].GetFloat(), 0.099);
 				++currentEntry;
@@ -940,7 +940,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Double element. */
 			if (params.doubleValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DOUBLE_FIELD.fieldName.data, RSSL_DT_DOUBLE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DOUBLE_FIELD.fieldName.data, RSSL_DT_DOUBLE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNumber());
 				EXPECT_NEAR(rsslDouble, _jsonDocument["d"]["d"][currentEntry]["d"].GetDouble(), 0.099);
 				++currentEntry;
@@ -949,7 +949,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Real element. */
 			if (params.real)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], REAL_FIELD.fieldName.data, RSSL_DT_REAL));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], REAL_FIELD.fieldName.data, RSSL_DT_REAL));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].HasMember("h"));
@@ -965,7 +965,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Date element. */
 			if (params.date)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DATE_FIELD.fieldName.data, RSSL_DT_DATE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DATE_FIELD.fieldName.data, RSSL_DT_DATE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].HasMember("y"));
@@ -985,7 +985,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Time element. */
 			if (params.time)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], TIME_FIELD.fieldName.data, RSSL_DT_TIME));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], TIME_FIELD.fieldName.data, RSSL_DT_TIME));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].HasMember("h"));
@@ -1009,7 +1009,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check DateTime element. */
 			if (params.dateTime)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DATETIME_FIELD.fieldName.data, RSSL_DT_DATETIME));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DATETIME_FIELD.fieldName.data, RSSL_DT_DATETIME));
 
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 
@@ -1054,7 +1054,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Qos element. */
 			if (params.qos)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], QOS_FIELD.fieldName.data, RSSL_DT_QOS));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], QOS_FIELD.fieldName.data, RSSL_DT_QOS));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].HasMember("t"));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"]["t"].IsNumber());
@@ -1069,7 +1069,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check State element. */
 			if (params.state)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], STATE_FIELD.fieldName.data, RSSL_DT_STATE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], STATE_FIELD.fieldName.data, RSSL_DT_STATE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].HasMember("s"));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"]["s"].IsNumber());
@@ -1083,7 +1083,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Enum element. */
 			if (params.enumValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ENUM_FIELD.fieldName.data, RSSL_DT_ENUM));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ENUM_FIELD.fieldName.data, RSSL_DT_ENUM));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNumber());
 				EXPECT_EQ(rsslEnum, _jsonDocument["d"]["d"][currentEntry]["d"].GetInt());
 				++currentEntry;
@@ -1092,7 +1092,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Array element. */
 			if (params.array)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ARRAY_FIELD.fieldName.data, RSSL_DT_ARRAY));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ARRAY_FIELD.fieldName.data, RSSL_DT_ARRAY));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsObject());
 
 				/* Check array type. */
@@ -1117,8 +1117,8 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Buffer element. */
 			if (params.buffer)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], BUFFER_FIELD.fieldName.data, RSSL_DT_BUFFER));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["d"]["d"][currentEntry]["d"]));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], BUFFER_FIELD.fieldName.data, RSSL_DT_BUFFER));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["d"]["d"][currentEntry]["d"]));
 				++currentEntry;
 			}
 
@@ -1126,7 +1126,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			if (params.asciiString)
 			{
 				/* AsciiString is only a string (not an object with Type/Data members). */
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ASCII_STRING_FIELD.fieldName.data, RSSL_DT_ASCII_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ASCII_STRING_FIELD.fieldName.data, RSSL_DT_ASCII_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsString());
 				EXPECT_STREQ(ASCII_STRING.data, _jsonDocument["d"]["d"][currentEntry]["d"].GetString());
 				++currentEntry;
@@ -1135,7 +1135,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Utf8String element. */
 			if (params.utf8String)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], UTF8_STRING_FIELD.fieldName.data, RSSL_DT_UTF8_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], UTF8_STRING_FIELD.fieldName.data, RSSL_DT_UTF8_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsString());
 				EXPECT_STREQ(UTF8_STRING.data, _jsonDocument["d"]["d"][currentEntry]["d"].GetString());
 				++currentEntry;
@@ -1144,7 +1144,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check RmtesString element. */
 			if (params.rmtesString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], RMTES_STRING_FIELD.fieldName.data, RSSL_DT_RMTES_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], RMTES_STRING_FIELD.fieldName.data, RSSL_DT_RMTES_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsString());
 
 				/* RMTES content should be converted to UTF8 in JSON (and then back to the RMTES string when converted back to RWF). */
@@ -1155,15 +1155,15 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check Opaque element. */
 			if (params.opaque)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], OPAQUE_FIELD.fieldName.data, RSSL_DT_OPAQUE));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &_jsonDocument["d"]["d"][currentEntry]["d"]));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], OPAQUE_FIELD.fieldName.data, RSSL_DT_OPAQUE));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, _jsonDocument["d"]["d"][currentEntry]["d"]));
 				++currentEntry;
 			}
 
 			/* Check Xml element. */
 			if (params.xml)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], XML_FIELD.fieldName.data, RSSL_DT_XML));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], XML_FIELD.fieldName.data, RSSL_DT_XML));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsString());
 				EXPECT_STREQ(XML_BUFFER.data, _jsonDocument["d"]["d"][currentEntry]["d"].GetString());
 				++currentEntry;
@@ -1172,56 +1172,56 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			/* Check FieldList element. */
 			if (params.fieldList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], FIELDLIST_FIELD.fieldName.data, RSSL_DT_FIELD_LIST));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], FIELDLIST_FIELD.fieldName.data, RSSL_DT_FIELD_LIST));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check ElementList element. */
 			if (params.elementList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ELEMENTLIST_FIELD.fieldName.data, RSSL_DT_ELEMENT_LIST));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ELEMENTLIST_FIELD.fieldName.data, RSSL_DT_ELEMENT_LIST));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check FilterList element. */
 			if (params.filterList)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], FILTERLIST_FIELD.fieldName.data, RSSL_DT_FILTER_LIST));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], FILTERLIST_FIELD.fieldName.data, RSSL_DT_FILTER_LIST));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check Map element. */
 			if (params.map)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], MAP_FIELD.fieldName.data, RSSL_DT_MAP));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], MAP_FIELD.fieldName.data, RSSL_DT_MAP));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check Vector element. */
 			if (params.vector)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], VECTOR_FIELD.fieldName.data, RSSL_DT_VECTOR));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], VECTOR_FIELD.fieldName.data, RSSL_DT_VECTOR));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonVector(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check Series element. */
 			if (params.series)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], SERIES_FIELD.fieldName.data, RSSL_DT_SERIES));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], SERIES_FIELD.fieldName.data, RSSL_DT_SERIES));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonSeries(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
 			/* Check Message element. */
 			if (params.msg)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], MSG_FIELD.fieldName.data, RSSL_DT_MSG));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(&_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], MSG_FIELD.fieldName.data, RSSL_DT_MSG));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonUpdateMsg(_jsonDocument["d"]["d"][currentEntry]["d"], params.protocolType));
 				++currentEntry;
 			}
 
@@ -1531,7 +1531,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 
 			document.Parse(decodeJsonBuffer.data);
             ASSERT_TRUE(NULL == document.GetParseError()) << "** JSON Parse Error: " << document.GetParseError() << "\n";
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&Value(document)));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(Value(document)));
 			foundJsonElement = true;
 		}
 		else
@@ -1947,7 +1947,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Int element. */
 			if (params.intValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], INT_FIELD.fieldName.data, "Int"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], INT_FIELD.fieldName.data, "Int"));
 				ASSERT_TRUE(_jsonDocument["Elements"][INT_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -1956,7 +1956,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check UInt element. */
 			if (params.uintValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], UINT_FIELD.fieldName.data, "UInt"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], UINT_FIELD.fieldName.data, "UInt"));
 				ASSERT_TRUE(_jsonDocument["Elements"][UINT_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -1965,7 +1965,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Float element. */
 			if (params.floatValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], FLOAT_FIELD.fieldName.data, "Float"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], FLOAT_FIELD.fieldName.data, "Float"));
 				ASSERT_TRUE(_jsonDocument["Elements"][FLOAT_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -1974,7 +1974,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Double element. */
 			if (params.doubleValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DOUBLE_FIELD.fieldName.data, "Double"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DOUBLE_FIELD.fieldName.data, "Double"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DOUBLE_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -1983,7 +1983,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Real element. */
 			if (params.real)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], REAL_FIELD.fieldName.data, "Real"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], REAL_FIELD.fieldName.data, "Real"));
 				ASSERT_TRUE(_jsonDocument["Elements"][REAL_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -1992,7 +1992,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Date element. */
 			if (params.date)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DATE_FIELD.fieldName.data, "Date"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DATE_FIELD.fieldName.data, "Date"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DATE_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2001,7 +2001,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Time element. */
 			if (params.time)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], TIME_FIELD.fieldName.data, "Time"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], TIME_FIELD.fieldName.data, "Time"));
 				ASSERT_TRUE(_jsonDocument["Elements"][TIME_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2010,7 +2010,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check DateTime element. */
 			if (params.dateTime)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], DATETIME_FIELD.fieldName.data, "DateTime"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], DATETIME_FIELD.fieldName.data, "DateTime"));
 				ASSERT_TRUE(_jsonDocument["Elements"][DATETIME_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2019,7 +2019,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Qos element. */
 			if (params.qos)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], QOS_FIELD.fieldName.data, "Qos"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], QOS_FIELD.fieldName.data, "Qos"));
 				ASSERT_TRUE(_jsonDocument["Elements"][QOS_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2028,7 +2028,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check State element. */
 			if (params.state)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], STATE_FIELD.fieldName.data, "State"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], STATE_FIELD.fieldName.data, "State"));
 				ASSERT_TRUE(_jsonDocument["Elements"][STATE_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2037,7 +2037,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Enum element. */
 			if (params.enumValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ENUM_FIELD.fieldName.data, "Enum"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ENUM_FIELD.fieldName.data, "Enum"));
 				ASSERT_TRUE(_jsonDocument["Elements"][ENUM_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2046,7 +2046,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Array element. */
 			if (params.array)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ARRAY_FIELD.fieldName.data, "Array"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ARRAY_FIELD.fieldName.data, "Array"));
 				ASSERT_TRUE(_jsonDocument["Elements"][ARRAY_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2055,7 +2055,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Buffer element. */
 			if (params.buffer)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], BUFFER_FIELD.fieldName.data, "Buffer"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], BUFFER_FIELD.fieldName.data, "Buffer"));
 				ASSERT_TRUE(_jsonDocument["Elements"][BUFFER_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2064,7 +2064,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check AsciiString element. */
 			if (params.asciiString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], ASCII_STRING_FIELD.fieldName.data, "AsciiString"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], ASCII_STRING_FIELD.fieldName.data, "AsciiString"));
 				ASSERT_TRUE(_jsonDocument["Elements"][ASCII_STRING_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2073,7 +2073,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Utf8String element. */
 			if (params.utf8String)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], UTF8_STRING_FIELD.fieldName.data, "Utf8String"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], UTF8_STRING_FIELD.fieldName.data, "Utf8String"));
 				ASSERT_TRUE(_jsonDocument["Elements"][UTF8_STRING_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2082,7 +2082,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check RmtesString element. */
 			if (params.rmtesString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(&_jsonDocument["Elements"], RMTES_STRING_FIELD.fieldName.data, "RmtesString"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonElementEntryNameAndFormat(_jsonDocument["Elements"], RMTES_STRING_FIELD.fieldName.data, "RmtesString"));
 				ASSERT_TRUE(_jsonDocument["Elements"][RMTES_STRING_FIELD.fieldName.data]["Data"].IsNull());
 			}
 			else
@@ -2135,7 +2135,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Int element. */
 			if (params.intValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], INT_FIELD.fieldName.data, RSSL_DT_INT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], INT_FIELD.fieldName.data, RSSL_DT_INT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2143,7 +2143,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check UInt element. */
 			if (params.uintValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], UINT_FIELD.fieldName.data, RSSL_DT_UINT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], UINT_FIELD.fieldName.data, RSSL_DT_UINT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2151,7 +2151,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Float element. */
 			if (params.floatValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], FLOAT_FIELD.fieldName.data, RSSL_DT_FLOAT));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], FLOAT_FIELD.fieldName.data, RSSL_DT_FLOAT));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2159,7 +2159,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Double element. */
 			if (params.doubleValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DOUBLE_FIELD.fieldName.data, RSSL_DT_DOUBLE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DOUBLE_FIELD.fieldName.data, RSSL_DT_DOUBLE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2167,7 +2167,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Real element. */
 			if (params.real)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], REAL_FIELD.fieldName.data, RSSL_DT_REAL));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], REAL_FIELD.fieldName.data, RSSL_DT_REAL));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2175,7 +2175,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Date element. */
 			if (params.date)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DATE_FIELD.fieldName.data, RSSL_DT_DATE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DATE_FIELD.fieldName.data, RSSL_DT_DATE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2183,7 +2183,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Time element. */
 			if (params.time)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], TIME_FIELD.fieldName.data, RSSL_DT_TIME));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], TIME_FIELD.fieldName.data, RSSL_DT_TIME));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2191,7 +2191,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check DateTime element. */
 			if (params.dateTime)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], DATETIME_FIELD.fieldName.data, RSSL_DT_DATETIME));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], DATETIME_FIELD.fieldName.data, RSSL_DT_DATETIME));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2199,7 +2199,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Qos element. */
 			if (params.qos)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], QOS_FIELD.fieldName.data, RSSL_DT_QOS));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], QOS_FIELD.fieldName.data, RSSL_DT_QOS));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2207,7 +2207,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check State element. */
 			if (params.state)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], STATE_FIELD.fieldName.data, RSSL_DT_STATE));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], STATE_FIELD.fieldName.data, RSSL_DT_STATE));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2215,7 +2215,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Enum element. */
 			if (params.enumValue)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ENUM_FIELD.fieldName.data, RSSL_DT_ENUM));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ENUM_FIELD.fieldName.data, RSSL_DT_ENUM));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2223,7 +2223,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Array element. */
 			if (params.array)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ARRAY_FIELD.fieldName.data, RSSL_DT_ARRAY));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ARRAY_FIELD.fieldName.data, RSSL_DT_ARRAY));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2231,7 +2231,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Buffer element. */
 			if (params.buffer)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], BUFFER_FIELD.fieldName.data, RSSL_DT_BUFFER));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], BUFFER_FIELD.fieldName.data, RSSL_DT_BUFFER));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2239,7 +2239,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check AsciiString element. */
 			if (params.asciiString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], ASCII_STRING_FIELD.fieldName.data, RSSL_DT_ASCII_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ASCII_STRING_FIELD.fieldName.data, RSSL_DT_ASCII_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2247,7 +2247,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check Utf8String element. */
 			if (params.utf8String)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], UTF8_STRING_FIELD.fieldName.data, RSSL_DT_UTF8_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], UTF8_STRING_FIELD.fieldName.data, RSSL_DT_UTF8_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}
@@ -2255,7 +2255,7 @@ TEST_P(ElementListPrimitiveTypesTestFixture, ElementListBlankTests)
 			/* Check RmtesString element. */
 			if (params.rmtesString)
 			{
-				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(&_jsonDocument["d"]["d"][currentEntry], RMTES_STRING_FIELD.fieldName.data, RSSL_DT_RMTES_STRING));
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], RMTES_STRING_FIELD.fieldName.data, RSSL_DT_RMTES_STRING));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsNull());
 				++currentEntry;
 			}

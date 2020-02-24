@@ -160,7 +160,7 @@ TEST_P(SetDefParamTestFixture, MapFieldSetDefTest)
 			EXPECT_STREQ("Add", entries[0]["Action"].GetString());
 
 			ASSERT_TRUE(entries[0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 			break;
 		}
 
@@ -462,7 +462,7 @@ TEST_P(SetDefParamTestFixture, MapElementSetDefTest)
 			EXPECT_STREQ("Add", entries[0]["Action"].GetString());
 
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 		}
 
@@ -745,7 +745,7 @@ TEST_P(SetDefParamTestFixture, VectorElementSetDefTest)
 			EXPECT_STREQ("Insert", entries[0]["Action"].GetString());
 
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 		}
 
@@ -1015,7 +1015,7 @@ TEST_P(SetDefParamTestFixture, SeriesElementSetDefTest)
 			ASSERT_EQ(1, entries.Size());
 
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 		}
 

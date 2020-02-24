@@ -528,10 +528,10 @@ void MsgConversionTestBase::convertRsslToJson(RsslJsonProtocolType protocolType,
 	ASSERT_TRUE(_jsonDocument.IsObject());
 }
 
-void MsgConversionTestBase::checkJsonBase64String(const RsslBuffer *pExpectedBuffer, const Value *jsonStringValue)
+void MsgConversionTestBase::checkJsonBase64String(const RsslBuffer *pExpectedBuffer, const Value & jsonStringValue)
 {
-	ASSERT_TRUE(jsonStringValue->IsString());
-	std::string encodedString(jsonStringValue->GetString(), jsonStringValue->GetStringLength());
+	ASSERT_TRUE(jsonStringValue.IsString());
+	std::string encodedString(jsonStringValue.GetString(), jsonStringValue.GetStringLength());
 	std::string decodedString = base64_decode(encodedString);
 	RsslBuffer decodedBuffer = { (RsslUInt32)decodedString.length(), (char*)decodedString.c_str() };
 	EXPECT_TRUE(rsslBufferIsEqual(pExpectedBuffer, &decodedBuffer));
@@ -741,56 +741,56 @@ void MsgConversionTestBase::encodeSampleRsslFieldList(RsslEncodeIterator *pIter,
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeFieldListComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonFieldList(const Value *fieldListObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonFieldList(const Value &fieldListObject, RsslJsonProtocolType protocolType)
 {
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
-			ASSERT_TRUE(fieldListObject->IsObject());
+			ASSERT_TRUE(fieldListObject.IsObject());
 
 			/* BID */
-			ASSERT_TRUE(fieldListObject->HasMember("BID"));
-			ASSERT_TRUE((*fieldListObject)["BID"].IsNumber());
-			EXPECT_NEAR((*fieldListObject)["BID"].GetDouble(), 118.734375, 0.0000099);
+			ASSERT_TRUE(fieldListObject.HasMember("BID"));
+			ASSERT_TRUE(fieldListObject["BID"].IsNumber());
+			EXPECT_NEAR(fieldListObject["BID"].GetDouble(), 118.734375, 0.0000099);
 
 			/* ASK */
-			ASSERT_TRUE(fieldListObject->HasMember("ASK"));
-			ASSERT_TRUE((*fieldListObject)["ASK"].IsNumber());
-			EXPECT_NEAR((*fieldListObject)["ASK"].GetDouble(), 39.06, 0.099);
+			ASSERT_TRUE(fieldListObject.HasMember("ASK"));
+			ASSERT_TRUE(fieldListObject["ASK"].IsNumber());
+			EXPECT_NEAR(fieldListObject["ASK"].GetDouble(), 39.06, 0.099);
 			break;
 
 		case RSSL_JSON_JPT_JSON:
 		{
-			ASSERT_TRUE(fieldListObject->IsObject());
+			ASSERT_TRUE(fieldListObject.IsObject());
 
-			ASSERT_TRUE(fieldListObject->HasMember("d"));
-			const Value *fieldListData = &(*fieldListObject)["d"];
-			ASSERT_TRUE(fieldListData->IsObject());
+			ASSERT_TRUE(fieldListObject.HasMember("d"));
+			const Value &fieldListData = fieldListObject["d"];
+			ASSERT_TRUE(fieldListData.IsObject());
 
 			/* BID */
-			ASSERT_TRUE(fieldListData->HasMember("22"));
-			ASSERT_TRUE((*fieldListData)["22"].IsObject());
+			ASSERT_TRUE(fieldListData.HasMember("22"));
+			ASSERT_TRUE(fieldListData["22"].IsObject());
 
-			ASSERT_TRUE((*fieldListData)["22"].HasMember("h"));
-			ASSERT_TRUE((*fieldListData)["22"]["h"].IsNumber());
-			EXPECT_EQ(RSSL_RH_FRACTION_256, (*fieldListData)["22"]["h"].GetInt());
+			ASSERT_TRUE(fieldListData["22"].HasMember("h"));
+			ASSERT_TRUE(fieldListData["22"]["h"].IsNumber());
+			EXPECT_EQ(RSSL_RH_FRACTION_256, fieldListData["22"]["h"].GetInt());
 
-			ASSERT_TRUE((*fieldListData)["22"].HasMember("v"));
-			ASSERT_TRUE((*fieldListData)["22"]["v"].IsNumber());
-			EXPECT_EQ(30396, (*fieldListData)["22"]["v"].GetInt());
+			ASSERT_TRUE(fieldListData["22"].HasMember("v"));
+			ASSERT_TRUE(fieldListData["22"]["v"].IsNumber());
+			EXPECT_EQ(30396, fieldListData["22"]["v"].GetInt());
 
 			/* ASK */
-			ASSERT_TRUE(fieldListData->HasMember("25"));
-			ASSERT_TRUE((*fieldListData)["25"].IsObject());
+			ASSERT_TRUE(fieldListData.HasMember("25"));
+			ASSERT_TRUE(fieldListData["25"].IsObject());
 
-			ASSERT_TRUE((*fieldListData)["25"].HasMember("h"));
-			ASSERT_TRUE((*fieldListData)["25"]["h"].IsNumber());
-			EXPECT_EQ(RSSL_RH_EXPONENT_2, (*fieldListData)["25"]["h"].GetInt());
+			ASSERT_TRUE(fieldListData["25"].HasMember("h"));
+			ASSERT_TRUE(fieldListData["25"]["h"].IsNumber());
+			EXPECT_EQ(RSSL_RH_EXPONENT_2, fieldListData["25"]["h"].GetInt());
 
-			ASSERT_TRUE((*fieldListData)["25"].HasMember("v"));
-			ASSERT_TRUE((*fieldListData)["25"]["v"].IsNumber());
-			EXPECT_EQ(3906, (*fieldListData)["25"]["v"].GetInt());
+			ASSERT_TRUE(fieldListData["25"].HasMember("v"));
+			ASSERT_TRUE(fieldListData["25"]["v"].IsNumber());
+			EXPECT_EQ(3906, fieldListData["25"]["v"].GetInt());
 			break;
 		}
 
@@ -801,99 +801,99 @@ void MsgConversionTestBase::checkSampleJsonFieldList(const Value *fieldListObjec
 		
 }
 
-void MsgConversionTestBase::checkLargeJsonFieldList(const Value *fieldListObject)
+void MsgConversionTestBase::checkLargeJsonFieldList(const Value &fieldListObject)
 {
-	ASSERT_TRUE(fieldListObject->IsObject());
+	ASSERT_TRUE(fieldListObject.IsObject());
 
 	/* BID */
-	ASSERT_TRUE(fieldListObject->HasMember("BID"));
-	ASSERT_TRUE((*fieldListObject)["BID"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["BID"].GetDouble(), 39.05, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("BID"));
+	ASSERT_TRUE(fieldListObject["BID"].IsNumber());
+	EXPECT_NEAR(fieldListObject["BID"].GetDouble(), 39.05, 0.099);
 
 	/* ASK */
-	ASSERT_TRUE(fieldListObject->HasMember("ASK"));
-	ASSERT_TRUE((*fieldListObject)["ASK"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["ASK"].GetDouble(), 39.06, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("ASK"));
+	ASSERT_TRUE(fieldListObject["ASK"].IsNumber());
+	EXPECT_NEAR(fieldListObject["ASK"].GetDouble(), 39.06, 0.099);
 
 	/* BID SIZE */
-	ASSERT_TRUE(fieldListObject->HasMember("BIDSIZE"));
-	ASSERT_TRUE((*fieldListObject)["BIDSIZE"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["BIDSIZE"].GetDouble(), 39.07, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("BIDSIZE"));
+	ASSERT_TRUE(fieldListObject["BIDSIZE"].IsNumber());
+	EXPECT_NEAR(fieldListObject["BIDSIZE"].GetDouble(), 39.07, 0.099);
 	
 	/* ASK SIZE */
-	ASSERT_TRUE(fieldListObject->HasMember("ASKSIZE"));
-	ASSERT_TRUE((*fieldListObject)["ASKSIZE"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["ASKSIZE"].GetDouble(), 39.08, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("ASKSIZE"));
+	ASSERT_TRUE(fieldListObject["ASKSIZE"].IsNumber());
+	EXPECT_NEAR(fieldListObject["ASKSIZE"].GetDouble(), 39.08, 0.099);
 	
 	/* VOL ACCUMULATED */
-	ASSERT_TRUE(fieldListObject->HasMember("ACVOL_1"));
-	ASSERT_TRUE((*fieldListObject)["ACVOL_1"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["ACVOL_1"].GetDouble(), 39.09, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("ACVOL_1"));
+	ASSERT_TRUE(fieldListObject["ACVOL_1"].IsNumber());
+	EXPECT_NEAR(fieldListObject["ACVOL_1"].GetDouble(), 39.09, 0.099);
 	
 	/* EARNINGS */
-	ASSERT_TRUE(fieldListObject->HasMember("EARNINGS"));
-	ASSERT_TRUE((*fieldListObject)["EARNINGS"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["EARNINGS"].GetDouble(), 39.10, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("EARNINGS"));
+	ASSERT_TRUE(fieldListObject["EARNINGS"].IsNumber());
+	EXPECT_NEAR(fieldListObject["EARNINGS"].GetDouble(), 39.10, 0.099);
 	
 	/* YIELD */
-	ASSERT_TRUE(fieldListObject->HasMember("YIELD"));
-	ASSERT_TRUE((*fieldListObject)["YIELD"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["YIELD"].GetDouble(), 39.11, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("YIELD"));
+	ASSERT_TRUE(fieldListObject["YIELD"].IsNumber());
+	EXPECT_NEAR(fieldListObject["YIELD"].GetDouble(), 39.11, 0.099);
 	
 	/* PERCENT CHANGE */
-	ASSERT_TRUE(fieldListObject->HasMember("PCTCHNG"));
-	ASSERT_TRUE((*fieldListObject)["PCTCHNG"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["PCTCHNG"].GetDouble(), 39.12, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("PCTCHNG"));
+	ASSERT_TRUE(fieldListObject["PCTCHNG"].IsNumber());
+	EXPECT_NEAR(fieldListObject["PCTCHNG"].GetDouble(), 39.12, 0.099);
 	
 	/* OPEN BID */
-	ASSERT_TRUE(fieldListObject->HasMember("OPEN_BID"));
-	ASSERT_TRUE((*fieldListObject)["OPEN_BID"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["OPEN_BID"].GetDouble(), 39.13, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("OPEN_BID"));
+	ASSERT_TRUE(fieldListObject["OPEN_BID"].IsNumber());
+	EXPECT_NEAR(fieldListObject["OPEN_BID"].GetDouble(), 39.13, 0.099);
 	
 	/* OPEN ASK */
-	ASSERT_TRUE(fieldListObject->HasMember("OPEN_ASK"));
-	ASSERT_TRUE((*fieldListObject)["OPEN_ASK"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["OPEN_ASK"].GetDouble(), 39.14, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("OPEN_ASK"));
+	ASSERT_TRUE(fieldListObject["OPEN_ASK"].IsNumber());
+	EXPECT_NEAR(fieldListObject["OPEN_ASK"].GetDouble(), 39.14, 0.099);
 	
 	/* CLOSE BID */
-	ASSERT_TRUE(fieldListObject->HasMember("CLOSE_BID"));
-	ASSERT_TRUE((*fieldListObject)["CLOSE_BID"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["CLOSE_BID"].GetDouble(), 39.15, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("CLOSE_BID"));
+	ASSERT_TRUE(fieldListObject["CLOSE_BID"].IsNumber());
+	EXPECT_NEAR(fieldListObject["CLOSE_BID"].GetDouble(), 39.15, 0.099);
 	
 	/* CLOSE ASK */
-	ASSERT_TRUE(fieldListObject->HasMember("CLOSE_ASK"));
-	ASSERT_TRUE((*fieldListObject)["CLOSE_ASK"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["CLOSE_ASK"].GetDouble(), 39.16, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("CLOSE_ASK"));
+	ASSERT_TRUE(fieldListObject["CLOSE_ASK"].IsNumber());
+	EXPECT_NEAR(fieldListObject["CLOSE_ASK"].GetDouble(), 39.16, 0.099);
 	
 	/* CNTR LIFE HIGH */
-	ASSERT_TRUE(fieldListObject->HasMember("LOCHIGH"));
-	ASSERT_TRUE((*fieldListObject)["LOCHIGH"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["LOCHIGH"].GetDouble(), 39.17, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("LOCHIGH"));
+	ASSERT_TRUE(fieldListObject["LOCHIGH"].IsNumber());
+	EXPECT_NEAR(fieldListObject["LOCHIGH"].GetDouble(), 39.17, 0.099);
 	
 	/* CNTR LIFE LOW */
-	ASSERT_TRUE(fieldListObject->HasMember("LOCLOW"));
-	ASSERT_TRUE((*fieldListObject)["LOCLOW"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["LOCLOW"].GetDouble(), 39.18, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("LOCLOW"));
+	ASSERT_TRUE(fieldListObject["LOCLOW"].IsNumber());
+	EXPECT_NEAR(fieldListObject["LOCLOW"].GetDouble(), 39.18, 0.099);
 	
 	/* OPEN INTEREST */
-	ASSERT_TRUE(fieldListObject->HasMember("OPINT_1"));
-	ASSERT_TRUE((*fieldListObject)["OPINT_1"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["OPINT_1"].GetDouble(), 39.19, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("OPINT_1"));
+	ASSERT_TRUE(fieldListObject["OPINT_1"].IsNumber());
+	EXPECT_NEAR(fieldListObject["OPINT_1"].GetDouble(), 39.19, 0.099);
 	
 	/* OPN INT NETCHG */
-	ASSERT_TRUE(fieldListObject->HasMember("OPINTNC"));
-	ASSERT_TRUE((*fieldListObject)["OPINTNC"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["OPINTNC"].GetDouble(), 39.20, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("OPINTNC"));
+	ASSERT_TRUE(fieldListObject["OPINTNC"].IsNumber());
+	EXPECT_NEAR(fieldListObject["OPINTNC"].GetDouble(), 39.20, 0.099);
 	
 	/* STRIKE PRICE */
-	ASSERT_TRUE(fieldListObject->HasMember("STRIKE_PRC"));
-	ASSERT_TRUE((*fieldListObject)["STRIKE_PRC"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["STRIKE_PRC"].GetDouble(), 39.21, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("STRIKE_PRC"));
+	ASSERT_TRUE(fieldListObject["STRIKE_PRC"].IsNumber());
+	EXPECT_NEAR(fieldListObject["STRIKE_PRC"].GetDouble(), 39.21, 0.099);
 	
 	/* COUPON RATE */
-	ASSERT_TRUE(fieldListObject->HasMember("COUPN_RATE"));
-	ASSERT_TRUE((*fieldListObject)["COUPN_RATE"].IsNumber());
-	EXPECT_NEAR((*fieldListObject)["COUPN_RATE"].GetDouble(), 39.22, 0.099);
+	ASSERT_TRUE(fieldListObject.HasMember("COUPN_RATE"));
+	ASSERT_TRUE(fieldListObject["COUPN_RATE"].IsNumber());
+	EXPECT_NEAR(fieldListObject["COUPN_RATE"].GetDouble(), 39.22, 0.099);
 }
 
 void MsgConversionTestBase::decodeSampleRsslFieldList(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter, RsslLocalFieldSetDefDb *setDb)
@@ -1407,60 +1407,60 @@ void MsgConversionTestBase::encodeSampleRsslElementList(RsslEncodeIterator *pIte
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementListComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonElementList(const Value *elementListObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonElementList(const Value &elementListObject, RsslJsonProtocolType protocolType)
 {
-	ASSERT_TRUE(elementListObject->IsObject());
+	ASSERT_TRUE(elementListObject.IsObject());
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
 			/* First Element */
-			ASSERT_TRUE(elementListObject->HasMember(sampleElementEntryNames[0].data));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[0].data].IsObject());
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[0].data].HasMember("Type"));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[0].data]["Type"].IsString());
-			EXPECT_STREQ("Int", (*elementListObject)[sampleElementEntryNames[0].data]["Type"].GetString());
+			ASSERT_TRUE(elementListObject.HasMember(sampleElementEntryNames[0].data));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[0].data].IsObject());
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[0].data].HasMember("Type"));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[0].data]["Type"].IsString());
+			EXPECT_STREQ("Int", elementListObject[sampleElementEntryNames[0].data]["Type"].GetString());
 
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[0].data].HasMember("Data"));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[0].data]["Data"].IsNumber());
-			EXPECT_EQ(5, (*elementListObject)[sampleElementEntryNames[0].data]["Data"].GetInt());
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[0].data].HasMember("Data"));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[0].data]["Data"].IsNumber());
+			EXPECT_EQ(5, elementListObject[sampleElementEntryNames[0].data]["Data"].GetInt());
 
 			/* Second Element */
-			ASSERT_TRUE(elementListObject->HasMember(sampleElementEntryNames[1].data));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[1].data].IsObject());
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[1].data].HasMember("Type"));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[1].data]["Type"].IsString());
-			EXPECT_STREQ("Int", (*elementListObject)[sampleElementEntryNames[1].data]["Type"].GetString());
+			ASSERT_TRUE(elementListObject.HasMember(sampleElementEntryNames[1].data));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[1].data].IsObject());
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[1].data].HasMember("Type"));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[1].data]["Type"].IsString());
+			EXPECT_STREQ("Int", elementListObject[sampleElementEntryNames[1].data]["Type"].GetString());
 
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[1].data].HasMember("Data"));
-			ASSERT_TRUE((*elementListObject)[sampleElementEntryNames[1].data]["Data"].IsNumber());
-			EXPECT_EQ(6, (*elementListObject)[sampleElementEntryNames[1].data]["Data"].GetInt());
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[1].data].HasMember("Data"));
+			ASSERT_TRUE(elementListObject[sampleElementEntryNames[1].data]["Data"].IsNumber());
+			EXPECT_EQ(6, elementListObject[sampleElementEntryNames[1].data]["Data"].GetInt());
 			break;
 
 		case RSSL_JSON_JPT_JSON:
-			ASSERT_TRUE(elementListObject->HasMember("d"));
-			ASSERT_TRUE((*elementListObject)["d"].IsArray());
-			ASSERT_EQ(2, (*elementListObject)["d"].Size());
+			ASSERT_TRUE(elementListObject.HasMember("d"));
+			ASSERT_TRUE(elementListObject["d"].IsArray());
+			ASSERT_EQ(2, elementListObject["d"].Size());
 
 			/* First Element */
-			ASSERT_TRUE((*elementListObject)["d"][0].HasMember("n"));
-			EXPECT_STREQ(sampleElementEntryNames[0].data, (*elementListObject)["d"][0]["n"].GetString());
-			ASSERT_TRUE((*elementListObject)["d"][0].HasMember("t"));
-			ASSERT_TRUE((*elementListObject)["d"][0]["t"].IsNumber());
-			EXPECT_EQ(RSSL_DT_INT, (*elementListObject)["d"][0]["t"].GetInt());
-			ASSERT_TRUE((*elementListObject)["d"][0].HasMember("d"));
-			ASSERT_TRUE((*elementListObject)["d"][0]["d"].IsNumber());
-			EXPECT_EQ(5, (*elementListObject)["d"][0]["d"].GetInt());
+			ASSERT_TRUE(elementListObject["d"][0].HasMember("n"));
+			EXPECT_STREQ(sampleElementEntryNames[0].data, elementListObject["d"][0]["n"].GetString());
+			ASSERT_TRUE(elementListObject["d"][0].HasMember("t"));
+			ASSERT_TRUE(elementListObject["d"][0]["t"].IsNumber());
+			EXPECT_EQ(RSSL_DT_INT, elementListObject["d"][0]["t"].GetInt());
+			ASSERT_TRUE(elementListObject["d"][0].HasMember("d"));
+			ASSERT_TRUE(elementListObject["d"][0]["d"].IsNumber());
+			EXPECT_EQ(5, elementListObject["d"][0]["d"].GetInt());
 
 			/* Second Element */
-			ASSERT_TRUE((*elementListObject)["d"][1].HasMember("n"));
-			EXPECT_STREQ(sampleElementEntryNames[1].data, (*elementListObject)["d"][1]["n"].GetString());
-			ASSERT_TRUE((*elementListObject)["d"][1].HasMember("t"));
-			ASSERT_TRUE((*elementListObject)["d"][1]["t"].IsNumber());
-			EXPECT_EQ(RSSL_DT_INT, (*elementListObject)["d"][1]["t"].GetInt());
-			ASSERT_TRUE((*elementListObject)["d"][1].HasMember("d"));
-			ASSERT_TRUE((*elementListObject)["d"][1]["d"].IsNumber());
-			EXPECT_EQ(6, (*elementListObject)["d"][1]["d"].GetInt());
+			ASSERT_TRUE(elementListObject["d"][1].HasMember("n"));
+			EXPECT_STREQ(sampleElementEntryNames[1].data, elementListObject["d"][1]["n"].GetString());
+			ASSERT_TRUE(elementListObject["d"][1].HasMember("t"));
+			ASSERT_TRUE(elementListObject["d"][1]["t"].IsNumber());
+			EXPECT_EQ(RSSL_DT_INT, elementListObject["d"][1]["t"].GetInt());
+			ASSERT_TRUE(elementListObject["d"][1].HasMember("d"));
+			ASSERT_TRUE(elementListObject["d"][1]["d"].IsNumber());
+			EXPECT_EQ(6, elementListObject["d"][1]["d"].GetInt());
 			break;
 
 		default:
@@ -1533,54 +1533,54 @@ void MsgConversionTestBase::encodeSampleRsslFilterList(RsslEncodeIterator *pIter
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeFilterListComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonFilterList(const Value *filterListObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonFilterList(const Value &filterListObject, RsslJsonProtocolType protocolType)
 {
-	ASSERT_TRUE(filterListObject->IsObject());
+	ASSERT_TRUE(filterListObject.IsObject());
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
-			ASSERT_TRUE(filterListObject->HasMember("Entries"));
-			ASSERT_TRUE((*filterListObject)["Entries"].IsArray());
-			ASSERT_EQ(1, (*filterListObject)["Entries"].Size());
+			ASSERT_TRUE(filterListObject.HasMember("Entries"));
+			ASSERT_TRUE(filterListObject["Entries"].IsArray());
+			ASSERT_EQ(1, filterListObject["Entries"].Size());
 
-			ASSERT_TRUE((*filterListObject)["Entries"][0].HasMember("ID"));
-			ASSERT_TRUE((*filterListObject)["Entries"][0]["ID"].IsNumber());
-			EXPECT_EQ(1, (*filterListObject)["Entries"][0]["ID"].GetInt());
+			ASSERT_TRUE(filterListObject["Entries"][0].HasMember("ID"));
+			ASSERT_TRUE(filterListObject["Entries"][0]["ID"].IsNumber());
+			EXPECT_EQ(1, filterListObject["Entries"][0]["ID"].GetInt());
 
-			ASSERT_TRUE((*filterListObject)["Entries"][0].HasMember("Action"));
-			ASSERT_TRUE((*filterListObject)["Entries"][0]["Action"].IsString());
-			EXPECT_STREQ("Set", (*filterListObject)["Entries"][0]["Action"].GetString());
+			ASSERT_TRUE(filterListObject["Entries"][0].HasMember("Action"));
+			ASSERT_TRUE(filterListObject["Entries"][0]["Action"].IsString());
+			EXPECT_STREQ("Set", filterListObject["Entries"][0]["Action"].GetString());
 
-			ASSERT_TRUE((*filterListObject)["Entries"][0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&(*filterListObject)["Entries"][0]["Elements"], protocolType));
+			ASSERT_TRUE(filterListObject["Entries"][0].HasMember("Elements"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(filterListObject["Entries"][0]["Elements"], protocolType));
 			break;
 
 		case RSSL_JSON_JPT_JSON:
 
 			/* containerType */
-			ASSERT_TRUE(filterListObject->HasMember("f"));
-			ASSERT_TRUE((*filterListObject)["f"].IsNumber());
-			ASSERT_EQ(RSSL_DT_ELEMENT_LIST - 128, (*filterListObject)["f"].GetInt());
+			ASSERT_TRUE(filterListObject.HasMember("f"));
+			ASSERT_TRUE(filterListObject["f"].IsNumber());
+			ASSERT_EQ(RSSL_DT_ELEMENT_LIST - 128, filterListObject["f"].GetInt());
 
 			/* Entries */
-			ASSERT_TRUE(filterListObject->HasMember("d"));
-			ASSERT_TRUE((*filterListObject)["d"].IsArray());
-			ASSERT_EQ(1, (*filterListObject)["d"].Size());
+			ASSERT_TRUE(filterListObject.HasMember("d"));
+			ASSERT_TRUE(filterListObject["d"].IsArray());
+			ASSERT_EQ(1, filterListObject["d"].Size());
 
 			/* Entry Filter ID */
-			ASSERT_TRUE((*filterListObject)["d"][0].HasMember("i"));
-			ASSERT_TRUE((*filterListObject)["d"][0]["i"].IsNumber());
-			EXPECT_EQ(1, (*filterListObject)["d"][0]["i"].GetInt());
+			ASSERT_TRUE(filterListObject["d"][0].HasMember("i"));
+			ASSERT_TRUE(filterListObject["d"][0]["i"].IsNumber());
+			EXPECT_EQ(1, filterListObject["d"][0]["i"].GetInt());
 
 			/* Entry Action */
-			ASSERT_TRUE((*filterListObject)["d"][0].HasMember("a"));
-			ASSERT_TRUE((*filterListObject)["d"][0]["a"].IsNumber());
-			EXPECT_EQ(RSSL_FTEA_SET_ENTRY, (*filterListObject)["d"][0]["a"].GetInt());
+			ASSERT_TRUE(filterListObject["d"][0].HasMember("a"));
+			ASSERT_TRUE(filterListObject["d"][0]["a"].IsNumber());
+			EXPECT_EQ(RSSL_FTEA_SET_ENTRY, filterListObject["d"][0]["a"].GetInt());
 
 			/* Entry Data */
-			ASSERT_TRUE((*filterListObject)["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&(*filterListObject)["d"][0]["d"], protocolType));
+			ASSERT_TRUE(filterListObject["d"][0].HasMember("d"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(filterListObject["d"][0]["d"], protocolType));
 			break;
 
 		default:
@@ -1628,51 +1628,51 @@ void MsgConversionTestBase::encodeSampleRsslMap(RsslEncodeIterator *pIter)
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMapComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonMap(const Value *mapObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonMap(const Value &mapObject, RsslJsonProtocolType protocolType)
 {
-	ASSERT_TRUE((*mapObject).IsObject());
+	ASSERT_TRUE(mapObject.IsObject());
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
-			ASSERT_TRUE((*mapObject).HasMember("KeyType"));
-			ASSERT_TRUE((*mapObject)["KeyType"].IsString());
-			ASSERT_STREQ("Int", (*mapObject)["KeyType"].GetString());
-			ASSERT_TRUE((*mapObject).HasMember("Entries"));
-			ASSERT_TRUE((*mapObject)["Entries"].IsArray());
-			ASSERT_EQ(1, (*mapObject)["Entries"].Size());
+			ASSERT_TRUE(mapObject.HasMember("KeyType"));
+			ASSERT_TRUE(mapObject["KeyType"].IsString());
+			ASSERT_STREQ("Int", mapObject["KeyType"].GetString());
+			ASSERT_TRUE(mapObject.HasMember("Entries"));
+			ASSERT_TRUE(mapObject["Entries"].IsArray());
+			ASSERT_EQ(1, mapObject["Entries"].Size());
 
 			/* Map Entry */
-			ASSERT_TRUE((*mapObject)["Entries"][0].HasMember("Action"));
-			ASSERT_TRUE((*mapObject)["Entries"][0]["Action"].IsString());
-			EXPECT_STREQ("Add", (*mapObject)["Entries"][0]["Action"].GetString());
-			ASSERT_TRUE((*mapObject)["Entries"][0].HasMember("Key"));
-			ASSERT_TRUE((*mapObject)["Entries"][0]["Key"].IsNumber());
-			EXPECT_EQ(1, (*mapObject)["Entries"][0]["Key"].GetInt());
-			ASSERT_TRUE((*mapObject)["Entries"][0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*mapObject)["Entries"][0]["Fields"], protocolType));
+			ASSERT_TRUE(mapObject["Entries"][0].HasMember("Action"));
+			ASSERT_TRUE(mapObject["Entries"][0]["Action"].IsString());
+			EXPECT_STREQ("Add", mapObject["Entries"][0]["Action"].GetString());
+			ASSERT_TRUE(mapObject["Entries"][0].HasMember("Key"));
+			ASSERT_TRUE(mapObject["Entries"][0]["Key"].IsNumber());
+			EXPECT_EQ(1, mapObject["Entries"][0]["Key"].GetInt());
+			ASSERT_TRUE(mapObject["Entries"][0].HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(mapObject["Entries"][0]["Fields"], protocolType));
 			break;
 
 		case RSSL_JSON_JPT_JSON:
-			ASSERT_TRUE(mapObject->HasMember("f"));
-			ASSERT_TRUE((*mapObject)["f"].IsNumber());
-			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, (*mapObject)["f"].GetInt());
-			ASSERT_TRUE((*mapObject).HasMember("k"));
-			ASSERT_TRUE((*mapObject)["k"].IsNumber());
-			ASSERT_EQ(RSSL_DT_INT, (*mapObject)["k"].GetInt());
-			ASSERT_TRUE((*mapObject).HasMember("d"));
-			ASSERT_TRUE((*mapObject)["d"].IsArray());
-			ASSERT_EQ(1, (*mapObject)["d"].Size());
+			ASSERT_TRUE(mapObject.HasMember("f"));
+			ASSERT_TRUE(mapObject["f"].IsNumber());
+			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, mapObject["f"].GetInt());
+			ASSERT_TRUE(mapObject.HasMember("k"));
+			ASSERT_TRUE(mapObject["k"].IsNumber());
+			ASSERT_EQ(RSSL_DT_INT, mapObject["k"].GetInt());
+			ASSERT_TRUE(mapObject.HasMember("d"));
+			ASSERT_TRUE(mapObject["d"].IsArray());
+			ASSERT_EQ(1, mapObject["d"].Size());
 
 			/* Map Entry */
-			ASSERT_TRUE((*mapObject)["d"][0].HasMember("a"));
-			ASSERT_TRUE((*mapObject)["d"][0]["a"].IsNumber());
-			EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, (*mapObject)["d"][0]["a"].GetInt());
-			ASSERT_TRUE((*mapObject)["d"][0].HasMember("k"));
-			ASSERT_TRUE((*mapObject)["d"][0]["k"].IsNumber());
-			EXPECT_EQ(1, (*mapObject)["d"][0]["k"].GetInt());
-			ASSERT_TRUE((*mapObject)["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*mapObject)["d"][0]["d"], protocolType));
+			ASSERT_TRUE(mapObject["d"][0].HasMember("a"));
+			ASSERT_TRUE(mapObject["d"][0]["a"].IsNumber());
+			EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapObject["d"][0]["a"].GetInt());
+			ASSERT_TRUE(mapObject["d"][0].HasMember("k"));
+			ASSERT_TRUE(mapObject["d"][0]["k"].IsNumber());
+			EXPECT_EQ(1, mapObject["d"][0]["k"].GetInt());
+			ASSERT_TRUE(mapObject["d"][0].HasMember("d"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(mapObject["d"][0]["d"], protocolType));
 			break;
 
 		default:
@@ -1721,45 +1721,45 @@ void MsgConversionTestBase::encodeSampleRsslVector(RsslEncodeIterator *pIter)
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonVector(const Value *vectorObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonVector(const Value &vectorObject, RsslJsonProtocolType protocolType)
 {
-	ASSERT_TRUE((*vectorObject).IsObject());
+	ASSERT_TRUE(vectorObject.IsObject());
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
-			ASSERT_TRUE((*vectorObject).HasMember("Entries"));
-			ASSERT_TRUE((*vectorObject)["Entries"].IsArray());
-			ASSERT_EQ(1, (*vectorObject)["Entries"].Size());
+			ASSERT_TRUE(vectorObject.HasMember("Entries"));
+			ASSERT_TRUE(vectorObject["Entries"].IsArray());
+			ASSERT_EQ(1, vectorObject["Entries"].Size());
 
 			/* Vector Entry */
-			ASSERT_TRUE((*vectorObject)["Entries"][0].HasMember("Index"));
-			ASSERT_TRUE((*vectorObject)["Entries"][0]["Index"].IsNumber());
-			ASSERT_EQ(1, (*vectorObject)["Entries"][0]["Index"].GetInt());
-			ASSERT_TRUE((*vectorObject)["Entries"][0].HasMember("Action"));
-			ASSERT_TRUE((*vectorObject)["Entries"][0]["Action"].IsString());
-			ASSERT_STREQ("Set", (*vectorObject)["Entries"][0]["Action"].GetString());
-			ASSERT_TRUE((*vectorObject)["Entries"][0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*vectorObject)["Entries"][0]["Fields"], protocolType));
+			ASSERT_TRUE(vectorObject["Entries"][0].HasMember("Index"));
+			ASSERT_TRUE(vectorObject["Entries"][0]["Index"].IsNumber());
+			ASSERT_EQ(1, vectorObject["Entries"][0]["Index"].GetInt());
+			ASSERT_TRUE(vectorObject["Entries"][0].HasMember("Action"));
+			ASSERT_TRUE(vectorObject["Entries"][0]["Action"].IsString());
+			ASSERT_STREQ("Set", vectorObject["Entries"][0]["Action"].GetString());
+			ASSERT_TRUE(vectorObject["Entries"][0].HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(vectorObject["Entries"][0]["Fields"], protocolType));
 			break;
 
 		case RSSL_JSON_JPT_JSON:
-			ASSERT_TRUE(vectorObject->HasMember("f"));
-			ASSERT_TRUE((*vectorObject)["f"].IsNumber());
-			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, (*vectorObject)["f"].GetInt());
-			ASSERT_TRUE((*vectorObject).HasMember("d"));
-			ASSERT_TRUE((*vectorObject)["d"].IsArray());
-			ASSERT_EQ(1, (*vectorObject)["d"].Size());
+			ASSERT_TRUE(vectorObject.HasMember("f"));
+			ASSERT_TRUE(vectorObject["f"].IsNumber());
+			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, vectorObject["f"].GetInt());
+			ASSERT_TRUE(vectorObject.HasMember("d"));
+			ASSERT_TRUE(vectorObject["d"].IsArray());
+			ASSERT_EQ(1, vectorObject["d"].Size());
 
 			/* Vector Entry */
-			ASSERT_TRUE((*vectorObject)["d"][0].HasMember("i"));
-			ASSERT_TRUE((*vectorObject)["d"][0]["i"].IsNumber());
-			ASSERT_EQ(1, (*vectorObject)["d"][0]["i"].GetInt());
-			ASSERT_TRUE((*vectorObject)["d"][0].HasMember("a"));
-			ASSERT_TRUE((*vectorObject)["d"][0]["a"].IsNumber());
-			ASSERT_EQ(RSSL_VTEA_SET_ENTRY, (*vectorObject)["d"][0]["a"].GetInt());
-			ASSERT_TRUE((*vectorObject)["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*vectorObject)["d"][0]["d"], protocolType));
+			ASSERT_TRUE(vectorObject["d"][0].HasMember("i"));
+			ASSERT_TRUE(vectorObject["d"][0]["i"].IsNumber());
+			ASSERT_EQ(1, vectorObject["d"][0]["i"].GetInt());
+			ASSERT_TRUE(vectorObject["d"][0].HasMember("a"));
+			ASSERT_TRUE(vectorObject["d"][0]["a"].IsNumber());
+			ASSERT_EQ(RSSL_VTEA_SET_ENTRY, vectorObject["d"][0]["a"].GetInt());
+			ASSERT_TRUE(vectorObject["d"][0].HasMember("d"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(vectorObject["d"][0]["d"], protocolType));
 			break;
 
 		default:
@@ -1804,33 +1804,33 @@ void MsgConversionTestBase::encodeSampleRsslSeries(RsslEncodeIterator *pIter)
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeSeriesComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonSeries(const Value *seriesObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonSeries(const Value &seriesObject, RsslJsonProtocolType protocolType)
 {
-	ASSERT_TRUE((*seriesObject).IsObject());
+	ASSERT_TRUE(seriesObject.IsObject());
 
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
-			ASSERT_TRUE((*seriesObject).HasMember("Entries"));
-			ASSERT_TRUE((*seriesObject)["Entries"].IsArray());
-			ASSERT_EQ(1, (*seriesObject)["Entries"].Size());
+			ASSERT_TRUE(seriesObject.HasMember("Entries"));
+			ASSERT_TRUE(seriesObject["Entries"].IsArray());
+			ASSERT_EQ(1, seriesObject["Entries"].Size());
 
 			/* Series Entry */
-			ASSERT_TRUE((*seriesObject)["Entries"][0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*seriesObject)["Entries"][0]["Fields"], protocolType));
+			ASSERT_TRUE(seriesObject["Entries"][0].HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(seriesObject["Entries"][0]["Fields"], protocolType));
 			break;
 
 		case RSSL_JSON_JPT_JSON:
-			ASSERT_TRUE(seriesObject->HasMember("f"));
-			ASSERT_TRUE((*seriesObject)["f"].IsNumber());
-			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, (*seriesObject)["f"].GetInt());
+			ASSERT_TRUE(seriesObject.HasMember("f"));
+			ASSERT_TRUE(seriesObject["f"].IsNumber());
+			ASSERT_EQ(RSSL_DT_FIELD_LIST - 128, seriesObject["f"].GetInt());
 
-			ASSERT_TRUE((*seriesObject).HasMember("d"));
-			ASSERT_TRUE((*seriesObject)["d"].IsArray());
-			ASSERT_EQ(1, (*seriesObject)["d"].Size());
+			ASSERT_TRUE(seriesObject.HasMember("d"));
+			ASSERT_TRUE(seriesObject["d"].IsArray());
+			ASSERT_EQ(1, seriesObject["d"].Size());
 
 			/* Series Entry */
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*seriesObject)["d"][0], protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(seriesObject["d"][0], protocolType));
 			break;
 
 		default:
@@ -1870,39 +1870,39 @@ void MsgConversionTestBase::encodeSampleRsslUpdateMsg(RsslEncodeIterator *pIter)
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(pIter, RSSL_TRUE));
 }
 
-void MsgConversionTestBase::checkSampleJsonUpdateMsg(const Value *updateObject, RsslJsonProtocolType protocolType)
+void MsgConversionTestBase::checkSampleJsonUpdateMsg(const Value &updateObject, RsslJsonProtocolType protocolType)
 {
 	switch(protocolType)
 	{
 		case RSSL_JSON_JPT_JSON2:
 			/* Check message type. */
-			ASSERT_TRUE(updateObject->HasMember("Type"));
-			ASSERT_TRUE((*updateObject)["Type"].IsString());
-			EXPECT_STREQ("Update", (*updateObject)["Type"].GetString());
+			ASSERT_TRUE(updateObject.HasMember("Type"));
+			ASSERT_TRUE(updateObject["Type"].IsString());
+			EXPECT_STREQ("Update", updateObject["Type"].GetString());
 
 			/* Check Stream ID. */
-			ASSERT_TRUE(updateObject->HasMember("ID"));
-			ASSERT_TRUE((*updateObject)["ID"].IsNumber());
-			EXPECT_EQ(5, (*updateObject)["ID"].GetInt());
+			ASSERT_TRUE(updateObject.HasMember("ID"));
+			ASSERT_TRUE(updateObject["ID"].IsNumber());
+			EXPECT_EQ(5, updateObject["ID"].GetInt());
 
 			/* Check Domain. */
-			ASSERT_FALSE(updateObject->HasMember("Domain")); /* MarketPrice */
+			ASSERT_FALSE(updateObject.HasMember("Domain")); /* MarketPrice */
 
 			/* Check UpdateType. */
-			ASSERT_TRUE(updateObject->HasMember("UpdateType"));
-			ASSERT_TRUE((*updateObject)["UpdateType"].IsString());
-			EXPECT_STREQ("Quote", (*updateObject)["UpdateType"].GetString());
+			ASSERT_TRUE(updateObject.HasMember("UpdateType"));
+			ASSERT_TRUE(updateObject["UpdateType"].IsString());
+			EXPECT_STREQ("Quote", updateObject["UpdateType"].GetString());
 
-			ASSERT_TRUE(updateObject->HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*updateObject)["Fields"], protocolType));
+			ASSERT_TRUE(updateObject.HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(updateObject["Fields"], protocolType));
 			break;
 
 		case RSSL_JSON_JPT_JSON:
 		{
 			/* Get message base. */
-			ASSERT_TRUE(updateObject->HasMember("b"));
-			ASSERT_TRUE((*updateObject)["b"].IsObject());
-			const Value &msgBase = (*updateObject)["b"];
+			ASSERT_TRUE(updateObject.HasMember("b"));
+			ASSERT_TRUE(updateObject["b"].IsObject());
+			const Value &msgBase = updateObject["b"];
 
 			/* Check message class. */
 			ASSERT_TRUE(msgBase.HasMember("c"));
@@ -1925,12 +1925,12 @@ void MsgConversionTestBase::checkSampleJsonUpdateMsg(const Value *updateObject, 
 			EXPECT_EQ(RSSL_DT_FIELD_LIST - 128, msgBase["f"].GetInt());
 
 			/* Check UpdateType. */
-			ASSERT_TRUE(updateObject->HasMember("u"));
-			ASSERT_TRUE((*updateObject)["u"].IsNumber());
-			EXPECT_EQ(RDM_UPD_EVENT_TYPE_QUOTE, (*updateObject)["u"].GetInt());
+			ASSERT_TRUE(updateObject.HasMember("u"));
+			ASSERT_TRUE(updateObject["u"].IsNumber());
+			EXPECT_EQ(RDM_UPD_EVENT_TYPE_QUOTE, updateObject["u"].GetInt());
 
-			ASSERT_TRUE(updateObject->HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*updateObject)["d"], protocolType));
+			ASSERT_TRUE(updateObject.HasMember("d"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(updateObject["d"], protocolType));
 			break;
 		}
 
@@ -1953,12 +1953,12 @@ void MsgConversionTestBase::decodeSampleRsslUpdateMsg(RsslJsonProtocolType proto
 	ASSERT_NO_FATAL_FAILURE(decodeSampleRsslFieldList(protocol, pIter));
 }
 
-void MsgConversionTestBase::checkSampleJsonObject(const Value *jsonObject)
+void MsgConversionTestBase::checkSampleJsonObject(const Value &jsonObject)
 {
-	ASSERT_TRUE(jsonObject->IsObject());
-	ASSERT_TRUE(jsonObject->HasMember("SomeKey"));
-	ASSERT_TRUE((*jsonObject)["SomeKey"].IsBool());
-	EXPECT_TRUE((*jsonObject)["SomeKey"].GetBool());
+	ASSERT_TRUE(jsonObject.IsObject());
+	ASSERT_TRUE(jsonObject.HasMember("SomeKey"));
+	ASSERT_TRUE(jsonObject["SomeKey"].IsBool());
+	EXPECT_TRUE(jsonObject["SomeKey"].GetBool());
 }
 
 RsslDataDictionary* MsgConversionTestBase::getRsslDataDictionary()

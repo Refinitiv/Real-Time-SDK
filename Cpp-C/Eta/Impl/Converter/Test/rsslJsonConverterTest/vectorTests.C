@@ -158,7 +158,7 @@ TEST_P(VectorParamTestFixture, VectorMembersTest)
 			{
 				ASSERT_TRUE(_jsonDocument["Vector"].HasMember("Summary"));
 				ASSERT_TRUE(_jsonDocument["Vector"]["Summary"].HasMember("Fields"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Vector"]["Summary"]["Fields"]));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Vector"]["Summary"]["Fields"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Vector"].HasMember("Summary"));
@@ -191,13 +191,13 @@ TEST_P(VectorParamTestFixture, VectorMembersTest)
 			{
 				ASSERT_TRUE(entries[0].HasMember("PermData"));
 				ASSERT_TRUE(entries[0]["PermData"].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &entries[0]["PermData"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, entries[0]["PermData"]));
 			}
 			else
 				EXPECT_FALSE(entries[0].HasMember("PermData"));
 
 			ASSERT_TRUE(entries[0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 			break;
 		}
 
@@ -237,7 +237,7 @@ TEST_P(VectorParamTestFixture, VectorMembersTest)
 				ASSERT_TRUE(_jsonDocument["d"].HasMember("s"));
 				ASSERT_TRUE(_jsonDocument["d"]["s"].IsObject());
 				ASSERT_TRUE(_jsonDocument["d"]["s"].HasMember("d"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["s"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["s"], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"].HasMember("s"));
@@ -262,14 +262,14 @@ TEST_P(VectorParamTestFixture, VectorMembersTest)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"][0].HasMember("p"));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][0]["p"].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["d"]["d"][0]["p"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["d"]["d"][0]["p"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"][0].HasMember("p"));
 
 			/* Entry Payload */
 			ASSERT_TRUE(_jsonDocument["d"]["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["d"][0]["d"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["d"][0]["d"], params.protocolType));
 			break;
 		}
 
@@ -541,7 +541,7 @@ TEST_F(VectorTests, VectorEntryActionsTest)
 	ASSERT_TRUE(entries[0]["Action"].IsString());
 	EXPECT_STREQ("Insert", entries[0]["Action"].GetString());
 	ASSERT_TRUE(entries[0].HasMember("Fields"));
-	ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+	ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 
 	/* Check Entry with UPDATE action. */
 	ASSERT_TRUE(entries[1].HasMember("Index"));
@@ -552,7 +552,7 @@ TEST_F(VectorTests, VectorEntryActionsTest)
 	ASSERT_TRUE(entries[1]["Action"].IsString());
 	EXPECT_STREQ("Update", entries[1]["Action"].GetString());
 	ASSERT_TRUE(entries[1].HasMember("Fields"));
-	ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[1]["Fields"]));
+	ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[1]["Fields"]));
 
 	/* Check Entry with the SET action. */
 	ASSERT_TRUE(entries[2].HasMember("Index"));
@@ -735,12 +735,12 @@ TEST_P(VectorContainerTypesTestFixture, VectorContainerTypesTest)
 	{
 		case RSSL_DT_FIELD_LIST:
 			ASSERT_TRUE(_jsonDocument["Vector"]["Summary"].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Vector"]["Summary"]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Vector"]["Summary"]["Fields"]));
 			break;
 
 		case RSSL_DT_ELEMENT_LIST:
 			ASSERT_TRUE(_jsonDocument["Vector"]["Summary"].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["Vector"]["Summary"]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["Vector"]["Summary"]["Elements"]));
 			break;
 
 		default:
@@ -767,12 +767,12 @@ TEST_P(VectorContainerTypesTestFixture, VectorContainerTypesTest)
 	{
 		case RSSL_DT_FIELD_LIST:
 			ASSERT_TRUE(entries[0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 			break;
 
 		case RSSL_DT_ELEMENT_LIST:
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 
 		default:

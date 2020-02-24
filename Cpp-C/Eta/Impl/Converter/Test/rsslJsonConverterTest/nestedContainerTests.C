@@ -290,131 +290,131 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 	}
 
 	/* Test the JSON-encoded container for correct values */
-	void checkJsonContainer(Value *document, RsslUInt8 outerContainerType, RsslUInt8 msgClass, RsslUInt8 innerContainerType, bool hasSummaryData, bool isInnerContainer)
+	void checkJsonContainer(const Value &document, RsslUInt8 outerContainerType, RsslUInt8 msgClass, RsslUInt8 innerContainerType, bool hasSummaryData, bool isInnerContainer)
 	{
-		Value *innerContainer = NULL;
+		Value innerContainer;
 
 		/* Check outer container */
 		switch(outerContainerType)
 		{
 			case RSSL_DT_MAP:
 
-				ASSERT_TRUE(document->HasMember("Map"));
+				ASSERT_TRUE(document.HasMember("Map"));
 
 				if (hasSummaryData)
 				{
-					ASSERT_TRUE((*document)["Map"].HasMember("Summary"));
+					ASSERT_TRUE(document["Map"].HasMember("Summary"));
 					if (isInnerContainer)
 					{
 						ASSERT_TRUE(innerContainerType == RSSL_DT_FIELD_LIST);
-						ASSERT_TRUE((*document)["Map"]["Summary"].HasMember("Fields"));
-						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*document)["Map"]["Summary"]["Fields"]));
+						ASSERT_TRUE(document["Map"]["Summary"].HasMember("Fields"));
+						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(document["Map"]["Summary"]["Fields"]));
 					}
 					else
 					{
-						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(&(*document)["Map"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
+						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(document["Map"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
 					}
 				}
 
-				innerContainer = &(*document)["Map"]["Entries"][0];
-				ASSERT_TRUE(innerContainer->HasMember("Action"));
-				ASSERT_TRUE((*innerContainer)["Action"].IsString());
-				EXPECT_STREQ("Add", (*innerContainer)["Action"].GetString());
+				innerContainer = document["Map"]["Entries"][0];
+				ASSERT_TRUE(innerContainer.HasMember("Action"));
+				ASSERT_TRUE(innerContainer["Action"].IsString());
+				EXPECT_STREQ("Add", innerContainer["Action"].GetString());
 
-				ASSERT_TRUE(innerContainer->HasMember("Key"));
-				ASSERT_TRUE((*innerContainer)["Key"].IsNumber());
-				EXPECT_EQ(MAP_ENTRY_KEY, (*innerContainer)["Key"].GetInt());
+				ASSERT_TRUE(innerContainer.HasMember("Key"));
+				ASSERT_TRUE(innerContainer["Key"].IsNumber());
+				EXPECT_EQ(MAP_ENTRY_KEY, innerContainer["Key"].GetInt());
 				break;
 
 			case RSSL_DT_SERIES:
 
-				ASSERT_TRUE(document->HasMember("Series"));
+				ASSERT_TRUE(document.HasMember("Series"));
 
 				if (hasSummaryData)
 				{
-					ASSERT_TRUE((*document)["Series"].HasMember("Summary"));
+					ASSERT_TRUE(document["Series"].HasMember("Summary"));
 					if (isInnerContainer)
 					{
 						ASSERT_TRUE(innerContainerType == RSSL_DT_FIELD_LIST);
-						ASSERT_TRUE((*document)["Series"]["Summary"].HasMember("Fields"));
-						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*document)["Series"]["Summary"]["Fields"]));
+						ASSERT_TRUE(document["Series"]["Summary"].HasMember("Fields"));
+						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(document["Series"]["Summary"]["Fields"]));
 					}
 					else
 					{
-						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(&(*document)["Series"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
+						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(document["Series"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
 					}
 				}
 
-				innerContainer = &(*document)["Series"]["Entries"][0];
+				innerContainer = document["Series"]["Entries"][0];
 				break;
 
 			case RSSL_DT_VECTOR:
 
-				ASSERT_TRUE(document->HasMember("Vector"));
+				ASSERT_TRUE(document.HasMember("Vector"));
 
 				if (hasSummaryData)
 				{
-					ASSERT_TRUE((*document)["Vector"].HasMember("Summary"));
+					ASSERT_TRUE(document["Vector"].HasMember("Summary"));
 					if (isInnerContainer)
 					{
 						ASSERT_TRUE(innerContainerType == RSSL_DT_FIELD_LIST);
-						ASSERT_TRUE((*document)["Vector"]["Summary"].HasMember("Fields"));
-						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*document)["Vector"]["Summary"]["Fields"]));
+						ASSERT_TRUE(document["Vector"]["Summary"].HasMember("Fields"));
+						ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(document["Vector"]["Summary"]["Fields"]));
 					}
 					else
 					{
-						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(&(*document)["Vector"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
+						ASSERT_NO_FATAL_FAILURE(checkJsonContainer(document["Vector"]["Summary"], innerContainerType, RSSL_MC_UPDATE, RSSL_DT_FIELD_LIST, hasSummaryData, true));
 					}
 				}
 
-				innerContainer = &(*document)["Vector"]["Entries"][0];
-				ASSERT_TRUE(innerContainer->HasMember("Action"));
-				ASSERT_TRUE((*innerContainer)["Action"].IsString());
-				EXPECT_STREQ("Set", (*innerContainer)["Action"].GetString());
+				innerContainer = document["Vector"]["Entries"][0];
+				ASSERT_TRUE(innerContainer.HasMember("Action"));
+				ASSERT_TRUE(innerContainer["Action"].IsString());
+				EXPECT_STREQ("Set", innerContainer["Action"].GetString());
 
-				ASSERT_TRUE(innerContainer->HasMember("Index"));
-				ASSERT_TRUE((*innerContainer)["Index"].IsNumber());
-				EXPECT_EQ(VECTOR_ENTRY_INDEX, (*innerContainer)["Index"].GetInt());
+				ASSERT_TRUE(innerContainer.HasMember("Index"));
+				ASSERT_TRUE(innerContainer["Index"].IsNumber());
+				EXPECT_EQ(VECTOR_ENTRY_INDEX, innerContainer["Index"].GetInt());
 				break;
 
 			case RSSL_DT_FILTER_LIST:
 
-				ASSERT_TRUE(document->HasMember("FilterList"));
-				ASSERT_FALSE((*document)["FilterList"].HasMember("Summary"));
+				ASSERT_TRUE(document.HasMember("FilterList"));
+				ASSERT_FALSE(document["FilterList"].HasMember("Summary"));
 
-				innerContainer = &(*document)["FilterList"]["Entries"][0];
-				ASSERT_TRUE(innerContainer->HasMember("Action"));
-				ASSERT_TRUE((*innerContainer)["Action"].IsString());
-				EXPECT_STREQ("Set", (*innerContainer)["Action"].GetString());
+				innerContainer = document["FilterList"]["Entries"][0];
+				ASSERT_TRUE(innerContainer.HasMember("Action"));
+				ASSERT_TRUE(innerContainer["Action"].IsString());
+				EXPECT_STREQ("Set", innerContainer["Action"].GetString());
 
-				ASSERT_TRUE(innerContainer->HasMember("ID"));
-				ASSERT_TRUE((*innerContainer)["ID"].IsNumber());
-				EXPECT_EQ(FILTER_ENTRY_ID, (*innerContainer)["ID"].GetInt());
+				ASSERT_TRUE(innerContainer.HasMember("ID"));
+				ASSERT_TRUE(innerContainer["ID"].IsNumber());
+				EXPECT_EQ(FILTER_ENTRY_ID, innerContainer["ID"].GetInt());
 				break;
 
 			case RSSL_DT_OPAQUE:
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
-				ASSERT_TRUE(document->HasMember("Opaque"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, &(*document)["Opaque"]));
+				ASSERT_TRUE(document.HasMember("Opaque"));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&OPAQUE_BUFFER, document["Opaque"]));
 				return; /* This doesn't contain anything else */
 
 			case RSSL_DT_XML:
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
-				ASSERT_TRUE(document->HasMember("Xml"));
-				ASSERT_STREQ(XML_BUFFER.data, (*document)["Xml"].GetString());
+				ASSERT_TRUE(document.HasMember("Xml"));
+				ASSERT_STREQ(XML_BUFFER.data, document["Xml"].GetString());
 				return; /* This doesn't contain anything else */
 
 			case RSSL_DT_JSON:
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
-				ASSERT_TRUE(document->HasMember("Json"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(&(*document)["Json"]));
+				ASSERT_TRUE(document.HasMember("Json"));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonObject(document["Json"]));
 				return; /* This doesn't contain anything else */
 
 			case RSSL_DT_MSG:
-				ASSERT_TRUE(document->HasMember("Message"));
-				innerContainer = &(*document)["Message"];
-				ASSERT_TRUE((*innerContainer)["Type"].IsString());
-				EXPECT_STREQ(rsslMsgClassToOmmString(msgClass), (*innerContainer)["Type"].GetString());
+				ASSERT_TRUE(document.HasMember("Message"));
+				innerContainer = document["Message"];
+				ASSERT_TRUE(innerContainer["Type"].IsString());
+				EXPECT_STREQ(rsslMsgClassToOmmString(msgClass), innerContainer["Type"].GetString());
 
 				break;
 
@@ -428,8 +428,8 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 		if (isInnerContainer)
 		{
 			ASSERT_TRUE(innerContainerType == RSSL_DT_FIELD_LIST);
-			ASSERT_TRUE(innerContainer->HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&(*innerContainer)["Fields"]));
+			ASSERT_TRUE(innerContainer.HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(innerContainer["Fields"]));
 		}
 		else
 		{
@@ -645,7 +645,7 @@ TEST_P(NestedContainerTypesTestFixture, NestedContainerTypesTest)
 	ASSERT_TRUE(_jsonDocument["Type"].IsString());
 	EXPECT_STREQ("Update", _jsonDocument["Type"].GetString());
 
-	ASSERT_NO_FATAL_FAILURE(checkJsonContainer(&Value(_jsonDocument), params.outerContainerType, params.outerMsgClass, params.innerContainerType, params.encodeSummaryData, false));
+	ASSERT_NO_FATAL_FAILURE(checkJsonContainer(Value(_jsonDocument), params.outerContainerType, params.outerMsgClass, params.innerContainerType, params.encodeSummaryData, false));
 
 	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
 

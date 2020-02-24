@@ -167,7 +167,7 @@ TEST_P(CloseMsgMembersTestFixture, CloseMsgMembersTest)
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("ExtHdr"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["ExtHdr"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["ExtHdr"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("ExtHdr"));
@@ -212,7 +212,7 @@ TEST_P(CloseMsgMembersTestFixture, CloseMsgMembersTest)
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("e"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["e"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["e"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("e"));

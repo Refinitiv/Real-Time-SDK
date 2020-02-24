@@ -175,7 +175,7 @@ class MsgConversionTestBase : public ::testing::Test
 		void getJsonToRsslError(RsslJsonProtocolType protocolType, RsslJsonConverterError *pConverterError);
 
 		/** Check a Base64-encoded buffer **/
-		void checkJsonBase64String(const RsslBuffer *pExpectedRsslBuffer, const json::Value *jsonStringValue);
+		void checkJsonBase64String(const RsslBuffer *pExpectedRsslBuffer, const Value & jsonStringValue);
 
 		/* Sample FieldList encoding/decoding */
 
@@ -183,7 +183,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslFieldList(RsslEncodeIterator *pIter, RsslLocalFieldSetDefDb * setDb = 0);
 
 		/** Check a Sample JSON FieldList (corresponds to the FieldList encoded by encodeSampleRsslFieldList) */
-		static void checkSampleJsonFieldList(const json::Value *fieldListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonFieldList(const json::Value &fieldListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF FieldList (corresponds to the FieldList encoded by encodeSampleRsslFieldList) */
 		static void decodeSampleRsslFieldList(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter, RsslLocalFieldSetDefDb *setDb = NULL);
@@ -195,7 +195,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeLargeRsslFieldList(RsslEncodeIterator *pIter, RsslLocalFieldSetDefDb * setDb = 0);
 
 		/** Check a Large JSON FieldList (corresponds to the FieldList encoded by encodeLargeRsslFieldList) */
-		static void checkLargeJsonFieldList(const json::Value *fieldListObject);
+		static void checkLargeJsonFieldList(const json::Value &fieldListObject);
 
 		/** Decode and check the Large RWF FieldList (corresponds to the FieldList encoded by encodeLargeRsslFieldList) */
 		static void decodeLargeRsslFieldList(RsslDecodeIterator *pIter);
@@ -206,7 +206,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslElementList(RsslEncodeIterator *pIter, RsslLocalElementSetDefDb * setDb = 0);
 
 		/** Check a Sample JSON ElementList (corresponds to the ElementList encoded by encodeSampleRsslElementList) */
-		static void checkSampleJsonElementList(const json::Value *elementListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonElementList(const json::Value &elementListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF ElementList (corresponds to the ElementList encoded by encodeSampleRsslElementList) */
 		static void decodeSampleRsslElementList(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter, RsslLocalElementSetDefDb *setDb = NULL);
@@ -217,7 +217,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslFilterList(RsslEncodeIterator *pIter);
 
 		/** Check a Sample JSON FilterList (corresponds to the FilterList encoded by encodeSampleRsslFilterList) */
-		static void checkSampleJsonFilterList(const json::Value *filterListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonFilterList(const json::Value &filterListObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF FilterList (corresponds to the FilterList encoded by encodeSampleRsslFilterList) */
 		static void decodeSampleRsslFilterList(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter);
@@ -228,7 +228,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslMap(RsslEncodeIterator *pIter);
 
 		/** Check a Sample JSON Map (corresponds to the Map encoded by encodeSampleRsslMap) */
-		static void checkSampleJsonMap(const json::Value *mapObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonMap(const json::Value &mapObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF Map (corresponds to the Map encoded by encodeSampleRsslMap) */
 		static void decodeSampleRsslMap(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter);
@@ -239,7 +239,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslVector(RsslEncodeIterator *pIter);
 
 		/** Check a Sample JSON Vector (corresponds to the Vector encoded by encodeSampleRsslVector) */
-		static void checkSampleJsonVector(const json::Value *vectorObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonVector(const json::Value &vectorObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF Vector (corresponds to the Vector encoded by encodeSampleRsslVector) */
 		static void decodeSampleRsslVector(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter);
@@ -250,7 +250,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslSeries(RsslEncodeIterator *pIter);
 
 		/** Check a Sample JSON Series (corresponds to the Series encoded by encodeSampleRsslSeries) */
-		static void checkSampleJsonSeries(const json::Value *seriesObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonSeries(const json::Value &seriesObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF Series (corresponds to the Series encoded by encodeSampleRsslSeries) */
 		static void decodeSampleRsslSeries(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter);
@@ -261,7 +261,7 @@ class MsgConversionTestBase : public ::testing::Test
 		static void encodeSampleRsslUpdateMsg(RsslEncodeIterator *pIter);
 
 		/** Check a Sample JSON Message (corresponds to the Message encoded by encodeSampleRsslUpdateMsg) */
-		static void checkSampleJsonUpdateMsg(const json::Value *updateObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
+		static void checkSampleJsonUpdateMsg(const json::Value &updateObject, RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2);
 
 		/** Decode and check the Sample RWF Message (corresponds to the Message encoded by encodeSampleRsslUpdateMsg) */
 		static void decodeSampleRsslUpdateMsg(RsslJsonProtocolType protocol, RsslDecodeIterator *pIter);
@@ -269,7 +269,7 @@ class MsgConversionTestBase : public ::testing::Test
 		/* Json Buffer check */
 
 		/** Check the Sample JSON buffer. */
-		static void checkSampleJsonObject(const json::Value *jsonObject);
+		static void checkSampleJsonObject(const json::Value &jsonObject);
 		
 		/* Get the static RsslDataDictionary for use in tests */
 		static RsslDataDictionary* getRsslDataDictionary();

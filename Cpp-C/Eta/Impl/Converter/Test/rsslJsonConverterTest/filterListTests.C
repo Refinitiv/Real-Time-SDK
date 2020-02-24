@@ -171,13 +171,13 @@ TEST_P(FilterListMembersTestFixture, FilterListMembersTest)
 			{
 				ASSERT_TRUE(entries[0].HasMember("PermData"));
 				ASSERT_TRUE(entries[0]["PermData"].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &entries[0]["PermData"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, entries[0]["PermData"]));
 			}
 			else
 				EXPECT_FALSE(entries[0].HasMember("PermData"));
 
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 		}
 
@@ -232,7 +232,7 @@ TEST_P(FilterListMembersTestFixture, FilterListMembersTest)
 
 			/* Entry Payload */
 			ASSERT_TRUE(_jsonDocument["d"]["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["d"]["d"][0]["d"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["d"]["d"][0]["d"], params.protocolType));
 			break;
 		}
 
@@ -488,7 +488,7 @@ TEST_F(FilterListTests, FilterEntryActionsTest)
 	ASSERT_TRUE(entries[0]["Action"].IsString());
 	EXPECT_STREQ("Set", entries[0]["Action"].GetString());
 	ASSERT_TRUE(entries[0].HasMember("Elements"));
-	ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+	ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 
 	/* Check Entry with the UPDATE action. */
 	ASSERT_TRUE(entries[1].HasMember("ID"));
@@ -499,7 +499,7 @@ TEST_F(FilterListTests, FilterEntryActionsTest)
 	ASSERT_TRUE(entries[1]["Action"].IsString());
 	EXPECT_STREQ("Update", entries[1]["Action"].GetString());
 	ASSERT_TRUE(entries[1].HasMember("Elements"));
-	ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[1]["Elements"]));
+	ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[1]["Elements"]));
 
 	/* Check Entry with the CLEAR action. */
 	ASSERT_TRUE(entries[2].HasMember("ID"));
@@ -639,11 +639,11 @@ TEST_P(FilterListContainerTypesTestFixture, FilterListContainerTypesTest)
 	{
 		case RSSL_DT_ELEMENT_LIST:
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 		case RSSL_DT_MAP:
 			ASSERT_TRUE(entries[0].HasMember("Map"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(&entries[0]["Map"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonMap(entries[0]["Map"]));
 			break;
 		default:
 			FAIL() << "Attempting to search for unhandled containerType " << containerType;

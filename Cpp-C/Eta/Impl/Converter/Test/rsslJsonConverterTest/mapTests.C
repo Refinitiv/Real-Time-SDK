@@ -188,7 +188,7 @@ TEST_P(MapMembersTestFixture, MapMembersTest)
 			{
 				ASSERT_TRUE(_jsonDocument["Map"].HasMember("Summary"));
 				ASSERT_TRUE(_jsonDocument["Map"]["Summary"].HasMember("Fields"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Map"]["Summary"]["Fields"]));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Map"]["Summary"]["Fields"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["Map"].HasMember("Summary"));
@@ -226,13 +226,13 @@ TEST_P(MapMembersTestFixture, MapMembersTest)
 			{
 				ASSERT_TRUE(entries[0].HasMember("PermData"));
 				ASSERT_TRUE(entries[0]["PermData"].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &entries[0]["PermData"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, entries[0]["PermData"]));
 			}
 			else
 				EXPECT_FALSE(entries[0].HasMember("PermData"));
 			
 			ASSERT_TRUE(entries[0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 			break;
 		}
 
@@ -274,7 +274,7 @@ TEST_P(MapMembersTestFixture, MapMembersTest)
 				ASSERT_TRUE(_jsonDocument["d"].HasMember("s"));
 				ASSERT_TRUE(_jsonDocument["d"]["s"].IsObject());
 				ASSERT_TRUE(_jsonDocument["d"]["s"].HasMember("d"));
-				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["s"], params.protocolType));
+				ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["s"], params.protocolType));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"].HasMember("s"));
@@ -327,14 +327,14 @@ TEST_P(MapMembersTestFixture, MapMembersTest)
 			{
 				ASSERT_TRUE(_jsonDocument["d"]["d"][0].HasMember("p"));
 				ASSERT_TRUE(_jsonDocument["d"]["d"][0]["p"].IsString());
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["d"]["d"][0]["p"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["d"]["d"][0]["p"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument["d"]["d"][0].HasMember("p"));
 
 			/* Entry Payload */
 			ASSERT_TRUE(_jsonDocument["d"]["d"][0].HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"]["d"][0]["d"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"]["d"][0]["d"], params.protocolType));
 			break;
 		}
 
@@ -609,7 +609,7 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 		if (strncmp(entries[i]["Action"].GetString(), RSSL_OMMSTR_MPEA_DELETE_ENTRY.data, RSSL_OMMSTR_MPEA_DELETE_ENTRY.length) != 0)
 		{
 			ASSERT_TRUE(entries[i].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[i]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[i]["Fields"]));
 		}
 	}
 
@@ -766,19 +766,19 @@ TEST_P(MapContainerTypesTestFixture, MapContainerTypesTest)
 		case RSSL_DT_FIELD_LIST:
 			ASSERT_TRUE(_jsonDocument["Map"].HasMember("Summary"));
 			ASSERT_TRUE(_jsonDocument["Map"]["Summary"].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Map"]["Summary"]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Map"]["Summary"]["Fields"]));
 			break;
 
 		case RSSL_DT_ELEMENT_LIST:
 			ASSERT_TRUE(_jsonDocument["Map"].HasMember("Summary"));
 			ASSERT_TRUE(_jsonDocument["Map"]["Summary"].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&_jsonDocument["Map"]["Summary"]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(_jsonDocument["Map"]["Summary"]["Elements"]));
 			break;
 
 		case RSSL_DT_FILTER_LIST:
 			ASSERT_TRUE(_jsonDocument["Map"].HasMember("Summary"));
 			ASSERT_TRUE(_jsonDocument["Map"]["Summary"].HasMember("FilterList"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(&_jsonDocument["Map"]["Summary"]["FilterList"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(_jsonDocument["Map"]["Summary"]["FilterList"]));
 			break;
 
 		default:
@@ -801,17 +801,17 @@ TEST_P(MapContainerTypesTestFixture, MapContainerTypesTest)
 	{
 		case RSSL_DT_FIELD_LIST:
 			ASSERT_TRUE(entries[0].HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&entries[0]["Fields"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[0]["Fields"]));
 			break;
 
 		case RSSL_DT_ELEMENT_LIST:
 			ASSERT_TRUE(entries[0].HasMember("Elements"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(&entries[0]["Elements"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonElementList(entries[0]["Elements"]));
 			break;
 
 		case RSSL_DT_FILTER_LIST:
 			ASSERT_TRUE(entries[0].HasMember("FilterList"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(&entries[0]["FilterList"]));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFilterList(entries[0]["FilterList"]));
 			break;
 
 		default:

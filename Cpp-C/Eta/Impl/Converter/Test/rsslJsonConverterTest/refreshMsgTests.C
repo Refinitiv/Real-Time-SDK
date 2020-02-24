@@ -221,7 +221,7 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("ExtHdr"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["ExtHdr"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["ExtHdr"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("ExtHdr"));
@@ -230,7 +230,7 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 			if (params.permData)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("PermData"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["PermData"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["PermData"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("PermData"));
@@ -385,7 +385,7 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 
 			/* Check Field List. */
 			ASSERT_TRUE(_jsonDocument.HasMember("Fields"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["Fields"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["Fields"], params.protocolType));
 			break;
 		}
 
@@ -432,13 +432,13 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 
 			/* Check Group. */
 			ASSERT_TRUE(_jsonDocument.HasMember("g"));
-			ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&GROUP_ID, &_jsonDocument["g"]));
+			ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&GROUP_ID, _jsonDocument["g"]));
 
 			/* Check ExtendedHeader */
 			if (params.extendedHeader)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("e"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, &_jsonDocument["e"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&EXTENDED_HEADER, _jsonDocument["e"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("e"));
@@ -447,7 +447,7 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 			if (params.permData)
 			{
 				ASSERT_TRUE(_jsonDocument.HasMember("p"));
-				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, &_jsonDocument["p"]));
+				ASSERT_NO_FATAL_FAILURE(checkJsonBase64String(&PERM_DATA, _jsonDocument["p"]));
 			}
 			else
 				EXPECT_FALSE(_jsonDocument.HasMember("p"));
@@ -600,7 +600,7 @@ TEST_P(RefreshMsgMembersTestFixture, RefreshMsgMembersTest)
 
 			/* Check Field List. */
 			ASSERT_TRUE(_jsonDocument.HasMember("d"));
-			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(&_jsonDocument["d"], params.protocolType));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(_jsonDocument["d"], params.protocolType));
 			break;
 		}
 
