@@ -170,10 +170,6 @@ endif()
 
 DEBUG_PRINT(librsslJsonConverter)
 
-if (BUILD_UNIT_TESTS)
-	add_subdirectory( Test )
-endif()
-
 endif()
 
 #rcdev_update_output_dirs(RESTORE)
