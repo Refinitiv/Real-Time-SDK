@@ -312,9 +312,6 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	if (type >= RIPC_MAX_TRANSPORTS)
 		return(-1);
 
-	/* If the calling function has not assignd
-	 * its own, then the default ipc defintion will be used
-	 * */
 	transFuncs[type].bindSrvr = funcs->bindSrvr;
 
 	transFuncs[type].newSrvrConnection = funcs->newSrvrConnection;
@@ -337,13 +334,12 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 
 	transFuncs[type].acceptSocket = funcs->acceptSocket;
 
-	transFuncs[type].shutdownSrvrError = funcs->shutdownSrvrError;
-
-	transFuncs[type].sessIoctl = funcs->sessIoctl;
-
-	/* If the calling function has not assignd
-	 * its own, then the default ipc defintion will be used
+	/* If the calling function hasn't been assigned
+	 * its own, then the default ipc definition will be used
 	 * */
+
+	transFuncs[type].sessIoctl = (funcs->sessIoctl ? funcs->sessIoctl : transFuncs[RSSL_CONN_TYPE_SOCKET].sessIoctl);
+
 	transFuncs[type].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
 
 	transFuncs[type].setSockOpts = (funcs->setSockOpts ? funcs->setSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].setSockOpts);
@@ -353,6 +349,8 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	transFuncs[type].connected = (funcs->connected ? funcs->connected : transFuncs[RSSL_CONN_TYPE_SOCKET].connected);
 
 	transFuncs[type].shutdownServer = (funcs->shutdownServer ? funcs->shutdownServer : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
+
+	transFuncs[type].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownSrvrError);
 
 	transFuncs[type].uninitialize = (funcs->uninitialize ? funcs->uninitialize : transFuncs[RSSL_CONN_TYPE_SOCKET].uninitialize);
 
@@ -388,13 +386,11 @@ RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 
 	encryptedSSLTransFuncs[type].acceptSocket = funcs->acceptSocket;
 
-	encryptedSSLTransFuncs[type].shutdownSrvrError = funcs->shutdownSrvrError;
-
-	encryptedSSLTransFuncs[type].sessIoctl = funcs->sessIoctl;
-
-	/* If the calling function has not assignd
-	 * its own, then the default ipc defintion will be used
+	/* If the calling function hasn't been assigned
+	 * its own, then the default ipc definition will be used
 	 * */
+	encryptedSSLTransFuncs[type].sessIoctl = (funcs->sessIoctl ? funcs->sessIoctl : transFuncs[RSSL_CONN_TYPE_SOCKET].sessIoctl);
+
 	encryptedSSLTransFuncs[type].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
 
 	encryptedSSLTransFuncs[type].setSockOpts = (funcs->setSockOpts ? funcs->setSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].setSockOpts);
@@ -404,6 +400,8 @@ RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	encryptedSSLTransFuncs[type].connected = (funcs->connected ? funcs->connected : transFuncs[RSSL_CONN_TYPE_SOCKET].connected);
 
 	encryptedSSLTransFuncs[type].shutdownServer = (funcs->shutdownServer ? funcs->shutdownServer : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
+
+	encryptedSSLTransFuncs[type].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
 
 	encryptedSSLTransFuncs[type].uninitialize = (funcs->uninitialize ? funcs->uninitialize : transFuncs[RSSL_CONN_TYPE_SOCKET].uninitialize);
 
@@ -7533,7 +7531,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		MemCopyByInt(rsslSrvrImpl->connOptsCompVer.componentVersion.data, opts->componentVersion, rsslSrvrImpl->connOptsCompVer.componentVersion.length);
 	}
 
-	if (opts->wsOpts.protocols != 0)
+	if (opts->wsOpts.protocols != 0 && opts->wsOpts.protocols[0] != '\0')
 	{
 		if (rwsInitServerOptions(rsslServerSocketChannel, &(opts->wsOpts), error) == RSSL_RET_FAILURE)	
 		{
