@@ -327,6 +327,7 @@ RsslRet rsslJsonSessionMsgConvertFromJson(RsslJsonSession *rjcSession, RsslChann
 			switch(jsonMsg->msgBase.msgClass) {
 			case RSSL_JSON_MC_RSSL_MSG:
 			{
+				rsslDumpBuffer(pChannel, RSSL_RWF_PROTOCOL_TYPE, decodedMsg, pError);
 				break;
 			}
 			case RSSL_JSON_MC_PING:

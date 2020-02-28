@@ -978,7 +978,7 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 
 			rsslClearTraceOptions(&traceOptions);
 			traceOptions.traceMsgFileName = traceOutputFile;
-			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_READ | RSSL_TRACE_WRITE;
+			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_READ | RSSL_TRACE_WRITE | RSSL_TRACE_DUMP;
 			traceOptions.traceMsgMaxFileSize = 100000000;
 			rsslIoctl(chnl, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, error);
 		}

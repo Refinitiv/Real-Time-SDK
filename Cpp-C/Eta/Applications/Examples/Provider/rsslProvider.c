@@ -645,7 +645,7 @@ static void createNewClientSession(RsslServer *srvr)
 			rsslClearTraceOptions(&traceOptions);
 			traceOptions.traceMsgFileName = traceOutputFile;
 			traceOptions.traceMsgMaxFileSize = 10000000;
-			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 			rsslIoctl(sckt, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
 		}
 		/* find an available client session */
@@ -860,6 +860,8 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 
 			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
 				return RSSL_RET_SUCCESS;
+
+			rsslDumpBuffer(chnl, RSSL_RWF_PROTOCOL_TYPE, &tempBuffer, &error);
 		}
 		else
 		{
