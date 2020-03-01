@@ -50,6 +50,18 @@ TEST(RsslUnitTests, LoginPacking)
 	rsslTestUninitialize();
 }
 
+TEST(RsslUnitTests_WebSocket_rssl_rwf, LoginPacking)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_LoginPacking();
+	rsslTestUninitialize();
+}
+
 TEST(RsslUnitTests, DirectoryPacking)
 {
 	rsslTestInitOpts pOpts;
@@ -62,12 +74,38 @@ TEST(RsslUnitTests, DirectoryPacking)
 	rsslTestUninitialize();
 }
 
+TEST(RsslUnitTests_WebSocket_rssl_rwf, DirectoryPacking)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_DirectoryPacking();
+	rsslTestUninitialize();
+}
+
 TEST(RsslUnitTests, WriteFailureTest)
 {
 	rsslTestInitOpts pOpts;
 
 	rsslTestClearInitOpts(&pOpts);
 	pOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts.serverMaxOutputBuffers = 20;
+	pOpts.serverGuaranteedOutputBuffers = 5;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(0);
+	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests_WebSocket_rssl_rwf, WriteFailureTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 	pOpts.serverMaxOutputBuffers = 20;
 	pOpts.serverGuaranteedOutputBuffers = 5;
 	rsslTestInitialize(&pOpts);
@@ -92,12 +130,44 @@ TEST(RsslUnitTests, WriteFailureCompressionTest)
 	rsslTestUninitialize();
 }
 
+TEST(RsslUnitTests_WebSocket_rssl_rwf, WriteFailureCompressionTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+	pOpts.serverMaxOutputBuffers = 30;
+	pOpts.serverGuaranteedOutputBuffers = 5;
+	pOpts.compressionType = RSSL_COMP_ZLIB;
+	pOpts.compressionLevel = 0;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(0);
+	rsslTestUninitialize();
+}
+
 TEST(RsslUnitTests, WriteFailureFragmentedTest)
 {
 	rsslTestInitOpts pOpts;
 
 	rsslTestClearInitOpts(&pOpts);
 	pOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+	pOpts.serverMaxOutputBuffers = 30;
+	pOpts.serverGuaranteedOutputBuffers = 3;
+	pOpts.compressionType = RSSL_COMP_ZLIB;
+	pOpts.compressionLevel = 0;
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_WriteFailure(1);
+	rsslTestUninitialize();
+}
+
+TEST(RsslUnitTests_WebSocket_rssl_rwf, WriteFailureFragmentedTest)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 	pOpts.serverMaxOutputBuffers = 30;
 	pOpts.serverGuaranteedOutputBuffers = 3;
 	pOpts.compressionType = RSSL_COMP_ZLIB;

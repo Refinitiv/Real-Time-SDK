@@ -9,13 +9,12 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
-void watchlistSymbolListTest_TwoSymbols();
-void watchlistSymbolListTest_BigList();
-void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer();
-void watchlistSymbolListTest_TwoSymbols_NonStreaming();
-void watchlistSymbolListTest_DataStreamMsgKey();
+void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType);
+void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer(RsslConnectionTypes connectionType);
+void watchlistSymbolListTest_TwoSymbols_NonStreaming(RsslConnectionTypes connectionType);
+void watchlistSymbolListTest_DataStreamMsgKey(RsslConnectionTypes connectionType);
 
-class WatchlistSymbolListTest : public ::testing::Test {
+class WatchlistSymbolListTest : public ::testing::TestWithParam<RsslConnectionTypes> {
 public:
 
 	static void SetUpTestCase()
@@ -23,35 +22,50 @@ public:
 		wtfInit(NULL);
 	}
 
+	virtual void SetUp()
+	{
+		wtfBindServer(GetParam());
+	}
+
 	static void TearDownTestCase()
 	{
 		wtfCleanup();
 	}
+
+	virtual void TearDown()
+	{
+		wtfCloseServer();
+	}
 };
 
-TEST_F(WatchlistSymbolListTest, TwoSymbols_FlagsFromMsgBuffer)
+TEST_P(WatchlistSymbolListTest, TwoSymbols_FlagsFromMsgBuffer)
 {
-	watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer();
+	watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer(GetParam());
 }
 
-TEST_F(WatchlistSymbolListTest, TwoSymbols_NonStreaming)
+TEST_P(WatchlistSymbolListTest, TwoSymbols_NonStreaming)
 {
-	watchlistSymbolListTest_TwoSymbols_NonStreaming();
+	watchlistSymbolListTest_TwoSymbols_NonStreaming(GetParam());
 }
 
-
-TEST_F(WatchlistSymbolListTest, BigList)
+TEST_P(WatchlistSymbolListTest, BigList)
 {
-	watchlistSymbolListTest_BigList();
+	watchlistSymbolListTest_BigList(GetParam());
 }
 
-
-TEST_F(WatchlistSymbolListTest, DataStreamMsgKey)
+TEST_P(WatchlistSymbolListTest, DataStreamMsgKey)
 {
-	watchlistSymbolListTest_DataStreamMsgKey();
+	watchlistSymbolListTest_DataStreamMsgKey(GetParam());
 }
 
-void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer()
+INSTANTIATE_TEST_CASE_P(
+	TestingWatchlistSymbolListTests,
+	WatchlistSymbolListTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
+
+void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -86,7 +100,7 @@ void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request symbol list. */
 	rsslClearRequestMsg(&requestMsg);
@@ -200,7 +214,7 @@ void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer()
 		| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
 	refreshMsg.msgBase.streamId = providerItem1Stream;
 	refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
-	refreshMsg.msgBase.containerType = RSSL_DT_MAP;
+	refreshMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID | RSSL_MKF_HAS_NAME;
 	refreshMsg.msgBase.msgKey.name = itemNames[0];
 	refreshMsg.msgBase.msgKey.serviceId = service1Id;
@@ -338,7 +352,7 @@ void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer()
 	wtfFinishTest();
 }
 
-void watchlistSymbolListTest_TwoSymbols_NonStreaming()
+void watchlistSymbolListTest_TwoSymbols_NonStreaming(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -363,7 +377,7 @@ void watchlistSymbolListTest_TwoSymbols_NonStreaming()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request symbol list. */
 	rsslClearRequestMsg(&requestMsg);
@@ -479,7 +493,7 @@ void watchlistSymbolListTest_TwoSymbols_NonStreaming()
 		| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
 	refreshMsg.msgBase.streamId = providerItem1Stream;
 	refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
-	refreshMsg.msgBase.containerType = RSSL_DT_MAP;
+	refreshMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID | RSSL_MKF_HAS_NAME;
 	refreshMsg.msgBase.msgKey.name = itemNames[0];
 	refreshMsg.msgBase.msgKey.serviceId = service1Id;
@@ -567,7 +581,7 @@ void watchlistSymbolListTest_TwoSymbols_NonStreaming()
 	wtfFinishTest();
 }
 
-void watchlistSymbolListTest_BigList()
+void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -601,7 +615,7 @@ void watchlistSymbolListTest_BigList()
 	/* Test a large symbol list.  Modeled after rssl3304. */
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Set the open window so we can better control this loop. */
 	rsslClearRDMDirectoryUpdate(&directoryUpdate);
@@ -724,7 +738,7 @@ void watchlistSymbolListTest_BigList()
 			refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_HAS_QOS
 				| RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE;
 			refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
-			refreshMsg.msgBase.containerType = RSSL_DT_MAP;
+			refreshMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 			refreshMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_SERVICE_ID | RSSL_MKF_HAS_NAME;
 			refreshMsg.msgBase.msgKey.serviceId = service1Id;
 			refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
@@ -780,7 +794,7 @@ void watchlistSymbolListTest_BigList()
 	wtfFinishTest();
 }
 
-void watchlistSymbolListTest_DataStreamMsgKey()
+void watchlistSymbolListTest_DataStreamMsgKey(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -805,7 +819,7 @@ void watchlistSymbolListTest_DataStreamMsgKey()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request symbol list. */
 	rsslClearRequestMsg(&requestMsg);

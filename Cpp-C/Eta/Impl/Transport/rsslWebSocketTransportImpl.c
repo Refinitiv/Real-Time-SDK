@@ -292,6 +292,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 							rsslSocketChannel->stream, rsslBufImpl->buffer.length, 
 							rsslBufImpl->packingOffset, rsslBufImpl->totalLength)
 
+	/* Always set the HIGH flush priority */
+	rsslBufImpl->priority = RSSL_HIGH_PRIORITY;
+
 	/* check if we are doing fragmentation */
 	if (ripcBuffer && (!(rsslBufImpl->fragmentationFlag)) && (rsslBufImpl->writeCursor == 0))
 	{

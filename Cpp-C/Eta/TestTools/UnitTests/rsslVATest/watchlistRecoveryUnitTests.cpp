@@ -9,43 +9,43 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
-void watchlistRecoveryTest_OneItem_ClosedRecover();
-void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen);
-void watchlistRecoveryTest_TwoItems_RequestTimeout();
-void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart();
-void watchlistRecoveryTest_OneItem_ClearCache();
-void watchlistRecoveryTest_OneItem_QosChange();
-void watchlistRecoveryTest_TwoItems_OpenWindow();
-void watchlistRecoveryTest_OneItem_ServiceNameChange();
-void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream();
-void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff();
-void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader();
-void watchlistRecoveryTest_OneItem_AllowSuspectDataOff();
-void watchlistRecoveryTest_OneItem_GroupMerge();
-void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState();
-void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState();
-void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen);
-void watchlistRecoveryTest_OneItem_LoginClosed();
-void watchlistRecoveryTest_OneItem_LoginClosed_Directory();
-void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg);
-void watchlistRecoveryTest_OneItem_DirectoryClosedRecover();
-void watchlistRecoveryTest_OneItem_QosRange();
-void watchlistRecoveryTest_OneItem_NoCapability();
-void watchlistRecoveryTest_OneItem_NoQosRequest();
-void watchlistRecoveryTest_OneItem_StaticQos();
-void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen);
-void watchlistRecoveryTest_OneItem_Redirect();
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream();
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey();
-void watchlistRecoveryTest_OneItem_Dictionary();
-void watchlistRecoveryTest_LoginCredentialsUpdate();
-void watchlistRecoveryTest_UnknownStream();
-void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen);
-void watchlistRecoveryTest_LoginAuthenticationUpdate();
+void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ClearCache(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_TwoItems_OpenWindow(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ServiceNameChange(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_AllowSuspectDataOff(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_GroupMerge(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_LoginClosed(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg, RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_DirectoryClosedRecover(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_QosRange(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_NoCapability(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_NoQosRequest(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_StaticQos(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen, RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_Redirect(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_Dictionary(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectionTypes connetionType);
+void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes connetionType);
 
 
 
-class WatchlistRecoveryTest : public ::testing::Test {
+class WatchlistRecoveryTest : public ::testing::TestWithParam<RsslConnectionTypes> {
 public:
 
 	static void SetUpTestCase()
@@ -53,194 +53,211 @@ public:
 		wtfInit(NULL);
 	}
 
+	virtual void SetUp()
+	{
+		wtfBindServer(GetParam());
+	}
+
 	static void TearDownTestCase()
 	{
 		wtfCleanup();
 	}
+
+	virtual void TearDown()
+	{
+		wtfCloseServer();
+	}
 };
 
-TEST_F(WatchlistRecoveryTest, OneItem_Disconnect_SingleOpen)
+TEST_P(WatchlistRecoveryTest, OneItem_Disconnect_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_Disconnect(RSSL_TRUE);
+	watchlistRecoveryTest_OneItem_Disconnect(RSSL_TRUE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_Disconnect)
+TEST_P(WatchlistRecoveryTest, OneItem_Disconnect)
 {
-	watchlistRecoveryTest_OneItem_Disconnect(RSSL_FALSE);
+	watchlistRecoveryTest_OneItem_Disconnect(RSSL_FALSE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, UnknownStream)
+TEST_P(WatchlistRecoveryTest, UnknownStream)
 {
-	watchlistRecoveryTest_UnknownStream();
+	watchlistRecoveryTest_UnknownStream(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover)
+TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover();
+	watchlistRecoveryTest_OneItem_ClosedRecover(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout_SingleOpen)
+TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_TRUE);
+	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_TRUE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout)
+TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_FALSE);
+	watchlistRecoveryTest_OneItem_RequestTimeout(RSSL_FALSE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, TwoItems_RequestTimeout)
+TEST_P(WatchlistRecoveryTest, TwoItems_RequestTimeout)
 {
-	watchlistRecoveryTest_TwoItems_RequestTimeout();
+	watchlistRecoveryTest_TwoItems_RequestTimeout(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_RequestTimeout_Multipart)
+TEST_P(WatchlistRecoveryTest, OneItem_RequestTimeout_Multipart)
 {
-	watchlistRecoveryTest_OneItem_RequestTimeout_Multipart();
+	watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ClearCache)
+TEST_P(WatchlistRecoveryTest, OneItem_ClearCache)
 {
-	watchlistRecoveryTest_OneItem_ClearCache();
+	watchlistRecoveryTest_OneItem_ClearCache(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_QosChange)
+TEST_P(WatchlistRecoveryTest, OneItem_QosChange)
 {
-	watchlistRecoveryTest_OneItem_QosChange();
+	watchlistRecoveryTest_OneItem_QosChange(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, TwoItems_OpenWindow)
+TEST_P(WatchlistRecoveryTest, TwoItems_OpenWindow)
 {
-	watchlistRecoveryTest_TwoItems_OpenWindow();
+	watchlistRecoveryTest_TwoItems_OpenWindow(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ServiceNameChange)
+TEST_P(WatchlistRecoveryTest, OneItem_ServiceNameChange)
 {
-	watchlistRecoveryTest_OneItem_ServiceNameChange();
+	watchlistRecoveryTest_OneItem_ServiceNameChange(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover_PrivateStream)
+TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover_PrivateStream)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream();
+	watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecover_SingleOpenOff)
+TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecover_SingleOpenOff)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff();
+	watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, PrivateStreamWithPayloadAndExtHeader)
+TEST_P(WatchlistRecoveryTest, PrivateStreamWithPayloadAndExtHeader)
 {
-	watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader();
+	watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_AllowSuspectDataOff)
+TEST_P(WatchlistRecoveryTest, OneItem_AllowSuspectDataOff)
 {
-	watchlistRecoveryTest_OneItem_AllowSuspectDataOff();
+	watchlistRecoveryTest_OneItem_AllowSuspectDataOff(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, TwoItems_ClosedRecoverFromServiceState)
+TEST_P(WatchlistRecoveryTest, TwoItems_ClosedRecoverFromServiceState)
 {
-	watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState();
+	watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_GroupMerge)
+TEST_P(WatchlistRecoveryTest, OneItem_GroupMerge)
 {
-	watchlistRecoveryTest_OneItem_GroupMerge();
+	watchlistRecoveryTest_OneItem_GroupMerge(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_LoginClosedRecover_SingleOpen)
+TEST_P(WatchlistRecoveryTest, OneItem_LoginClosedRecover_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_TRUE);
+	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_TRUE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_LoginClosedRecover)
+TEST_P(WatchlistRecoveryTest, OneItem_LoginClosedRecover)
 {
-	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_FALSE);
+	watchlistRecoveryTest_OneItem_LoginClosedRecover(RSSL_FALSE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_LoginClosed)
+TEST_P(WatchlistRecoveryTest, OneItem_LoginClosed)
 {
-	watchlistRecoveryTest_OneItem_LoginClosed();
+	watchlistRecoveryTest_OneItem_LoginClosed(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RDMMsg)
+TEST_P(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RDMMsg)
 {
-	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_FALSE);
+	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_FALSE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RsslMsg)
+TEST_P(WatchlistRecoveryTest, OneItem_LoginCloseRequest_RsslMsg)
 {
-	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_TRUE);
+	watchlistRecoveryTest_OneItem_LoginCloseRequest(RSSL_TRUE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ClosedRecoverFromGroupState)
+TEST_P(WatchlistRecoveryTest, OneItem_ClosedRecoverFromGroupState)
 {
-	watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState();
+	watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_QosRange)
+TEST_P(WatchlistRecoveryTest, OneItem_QosRange)
 {
-	watchlistRecoveryTest_OneItem_QosRange();
+	watchlistRecoveryTest_OneItem_QosRange(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_NoCapability)
+TEST_P(WatchlistRecoveryTest, OneItem_NoCapability)
 {
-	watchlistRecoveryTest_OneItem_NoCapability();
+	watchlistRecoveryTest_OneItem_NoCapability(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_NoQosRequest)
+TEST_P(WatchlistRecoveryTest, OneItem_NoQosRequest)
 {
-	watchlistRecoveryTest_OneItem_NoQosRequest();
+	watchlistRecoveryTest_OneItem_NoQosRequest(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_StaticQos)
+TEST_P(WatchlistRecoveryTest, OneItem_StaticQos)
 {
-	watchlistRecoveryTest_OneItem_StaticQos();
+	watchlistRecoveryTest_OneItem_StaticQos(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ServiceDeleted_SingleOpen)
+TEST_P(WatchlistRecoveryTest, OneItem_ServiceDeleted_SingleOpen)
 {
-	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_TRUE);
+	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_TRUE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_ServiceDeleted)
+TEST_P(WatchlistRecoveryTest, OneItem_ServiceDeleted)
 {
-	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_FALSE);
+	watchlistRecoveryTest_OneItem_ServiceDeleted(RSSL_FALSE, GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_Redirect)
+TEST_P(WatchlistRecoveryTest, OneItem_Redirect)
 {
-	watchlistRecoveryTest_OneItem_Redirect();
+	watchlistRecoveryTest_OneItem_Redirect(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream)
+TEST_P(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream)
 {
-	watchlistRecoveryTest_OneItem_RedirectToPrivateStream();
+	watchlistRecoveryTest_OneItem_RedirectToPrivateStream(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream_WithKey)
+TEST_P(WatchlistRecoveryTest, OneItem_RedirectToPrivateStream_WithKey)
 {
-	watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey();
+	watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, LoginCredentialsUpdate)
+TEST_P(WatchlistRecoveryTest, LoginCredentialsUpdate)
 {
-	watchlistRecoveryTest_LoginCredentialsUpdate();
+	watchlistRecoveryTest_LoginCredentialsUpdate(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, LoginAuthenticationUpdate)
+TEST_P(WatchlistRecoveryTest, LoginAuthenticationUpdate)
 {
-	watchlistRecoveryTest_LoginAuthenticationUpdate();
+	watchlistRecoveryTest_LoginAuthenticationUpdate(GetParam());
 }
 
-TEST_F(WatchlistRecoveryTest, OneItem_Dictionary)
+TEST_P(WatchlistRecoveryTest, OneItem_Dictionary)
 {
-	watchlistRecoveryTest_OneItem_Dictionary();
+	watchlistRecoveryTest_OneItem_Dictionary(GetParam());
 }
 
+INSTANTIATE_TEST_CASE_P(
+	TestingWatchlistRecoveryTests,
+	WatchlistRecoveryTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
 
-void watchlistRecoveryTest_OneItem_ClosedRecover()
+
+void watchlistRecoveryTest_OneItem_ClosedRecover(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -315,7 +332,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover()
 }
 
 
-void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen)
+void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -510,7 +527,7 @@ void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_RequestTimeout()
+void watchlistRecoveryTest_TwoItems_RequestTimeout(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -717,7 +734,7 @@ void watchlistRecoveryTest_TwoItems_RequestTimeout()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart()
+void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -893,7 +910,7 @@ void watchlistRecoveryTest_OneItem_RequestTimeout_Multipart()
 }
 
 
-void watchlistRecoveryTest_OneItem_ClearCache()
+void watchlistRecoveryTest_OneItem_ClearCache(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1026,7 +1043,7 @@ void watchlistRecoveryTest_OneItem_ClearCache()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_QosChange()
+void watchlistRecoveryTest_OneItem_QosChange(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1183,7 +1200,7 @@ void watchlistRecoveryTest_OneItem_QosChange()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_OpenWindow()
+void watchlistRecoveryTest_TwoItems_OpenWindow(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1313,7 +1330,7 @@ void watchlistRecoveryTest_TwoItems_OpenWindow()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ServiceNameChange()
+void watchlistRecoveryTest_OneItem_ServiceNameChange(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1441,7 +1458,7 @@ void watchlistRecoveryTest_OneItem_ServiceNameChange()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream()
+void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1512,7 +1529,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover_PrivateStream()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader()
+void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1674,7 +1691,7 @@ void watchlistRecoveryTest_PrivateStreamWithPayloadAndExtHeader()
 }
 
 
-void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff()
+void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1769,7 +1786,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecover_SingleOpenOff()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_AllowSuspectDataOff()
+void watchlistRecoveryTest_OneItem_AllowSuspectDataOff(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1846,7 +1863,7 @@ void watchlistRecoveryTest_OneItem_AllowSuspectDataOff()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState()
+void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1992,7 +2009,7 @@ void watchlistRecoveryTest_TwoItems_ClosedRecoverFromServiceState()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_GroupMerge()
+void watchlistRecoveryTest_OneItem_GroupMerge(RsslConnectionTypes connetionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -2177,7 +2194,7 @@ void watchlistRecoveryTest_OneItem_GroupMerge()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState()
+void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2297,7 +2314,7 @@ void watchlistRecoveryTest_OneItem_ClosedRecoverFromGroupState()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen)
+void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -2727,7 +2744,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosed()
+void watchlistRecoveryTest_OneItem_LoginClosed(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent				*pEvent;
@@ -2907,7 +2924,7 @@ void watchlistRecoveryTest_OneItem_LoginClosed()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginClosed_Directory()
+void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent				*pEvent;
@@ -3010,7 +3027,7 @@ void watchlistRecoveryTest_OneItem_LoginClosed_Directory()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg)
+void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg, RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -3100,7 +3117,7 @@ void watchlistRecoveryTest_OneItem_LoginCloseRequest(RsslBool useRsslMsg)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_DirectoryClosedRecover()
+void watchlistRecoveryTest_OneItem_DirectoryClosedRecover(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -3214,7 +3231,7 @@ void watchlistRecoveryTest_OneItem_DirectoryClosedRecover()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_QosRange()
+void watchlistRecoveryTest_OneItem_QosRange(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3287,7 +3304,7 @@ void watchlistRecoveryTest_OneItem_QosRange()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_NoCapability()
+void watchlistRecoveryTest_OneItem_NoCapability(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3334,7 +3351,7 @@ void watchlistRecoveryTest_OneItem_NoCapability()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_NoQosRequest()
+void watchlistRecoveryTest_OneItem_NoQosRequest(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3406,7 +3423,7 @@ void watchlistRecoveryTest_OneItem_NoQosRequest()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_StaticQos()
+void watchlistRecoveryTest_OneItem_StaticQos(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3509,7 +3526,7 @@ void watchlistRecoveryTest_OneItem_StaticQos()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen)
+void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen, RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3649,7 +3666,7 @@ void watchlistRecoveryTest_OneItem_ServiceDeleted(RsslBool singleOpen)
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_Redirect()
+void watchlistRecoveryTest_OneItem_Redirect(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3730,7 +3747,7 @@ void watchlistRecoveryTest_OneItem_Redirect()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream()
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3800,7 +3817,7 @@ void watchlistRecoveryTest_OneItem_RedirectToPrivateStream()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey()
+void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3880,7 +3897,7 @@ void watchlistRecoveryTest_OneItem_RedirectToPrivateStream_WithKey()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_OneItem_Dictionary()
+void watchlistRecoveryTest_OneItem_Dictionary(RsslConnectionTypes connetionType)
 {
 	WtfSetupConnectionOpts		setupOpts;
 	RsslReactorSubmitMsgOptions opts;
@@ -4039,7 +4056,7 @@ void watchlistRecoveryTest_OneItem_Dictionary()
 	wtfFinishTest();
 }
 
-void watchlistRecoveryTest_LoginCredentialsUpdate()
+void watchlistRecoveryTest_LoginCredentialsUpdate(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent *pEvent;
@@ -4301,7 +4318,7 @@ void watchlistRecoveryTest_LoginCredentialsUpdate()
 	
 }
 
-void watchlistRecoveryTest_LoginAuthenticationUpdate()
+void watchlistRecoveryTest_LoginAuthenticationUpdate(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent *pEvent;
@@ -4576,7 +4593,7 @@ void watchlistRecoveryTest_LoginAuthenticationUpdate()
 	
 }
 
-void watchlistRecoveryTest_UnknownStream()
+void watchlistRecoveryTest_UnknownStream(RsslConnectionTypes connetionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4655,7 +4672,7 @@ void watchlistRecoveryTest_UnknownStream()
 
 
 
-void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen)
+void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectionTypes connetionType)
 {
 	/* Test message fanout in response to disconnection. */
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -81,7 +81,7 @@ typedef struct
 	MutMsg mutMsg;
 	fd_set readFds, writeFds, exceptFds;
 	RsslBool closeConnections; /* Automatically close connections when they go down(return RSSL_RC_CRET_CLOSE instead of RSSL_RC_CRET_SUCCESS) */
-	RsslInt32 reconnectAttempts; /* For some callbacks, means an additonal connection will be added in the callback */
+	RsslInt32 reconnectAttempts; /* For some callbacks, means an additional connection will be added in the callback */
 	RsslRet previousDispatchRet;
 	RsslNotifier *pNotifier; /* Notifier the test will use for this reactor's descriptors. If not set, it will use select() for notification. */
 	RsslNotifierEvent *pReactorNotifierEvent; /* Notification for the Reactor's event queue. */
@@ -123,7 +123,7 @@ void clearMyReactor(MyReactor *pMyReactor)
 }
 
 static MyReactor myReactors[2];
-static RsslServer *pServer;
+static RsslServer* pServer[2];
 static MyReactor *pConsMon = &myReactors[0], *pProvMon = &myReactors[1];
 static RsslReactorChannel *pConsCh[1], *pProvCh[1];
 
@@ -133,8 +133,8 @@ static void initReactors(RsslCreateReactorOptions *pOpts, RsslBool sameReactor);
 
 static RsslErrorInfo rsslErrorInfo;
 static RsslCreateReactorOptions mOpts;
-static RsslBindOptions bindOpts;
-static RsslReactorConnectOptions connectOpts;
+static RsslBindOptions bindOpts[2];
+static RsslReactorConnectOptions connectOpts[2];
 static RsslReactorAcceptOptions acceptOpts;
 
 static RsslReactorOMMConsumerRole ommConsumerRole;
@@ -181,25 +181,25 @@ static char fieldDictionaryText[] =
 static RsslDataDictionary dataDictionary;
 static RsslRDMDictionaryRefresh fieldDictionaryRefresh, enumDictionaryRefresh;
 
-static void reactorUnitTests_AutoMsgs();
-static void reactorUnitTests_Raise();
-static void reactorUnitTests_InitializationAndPingTimeout();
-static void reactorUnitTests_ShortPingInterval();
-static void reactorUnitTests_InvalidArguments();
-static void reactorUnitTests_BigDirectoryMsg();
+static void reactorUnitTests_AutoMsgs(RsslConnectionTypes connectionType);
+static void reactorUnitTests_Raise(RsslConnectionTypes connectionType);
+static void reactorUnitTests_InitializationAndPingTimeout(RsslConnectionTypes connectionType);
+static void reactorUnitTests_ShortPingInterval(RsslConnectionTypes connectionType);
+static void reactorUnitTests_InvalidArguments(RsslConnectionTypes connectionType);
+static void reactorUnitTests_BigDirectoryMsg(RsslConnectionTypes connectionType);
 
-static void reactorUnitTests_DisconnectFromCallbacks();
-static void reactorUnitTests_AddConnectionFromCallbacks();
-static void reactorUnitTests_MultiThreadDispatch();
+static void reactorUnitTests_DisconnectFromCallbacks(RsslConnectionTypes connectionType);
+static void reactorUnitTests_AddConnectionFromCallbacks(RsslConnectionTypes connectionType);
+static void reactorUnitTests_MultiThreadDispatch(RsslConnectionTypes connectionType);
 #ifdef COMPILE_64BITS
-static void reactorUnitTests_ManyConnections();
+static void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType);
 #endif
-static void reactorUnitTests_WaitWhileChannelDown();
-static void reactorUnitTests_ReconnectAttemptLimit();
+static void reactorUnitTests_WaitWhileChannelDown(RsslConnectionTypes connectionType);
+static void reactorUnitTests_ReconnectAttemptLimit(RsslConnectionTypes connectionType);
 
-static void reactorUtilTest_ConnectDeepCopy();
+static void reactorUtilTest_ConnectDeepCopy(RsslConnectionTypes connectionType);
 
-class ReactorUtilTest : public ::testing::Test {
+class ReactorUtilTest : public ::testing::TestWithParam<RsslConnectionTypes>  {
 public:
 
 	static void SetUpTestCase()
@@ -208,9 +208,14 @@ public:
 		RsslBuffer errorText = { 255, (char*)alloca(255) };
 		rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError);
 
-		rsslClearBindOpts(&bindOpts);
-		bindOpts.serviceName = const_cast<char*>("14009");
-		ASSERT_TRUE((pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError)));
+		rsslClearBindOpts(&bindOpts[0]);
+		bindOpts[0].serviceName = const_cast<char*>("14009");
+		ASSERT_TRUE((pServer[0] = rsslBind(&bindOpts[0], &rsslErrorInfo.rsslError)));
+
+		rsslClearBindOpts(&bindOpts[1]);
+		bindOpts[1].serviceName = const_cast<char*>("15000");
+		bindOpts[1].wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+		ASSERT_TRUE((pServer[1] = rsslBind(&bindOpts[1], &rsslErrorInfo.rsslError)));
 
 		rsslClearDataDictionary(&dataDictionary);
 		createFileFromString("tmp_dictionary.txt", enumDictionaryText, sizeof(enumDictionaryText));
@@ -229,78 +234,88 @@ public:
 	{
 		cleanupReactors(RSSL_FALSE);
 
-		ASSERT_TRUE(rsslCloseServer(pServer, &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS);
+		ASSERT_TRUE(rsslCloseServer(pServer[0], &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS);
+		ASSERT_TRUE(rsslCloseServer(pServer[1], &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS);
 		rsslDeleteDataDictionary(&dataDictionary);
 		rsslUninitialize();
 	}
 };
 
-
-TEST_F(ReactorUtilTest, ConnectDeepCopy)
+TEST_P(ReactorUtilTest, ConnectDeepCopy)
 {
-	reactorUtilTest_ConnectDeepCopy();
+	reactorUtilTest_ConnectDeepCopy(GetParam());
 }
 
-TEST_F(ReactorUtilTest, MultiThreadDispatch)
+TEST_P(ReactorUtilTest, MultiThreadDispatch)
 {
-	reactorUnitTests_MultiThreadDispatch();
+	if(GetParam() != RSSL_CONN_TYPE_WEBSOCKET)
+		reactorUnitTests_MultiThreadDispatch(GetParam());
 }
 
-TEST_F(ReactorUtilTest, AddConnectionFromCallbacks)
+TEST_P(ReactorUtilTest, AddConnectionFromCallbacks)
 {
-	reactorUnitTests_AddConnectionFromCallbacks();
+	reactorUnitTests_AddConnectionFromCallbacks(GetParam());
 }
 
-TEST_F(ReactorUtilTest, BigDirectoryMsg)
+TEST_P(ReactorUtilTest, BigDirectoryMsg)
 {
-	reactorUnitTests_BigDirectoryMsg();
+	reactorUnitTests_BigDirectoryMsg(GetParam());
 }
 
-TEST_F(ReactorUtilTest, DisconnectFromCallbacks)
+TEST_P(ReactorUtilTest, DisconnectFromCallbacks)
 {
-	reactorUnitTests_DisconnectFromCallbacks();
+	reactorUnitTests_DisconnectFromCallbacks(GetParam());
 }
 
-TEST_F(ReactorUtilTest, InvalidArguments)
+TEST_P(ReactorUtilTest, InvalidArguments)
 {
-	reactorUnitTests_InvalidArguments();
+	reactorUnitTests_InvalidArguments(GetParam());
 }
 
-TEST_F(ReactorUtilTest, InitializationAndPingTimeout)
+TEST_P(ReactorUtilTest, InitializationAndPingTimeout)
 {
-	reactorUnitTests_InitializationAndPingTimeout();
+	reactorUnitTests_InitializationAndPingTimeout(GetParam());
 }
 
-TEST_F(ReactorUtilTest, ShortPingInterval)
+TEST_P(ReactorUtilTest, ShortPingInterval)
 {
-	reactorUnitTests_ShortPingInterval();
+	if (GetParam() != RSSL_CONN_TYPE_WEBSOCKET)
+		reactorUnitTests_ShortPingInterval(GetParam());
 }
 
-TEST_F(ReactorUtilTest, AutoMsgs)
+TEST_P(ReactorUtilTest, AutoMsgs)
 {
-	reactorUnitTests_AutoMsgs();
+	reactorUnitTests_AutoMsgs(GetParam());
 }
 
-TEST_F(ReactorUtilTest, Raise)
+TEST_P(ReactorUtilTest, Raise)
 {
-	reactorUnitTests_Raise();
+	reactorUnitTests_Raise(GetParam());
 }
 
-TEST_F(ReactorUtilTest, WaitWhileChannelDown)
+TEST_P(ReactorUtilTest, WaitWhileChannelDown)
 {
-	reactorUnitTests_WaitWhileChannelDown();
+	reactorUnitTests_WaitWhileChannelDown(GetParam());
 }
 
-TEST_F(ReactorUtilTest, ReconnectAttemptLimit)
+TEST_P(ReactorUtilTest, ReconnectAttemptLimit)
 {
-	reactorUnitTests_ReconnectAttemptLimit();
+	reactorUnitTests_ReconnectAttemptLimit(GetParam());
 }
 #ifdef COMPILE_64BITS
-TEST_F(ReactorUtilTest, ManyConnections)
+TEST_P(ReactorUtilTest, ManyConnections)
 {
-	reactorUnitTests_ManyConnections();
+	reactorUnitTests_ManyConnections(GetParam());
 }
 #endif
+
+INSTANTIATE_TEST_CASE_P(
+	TestingReactorUtilTests,
+	ReactorUtilTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
+
 
 class ReactorSessionMgntTest : public ::testing::Test {
 public:
@@ -952,6 +967,38 @@ TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
 
+TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocation_with_RsslReactorOAuthCredential_WebSocket)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
+	_reactorConnectInfo[0].rsslConnectOptions.wsOpts.protocols = const_cast<char*>("tr_json2");
+
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	/* Checks for the Channel up event */
+	ASSERT_TRUE(dispatchEvent(pConsMon, 800) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 800) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
+		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
+
+	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
+
 TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocation_with_InvalidRsslRDMLoginRequest_and_RsslReactorOAuthCredential)
 {
 	rsslClearCreateReactorOptions(&mOpts);
@@ -1281,6 +1328,61 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted)
 			pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 }
 
+TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_WebSocket)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_rdmLoginRequest.userName.data = g_userName.data;
+	_rdmLoginRequest.userName.length = g_userName.length;
+
+	_rdmLoginRequest.password.data = g_password.data;
+	_rdmLoginRequest.password.length = g_password.length;
+
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_SOCKET;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_FALSE;
+	_reactorConnectInfo[0].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("invalidhost");
+	_reactorConnectInfo[0].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("15009");
+
+	_reactorConnectInfo[1].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[1].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
+	_reactorConnectInfo[1].rsslConnectOptions.wsOpts.protocols = const_cast<char*>("tr_json2");
+
+
+	_reactorConnectInfo[1].enableSessionManagement = RSSL_TRUE;
+	_reactorConnectInfo[1].pAuthTokenEventCallback = authTokenEventCallback;
+
+	_reactorConnectionOpts.connectionCount = 2;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_TRUE;
+
+	ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == 0);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	time_sleep(100);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
+	/* Ensure that the first connection is down */
+	ASSERT_TRUE(pConsMon->channelDownReconnectingEventCount == 1);
+
+	/* Wait until the connection is switched successfully to the encrypted connection */
+	ASSERT_TRUE(dispatchEvent(pConsMon, 10000) >= RSSL_RET_SUCCESS);
+	time_sleep(2000);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 3000) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 5000) >= RSSL_RET_SUCCESS);
+
+	/* Check for token information */
+	ASSERT_TRUE(pConsMon->authEventStatusCode == 200);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
+
+	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP ||
+		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+}
+
 TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_for_RsslReactorOAthCredential_and_ClientSecret)
 {
 	rsslClearCreateReactorOptions(&mOpts);
@@ -1389,6 +1491,45 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections_UsingOnly_RsslRMD
 #ifdef _WIN32 // Use OPENSSL for creating the encrypted connection instead of the legacy WinInet-based protocol
 	_reactorConnectInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
 #endif
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
+
+	for (; index < numberOfConnections; index++)
+	{
+		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+		/* Checks for the Channel up event */
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		time_sleep(100);
+	}
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections_UsingOnly_RsslRMDLoginRequest_WebSocket)
+{
+	RsslUInt32 numberOfConnections = 15; /* To ensure that this test reuse the ReactorChannel from the channel pool(size = 10)*/
+	RsslUInt32 index = 0;
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_WEBSOCKET;
+	_reactorConnectInfo[0].rsslConnectOptions.wsOpts.protocols = const_cast<char*>("tr_json2");
+
 	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
 
 	_reactorConnectionOpts.connectionCount = 1;
@@ -2463,6 +2604,7 @@ static RsslReactorCallbackRet channelEventCallbackAddConnection(RsslReactor *pRe
 {
 	MyReactor *pMyReactor = (MyReactor*)pReactor->userSpecPtr;
 	MutMsg *pMutMsg = &pMyReactor->mutMsg;
+	int index = (pReactorChannel->pRsslChannel->connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	EXPECT_TRUE(pReactor != NULL);
 	EXPECT_TRUE(pReactorChannel != NULL);
@@ -2476,7 +2618,7 @@ static RsslReactorCallbackRet channelEventCallbackAddConnection(RsslReactor *pRe
 	/* Try reconnecting */
 	if(pEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN && pMyReactor->reconnectAttempts > 0)
 	{
-		EXPECT_TRUE( rsslReactorConnect(pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS );
+		EXPECT_TRUE( rsslReactorConnect(pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS );
 		--pMyReactor->reconnectAttempts;
 	}
 	return RSSL_RC_CRET_SUCCESS;
@@ -2549,9 +2691,15 @@ static void clearObjects()
 	pProvMon->channelDownEventCount = 0;
 	pProvMon->channelDownReconnectingEventCount = 0;
 
-	rsslClearReactorConnectOptions(&connectOpts);
-	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
-	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14009");
+	rsslClearReactorConnectOptions(&connectOpts[0]);
+	connectOpts[0].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts[0].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14009");
+
+	rsslClearReactorConnectOptions(&connectOpts[1]);
+	connectOpts[1].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts[1].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("15000");
+	connectOpts[1].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+	connectOpts[1].rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
 
 	rsslClearReactorAcceptOptions(&acceptOpts);
 
@@ -2572,6 +2720,7 @@ static void clearObjects()
 	directoryService.info.flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
 	directoryService.info.dictionariesProvidedList = dictionariesProvidedList;
 	directoryService.info.dictionariesProvidedCount = dictionariesProvidedCount;
+	directoryService.serviceId = 1;
 	directoryRefresh.serviceList = &directoryService;
 	directoryRefresh.serviceCount = 1;
 
@@ -2593,22 +2742,32 @@ static void clearObjects()
 	fieldDictionaryRefresh.dictionaryName = fieldDictionaryName;
 	fieldDictionaryRefresh.verbosity = RDM_DICTIONARY_NORMAL;
 	fieldDictionaryRefresh.type = RDM_DICTIONARY_FIELD_DEFINITIONS;
+	fieldDictionaryRefresh.serviceId = 1;
 
 	rsslClearRDMDictionaryRefresh(&enumDictionaryRefresh);
 	enumDictionaryRefresh.pDictionary = &dataDictionary;
 	enumDictionaryRefresh.dictionaryName = enumDictionaryName;
 	enumDictionaryRefresh.verbosity = RDM_DICTIONARY_NORMAL;
 	enumDictionaryRefresh.type = RDM_DICTIONARY_ENUM_TABLES;
+	enumDictionaryRefresh.serviceId = 1;
 
 }
 
 static void initReactors(RsslCreateReactorOptions *pOpts, RsslBool sameReactor)
 {
 	RsslErrorInfo rsslErrorInfo;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
+
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	clearMyReactor(pConsMon);
 	clearMyReactor(pProvMon);
 	mOpts.userSpecPtr = pConsMon;
 	ASSERT_TRUE(pConsMon->pReactor = rsslCreateReactor(pOpts, &rsslErrorInfo));
+
+	jsonConverterOptions.pDictionary = &dataDictionary;
+	jsonConverterOptions.defaultServiceId = 1;
+
+	ASSERT_TRUE(rsslReactorInitJsonConverter(pConsMon->pReactor, &jsonConverterOptions, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	if (sameReactor)
 		pProvMon->pReactor = pConsMon->pReactor;
@@ -2616,6 +2775,11 @@ static void initReactors(RsslCreateReactorOptions *pOpts, RsslBool sameReactor)
 	{
 		mOpts.userSpecPtr = &myReactors[1];
 		ASSERT_TRUE(pProvMon->pReactor = rsslCreateReactor(pOpts, &rsslErrorInfo));
+
+		jsonConverterOptions.pDictionary = &dataDictionary;
+		jsonConverterOptions.defaultServiceId = 1;
+
+		ASSERT_TRUE(rsslReactorInitJsonConverter(pProvMon->pReactor, &jsonConverterOptions, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	}
 
 	FD_ZERO(&pConsMon->readFds);
@@ -2630,6 +2794,8 @@ static void initReactors(RsslCreateReactorOptions *pOpts, RsslBool sameReactor)
 	FD_SET(pProvMon->pReactor->eventFd, &pProvMon->readFds);
 	FD_SET(pProvMon->pReactor->eventFd, &pProvMon->exceptFds);
 }
+
+
 
 static void cleanupReactors(RsslBool sameReactor)
 {
@@ -2657,14 +2823,16 @@ static void sendRDMMsg(RsslReactor *pReactor, RsslReactorChannel *pReactorChanne
 
 }
 
-static void reactorUnitTests_AutoMsgsInt()
+static void reactorUnitTests_AutoMsgsInt(RsslConnectionTypes connectionType)
 {
 	/* Test automatically sent login, directory, and dictionary messages, with and without callbacks */
 
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
 	/* Login only */
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Prov: Conn up */
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -2897,9 +3065,9 @@ static void reactorUnitTests_AutoMsgsInt_NiProv()
 	/* Test automatically sent login and directory messages, with and without callbacks */
 
 	/* Login only */
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[0], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[0], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[0], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Prov: Conn up */
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -3005,29 +3173,29 @@ static void reactorUnitTests_AutoMsgsInt_NiProv()
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 }
 
-static void reactorUnitTests_AutoMsgs()
+static void reactorUnitTests_AutoMsgs(RsslConnectionTypes connectionType)
 {
 	/* Basic connection (no messages exchanged) */
 	clearObjects();
-	reactorUnitTests_AutoMsgsInt();
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add login request to consumer */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
-	reactorUnitTests_AutoMsgsInt();
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add login callback to provider */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommProviderRole.loginMsgCallback = loginMsgCallback;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add login callback to consumer */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommProviderRole.loginMsgCallback = loginMsgCallback;
 	ommConsumerRole.loginMsgCallback = loginMsgCallback;
-	reactorUnitTests_AutoMsgsInt();
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add directory request to consumer */
 	clearObjects();
@@ -3035,7 +3203,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommProviderRole.loginMsgCallback = loginMsgCallback;
 	ommConsumerRole.loginMsgCallback = loginMsgCallback;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
-	reactorUnitTests_AutoMsgsInt();
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add directory callback to provider */
 	clearObjects();
@@ -3044,7 +3212,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommConsumerRole.loginMsgCallback = loginMsgCallback;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommProviderRole.directoryMsgCallback = directoryMsgCallback;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add directory callback to consumer */
 	clearObjects();
@@ -3054,7 +3222,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommProviderRole.directoryMsgCallback = directoryMsgCallback;
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add dictionary request to consumer */
 	clearObjects();
@@ -3065,7 +3233,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommProviderRole.directoryMsgCallback = directoryMsgCallback;
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add dictionary callback to provider */
 	clearObjects();
@@ -3077,7 +3245,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommProviderRole.dictionaryMsgCallback = dictionaryMsgCallback;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 	/* Add dictionary callback to consumer */
 	clearObjects();
@@ -3090,7 +3258,7 @@ static void reactorUnitTests_AutoMsgs()
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommProviderRole.dictionaryMsgCallback = dictionaryMsgCallback;
 	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
-	reactorUnitTests_AutoMsgsInt(); 
+	reactorUnitTests_AutoMsgsInt(connectionType);
 
 
 	/* Test NonInteractive Provider */
@@ -3116,10 +3284,12 @@ static void reactorUnitTests_AutoMsgs()
 	reactorUnitTests_AutoMsgsInt_NiProv();
 }
 
-static void reactorUnitTests_Raise()
+static void reactorUnitTests_Raise(RsslConnectionTypes connectionType)
 {
 	/* Set all callbacks to raise to the default callback.  This tests that RSSL_RC_CRET_RAISE works,
 	 * and that the reactor can continue getting the connection ready. */
+
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
@@ -3132,9 +3302,9 @@ static void reactorUnitTests_Raise()
 	ommProviderRole.dictionaryMsgCallback = dictionaryMsgCallbackRaise;
 	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallbackRaise;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Prov: Conn up */
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -3270,7 +3440,7 @@ static void reactorUnitTests_Raise()
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 }
 
-void reactorUnitTests_InitializationAndPingTimeout()
+void reactorUnitTests_InitializationAndPingTimeout(RsslConnectionTypes connectionType)
 {
 	/* Test that initialization and ping timeouts work */
 	RsslServer *pRsslServer;
@@ -3280,30 +3450,32 @@ void reactorUnitTests_InitializationAndPingTimeout()
 	RsslReactorDispatchOptions dispatchOpts;
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	RsslReactorChannel *pConsChannel, *pProvChannel;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	clearObjects();
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);
 	dispatchOpts.maxMessages = 1;
 
-	connectOpts.initializationTimeout = 1;
-	connectOpts.rsslConnectOptions.pingTimeout = 1;
+	connectOpts[index].initializationTimeout = 1;
+	connectOpts[index].rsslConnectOptions.pingTimeout = 1;
 	acceptOpts.initializationTimeout = 1;
 
 	rsslClearBindOpts(&rsslBindOpts);
 	rsslBindOpts.serviceName = const_cast<char*>("14010");
 	rsslBindOpts.pingTimeout = 1;
 	rsslBindOpts.minPingTimeout = 1;
+	rsslBindOpts.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
 
 	ASSERT_TRUE((pRsslServer = rsslBind(&rsslBindOpts, &rsslErrorInfo.rsslError)));
 
-	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
-	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14010");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14010");
 
 	/*** Test initialization on connection ***/
 
 	/* Use rsslAccept() on server for this test so that initializing/pinging isn't done by server */
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	time_sleep(100);
 	ASSERT_TRUE(pRsslCh = rsslAccept(pRsslServer, &acceptOpts.rsslAcceptOptions, &rsslErrorInfo.rsslError));
 
@@ -3320,7 +3492,7 @@ void reactorUnitTests_InitializationAndPingTimeout()
 	/*** Test initialization on accepting connection ***/
 
 	/* Same test, but from server side (use rsslConnect())*/
-	ASSERT_TRUE(pRsslCh = rsslConnect(&connectOpts.rsslConnectOptions, &rsslErrorInfo.rsslError));
+	ASSERT_TRUE(pRsslCh = rsslConnect(&connectOpts[index].rsslConnectOptions, &rsslErrorInfo.rsslError));
 	ASSERT_TRUE(waitForConnection(pRsslServer, 100));
 	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pRsslServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
@@ -3336,7 +3508,7 @@ void reactorUnitTests_InitializationAndPingTimeout()
 
 	/*** Test ping timeout on connection ***/
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	time_sleep(10);
 	ASSERT_TRUE(pRsslCh = rsslAccept(pRsslServer, &acceptOpts.rsslAcceptOptions, &rsslErrorInfo.rsslError));
 
@@ -3371,7 +3543,7 @@ void reactorUnitTests_InitializationAndPingTimeout()
 
 	/*** Test ping timeout on accepting connection ***/
 
-	ASSERT_TRUE(pRsslCh = rsslConnect(&connectOpts.rsslConnectOptions, &rsslErrorInfo.rsslError));
+	ASSERT_TRUE(pRsslCh = rsslConnect(&connectOpts[index].rsslConnectOptions, &rsslErrorInfo.rsslError));
 	ASSERT_TRUE(waitForConnection(pRsslServer, 100));
 	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pRsslServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
@@ -3406,8 +3578,10 @@ void reactorUnitTests_InitializationAndPingTimeout()
 	ASSERT_TRUE(rsslCloseServer(pRsslServer, &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS); 
 }
 
-static void reactorUnitTests_InvalidArguments()
+static void reactorUnitTests_InvalidArguments(RsslConnectionTypes connectionType)
 {
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
 	/* Test bad uses of the interface */
 
 	/*** rsslReactorConnect()/rsslReactorAccept() ***/
@@ -3415,42 +3589,42 @@ static void reactorUnitTests_InvalidArguments()
 	/* No defaultMsgCallback */
 	clearObjects();
 	ommConsumerRole.base.defaultMsgCallback = NULL;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* No channelEventCallback */
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = NULL;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* Consumer provides directory request without login request */
 	clearObjects();
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* Consumer requests dictionary download without login & directory requests */
 	clearObjects();
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	clearObjects();
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommConsumerRole.pLoginRequest = &loginRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	clearObjects();
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	
 	/* NIProv sends directory refresh without login request */
 	clearObjects();
 	ommNIProviderRole.pDirectoryRefresh = &directoryRefresh;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* AddConnection without server */
 	clearObjects();
@@ -3459,7 +3633,7 @@ static void reactorUnitTests_InvalidArguments()
 	/* Add/AcceptConnection with bad role */
 	clearObjects();
 	ommConsumerRole.base.roleType = (RsslReactorChannelRoleType)5;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/*** Wrong msg type ***/
@@ -3467,65 +3641,70 @@ static void reactorUnitTests_InvalidArguments()
 	/* Cons: Add/AcceptConnection with wrong type for login request setup msg */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = (RsslRDMLoginRequest*)&directoryRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* Cons: Add/AcceptConnection with wrong type for directory request setup msg */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.pDirectoryRequest = (RsslRDMDirectoryRequest*)&loginRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	
 	/* NiProv: Add/AcceptConnection with wrong type for login request setup msg */
 	clearObjects();
 	ommNIProviderRole.pLoginRequest = (RsslRDMLoginRequest*)&directoryRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 
 	/* NiProv: Add/AcceptConnection with wrong type for directory request setup msg */
 	clearObjects();
 	ommNIProviderRole.pLoginRequest = &loginRequest;
 	ommNIProviderRole.pDirectoryRefresh = (RsslRDMDirectoryRefresh*)&loginRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	clearObjects();
 	ommNIProviderRole.pLoginRequest = &loginRequest;
 	ommNIProviderRole.pDirectoryRefresh = (RsslRDMDirectoryRefresh*)&directoryRequest;
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslReactorAccept(pConsMon->pReactor, NULL, &acceptOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 }
 
-void reactorUnitTests_ShortPingInterval()
+void reactorUnitTests_ShortPingInterval(RsslConnectionTypes connectionType)
 {
 	/* Test that connection can stay up with a very small ping interval (reproduces UPAC-632). */
 	RsslServer *pRsslServer;
 	RsslReactorChannel *pProvCh, *pConsCh;
 	RsslBindOptions rsslBindOpts;
 	RsslReactorDispatchOptions dispatchOpts;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	clearObjects();
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);
 	dispatchOpts.maxMessages = 1;
 
-	connectOpts.initializationTimeout = 1;
-	connectOpts.rsslConnectOptions.pingTimeout = 1;
+	connectOpts[index].initializationTimeout = 1;
+	connectOpts[index].rsslConnectOptions.pingTimeout = 1;
 	acceptOpts.initializationTimeout = 1;
 
 	rsslClearBindOpts(&rsslBindOpts);
 	rsslBindOpts.serviceName = const_cast<char*>("14010");
 	rsslBindOpts.pingTimeout = 1;
 	rsslBindOpts.minPingTimeout = 1;
+	if (index == 1)
+	{
+		rsslBindOpts.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+	}
 
 	ASSERT_TRUE((pRsslServer = rsslBind(&rsslBindOpts, &rsslErrorInfo.rsslError)));
 
-	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
-	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14010");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14010");
 
 	/*** Test initialization on connection ***/
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE(waitForConnection(pRsslServer, 100));
 	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pRsslServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
@@ -3571,15 +3750,16 @@ void reactorUnitTests_ShortPingInterval()
 	ASSERT_TRUE(rsslCloseServer(pRsslServer, &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS); 
 }
 
-static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatch)
+static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatch, RsslConnectionTypes connectionType)
 {
 	RsslReactorChannel *pProvCh;
 	RsslReactorChannel *pConsCh;
 	int i;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 1000));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 1000));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	
 	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
 	/* For some reason, after several iterations, the connection runs very slow */
@@ -3718,7 +3898,9 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatc
 		if (channelDispatch)
 			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
 		else
+		{
 			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		}
 
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RDM && pConsMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_DICTIONARY && pConsMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_DC_MT_REFRESH);
 	}
@@ -3814,14 +3996,15 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatc
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 }
 
-static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
+static void reactorUnitTests_DisconnectFromCallbacksInt_Prov(RsslConnectionTypes connectionType)
 {
 	RsslReactorChannel *pProvCh;
 	RsslReactorChannel *pConsCh;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
@@ -3867,7 +4050,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 
 		/* Prov: Send login refresh (+ flush) */
 		sendRDMMsg(pProvMon->pReactor, pProvCh, (RsslRDMMsg*)&loginRefresh, 400);
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+		ASSERT_TRUE(dispatchEvent(pProvMon, 200) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Cons: Receive login refresh(+ flush directoryRequest) */
@@ -3890,7 +4073,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 
 		/* Prov: Send directory refresh (+ flush) */
 		sendRDMMsg(pProvMon->pReactor, pProvCh, (RsslRDMMsg*)&directoryRefresh, 400);
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+		ASSERT_TRUE(dispatchEvent(pProvMon, 200) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Should be using standard callbacks elsewhere */
@@ -3917,7 +4100,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 
 
 	/* Prov: (ack close) */
-	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pProvMon, 200) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
@@ -3933,9 +4116,9 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_NiProv()
 {
 	RsslReactorChannel *pProvCh;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[0], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[0], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[0], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
@@ -3982,7 +4165,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_NiProv()
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 }
 
-static void reactorUnitTests_DisconnectFromCallbacks()
+static void reactorUnitTests_DisconnectFromCallbacks(RsslConnectionTypes connectionType)
 {
 	/*** Cons tests ***/
 
@@ -3990,9 +4173,9 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = channelEventCallbackDisconnect;
 	printf("Running Cons Connection callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false, connectionType);
 	printf("Running Cons Connection callback disconnect with dispatch channel\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true, connectionType);
 
 
 	/* Disconnect from login callback */
@@ -4000,9 +4183,9 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.loginMsgCallback = loginMsgCallbackDisconnect;
 	printf("Running Cons login callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false, connectionType);
 	printf("Running Cons login callback disconnect with dispatch channel\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true, connectionType);
 
 	/* Disconnect from directory callback */
 	clearObjects();
@@ -4011,9 +4194,9 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallbackDisconnect;
 	printf("Running Cons directory callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false, connectionType);
 	printf("Running Cons directory callback disconnect with dispatch channel\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true, connectionType);
 
 	/* Disconnect from dictionary callback */
 	clearObjects();
@@ -4024,9 +4207,9 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallbackDisconnect;
 	printf("Running Cons dictionary callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false, connectionType);
 	printf("Running Cons dictionary callback disconnect with dispatch channel\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true, connectionType);
 
 	/* Disconnect from standard msg callback */
 	clearObjects();
@@ -4038,9 +4221,9 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
 	ommConsumerRole.base.defaultMsgCallback = defaultMsgCallbackDisconnect;
 	printf("Running Cons default msg callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false, connectionType);
 	printf("Running Cons default msg callback disconnect with dispatch channel\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true, connectionType);
 
 
 	/*** Prov tests ***/
@@ -4049,7 +4232,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	clearObjects();
 	ommProviderRole.base.channelEventCallback = channelEventCallbackDisconnect;
 	printf("Running Prov channel event callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
+	reactorUnitTests_DisconnectFromCallbacksInt_Prov(connectionType);
 
 	/* Disconnect from login callback */
 	clearObjects();
@@ -4057,7 +4240,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommProviderRole.loginMsgCallback = loginMsgCallbackDisconnect;
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	printf("Running Prov login callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
+	reactorUnitTests_DisconnectFromCallbacksInt_Prov(connectionType);
 
 	/* Disconnect from directory callback */
 	clearObjects();
@@ -4067,7 +4250,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	printf("Running Prov directory callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
+	reactorUnitTests_DisconnectFromCallbacksInt_Prov(connectionType);
 
 	/* Disconnect from dictionary callback */
 	clearObjects();
@@ -4079,7 +4262,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	printf("Running Prov dictionary callback disconnect with dispatch all\n");
-	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
+	reactorUnitTests_DisconnectFromCallbacksInt_Prov(connectionType);
 
 	/*** NIProv tests ***/
 
@@ -4096,7 +4279,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	reactorUnitTests_DisconnectFromCallbacksInt_NiProv();
 }
 
-static void reactorUnitTests_BigDirectoryMsg()
+static void reactorUnitTests_BigDirectoryMsg(RsslConnectionTypes connectionType)
 {
 
 	RsslRDMService bigDirectoryServiceList[300];
@@ -4107,6 +4290,7 @@ static void reactorUnitTests_BigDirectoryMsg()
 	RsslEncodeIterator testEncodeIter;
 	RsslBuffer testEncodeBuffer;
 	RsslErrorInfo encodeErrorInfo;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 
 	rsslClearRDMDirectoryRefresh(&directoryRefresh);
@@ -4123,6 +4307,7 @@ static void reactorUnitTests_BigDirectoryMsg()
 
 		bigDirectoryServiceList[i].info.dictionariesProvidedList = dictionariesProvidedList;
 		bigDirectoryServiceList[i].info.dictionariesProvidedCount = dictionariesProvidedCount;
+		bigDirectoryServiceList[i].serviceId = 1;
 	}
 
 
@@ -4135,9 +4320,15 @@ static void reactorUnitTests_BigDirectoryMsg()
 	directoryRefresh.serviceList = bigDirectoryServiceList;
 	directoryRefresh.serviceCount = 300;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	if (index == 1)
+	{
+		/* Override the default maximum message size for the WebSocket connection to make encoding error for big directory message */
+		connectOpts[index].rsslConnectOptions.wsOpts.maxMsgSize = 6144;
+	}
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommNIProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 100));
+	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Prov: Conn up */
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -4226,19 +4417,27 @@ static void reactorUnitTests_BigDirectoryMsg()
 	removeConnection(pProvMon, pProvCh[0]);
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+
+	if (index == 1)
+	{
+		/* Reset to original */
+		connectOpts[index].rsslConnectOptions.wsOpts.maxMsgSize = 61440;
+	}
 }
 
-static void reactorUnitTests_AddConnectionFromCallbacksInt_Cons(RsslInt32 reconnectAttempts)
+static void reactorUnitTests_AddConnectionFromCallbacksInt_Cons(RsslInt32 reconnectAttempts, RsslConnectionTypes connectionType)
 {
 	RsslReactorChannel *pProvCh;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
 	pConsMon->reconnectAttempts = reconnectAttempts;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	do
 	{
-		ASSERT_TRUE(waitForConnection(pServer, 100));
-		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		ASSERT_TRUE(waitForConnection(pServer[index], 100));
+		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 		ASSERT_TRUE(dispatchEvent(pProvMon, 200) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 		pProvCh = pProvMon->mutMsg.pReactorChannel;
@@ -4269,22 +4468,22 @@ static void reactorUnitTests_AddConnectionFromCallbacksInt_Cons(RsslInt32 reconn
 	while (reconnectAttempts-- > 0);
 }
 
-static void reactorUnitTests_AddConnectionFromCallbacks()
+static void reactorUnitTests_AddConnectionFromCallbacks(RsslConnectionTypes connectionType)
 {
 	/*** Cons tests ***/
 
 	/* AddConnection from connection callback */
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = channelEventCallbackAddConnection;
-	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(0);
+	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(0, connectionType);
 
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = channelEventCallbackAddConnection;
-	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(1);
+	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(1, connectionType);
 
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = channelEventCallbackAddConnection;
-	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(2);
+	reactorUnitTests_AddConnectionFromCallbacksInt_Cons(2, connectionType);
 }
 
 RTR_C_INLINE void clearMyReactorChannel(MyReactorChannel *pInfo)
@@ -4361,13 +4560,14 @@ RSSL_THREAD_DECLARE(reactorUnitTests_pingPongThread, pArg)
 	return 0;
 }
 
-static void reactorUnitTests_MultiThreadDispatch()
+static void reactorUnitTests_MultiThreadDispatch(RsslConnectionTypes connectionType)
 {
 	RsslThreadId threadId1, threadId2;
 	MyReactorChannel myReactorChannel1, myReactorChannel2;
 	RsslReactorOMMConsumerRole role;
 	MyReactor *pMyReactor = &myReactors[0];
 	RsslReactor *pReactor = pMyReactor->pReactor;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	/* Create two threads that work on different connections on the same reactor.
 	 * Each will send a receive a given number of messages. */
@@ -4384,7 +4584,7 @@ static void reactorUnitTests_MultiThreadDispatch()
 	myReactorChannel1.pMyReactor = pMyReactor;
 	myReactorChannel1.msgsToSend = myReactorChannel1.msgsToRecv =  10000;
 	myReactorChannel1.isServer = RSSL_TRUE;
-	connectOpts.rsslConnectOptions.userSpecPtr = &myReactorChannel1;
+	connectOpts[index].rsslConnectOptions.userSpecPtr = &myReactorChannel1;
 
 	myReactorChannel2.pMyReactor = pMyReactor;
 	myReactorChannel2.msgsToSend = myReactorChannel1.msgsToRecv;
@@ -4393,14 +4593,14 @@ static void reactorUnitTests_MultiThreadDispatch()
 	acceptOpts.rsslAcceptOptions.userSpecPtr = &myReactorChannel2;
 
 	/* Start connections */
-	ASSERT_TRUE(rsslReactorConnect(pMyReactor->pReactor, &connectOpts, (RsslReactorChannelRole*)&role, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
-	ASSERT_TRUE(rsslReactorAccept(pMyReactor->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&role, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pMyReactor->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&role, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(waitForConnection(pServer[index], 100));
+	ASSERT_TRUE(rsslReactorAccept(pMyReactor->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&role, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Wait for connections */
 	while(!myReactorChannel1.pReactorChannel || !myReactorChannel2.pReactorChannel)
 	{
-		ASSERT_TRUE(dispatchEvent(pMyReactor, 100) >= RSSL_RET_SUCCESS);
+		ASSERT_TRUE(dispatchEvent(pMyReactor, 400) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pMyReactor->mutMsg.mutMsgType == MUT_MSG_CONN); 
 		ASSERT_TRUE(pMyReactor->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP
 				|| pMyReactor->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
@@ -4463,7 +4663,7 @@ static RsslReactorCallbackRet channelEventCallbackWait(RsslReactor *pReactor, Rs
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-void reactorUnitTests_WaitWhileChannelDown()
+void reactorUnitTests_WaitWhileChannelDown(RsslConnectionTypes connectionType)
 {
 	/* When reconnecting, test that only one channel event can be received per disconnection. See ETA-1956. */
 	RsslServer *pRsslServer;
@@ -4471,16 +4671,17 @@ void reactorUnitTests_WaitWhileChannelDown()
 	RsslBindOptions rsslBindOpts;
 	RsslReactorDispatchOptions dispatchOpts;
 	int i;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	clearObjects();
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);
 	dispatchOpts.maxMessages = 1;
 
-	connectOpts.rsslConnectOptions.pingTimeout = 1;
-	connectOpts.reconnectAttemptLimit = -1;
-	connectOpts.reconnectMinDelay = 500;
-	connectOpts.reconnectMaxDelay = 500;
+	connectOpts[index].rsslConnectOptions.pingTimeout = 1;
+	connectOpts[index].reconnectAttemptLimit = -1;
+	connectOpts[index].reconnectMinDelay = 500;
+	connectOpts[index].reconnectMaxDelay = 500;
 	pConsMon->closeConnections = RSSL_FALSE;
 
 	/* Callback sleeps for a second when the channel goes down. This gives the worker a chance detect failure on ping and send an extra 
@@ -4491,15 +4692,19 @@ void reactorUnitTests_WaitWhileChannelDown()
 	rsslBindOpts.serviceName = const_cast<char*>("14011");
 	rsslBindOpts.pingTimeout = 1;
 	rsslBindOpts.minPingTimeout = 1;
+	if (index == 1)
+	{
+		rsslBindOpts.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+	}
 
 	ASSERT_TRUE((pRsslServer = rsslBind(&rsslBindOpts, &rsslErrorInfo.rsslError)));
 
-	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
-	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
 
 	/*** Test initialization on connection ***/
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	for (i = 0; i < 3; ++i)
 	{
@@ -4534,8 +4739,11 @@ void reactorUnitTests_WaitWhileChannelDown()
 		ASSERT_TRUE(pConsMon->channelDownEventCount == 0);
 
 		/* Cons: Redudnant channel-down event from the worker (should not be passed to consumer). */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 1000) >= RSSL_RET_SUCCESS);
-		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		if (index != 1)
+		{
+			ASSERT_TRUE(dispatchEvent(pConsMon, 1000) >= RSSL_RET_SUCCESS);
+			ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		}
 	}
 
 	removeConnection(pConsMon, pConsCh);
@@ -4546,22 +4754,23 @@ void reactorUnitTests_WaitWhileChannelDown()
 	ASSERT_TRUE(rsslCloseServer(pRsslServer, &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS); 
 }
 
-void reactorUnitTests_ReconnectAttemptLimit()
+void reactorUnitTests_ReconnectAttemptLimit(RsslConnectionTypes connectionType)
 {
 	/* Test a nonzero reconnectAttemptLimit to ensure correct number of down_reconnecting/down events are received.
 	 * Test also uses an invalid hostname to ensure rsslConnect fails (as opposed to the ReactorWorker failing to initialize it). See ETA-2613. */
 	RsslReactorChannel *pConsCh;
 	RsslBindOptions rsslBindOpts;
 	RsslReactorDispatchOptions dispatchOpts;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 
 	clearObjects();
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);
 	dispatchOpts.maxMessages = 1;
 
-	connectOpts.reconnectAttemptLimit = 2;
-	connectOpts.reconnectMinDelay = 500;
-	connectOpts.reconnectMaxDelay = 500;
+	connectOpts[index].reconnectAttemptLimit = 2;
+	connectOpts[index].reconnectMinDelay = 500;
+	connectOpts[index].reconnectMaxDelay = 500;
 	pConsMon->closeConnections = RSSL_FALSE;
 
 	/* Callback sleeps for a second when the channel goes down. This gives the worker a chance detect failure on ping and send an extra 
@@ -4571,12 +4780,12 @@ void reactorUnitTests_ReconnectAttemptLimit()
 	rsslClearBindOpts(&rsslBindOpts);
 	rsslBindOpts.serviceName = const_cast<char*>("14012");
 
-	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("invalid hostname!");
-	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14012");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("invalid hostname!");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14012");
 
 	/*** Test initialization on connection ***/
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Cons: Channel-down/reconnecting event. */
 	/* Don't dispatch -- the channel event callback was already run by rsslReactorConnect */
@@ -4604,7 +4813,7 @@ void reactorUnitTests_ReconnectAttemptLimit()
 }
 
 #ifdef COMPILE_64BITS
-void reactorUnitTests_ManyConnections()
+void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType)
 {
 
 	/* Test using a very large number of connections between two reactors -- open them, exchange messages between them, and close them.
@@ -4619,6 +4828,9 @@ void reactorUnitTests_ManyConnections()
 	MyReactorChannel *myConsumerChannels;
 	MyReactorChannel *myProviderChannels;
 	RsslRet rsslRet;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
+	if (index == 1) numConnections -= 500;
 
 #ifndef WIN32
 	struct rlimit rlimit;
@@ -4669,13 +4881,13 @@ void reactorUnitTests_ManyConnections()
 	for (i = 0; i < numConnections; ++i)
 	{
 		/* Cons: Connect client */
-		connectOpts.rsslConnectOptions.userSpecPtr = &myConsumerChannels[i];
-		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		connectOpts[index].rsslConnectOptions.userSpecPtr = &myConsumerChannels[i];
+		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 		/* Prov: Accept client connection */
-		while( waitForConnection(pServer, 200) == false);;
+		while( waitForConnection(pServer[index], 200) == false);;
 		acceptOpts.rsslAcceptOptions.userSpecPtr = &myProviderChannels[i];
-		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 		/* Prov: dispatch; last received event should be conn ready */
 		do { rsslRet = dispatchEvents(pProvMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || RSSL_RET_READ_WOULD_BLOCK);} while (pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
@@ -4755,11 +4967,9 @@ void reactorUnitTests_ManyConnections()
 }
 #endif
 
-void reactorUtilTest_ConnectDeepCopy()
+void reactorUtilTest_ConnectDeepCopy(RsslConnectionTypes connectionType)
 {
 	RsslConnectOptions inOpts, outOpts;
-	
-	
 	
 	rsslClearConnectOpts(&inOpts);
 	rsslClearConnectOpts(&outOpts);
@@ -4767,7 +4977,7 @@ void reactorUtilTest_ConnectDeepCopy()
 	inOpts.hostName = const_cast<char*>("testHost");
 	inOpts.serviceName = const_cast<char*>("14000");
 	inOpts.objectName = const_cast<char*>("testName");
-	inOpts.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	inOpts.connectionType = connectionType;
 	inOpts.connectionInfo.segmented.recvAddress = const_cast<char*>("123.456.789");
 	inOpts.connectionInfo.segmented.recvServiceName = const_cast<char*>("12343");
 	inOpts.connectionInfo.segmented.interfaceName = const_cast<char*>("firstNIC");
@@ -4813,6 +5023,12 @@ void reactorUtilTest_ConnectDeepCopy()
 	inOpts.proxyOpts.proxyPort = const_cast<char*>("1234");
 	inOpts.componentVersion = const_cast<char*>("5");
 	inOpts.encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+
+	if (connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		inOpts.wsOpts.protocols = const_cast<char*>("rssl.rwf, rssl.json.v2, tr_json2");
+		inOpts.wsOpts.maxMsgSize = 55555;
+	}
 	
 	rsslDeepCopyConnectOpts(&outOpts, &inOpts);
 	
@@ -4880,6 +5096,13 @@ void reactorUtilTest_ConnectDeepCopy()
 	ASSERT_TRUE(inOpts.componentVersion != outOpts.componentVersion);
 	ASSERT_TRUE(strcmp((const char*)inOpts.componentVersion, (const char*)outOpts.componentVersion) == 0);
 	ASSERT_TRUE(inOpts.encryptionOpts.encryptionProtocolFlags == outOpts.encryptionOpts.encryptionProtocolFlags);
+
+	if (connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		ASSERT_TRUE(inOpts.wsOpts.protocols != outOpts.wsOpts.protocols);
+		ASSERT_STREQ(inOpts.wsOpts.protocols, outOpts.wsOpts.protocols);
+		ASSERT_TRUE(inOpts.wsOpts.maxMsgSize == outOpts.wsOpts.maxMsgSize);
+	}
 	
 	rsslFreeConnectOpts(&outOpts);
 }

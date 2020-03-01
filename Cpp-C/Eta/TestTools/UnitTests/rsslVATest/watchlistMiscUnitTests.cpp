@@ -13,52 +13,69 @@
  * by the watchlist. */
 #include "rtr/wlMsgReorderQueue.h"
 
-void watchlistMiscTest_BigGenericMsg();
-void watchlistMiscTest_BigPostMsg();
-void watchlistMiscTest_MsgKeyInUpdates(); 
-void watchlistMiscTest_SeqNumCompare(); 
-void watchlistMiscTest_AdminRsslMsgs();
+void watchlistMiscTest_BigGenericMsg(RsslConnectionTypes connectionType);
+void watchlistMiscTest_BigPostMsg(RsslConnectionTypes connectionType);
+void watchlistMiscTest_MsgKeyInUpdates(RsslConnectionTypes connectionType);
+void watchlistMiscTest_SeqNumCompare(RsslConnectionTypes connectionType);
+void watchlistMiscTest_AdminRsslMsgs(RsslConnectionTypes connectionType);
 
-class WatchlistMiscUnitTest : public ::testing::Test {
+class WatchlistMiscUnitTest : public ::testing::TestWithParam<RsslConnectionTypes> {
 public:
 
 	static void SetUpTestCase()
 	{
-		wtfInit(NULL);
+		wtfInit(NULL, 50000000);
+	}
+
+	virtual void SetUp()
+	{
+		wtfBindServer(GetParam());
 	}
 
 	static void TearDownTestCase()
 	{
 		wtfCleanup();
 	}
+
+	virtual void TearDown()
+	{
+		wtfCloseServer();
+	}
 };
 
-TEST_F(WatchlistMiscUnitTest, SeqNumCompare)
+TEST_P(WatchlistMiscUnitTest, SeqNumCompare)
 {
-	watchlistMiscTest_SeqNumCompare();
+	watchlistMiscTest_SeqNumCompare(GetParam());
 }
 
-TEST_F(WatchlistMiscUnitTest, BigGenericMsg)
+TEST_P(WatchlistMiscUnitTest, BigGenericMsg)
 {
-	watchlistMiscTest_BigGenericMsg();
+	watchlistMiscTest_BigGenericMsg(GetParam());
 }
 
-TEST_F(WatchlistMiscUnitTest, BigPostMsg)
+TEST_P(WatchlistMiscUnitTest, BigPostMsg)
 {
-	watchlistMiscTest_BigPostMsg();
+	watchlistMiscTest_BigPostMsg(GetParam());
 }
 
-TEST_F(WatchlistMiscUnitTest, MsgKeyInUpdates)
+TEST_P(WatchlistMiscUnitTest, MsgKeyInUpdates)
 {
-	watchlistMiscTest_MsgKeyInUpdates();
+	watchlistMiscTest_MsgKeyInUpdates(GetParam());
 }
 
-TEST_F(WatchlistMiscUnitTest, AdminRsslMsgs)
+TEST_P(WatchlistMiscUnitTest, AdminRsslMsgs)
 {
-	watchlistMiscTest_AdminRsslMsgs();
+	watchlistMiscTest_AdminRsslMsgs(GetParam());
 }
 
-void watchlistMiscTest_BigGenericMsg()
+INSTANTIATE_TEST_CASE_P(
+	TestingWatchlistMiscUnitTests,
+	WatchlistMiscUnitTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
+
+void watchlistMiscTest_BigGenericMsg(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -74,7 +91,7 @@ void watchlistMiscTest_BigGenericMsg()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Tests watchlist internal handling of WRITE_CALL_AGAIN by sending a really big message. */
 
@@ -129,7 +146,9 @@ void watchlistMiscTest_BigGenericMsg()
 	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == 2);
 	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
-	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
+
+	if(connectionType != RSSL_CONN_TYPE_WEBSOCKET) /* the tr_json2 protocol does not support sending group ID */
+		ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
 
 	ASSERT_TRUE(wtfGetChannelInfo(WTF_TC_CONSUMER, &channelInfo) == RSSL_RET_SUCCESS);
 
@@ -182,7 +201,7 @@ void watchlistMiscTest_BigGenericMsg()
 	wtfFinishTest();
 }
 
-void watchlistMiscTest_BigPostMsg()
+void watchlistMiscTest_BigPostMsg(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -204,7 +223,7 @@ void watchlistMiscTest_BigPostMsg()
 	RsslUInt32		domainsLength = 2;
 
 	ASSERT_TRUE(wtfStartTest());
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -257,7 +276,9 @@ void watchlistMiscTest_BigPostMsg()
 	ASSERT_TRUE(pRefreshMsg->msgBase.streamId == 2);
 	ASSERT_TRUE(pRefreshMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
-	ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
+
+	if (connectionType != RSSL_CONN_TYPE_WEBSOCKET) /* the tr_json2 protocol does not support sending group ID */
+		ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
 
 	ASSERT_TRUE(wtfGetChannelInfo(WTF_TC_CONSUMER, &channelInfo) == RSSL_RET_SUCCESS);
 
@@ -319,7 +340,7 @@ void watchlistMiscTest_BigPostMsg()
 	wtfFinishTest();
 }
 
-void watchlistMiscTest_MsgKeyInUpdates()
+void watchlistMiscTest_MsgKeyInUpdates(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -333,7 +354,7 @@ void watchlistMiscTest_MsgKeyInUpdates()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -491,7 +512,7 @@ void watchlistMiscTest_MsgKeyInUpdates()
 	wtfFinishTest();
 }
 
-void watchlistMiscTest_SeqNumCompare()
+void watchlistMiscTest_SeqNumCompare(RsslConnectionTypes connectionType)
 {
 	/* Tests that the sequence number comparison function works correctly on our supported 
 	 * platforms. */
@@ -538,7 +559,7 @@ static void _wtfRDMMsgToRsslMsg(RsslBuffer *pBuffer, RsslRDMMsg *pRdmMsg, RsslMs
 	ASSERT_TRUE(rsslDecodeMsg(&dIter, pRsslMsg) == RSSL_RET_SUCCESS);
 }
 
-void watchlistMiscTest_AdminRsslMsgs()
+void watchlistMiscTest_AdminRsslMsgs(RsslConnectionTypes connectionType)
 {
 
 	/* Test that login & directory messages can be submitted as RsslMsgs to the watchlist. */
@@ -562,7 +583,7 @@ void watchlistMiscTest_AdminRsslMsgs()
 	sopts.provideLoginRefresh = RSSL_FALSE;
 	sopts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&sopts);
+	wtfSetupConnection(&sopts, connectionType);
 
 	/* Nothing happening. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);

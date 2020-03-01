@@ -9,37 +9,37 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
-void watchlistAggregationTest_TwoItems(); 
-void watchlistAggregationTest_TwoItems_CloseBothInCallback();
-void watchlistAggregationTest_TwoItems_CloseFirstInCallback();
-void watchlistAggregationTest_TwoItems_CloseSecondInCallback();
-void watchlistAggregationTest_TwoItems_PostWithAck(); 
-void watchlistAggregationTest_TwoItems_PostWithAck_Timeout(); 
-void watchlistAggregationTest_PostWithAck_OffStream(); 
-void watchlistAggregationTest_PostWithAck_OffStream_Timeout(); 
-void watchlistAggregationTest_TwoItems_UnackedPosts();
-void watchlistAggregationTest_TwoItems_GenericMessage(); 
-void watchlistAggregationTest_ThreeItems_SvcNameAndId(); 
-void watchlistAggregationTest_SnapshotBeforeStreaming(); 
-void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart(); 
-void watchlistAggregationTest_SnapshotRefreshBeforeStreaming(); 
-void watchlistReissueTest_PriorityChangeAndNewRefresh();
-void watchlistAggregationTest_TwoItems_Pause(); 
-void watchlistAggregationTest_LoginReissue();
-void watchlistAggregationTest_TwoItems_LoginPause(); 
-void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer(); 
-void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer(); 
-void watchlistAggregationTest_EmptyView(); 
-void watchlistAggregationTest_TwoItems_SnapshotView(); 
-void watchlistAggregationTest_SnapshotBeforeStreaming_View(); 
-void watchlistAggregationTest_TwoItems_ViewOnOff();
-void watchlistAggregationTest_TwoItems_ViewMixture(); 
-void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture(); 
-void watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch(); 
-void watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView(); 
-void watchlistAggregationTest_ThreeItems_OnePrivate(); 
+void watchlistAggregationTest_TwoItems(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_CloseBothInCallback(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_CloseFirstInCallback(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_CloseSecondInCallback(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_PostWithAck(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_PostWithAck_Timeout(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_PostWithAck_OffStream(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_PostWithAck_OffStream_Timeout(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_UnackedPosts(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_GenericMessage(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_ThreeItems_SvcNameAndId(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_SnapshotBeforeStreaming(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_SnapshotRefreshBeforeStreaming(RsslConnectionTypes connectionType);
+void watchlistReissueTest_PriorityChangeAndNewRefresh(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_Pause(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_LoginReissue(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_LoginPause(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_EmptyView(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_SnapshotView(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_SnapshotBeforeStreaming_View(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_ViewOnOff(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItems_ViewMixture(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView(RsslConnectionTypes connectionType);
+void watchlistAggregationTest_ThreeItems_OnePrivate(RsslConnectionTypes connectionType);
 
-class WatchlistAggregationTest : public ::testing::Test {
+class WatchlistAggregationTest : public ::testing::TestWithParam<RsslConnectionTypes> {
 public:
 
 	static void SetUpTestCase()
@@ -47,159 +47,181 @@ public:
 		wtfInit(NULL);
 	}
 
+	virtual void SetUp()
+	{
+		wtfBindServer(GetParam());
+	}
+
 	static void TearDownTestCase()
 	{
 		wtfCleanup();
 	}
+
+	virtual void TearDown()
+	{
+		wtfCloseServer();
+	}
 };
 
 
-TEST_F(WatchlistAggregationTest, EmptyView)
+TEST_P(WatchlistAggregationTest, EmptyView)
 {
-	watchlistAggregationTest_EmptyView();
+	if(GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support empty view. */
+		watchlistAggregationTest_EmptyView(GetParam());
 }
-TEST_F(WatchlistAggregationTest, TwoItems)
+TEST_P(WatchlistAggregationTest, TwoItems)
 {
-	watchlistAggregationTest_TwoItems();
-}
-
-TEST_F(WatchlistAggregationTest, TwoItems_CloseBothInCallback)
-{
-	watchlistAggregationTest_TwoItems_CloseBothInCallback();
+	watchlistAggregationTest_TwoItems(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_CloseFirstInCallback)
+TEST_P(WatchlistAggregationTest, TwoItems_CloseBothInCallback)
 {
-	watchlistAggregationTest_TwoItems_CloseFirstInCallback();
+	watchlistAggregationTest_TwoItems_CloseBothInCallback(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_CloseSecondInCallback)
+TEST_P(WatchlistAggregationTest, TwoItems_CloseFirstInCallback)
 {
-	watchlistAggregationTest_TwoItems_CloseSecondInCallback();
+	watchlistAggregationTest_TwoItems_CloseFirstInCallback(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_PostWithAck)
+TEST_P(WatchlistAggregationTest, TwoItems_CloseSecondInCallback)
 {
-	watchlistAggregationTest_TwoItems_PostWithAck();
+	watchlistAggregationTest_TwoItems_CloseSecondInCallback(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_PostWithAck_Timeout)
+TEST_P(WatchlistAggregationTest, TwoItems_PostWithAck)
 {
-	watchlistAggregationTest_TwoItems_PostWithAck_Timeout();
+	watchlistAggregationTest_TwoItems_PostWithAck(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, PostWithAck_OffStream)
+TEST_P(WatchlistAggregationTest, TwoItems_PostWithAck_Timeout)
 {
-	watchlistAggregationTest_PostWithAck_OffStream();
+	watchlistAggregationTest_TwoItems_PostWithAck_Timeout(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, PostWithAck_OffStream_Timeout)
+TEST_P(WatchlistAggregationTest, PostWithAck_OffStream)
 {
-	watchlistAggregationTest_PostWithAck_OffStream_Timeout();
+	watchlistAggregationTest_PostWithAck_OffStream(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_UnackedPosts)
+TEST_P(WatchlistAggregationTest, PostWithAck_OffStream_Timeout)
 {
-	watchlistAggregationTest_TwoItems_UnackedPosts();
+	watchlistAggregationTest_PostWithAck_OffStream_Timeout(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_GenericMessage)
+TEST_P(WatchlistAggregationTest, TwoItems_UnackedPosts)
 {
-	watchlistAggregationTest_TwoItems_GenericMessage();
+	watchlistAggregationTest_TwoItems_UnackedPosts(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, ThreeItems_SvcNameAndId)
+TEST_P(WatchlistAggregationTest, TwoItems_GenericMessage)
 {
-	watchlistAggregationTest_ThreeItems_SvcNameAndId();
+	watchlistAggregationTest_TwoItems_GenericMessage(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, SnapshotBeforeStreaming)
+TEST_P(WatchlistAggregationTest, ThreeItems_SvcNameAndId)
 {
-	watchlistAggregationTest_SnapshotBeforeStreaming();
+	watchlistAggregationTest_ThreeItems_SvcNameAndId(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, SnapshotBeforeStreaming_Multipart)
+TEST_P(WatchlistAggregationTest, SnapshotBeforeStreaming)
 {
-	watchlistAggregationTest_SnapshotBeforeStreaming_Multipart();
+	watchlistAggregationTest_SnapshotBeforeStreaming(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, SnapshotRefreshBeforeStreaming)
+TEST_P(WatchlistAggregationTest, SnapshotBeforeStreaming_Multipart)
 {
-	watchlistAggregationTest_SnapshotRefreshBeforeStreaming();
+	watchlistAggregationTest_SnapshotBeforeStreaming_Multipart(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, PriorityChangeAndNewRefresh)
+TEST_P(WatchlistAggregationTest, SnapshotRefreshBeforeStreaming)
 {
-	watchlistReissueTest_PriorityChangeAndNewRefresh();
+	watchlistAggregationTest_SnapshotRefreshBeforeStreaming(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, LoginReissue)
+TEST_P(WatchlistAggregationTest, PriorityChangeAndNewRefresh)
 {
-	watchlistAggregationTest_LoginReissue();
+	watchlistReissueTest_PriorityChangeAndNewRefresh(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_Pause)
+TEST_P(WatchlistAggregationTest, LoginReissue)
 {
-	watchlistAggregationTest_TwoItems_Pause();
+	watchlistAggregationTest_LoginReissue(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_LoginPause)
+TEST_P(WatchlistAggregationTest, TwoItems_Pause)
 {
-	watchlistAggregationTest_TwoItems_LoginPause();
+	watchlistAggregationTest_TwoItems_Pause(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_ViewOnOff)
+TEST_P(WatchlistAggregationTest, TwoItems_LoginPause)
 {
-	watchlistAggregationTest_TwoItems_ViewOnOff();
+	watchlistAggregationTest_TwoItems_LoginPause(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_FieldViewFromMsgBuffer)
+TEST_P(WatchlistAggregationTest, TwoItems_ViewOnOff)
 {
-	watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer();
+	watchlistAggregationTest_TwoItems_ViewOnOff(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_ElementViewFromMsgBuffer)
+TEST_P(WatchlistAggregationTest, TwoItems_FieldViewFromMsgBuffer)
 {
-	watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer();
+	if (GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support empty view. */
+		watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_SnapshotView)
+TEST_P(WatchlistAggregationTest, TwoItems_ElementViewFromMsgBuffer)
 {
-	watchlistAggregationTest_TwoItems_SnapshotView();
+	if (GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support empty view. */
+		watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, SnapshotBeforeStreaming_View)
+TEST_P(WatchlistAggregationTest, TwoItems_SnapshotView)
 {
-	watchlistAggregationTest_SnapshotBeforeStreaming_View();
+	watchlistAggregationTest_TwoItems_SnapshotView(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItems_ViewMixture)
+TEST_P(WatchlistAggregationTest, SnapshotBeforeStreaming_View)
 {
-	watchlistAggregationTest_TwoItems_ViewMixture();
+	watchlistAggregationTest_SnapshotBeforeStreaming_View(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, TwoItemsInMsgBuffer_ViewMixture)
+TEST_P(WatchlistAggregationTest, TwoItems_ViewMixture)
 {
-	watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture();
+	watchlistAggregationTest_TwoItems_ViewMixture(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, ThreeItemsInMsgBuffer_Batch)
+TEST_P(WatchlistAggregationTest, TwoItemsInMsgBuffer_ViewMixture)
 {
-	watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch();
+	if(GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support empty view. */
+		watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, ThreeItemsInMsgBuffer_BatchWithView)
+TEST_P(WatchlistAggregationTest, ThreeItemsInMsgBuffer_Batch)
 {
-	watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView();
+	watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch(GetParam());
 }
 
-TEST_F(WatchlistAggregationTest, ThreeItems_OnePrivate)
+TEST_P(WatchlistAggregationTest, ThreeItemsInMsgBuffer_BatchWithView)
 {
-	watchlistAggregationTest_ThreeItems_OnePrivate();
+	watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView(GetParam());
 }
 
+TEST_P(WatchlistAggregationTest, ThreeItems_OnePrivate)
+{
+	watchlistAggregationTest_ThreeItems_OnePrivate(GetParam());
+}
 
-void watchlistAggregationTest_TwoItems()
+INSTANTIATE_TEST_CASE_P(
+	TestingWatchlistAggregationTests,
+	WatchlistAggregationTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
+
+
+
+void watchlistAggregationTest_TwoItems(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -209,7 +231,7 @@ void watchlistAggregationTest_TwoItems()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -413,7 +435,7 @@ RsslInt32 _watchlistAggregationTest_TwoItems_OpenTwoItems()
 
 }
 
-void watchlistAggregationTest_TwoItems_CloseBothInCallback()
+void watchlistAggregationTest_TwoItems_CloseBothInCallback(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslInt32		providerItemStream;
@@ -423,7 +445,7 @@ void watchlistAggregationTest_TwoItems_CloseBothInCallback()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	providerItemStream = _watchlistAggregationTest_TwoItems_OpenTwoItems();
 
@@ -469,7 +491,7 @@ void watchlistAggregationTest_TwoItems_CloseBothInCallback()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_CloseFirstInCallback()
+void watchlistAggregationTest_TwoItems_CloseFirstInCallback(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	*pRequestMsg;
@@ -479,7 +501,7 @@ void watchlistAggregationTest_TwoItems_CloseFirstInCallback()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	providerItemStream = _watchlistAggregationTest_TwoItems_OpenTwoItems();
 
@@ -535,7 +557,7 @@ void watchlistAggregationTest_TwoItems_CloseFirstInCallback()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_CloseSecondInCallback()
+void watchlistAggregationTest_TwoItems_CloseSecondInCallback(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	*pRequestMsg;
@@ -545,7 +567,7 @@ void watchlistAggregationTest_TwoItems_CloseSecondInCallback()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	providerItemStream = _watchlistAggregationTest_TwoItems_OpenTwoItems();
 
@@ -595,7 +617,7 @@ void watchlistAggregationTest_TwoItems_CloseSecondInCallback()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_PostWithAck()
+void watchlistAggregationTest_TwoItems_PostWithAck(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -612,7 +634,7 @@ void watchlistAggregationTest_TwoItems_PostWithAck()
 
 	wtfClearSetupConnectionOpts(&sOpts);
 	sOpts.postAckTimeout = 2000;
-	wtfSetupConnection(&sOpts);
+	wtfSetupConnection(&sOpts, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -956,7 +978,7 @@ void watchlistAggregationTest_TwoItems_PostWithAck()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_PostWithAck_Timeout()
+void watchlistAggregationTest_TwoItems_PostWithAck_Timeout(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -973,7 +995,7 @@ void watchlistAggregationTest_TwoItems_PostWithAck_Timeout()
 
 	wtfClearSetupConnectionOpts(&sOpts);
 	sOpts.postAckTimeout = 2000;
-	wtfSetupConnection(&sOpts);
+	wtfSetupConnection(&sOpts, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -1271,7 +1293,7 @@ void watchlistAggregationTest_TwoItems_PostWithAck_Timeout()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_PostWithAck_OffStream()
+void watchlistAggregationTest_PostWithAck_OffStream(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslPostMsg		postMsg, *pPostMsg;
@@ -1283,7 +1305,7 @@ void watchlistAggregationTest_PostWithAck_OffStream()
 
 	wtfClearSetupConnectionOpts(&sOpts);
 	sOpts.postAckTimeout = 2000;
-	wtfSetupConnection(&sOpts);
+	wtfSetupConnection(&sOpts, connectionType);
 
 
 	/* Consumer sends incomplete post, with sequence number. */
@@ -1347,7 +1369,7 @@ void watchlistAggregationTest_PostWithAck_OffStream()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_PostWithAck_OffStream_Timeout()
+void watchlistAggregationTest_PostWithAck_OffStream_Timeout(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslPostMsg		postMsg, *pPostMsg;
@@ -1359,7 +1381,7 @@ void watchlistAggregationTest_PostWithAck_OffStream_Timeout()
 
 	wtfClearSetupConnectionOpts(&sOpts);
 	sOpts.postAckTimeout = 2000;
-	wtfSetupConnection(&sOpts);
+	wtfSetupConnection(&sOpts, connectionType);
 
 	/* Consumer sends incomplete post, with sequence number. */
 	rsslClearPostMsg(&postMsg);
@@ -1406,7 +1428,7 @@ void watchlistAggregationTest_PostWithAck_OffStream_Timeout()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_UnackedPosts()
+void watchlistAggregationTest_TwoItems_UnackedPosts(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -1418,7 +1440,7 @@ void watchlistAggregationTest_TwoItems_UnackedPosts()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Tests that unacknowledged post messages are properly cleaned up
 	 * on stream close. */
@@ -1561,7 +1583,7 @@ void watchlistAggregationTest_TwoItems_UnackedPosts()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_GenericMessage()
+void watchlistAggregationTest_TwoItems_GenericMessage(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -1580,7 +1602,7 @@ void watchlistAggregationTest_TwoItems_GenericMessage()
 
 	/* Try sending a generic message in each direction. */
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -1866,7 +1888,7 @@ void watchlistAggregationTest_TwoItems_GenericMessage()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_ThreeItems_SvcNameAndId()
+void watchlistAggregationTest_ThreeItems_SvcNameAndId(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -1876,7 +1898,7 @@ void watchlistAggregationTest_ThreeItems_SvcNameAndId()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -2018,7 +2040,7 @@ void watchlistAggregationTest_ThreeItems_SvcNameAndId()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_SnapshotBeforeStreaming()
+void watchlistAggregationTest_SnapshotBeforeStreaming(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2028,7 +2050,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item as a snapshot. */
 	rsslClearRequestMsg(&requestMsg);
@@ -2108,7 +2130,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart()
+void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2126,7 +2148,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item as a snapshot. */
 	rsslClearRequestMsg(&requestMsg);
@@ -2482,7 +2504,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming_Multipart()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_SnapshotRefreshBeforeStreaming()
+void watchlistAggregationTest_SnapshotRefreshBeforeStreaming(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2492,7 +2514,7 @@ void watchlistAggregationTest_SnapshotRefreshBeforeStreaming()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Tests fulfilling a snapshot request, then streaming request.
 	 * Modeled after rssl3302. */
@@ -2595,7 +2617,7 @@ void watchlistAggregationTest_SnapshotRefreshBeforeStreaming()
 	wtfFinishTest();
 }
 
-void watchlistReissueTest_PriorityChangeAndNewRefresh()
+void watchlistReissueTest_PriorityChangeAndNewRefresh(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2608,7 +2630,7 @@ void watchlistReissueTest_PriorityChangeAndNewRefresh()
 
 	/* Test priority change and reissue for new refresh. */
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -2756,7 +2778,7 @@ void watchlistReissueTest_PriorityChangeAndNewRefresh()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_Pause()
+void watchlistAggregationTest_TwoItems_Pause(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -2766,7 +2788,7 @@ void watchlistAggregationTest_TwoItems_Pause()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -2881,7 +2903,7 @@ void watchlistAggregationTest_TwoItems_Pause()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_LoginReissue()
+void watchlistAggregationTest_LoginReissue(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -2890,7 +2912,7 @@ void watchlistAggregationTest_LoginReissue()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Send relogin. */
 	wtfInitDefaultLoginRequest(&loginRequest);
@@ -2941,7 +2963,7 @@ void watchlistAggregationTest_LoginReissue()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_LoginPause()
+void watchlistAggregationTest_TwoItems_LoginPause(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent			*pEvent;
@@ -2956,7 +2978,7 @@ void watchlistAggregationTest_TwoItems_LoginPause()
 
 	wtfClearSetupConnectionOpts(&sOpts);
 	sOpts.requestTimeout = 2000;
-	wtfSetupConnection(&sOpts);
+	wtfSetupConnection(&sOpts, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -3140,7 +3162,7 @@ void watchlistAggregationTest_TwoItems_LoginPause()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_ViewOnOff()
+void watchlistAggregationTest_TwoItems_ViewOnOff(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3171,7 +3193,7 @@ void watchlistAggregationTest_TwoItems_ViewOnOff()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -3432,7 +3454,7 @@ void watchlistAggregationTest_TwoItems_ViewOnOff()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer()
+void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3478,7 +3500,7 @@ void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_FIELD_ID_LIST, &view1DataBody, view1List, 0, view1Count);
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_FIELD_ID_LIST, &view1_1DataBody, view1_1List, 0, view1_1Count);
@@ -3516,7 +3538,7 @@ void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer()
 	rsslClearRefreshMsg(&refreshMsg);
 	refreshMsg.msgBase.streamId = providerItemStream;
 	refreshMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
-	refreshMsg.msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+	refreshMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
 	refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
 	refreshMsg.flags = RSSL_RFMF_SOLICITED | RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_CLEAR_CACHE 
@@ -3686,7 +3708,7 @@ void watchlistAggregationTest_TwoItems_FieldViewFromMsgBuffer()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_EmptyView()
+void watchlistAggregationTest_EmptyView(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3701,7 +3723,7 @@ void watchlistAggregationTest_EmptyView()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_FIELD_ID_LIST, &dataBody, view1List, 0, view1Count);
 
@@ -3911,7 +3933,7 @@ void watchlistAggregationTest_EmptyView()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer()
+void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -3963,7 +3985,7 @@ void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_ELEMENT_NAME_LIST, &view1DataBody, 0, view1List, view1Count);
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_ELEMENT_NAME_LIST, &view1_1DataBody, 0, view1_1List, view1_1Count);
@@ -4171,7 +4193,7 @@ void watchlistAggregationTest_TwoItems_ElementViewFromMsgBuffer()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture()
+void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4203,7 +4225,7 @@ void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_ELEMENT_NAME_LIST, &eviewDataBody, 0, eview1List, eview1Count);
 	wtfConsumerEncodeViewRequest(RDM_VIEW_TYPE_FIELD_ID_LIST, &viewDataBody, view1List, 0, view1Count);
@@ -4303,7 +4325,7 @@ void watchlistAggregationTest_TwoItemsInMsgBuffer_ViewMixture()
 
 }
 
-void watchlistAggregationTest_TwoItems_SnapshotView()
+void watchlistAggregationTest_TwoItems_SnapshotView(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4336,7 +4358,7 @@ void watchlistAggregationTest_TwoItems_SnapshotView()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -4398,7 +4420,7 @@ void watchlistAggregationTest_TwoItems_SnapshotView()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_SnapshotBeforeStreaming_View()
+void watchlistAggregationTest_SnapshotBeforeStreaming_View(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4418,7 +4440,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming_View()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item as a snapshot. */
 	rsslClearRequestMsg(&requestMsg);
@@ -4511,7 +4533,7 @@ void watchlistAggregationTest_SnapshotBeforeStreaming_View()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_TwoItems_ViewMixture()
+void watchlistAggregationTest_TwoItems_ViewMixture(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4536,7 +4558,7 @@ void watchlistAggregationTest_TwoItems_ViewMixture()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);
@@ -4640,7 +4662,7 @@ void watchlistAggregationTest_TwoItems_ViewMixture()
 	wtfFinishTest();
 }
 
-void watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch()
+void watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -4857,7 +4879,7 @@ void watchlistAggregationTest_ThreeItemsInMsgBuffer_Batch()
 
 }
 
-void watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView()
+void watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView(RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions opts;
 	WtfEvent		*pEvent;
@@ -5023,7 +5045,7 @@ void watchlistAggregationTest_ThreeItemsInMsgBuffer_BatchWithView()
 
 }
 
-void watchlistAggregationTest_ThreeItems_OnePrivate()
+void watchlistAggregationTest_ThreeItems_OnePrivate(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRequestMsg	requestMsg, *pRequestMsg;
@@ -5033,7 +5055,7 @@ void watchlistAggregationTest_ThreeItems_OnePrivate()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Request first item. */
 	rsslClearRequestMsg(&requestMsg);

@@ -279,7 +279,18 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 		strncpy(destOpts->encryptionOpts.openSSLCAStore, sourceOpts->encryptionOpts.openSSLCAStore, tempLen);
 	}
 
-	
+	if (sourceOpts->wsOpts.protocols != 0)
+	{
+		tempLen = (strlen(sourceOpts->wsOpts.protocols) + 1) * sizeof(char);
+		destOpts->wsOpts.protocols = (char*)malloc(tempLen);
+
+		if (destOpts->wsOpts.protocols == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->wsOpts.protocols, sourceOpts->wsOpts.protocols, tempLen);
+	}
 	
 	return RSSL_RET_SUCCESS;
 }
@@ -384,6 +395,11 @@ RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 	if(connOpts->encryptionOpts.openSSLCAStore != 0)
 	{
 		free(connOpts->encryptionOpts.openSSLCAStore);
+	}
+
+	if (connOpts->wsOpts.protocols != 0)
+	{
+		free(connOpts->wsOpts.protocols);
 	}
 
 	memset(connOpts, 0, sizeof(RsslConnectOptions));

@@ -9,135 +9,153 @@
 #include "watchlistTestFramework.h"
 #include "gtest/gtest.h"
 
-void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action);
-void watchlistDirectoryTest_OneService();
-void watchlistDirectoryTest_ServiceUpdate();
-void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly();
-void watchlistDirectoryTest_ServiceUpdatePartialFilter();
-void watchlistDirectoryTest_RsslMsgClose();
-void watchlistDirectoryTest_MultipleRequests();
-void watchlistDirectoryTest_DirectoryStatus();
-void watchlistDirectoryDataTest_OneService();
-void watchlistDirectoryDataTestDataFilterOnly_OneService();
-void watchlistDirectoryDataTest_Links();
-void watchlistDirectoryDataTestLinkFilterOnly_Links();
-void watchlistDirectoryDataTest_Groups();
-void watchlistDirectoryDataTestGroupFilterOnly_Groups();
-void watchlistDirectoryDataTestDataFilterOnly_Data();
-void watchlistDirectoryTest_DeleteService();
-void watchlistDirectoryTest_BigDirectory();
-void watchlistDirectoryTest_DuplicateServiceName();
+void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action, RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_ServiceUpdatePartialFilter(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_RsslMsgClose(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_DirectoryStatus(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTest_OneService(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTestDataFilterOnly_OneService(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTest_Links(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTestLinkFilterOnly_Links(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTest_Groups(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTestGroupFilterOnly_Groups(RsslConnectionTypes connectionType);
+void watchlistDirectoryDataTestDataFilterOnly_Data(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_DeleteService(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_BigDirectory(RsslConnectionTypes connectionType);
+void watchlistDirectoryTest_DuplicateServiceName(RsslConnectionTypes connectionType);
 
-class WatchlistDirectoryUnitTest : public ::testing::Test {
+class WatchlistDirectoryUnitTest : public ::testing::TestWithParam<RsslConnectionTypes> {
 public:
 
 	static void SetUpTestCase()
 	{
-	wtfInit(NULL);
+		wtfInit(NULL);
+	}
+
+	virtual void SetUp()
+	{
+		wtfBindServer(GetParam());
 	}
 
 	static void TearDownTestCase()
 	{
-	wtfCleanup();
+		wtfCleanup();
+	}
+
+	virtual void TearDown()
+	{
+		wtfCloseServer();
 	}
 };
 
-TEST_F(WatchlistDirectoryUnitTest, OneService)
+TEST_P(WatchlistDirectoryUnitTest, OneService)
 {
-	watchlistDirectoryTest_OneService();
+	watchlistDirectoryTest_OneService(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, ServiceUpdate)
+TEST_P(WatchlistDirectoryUnitTest, ServiceUpdate)
 {
-	watchlistDirectoryTest_ServiceUpdate();
+	watchlistDirectoryTest_ServiceUpdate(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, ServiceUpdatePartialFilter)
+TEST_P(WatchlistDirectoryUnitTest, ServiceUpdatePartialFilter)
 {
-	watchlistDirectoryTest_ServiceUpdatePartialFilter();
+	watchlistDirectoryTest_ServiceUpdatePartialFilter(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, ServiceUpdateLinkFilterOnly)
+TEST_P(WatchlistDirectoryUnitTest, ServiceUpdateLinkFilterOnly)
 {
-	watchlistDirectoryTest_ServiceUpdateLinkFilterOnly();
+	watchlistDirectoryTest_ServiceUpdateLinkFilterOnly(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, RsslMsgClose)
+TEST_P(WatchlistDirectoryUnitTest, RsslMsgClose)
 {
-	watchlistDirectoryTest_RsslMsgClose();
+	watchlistDirectoryTest_RsslMsgClose(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, MultipleRequests)
+TEST_P(WatchlistDirectoryUnitTest, MultipleRequests)
 {
-	watchlistDirectoryTest_MultipleRequests();
+	watchlistDirectoryTest_MultipleRequests(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, NoRdmCallbacks_WTF_CB_NONE)
+TEST_P(WatchlistDirectoryUnitTest, NoRdmCallbacks_WTF_CB_NONE)
 {
-	watchlistDirectoryTest_NoRdmCallbacks(WTF_CB_NONE);
+	watchlistDirectoryTest_NoRdmCallbacks(WTF_CB_NONE, GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, NoRdmCallbacks_WTF_CB_RAISE_TO_DEFAULT_CB)
+TEST_P(WatchlistDirectoryUnitTest, NoRdmCallbacks_WTF_CB_RAISE_TO_DEFAULT_CB)
 {
-	watchlistDirectoryTest_NoRdmCallbacks(WTF_CB_RAISE_TO_DEFAULT_CB);
+	watchlistDirectoryTest_NoRdmCallbacks(WTF_CB_RAISE_TO_DEFAULT_CB, GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DirectoryStatus)
+TEST_P(WatchlistDirectoryUnitTest, DirectoryStatus)
 {
-	watchlistDirectoryTest_DirectoryStatus();
+	watchlistDirectoryTest_DirectoryStatus(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTest_OneService)
+TEST_P(WatchlistDirectoryUnitTest, DataTest_OneService)
 {
-	watchlistDirectoryDataTest_OneService();
+	watchlistDirectoryDataTest_OneService(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataFilterOnly_OneService)
+TEST_P(WatchlistDirectoryUnitTest, DataFilterOnly_OneService)
 {
-	watchlistDirectoryDataTestDataFilterOnly_OneService();
+	watchlistDirectoryDataTestDataFilterOnly_OneService(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTest_Links)
+TEST_P(WatchlistDirectoryUnitTest, DataTest_Links)
 {
-	watchlistDirectoryDataTest_Links();
+	watchlistDirectoryDataTest_Links(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTestLinkFilterOnly_Links)
+TEST_P(WatchlistDirectoryUnitTest, DataTestLinkFilterOnly_Links)
 {
-	watchlistDirectoryDataTestLinkFilterOnly_Links();
+	watchlistDirectoryDataTestLinkFilterOnly_Links(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTest_Groups)
+TEST_P(WatchlistDirectoryUnitTest, DataTest_Groups)
 {
-	watchlistDirectoryDataTest_Groups();
+	watchlistDirectoryDataTest_Groups(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTestGroupFilterOnly_Groups)
+TEST_P(WatchlistDirectoryUnitTest, DataTestGroupFilterOnly_Groups)
 {
-	watchlistDirectoryDataTestGroupFilterOnly_Groups();
+	watchlistDirectoryDataTestGroupFilterOnly_Groups(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DataTestDataFilterOnly_Data)
+TEST_P(WatchlistDirectoryUnitTest, DataTestDataFilterOnly_Data)
 {
-	watchlistDirectoryDataTestDataFilterOnly_Data();
+	watchlistDirectoryDataTestDataFilterOnly_Data(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DeleteService)
+TEST_P(WatchlistDirectoryUnitTest, DeleteService)
 {
-	watchlistDirectoryTest_DeleteService();
+	if(GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support MapEntry's delete action */
+		watchlistDirectoryTest_DeleteService(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, BigDirectory)
+TEST_P(WatchlistDirectoryUnitTest, BigDirectory)
 {
-	watchlistDirectoryTest_BigDirectory();
+	watchlistDirectoryTest_BigDirectory(GetParam());
 }
 
-TEST_F(WatchlistDirectoryUnitTest, DuplicateServiceName)
+TEST_P(WatchlistDirectoryUnitTest, DuplicateServiceName)
 {
-	watchlistDirectoryTest_DuplicateServiceName();
+	watchlistDirectoryTest_DuplicateServiceName(GetParam());
 }
 
-void watchlistDirectoryTest_OneService()
+INSTANTIATE_TEST_CASE_P(
+	TestingWatchlistDirectoryUnitTests,
+	WatchlistDirectoryUnitTest,
+	::testing::Values(
+		RSSL_CONN_TYPE_SOCKET, RSSL_CONN_TYPE_WEBSOCKET
+	));
+
+void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -149,7 +167,7 @@ void watchlistDirectoryTest_OneService()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -248,7 +266,7 @@ void watchlistDirectoryTest_OneService()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_ServiceUpdate()
+void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -270,7 +288,7 @@ void watchlistDirectoryTest_ServiceUpdate()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -421,7 +439,7 @@ void watchlistDirectoryTest_ServiceUpdate()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_ServiceUpdatePartialFilter()
+void watchlistDirectoryTest_ServiceUpdatePartialFilter(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -452,7 +470,7 @@ void watchlistDirectoryTest_ServiceUpdatePartialFilter()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2); // default filter is INFO | STATE | GROUP
@@ -564,7 +582,7 @@ void watchlistDirectoryTest_ServiceUpdatePartialFilter()
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].groupStateList[0].status.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].groupStateList[0].status.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].groupStateList[0].status.code == RSSL_SC_NO_RESOURCES);
-	ASSERT_TRUE(rsslBufferIsEqual(&pDirectoryUpdate->serviceList[0].groupStateList[0].status.text, &someRandomText));
+	ASSERT_TRUE(memcmp(pDirectoryUpdate->serviceList[0].groupStateList[0].status.text.data, someRandomText.data, someRandomText.length -1) == 0);
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].groupStateList[1].flags == RDM_SVC_GRF_HAS_MERGED_TO_GROUP);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].groupStateList[1].action == RSSL_FTEA_SET_ENTRY);
@@ -613,7 +631,7 @@ void watchlistDirectoryTest_ServiceUpdatePartialFilter()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly()
+void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -642,7 +660,7 @@ void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -777,7 +795,7 @@ void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_RsslMsgClose()
+void watchlistDirectoryTest_RsslMsgClose(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -792,7 +810,7 @@ void watchlistDirectoryTest_RsslMsgClose()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -854,7 +872,7 @@ void watchlistDirectoryTest_RsslMsgClose()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_MultipleRequests()
+void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -881,7 +899,7 @@ void watchlistDirectoryTest_MultipleRequests()
 
 	wtfClearSetupConnectionOpts(&csOpts);
 	csOpts.provideDefaultDirectory = RSSL_FALSE;
-	wtfSetupConnection(&csOpts);
+	wtfSetupConnection(&csOpts, connectionType);
 
 	/* Provider sends directory refresh. */
 	rsslClearRDMDirectoryRefresh(&directoryRefresh);
@@ -1085,7 +1103,7 @@ void watchlistDirectoryTest_MultipleRequests()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_DeleteService()
+void watchlistDirectoryTest_DeleteService(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -1115,7 +1133,7 @@ void watchlistDirectoryTest_DeleteService()
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -1267,7 +1285,7 @@ void watchlistDirectoryTest_DeleteService()
 //
 // this should generate a directory message of several kilobytes
 //
-void watchlistDirectoryTest_BigDirectory()
+void watchlistDirectoryTest_BigDirectory(RsslConnectionTypes connectionType)
 {
 	int i;
 	WtfEvent		*pEvent;
@@ -1297,7 +1315,7 @@ void watchlistDirectoryTest_BigDirectory()
 	RsslBuffer itemList = { 131, const_cast<char*>("phasers, photon topedoes, communicator, replicator, holodeck, datapad, android, visor, Nacelle, anti-matter, tribble, Earl Grey Tea")};
 
 	ASSERT_TRUE(wtfStartTest());
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -1373,7 +1391,7 @@ void watchlistDirectoryTest_BigDirectory()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action)
+void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action, RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -1391,7 +1409,7 @@ void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action)
 	wtfOpts.consumerLoginCallback = action;
 	wtfOpts.consumerDirectoryCallback = action;
 	wtfOpts.consumerDictionaryCallback = action;
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -1415,7 +1433,7 @@ void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action)
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_DirectoryStatus()
+void watchlistDirectoryTest_DirectoryStatus(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -1431,7 +1449,7 @@ void watchlistDirectoryTest_DirectoryStatus()
 	ASSERT_TRUE(wtfStartTest());
 
 	/* Make directory requests for all services, and by specific name/ID. */
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests full directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -1564,7 +1582,7 @@ void watchlistDirectoryTest_DirectoryStatus()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTest_OneService()
+void watchlistDirectoryDataTest_OneService(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -1636,7 +1654,7 @@ void watchlistDirectoryDataTest_OneService()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -1857,7 +1875,7 @@ void watchlistDirectoryDataTest_OneService()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTestDataFilterOnly_OneService()
+void watchlistDirectoryDataTestDataFilterOnly_OneService(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -1928,7 +1946,7 @@ void watchlistDirectoryDataTestDataFilterOnly_OneService()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -2092,7 +2110,7 @@ void watchlistDirectoryDataTestDataFilterOnly_OneService()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTest_Links()
+void watchlistDirectoryDataTest_Links(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -2130,7 +2148,7 @@ void watchlistDirectoryDataTest_Links()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Provider sets up directory refresh (should have received request from watchlist already). */
 	rsslClearRDMDirectoryRefresh(&directoryRefresh);
@@ -2353,7 +2371,7 @@ void watchlistDirectoryDataTest_Links()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTestLinkFilterOnly_Links()
+void watchlistDirectoryDataTestLinkFilterOnly_Links(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -2390,7 +2408,7 @@ void watchlistDirectoryDataTestLinkFilterOnly_Links()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -2533,7 +2551,7 @@ void watchlistDirectoryDataTestLinkFilterOnly_Links()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTest_Groups()
+void watchlistDirectoryDataTest_Groups(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -2558,7 +2576,7 @@ void watchlistDirectoryDataTest_Groups()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Provider sets up directory refresh (should have received request from watchlist already). */
 	rsslClearRDMDirectoryRefresh(&directoryRefresh);
@@ -2674,7 +2692,7 @@ void watchlistDirectoryDataTest_Groups()
 	ASSERT_TRUE(pService->groupStateList[0].status.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(pService->groupStateList[0].status.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pService->groupStateList[0].status.code == RSSL_SC_NO_RESOURCES);
-	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[0].status.text, &someRandomText));
+	ASSERT_TRUE(memcmp(pService->groupStateList[0].status.text.data, someRandomText.data, someRandomText.length - 1) == 0);
 
 	ASSERT_TRUE(pService->groupStateList[1].flags == RDM_SVC_GRF_HAS_MERGED_TO_GROUP);
 	ASSERT_TRUE(pService->groupStateList[1].action == RSSL_FTEA_SET_ENTRY);
@@ -2715,7 +2733,7 @@ void watchlistDirectoryDataTest_Groups()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTestGroupFilterOnly_Groups()
+void watchlistDirectoryDataTestGroupFilterOnly_Groups(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -2740,7 +2758,7 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -2882,7 +2900,7 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups()
 	ASSERT_TRUE(pService->groupStateList[0].status.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(pService->groupStateList[0].status.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pService->groupStateList[0].status.code == RSSL_SC_NO_RESOURCES);
-	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[0].status.text, &someRandomText));
+	ASSERT_TRUE(memcmp(pService->groupStateList[0].status.text.data, someRandomText.data, someRandomText.length - 1) == 0);
 
 	ASSERT_TRUE(pService->groupStateList[1].flags == RDM_SVC_GRF_HAS_MERGED_TO_GROUP);
 	ASSERT_TRUE(pService->groupStateList[1].action == RSSL_FTEA_SET_ENTRY);
@@ -2910,7 +2928,7 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups()
 	ASSERT_TRUE(pService->groupStateList[0].status.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(pService->groupStateList[0].status.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pService->groupStateList[0].status.code == RSSL_SC_NO_RESOURCES);
-	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[0].status.text, &someRandomText));
+	ASSERT_TRUE(memcmp(pService->groupStateList[0].status.text.data, someRandomText.data, someRandomText.length - 1) == 0);
 
 	ASSERT_TRUE(pService->groupStateList[1].flags == RDM_SVC_GRF_HAS_MERGED_TO_GROUP);
 	ASSERT_TRUE(pService->groupStateList[1].action == RSSL_FTEA_SET_ENTRY);
@@ -2985,7 +3003,7 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryDataTestDataFilterOnly_Data()
+void watchlistDirectoryDataTestDataFilterOnly_Data(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	RsslRDMDirectoryRequest directoryRequest;
@@ -3004,7 +3022,7 @@ void watchlistDirectoryDataTestDataFilterOnly_Data()
 	wtfClearSetupConnectionOpts(&wtfOpts);
 	wtfOpts.provideDefaultDirectory = RSSL_FALSE;
 
-	wtfSetupConnection(&wtfOpts);
+	wtfSetupConnection(&wtfOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -3138,7 +3156,7 @@ void watchlistDirectoryDataTestDataFilterOnly_Data()
 	wtfFinishTest();
 }
 
-void watchlistDirectoryTest_DuplicateServiceName()
+void watchlistDirectoryTest_DuplicateServiceName(RsslConnectionTypes connectionType)
 {
 	WtfEvent		*pEvent;
 	WtfChannelEvent *pChannelEvent;
@@ -3154,7 +3172,7 @@ void watchlistDirectoryTest_DuplicateServiceName()
 	/* Tests that watchlist handles change in service ID such that the directory
 	 * appears to have two services with the same name. This should result in a disconnect. */
 
-	wtfSetupConnection(NULL);
+	wtfSetupConnection(NULL, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);

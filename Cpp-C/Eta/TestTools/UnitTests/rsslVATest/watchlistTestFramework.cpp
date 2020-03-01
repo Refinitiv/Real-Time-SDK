@@ -422,14 +422,14 @@ static RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor* pReactor,
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-void wtfInit(WtfInitOpts *pOpts)
+void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize)
 {
 	RsslCreateReactorOptions	reactorOpts;
-	RsslBindOptions				bindOpts;
 	RsslErrorInfo				rsslErrorInfo;
 	char 						errorString[256];
 	RsslBuffer					errorText = { 256, errorString };
 	WtfInitOpts					defaultOpts;
+	RsslReactorJsonConverterOptions jsonConverterOptions;
 
 	wtf.state = WTF_ST_NONE;
 	wtf.pServer = NULL;
@@ -455,12 +455,6 @@ void wtfInit(WtfInitOpts *pOpts)
 	wtf.config.useRawProvider = pOpts->useRawProvider;
 	wtf.config.connType = pOpts->connectionType;
 
-	/* Bind Provider. */
-	rsslClearBindOpts(&bindOpts); bindOpts.serviceName = const_cast<char*>("14011");
-	wtf.pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError);
-	bindOpts.pingTimeout = bindOpts.minPingTimeout = 30;
-
-
 	rsslClearCreateReactorOptions(&reactorOpts);
 	reactorOpts.userSpecPtr = (void*)WTF_TC_PROVIDER;
 	wtf.pProvReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo);
@@ -477,6 +471,20 @@ void wtfInit(WtfInitOpts *pOpts)
 	ASSERT_EQ(rsslLoadEnumTypeDictionary(dictionaryName.c_str(), &dataDictionary, &errorText),
 			  RSSL_RET_SUCCESS) << "failed to load enum dictionary from file named " <<
 	  dictionaryName << std::endl;
+
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
+
+	jsonConverterOptions.pDictionary = &dataDictionary;
+	jsonConverterOptions.defaultServiceId = 1;
+
+	if (maxOutputBufSize != 0)
+	{
+		jsonConverterOptions.outputBufferSize = maxOutputBufSize;
+	}
+
+	ASSERT_TRUE(rsslReactorInitJsonConverter(wtf.pProvReactor, &jsonConverterOptions, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	ASSERT_TRUE(rsslReactorInitJsonConverter(wtf.pConsReactor, &jsonConverterOptions, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	wtf.state = WTF_ST_INITIALIZED;
 }
@@ -498,10 +506,29 @@ void wtfCleanup()
 	wtf.pProvReactorChannel = NULL;
 	wtf.pConsReactorChannel = NULL;
 
+	rsslUninitialize();
+}
+
+void wtfBindServer(RsslConnectionTypes connectionType)
+{
+	RsslBindOptions				bindOpts;
+	RsslErrorInfo				rsslErrorInfo;
+
+	/* Bind Provider. */
+	rsslClearBindOpts(&bindOpts); bindOpts.serviceName = const_cast<char*>("14011");
+
+	if(connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		bindOpts.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+
+	wtf.pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError);
+	bindOpts.pingTimeout = bindOpts.minPingTimeout = 30;
+}
+
+void wtfCloseServer()
+{
+	RsslErrorInfo				rsslErrorInfo;
 	rsslCloseServer(wtf.pServer, &rsslErrorInfo.rsslError);
 	wtf.pServer = NULL;
-	rsslUninitialize();
-
 }
 
 void wtfConnect(WtfSetupConnectionOpts *pOpts)
@@ -519,6 +546,11 @@ void wtfConnect(WtfSetupConnectionOpts *pOpts)
 
 	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
 	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+
+	if (connectOpts.rsslConnectOptions.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		connectOpts.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+	}
 
 
 	if ((ret = rsslReactorConnect(wtf.pConsReactor, &connectOpts, 
@@ -962,7 +994,7 @@ void wtfInitDefaultDirectoryRefresh(RsslRDMDirectoryRefresh *pDirectoryRefresh,
 	wtfSetService1Info(pSingleService);
 }
 
-void wtfSetupConnection(WtfSetupConnectionOpts *pOpts)
+void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes connectionType)
 {
 	RsslReactorSubmitMsgOptions submitOpts;
 	WtfEvent *pEvent;
@@ -1015,7 +1047,7 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts)
 	wtf.ommConsumerRole.watchlistOptions.postAckTimeout = 
 		(RsslUInt32)((float)wtf.ommConsumerRole.watchlistOptions.postAckTimeout / wtfGlobalConfig.speed);
 
-
+	wtf.config.connType = connectionType;
 	wtfConnect(pOpts);
 
 	/* Consumer receives channel open. */
@@ -1452,7 +1484,7 @@ void wtfSubmitMsg(RsslReactorSubmitMsgOptions *pOpts, WtfComponent component,
 
 	if (noEventsExpected)
 	{
-		wtfDispatch(component, 20);
+		wtfDispatch(component, 30);
 		ASSERT_TRUE(!wtfGetEvent());
 	}
 }

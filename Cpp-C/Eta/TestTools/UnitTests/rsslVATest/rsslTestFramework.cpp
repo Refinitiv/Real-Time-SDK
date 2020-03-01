@@ -60,6 +60,10 @@ void rsslTestInitialize(rsslTestInitOpts *pOpts)
 		bindOpts.serviceName = const_cast<char*>("14011");
 		bindOpts.guaranteedOutputBuffers = pOpts->serverGuaranteedOutputBuffers;
 		bindOpts.maxOutputBuffers = pOpts->serverMaxOutputBuffers;
+
+		if(rsslTestConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			bindOpts.wsOpts.protocols = const_cast<char*>("rssl.rwf");
+		
 		if (pOpts->compressionType != RSSL_COMP_NONE)
 		{
 			/* If zlib compression, force compression on for all clients */
@@ -106,6 +110,11 @@ RsslChannel *rsslTestCreateConsumerChannel()
 	{
 		connectOpts.connectionInfo.unified.address = const_cast<char*>("localhost");
 		connectOpts.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+
+		if (rsslTestConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			connectOpts.wsOpts.protocols = const_cast<char*>("rssl.rwf");
+		}
 	}
 	else
 	{

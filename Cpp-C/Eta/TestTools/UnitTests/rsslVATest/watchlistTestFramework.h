@@ -209,7 +209,11 @@ RTR_C_INLINE void wtfClearInitOpts(WtfInitOpts *pOpts)
 
 /* Call before starting a series of tests. Initializes the framework, creates
  * provider & consumer reactors,  and binds the provider component's server. */
-void wtfInit(WtfInitOpts *pOpts);
+void wtfInit(WtfInitOpts *pOpts, RsslUInt32 maxOutputBufSize = 0);
+
+void wtfBindServer(RsslConnectionTypes connectionType);
+
+void wtfCloseServer();
 
 /* Call after finishing a series of tests. Cleans up component reactors and resources,
  * and closes the provider server. */
@@ -328,7 +332,7 @@ static void wtfClearSetupConnectionOpts(WtfSetupConnectionOpts *pOpts)
 
 /* Perform a standard connect attempt. (Most tests connect in the same way,
  * options are provided for minor changes). */
-void wtfSetupConnection(WtfSetupConnectionOpts *pOpts);
+void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
 
 /* Accepts the connection for the provider (waits for notification; same as
  * calling wtfAcceptWithTime(5000). */
