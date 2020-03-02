@@ -346,6 +346,10 @@ RsslBuffer* jsonToRwfBase::errorText()
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RSSL error code : %d",_rsslRet);
 			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
+		case RSSL_DICT_NOT_INIT:
+			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RsslDataDictionary is not initialized with error code: %d", _rsslRet);
+			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			break;
 		case NO_MSG_BASE:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON message with no message Base.");
 			break;

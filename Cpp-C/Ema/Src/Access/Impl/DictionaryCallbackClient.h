@@ -185,6 +185,8 @@ private :
 
 	LocalDictionary*				_localDictionary;
 
+	ChannelDictionary*				_channelDictionary;
+
 	OmmBaseImpl&					_ommBaseImpl;
 
 	RefreshMsg						_refreshMsg;

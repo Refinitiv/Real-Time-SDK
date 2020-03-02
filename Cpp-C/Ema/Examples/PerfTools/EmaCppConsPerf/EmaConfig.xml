@@ -36,6 +36,21 @@
 			<Logger value="Logger_2"/>
 			<Dictionary value="Dictionary_2"/>
 		</Consumer>
+
+		<Consumer>
+			<Name value="Consumer_WSJSON_1"/>
+			<Channel value="Channel_11"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_WSRWF_1"/>
+			<Channel value="Channel_12"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
 		
 	</ConsumerList>
 </ConsumerGroup>
@@ -156,6 +171,30 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="rssl.json.v2"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_12"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="rssl.rwf"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>

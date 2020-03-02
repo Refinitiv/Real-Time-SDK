@@ -54,6 +54,12 @@ public:
 	Int32			_requestsPerTickRemainder;
 	long			*apiThreadBindList;	// CPU ID list for threads that handle connections.  See -threads 
 
+	enum WebsocketProtocol
+	{
+		NoWebSocketEnum,
+		WebSocketJSONEnum,
+		WebSocketRWFEnum
+	} websocketProtocol;
 };
 
 #endif // _CONS_PERF_CONFIG_H

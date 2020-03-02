@@ -627,6 +627,7 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 			{ "RSSL_HTTP", RSSL_CONN_TYPE_HTTP },
 			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED },
 			{ "RSSL_RELIABLE_MCAST", RSSL_CONN_TYPE_RELIABLE_MCAST },
+			{ "RSSL_WEBSOCKET", RSSL_CONN_TYPE_WEBSOCKET },
 		};
 
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
@@ -643,6 +644,7 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 		{
 			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
 			{ "RSSL_HTTP", RSSL_CONN_TYPE_HTTP },
+			{ "RSSL_WEBSOCKET", RSSL_CONN_TYPE_WEBSOCKET },
 		};
 
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
@@ -658,7 +660,8 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 		} converter[] =
 		{
 			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
-			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED }
+			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED },
+			{ "RSSL_WEBSOCKET", RSSL_CONN_TYPE_WEBSOCKET }
 		};
 
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)

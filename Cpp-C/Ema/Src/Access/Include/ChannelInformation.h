@@ -66,10 +66,11 @@ public:
 								networks are the same or a segmented network where send and
 								receive networks are different */
 	Ext_Line_SocketEnum = 5,  /*!< (5) Channel is using an extended line socket transport */
-	Seq_McastEnum = 6         /*!< (6) Channel is an unreliable, sequenced multicast connection
+	Seq_McastEnum = 6,        /*!< (6) Channel is an unreliable, sequenced multicast connection
 								for reading from an Elektron Direct Feed system. This is a
 								client-only, read-only transport. This transport is supported on
 								Linux only. */
+	WebSocketEnum = 7,        /*!< (7) Channel is a WebSocket connection based tunneling type */
   };
 
   /** @enum ProtocolType
@@ -78,7 +79,8 @@ public:
   enum ProtocolType
   {
 	UnknownEnum = -1,		/*!< (-1) Unknown wireformat protocol */
-	RwfEnum = 0				/*!< (0) Reuters wireformat protocol */
+	RwfEnum = 0,			/*!< (0) Reuters wireformat protocol */
+	RsslJsonEnum = 2		/*!< (2) Rssl JSON protocol */
   };
 
   /** @enum CompressionType

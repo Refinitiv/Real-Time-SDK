@@ -1238,7 +1238,10 @@ public:
 
 	void sslCAStore(const EmaString&);
 
-	void encrypedConnectionType(const RsslConnectionTypes&);
+	void connectionType(const RsslConnectionTypes&);
+	void encryptedConnectionType(const RsslConnectionTypes&);
+
+	void protocolList(const EmaString& protocolList);
 
 	RsslRDMLoginRequest* getLoginReq();
 
@@ -1346,7 +1349,6 @@ protected:
 	EmaString				_proxyDomainSetViaFunctionCall;
 	EmaString				_sslCAStoreSetViaFunctionCall;
 	int						_securityProtocolSetViaFunctionCall;
-	RsslConnectionTypes		_encryptedConnectionType;
 
 	void addLoginReqMsg( RsslRequestMsg* );
 
@@ -1400,6 +1402,8 @@ public:
 	void cipherSuite(const EmaString&);
 	void dhParams(const EmaString&);
 
+	void connectionType(const RsslConnectionTypes& connectionType);
+
 	const EmaString& getUserSpecifiedLibSslName()
 	{
 		return _libSslName;
@@ -1434,7 +1438,6 @@ public:
 	{
 		return _dhParams;
 	}
-
 
 protected:
 

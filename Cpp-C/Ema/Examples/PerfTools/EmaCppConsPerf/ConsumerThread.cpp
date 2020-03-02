@@ -263,9 +263,24 @@ void ConsumerThread::run()
 	genMsgsPerTick = pConsPerfCfg->genMsgsPerSec / pConsPerfCfg->ticksPerSec;
 	genMsgsPerTickRemainder = pConsPerfCfg->genMsgsPerSec % pConsPerfCfg->ticksPerSec;
 
-	AppUtil::log("Running Thread %s%d\n", BASECONSUMER_NAME, consumerThreadIndex);
+	EmaString consumerName;
+	switch (pConsPerfCfg->websocketProtocol)
+	{
+	case ConsPerfConfig::WebSocketJSONEnum:
+		consumerName = CONSUMER_NAME_WSJSON;
+		break;
+	case ConsPerfConfig::WebSocketRWFEnum:
+		consumerName = CONSUMER_NAME_WSRWF;
+		break;
+
+	case ConsPerfConfig::NoWebSocketEnum:
+	default:
+		consumerName = BASECONSUMER_NAME;
+		break;
+	}
+
+	AppUtil::log("Running Thread %s%d\n", consumerName.c_str(), consumerThreadIndex);
 	// Create OmmConsumer & login Routine
-	EmaString consumerName(BASECONSUMER_NAME);
 	consumerName += consumerThreadIndex;
 	EmaString conThreadName("EmaThread for ");
 	conThreadName += consumerName;

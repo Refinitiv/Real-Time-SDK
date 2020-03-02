@@ -62,11 +62,13 @@ const EmaString& ChannelInformation::toString() const {
 	case Reliable_McastEnum: _toString.append( "reliableMCast" ); break;
 	case Ext_Line_SocketEnum: _toString.append( "extended line socket" ); break;
 	case Seq_McastEnum: _toString.append( "seqMCast" ); break;
+	case WebSocketEnum: _toString.append("websocket"); break;
 	default: _toString.append( "unknown"); break;
   }
   _toString.append( "\n\tprotocol type: " );
   switch( _protocolType ) {
 	case RwfEnum: _toString.append( "Reuters wire format" ); break;
+	case RsslJsonEnum: _toString.append("Rssl JSON format"); break;
 	case UnknownEnum:
 	default:
 	_toString.append( "unknown wire format"); break;

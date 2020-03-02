@@ -718,7 +718,9 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
 	enableSessionMgnt(RSSL_FALSE),
-	location(DEFAULT_EDP_RT_LOCATION)
+	location(DEFAULT_EDP_RT_LOCATION),
+	wsMaxMsgSize(DEFAULT_WS_MAXMSGSIZE),
+	wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
 }
 
@@ -737,6 +739,8 @@ void SocketChannelConfig::clear()
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_EDP_RT_LOCATION;
+	wsMaxMsgSize = DEFAULT_WS_MAXMSGSIZE;
+	wsProtocols = DEFAULT_WS_PROTOCLOS;
 }
 
 ChannelConfig::ChannelType SocketChannelConfig::getType() const
@@ -747,7 +751,9 @@ ChannelConfig::ChannelType SocketChannelConfig::getType() const
 SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
 ServerConfig(RSSL_CONN_TYPE_SOCKET),
 serviceName(defaultServiceName),
-tcpNodelay(DEFAULT_TCP_NODELAY)
+tcpNodelay(DEFAULT_TCP_NODELAY),
+maxFragmentSize(DEFAULT_MAX_FRAGMENT_SIZE),
+wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
 }
 
@@ -766,6 +772,9 @@ void SocketServerConfig::clear()
 	serverPrivateKey.clear();
 	cipherSuite.clear();
 	dhParams.clear();
+
+	maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+	wsProtocols = DEFAULT_WS_PROTOCLOS;
 }
 
 ServerConfig::ServerType SocketServerConfig::getType() const

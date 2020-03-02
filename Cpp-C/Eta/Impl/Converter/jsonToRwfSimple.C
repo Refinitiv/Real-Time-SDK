@@ -5085,6 +5085,12 @@ bool jsonToRwfSimple::processFieldList(jsmntok_t ** const tokPtr, void* setDb)
 		return false;
 	}
 
+	if (_dictionaryList[0]->isInitialized == RSSL_FALSE)
+	{
+		error(RSSL_DICT_NOT_INIT, __LINE__, __FILE__);
+		return false;
+	}
+
 	while( (*tokPtr) < _tokensEndPtr &&
 		   (*tokPtr)->end < fieldListTok->end)
 	{
@@ -7114,7 +7120,7 @@ bool jsonToRwfSimple::processArray(jsmntok_t ** const tokPtr, RsslBuffer ** cons
 
 		if (processPrimitive(array.primitiveType, &dataTok, &bufPtr, &voidPtr) == false)
 			return false;
-		if (_rsslRet = rsslEncodeArrayEntry(&_iter, bufPtr, voidPtr) < RSSL_RET_SUCCESS)
+		if ((_rsslRet = rsslEncodeArrayEntry(&_iter, bufPtr, voidPtr)) < RSSL_RET_SUCCESS)
 		{
 			error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 			return false;
@@ -9175,6 +9181,9 @@ RsslBuffer* jsonToRwfSimple::errorText()
 			break;
 		case UNSUPPORTED_MSG_TYPE:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Unsupported Message Type");
+			break;
+		case RSSL_DICT_NOT_INIT:
+			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "RsslDictionary is not initialized.");
 			break;
 		case NO_ERROR_CODE:
 		default:

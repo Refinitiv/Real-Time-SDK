@@ -693,6 +693,7 @@ int  ProgrammaticConfigure::retrieveChannelTypeConfig(const EmaString& channelNa
 										case RSSL_CONN_TYPE_RELIABLE_MCAST:
 										case RSSL_CONN_TYPE_HTTP:
 										case RSSL_CONN_TYPE_ENCRYPTED:
+										case RSSL_CONN_TYPE_WEBSOCKET:
 											return channType;
 										default:
 											return -1;
@@ -1617,14 +1618,15 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
-	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore;
+	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore, wsProtocols;
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout;
+	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
 	UInt64 encryptionFlags = 0;
+	UInt64 websocketFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
 
 	while ( elementListChannel.forth() )
@@ -1719,6 +1721,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				tempRelMcastCfg.tcpControlPort = channelEntry.getAscii();
 				mcastFlags |= 0x400000;
 			}
+			else if (channelEntry.getName() == "WsProtocols")
+			{
+				wsProtocols = channelEntry.getAscii();
+				websocketFlags |= 0x01;
+			}
 			break;
 
 		case DataType::EnumEnum:
@@ -1732,6 +1739,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				case RSSL_CONN_TYPE_RELIABLE_MCAST:
 				case RSSL_CONN_TYPE_HTTP:
 				case RSSL_CONN_TYPE_ENCRYPTED:
+				case RSSL_CONN_TYPE_WEBSOCKET:
 					flags |= 0x10;
 					break;
 				default:
@@ -1772,6 +1780,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				{
 				case RSSL_CONN_TYPE_SOCKET:
 				case RSSL_CONN_TYPE_HTTP:
+				case RSSL_CONN_TYPE_WEBSOCKET:
 					encryptionFlags |= 0x10;
 					break;
 				default:
@@ -1911,6 +1920,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				tempRelMcastCfg.setUserQLimit( channelEntry.getUInt() );
 				mcastFlags |= 0x200000;
 			}
+			else if (channelEntry.getName() == "WsMaxMsgSize")
+			{
+				wsMaxMsgSize = channelEntry.getUInt();
+				websocketFlags |= 0x02;
+			}
 			break;
 		}
 	}
@@ -1942,7 +1956,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					return;
 				}
 			}
-			else if (channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP)
+			else if (channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP || channelType == RSSL_CONN_TYPE_WEBSOCKET)
 			{
 				SocketChannelConfig* socketChannelConfig;
 
@@ -1963,7 +1977,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				activeConfig.configChannelSet.push_back(pCurrentChannelConfig);
 
 				SocketChannelConfig* fileCfgSocket = NULL;
-				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP)))
+				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) || (fileCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)))
 					fileCfgSocket = static_cast<SocketChannelConfig*>(fileCfg);
 
 				if (flags & 0x80)
@@ -2010,6 +2024,19 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					socketChannelConfig->sslCAStore = sslCAStore;
 				else if (fileCfgSocket)
 					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
+
+				if (channelType == RSSL_CONN_TYPE_WEBSOCKET)
+				{
+					if (websocketFlags & 0x01)
+						socketChannelConfig->wsProtocols = wsProtocols;
+					else if (fileCfgSocket)
+						socketChannelConfig->wsProtocols = fileCfgSocket->wsProtocols;
+
+					if (websocketFlags & 0x02)
+						socketChannelConfig->wsMaxMsgSize = wsMaxMsgSize;
+					else if (fileCfgSocket)
+						socketChannelConfig->wsMaxMsgSize = fileCfgSocket->wsMaxMsgSize;
+				}
 
 				if ((setByFnCalled & PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
 					socketChannelConfig->proxyUserName = fileCfgSocket->proxyUserName;
@@ -2123,14 +2150,15 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 {
 	const ElementList& elementListServer = mapEntry.getElementList();
 
-	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName;
+	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName, wsProtocols;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout;
+		tcpNodelay, initializationTimeout, maxFragmentSize;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
 	UInt64 tunnelingFlags = 0;
+	UInt64 websocketFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
 
 	while (elementListServer.forth())
@@ -2185,6 +2213,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				libCryptoName = serverEntry.getAscii();
 				flags |= LibCurlNameEnum;
 			}
+			else if (serverEntry.getName() == "WsProtocols")
+			{
+				wsProtocols = serverEntry.getAscii();
+				websocketFlags |= 0x01;
+			}
 			break;
 
 		case DataType::EnumEnum:
@@ -2195,6 +2228,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				switch (serverType)
 				{
 				case RSSL_CONN_TYPE_SOCKET:
+					flags |= ServerTypeFlagEnum;
+					break;
+
+				case RSSL_CONN_TYPE_WEBSOCKET:
 					flags |= ServerTypeFlagEnum;
 					break;
 
@@ -2284,6 +2321,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			{
 				initializationTimeout = serverEntry.getUInt();
 				flags |= InitializationTimeoutFlagEnum;
+			}
+			else if (serverEntry.getName() == "MaxFragmentSize")
+			{
+				maxFragmentSize = serverEntry.getUInt();
+				flags |= MaxFragmentSizeFlagEnum;
 			}
 			break;
 		}
@@ -2381,6 +2423,12 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			else if (fileCfgSocket)
 				pCurrentServerConfig->initializationTimeout = fileCfg->initializationTimeout;
 
+			if (flags & MaxFragmentSizeFlagEnum)
+				pCurrentServerConfig->maxFragmentSize = maxFragmentSize;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->maxFragmentSize = fileCfgSocket->maxFragmentSize;
+
+
 			if (serverType == RSSL_CONN_TYPE_ENCRYPTED)
 			{
 				if (flags & ServerCertEnum)
@@ -2402,6 +2450,14 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = cipherSuite;
 				else if (fileCfgSocket)
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
+			}
+
+			if (serverType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				if (websocketFlags & 0x01)
+					pCurrentServerConfig->wsProtocols = wsProtocols;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->wsProtocols = fileCfgSocket->wsProtocols;
 			}
 		}
 		catch (std::bad_alloc&)

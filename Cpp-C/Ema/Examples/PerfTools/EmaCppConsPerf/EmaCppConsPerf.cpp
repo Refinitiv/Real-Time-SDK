@@ -359,6 +359,30 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			}
 			consPerfConfig.ticksPerSec = atoi(argv[iargs++]);
 		}
+		else if (strcmp("-websocket", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			if (strcmp("rssl.json.v2", argv[iargs]) == 0)
+			{
+				consPerfConfig.websocketProtocol = ConsPerfConfig::WebSocketJSONEnum;
+			}
+			else if (strcmp("rssl.rwf", argv[iargs]) == 0)
+			{
+				consPerfConfig.websocketProtocol = ConsPerfConfig::WebSocketRWFEnum;
+			}
+			else
+			{
+				printf("Config Error: Unknown websocket protocol \"%s\"\n", argv[iargs]);
+				exitConfigError(argv);
+				return false;
+			}
+			iargs++;
+		}
 		else
 		{
 			logText = "Invalid Config ";
@@ -531,7 +555,8 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -threads <thread list>               list of threads(which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
 	logText += "                                          (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n";
-	
+	logText += "   -websocket <protocol>                Using websocket connection with specified tunnel protocol: \"rssl.json.v2\" or \"rssl.rwf\".\n";
+
 	AppUtil::logError(logText);
 }
 void EmaCppConsPerf::printConsPerfConfig(FILE *file)

@@ -399,9 +399,10 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		break;
 	}
 	case RSSL_CONN_TYPE_HTTP:
+	case RSSL_CONN_TYPE_WEBSOCKET:
 	{
 		SocketChannelConfig* pTempChannelCfg = static_cast<SocketChannelConfig*>( pChannelCfg );
-		strConnectionType = "RSSL_CONN_TYPE_HTTP";
+		strConnectionType = (pChannelCfg->connectionType == RSSL_CONN_TYPE_HTTP) ? "RSSL_CONN_TYPE_HTTP" : "RSSL_CONN_TYPE_WEBSOCKET";
 		cfgParameters.append("hostName ").append(pTempChannelCfg->hostName).append(CR)
 			.append("port ").append(pTempChannelCfg->serviceName).append(CR)
 			.append("CompressionType ").append(compType).append(CR)
@@ -409,6 +410,14 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
 			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
 			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR);
+
+		if (pChannelCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			cfgParameters
+				.append("WsMaxMsgSize ").append(pTempChannelCfg->wsMaxMsgSize).append(CR)
+				.append("WsProtocols ").append(pTempChannelCfg->wsProtocols).append(CR);
+		}
+
 		break;
 	}
 	case RSSL_CONN_TYPE_ENCRYPTED:
@@ -544,7 +553,8 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		if ( activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_SOCKET   ||
 		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_HTTP ||
 		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_ENCRYPTED ||
-		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST )
+		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST ||
+		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_WEBSOCKET )
 		{
 			Channel* pChannel = Channel::create( _ommBaseImpl, activeConfigChannelSet[i]->name, _pRsslReactor );
 
@@ -579,6 +589,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			}
 			case RSSL_CONN_TYPE_SOCKET:
 			case RSSL_CONN_TYPE_HTTP:
+			case RSSL_CONN_TYPE_WEBSOCKET:
 			{
 				reactorConnectInfo[i].rsslConnectOptions.compressionType = activeConfigChannelSet[i]->compressionType;
 				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str());
@@ -592,6 +603,12 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyUserName.c_str());
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyPasswd.c_str());
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyDomain.c_str());
+
+				if ( RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo[i].rsslConnectOptions.connectionType )
+				{
+					reactorConnectInfo[i].rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsMaxMsgSize;
+					reactorConnectInfo[i].rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsProtocols.c_str());
+				}
 
 				break;
 			}

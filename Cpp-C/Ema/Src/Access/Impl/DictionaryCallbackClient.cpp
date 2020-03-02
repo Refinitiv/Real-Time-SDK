@@ -667,6 +667,7 @@ const EmaVector<DictionaryItem*>* ChannelDictionary::getListenerList() const
 DictionaryCallbackClient::DictionaryCallbackClient( OmmBaseImpl& ommConsImpl ) :
 	_channelDictionaryList(),
 	_localDictionary( 0 ),
+	_channelDictionary( 0 ),
 	_ommBaseImpl( ommConsImpl ),
 	_refreshMsg(),
 	_statusMsg()
@@ -682,11 +683,19 @@ DictionaryCallbackClient::~DictionaryCallbackClient()
 	ChannelDictionary* dictionary = _channelDictionaryList.pop_back();
 	while ( dictionary )
 	{
+		if ( _channelDictionary == dictionary )
+		{
+			dictionary = _channelDictionaryList.pop_back();
+			continue;
+		}
+
 		ChannelDictionary::destroy( dictionary );
 		dictionary = _channelDictionaryList.pop_back();
 	}
 
 	LocalDictionary::destroy( _localDictionary );
+
+	ChannelDictionary::destroy( _channelDictionary );
 
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -781,6 +790,8 @@ void DictionaryCallbackClient::initialize()
 
 	if (_ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
 		_localDictionary = LocalDictionary::create(_ommBaseImpl, _ommBaseImpl.getActiveConfig());
+	else
+		_channelDictionary = ChannelDictionary::create(_ommBaseImpl);
 }
 
 void DictionaryCallbackClient::loadDictionaryFromFile()
@@ -835,7 +846,16 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 	requestMsg.msgBase.msgKey.filter = RDM_DICTIONARY_NORMAL;
 	requestMsg.flags = RSSL_RQMF_STREAMING;
 
-	ChannelDictionary* pDictionary = ChannelDictionary::create( _ommBaseImpl );
+	ChannelDictionary* pDictionary;
+		
+	if (_channelDictionaryList.size() == 0)
+	{
+		pDictionary = _channelDictionary; /* Always use the default channel dictionary for this first one in the list */
+	}
+	else
+	{
+		pDictionary = ChannelDictionary::create(_ommBaseImpl);
+	}
 
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 	submitMsgOpts.pRsslMsg = ( RsslMsg* )&requestMsg;
@@ -901,10 +921,14 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 
 Dictionary* DictionaryCallbackClient::getDefaultDictionary() const
 {
-	if ( _channelDictionaryList.front() )
-		return _channelDictionaryList.front();
-	else
+	if ( _localDictionary )
+	{
 		return _localDictionary;
+	}
+	else
+	{
+		return _channelDictionary; /* This is the first Channel dictionary in the list */
+	}
 }
 
 bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& directory )
@@ -924,7 +948,16 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->flags & RSSL_RQMF_STREAMING )
 		requestMsg.flags = RSSL_RQMF_STREAMING;
 
-	ChannelDictionary* pDictionary = ChannelDictionary::create( _ommBaseImpl );
+	ChannelDictionary* pDictionary;
+		
+	if (_channelDictionaryList.size() == 0)
+	{
+		pDictionary = _channelDictionary; /* Always use the default channel dictionary for this first one in the list */
+	}
+	else
+	{
+		pDictionary = ChannelDictionary::create(_ommBaseImpl);
+	}
 
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 	submitMsgOpts.pRsslMsg = ( RsslMsg* )&requestMsg;

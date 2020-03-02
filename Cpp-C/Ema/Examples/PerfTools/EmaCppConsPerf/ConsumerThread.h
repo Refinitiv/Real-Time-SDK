@@ -48,6 +48,8 @@
 #include "../Common/ThreadBinding.h"
 
 #define		BASECONSUMER_NAME "Consumer_"
+#define		CONSUMER_NAME_WSJSON "Consumer_WSJSON_"
+#define		CONSUMER_NAME_WSRWF "Consumer_WSRWF_"
 
 class EmaCppConsPerf;
 class ConsumerThread;

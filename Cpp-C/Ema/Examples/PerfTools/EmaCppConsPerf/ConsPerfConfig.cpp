@@ -11,7 +11,8 @@ ConsPerfConfig::ConsPerfConfig() : PerfConfig ( (char *) "ConsSummary.out" ), st
 statsFilename("ConsStats"), writeStatsInterval(5), displayStats(true), logLatencyToFile(false), 
 itemRequestCount(100000), commonItemCount(0), itemRequestsPerSec(500000), requestSnapshots(false),
 serviceName("DIRECT_FEED"), useServiceId(false), useUserDispatch( false ), itemFilename("350k.xml"),
-msgFilename("MsgData.xml"), postsPerSec(0), latencyPostsPerSec(0), genMsgsPerSec(0), latencyGenMsgsPerSec(0), apiThreadBindList(0)
+msgFilename("MsgData.xml"), postsPerSec(0), latencyPostsPerSec(0), genMsgsPerSec(0), latencyGenMsgsPerSec(0), apiThreadBindList(0),
+websocketProtocol(NoWebSocketEnum)
 {
 	apiThreadBindList = new long[1];
 	apiThreadBindList[0] = -1;	

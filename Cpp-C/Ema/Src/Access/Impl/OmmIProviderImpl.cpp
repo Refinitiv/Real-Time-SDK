@@ -471,7 +471,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			EmaString text("Fanout dictionary message for item handle = ");
 
 			RsslErrorInfo rsslErrorInfo;
-			if (submit(submitMsgOpts, _pDictionaryHandler->getDicitonaryItemList(), text, false, rsslErrorInfo) == false)
+			if (submit(submitMsgOpts, _pDictionaryHandler->getDictionaryItemList(), text, false, rsslErrorInfo) == false)
 			{
 				_userLock.unlock();
 				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const RefreshMsg& ).");
@@ -864,7 +864,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 			EmaString text("Fanout dictionary message for item handle = ");
 
 			RsslErrorInfo rsslErrorInfo;
-			if (submit(submitMsgOpts, _pDictionaryHandler->getDicitonaryItemList(), text, false, rsslErrorInfo) == false)
+			if (submit(submitMsgOpts, _pDictionaryHandler->getDictionaryItemList(), text, false, rsslErrorInfo) == false)
 			{
 				_userLock.unlock();
 				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const StatusMsg& ).");

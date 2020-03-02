@@ -7541,7 +7541,6 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 				__FILE__, __LINE__, errno);
 
 			transFuncs[rsslServerSocketChannel->connType].shutdownSrvrError(rsslSrvrImpl);
-			relRsslServerSocketChannel(rsslServerSocketChannel);
 			
 			return RSSL_RET_FAILURE;
 		}
@@ -10856,11 +10855,8 @@ void ipcCleanRsslSocketChannel()
 	RsslSocketChannel* session;
 	RsslQueueLink* pLink;
 
-	for (  pLink = rsslQueuePeekFront(&freeSocketChannelList);
-        pLink != 0;
-		pLink = rsslQueuePeekFront(&freeSocketChannelList))
+    while (pLink = rsslQueueRemoveFirstLink(&freeSocketChannelList))
     {
-		rsslQueueRemoveLink(&freeSocketChannelList,pLink);
 		session = RSSL_QUEUE_LINK_TO_OBJECT(RsslSocketChannel, link1, pLink);
         _rsslFree(session);
     }
@@ -10871,11 +10867,8 @@ void ipcCleanRsslServerSocketChannel()
     RsslServerSocketChannel* session;
 	RsslQueueLink* pLink;
 
-    for (pLink = rsslQueuePeekFront(&freeServerSocketChannelList);
-		pLink != 0;
-		pLink = rsslQueuePeekFront(&freeServerSocketChannelList))
+    while (pLink = rsslQueueRemoveFirstLink(&freeServerSocketChannelList))
     {
-		rsslQueueRemoveLink(&freeServerSocketChannelList,pLink);
 		session = RSSL_QUEUE_LINK_TO_OBJECT(RsslServerSocketChannel, link1, pLink);
         _rsslFree(session);
     }

@@ -148,6 +148,25 @@ RSSL_RJC_API RsslRet rsslJsonConverterSetProperty(RsslJsonConverter pConverter, 
 		case RSSL_JSON_CPC_DICTIONARY_LIST:
 		{
 			RsslJsonDictionaryListProperty *dictionaryListProperty = (RsslJsonDictionaryListProperty*)value;
+			RsslUInt32 index = 0;
+
+			if (dictionaryListProperty == NULL || dictionaryListProperty->dictionaryListLength == 0)
+			{
+				snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "<%s:%d> %s", __FILE__, __LINE__, "Passing invalid RsslJsonDictionaryListProperty");
+				pError->rsslErrorId = RSSL_RET_FAILURE;
+				return RSSL_RET_FAILURE;
+			}
+
+			for (; index < dictionaryListProperty->dictionaryListLength; index++)
+			{
+				if (dictionaryListProperty->pDictionaryList[index] == NULL)
+				{
+					snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "<%s:%d> %s", __FILE__, __LINE__, "RsslDataDictionary is NULL");
+					pError->rsslErrorId = RSSL_RET_FAILURE;
+					return RSSL_RET_FAILURE;
+				}
+			}
+
 			pJsonToRwfSimple->setDictionaryList(dictionaryListProperty->pDictionaryList, dictionaryListProperty->dictionaryListLength);
 			pRwfToJsonSimple->setDictionaryList(dictionaryListProperty->pDictionaryList, dictionaryListProperty->dictionaryListLength);
 			pJsonToRwfConverter->setDictionaryList(dictionaryListProperty->pDictionaryList, dictionaryListProperty->dictionaryListLength);

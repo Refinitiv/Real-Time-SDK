@@ -62,6 +62,7 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"UnicastPort",
 	"Vendor",
 	"XmlTraceFileName",
+	"WsProtocols",
 };
 
 thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
@@ -157,6 +158,8 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"trreq",
 	"twait",
 	"userQLimit",
+	"WsMaxMsgSize",
+	"MaxFragmentSize",
 };
 
 thomsonreuters::ema::access::EmaString DoubleValues[] = {

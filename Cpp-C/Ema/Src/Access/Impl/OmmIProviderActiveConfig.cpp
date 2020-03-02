@@ -6,7 +6,7 @@ using namespace thomsonreuters::ema::access;
 #define DEFAULT_REFRESH_FIRST_REQUIRED					true
 #define DEFAULT_DIRECTORY_ADMIN_CONTROL					OmmNiProviderConfig::ApiControlEnum
 #define DEFAULT_FIELD_DICT_FRAGMENT_SIZE				8192
-#define	DEFAULT_ENUM_TYPE_FRAGMENT_SIZE					128000
+#define	DEFAULT_ENUM_TYPE_FRAGMENT_SIZE					12288
 #define DEFAULT_REQUEST_TIMEOUT							15000
 static const EmaString DEFAULT_IPROVIDER_SERVICE_NAME("14002");
 

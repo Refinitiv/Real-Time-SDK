@@ -100,6 +100,9 @@
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
+#define DEFAULT_WS_MAXMSGSIZE						  61440
+#define DEFAULT_WS_PROTOCLOS						  EmaString( "rssl.json.v2, rssl.rwf, tr_json2" )
+#define DEFAULT_MAX_FRAGMENT_SIZE					  6144
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -267,6 +270,8 @@ public :
 	int						securityProtocol;
 	EmaString				location;
 	RsslBool				enableSessionMgnt;
+	UInt64			wsMaxMsgSize;
+	EmaString		wsProtocols;
 
 private :
 
@@ -297,6 +302,9 @@ public:
 	EmaString				serverPrivateKey;
 	EmaString				cipherSuite;
 	EmaString				dhParams;
+
+	UInt64			maxFragmentSize;
+	EmaString		wsProtocols;
 
 private:
 

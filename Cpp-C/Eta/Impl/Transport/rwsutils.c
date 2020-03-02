@@ -1230,6 +1230,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 		rsslSocketChannel->rwsSession = (void *)rwsNewSession();
 		if (rsslSocketChannel->rwsSession == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Failed to allocate memory for rwsSession struct.", __FUNCTION__,__LINE__);
 			return(-1);
@@ -1266,12 +1267,14 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 			(hdrLine[0].value.length >= fv_WebSocketURI.length) && 
 			(memcmp(hdrLine[0].value.data, fv_WebSocketURI.data, fv_WebSocketURI.length)==0))
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			_DEBUG_TRACE_PARSE_HTTP("Received GET request '%s' ", hdrLine[0].data)
 			wsSess->recvGetReq = 1;
 			rsslSocketChannel->connType = RSSL_CONN_TYPE_WEBSOCKET;
 		}
 		else
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Invalid GET request received ", __FUNCTION__,__LINE__);
 			return(-1);
@@ -1339,6 +1342,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 					wsSess->keyRecv.data = (char*)_rsslMalloc((pos-start) + 1);
 					if (wsSess->keyRecv.data == 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for Sec-Websocket-Key value.", 
 								__FUNCTION__,__LINE__);
@@ -1351,6 +1355,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				}
 				else
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Invalid HTTP header, duplicate fields received, Sec-Websocket-Key", 
 							__FUNCTION__,__LINE__);
@@ -1372,6 +1377,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				_DBG_HTTP_TOKEN(data, start, pos);
 				if ((wsSess->versionRecv = getIntValue( &start, pos, data)) < 0)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Invalid WebSocket Version ", __FUNCTION__,__LINE__);
 					return(-1);
@@ -1388,6 +1394,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				wsSess->protocol = rwsValidateSubProtocolRequest(wsSess, wsSess->server->protocolList, pValue, 0, error);
 				if (wsSess->protocol == RWS_SP_NONE)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 						"<%s:%d> Unable to read sub-protocol Request ", __FUNCTION__,__LINE__);
 					return (-1);
@@ -1442,8 +1449,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 						if (data[st] != ';')
 							continue;
 					}
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format", 
 								__FUNCTION__,__LINE__);
@@ -1464,6 +1470,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->host = (char*)_rsslMalloc((endOfLine - start) + 1)))
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for Host token value.", 
 								__FUNCTION__,__LINE__);
@@ -1474,6 +1481,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->hostname = (char*)_rsslMalloc((pos - start) + 1)))
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for hostname token value.", 
 								__FUNCTION__,__LINE__);
@@ -1491,6 +1499,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 					if (!(wsSess->port = (char*)_rsslMalloc((pos - start) + 1)))
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Failed to allocate memory for port token value.", 
 									__FUNCTION__,__LINE__);
@@ -1515,6 +1524,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->origin = (char*)_rsslMalloc((endOfLine - start) + 1)))
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 						"<%s:%d> Failed to allocate memory for Origin value.",
 						__FUNCTION__, __LINE__);
@@ -1584,6 +1594,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 							{
 								if (!(*cookieValuePtr = (char*)_rsslMalloc(pos - start)))
 								{
+									_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 									snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 											"<%s:%d> Failed to allocate memory for authentication token.", 
 											__FUNCTION__,__LINE__);
@@ -1615,6 +1626,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				/* Call function to handle this hdr field */
 				if (!(wsSess->userAgent = (char*)_rsslMalloc((pos - start) + 1)))
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to allocate memory for User-Agent string.", 
 							__FUNCTION__,__LINE__);
@@ -1676,6 +1688,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 
 			if ((wsSess->statusCode = getIntValue( &start, pos, data)) != 101)
 			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Invalid HTTP response, status code %d ", 
 							__FUNCTION__,__LINE__, wsSess->statusCode);
@@ -1686,6 +1699,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 		}
 		else
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Invalid HTTP response",
 				__FUNCTION__, __LINE__);
@@ -1753,6 +1767,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 					wsSess->keyRecv.data = (char*)_rsslMalloc((pos-start) + 1);
 					if (wsSess->keyRecv.data == 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to allocate memory for Sec-Websocket-Key value.", 
 							__FUNCTION__,__LINE__);
@@ -1764,6 +1779,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 					if (strncmp(wsSess->keyRecv.data, wsSess->keyAccept.data, 
 													  wsSess->keyAccept.length) != 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Key received '%s' is not key expected '%s'", 
 							__FUNCTION__,__LINE__, wsSess->keyRecv.data, wsSess->keyAccept.data);
@@ -1774,6 +1790,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 				}
 				else
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 						"<%s:%d> Invalid HTTP header, duplicate fields received, Sec-Websocket-Key", 
 						__FUNCTION__,__LINE__);
@@ -1795,6 +1812,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 				_DBG_HTTP_TOKEN(data, start, pos);
 				if ((wsSess->versionRecv = getIntValue( &start, pos, data)) < 0)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Invalid WebSocket Version ", __FUNCTION__,__LINE__);
 					return(-400);
@@ -1811,6 +1829,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 				wsSess->protocol = rwsValidateSubProtocolResponse(wsSess, pValue, 0, error);
 				if (wsSess->protocol == RWS_SP_NONE)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Error with protocol response ", __FUNCTION__,__LINE__);
 					return(-400);
@@ -1861,7 +1880,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 						if (data[st] != ';')
 							continue;
 					}
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format", 
 								__FUNCTION__,__LINE__);

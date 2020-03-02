@@ -1,141 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmaConfig>
 
-<!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->
-<!-- if application does not specify it through OmmConsumerConfig::consumerName()				-->
-<!-- first consumer on the consumerList is a default consumer if this parameter is not specified	-->
+<!-- ConsumerGroup provides set of detailed configurations to be used by named consumers				-->
+<!-- Application specifies which configuration to use by setting OmmConsumerConfig::consumerName()		-->
 <ConsumerGroup>
-	<DefaultConsumer value="Consumer_2"/>
+	<!-- DefaultConsumer parameter defines which consumer configuration is used by OmmConsumer			-->
+	<!-- if application does not specify it through OmmConsumerConfig::consumerName()					-->
+	<!-- first consumer on the ConsumerList is a DefaultConsumer if this parameter is not specified		-->
+	<DefaultConsumer value="Consumer_1"/>
 	<ConsumerList>
 		<Consumer>
+			<!-- Name is mandatory																		-->
 			<Name value="Consumer_1"/>
 
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
 			<Channel value="Channel_1"/>
 
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
+			<!-- Logger is optional: defaulted to "File + Success"										-->
 			<Logger value="Logger_1"/>
 
-			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
-			
-			<XmlTraceFileName value="EmaMyTrace"/>
-			<XmlTraceToFile value="1"/>
+			<XmlTraceToStdout value="0"/>
 		</Consumer>
+		
 		<Consumer>
 			<Name value="Consumer_2"/>
-			<Channel value="Channel_2"/>
-			<Logger value="Logger_2"/>
-			<Dictionary value="Dictionary_2"/>
-			<ItemCountHint value="500000"/>
-			<ServiceCountHint value="655"/>
-			<ObeyOpenWindow value="0"/>
-			<PostAckTimeout value="7000"/>
-			<RequestTimeout value="8000"/>
-			<MaxOutstandingPosts value="90000"/>
-			<DispatchTimeoutApiThread value="90"/>
-			<CatchUnhandledException value="0"/>
-			<MaxDispatchCountApiThread value="400"/>
-			<MaxDispatchCountUserThread value="5"/>
-			<!--ReactorEventFdPort value="75000" -->
-			<PipePort value="7001"/>
-			<ReconnectAttemptLimit value="10"/>
-			<ReconnectMinDelay value="123" />
-			<ReconnectMaxDelay value="456" />
-			<XmlTraceFileName value="EmaMyTrace2"/>
-			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
-			<XmlTraceToStdout value="0" />
-			<XmlTraceToMultipleFiles value="1" />
-			<XmlTraceWrite value="1"/>
-			<XmlTraceRead value="1"/>
-			<XmlTracePing value="1"/>
-			<XmlTraceHex value="1"/>
-			<MsgKeyInUpdates value="1"/>
-			<TokenReissueRatio value="0.70"/>
-			<ReissueTokenAttemptLimit value="5"/>
-			<ReissueTokenAttemptInterval value="6000"/>
-		</Consumer>
-		<Consumer>
-			<Name value="Consumer_3"/>
-
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<ChannelSet value="Channel_2, Channel_3"/>
-			<Channel	value="Channel_1"/>
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
-			<Logger value="Logger_1"/>
-
-			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_1"/>
 			
-			<ReconnectAttemptLimit value="5"/>
-			<ReconnectMinDelay value="330" />
-			<ReconnectMaxDelay value="450" />
-			<XmlTraceFileName value="EmaMyTrace3"/>
-			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
-			<XmlTraceToStdout value="0" />
-			<XmlTraceToMultipleFiles value="1" />
-			<XmlTraceWrite value="1"/>
-			<XmlTraceRead value="1"/>
-			<XmlTracePing value="1"/>
-			<XmlTraceHex value="1"/>
-			<MsgKeyInUpdates value="1"/>
-		</Consumer>
-		<Consumer>
-			<Name value="Consumer_4"/>
-
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<Channel	value="Channel_1"/>
-			<ChannelSet value="Channel_4, Channel_5"/>
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
-			<Logger value="Logger_1"/>
-
-			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_1"/>
-		</Consumer>
-		<Consumer>
-			<Name value="Consumer_5"/>
-
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<Channel	value="Channel_3"/>
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
-			<Logger value="Logger_1"/>
-
-			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_2"/>
-		</Consumer>
-		<Consumer>
-			<Name value="Consumer_6"/>
-
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<ChannelSet	value="Channel_4,Channel_5"/>
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
-			<Logger value="Logger_1"/>
-
-			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_3"/>
-		</Consumer>
-		<Consumer>
-			<Name value="Check_Multiple_Occurrences"/>
-			<Logger value="Logger_1"/>
+			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
+			<Channel value="Channel_2"/>
+			
 			<Logger value="Logger_2"/>
-			<Logger value="Logger_3"/>
-			<Dictionary value="Dictionary_1"/>
-			<Channel value="C1"/>
-			<Channel value="C2"/>
-			<ChannelSet value="CS1"/>
-			<Channel value="C3"/>
-			<ChannelSet value="CS2"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
 		</Consumer>
+		
 	</ConsumerList>
 </ConsumerGroup>
 
+<!-- NiProviderGroup provides set of detailed configurations to be used by named providers				-->
+<!-- Application specifies which configuration to use by setting OmmNiProviderConfig::providerName()	-->
 <NiProviderGroup>
 	<!-- DefaultNiProvider parameter defines which provider configuration is used by OmmProvider		-->
 	<!-- if application does not specify it through OmmNiProviderConfig::providerName()					-->
 	<!-- first provider on the NiProviderList is a DefaultNiProvider if this parameter is not specified	-->
-	<DefaultNiProvider value="Provider_2"/>
+	<DefaultNiProvider value="Provider_1"/>
 	<NiProviderList>
 		<NiProvider>
 			<!-- Name is mandatory																		-->
@@ -163,80 +73,31 @@
 		<NiProvider>
 			<Name value="Provider_2"/>
 		
-			<Channel value="Channel_2"/>
+			<Channel value="Channel_4"/>
 			
 			<Directory value="Directory_2"/>
 			
-			<Logger value="Logger_2"/>
-
-			<ItemCountHint value="500000"/>
-			<ServiceCountHint value="655"/>
-			<ObeyOpenWindow value="0"/>
-			<RequestTimeout value="8000"/>
-			<MaxOutstandingPosts value="90000"/>
-			<DispatchTimeoutApiThread value="90"/>
-			<CatchUnhandledException value="0"/>
-			<MaxDispatchCountApiThread value="400"/>
-			<MaxDispatchCountUserThread value="5"/>
-			<!--ReactorEventFdPort value="75000" -->
-			<PipePort value="7001"/>
-			<ReconnectAttemptLimit value="10"/>
-			<ReconnectMinDelay value="123" />
-			<ReconnectMaxDelay value="456" />
-			<XmlTraceFileName value="EmaMyTrace2"/>
-			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
-			<XmlTraceToStdout value="0" />
-			<XmlTraceToMultipleFiles value="1" />
-			<XmlTraceWrite value="1"/>
-			<XmlTraceRead value="1"/>
-			<XmlTracePing value="1"/>
-			<XmlTraceHex value="1"/>
-			<MsgKeyInUpdates value="1"/>
-			<MergeSourceDirectoryStreams value="1"/>
-			<RecoverUserSubmitSourceDirectory value="1"/>
-			<RecoverUserSubmitSourceDirectory value="1"/>
-			<RemoveItemsOnDisconnect value="1"/>
-			<LoginRequestTimeOut value="10000"/>
-		</NiProvider>
-		<NiProvider>
-			<Name value="Provider_3"/>
-
-			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<ChannelSet value="Channel_2, Channel_3"/>
-			<Channel	value="Channel_1"/>
-			<!-- logger is optional: defaulted to "Stdout + Success" -->
 			<Logger value="Logger_1"/>
 
-			<Directory value="Directory_3"/>
-			
-			<ReconnectAttemptLimit value="5"/>
-			<ReconnectMinDelay value="330" />
-			<ReconnectMaxDelay value="450" />
-			<XmlTraceFileName value="EmaMyTrace3"/>
-			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
-			<XmlTraceToStdout value="0" />
-			<XmlTraceToMultipleFiles value="1" />
-			<XmlTraceWrite value="1"/>
-			<XmlTraceRead value="1"/>
-			<XmlTracePing value="1"/>
-			<XmlTraceHex value="1"/>
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
+		
 	</NiProviderList>
 </NiProviderGroup>
 
+<!-- IProviderGroup provides set of detailed configurations to be used by named providers                -->
+<!-- Application specifies which configuration to use by setting OmmIProviderConfig::providerName()      -->
 <IProviderGroup>
     <!-- DefaultIProvider parameter defines which provider configuration is used by OmmProvider          -->
     <!-- if application does not specify it through OmmIProviderConfig::providerName()                   -->
     <!-- first provider on the IProviderList is a default provider if this parameter is not specified    -->
-    <DefaultIProvider value="Provider_2"/>
+    <DefaultIProvider value="Provider_1"/>
     <IProviderList>
         <IProvider>
             <!-- Name is mandatory                                                                       -->
             <Name value="Provider_1"/>
-            <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
-            <Server value="Server_1"/>
+            <!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options                  -->
+            <Server value="Server_2"/>
             <!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
             <!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
             <!-- was set to ApiControlEnum                                                               -->
@@ -262,39 +123,6 @@
 			<RefreshFirstRequired value="1" />
 		
         </IProvider>
-		<IProvider>
-            <!-- Name is mandatory                                                                       -->
-            <Name value="Provider_2"/>
-            <Server value="Server_2"/>
-            <Directory value="Directory_2"/>
-			<AcceptDirMessageWithoutMinFilters value="0"/>
-			<AcceptMessageSameKeyButDiffStream value="0"/>
-			<AcceptMessageThatChangesService value="0"/>
-			<AcceptMessageWithoutAcceptingRequests value="0"/>
-			<AcceptMessageWithoutBeingLogin value="0"/>
-			<AcceptMessageWithoutQosInRange value="0"/>
-			<RefreshFirstRequired value="1"/>
-			<ItemCountHint value="500000"/>
-			<EnumTypeFragmentSize value="2500"/>
-			<FieldDictionaryFragmentSize value="1500"/>
-			<ServiceCountHint value="655"/>
-			<RequestTimeout value="8000"/>
-			<DispatchTimeoutApiThread value="90"/>
-			<CatchUnhandledException value="0"/>
-			<MaxDispatchCountApiThread value="400"/>
-			<MaxDispatchCountUserThread value="5"/>
-			<PipePort value="7001"/>
-			<XmlTraceFileName value="EmaMyTrace2"/>
-			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
-			<XmlTraceToStdout value="0" />
-			<XmlTraceToMultipleFiles value="1" />
-			<XmlTraceWrite value="1"/>
-			<XmlTraceRead value="1"/>
-			<XmlTracePing value="0"/>
-			<XmlTraceHex value="0"/>
-		
-        </IProvider>
     </IProviderList>
 </IProviderGroup>
 
@@ -303,114 +131,66 @@
 		<Channel>
 			<Name value="Channel_1"/>
 
-			<!-- channelType possible values are: -->
-			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type (supported in EAP) -->
-			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type (not yet supported in EAP) -->
-			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type (not yet supported in EAP) -->
-			<!-- ChannelType::RSSL_RELIABLE_MCAST - MCAST connection type (not yet supported in EAP) -->
+			<!-- ChannelType possible values are:														-->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
+			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type								-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type								-->
+			<!-- ChannelType::RSSL_RELIABLE_MCAST - Reliable multicast connection type					-->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
-			<!-- compressionType is optional: defaulted to None -->
-			<!-- possible values: None, ZLib, LZ4 -->
+			<!-- CompressionType is optional: defaulted to None											-->
+			<!-- possible values: None, ZLib, LZ4														-->
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<NumInputBuffers value = "7000" />
-			<SysRecvBufSize value= "125236" />
-			<SysSendBufSize value= "569823" />
-			<HighWaterMark value= "3000" />
 
-			<CompressionThreshold value= "2048" />
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000									-->
+			<ConnectionPingTimeout value="30000"/>
 			
-			<!-- connectionPingTimeout is optional: defaulted to 30000 -->
-			<ConnectionPingTimeout value="30000"/>
-
-			<!-- tcpNodelay is optional: defaulted to 1 -->
-			<!-- possible values: 1 (tcp_nodelay option set on the channel), 0 (tcp_nodelay not set on the channel) -->
+			<!-- TcpNodelay is optional: defaulted to 1 												-->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set)					-->
 			<TcpNodelay value="1"/>
-			<Host value="0.0.0.1"/>
-			<Port value="19001"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_2"/>
-			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-			<InterfaceName value="localhost4file" />
-			<CompressionType value="CompressionType::ZLib"/>
-			<GuaranteedOutputBuffers value="6000"/>
-			<NumInputBuffers value = "9000" />
-			<SysRecvBufSize value= "23656" />
-			<SysSendBufSize value= "63656" />
-			<CompressionThreshold value= "4096" />
-			<ConnectionPingTimeout value="55555"/>
-			<Host value="0.0.0.2"/>
-			<Port value="15008"/>
-			<TcpNodelay value="0"/>
-			<ObjectName value="HttpObjectName"/>
-			<Location value="eu-west"/>
-			<EnableSessionManagement value="1"/>
-			<InitializationTimeout value="55"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_3"/>
-			<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/>
-			<InterfaceName value="localhost" />
-			<UnicastPort value = "40102" />
-			<RecvAddress value="0.0.0.3"/>
-			<RecvPort value = "15008" />
-			<SendAddress value="0.0.0.4"/>
-			<SendPort value = "15007" />			
-			<HsmInterface value="0.0.0.5"/>
-			<HsmMultAddress value = "0.0.0.6" />
-			<HsmPort value="15005"/>
-			<tcpControlPort value = "15018" />	
-			<PacketTTL value="10" />
-			<DisconnectOnGap value="1" />
-			<ndata value="8" />
-			<nmissing value="130" />
-			<nrreq value="5" />
-			<tdata value="0" />
-			<trreq value="5" />
-			<pktPoolLimitHigh value="190500" />
-			<pktPoolLimitLow value="180500" />
-			<twait value="4" />
-			<tbchold value="4" />
-			<tpphold value="4" />
-			<userQLimit value="65535" />
-			<HsmInterval value="10" />			
-			<GuaranteedOutputBuffers value="5500"/>
-			<NumInputBuffers value = "9500" />
-			<SysRecvBufSize value= "125000" />
-			<SysSendBufSize value= "550000" />
-			<ConnectionPingTimeout value="3555"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_4"/>
-			<ChannelType value="ChannelType::RSSL_SOCKET"/>
-			<CompressionType value="CompressionType::None"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<NumInputBuffers value = "7000" />
-			<SysRecvBufSize value= "125236" />
-			<SysSendBufSize value= "569823" />	
-			<CompressionThreshold value= "2048" />
-			<ConnectionPingTimeout value="30000"/>
-			<TcpNodelay value="0"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_5"/>
-			<ChannelType value="ChannelType::RSSL_SOCKET"/>
-			<!--<ChannelType value="ChannelType::RSSL_ENCRYPTED"/> -->
-			<CompressionType value="CompressionType::LZ4"/>
-			<GuaranteedOutputBuffers value="6000"/>
-			<NumInputBuffers value = "9000" />
-			<SysRecvBufSize value= "23656" />
-			<SysSendBufSize value= "63656" />
-			<CompressionThreshold value= "4096" />
-			<ConnectionPingTimeout value="55555"/>
+			<Name value="Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_3"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="122.1.1.100"/>
-			<Port value="14009"/>
-			<TcpNodelay value="1"/>
-			<ObjectName value="EncrpyptedObjectName"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_4"/>
+			<ChannelType value="ChannelType::RSSL_HTTP"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_5"/>
+			<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/>
+			<RecvAddress value="235.5.2.6"/>
+			<RecvPort value="15008"/>
+			<SendAddress value="235.5.2.2"/>
+			<SendPort value="15007"/>
+			<UnicastPort value="40102"/>
+			<InterfaceName value="localhost"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_10"/>
@@ -420,27 +200,6 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_11"/>
-			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<ConnectionPingTimeout value="30000"/>
-			<TcpNodelay value="1"/>
-			<Host value="localhost"/>
-			<Port value="14011"/>
-			<WsMaxMsgSize value="100500"/>
-			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_12"/>
-			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<ConnectionPingTimeout value="30000"/>
-			<TcpNodelay value="1"/>
-			<Host value="localhost"/>
-			<Port value="14012"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
@@ -461,42 +220,42 @@
             <TcpNodelay value="1"/>
             <Port value="14002"/>
         </Server>
-		<Server>
-            <Name value="Server_2"/>
-            <ServerType value="ServerType::RSSL_SOCKET"/>
-            <!-- CompressionType is optional: defaulted to None -->
-            <!-- possible values: None, ZLib, LZ4 -->
-            <CompressionType value="CompressionType::LZ4"/>
-            <GuaranteedOutputBuffers value="5000"/>
-            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
-            <ConnectionPingTimeout value="5000"/>
-			<CompressionThreshold value="5000"/>
-			<SysRecvBufSize value="5000"/>
-			<SysSendBufSize value="5000"/>
-            <!-- TcpNodelay is optional: defaulted to 1 -->
-            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
-            <TcpNodelay value="1"/>
-            <Port value="14005"/>
-			<InitializationTimeout value="44"/>
-        </Server>
         <Server>
-            <Name value="Server_11"/>
+            <Name value="Server_2"/>
             <ServerType value="ServerType::RSSL_WEBSOCKET"/>
-            <!-- CompressionType is optional: defaulted to None -->
-            <!-- possible values: None, ZLib, LZ4 -->
             <CompressionType value="CompressionType::None"/>
             <GuaranteedOutputBuffers value="5000"/>
-            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
             <ConnectionPingTimeout value="30000"/>
-            <!-- TcpNodelay is optional: defaulted to 1 -->
-            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
             <TcpNodelay value="1"/>
-            <Port value="14011"/>
-            <MaxFragmentSize value="100500"/>
+            <Port value="14002"/>
+            <MaxFragmentSize value="6144"/>
             <WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
         </Server>
     </ServerList>
 </ServerGroup>
+
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1"/>
+
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<FileName value="emaLog"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
 
 <!-- source directory refresh configuration used by provider											-->
 <DirectoryGroup>
@@ -686,16 +445,6 @@
 				<StateFilter>
 					<ServiceState value="1"/>
 					<AcceptingRequests value="1"/>
-					<Status>
-						<!-- possible values are: Open, Close, CloseRecover								-->
-						<StreamState value="StreamState::Open"/> 
-						<!-- possibe values are: NoChange, Ok, Suspect									-->
-						<DataState value="DataState::NoChange"/>
-						<!-- possible values are: None, DacsDown, etc									-->
-						<StatusCode value="StatusCode::None"/>
-						<!-- a text field																-->
-						<StatusText value="connection down"/>
-					</Status>
 				</StateFilter>
 			</Service>
 			
@@ -705,30 +454,8 @@
 	
 </DirectoryGroup>
 
-<LoggerGroup>
-	<LoggerList>
-		<Logger>
-			<Name value="Logger_1"/>
-
-			<!-- loggerType is optional: defaulted to "Stdout" -->
-			<!-- possible values: Stdout, File -->
-			<LoggerType value="LoggerType::File"/>
-			<!-- fileName is optional: defaulted to "emaLog_<process id>.xml" -->
-			<FileName value="emaLog"/>
-
-			<!-- loggerSeverity is optional: defaulted to "Success" -->
-			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
-			<LoggerSeverity dataType="Enum" value="LoggerSeverity::Verbose"/>
-		</Logger>
-		<Logger>
-			<Name value="Logger_2"/>
-			<LoggerType value="LoggerType::Stdout"/>
-			<LoggerSeverity value="LoggerSeverity::Error"/>
-		</Logger>
-	</LoggerList>
-</LoggerGroup>
-
 <DictionaryGroup>
+
 	<DictionaryList>
 		<Dictionary>
 			<Name value="Dictionary_1"/>
@@ -738,6 +465,7 @@
 			<!-- if dictionaryType is set to ChannelDictionary, file names are ignored -->
 			<DictionaryType value="DictionaryType::ChannelDictionary"/>
 		</Dictionary>
+		
 		<Dictionary>
 			<Name value="Dictionary_2"/>
 			<DictionaryType value="DictionaryType::FileDictionary"/>
@@ -746,6 +474,7 @@
 			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
 			<EnumTypeDefFileName value="./enumtype.def"/>
 		</Dictionary>
+
 		<Dictionary>
 			<Name value="Dictionary_3"/>
 			<!-- providers always assume DictionaryType = DictionaryType::FileDictionary -->
@@ -762,6 +491,7 @@
 			<RdmFieldDictionaryItemName value="RWFFld"/>
 			<EnumTypeDefItemName value="RWFEnum"/>
 		</Dictionary>
+
 		<Dictionary>
 			<Name value="Dictionary_4"/>
 			<DictionaryType value="DictionaryType::FileDictionary"/>
@@ -770,6 +500,9 @@
 			<RdmFieldDictionaryItemName value="RWFFld_ID4"/>
 			<EnumTypeDefItemName value="RWFEnum_ID4"/>
 		</Dictionary>
+
 	</DictionaryList>
+	
 </DictionaryGroup>
+
 </EmaConfig>

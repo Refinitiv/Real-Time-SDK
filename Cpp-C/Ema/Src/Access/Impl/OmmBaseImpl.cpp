@@ -705,7 +705,6 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 		pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "EncryptedProtocolType", socketChannelCfg->encryptedConnectionType);
 
-
 		if (pConfigImpl->getUserSpecifiedSslCAStore().length() > 0)
 		{
 			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();
@@ -727,6 +726,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	}
 	case RSSL_CONN_TYPE_SOCKET:
 	case RSSL_CONN_TYPE_HTTP:
+	case RSSL_CONN_TYPE_WEBSOCKET:
 	{
 		if (socketChannelCfg == 0)
 		{
@@ -803,6 +803,12 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->objectName = tmp;
 		else
 			pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", socketChannelCfg->objectName );
+
+		if (RSSL_CONN_TYPE_WEBSOCKET == channelType)
+		{
+			pConfigImpl->get<UInt64>(channelNodeName + "WsMaxMsgSize", socketChannelCfg->wsMaxMsgSize);
+			pConfigImpl->get<EmaString>(channelNodeName + "WsProtocols", socketChannelCfg->wsProtocols);
+		}
 
 		break;
 	}
@@ -1265,6 +1271,26 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		_pItemCallbackClient = ItemCallbackClient::create( *this );
 		_pItemCallbackClient->initialize();
+
+		Dictionary* dictionary = getDictionaryCallbackClient().getDefaultDictionary();
+		RsslReactorJsonConverterOptions jsonConverterOptions;
+		rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
+		jsonConverterOptions.pDictionary = const_cast<RsslDataDictionary*>(dictionary->getRsslDictionary());
+		jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+		jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			EmaString temp("Failed to initialize OmmBaseImpl (RWF/JSON Converter).");
+			temp.append("' Error Id='").append(rsslErrorInfo.rsslError.rsslErrorId)
+				.append("' Internal sysError='").append(rsslErrorInfo.rsslError.sysError)
+				.append("' Error Location='").append(rsslErrorInfo.errorLocation)
+				.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
+			if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+			throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
+			return;
+		}
 
 		/* Now that all the handlers are setup, initialize the login stream handle, if set */
 		if (_hasConsAdminClient)
@@ -2014,6 +2040,38 @@ RsslReactorCallbackRet OmmBaseImpl::channelOpenCallback( RsslReactor* pRsslReact
 {
 	static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr )->eventReceived();
 	return static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr )->getChannelCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+}
+
+RsslReactorCallbackRet OmmBaseImpl::jsonConversionEventCallback(RsslReactor *pRsslReactor, RsslReactorChannel *pRsslReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		OmmBaseImpl* pOmmBaseImpl = static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr );
+		pOmmBaseImpl->getUserMutex().unlock();
+
+		EmaString temp( "OmmBaseImpl RWF/JSON Converter error." );
+		temp.append( "' Error Id='" ).append( pEvent->pError->rsslError.rsslErrorId )
+			.append( "' Internal sysError='" ).append( pEvent->pError->rsslError.sysError )
+			.append( "' Error Location='" ).append( pEvent->pError->errorLocation )
+			.append( "' Error Text='" ).append(pEvent->pError->rsslError.text).append( "'. " );
+		if ( OmmLoggerClient::ErrorEnum >= pOmmBaseImpl->_activeConfig.loggerConfig.minLoggerSeverity )
+			pOmmBaseImpl->_pLoggerClient->log( pOmmBaseImpl->_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+		throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslRet OmmBaseImpl::serviceNameToIdCallback(RsslReactor *pRsslReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	const Directory* pDirectory = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr)->getDirectoryCallbackClient().getDirectory( EmaString( pServiceName->data, pServiceName->length ) );
+	if ( pDirectory )
+	{
+		*pServiceId = (RsslUInt16)pDirectory->getId();
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
 }
 
 const EmaString& OmmBaseImpl::getInstanceName() const

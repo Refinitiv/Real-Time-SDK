@@ -88,7 +88,7 @@ DictionaryHandler::~DictionaryHandler()
 	}
 }
 
-const EmaVector< ItemInfo* >&	DictionaryHandler::getDicitonaryItemList()
+const EmaVector< ItemInfo* >&	DictionaryHandler::getDictionaryItemList()
 {
 	return _itemInfoList;
 }
@@ -226,7 +226,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 				}
 				else
 				{
-					if (sendDicitonaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent) == false)
+					if (sendDictionaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent) == false)
 					{
 						ommServerBaseImpl->getDictionaryHandler().removeItemInfo(itemInfo);
 						ommServerBaseImpl->removeItemInfo(itemInfo, false);
@@ -248,7 +248,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 				}
 				else
 				{
-					if (sendDicitonaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent) == false)
+					if (sendDictionaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent) == false)
 					{
 						ommServerBaseImpl->getDictionaryHandler().removeItemInfo(itemInfo);
 						ommServerBaseImpl->removeItemInfo(itemInfo, false);
@@ -413,7 +413,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-bool DictionaryHandler::sendDicitonaryResponse(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDictionaryMsgEvent* pRDMDictionaryMsgEvent)
+bool DictionaryHandler::sendDictionaryResponse(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDictionaryMsgEvent* pRDMDictionaryMsgEvent)
 {
 	OmmServerBaseImpl* ommServerBaseImpl = (OmmServerBaseImpl*)pReactor->userSpecPtr;
 	RsslErrorInfo* errorInfo = &ommServerBaseImpl->getDictionaryHandler()._errorInfo;

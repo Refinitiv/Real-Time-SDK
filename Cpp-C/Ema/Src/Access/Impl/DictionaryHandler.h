@@ -68,7 +68,7 @@ public:
 
 	void loadDictionaryFromFile();
 
-	static bool sendDicitonaryResponse(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDictionaryMsgEvent* pRDMDictionaryMsgEvent);
+	static bool sendDictionaryResponse(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDictionaryMsgEvent* pRDMDictionaryMsgEvent);
 
 	static RsslReturnCodes sendFieldDictionaryResponse(RsslReactor* reactor, RsslReactorChannel* reactorChannel, RsslRDMDictionaryMsg* dictionaryRequest, Dictionary*, RsslErrorInfo* error);
 
@@ -82,7 +82,7 @@ public:
 
 	void initialize();
 
-	const EmaVector< ItemInfo* >&		getDicitonaryItemList();
+	const EmaVector< ItemInfo* >&		getDictionaryItemList();
 
 	void addItemInfo(ItemInfo*);
 

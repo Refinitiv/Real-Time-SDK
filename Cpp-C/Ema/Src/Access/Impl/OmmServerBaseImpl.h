@@ -141,6 +141,9 @@ public:
     void addConnectedChannel(RsslReactorChannel*);
     void removeConnectedChannel(RsslReactorChannel*);
 
+	static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
+	static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
 protected:
 
 	friend class OmmBaseImplMap<OmmServerBaseImpl>;

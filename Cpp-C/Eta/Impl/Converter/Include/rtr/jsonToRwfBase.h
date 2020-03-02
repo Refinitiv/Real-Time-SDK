@@ -86,7 +86,8 @@ class jsonToRwfBase
 		MISSING_KEY = 12, // Missing Required Key
 		TYPE_MISMATCH = 13, // Array Type Mismatch
 		UNEXPECTED_KEY = 14, // Unexpected Key
-		UNEXPECTED_FID = 15 // Unexpected FID
+		UNEXPECTED_FID = 15, // Unexpected FID
+		RSSL_DICT_NOT_INIT = 16 // RsslDataDictionary is not initialized.
 	};
 	errorCodes	_errorCode;
 	jsmnerr_t	_jsmnError;
