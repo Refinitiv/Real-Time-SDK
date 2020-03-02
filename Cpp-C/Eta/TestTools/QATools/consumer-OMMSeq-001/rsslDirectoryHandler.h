@@ -32,6 +32,7 @@ RsslRet getSourceDirectoryResponseInfo(RsslUInt serviceId, RsslSourceDirectoryRe
 //APIQA
 RsslRet encodeSourceDirectoryRequestCustom(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId, int filter);
 //END APIQA
+RsslRet serviceNameToIdCallback(RsslBuffer* name, RsslUInt16* Id);
 #ifdef __cplusplus
 };
 #endif
