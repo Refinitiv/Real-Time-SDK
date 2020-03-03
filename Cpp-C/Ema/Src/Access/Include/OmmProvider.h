@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -367,6 +367,15 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void modifyIOCtl( Int32 code, Int32 value, UInt64 handle = 0 );
+
+	/** Closes channel for connected client's channel and associated items.  Only relevant to IProvider
+		applications. This method throws an exception is called by NiProvider applications.
+		@param[in] clientHandle specifies a client handle to close its channel.
+		@return void
+		@throw OmmInvalidUsageException if is called by an NiProvider application or an invalid client handle.
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void closeChannel( UInt64 clientHandle );
 	//@}
 
 private :

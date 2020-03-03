@@ -1957,3 +1957,8 @@ void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 	_userLock.unlock();
 }
 
+void OmmNiProviderImpl::closeChannel(UInt64 clientHandle)
+{
+	throwIueException("NIProvider applications do not support the closeChannel() method", OmmInvalidUsageException::InvalidOperationEnum);
+}
+

@@ -97,7 +97,7 @@ typedef enum {
 	RSSL_CONN_TYPE_RELIABLE_MCAST	= 4,   /*!< (4) Channel is a reliable multicast based connection. This can be on a unified/mesh network where send and receive networks are the same or a segmented network where send and receive networks are different */
 	RSSL_CONN_TYPE_EXT_LINE_SOCKET  = 5,   /*!< (5) Channel is using an extended line socket transport */	
 	RSSL_CONN_TYPE_SEQ_MCAST		= 6,   /*!< (6) Channel is an unreliable, sequenced multicast connection for reading from an Elektron Direct Feed system. This is a client-only, read-only transport. This transport is supported on Linux only. */
-	RSSL_CONN_TYPE_WEBSOCKET		= 7    /*!< (7) WebSocket Channel. */
+	RSSL_CONN_TYPE_WEBSOCKET		= 7    /*!< (7) Channel is a WebSocket connection type. */
 } RsslConnectionTypes;
 
 /**
@@ -501,7 +501,8 @@ typedef struct {
 	RsslUInt32			encryptionProtocolFlags;	/*!< @brief Bitmap flag set defining the TLS version(s) to be used by this connection.  See RsslEncryptionProtocolTypes */
 	RsslConnectionTypes encryptedProtocol;			/*!< @brief Defines the protocol used for this connection.<BR>
 														RSSL_CONN_TYPE_HTTP will use the legacy WinInet-based protocol for Windows only.<BR>
-														RSSL_CONN_TYPE_SOCKET will use the standard TCP transport protocol and OpenSSL for encryption. */
+														RSSL_CONN_TYPE_SOCKET will use the standard TCP transport protocol and OpenSSL for encryption. 
+														RSSL_CONN_TYPE_WEBSOCKET will use the WebSocket transport protocol and OpenSSL for encryption. */
 	char*				openSSLCAStore;				/*!< Path to the CAStore.  This will be used by any OpenSSL encrypted connections for certificate validation.  <BR>
 														A NULL input will result in the following behavior:<BR>
 															Windows: RSSL will load Windows Root Certificate store.<BR>

@@ -22,12 +22,13 @@ Detailed Description
   - Sets the Provider Name to "Provider_1" to use websocket connection
 + Instantiates an OmmProvider object which:
   - listens on the port from the EmaConfig.xml file
-  - specifies the websocket connection type from the EmaConfig.xml file
+  - specifies the websocket connection type and websocket sub protocols from the EmaConfig.xml file
+  - loads source directory from the EmaConfi.xml file
 + Accepts a login request
 + Processes an item request for MarketPrice domain.
  - Creates streaming item (refresh and updates) and publishes them
  - Publishes updates 1 per second for 60 seconds.
-+ Rejects subsequent item requests.
++ Rejects subsequent item requests until an existing item is closed.
 + Exits
 
 Note: If needed, these and other details may be modified to fit your local

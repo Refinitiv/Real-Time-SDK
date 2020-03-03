@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -29,9 +29,11 @@ int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_2" ) );
+		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_2" ).operationModel( OmmConsumerConfig::UserDispatchEnum ) );
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
-		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+		unsigned long long startTime = getCurrentTime();
+		while (startTime + 60000 > getCurrentTime())
+			consumer.dispatch(10);		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}

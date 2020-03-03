@@ -51,10 +51,17 @@
 			<XmlTraceRead value="1"/>
 			<XmlTracePing value="1"/>
 			<XmlTraceHex value="1"/>
+			<XmlTraceDump value="1"/>
 			<MsgKeyInUpdates value="1"/>
 			<TokenReissueRatio value="0.70"/>
 			<ReissueTokenAttemptLimit value="5"/>
 			<ReissueTokenAttemptInterval value="6000"/>
+			<CatchUnknownJsonFids value="0"/>
+			<CatchUnknownJsonKeys value="1"/>
+			<CloseChannelFromConverterFailure value="0"/>
+			<DefaultServiceID value="1"/>
+			<JsonExpandedEnumFields value="1"/>
+			<OutputBufferSize value="99999"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>

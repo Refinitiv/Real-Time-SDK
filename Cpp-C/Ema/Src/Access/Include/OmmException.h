@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -65,7 +65,9 @@ public :
 
 		OmmInaccessibleLogFileExceptionEnum,		/*!< Indicates inaccessible log file exception */
 
-		OmmUnsupportedDomainTypeExceptionEnum		/*!< Indicates unsupported domain type exception */
+		OmmUnsupportedDomainTypeExceptionEnum,		/*!< Indicates unsupported domain type exception */
+
+		OmmJsonConverterExceptionEnum			/*!< Indicates JSON converter exception */
 	};
 
 	///@name Accessors

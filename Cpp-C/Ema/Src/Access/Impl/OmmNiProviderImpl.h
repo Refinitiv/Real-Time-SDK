@@ -110,6 +110,8 @@ public :
 
 	void modifyIOCtl(Int32 code, Int32 value, UInt64 handle);
 
+	void closeChannel(UInt64 clientHandle);
+
 private :
 
 	void reLoadConfigSourceDirectory();

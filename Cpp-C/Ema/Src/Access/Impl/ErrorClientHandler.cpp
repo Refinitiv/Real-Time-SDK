@@ -7,6 +7,9 @@
  */
 
 #include "ErrorClientHandler.h"
+#include "ConsumerSessionInfo.h"
+#include "ProviderSessionInfo.h"
+#include "ChannelInfoImpl.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -77,4 +80,34 @@ void ErrorClientHandler::onSystemError( Int64 code, void* ptr, const EmaString& 
 		_pConsumerErrorClient->onSystemError( code, ptr, text );
 	else if ( _pProviderErrorClient )
 		_pProviderErrorClient->onSystemError( code, ptr, text );
+}
+
+void ErrorClientHandler::onJsonConverter(const char* text, Int32 errorCode, RsslReactorChannel* reactorChannel, ClientSession* clientSession, OmmProvider* pProvider)
+{
+	if (_pConsumerErrorClient)
+	{
+		ConsumerSessionInfo sessionInfo;
+		getChannelInformationImpl(reactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+		_pConsumerErrorClient->onJsonConverter(text, errorCode, sessionInfo);
+	}
+	else if (_pProviderErrorClient)
+	{
+		ProviderSessionInfo sessionInfo;
+
+		if (clientSession != NULL)
+		{
+			sessionInfo._clientHandle = clientSession->getClientHandle();
+			sessionInfo._handle = clientSession->getLoginHandle();
+			sessionInfo._provider = pProvider;
+			getChannelInformationImpl(reactorChannel, OmmCommonImpl::IProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+		}
+		else
+		{
+			sessionInfo._provider = pProvider;
+
+			getChannelInformationImpl(reactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>(sessionInfo._channelInfo));
+		}
+
+		_pProviderErrorClient->onJsonConverter(text, errorCode, sessionInfo);
+	}
 }

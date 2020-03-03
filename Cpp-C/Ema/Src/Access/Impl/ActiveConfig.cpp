@@ -156,6 +156,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceRead(DEFAULT_XML_TRACE_READ),
 	xmlTracePing(DEFAULT_XML_TRACE_PING),
 	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
+	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
@@ -163,7 +164,13 @@ BaseConfig::BaseConfig() :
 	libSslName(),
 	libCryptoName(),
 	traceStr(),
-	tokenReissueRatio(DEFAULT_TOKEN_REISSUE_RATIO)
+	tokenReissueRatio(DEFAULT_TOKEN_REISSUE_RATIO),
+	defaultServiceIDForConverter(DEFAULT_SERVICE_ID_FOR_CONVERTER),
+	jsonExpandedEnumFields(DEFAULT_JSON_EXPANDED_ENUM_FIELDS),
+	catchUnknownJsonKeys(DEFAULT_CATCH_UNKNOWN_JSON_KEYS),
+	catchUnknownJsonFids(DEFAULT_CATCH_UNKNOWN_JSON_FIDS),
+	closeChannelFromFailure(DEFAULT_CLOSE_CHANNEL_FROM_FAILURE),
+	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE)
 {
 }
 
@@ -189,6 +196,7 @@ void BaseConfig::clear()
 	xmlTraceRead = DEFAULT_XML_TRACE_READ;
 	xmlTracePing = DEFAULT_XML_TRACE_PING;
 	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
+	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	loggerConfig.clear();
 	libSslName.clear();
@@ -196,6 +204,12 @@ void BaseConfig::clear()
 	traceStr.clear();
 	libcurlName.clear();
 	tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
+	defaultServiceIDForConverter = DEFAULT_SERVICE_ID_FOR_CONVERTER;
+	jsonExpandedEnumFields = DEFAULT_JSON_EXPANDED_ENUM_FIELDS;
+	catchUnknownJsonKeys = DEFAULT_CATCH_UNKNOWN_JSON_KEYS;
+	catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
+	closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
+	outputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
 }
 
 EmaString BaseConfig::configTrace()
@@ -217,10 +231,17 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceRead : ").append(xmlTraceRead)
 		.append("\n\t xmlTracePing : ").append(xmlTracePing)
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
+		.append("\n\t xmlTraceDump : ").append(xmlTraceDump)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)
 		.append("\n\t libSslName : ").append(libSslName)
 		.append("\n\t libCryptoName : ").append(libCryptoName)
-		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio);
+		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio)
+		.append("\n\t defaultServiceIDForConverter : ").append(defaultServiceIDForConverter)
+		.append("\n\t jsonExpandedEnumFields : ").append(jsonExpandedEnumFields)
+		.append("\n\t catchUnknownJsonKeys : ").append(catchUnknownJsonKeys)
+		.append("\n\t catchUnknownJsonFids : ").append(catchUnknownJsonFids)
+		.append("\n\t closeChannelFromFailure : ").append(closeChannelFromFailure)
+		.append("\n\t outputBufferSize : ").append(outputBufferSize);
 
 	return traceStr;
 }

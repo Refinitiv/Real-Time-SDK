@@ -18,6 +18,8 @@
 #include "OmmSystemException.h"
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
+#include "OmmJsonConverterException.h"
+#include "OmmNiProviderImpl.h"
 
 #include "GetTime.h"
 
@@ -423,9 +425,44 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.xmlTraceHex = tmp > 0 ? true : false;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceDump", tmp))
+	{
+		_activeConfig.xmlTraceDump = tmp > 0 ? true : false;
+	}
+
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MsgKeyInUpdates", tmp))
 	{
 		_activeConfig.msgKeyInUpdates = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "DefaultServiceID", tmp))
+	{
+		_activeConfig.defaultServiceIDForConverter = tmp <= 0xFFFF ? (UInt16)tmp: 0xFFFF;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "JsonExpandedEnumFields", tmp))
+	{
+		_activeConfig.jsonExpandedEnumFields = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "CatchUnknownJsonFids", tmp))
+	{
+		_activeConfig.catchUnknownJsonFids = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "CatchUnknownJsonKeys", tmp))
+	{
+		_activeConfig.catchUnknownJsonKeys = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "CloseChannelFromConverterFailure", tmp))
+	{
+		_activeConfig.closeChannelFromFailure = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
+	{
+		_activeConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
 	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
@@ -1272,24 +1309,33 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_pItemCallbackClient = ItemCallbackClient::create( *this );
 		_pItemCallbackClient->initialize();
 
-		Dictionary* dictionary = getDictionaryCallbackClient().getDefaultDictionary();
-		RsslReactorJsonConverterOptions jsonConverterOptions;
-		rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
-		jsonConverterOptions.pDictionary = const_cast<RsslDataDictionary*>(dictionary->getRsslDictionary());
-		jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
-		jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
-
-		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		if (getImplType() == OmmCommonImpl::ConsumerEnum)
 		{
-			EmaString temp("Failed to initialize OmmBaseImpl (RWF/JSON Converter).");
-			temp.append("' Error Id='").append(rsslErrorInfo.rsslError.rsslErrorId)
-				.append("' Internal sysError='").append(rsslErrorInfo.rsslError.sysError)
-				.append("' Error Location='").append(rsslErrorInfo.errorLocation)
-				.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
-			if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
-				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-			throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
-			return;
+			Dictionary* dictionary = getDictionaryCallbackClient().getDefaultDictionary();
+			RsslReactorJsonConverterOptions jsonConverterOptions;
+			rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
+			jsonConverterOptions.pDictionary = const_cast<RsslDataDictionary*>(dictionary->getRsslDictionary());
+			jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+			jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+			jsonConverterOptions.defaultServiceId = _activeConfig.defaultServiceIDForConverter;
+			jsonConverterOptions.jsonExpandedEnumFields = (RsslBool)_activeConfig.jsonExpandedEnumFields;
+			jsonConverterOptions.catchUnknownJsonKeys = (RsslBool)_activeConfig.catchUnknownJsonKeys;
+			jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeConfig.catchUnknownJsonFids;
+			jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeConfig.closeChannelFromFailure;
+			jsonConverterOptions.outputBufferSize = _activeConfig.outputBufferSize;
+
+			if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				EmaString temp("Failed to initialize OmmBaseImpl (RWF/JSON Converter).");
+				temp.append("' Error Id='").append(rsslErrorInfo.rsslError.rsslErrorId)
+					.append("' Internal sysError='").append(rsslErrorInfo.rsslError.sysError)
+					.append("' Error Location='").append(rsslErrorInfo.errorLocation)
+					.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+					_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
+				return;
+			}
 		}
 
 		/* Now that all the handlers are setup, initialize the login stream handle, if set */
@@ -1901,6 +1947,19 @@ void OmmBaseImpl::handleMee( const char* text )
 		throwMeeException( text );
 }
 
+void OmmBaseImpl::handleJce(const char* text, Int32 errorCode, RsslReactorChannel* reactorChannel, OmmProvider* provider)
+{
+	if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+		getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, text);
+
+	if (hasErrorClientHandler())
+	{
+		getErrorClientHandler().onJsonConverter(text, errorCode, reactorChannel, NULL, provider);
+	}
+	else
+		throwJConverterException(text, errorCode, reactorChannel, NULL, provider);
+}
+
 ItemCallbackClient& OmmBaseImpl::getItemCallbackClient()
 {
 	return *_pItemCallbackClient;
@@ -2049,14 +2108,15 @@ RsslReactorCallbackRet OmmBaseImpl::jsonConversionEventCallback(RsslReactor *pRs
 		OmmBaseImpl* pOmmBaseImpl = static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr );
 		pOmmBaseImpl->getUserMutex().unlock();
 
-		EmaString temp( "OmmBaseImpl RWF/JSON Converter error." );
-		temp.append( "' Error Id='" ).append( pEvent->pError->rsslError.rsslErrorId )
-			.append( "' Internal sysError='" ).append( pEvent->pError->rsslError.sysError )
-			.append( "' Error Location='" ).append( pEvent->pError->errorLocation )
-			.append( "' Error Text='" ).append(pEvent->pError->rsslError.text).append( "'. " );
-		if ( OmmLoggerClient::ErrorEnum >= pOmmBaseImpl->_activeConfig.loggerConfig.minLoggerSeverity )
-			pOmmBaseImpl->_pLoggerClient->log( pOmmBaseImpl->_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
-		throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
+		OmmProvider* pProvider = NULL;
+
+		if (pOmmBaseImpl->getImplType() == OmmCommonImpl::NiProviderEnum)
+		{
+			OmmNiProviderImpl* pOmmNiProviderImpl = static_cast<OmmNiProviderImpl*>(pOmmBaseImpl);
+			pProvider = pOmmNiProviderImpl->getProvider();
+		}
+
+		pOmmBaseImpl->handleJce(EmaString(pEvent->pError->rsslError.text), pEvent->pError->rsslError.rsslErrorId, pRsslReactorChannel, pProvider);
 	}
 
 	return RSSL_RC_CRET_SUCCESS;

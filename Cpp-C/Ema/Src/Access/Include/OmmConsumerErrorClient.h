@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -26,6 +26,8 @@
 		OmmMemoryExhaustionException,
 		OmmInaccessibleLogFile,
 		OmmSystemException,
+		OmmJsonConverterException,
+		ConsumerSessionInfo,
 		EmaString
 */
 
@@ -38,6 +40,7 @@ namespace ema {
 namespace access {
 
 class EmaString;
+class ConsumerSessionInfo;
 
 class EMA_ACCESS_API OmmConsumerErrorClient
 {
@@ -87,6 +90,14 @@ public:
 		@return void
 	*/ 
 	virtual void onSystemError( Int64 code, void* ptr, const EmaString& text );
+
+	/** Invoked in the case of Json converter error. Requires OmmConsumer constructor to have an OmmConsumerErrorClient.
+		@param[out] text specifies associated error text
+		@param[out] errorCode specifies associated error code
+		@param[out] sessionInfo specifies associated session information
+		@return void
+	*/
+	virtual void onJsonConverter( const EmaString& text, Int32 errorCode, const ConsumerSessionInfo& sessionInfo );
 	//@}
 
 	///@name Destructor

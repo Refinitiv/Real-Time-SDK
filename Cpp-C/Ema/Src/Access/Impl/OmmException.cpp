@@ -27,6 +27,7 @@ const EmaString OmmInvalidHandleExceptionString( "OmmInvalidHandleException" );
 const EmaString OmmMemoryExhaustionExceptionString( "OmmMemoryExhaustionException" );
 const EmaString OmmInaccessibleLogFileExceptionString( "OmmInaccessibleLogFileException" );
 const EmaString OmmUnsupportedDomainTypeExceptionString( "OmmUnsupportedDomainTypeException" );
+const EmaString OmmJsonConverterExceptionString( "OmmJsonConverterException" );
 EmaString TempETString;
 
 OmmException::OmmException() :
@@ -75,6 +76,8 @@ const EmaString& OmmException::getExceptionTypeAsString() const
 		return OmmInaccessibleLogFileExceptionString;
 	case OmmUnsupportedDomainTypeExceptionEnum :
 		return OmmUnsupportedDomainTypeExceptionString;
+	case OmmJsonConverterExceptionEnum:
+		return OmmJsonConverterExceptionString;
 	default :
 		return TempETString.set( "Unknonwn ExceptionType value " ).append( (Int64)getExceptionType() );
 	}

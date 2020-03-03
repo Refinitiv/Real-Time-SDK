@@ -41,3 +41,7 @@ void OmmConsumerErrorClient::onInvalidUsage(const EmaString&, Int32)
 void OmmConsumerErrorClient::onSystemError( Int64, void*, const EmaString& )
 {
 }
+
+void OmmConsumerErrorClient::onJsonConverter(const EmaString& text, Int32 errorCode, const ConsumerSessionInfo& sessionInfo)
+{
+}

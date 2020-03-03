@@ -1101,6 +1101,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.xmlTraceHex = eentry.getUInt() ? true : false;
 												}
+												else if (eentry.getName() == "XmlTraceDump")
+												{
+													activeConfig.xmlTraceDump = eentry.getUInt() ? true : false;
+												}
 												else if (eentry.getName() == "MsgKeyInUpdates")
 												{
 													activeConfig.msgKeyInUpdates = eentry.getUInt() ? true : false;
@@ -1112,6 +1116,30 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												else if (eentry.getName() == "RestRequestTimeOut")
 												{
 													activeConfig.setRestRequestTimeOut( eentry.getUInt() );
+												}
+												else if (eentry.getName() == "DefaultServiceID")
+												{
+													activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= 0xFFFF ? (RsslUInt16)eentry.getUInt() : 0xFFFF;
+												}
+												else if (eentry.getName() == "JsonExpandedEnumFields")
+												{
+													activeConfig.jsonExpandedEnumFields = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "CatchUnknownJsonFids")
+												{
+													activeConfig.catchUnknownJsonFids = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "CatchUnknownJsonKeys")
+												{
+													activeConfig.catchUnknownJsonKeys = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "CloseChannelFromConverterFailure")
+												{
+													activeConfig.closeChannelFromFailure = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "OutputBufferSize")
+												{
+													activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
 												}
 											
 												break;
@@ -1278,6 +1306,35 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									{
 										activeConfig.xmlTraceHex = eentry.getUInt() ? true : false;
 									}
+									else if (eentry.getName() == "XmlTraceDump")
+									{
+										activeConfig.xmlTraceDump = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "DefaultServiceID")
+									{
+										activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= 0xFFFF ? (RsslUInt16)eentry.getUInt() : 0xFFFF;
+									}
+									else if (eentry.getName() == "JsonExpandedEnumFields")
+									{
+										activeConfig.jsonExpandedEnumFields = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "CatchUnknownJsonFids")
+									{
+										activeConfig.catchUnknownJsonFids = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "CatchUnknownJsonKeys")
+									{
+										activeConfig.catchUnknownJsonKeys = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "CloseChannelFromConverterFailure")
+									{
+										activeConfig.closeChannelFromFailure = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "OutputBufferSize")
+									{
+										activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
+									}
+
 									break;
 
 								case DataType::IntEnum:

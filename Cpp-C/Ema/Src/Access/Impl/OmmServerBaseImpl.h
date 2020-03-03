@@ -57,6 +57,7 @@ class ItemInfo;
 class EmaConfigServerImpl;
 class DirectoryServiceStore;
 class ItemCallbackClient;
+class OmmProvider;
 
 typedef ItemInfo* ItemInfoPtr;
 
@@ -133,6 +134,8 @@ public:
 	void handleIhe(UInt64, const char*);
 
 	void handleMee(const char*);
+
+	void handleJce(const char* text, Int32 errorCode, RsslReactorChannel* reactorChannel, ClientSession* clientSession, OmmProvider* provider);
 
 	virtual void processChannelEvent(RsslReactorChannelEvent*) = 0;
 

@@ -59,6 +59,8 @@ public :
 
 	virtual void modifyIOCtl(Int32 code, Int32 value, UInt64 handle) = 0;
 
+	virtual void closeChannel(UInt64 clientHandle) = 0;
+
 protected:
 
 	OmmProvider*      _pOmmProvider;

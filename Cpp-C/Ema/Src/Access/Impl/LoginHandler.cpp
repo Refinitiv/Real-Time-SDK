@@ -177,6 +177,7 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 					return RSSL_RC_CRET_SUCCESS;
 
 				itemInfo->setClientSession(clientSession);
+				clientSession->setLoginHandle((UInt64)itemInfo);
 
 				ommServerBaseImpl->getLoginHandler().addItemInfo(itemInfo);
 				ommServerBaseImpl->addItemInfo(itemInfo);
@@ -288,6 +289,7 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 
 				ommServerBaseImpl->_pOmmProviderClient->onAllMsg(ommServerBaseImpl->_reqMsg, ommServerBaseImpl->ommProviderEvent);
 				ommServerBaseImpl->_pOmmProviderClient->onClose(ommServerBaseImpl->_reqMsg, ommServerBaseImpl->ommProviderEvent);
+				clientSession->setLoginHandle(0); /* Unset login handle when EMA receives login close message. */
 
 				ommServerBaseImpl->getServerChannelHandler().closeChannel(pReactorChannel);
 			}
@@ -555,6 +557,8 @@ void LoginHandler::notifyChannelDown(ClientSession* clientSession)
 
 			_pOmmServerBaseImpl->_pOmmProviderClient->onAllMsg(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
 			_pOmmServerBaseImpl->_pOmmProviderClient->onClose(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
+
+			clientSession->setLoginHandle(0); /* Unset login handle when EMA receives login close message. */
 
 			break;
 		}

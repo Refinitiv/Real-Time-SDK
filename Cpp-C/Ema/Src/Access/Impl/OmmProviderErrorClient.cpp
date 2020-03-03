@@ -42,3 +42,9 @@ void OmmProviderErrorClient::onInvalidUsage(const EmaString&, Int32 )
 void OmmProviderErrorClient::onSystemError( Int64, void*, const EmaString& )
 {
 }
+
+
+void OmmProviderErrorClient::onJsonConverter(const EmaString& text, Int32 errorCode, const ProviderSessionInfo& sessionInfo)
+{
+}
+

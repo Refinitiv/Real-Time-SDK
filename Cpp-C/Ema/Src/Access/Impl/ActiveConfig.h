@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -91,6 +91,7 @@
 #define DEFAULT_TBCHOLD								  3
 #define DEFAULT_TPPHOLD								  3
 #define DEFAULT_USER_QLIMIT							  65535
+#define DEFAULT_XML_TRACE_DUMP						  false
 #define DEFAULT_XML_TRACE_FILE_NAME					  EmaString( "EmaTrace" )
 #define DEFAULT_XML_TRACE_HEX						  false
 #define DEFAULT_XML_TRACE_MAX_FILE_SIZE				  100000000
@@ -103,6 +104,13 @@
 #define DEFAULT_WS_MAXMSGSIZE						  61440
 #define DEFAULT_WS_PROTOCLOS						  EmaString( "rssl.json.v2, rssl.rwf, tr_json2" )
 #define DEFAULT_MAX_FRAGMENT_SIZE					  6144
+#define DEFAULT_CATCH_UNKNOWN_JSON_FIDS				  true
+#define DEFAULT_CATCH_UNKNOWN_JSON_KEYS				  false
+#define DEFAULT_CLOSE_CHANNEL_FROM_FAILURE			  true
+#define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
+#define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
+#define DEFAULT_OUTPUT_BUFFER_SIZE					  65535
+
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -423,6 +431,7 @@ public:
 	bool					xmlTraceRead;
 	bool					xmlTracePing;
 	bool					xmlTraceHex;
+	bool					xmlTraceDump;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.
@@ -436,6 +445,14 @@ public:
 	UInt32					requestTimeout;
 	EmaString				traceStr;
 	Double					tokenReissueRatio;
+
+	/* Configure the  RsslReactorJsonConverterOptions */
+	UInt16					defaultServiceIDForConverter;
+	bool					jsonExpandedEnumFields;
+	bool					catchUnknownJsonKeys;
+	bool					catchUnknownJsonFids;
+	bool					closeChannelFromFailure;
+	UInt32					outputBufferSize;
 };
 
 class ActiveConfig : public BaseConfig

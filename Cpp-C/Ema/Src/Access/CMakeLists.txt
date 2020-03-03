@@ -44,6 +44,7 @@ else()
             Impl/ChannelInformation.cpp
             Impl/ClientSession.cpp Impl/ClientSession.h
             Impl/ComplexType.cpp Impl/ConfigErrorHandling.h
+	    Impl/ConumerSessionInfo.cpp
             # Impl/D....
             Impl/Data.cpp Impl/DataType.cpp
             Impl/DateTimeStringFormat.cpp
@@ -141,6 +142,8 @@ else()
             Impl/OmmIProviderConfigImpl.cpp Impl/OmmIProviderConfigImpl.h
             Impl/OmmIProviderImpl.cpp Impl/OmmIProviderImpl.h
             Impl/OmmLoggerClient.cpp Impl/OmmLoggerClient.h
+	    Impl/OmmJsonConverterException.cpp
+	    Impl/OmmJsonConverterExceptionImpl.cpp Impl/OmmJsonConverterExceptionImpl.h
             Impl/OmmMemoryExhaustionException.cpp
             Impl/OmmMemoryExhaustionExceptionImpl.cpp Impl/OmmMemoryExhaustionExceptionImpl.h
             Impl/OmmNiProviderActiveConfig.cpp Impl/OmmNiProviderActiveConfig.h
@@ -178,6 +181,7 @@ else()
             Impl/PostMsg.cpp Impl/PostMsgDecoder.cpp Impl/PostMsgDecoder.h
             Impl/PostMsgEncoder.cpp Impl/PostMsgEncoder.h
             Impl/ProgrammaticConfigure.cpp Impl/ProgrammaticConfigure.h
+	    Impl/ProviderSessionInfo.cpp
             Impl/RefreshMsg.cpp Impl/RefreshMsgDecoder.cpp Impl/RefreshMsgDecoder.h
             Impl/RefreshMsgEncoder.cpp Impl/RefreshMsgEncoder.h
             Impl/ReqMsg.cpp Impl/ReqMsgDecoder.cpp Impl/ReqMsgDecoder.h
@@ -220,6 +224,7 @@ else()
             Include/ChannelInformation.h
             Include/Common.h
             Include/ComplexType.h
+            Include/ConsumerSessionInfo.h
             Include/Data.h
             Include/DataType.h
             Include/DateTimeStringFormat.h
@@ -262,6 +267,7 @@ else()
             Include/OmmInvalidHandleException.h
             Include/OmmInvalidUsageException.h
             Include/OmmIProviderConfig.h
+            Include/OmmJsonConverterException.h
             Include/OmmMemoryExhaustionException.h
             Include/OmmNiProviderConfig.h
             Include/OmmOpaque.h
@@ -283,6 +289,7 @@ else()
             Include/OmmXml.h
             Include/Payload.h
             Include/PostMsg.h
+            Include/ProviderSessionInfo.h
             Include/RefreshMsg.h
             Include/ReqMsg.h
             Include/RmtesBuffer.h
@@ -294,6 +301,7 @@ else()
             Include/ServiceEndpointDiscoveryInfo.h
             Include/ServiceEndpointDiscoveryOption.h
             Include/ServiceEndpointDiscoveryResp.h
+            Include/SessionInfo.h
             Include/StatusMsg.h
             Include/SummaryData.h
             Include/TunnelStreamRequest.h

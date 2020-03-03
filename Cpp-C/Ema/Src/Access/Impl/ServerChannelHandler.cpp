@@ -198,6 +198,9 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 				if (activeConfig.xmlTraceHex)
 					traceOptions.traceFlags |= RSSL_TRACE_HEX;
 
+				if (activeConfig.xmlTraceDump)
+					traceOptions.traceFlags |= RSSL_TRACE_DUMP;
+
 				traceOptions.traceMsgMaxFileSize = activeConfig.xmlTraceMaxFileSize;
 
 				if (RSSL_RET_SUCCESS != rsslReactorChannelIoctl(pRsslReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void*)&traceOptions, &rsslErrorInfo))

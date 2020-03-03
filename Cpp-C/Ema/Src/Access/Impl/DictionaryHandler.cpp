@@ -74,6 +74,8 @@ DictionaryHandler::DictionaryHandler(OmmServerBaseImpl* ommServerBaseImpl) :
 	_pOmmServerBaseImpl(ommServerBaseImpl)
 {
 	_apiAdminControl = _pOmmServerBaseImpl->getActiveConfig().getDictionaryAdminControl() == OmmIProviderConfig::ApiControlEnum ? true : false;
+
+	_pDefaultLocalDictionary = LocalDictionary::create(*_pOmmServerBaseImpl, _pOmmServerBaseImpl->getActiveConfig());  // Creates the default local dictionary
 }
 
 DictionaryHandler::~DictionaryHandler()
@@ -86,6 +88,17 @@ DictionaryHandler::~DictionaryHandler()
 
 		dictionaryPayload = _dictionaryInfoList.pop_back();
 	}
+
+	// Frees the default LocalDictionary if it isn't used for the first local dictionary in the list.
+	if (_pDefaultLocalDictionary)
+	{
+		LocalDictionary::destroy(_pDefaultLocalDictionary);
+	}
+}
+
+Dictionary* DictionaryHandler::getDefaultDictionary()
+{
+	return _pDefaultLocalDictionary;
 }
 
 const EmaVector< ItemInfo* >&	DictionaryHandler::getDictionaryItemList()
@@ -491,7 +504,15 @@ void DictionaryHandler::loadDictionaryFromFile()
 				continue;
 			}
 
-			plocalDictionary = LocalDictionary::create(*_pOmmServerBaseImpl, _pOmmServerBaseImpl->getActiveConfig());
+			if (_pDefaultLocalDictionary)
+			{
+				plocalDictionary = _pDefaultLocalDictionary;
+				_pDefaultLocalDictionary = NULL;
+			}
+			else
+			{
+				plocalDictionary = LocalDictionary::create(*_pOmmServerBaseImpl, _pOmmServerBaseImpl->getActiveConfig());
+			}
 
 			RsslRet retCode;
 			if (plocalDictionary->load(dictionaryConfig->rdmfieldDictionaryFileName, dictionaryConfig->enumtypeDefFileName, retCode) == false)

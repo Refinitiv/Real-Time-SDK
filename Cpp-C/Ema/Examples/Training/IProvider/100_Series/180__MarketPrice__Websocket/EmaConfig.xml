@@ -121,6 +121,8 @@
 			<PipePort value="9009" />
 			
 			<RefreshFirstRequired value="1" />
+
+			<DefaultServiceID value="1"/>
 		
         </IProvider>
     </IProviderList>

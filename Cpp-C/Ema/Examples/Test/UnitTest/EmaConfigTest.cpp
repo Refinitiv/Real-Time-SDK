@@ -171,6 +171,20 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && intValue == 5) << "extracting ReissueTokenAttemptLimit from EmaConfig.xml";
 	debugResult = config.get<Int64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ReissueTokenAttemptInterval", intValue);
 	EXPECT_TRUE(debugResult && intValue == 6000) << "extracting ReissueTokenAttemptInterval from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|XmlTraceDump", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTraceDump from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|CatchUnknownJsonFids", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting CatchUnknownJsonFids from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|CatchUnknownJsonKeys", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting CatchUnknownJsonKeys from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|CloseChannelFromConverterFailure", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting CloseChannelFromConverterFailure from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|DefaultServiceID", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting DefaultServiceID from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|JsonExpandedEnumFields", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting JsonExpandedEnumFields from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|OutputBufferSize", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
 
 	// Checks all values from Channel_1
 	debugResult = config.get<EmaString>( "ChannelGroup|ChannelList|Channel|Name", retrievedValue );
@@ -507,6 +521,13 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigWS)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
 			.addUInt("XmlTraceHex", 1)
+			.addUInt("XmlTraceDump", 1)
+			.addUInt("CatchUnknownJsonFids", 0)
+			.addUInt("CatchUnknownJsonKeys", 1)
+			.addUInt("CloseChannelFromConverterFailure", 0)
+			.addUInt("DefaultServiceID", 1)
+			.addUInt("JsonExpandedEnumFields", 1)
+			.addUInt("OutputBufferSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -606,6 +627,13 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceDump == 1) << "xmlTraceDump , 1";
+		EXPECT_TRUE(activeConfig.catchUnknownJsonFids == 0) << "catchUnknownJsonFids , 0";
+		EXPECT_TRUE(activeConfig.catchUnknownJsonKeys == 1) << "catchUnknownJsonKeys , 1";
+		EXPECT_TRUE(activeConfig.closeChannelFromFailure == 0) << "closeChannelFromConverterFailure , 0";
+		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
+		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
+		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";

@@ -34,6 +34,10 @@ public:
 
 	UInt64 getClientHandle() const;
 
+	UInt64 getLoginHandle() const;
+
+	void setLoginHandle(UInt64 handle);
+
 	RsslReactorChannel* getChannel() const;
 
 	ItemInfo* getItemInfo(Int32) const;
@@ -149,6 +153,7 @@ private:
 	OmmServerBaseImpl*  _pOmmServerBaseImpl;
 	bool                _removingInCloseAll;
 	bool				_isADHSession;
+	UInt64				_loginHandle;
 };
 
 }

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 #include "IProvider.h"
@@ -65,24 +65,72 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 	}
 }
 
+void AppErrorClient::onInaccessibleLogFile( const EmaString& fileName, const EmaString& text )
+{
+	cout << endl << "onInaccessibleLogFile callback function" << endl;
+	cout << "Inaccessible file name: " << fileName << endl;
+	cout << "Error text: " << text << endl;
+}
+
+void AppErrorClient::onSystemError( Int64 code, void* address, const EmaString& text )
+{
+	cout << endl << "onSystemError callback function" << endl;
+	cout << "System Error code: " << code << endl;
+	cout << "System Error Address: " << address << endl;
+	cout << "Error text: " << text << endl;
+}
+
+void AppErrorClient::onMemoryExhaustion( const EmaString& text )
+{
+	cout << endl << "onMemoryExhaustion callback function" << endl;
+	cout << "Error text: " << text << endl;
+}
+
+void AppErrorClient::onInvalidUsage( const EmaString& text, Int32 errorCode )
+{
+	cout << "onInvalidUsage callback function" << endl;
+	cout << "Error text: " << text << endl;
+	cout << "Error code: " << errorCode << endl;
+
+	itemHandle = 0;
+}
+
+void AppErrorClient::onJsonConverter( const EmaString& text, Int32 errorCode, const ProviderSessionInfo& sessionInfo )
+{
+	cout << "ononJsonConverter callback function" << endl;
+	cout << "Error text: " << text << endl;
+	cout << "Error code: " << errorCode << endl;
+	
+	cout << "Closing the client channel" << endl;
+	sessionInfo.getProvider().closeChannel( sessionInfo.getClientHandle() );
+
+	itemHandle = 0;
+}
+
 int main( int argc, char* argv[] )
 {
 	try
 	{
 		AppClient appClient;
+		AppErrorClient erroClient;
 
-		OmmProvider provider( OmmIProviderConfig().providerName( "Provider_1" ), appClient );
+		OmmProvider provider( OmmIProviderConfig().providerName( "Provider_1" ).operationModel( OmmIProviderConfig::UserDispatchEnum ), appClient, erroClient );
 		
-		while ( itemHandle == 0 ) sleep(1000);
-		
-		for ( Int32 i = 0; i < 60; i++ )
+		int count = 0;
+		unsigned long long startTime = getCurrentTime();
+		while ( startTime + 60000 > getCurrentTime() )
 		{
-			provider.submit( UpdateMsg().payload( FieldList().
-					addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum ).
-					addReal( 30, 10 + i, OmmReal::Exponent0Enum ).
+			provider.dispatch( 1000000 );
+
+			if ( itemHandle != 0 )
+			{
+				provider.submit( UpdateMsg().payload( FieldList().
+					addReal( 22, 3391 + count, OmmReal::ExponentNeg2Enum ).
+					addReal( 30, 10 + count, OmmReal::Exponent0Enum ).
 					complete() ), itemHandle );
-					
-			sleep( 1000 );
+
+				count++;
+			}
 		}
 	}
 	catch ( const OmmException& excp )

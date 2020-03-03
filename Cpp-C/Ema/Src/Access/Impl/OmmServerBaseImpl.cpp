@@ -28,6 +28,8 @@
 
 #include "DirectoryServiceStore.h"
 
+#include "OmmIProviderImpl.h"
+
 #include "GetTime.h"
 
 #ifdef WIN32
@@ -191,6 +193,41 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
 	{
 		_activeServerConfig.xmlTraceHex = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceDump", tmp))
+	{
+		_activeServerConfig.xmlTraceDump = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "DefaultServiceID", tmp))
+	{
+		_activeServerConfig.defaultServiceIDForConverter = tmp <= 0xFFFF ? (UInt16)tmp : 0xFFFF;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "JsonExpandedEnumFields", tmp))
+	{
+		_activeServerConfig.jsonExpandedEnumFields = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "CatchUnknownJsonFids", tmp))
+	{
+		_activeServerConfig.catchUnknownJsonFids = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "CatchUnknownJsonKeys", tmp))
+	{
+		_activeServerConfig.catchUnknownJsonKeys = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "CloseChannelFromConverterFailure", tmp))
+	{
+		_activeServerConfig.closeChannelFromFailure = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
+	{
+		_activeServerConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
 	pConfigServerImpl->get<Int64>(instanceNodeName + "PipePort", _activeServerConfig.pipePort);
@@ -728,11 +765,24 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			}
 		}
 
+		/* Returns the default Dictionary as Provider can load dictionary information later after creating OMMProvider */
+		if(rsslDataDictionary == NULL)
+		{
+			rsslDataDictionary = _pDictionaryHandler->getDefaultDictionary() ?
+				_pDictionaryHandler->getDefaultDictionary()->getRsslDictionary() : NULL;
+		}
+
 		RsslReactorJsonConverterOptions jsonConverterOptions;
 		rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 		jsonConverterOptions.pDictionary = const_cast<RsslDataDictionary*>(rsslDataDictionary);
 		jsonConverterOptions.pServiceNameToIdCallback = OmmServerBaseImpl::serviceNameToIdCallback;
 		jsonConverterOptions.pJsonConversionEventCallback = OmmServerBaseImpl::jsonConversionEventCallback;
+		jsonConverterOptions.defaultServiceId = _activeServerConfig.defaultServiceIDForConverter;
+		jsonConverterOptions.jsonExpandedEnumFields = (RsslBool)_activeServerConfig.jsonExpandedEnumFields;
+		jsonConverterOptions.catchUnknownJsonKeys = (RsslBool)_activeServerConfig.catchUnknownJsonKeys;
+		jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeServerConfig.catchUnknownJsonFids;
+		jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeServerConfig.closeChannelFromFailure;
+		jsonConverterOptions.outputBufferSize = _activeServerConfig.outputBufferSize;
 
 		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
@@ -877,7 +927,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			bindOptions.encryptionOpts.serverPrivateKey = const_cast<char *>(socketServerConfig->serverPrivateKey.c_str());
 			bindOptions.encryptionOpts.dhParams = const_cast<char *>(socketServerConfig->dhParams.c_str());
 			bindOptions.encryptionOpts.cipherSuite = const_cast<char *>(socketServerConfig->cipherSuite.c_str());
-			bindOptions.maxFragmentSize = socketServerConfig->maxFragmentSize;
+			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
 
 		}
 		case RSSL_CONN_TYPE_SOCKET:
@@ -886,7 +936,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			SocketServerConfig *socketServerConfig = static_cast<SocketServerConfig *>(_activeServerConfig.pServerConfig);
 			bindOptions.tcpOpts.tcp_nodelay = socketServerConfig->tcpNodelay;
 			bindOptions.serviceName = const_cast<char *>(socketServerConfig->serviceName.c_str());
-			bindOptions.maxFragmentSize = socketServerConfig->maxFragmentSize;
+			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
 
 			if (RSSL_CONN_TYPE_WEBSOCKET == _activeServerConfig.pServerConfig->connectionType)
 			{
@@ -1558,6 +1608,24 @@ void OmmServerBaseImpl::handleMee(const char* text)
 		throwMeeException(text);
 }
 
+void OmmServerBaseImpl::handleJce(const char* text, Int32 errorCode, RsslReactorChannel* reactorChannel, ClientSession* clientSession, OmmProvider* provider)
+{
+	if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
+	{
+		if (_pLoggerClient)
+		{
+			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, text);
+		}
+	}
+
+	if (hasErrorClientHandler())
+	{
+		getErrorClientHandler().onJsonConverter(text, errorCode, reactorChannel, clientSession, provider);
+	}
+	else
+		throwJConverterException(text, errorCode, reactorChannel, clientSession, provider);
+}
+
 ItemCallbackClient& OmmServerBaseImpl::getItemCallbackClient()
 {
 	return *_pItemCallbackClient;
@@ -1990,14 +2058,10 @@ RsslReactorCallbackRet OmmServerBaseImpl::jsonConversionEventCallback(RsslReacto
 		OmmServerBaseImpl* ommServerBaseImpl = (OmmServerBaseImpl*)pReactor->userSpecPtr;
 		ommServerBaseImpl->getUserMutex().unlock();
 
-		EmaString temp("OmmBaseImpl RWF/JSON Converter error.");
-		temp.append("' Error Id='").append(pEvent->pError->rsslError.rsslErrorId)
-			.append("' Internal sysError='").append(pEvent->pError->rsslError.sysError)
-			.append("' Error Location='").append(pEvent->pError->errorLocation)
-			.append("' Error Text='").append(pEvent->pError->rsslError.text).append("'. ");
-		if (OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->_activeServerConfig.loggerConfig.minLoggerSeverity)
-			ommServerBaseImpl->_pLoggerClient->log(ommServerBaseImpl->_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-		throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
+		ClientSession* clientSession = (ClientSession*)pReactorChannel->userSpecPtr;
+		OmmIProviderImpl* pProviderImpl = static_cast<OmmIProviderImpl*>(ommServerBaseImpl);
+
+		ommServerBaseImpl->handleJce(EmaString(pEvent->pError->rsslError.text), pEvent->pError->rsslError.rsslErrorId, pReactorChannel, clientSession, pProviderImpl->getProvider());
 	}
 
 	return RSSL_RC_CRET_SUCCESS;

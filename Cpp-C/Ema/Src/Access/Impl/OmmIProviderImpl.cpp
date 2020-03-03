@@ -1474,3 +1474,27 @@ void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 
 	_userLock.unlock();
 }
+
+void OmmIProviderImpl::closeChannel(UInt64 clientHandle)
+{
+	_userLock.lock();
+
+	ClientSessionPtr pClientSession = _pServerChannelHandler->getClientSession(clientHandle);
+
+	if (pClientSession)
+	{
+		_itemWatchList.processCloseLogin(pClientSession);
+		_pServerChannelHandler->closeChannel(pClientSession->getChannel());
+
+		_userLock.unlock();
+	}
+	else
+	{
+		_userLock.unlock();
+
+		EmaString text("Invalid passed in client handle: ");
+		text.append(clientHandle).append(" in the closeChannel() method.");
+
+		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
+	}
+}

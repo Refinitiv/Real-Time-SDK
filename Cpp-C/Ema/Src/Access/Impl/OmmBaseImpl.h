@@ -48,6 +48,7 @@ class OmmLoggerClient;
 class TimeOut;
 class TunnelStreamRequest;
 class EmaConfigImpl;
+class OmmProvider;
 
 class OmmBaseImpl : public OmmCommonImpl, public Thread, public TimeOutClient
 {
@@ -159,6 +160,8 @@ public :
 	void handleIhe( UInt64 , const char* );
 
 	void handleMee( const char* );
+
+	void handleJce(const char* text, Int32 errorCode, RsslReactorChannel* reactorChannel, OmmProvider* provider);
 
 	Mutex& getUserMutex();
 

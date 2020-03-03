@@ -195,3 +195,8 @@ void OmmProvider::modifyIOCtl( Int32 code, Int32 value, UInt64 handle )
 {
 	_pImpl->modifyIOCtl(code, value, handle);
 }
+
+void OmmProvider::closeChannel( UInt64 clientHandle )
+{
+	_pImpl->closeChannel(clientHandle);
+}

@@ -90,6 +90,9 @@ public:
 
 	Dictionary* getDictionaryByServiceId(UInt64 serviceId);
 
+	/* This is used only when the application uses the user control for the source directory */
+	Dictionary* getDefaultDictionary();
+
 private:
 
 	static const EmaString			_clientName;
@@ -139,6 +142,8 @@ private:
 	bool                        _apiAdminControl;
 
 	EmaVector< ItemInfo* >		_itemInfoList;
+
+	LocalDictionary*			_pDefaultLocalDictionary; // This is default LocalDictionary for Provider
 	
 	DictionaryHandler(OmmServerBaseImpl*);
 	virtual ~DictionaryHandler();

@@ -34,6 +34,7 @@
 			<Logger value="Logger_2"/>
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
 		</Consumer>
 		
 	</ConsumerList>

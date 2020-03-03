@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,6 +10,10 @@
 #define __thomsonreuters_ema_access_ExceptionTranlsator_h
 
 #include "Common.h"
+#include "Access/Include/OmmProvider.h"
+#include "ClientSession.h"
+
+#include "rtr/rsslReactorChannel.h"
 
 namespace thomsonreuters {
 	namespace ema {
@@ -40,5 +44,8 @@ void throwMeeException( const char* );
 void throwLfiException( const thomsonreuters::ema::access::EmaString&, const thomsonreuters::ema::access::EmaString& );
 
 void throwDtuException( thomsonreuters::ema::access::UInt16 , const thomsonreuters::ema::access::EmaString& );
+
+void throwJConverterException(const char* text, thomsonreuters::ema::access::Int32 errorCode,
+	RsslReactorChannel* reactorChannel, thomsonreuters::ema::access::ClientSession* clientSession, thomsonreuters::ema::access::OmmProvider* provider);
 
 #endif // __thomsonreuters_ema_access_ExceptionTranlsator_h

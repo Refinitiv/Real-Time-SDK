@@ -11,6 +11,8 @@
 
 #include "OmmConsumerErrorClient.h"
 #include "OmmProviderErrorClient.h"
+#include "OmmProvider.h"
+#include "ClientSession.h"
 
 namespace thomsonreuters {
 
@@ -41,6 +43,8 @@ public:
 	void onMemoryExhaustion( const EmaString& );
 
 	void onSystemError( Int64 , void* , const EmaString& );
+
+	void onJsonConverter( const char*, Int32, RsslReactorChannel*, ClientSession*, OmmProvider* );
 
 private:
 

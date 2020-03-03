@@ -23,7 +23,8 @@ ClientSession::ClientSession(OmmServerBaseImpl* ommServerBaseImpl) :
 	_toString(),
 	_pOmmServerBaseImpl(ommServerBaseImpl),
 	_removingInCloseAll(false),
-	_isADHSession(false)
+	_isADHSession(false),
+	_loginHandle(0)
 {
 	_streamIdToItemInfoHash.rehash(_pOmmServerBaseImpl->getActiveConfig().itemCountHint);
 
@@ -83,6 +84,16 @@ void ClientSession::destroy(ClientSession*& pClientSession)
 UInt64 ClientSession::getClientHandle() const
 {
 	return (UInt64)_pChannel;
+}
+
+UInt64 ClientSession::getLoginHandle() const
+{
+	return _loginHandle;
+}
+
+void ClientSession::setLoginHandle(UInt64 handle)
+{
+	_loginHandle = handle;
 }
 
 void ClientSession::setChannel(RsslReactorChannel* channel)
@@ -167,6 +178,7 @@ void ClientSession::closeAllItemInfo()
 			_pOmmServerBaseImpl->getDirectoryHandler().removeItemInfo(itemInfo);
 			break;
 		case ema::rdm::MMT_LOGIN:
+			setLoginHandle(0);
 			_pOmmServerBaseImpl->getLoginHandler().removeItemInfo(itemInfo);
 			break;
 		}
