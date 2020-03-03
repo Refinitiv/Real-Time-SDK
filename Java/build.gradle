@@ -47,7 +47,7 @@ ext.SpecificationVersionShort = '3.5.0'
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
 ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.:1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
 ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.4.0.L1'
