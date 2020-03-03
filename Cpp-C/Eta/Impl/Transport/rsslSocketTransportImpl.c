@@ -401,7 +401,7 @@ RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 
 	encryptedSSLTransFuncs[type].shutdownServer = (funcs->shutdownServer ? funcs->shutdownServer : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
 
-	encryptedSSLTransFuncs[type].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
+	encryptedSSLTransFuncs[type].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownSrvrError);
 
 	encryptedSSLTransFuncs[type].uninitialize = (funcs->uninitialize ? funcs->uninitialize : transFuncs[RSSL_CONN_TYPE_SOCKET].uninitialize);
 
