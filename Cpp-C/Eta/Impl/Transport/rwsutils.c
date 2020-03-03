@@ -655,6 +655,7 @@ rwsSubProtocol_t rwsValidateSubProtocolResponse(rwsSession_t * wsSess, RsslBuffe
 		wsSess->protocolName = (char*)_rsslMalloc((pos-start) + 1);
 		if (wsSess->protocolName == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 									"<%s:%d> Failed to allocate memory for protocolName.", 
 									__FUNCTION__,__LINE__);
@@ -674,9 +675,12 @@ rwsSubProtocol_t rwsValidateSubProtocolResponse(rwsSession_t * wsSess, RsslBuffe
 			 * Also, if the protocol received is invalid, do not free the protocolName since
 			 * it should get freed when the channel is closed from this error */
 			if ((subProtocol = _isValidProtocolName(wsSess->protocolName, deprecate)) == RWS_SP_NONE)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Unknown protocol received: '%s'", 
 							__FUNCTION__,__LINE__, wsSess->protocolName);
+			}
 		}
 	}
 	return subProtocol;
@@ -703,6 +707,7 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 		pStr = (char*)strdup(srvrList);
 	else
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 			"<%s:%d>: Server sub-protocol list not defined.\n", __FUNCTION__, __LINE__);
 		return 0;
@@ -747,9 +752,12 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 	{
 		wsSess->protocolName = (char*)_rsslMalloc(spNameLen + 1);
 		if (wsSess->protocolName == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 									"<%s:%d> Failed to allocate memory for protocolName.", 
 									__FUNCTION__,__LINE__);
+		}
 		else
 		{
 			memcpy(wsSess->protocolName, spName, spNameLen); 
@@ -777,11 +785,19 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslError *
 		pStr = (char*)strdup(protocols);
 	else
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>: Protocol not defined.\n", __FUNCTION__, __LINE__);
 		return 0;
 	}
 
 	pProtList = (char*)_rsslMalloc((sizeof(char)*pLen) + 1);
+	if (pProtList == 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Failed to allocate memory for protocolList.",
+			__FUNCTION__, __LINE__);
+	}
 
 	for (pProtName = strtok_r(pStr, delim, &savEnd); 
 		 pProtName != NULL;pProtName = strtok_r(NULL, delim, &savEnd))
@@ -792,6 +808,7 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslError *
 			pStr = 0;
 			_rsslFree(pProtList);
 			pProtList = 0;
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d>: Invalid protocol found in protocol list. protocol (%d)\n",
 					__FUNCTION__, __LINE__, prot);
@@ -1075,7 +1092,7 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
         {
 			if( wsSess->headerLineNum == 0 )
 			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Zero length HTTP header", __FILE__, __LINE__);
 				return(-400); /* Bad Request */
 			}
@@ -1158,6 +1175,7 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 				_DEBUG_TRACE_PARSE_HTTP("Bad HTTP status/request line %s ", pHD)
 				_DBG_HTTP_TOKEN(data, pos, endOfLine)
 
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 						"<%s:%d> Bad HTTP status/request line", __FUNCTION__, __LINE__);
 				return(-400); /* Bad Request */
@@ -1196,6 +1214,7 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 			}
 			else
 			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 						"<%s:%d> Improper formatted Field. Missing ':' ", __FUNCTION__, __LINE__);
 				return(-400); /* Bad Request */
@@ -1230,7 +1249,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 		rsslSocketChannel->rwsSession = (void *)rwsNewSession();
 		if (rsslSocketChannel->rwsSession == 0)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Failed to allocate memory for rwsSession struct.", __FUNCTION__,__LINE__);
 			return(-1);
@@ -1342,7 +1361,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 					wsSess->keyRecv.data = (char*)_rsslMalloc((pos-start) + 1);
 					if (wsSess->keyRecv.data == 0)
 					{
-						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for Sec-Websocket-Key value.", 
 								__FUNCTION__,__LINE__);
@@ -1470,7 +1489,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->host = (char*)_rsslMalloc((endOfLine - start) + 1)))
 				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for Host token value.", 
 								__FUNCTION__,__LINE__);
@@ -1481,7 +1500,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->hostname = (char*)_rsslMalloc((pos - start) + 1)))
 				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Failed to allocate memory for hostname token value.", 
 								__FUNCTION__,__LINE__);
@@ -1499,7 +1518,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 					if (!(wsSess->port = (char*)_rsslMalloc((pos - start) + 1)))
 					{
-						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Failed to allocate memory for port token value.", 
 									__FUNCTION__,__LINE__);
@@ -1524,7 +1543,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 				if (!(wsSess->origin = (char*)_rsslMalloc((endOfLine - start) + 1)))
 				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 						"<%s:%d> Failed to allocate memory for Origin value.",
 						__FUNCTION__, __LINE__);
@@ -1594,7 +1613,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 							{
 								if (!(*cookieValuePtr = (char*)_rsslMalloc(pos - start)))
 								{
-									_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+									_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 									snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 											"<%s:%d> Failed to allocate memory for authentication token.", 
 											__FUNCTION__,__LINE__);
@@ -1626,7 +1645,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				/* Call function to handle this hdr field */
 				if (!(wsSess->userAgent = (char*)_rsslMalloc((pos - start) + 1)))
 				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to allocate memory for User-Agent string.", 
 							__FUNCTION__,__LINE__);
@@ -1767,7 +1786,7 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 					wsSess->keyRecv.data = (char*)_rsslMalloc((pos-start) + 1);
 					if (wsSess->keyRecv.data == 0)
 					{
-						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to allocate memory for Sec-Websocket-Key value.", 
 							__FUNCTION__,__LINE__);
@@ -1916,6 +1935,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 		rsslSocketChannel->rwsSession = (void *)rwsNewSession();
 		if (rsslSocketChannel->rwsSession == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Failed to allocate memory for rwsSession struct.", __FUNCTION__,__LINE__);
 			return(-1);
@@ -1960,6 +1980,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 	wsSess->keyNonce.data = _rwsGenerateKey();
 	if (wsSess->keyNonce.data == 0)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory for client key token, Sec-Websocket-Key token value.", __FUNCTION__,__LINE__);
 		return(-1);
 	}
@@ -1970,6 +1991,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 	wsSess->keyAccept.data = (char *)_getWebSocketAcceptKey(wsSess->keyNonce.data, wsSess->keyNonce.length);
 	if (wsSess->keyAccept.data == 0)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory expected client token in Sec-Websocket-Accept field.", __FUNCTION__,__LINE__);
 		return(-1);
 	}
@@ -2125,6 +2147,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 	 * client connecting state */
 	if (wsSess->protocol == RWS_SP_NONE)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Unsupported Websocket protocol type received(%d) ", 
 				__FUNCTION__,__LINE__, wsSess->protocol);
@@ -2132,6 +2155,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 	}
 	if (wsSess->keyRecv.length == 0)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> No Sec-Websocket-Accept: key received, key expected '%s'. ", 
 			__FUNCTION__,__LINE__, wsSess->keyAccept.data);
@@ -2153,6 +2177,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 
 		if (rsslWebSocketSetChannelFunctions() == RSSL_RET_FAILURE)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Failed to rsslWebSocketSetChannelFunctions() for connection.", 
 				__FUNCTION__,__LINE__);
@@ -2179,7 +2204,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 				wsSess->comp.inDecompFuncs = 0;
 				wsSess->comp.outCompFuncs = 0;
 
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1007 Server has specified an unknown compression type (%d)\n",
 					__FILE__, __LINE__, RSSL_COMP_ZLIB);
@@ -2349,6 +2374,7 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 	wsSess->keyAccept.data = _getWebSocketAcceptKey(wsSess->keyRecv.data, wsSess->keyRecv.length);
 	if (wsSess->keyAccept.data == 0)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory for response field, Sec-Websocket-Accept value.", __FUNCTION__,__LINE__);
 		return(-1);
 	}
@@ -2375,6 +2401,7 @@ ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *rsslSocketChannel, RsslError 
 
 	if ((rwsSendResponseHandshake(rsslSocketChannel, wsSess, error)) < 0)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 							"<%s:%d> Error: 1002 rwsClientSendHandshake() Client WS handshake. System errno: (%d)\n",
 							__FILE__, __LINE__, errno);
@@ -2446,6 +2473,7 @@ ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *rsslSocketChannel, RsslError 
 
 	if (rsslWebSocketSetChannelFunctions() == RSSL_RET_FAILURE)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Failed to rsslWebSocketSetChannelFunctions() for new client connection.", 
 			__FUNCTION__,__LINE__);
@@ -2482,6 +2510,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 
 		if (rsslSocketChannel->inputBufCursor >= rsslSocketChannel->inputBuffer->maxLength)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> HTTP request is too large.", 
 														__FILE__,__LINE__);
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_REQUEST_TOO_LARGE, error));
@@ -2518,7 +2547,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 		wsSess->version = wsSess->server->version;
 		if (wsSess->versionRecv < wsSess->version)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text,MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Invalid WebSocket Version (%d), version supported (%d)",
 				__FILE__,__LINE__, wsSess->versionRecv, wsSess->version);
@@ -2529,7 +2558,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 		/* Check for unknown protocol. */
 		if (wsSess->protocol == RWS_SP_NONE)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Unsupported Websocket protocol type(%d) ", __FILE__,__LINE__, 
 					wsSess->protocol);
@@ -2755,7 +2784,7 @@ RsslRet rwsProcessWsOpCodes(RsslSocketChannel	*rsslSocketChannel, RsslError *err
 			/* Any WS frames sent client to the server, should be masked per RFC6455 */
 			if (!frame->maskSet && !rsslSocketChannel->clientSession)
 			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 					"<%s():%d> Unmasked client frame", __FUNCTION__, __LINE__);
 				return(RSSL_RET_FAILURE);
@@ -2804,6 +2833,7 @@ RsslRet rwsProcessWsOpCodes(RsslSocketChannel	*rsslSocketChannel, RsslError *err
 						IPC_MUTEX_UNLOCK(rsslSocketChannel);
 					}
 
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				return(RSSL_RET_FAILURE);
 			}
 			else if (frame->opcode == RWS_OPC_PING)
@@ -2813,6 +2843,7 @@ RsslRet rwsProcessWsOpCodes(RsslSocketChannel	*rsslSocketChannel, RsslError *err
 				_DEBUG_TRACE_WS_READ("Rcvd WS_PONG fd "SOCKET_PRINT_TYPE"\n", rsslSocketChannel->stream)
 					if (rwsSendWsPong(rsslSocketChannel, NULL, error) < 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s():%d> Failed sending WS Pong Frame ", __FUNCTION__, __LINE__);
 						return(RSSL_RET_FAILURE);
@@ -2867,6 +2898,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Decompress failed for WS frame ", __FUNCTION__, __LINE__);
 						*readret = RSSL_RET_FAILURE;
@@ -2882,6 +2914,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						{
 							if ((wsSess->reassemblyBuffer = doubleSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length, wsSess->maxPayload, error)) == 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Resizing the reassembly buffer failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -2894,6 +2927,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 								0, /* In the middle of a message; don't reset even if there's no context-takeover */
 								error)) < 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Decompress failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -2908,6 +2942,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						if (retVal > 0 && compBuf.avail_in > 0 && compBuf.avail_out == 0 && wsSess->reassemblyBuffer->maxLength == wsSess->maxPayload)
 						{
 							// More to read but we are already at max size, disconnect
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 							snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Unsupported overall length for fragmented message",
 								__FUNCTION__, __LINE__);
@@ -2924,6 +2959,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 				{
 					if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length + frame->payloadLen, wsSess->maxPayload, error)) == 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to resize reassemblyBuffer while processing WS_CONT frame",
 							__FUNCTION__, __LINE__);
@@ -2956,6 +2992,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Decompress failed for WS frame ", __FUNCTION__, __LINE__);
 						*readret = RSSL_RET_FAILURE;
@@ -2971,6 +3008,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						{
 							if ((wsSess->reassemblyBuffer = doubleSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length, wsSess->maxPayload, error)) == 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Resizing the reassembly buffer failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -2983,6 +3021,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 								0, /* In the middle of a message; don't reset even if there's no context-takeover */
 								error)) < 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Decompress failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -2997,6 +3036,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						if (retVal > 0 && compBuf.avail_in > 0 && compBuf.avail_out == 0 && wsSess->reassemblyBuffer->maxLength == wsSess->maxPayload)
 						{
 							// More to read but we are already at max size, disconnect
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 							snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Unsupported overall length for fragmented message",
 								__FUNCTION__, __LINE__);
@@ -3017,6 +3057,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 				{
 					if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, frame->payloadLen, wsSess->maxPayload, error)) == 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf((error->text),
 							MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to resize reassemblyBuffer while processing the first fragmentation",
@@ -3050,6 +3091,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Decompress failed for WS frame ", __FUNCTION__, __LINE__);
 						*readret = RSSL_RET_FAILURE;
@@ -3065,6 +3107,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						{
 							if ((wsSess->reassemblyBuffer = doubleSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length, wsSess->maxPayload, error)) == 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Resizing the reassembly buffer failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -3077,6 +3120,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 								0, /* In the middle of a message; don't reset even if there's no context-takeover */
 								error)) < 0)
 							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 								snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Decompress failed for WS frame in reassembly ",
 									__FUNCTION__, __LINE__);
@@ -3091,6 +3135,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						if (retVal > 0 && compBuf.avail_in > 0 && compBuf.avail_out == 0 && wsSess->reassemblyBuffer->maxLength == wsSess->maxPayload)
 						{
 							// More to read but we are already at max size, disconnect
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 							snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 								"<%s:%d> Unsupported overall length for fragmented message",
 								__FUNCTION__, __LINE__);
@@ -3108,6 +3153,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 				{
 					if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length + frame->payloadLen, wsSess->maxPayload, error)) == 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Failed to resize for reassemblyBuffer while processing the last WS_CONT frame",
 							__FUNCTION__, __LINE__);
@@ -3156,6 +3202,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 							"<%s:%d> Decompress failed for WS frame ", __FUNCTION__, __LINE__);
 						*readret = RSSL_RET_FAILURE;
@@ -3171,6 +3218,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 							{
 								if ((wsSess->reassemblyBuffer = doubleSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length, wsSess->maxPayload, error)) == 0)
 								{
+									_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 									snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 										"<%s:%d> Resizing the reassembly buffer failed for WS frame in reassembly ",
 										__FUNCTION__, __LINE__);
@@ -3183,6 +3231,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 									0, /* In the middle of a message; don't reset even if there's no context-takeover */
 									error)) < 0)
 								{
+									_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 									snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 										"<%s:%d> Decompress failed for WS frame in reassembly ",
 										__FUNCTION__, __LINE__);
@@ -3197,6 +3246,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 							if (retVal > 0 && compBuf.avail_in > 0 && compBuf.avail_out == 0 && wsSess->reassemblyBuffer->maxLength == wsSess->maxPayload)
 							{
 								// More to read but we are already at max size, disconnect
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 								snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 									"<%s:%d> Unsupported overall length for fragmented message",
 									__FUNCTION__, __LINE__);
@@ -3310,6 +3360,7 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 
 		if ( (readSize = checkInputBufferSpace(rsslSocketChannel, 2)) == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> rwsReadWebSocket() internal error, Unable to read WS header",
 				__FILE__, __LINE__);
@@ -3446,7 +3497,7 @@ _DEBUG_TRACE_WS_READ("Update inBL %d ->compressed %d reassemComp %d\n",
 
 		if ( wsFrameLen > rsslSocketChannel->inputBuffer->maxLength)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 1007 Invalid Message Size. Message size is: (%llu). Max Message size is(%zu)\n",
 				__FILE__, __LINE__, wsFrameLen, rsslSocketChannel->inputBuffer->maxLength);
@@ -3460,6 +3511,7 @@ _DEBUG_TRACE_WS_READ("Update inBL %d ->compressed %d reassemComp %d\n",
 		if (frame->compressed && !wsSess->deflate)
 		{
 			// Packet was compressed but session does not indicate it should be
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Compression settings mismatch, internal error", __FUNCTION__, __LINE__);
 			*readret = RSSL_RET_FAILURE;
@@ -3740,13 +3792,15 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 				{
 					_DEBUG_TRACE_WS_READ("Read Failed: cc = %d\n", cc)
 
-						snprintf((error->text), MAX_RSSL_ERROR_TEXT, "<%s:%d> Error:1002 ipcRead() failure. System errno: (%d)",
-							__FUNCTION__, __LINE__, errno);
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf((error->text), MAX_RSSL_ERROR_TEXT, "<%s:%d> Error:1002 ipcRead() failure. System errno: (%d)",
+						__FUNCTION__, __LINE__, errno);
 					return(RSSL_RET_FAILURE);
 				}
 
 				if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Session Shutdown (%d)", __FILE__, __LINE__, errno);
 
 					return(RSSL_RET_FAILURE);
@@ -3810,7 +3864,7 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 			/* Any WS frames sent client to the server, should be masked per RFC6455 */
 			if (!frame->maskSet && !rsslSocketChannel->clientSession)
 			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 										"<%s():%d> Unmasked client frame", __FUNCTION__,__LINE__);
 				return(RSSL_RET_FAILURE);
@@ -3860,6 +3914,7 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 					IPC_MUTEX_UNLOCK(rsslSocketChannel);	
 				}
 
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				return(RSSL_RET_FAILURE);
 			}
 			else if (frame->opcode == RWS_OPC_PING)
@@ -3869,6 +3924,7 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 				_DEBUG_TRACE_WS_READ("Rcvd WS_PONG fd "SOCKET_PRINT_TYPE"\n", rsslSocketChannel->stream)
 				if (rwsSendWsPong(rsslSocketChannel, NULL, error) < 0)
 				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 											"<%s():%d> Failed sending WS Pong Frame ", __FUNCTION__,__LINE__);
 					return(RSSL_RET_FAILURE);
@@ -3944,6 +4000,7 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 						"<%s:%d> Unexpected WebSocket OpCode: (%d)", __FILE__,__LINE__,frame->opcode);
 
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			return(RSSL_RET_FAILURE);
 			break;
 		}
@@ -4037,6 +4094,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 
 	if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s():%d> failed due to session shutdown.", __FUNCTION__,__LINE__);
 
@@ -4046,7 +4104,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 
 	if (rsslBufImpl->bufferInfo == 0)
 	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 1007 failed due the buffer has been released.\n",
 				__FILE__, __LINE__);
@@ -4093,6 +4151,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 
 			if ( compressedmb1 == 0 )
 			{
+				/* Getting a buffer failed, override text and return error */
 				snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 									"<%s:%d> Failed to get temp buffer for outbound WS frame buffer",
 									__FUNCTION__,__LINE__);
@@ -4118,6 +4177,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 				rtr_dfltcFreeMsg(compressedmb1);
 
 				IPC_MUTEX_UNLOCK(rsslSocketChannel);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 								"<%s:%d> Compression failed for outbound WS frame packet ", 
 								__FUNCTION__,__LINE__);
@@ -4138,6 +4198,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 
 				if ( compressedmb2 == 0 )
 				{
+					/* Getting a buffer failed, override text and return error */
 					snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 								"<%s:%d> Failed to get additional temp buffer for compressed outbound WS frame",
 								__FUNCTION__,__LINE__);
@@ -4167,6 +4228,7 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 
 					IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
 								"<%s:%d> Compression failed for outbound WS frame", __FUNCTION__,__LINE__);
 					return RSSL_RET_FAILURE;
@@ -4595,6 +4657,7 @@ RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *ping
 
 		if (compressedmb1 == 0)
 		{
+			/* Getting a buffer failed, override text and return error */
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Failed to get temp buffer for outbound WS frame buffer",
 				__FUNCTION__, __LINE__);
@@ -4620,6 +4683,7 @@ RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *ping
 			rtr_dfltcFreeMsg(compressedmb1);
 
 			IPC_MUTEX_UNLOCK(rsslSocketChannel);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Compression failed for outbound WS frame packet ",
 				__FUNCTION__, __LINE__);
@@ -5198,6 +5262,7 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 		rsslSocketChannel->rwsSession = (void *)rwsNewSession();
 		if (rsslSocketChannel->rwsSession == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Failed to allocate memory for rwsSession struct.", __FUNCTION__,__LINE__);
 			return RSSL_RET_FAILURE;
@@ -5224,6 +5289,7 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 		_DEBUG_TRACE_INIT(" wsOpts->protocols : '%s'\nwsSess->protocolList : '%s'\n", wsOpts->protocols, wsSess->protocolList)
 		if (wsSess->protocolList == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d>: Failed sub-protocols list init\n", __FUNCTION__, __LINE__);
 			return RSSL_RET_FAILURE;
@@ -5242,6 +5308,7 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 		rsslServerSocketChannel->rwsServer = (void *)rwsNewServer();
 		if (rsslServerSocketChannel->rwsServer == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Failed to allocate memory for rwsServer struct.", __FUNCTION__,__LINE__);
 			return RSSL_RET_FAILURE;
@@ -5263,6 +5330,7 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 													depracateOldProtocols, error);
 		if (wsServer->protocolList == 0)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 					"<%s:%d>: Failed sub-protocols list init\n", __FUNCTION__, __LINE__);
 			return RSSL_RET_FAILURE;
@@ -5273,6 +5341,7 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 	{
 		if (rsslServerSocketChannel->compressionSupported != RSSL_COMP_ZLIB)
 		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
 					"<%s:%d>: Error Invalid compression type configured for WebSocket connections\n", 
 					__FUNCTION__, __LINE__);
