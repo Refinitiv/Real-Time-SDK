@@ -854,6 +854,11 @@ RsslRet rsslSetDebugFunctions(
 		{
 			retVal = RSSL_RET_FAILURE;
 		}
+
+		if (rsslSetWebSocketDebugFunctions(dumpIpcIn, dumpIpcOut, dumpRsslIn, dumpRsslOut, error) < RSSL_RET_SUCCESS)
+		{
+			retVal = RSSL_RET_FAILURE;
+		}
 			
 		if(rsslSetUniShMemDebugFunctions(dumpRsslIn, dumpRsslOut, error) < RSSL_RET_SUCCESS)
 		{

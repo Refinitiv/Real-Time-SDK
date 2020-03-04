@@ -76,6 +76,9 @@ static void(*rsslSocketDumpOutFunc)(const char *functionName, char *buffer, Rssl
 void(*ripcDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
 void(*ripcDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
 
+extern void(*webSocketDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
+extern void(*webSocketDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
+
 static ripcSessInit ipcReadHdr(RsslSocketChannel*, ripcSessInProg*, RsslError*);
 static ripcSessInit ipcInitTransport(RsslSocketChannel*, ripcSessInProg*, RsslError*);
 static ripcSessInit ipcInitClientTransport(RsslSocketChannel*, ripcSessInProg*, RsslError*);
@@ -11165,6 +11168,43 @@ RsslInt32 ripcSetDbgFuncs(
 	if (multiThread)
 	{
 	  (void) RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
+	return(0);
+}
+
+RsslInt32 rwsDbgFuncs(
+	void(*dumpIn)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque),
+	void(*dumpOut)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque))
+{
+	if (multiThread)
+	{
+		if (!gblmutexinit)
+		{
+			(void)RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			RTR_ATOMIC_SET(gblmutexinit, 1);
+		}
+
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	if ((dumpIn && webSocketDumpInFunc) || (dumpOut && webSocketDumpOutFunc))
+	{
+		if (multiThread)
+		{
+			(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+			_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+		}
+		return(-1);
+	}
+	webSocketDumpInFunc = dumpIn;
+	webSocketDumpOutFunc = dumpOut;
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
 		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
 	}
 

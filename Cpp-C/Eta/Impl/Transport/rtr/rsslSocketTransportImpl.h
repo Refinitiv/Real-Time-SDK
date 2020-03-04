@@ -804,6 +804,13 @@ RsslRet rsslSetSocketDebugFunctions(
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	RsslError *error);
 
+RsslRet rsslSetWebSocketDebugFunctions(
+	void(*dumpIpcIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
+	void(*dumpIpcOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
+	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
+	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
+	RsslError *error);
+
 RSSL_THREAD_DECLARE(testBlocking, threadStruct);
 
 #ifdef __cplusplus

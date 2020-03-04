@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2019. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2020. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -349,6 +349,9 @@ static rwsSubProtocolList_t rwsSubProtocols[] = {
 
 extern RsslInt32 iseof(char *, RsslInt32 , RsslInt32 );
 extern RsslRet rsslWebSocketSetChannelFunctions(void);
+
+extern void(*webSocketDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
+extern void(*webSocketDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
 
 static void _freeHttpHeader(rwsHttpHdr_t *httpHdr)
 {
@@ -1243,7 +1246,6 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 	_DEBUG_TRACE_WS_CONN("fd "SOCKET_PRINT_TYPE" \n", rsslSocketChannel->stream)
 
-
 	if (rsslSocketChannel->rwsSession == 0)
 	{
 		rsslSocketChannel->rwsSession = (void *)rwsNewSession();
@@ -2108,14 +2110,13 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		return (RIPC_CONN_IN_PROGRESS);
 	}
 
-	httpHeaderLen = rwsReadResponseHandshake(buffer, cc, 0, wsSess, error);
-
-	/* TODO
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpInFunc))(__FUNCTION__, buf, cc, rsslSocketChannel->stream);
+		(*(webSocketDumpInFunc))(__FUNCTION__, buffer, cc, rsslSocketChannel->stream);
 	}
-	*/
+
+	httpHeaderLen = rwsReadResponseHandshake(buffer, cc, 0, wsSess, error);
+	
 	_DEBUG_TRACE_WS_CONN("WS Session active httpHeaderLen %d sub-protocol %d\n", 
 								httpHeaderLen, wsSess->protocol)
 
@@ -2493,6 +2494,11 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 				
 	if (rsslSocketChannel->server->rwsServer == 0)
 		return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_CONN_ERROR, error));
+
+	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
+	{
+		(*(webSocketDumpInFunc))(__FUNCTION__, hdrStart, cc, rsslSocketChannel->stream);
+	}
 
 	httpHeaderLen = rwsReadOpeningHandshake(hdrStart, cc, 0, rsslSocketChannel, error);
 
@@ -3829,6 +3835,11 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 			totalCC += cc;
 			wsSess->actualInBuffLen += cc;
 		}
+
+		if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN)
+		{
+			(*(webSocketDumpInFunc))(__FUNCTION__, buffer, (RsslUInt32)wsSess->actualInBuffLen, rsslSocketChannel->stream);
+		}
 	}
 
 	bytesRead = (RsslInt32)(wsSess->actualInBuffLen - wsSess->inputReadCursor);
@@ -4244,6 +4255,13 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 				_DEBUG_TRACE_WS_WRITE("uncompB %d hdrLen %d", uncompBytes, hdrlen)
 				*uncompBytesWritten = uncompBytes + hdrlen;
 
+				if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
+					(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
+				{
+					(*(webSocketDumpOutFunc))(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)compressedmb1->length, rsslSocketChannel->stream);
+					(*(webSocketDumpOutFunc))(__FUNCTION__, compressedmb2->buffer, (RsslUInt32)compressedmb2->length, rsslSocketChannel->stream);
+				}
+
 				retval = rwsWriteAndFlush(rsslSocketChannel, compressedmb1, &forceFlush, error);
 				retval = rwsWriteAndFlush(rsslSocketChannel, compressedmb2, &forceFlush, error);
 			}
@@ -4255,6 +4273,12 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 				hdrlen = rwsWriteWsHdr(compressedmb1, 0, wsSess, 1, opCode);
 				_DEBUG_TRACE_WS_WRITE("b_in_used %d hdrLen %d", compBuf.bytes_in_used, hdrlen)
 				*uncompBytesWritten = compBuf.bytes_in_used + hdrlen;
+
+				if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
+					(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
+				{
+					(*(webSocketDumpOutFunc))(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)compressedmb1->length, rsslSocketChannel->stream);
+				}
 
 				retval = rwsWriteAndFlush(rsslSocketChannel, compressedmb1, &forceFlush, error);
 			}
@@ -4268,6 +4292,12 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 		{
 			rwsWriteWsHdr(msgb, 0, wsSess, 0, opCode);
 			*uncompBytesWritten = (RsslInt32)msgb->length;
+
+			if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+			{
+				(*(webSocketDumpOutFunc))(__FUNCTION__, msgb->buffer, (RsslUInt32)msgb->length, rsslSocketChannel->stream);
+			}
+
 			retval = rwsWriteAndFlush(rsslSocketChannel, msgb, &forceFlush, error);
 		}
 
@@ -4697,6 +4727,13 @@ RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *ping
 		compressedmb1->length -= 4;
 		// Add the header as this is included if not compressed
 		rwsWriteWsHdr(compressedmb1, 0, wsSess, 1, RWS_OPC_NONE);
+
+		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
+			(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
+		{
+			(*(webSocketDumpOutFunc))(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)compressedmb1->length, rsslSocketChannel->stream);
+		}
+
 		rwsWriteAndFlush(rsslSocketChannel, compressedmb1, &forceFlush, error);
 	}
 	else
@@ -4723,6 +4760,11 @@ RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *ping
 		msgb->length = pingData->length;
 
 		rwsWriteWsHdr(msgb, 0, wsSess, wsSess->deflate, RWS_OPC_NONE);
+
+		if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+		{
+			(*(webSocketDumpOutFunc))(__FUNCTION__, msgb->buffer, (RsslUInt32)msgb->length, rsslSocketChannel->stream);
+		}
 
 		rwsWriteAndFlush(rsslSocketChannel, msgb, &forceFlush, error);
 	}
@@ -4779,6 +4821,11 @@ RsslInt32 rwsSendWsPing(RsslSocketChannel* rsslSocketChannel, RsslBuffer *pingDa
 
 	rwsWriteWsHdr(msgb, 0, wsSess, 0, RWS_OPC_PING);
 
+	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+	{
+		(*(webSocketDumpOutFunc))(__FUNCTION__, msgb->buffer, (RsslUInt32)msgb->length, rsslSocketChannel->stream);
+	}
+
 	rwsWriteAndFlush(rsslSocketChannel, msgb, &forceFlush, error); 	
 
 	return rsslSocketChannel->priorityQueues[0].queueLength;
@@ -4830,6 +4877,11 @@ RsslInt32 rwsSendWsPong(RsslSocketChannel* rsslSocketChannel, RsslBuffer *pongDa
 	msgb->length = bufLen;
 
 	rwsWriteWsHdr(msgb, 0, wsSess, 0, RWS_OPC_PONG);
+
+	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+	{
+		(*(webSocketDumpOutFunc))(__FUNCTION__, msgb->buffer, (RsslUInt32)msgb->length, rsslSocketChannel->stream);
+	}
 
 	rwsWriteAndFlush(rsslSocketChannel, msgb, &forceFlush, error); 	
 
@@ -4891,6 +4943,11 @@ RsslInt32 rwsSendWsClose(RsslSocketChannel* rsslSocketChannel, rwsCFStatusCodes_
 	msgb->length = bufLen;
 
 	rwsWriteWsHdr(msgb, 0, wsSess, 0, RWS_OPC_CLOSE);
+
+	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+	{
+		(*(webSocketDumpOutFunc))(__FUNCTION__, msgb->buffer, (RsslUInt32)msgb->length, rsslSocketChannel->stream);
+	}
 
 	rwsWriteAndFlush(rsslSocketChannel, msgb, &forceFlush, error);
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2019. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2020. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -49,11 +49,14 @@
 #include "rtr/rwsutils.h"
 
 /* global debug function pointers */
-// TODO static void(*rsslSocketDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
-// TODO static void(*rsslSocketDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
+static void(*rsslWebSocketDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
+static void(*rsslWebSocketDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 
-// TODO void(*ripcDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
-// TODO void(*ripcDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+void(*webSocketDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+void(*webSocketDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+
+extern RsslInt32 rwsDbgFuncs( void(*dumpIn)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque),
+                       void(*dumpOut)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque));
 
 /************************************
  * START PUBLIC ABSTRACTED FUNCTIONS
@@ -160,8 +163,8 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslC
 			/* it is possible that the returnBuffer is null in this case -
 			   this is because of fragmentation, if we receive multiple fragments but do not have the
 			   entire message, we return moreData but no buffer */
-			// TODO if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length ))
-			// TODO (*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+			if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (!returnNull))
+				(*(rsslWebSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
 
 			if (!returnNull)
 				return &(rsslChnlImpl->returnBuffer);
@@ -177,8 +180,8 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslC
 			}
 			else
 			{
-				// TODO if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length))
-				// TODO (*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+				if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (!returnNull))
+					(*(rsslWebSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
 
 				if (!returnNull)
 				{
@@ -323,6 +326,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 		ripcBuffer->priority = rsslBufImpl->priority;
 
+		if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length))
+			(*(rsslWebSocketDumpOutFunc))(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length, rsslChnlImpl->Channel.socketId);
+
 		retVal = rwsWriteWebSocket(rsslSocketChannel, rsslBufImpl, writeFlags, 
 								(RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, 
 								(writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
@@ -400,6 +406,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 						ripcBuffer->length += 1;
 					}
 				}
+
+				if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length))
+					(*(rsslWebSocketDumpOutFunc))(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length, rsslChnlImpl->Channel.socketId);
 
 				retVal = rwsWriteWebSocket(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
 
@@ -767,6 +776,54 @@ void rsslReleaseWebSocketSession(void *session)
 		rwsReleaseSession(wsSess);
 		_rsslFree(session);
 	}
+}
+
+/* Sets Socket debug dump functions */
+RsslRet rsslSetWebSocketDebugFunctions(
+	void(*dumpIpcIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
+	void(*dumpIpcOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
+	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
+	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
+	RsslError *error)
+{
+	RsslRet retVal = RSSL_RET_SUCCESS;
+	RsslInt32	tempRetVal = 0;
+
+	if ((dumpRsslIn && rsslWebSocketDumpInFunc) || (dumpRsslOut && rsslWebSocketDumpOutFunc))
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetWebSocketDebugFunctions() Cannot set socket Rssl dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+	else
+	{
+		rsslWebSocketDumpInFunc = dumpRsslIn;
+		rsslWebSocketDumpOutFunc = dumpRsslOut;
+		retVal = RSSL_RET_SUCCESS;
+	}
+
+	tempRetVal = rwsDbgFuncs(dumpIpcIn, dumpIpcOut);
+
+	if ((tempRetVal < RSSL_RET_SUCCESS) && (retVal < RSSL_RET_SUCCESS))
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetWebSocketDebugFunctions() Cannot set socket Rssl and WebSocket dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+	else if (tempRetVal < RSSL_RET_SUCCESS)
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetWebSocketDebugFunctions() Cannot set socket IPC WebSocket functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+
+	return retVal;
 }
 
 
