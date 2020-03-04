@@ -114,7 +114,6 @@ class DataDictionaryImpl implements DataDictionary
 
 			if( !ownRsslDataDictionary )
 			{
-				fieldNameToIdMap();
 				loadedFieldDictionary = true;
 				loadedEnumTypeDef = true;
 
@@ -417,7 +416,6 @@ class DataDictionaryImpl implements DataDictionary
 				}
 				else
 				{
-					fieldNameToIdMap();
 					loadedFieldDictionary = true;
 				}
 			}
@@ -556,7 +554,6 @@ class DataDictionaryImpl implements DataDictionary
 					throw ommIUExcept().message(errText, ret);
 				}
 
-				fieldNameToIdMap();
 				loadedFieldDictionary = true;
 			}
 			else
@@ -984,11 +981,9 @@ class DataDictionaryImpl implements DataDictionary
 				fieldNametoIdMap = new HashMap<>(rsslDataDictionary.numberOfEntries());
 			}
 
-			if ( fieldNametoIdMap.size() == 0 || fieldNametoIdMap.size() != rsslDataDictionary.numberOfEntries() )
+			if ( fieldNametoIdMap.size() == 0 )
 			{
 				com.thomsonreuters.upa.codec.DictionaryEntry dictionaryEntry;
-
-				fieldNametoIdMap.clear();
 
 				for( int fieldId = rsslDataDictionary.minFid(); fieldId <= rsslDataDictionary.maxFid(); fieldId++ )
 				{
