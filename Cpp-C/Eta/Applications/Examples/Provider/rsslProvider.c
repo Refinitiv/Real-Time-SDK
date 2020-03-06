@@ -860,8 +860,6 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 
 			if (jsonRet == RSSL_RET_READ_PING || jsonRet == RSSL_RET_END_OF_CONTAINER)
 				return RSSL_RET_SUCCESS;
-
-			rsslDumpBuffer(chnl, RSSL_RWF_PROTOCOL_TYPE, &tempBuffer, &error);
 		}
 		else
 		{
