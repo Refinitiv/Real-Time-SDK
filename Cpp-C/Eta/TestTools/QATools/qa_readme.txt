@@ -83,6 +83,8 @@ vaconsumer-Ws-004: Alter VAConsumer to test handle error case when it sends requ
 
 vaconsumer-Ws-005: Alter VAConsumer to send Post Key Attribute as FieldList and Domain Contribution.
 
+consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
+
 Module:  Watchlist Consumer
 ---------------------------
 
@@ -195,7 +197,11 @@ vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream mess
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
 
-vaprovider-Ws-001: Alter VAProvider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel, -sendGenericMessage and -jsonExpandEnumField
+vaprovider-Ws-001: Alter VAProvider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel, -sendGenericMessage and -jsonExpandEnum
+
+vaprovider-Ws-002: Alter VAProvider to add test options for Websocket transport -catchUnknownJsonKeys and decode FieldList data
+
+provider-Ws-001: Alter Provider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel
 
 Module:  NIProvider 
 -----------------
