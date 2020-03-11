@@ -259,7 +259,7 @@ else()
 	endif()
 	
     add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles})
 
     if (CMAKE_HOST_WIN32)
 		set_target_properties(librssl_tmp PROPERTIES 
@@ -286,6 +286,8 @@ else()
     target_include_directories(librssl_tmp
 										PRIVATE
 											../Transport
+											${Eta_SOURCE_DIR}/Impl/Util/Include
+											${Eta_SOURCE_DIR}/Impl/Converter/Include
 
 										PUBLIC
 											../Util/Include
@@ -300,9 +302,9 @@ else()
 								)
 
     if (CMAKE_HOST_WIN32)
-		target_link_libraries( librssl_tmp librsslJsonConverter wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
 	else()
-		target_link_libraries( librssl_tmp librsslJsonConverter ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4)
 	endif()
 
 
@@ -322,11 +324,9 @@ else()
 							COMMAND ${CMAKE_LINKER} /LIB 
 													/OUT:"$<TARGET_FILE:librssl>" 
 													/LTCG "$<TARGET_FILE:librssl_tmp>"
-														  "$<TARGET_FILE:librsslJsonConverter> "
 														  "$<TARGET_FILE:ZLIB::ZLIB>"
 														  "$<TARGET_FILE:LZ4::LZ4>"
 							DEPENDS $<TARGET_FILE:librssl_tmp> 
-									$<TARGET_FILE:librsslJsonConverter> 
 									$<TARGET_FILE:ZLIB::ZLIB> 
 									$<TARGET_FILE:LZ4::LZ4>
 							COMMENT "Linking objects for static librssl ..."
@@ -337,13 +337,11 @@ else()
 		file(MAKE_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch")
 		add_custom_command(TARGET librssl POST_BUILD
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librssl_tmp>
-							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslJsonConverter>
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:ZLIB::ZLIB>
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LZ4::LZ4>
 							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librssl> *.o
 							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch
 							DEPENDS $<TARGET_FILE:librssl_tmp> 
-									$<TARGET_FILE:librsslJsonConverter> 
 									$<TARGET_FILE:ZLIB::ZLIB> 
 									$<TARGET_FILE:LZ4::LZ4>
 							COMMENT "Archiving objects for librssl ..."

@@ -26,6 +26,7 @@ target_include_directories(Consumer_shared
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
                 )
 
 add_executable( Consumer ${SOURCE_FILES} )
@@ -33,6 +34,7 @@ target_include_directories(Consumer
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 
 set_target_properties( Consumer Consumer_shared

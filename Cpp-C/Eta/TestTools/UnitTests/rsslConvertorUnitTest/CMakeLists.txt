@@ -42,7 +42,6 @@ endif()
 								${Eta_SOURCE_DIR}/TestTools/UnitTests/rsslConvertorUnitTest
 							)
 	target_link_libraries( rsslJsonConverterTest 
-									librsslJsonConverter 
 									librssl
 									GTest::Main
 									CJSON::CJSON

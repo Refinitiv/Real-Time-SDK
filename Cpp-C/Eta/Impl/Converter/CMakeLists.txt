@@ -7,19 +7,6 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 		set(librsslJsonConverter_shared_compile_opts "/D RSSL_RJC_IMPORTS")
 	endif()
 
-    rcdev_wrap_prebuilt_library(librsslJsonConverter
-				LIBNAME librsslJsonConverter
-				LIBTYPE STATIC
-				LANGUAGE C
-				PATHROOT   ${Eta_SOURCE_DIR}/Libs
-				LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
-				           ${Eta_SOURCE_DIR}/Include/Converter
-					   ${Eta_SOURCE_DIR}/Include/Util
-					   ${Eta_SOURCE_DIR}/Impl/Util/Include
-					   ${Eta_SOURCE_DIR}/Impl/Converter/Include
-					   ${Eta_BINARY_DIR}/Include
-				)
-
     rcdev_wrap_prebuilt_library(librsslJsonConverter_shared
 				LIBNAME librsslJsonConverter
 				LIBTYPE SHARED
@@ -86,24 +73,6 @@ else()
 endif()
 #]==========================================================]
 
-add_library(librsslJsonConverter STATIC 
-									${rsslJCSrcFiles} 
-									${rsslJCIncFiles} 
-									${rsslJCAdditionalFiles}
-									)
-
-set_target_properties( librsslJsonConverter PROPERTIES PREFIX "" )
-
-target_include_directories(librsslJsonConverter
-							PRIVATE
-								${Eta_SOURCE_DIR}/Include/Codec
-								${Eta_SOURCE_DIR}/Include/Transport
-								${Eta_SOURCE_DIR}/Include/Util
-								${Eta_SOURCE_DIR}/Impl/Util/Include
-								Include
-							PUBLIC
-								${Eta_SOURCE_DIR}/Include/Converter
-							)
 
 add_library( librsslJsonConverter_shared SHARED 
 									${rsslJCSrcFiles} 

@@ -32,6 +32,7 @@ target_include_directories(Provider_shared
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 target_link_libraries( Provider_shared 
 							librssl_shared 
@@ -43,6 +44,7 @@ target_include_directories(Provider
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 target_link_libraries( Provider
 							librssl 

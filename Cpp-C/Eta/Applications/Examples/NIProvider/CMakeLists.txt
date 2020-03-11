@@ -29,6 +29,7 @@ target_include_directories(NIProvider_shared
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 add_executable( NIProvider ${SOURCE_FILES} )
 target_link_libraries( NIProvider_shared 
@@ -38,6 +39,7 @@ target_include_directories(NIProvider
 							PUBLIC
 								$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 								$<BUILD_INTERFACE:${EtaExamples_SOURCE_DIR}/Examples/Common>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Converter>
 							)
 target_link_libraries( NIProvider 
 							librssl 
