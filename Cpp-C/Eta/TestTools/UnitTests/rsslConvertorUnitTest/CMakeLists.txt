@@ -37,6 +37,7 @@ endif()
 	target_include_directories(rsslJsonConverterTest
 							PRIVATE
 								${Eta_SOURCE_DIR}/Impl/Converter/Include
+								${Eta_SOURCE_DIR}/Include/Converter
 							PUBLIC
 								${Eta_SOURCE_DIR}/TestTools/UnitTests/rsslConvertorUnitTest/rsslJsonConverterTest
 								${Eta_SOURCE_DIR}/TestTools/UnitTests/rsslConvertorUnitTest
