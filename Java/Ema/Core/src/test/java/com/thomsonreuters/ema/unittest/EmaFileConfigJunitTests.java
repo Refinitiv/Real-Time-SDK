@@ -1008,7 +1008,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -1125,7 +1125,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 			TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-			TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+			TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 			TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
@@ -1228,7 +1228,7 @@ public class EmaFileConfigJunitTests extends TestCase
 				innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 				innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -1447,7 +1447,7 @@ public class EmaFileConfigJunitTests extends TestCase
 					int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 					TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-					TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+					TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 					TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 					intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
@@ -1545,7 +1545,7 @@ public class EmaFileConfigJunitTests extends TestCase
 				innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 				innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -1679,7 +1679,7 @@ public class EmaFileConfigJunitTests extends TestCase
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 				TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-				TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+				TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 				TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
@@ -1753,7 +1753,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -1824,7 +1824,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 			TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-			TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+			TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 			TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
@@ -1920,7 +1920,7 @@ public class EmaFileConfigJunitTests extends TestCase
 				innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 				innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -2060,7 +2060,7 @@ public class EmaFileConfigJunitTests extends TestCase
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 				TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-				TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+				TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 				TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
@@ -3271,7 +3271,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_SOCKET"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -3455,7 +3455,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.GuaranteedOutputBuffers);
 			TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.NumInputBuffers);
-			TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+			TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.SysRecvBufSize);
 			TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.SysSendBufSize);
@@ -3628,7 +3628,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
@@ -3786,7 +3786,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForNiProv()
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
 			TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
-			TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+			TestUtilities.checkResult("NumInputBuffers == 5000", intLongValue == 5000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
 			TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
