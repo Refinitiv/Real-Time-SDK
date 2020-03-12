@@ -94,7 +94,6 @@ target_include_directories(librsslJsonConverter_shared
 target_link_libraries(librsslJsonConverter_shared librssl)
 
 if (CMAKE_HOST_WIN32)
-	target_compile_options(librsslJsonConverter PRIVATE ${RCDEV_DEBUG_TYPE_FLAGS_STATIC})
 
 	target_compile_options( librsslJsonConverter_shared 
 										INTERFACE
