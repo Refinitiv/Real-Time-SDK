@@ -2,14 +2,14 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 #include "ConsPerfConfig.h"
 
 ConsPerfConfig::ConsPerfConfig() : PerfConfig ( (char *) "ConsSummary.out" ), steadyStateTime(300), 
 statsFilename("ConsStats"), writeStatsInterval(5), displayStats(true), logLatencyToFile(false), 
-itemRequestCount(100000), commonItemCount(0), itemRequestsPerSec(500000), requestSnapshots(false),
+itemRequestCount(100000), commonItemCount(0), itemRequestsPerSec(35000), requestSnapshots(false),
 serviceName("DIRECT_FEED"), useServiceId(false), useUserDispatch( false ), itemFilename("350k.xml"),
 msgFilename("MsgData.xml"), postsPerSec(0), latencyPostsPerSec(0), genMsgsPerSec(0), latencyGenMsgsPerSec(0), apiThreadBindList(0),
 websocketProtocol(NoWebSocketEnum)
@@ -42,7 +42,7 @@ void ConsPerfConfig::clearPerfConfig()
 	ticksPerSec = 1000;
 	itemRequestCount = 100000; 
 	commonItemCount = 0; 
-	itemRequestsPerSec = 500000; 
+	itemRequestsPerSec = 35000; 
 	requestSnapshots = false;
 	postsPerSec = 0; 
 	latencyPostsPerSec = 0; 

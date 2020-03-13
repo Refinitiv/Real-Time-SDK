@@ -146,11 +146,6 @@ void DataDictionaryImpl::setRsslDataDictionary(const RsslDataDictionary* rsslDat
 		}
 
 		_pRsslDataDictionary = const_cast<RsslDataDictionary*>(rsslDataDictionary);
-
-		if (rsslDataDictionary->isInitialized)
-		{
-			fieldNameToIdMap();
-		}
 	}
 }
 
@@ -559,7 +554,6 @@ void DataDictionaryImpl::loadFieldDictionary(const thomsonreuters::ema::access::
 		}
 		else
 		{
-			fieldNameToIdMap();
 			_loadedFieldDictionary = true;
 		}
 	}
@@ -747,7 +741,6 @@ void DataDictionaryImpl::decodeFieldDictionary(const Series& series, UInt32 verb
 			throwIueException( errorText, retCode );
 		}
 
-		fieldNameToIdMap();
 		_loadedFieldDictionary = true;
 	}
 	else
@@ -949,8 +942,6 @@ thomsonreuters::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(co
 
 DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() const
 {
-	MutexLocker lock(_dataAccessMutex);
-
 	if ( _loadedFieldDictionary )
 	{
 		if ( _pfieldNameToIdHash == 0 )
@@ -958,12 +949,10 @@ DataDictionaryImpl::FieldNameToIdHash* DataDictionaryImpl::fieldNameToIdMap() co
 			_pfieldNameToIdHash = new FieldNameToIdHash(_pRsslDataDictionary->numberOfEntries);
 		}
 
-		if ( _pfieldNameToIdHash->empty() || _pfieldNameToIdHash->size() != _pRsslDataDictionary->numberOfEntries )
+		if ( _pfieldNameToIdHash->empty() )
 		{
 			RsslDictionaryEntry* rsslDictionaryEntry = 0;
 			EmaString fieldName;
-
-			_pfieldNameToIdHash->clear();
 
 			for (Int32 index = _pRsslDataDictionary->minFid; index <= _pRsslDataDictionary->maxFid; index++)
 			{

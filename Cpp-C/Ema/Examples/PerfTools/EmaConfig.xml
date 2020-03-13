@@ -24,6 +24,10 @@
 			<Dictionary value="Dictionary_1"/>
 			
 			<XmlTraceToStdout value="0"/>
+
+			<MaxDispatchCountApiThread value="5000"/>
+
+			<MaxDispatchCountUserThread value="5000"/>
 		</Consumer>
 		
 		<Consumer>
@@ -35,6 +39,10 @@
 			
 			<Logger value="Logger_2"/>
 			<Dictionary value="Dictionary_2"/>
+
+			<MaxDispatchCountApiThread value="5000"/>
+
+			<MaxDispatchCountUserThread value="5000"/>
 		</Consumer>
 
 		<Consumer>
