@@ -57,7 +57,7 @@ public class ConsPerfConfig
         CommandLine.addOption("statsFile", "ConsStats", "Base name of file for logging periodic statistics");
         CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
         CommandLine.addOption("noDisplayStats", false, "Stop printout of stats to screen");
-        CommandLine.addOption("requestRate", 500000, "Rate at which to request items");
+        CommandLine.addOption("requestRate", 13500, "Rate at which to request items");
         CommandLine.addOption("snapshot", false, "Snapshot test, request all items as non-streaming");
         CommandLine.addOption("uname", "", "Username to use in login request");
         CommandLine.addOption("serviceName", "DIRECT_FEED", "Name of service to request items from");

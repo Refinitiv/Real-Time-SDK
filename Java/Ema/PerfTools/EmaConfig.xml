@@ -18,6 +18,10 @@
 			
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
+
+			<MaxDispatchCountApiThread value="6500"/>
+
+			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
 		
 		<Consumer>
@@ -26,6 +30,10 @@
 			<Channel value="Channel_2"/>
 			
 			<Dictionary value="Dictionary_2"/>
+
+			<MaxDispatchCountApiThread value="6500"/>
+
+			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
 		
 	</ConsumerList>

@@ -107,7 +107,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	private static int INSTANCE_ID = 0;
 	private final static int MIN_TIME_FOR_SELECT = 1000000;
 	private final static int MIN_TIME_FOR_SELECT_IN_MILLISEC = 1;
-	private final static int DISPATCH_LOOP_COUNT = 5;
+	private final static int DISPATCH_LOOP_COUNT = 20;
 	
 	protected volatile int _state = OmmImplState.NOT_INITIALIZED;
 	private boolean _logError = true;
