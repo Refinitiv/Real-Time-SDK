@@ -836,7 +836,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 	/* Count up how many map entries there are so we can figure out how much memory to reserve for services array */
 	if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMap(&tmpCountIter, &map)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
-	if (!RSSL_ERROR_INFO_CHECK(map.containerType == RSSL_DT_FILTER_LIST && map.keyPrimitiveType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+	if (!RSSL_ERROR_INFO_CHECK((map.containerType == RSSL_DT_FILTER_LIST || map.containerType == RSSL_DT_NO_DATA) && map.keyPrimitiveType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 	serviceCount = 0;
 	while ((ret = rsslDecodeMapEntry(&tmpCountIter, &mapEntry, &serviceId)) != RSSL_RET_END_OF_CONTAINER)
@@ -851,7 +851,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 	if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMap(pIter, &map)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
-	if (!RSSL_ERROR_INFO_CHECK(map.containerType == RSSL_DT_FILTER_LIST && map.keyPrimitiveType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+	if (!RSSL_ERROR_INFO_CHECK((map.containerType == RSSL_DT_FILTER_LIST || map.containerType == RSSL_DT_NO_DATA) && map.keyPrimitiveType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 	while ((ret = rsslDecodeMapEntry(pIter, &mapEntry, &serviceId)) != RSSL_RET_END_OF_CONTAINER)
 	{

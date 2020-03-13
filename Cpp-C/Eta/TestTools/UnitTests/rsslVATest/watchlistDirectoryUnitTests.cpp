@@ -134,8 +134,7 @@ TEST_P(WatchlistDirectoryUnitTest, DataTestDataFilterOnly_Data)
 
 TEST_P(WatchlistDirectoryUnitTest, DeleteService)
 {
-	if(GetParam() != RSSL_CONN_TYPE_WEBSOCKET) /* The conversion library doesn't support MapEntry's delete action */
-		watchlistDirectoryTest_DeleteService(GetParam());
+	watchlistDirectoryTest_DeleteService(GetParam());
 }
 
 TEST_P(WatchlistDirectoryUnitTest, BigDirectory)

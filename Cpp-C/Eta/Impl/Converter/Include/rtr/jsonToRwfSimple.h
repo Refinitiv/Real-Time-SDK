@@ -134,6 +134,7 @@ class jsonToRwfSimple : public jsonToRwfBase
 	bool getDataType(jsmntok_t * tok, RsslContainerType* formatPtr);
 	bool getContainerType(jsmntok_t* tok, RsslContainerType* formatPtr);
 	bool getVectorAction(jsmntok_t* tok, RsslUInt8* action);
+	bool skipEntriesAndGetPayloadType(jsmntok_t ** const objTok, RsslContainerType* formatPtr);
 	//	bool getDataFormat(jsmntok_t * tok, RsslContainerType* formatPtr);
 
 	RsslRet initializeEnumTableDefinition();

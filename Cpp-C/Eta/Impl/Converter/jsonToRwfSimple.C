@@ -5796,7 +5796,10 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 						return false;
 					}
 					dataTok = *tokPtr;
-					skipObject(tokPtr);
+
+					// Searches for a valid payload type of a Vector Entry and sets RSSL_DT_NO_DATA if not found.
+					if (skipEntriesAndGetPayloadType(tokPtr, &vectorEntryContainerType) == false)
+						return false;
 				}
 				else if (_flags & JSON_FLAG_CATCH_UNEXPECTED_KEYS)
 				{
@@ -6001,6 +6004,16 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 			}
 			else
 			{
+				if (!summaryTok && vector.containerType == RSSL_DT_UNKNOWN)
+				{
+					vector.containerType = vectorEntryContainerType;
+					if ((_rsslRet = rsslEncodeVectorInit(&_iter, &vector, 0, 0)) < RSSL_RET_SUCCESS)
+					{
+						error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
+						return false;
+					}
+				}
+
 				if ((_rsslRet = rsslEncodeVectorEntry(&_iter, &vectorEntry)) < RSSL_RET_SUCCESS)
 				{
 					error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
@@ -6009,7 +6022,8 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 			}
 		} // End for
 	} // End if(dataTok)
-	else if (!summaryTok)
+	
+	if (!summaryTok && vector.containerType == RSSL_DT_UNKNOWN)
 	{
 		vector.containerType = RSSL_DT_NO_DATA;
 		if ((_rsslRet = rsslEncodeVectorInit(&_iter, &vector, 0, 0)) < RSSL_RET_SUCCESS)
@@ -6126,7 +6140,10 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 						return false;
 					}
 					dataTok = *tokPtr;
-					skipObject(tokPtr);
+
+					// Searches for a valid payload type of a Map Entry and sets RSSL_DT_NO_DATA if not found.
+					if (skipEntriesAndGetPayloadType(tokPtr, &mapEntryContainerType) == false)
+						return false;
 				}
 				else if (_flags & JSON_FLAG_CATCH_UNEXPECTED_KEYS)
 				{
@@ -6448,7 +6465,7 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 
 			if (!summaryTok && map.containerType == RSSL_DT_UNKNOWN)
 			{
-				map.containerType = RSSL_DT_NO_DATA;
+				map.containerType = mapEntryContainerType;
 				if ((_rsslRet = rsslEncodeMapInit(&_iter, &map, 0, 0)) < RSSL_RET_SUCCESS)
 				{
 					error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
@@ -9275,4 +9292,92 @@ RsslRet jsonToRwfSimple::initializeEnumTableDefinition()
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+bool jsonToRwfSimple::skipEntriesAndGetPayloadType(jsmntok_t ** const objTok, RsslContainerType* formatPtr)
+{
+	int end = (*objTok)->end;
+	int entrySize = (*objTok)->size;
+	jsmntok_t *entryTok;
+	int i;
+
+	*formatPtr = RSSL_DT_NO_DATA;
+
+	(*objTok)++;
+	for (i = 0; i < entrySize && (*formatPtr == RSSL_DT_NO_DATA); i++)
+	{
+		if ((*objTok)->type != JSMN_OBJECT)
+		{
+			unexpectedTokenType(JSMN_OBJECT, (*objTok), __LINE__, __FILE__, &JSON_ENTRIES);
+			return false;
+		}
+
+		entryTok = (*objTok);
+		(*objTok)++;
+
+		while (((*objTok) < _tokensEndPtr &&
+			(*objTok)->end < entryTok->end))
+		{
+			if ((*objTok)->type != JSMN_STRING)
+			{
+				unexpectedTokenType(JSMN_STRING, (*objTok), __LINE__, __FILE__, &JSON_ENTRIES);
+				return false;
+			}
+
+			switch (_jsonMsg[(*objTok)->start])
+			{
+			case 'F':
+				if (compareStrings((*objTok), JSON_FIELDS) || compareStrings((*objTok), RSSL_OMMSTR_DT_FIELD_LIST))
+					*formatPtr = RSSL_DT_FIELD_LIST;
+				else if (compareStrings((*objTok), RSSL_OMMSTR_DT_FILTER_LIST))
+					*formatPtr = RSSL_DT_FILTER_LIST;
+				break;
+			case 'E':
+				if (compareStrings((*objTok), JSON_ELEMENTS) || compareStrings((*objTok), RSSL_OMMSTR_DT_ELEMENT_LIST))
+					*formatPtr = RSSL_DT_ELEMENT_LIST;
+				break;
+			case 'J':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_JSON))
+					*formatPtr = RSSL_DT_JSON;
+				break;
+			case 'M':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_MAP))
+					*formatPtr = RSSL_DT_MAP;
+				else if (compareStrings((*objTok), JSON_MESSAGE))
+					*formatPtr = RSSL_DT_MSG;
+				break;
+			case 'O':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_OPAQUE))
+					*formatPtr = RSSL_DT_OPAQUE;
+				break;
+			case 'V':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_VECTOR))
+					*formatPtr = RSSL_DT_VECTOR;
+				break;
+			case 'S':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_SERIES))
+					*formatPtr = RSSL_DT_SERIES;
+				break;
+			case 'X':
+				if (compareStrings((*objTok), RSSL_OMMSTR_DT_XML))
+					*formatPtr = RSSL_DT_XML;
+				break;
+			}
+
+			if ((*formatPtr) != RSSL_DT_NO_DATA)
+				break;
+			else
+			{
+				(*objTok)++;
+				skipObject(objTok);
+			}
+		} // End while loop
+	} // End for each entry
+
+	while ((*objTok) < _tokensEndPtr && (*objTok)->start < end)
+	{
+		(*objTok)++;
+	}
+
+	return true;
 }

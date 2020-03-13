@@ -631,7 +631,7 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 
 	/* Check Map. */
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
-	ASSERT_EQ(RSSL_DT_FIELD_LIST, map.containerType);
+	ASSERT_EQ(params.actionArrayCount == 3 ? RSSL_DT_FIELD_LIST : RSSL_DT_NO_DATA, map.containerType);
 	ASSERT_EQ(RSSL_DT_UINT, map.keyPrimitiveType);
 
 	/* Check MapEntries. */
@@ -925,4 +925,79 @@ TEST_F(MapTests, InvalidMapTests)
 	ASSERT_TRUE(_jsonDocument["Type"].IsString());
 	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
 	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'Key' for 'Entries'"));
+}
+
+/* Test that converts an empty Map RWF to JSON, and back to RWF. */
+TEST_F(MapTests, MapEmptyDataTest)
+{
+	RsslUpdateMsg updateMsg;
+	RsslMsg rsslMsg;
+	RsslMap map;
+	RsslMapEntry mapEntry;
+
+	rsslClearUpdateMsg(&updateMsg);
+	updateMsg.msgBase.streamId = 5;
+	updateMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	updateMsg.msgBase.containerType = RSSL_DT_MAP;
+	updateMsg.updateType = RDM_UPD_EVENT_TYPE_QUOTE;
+
+	rsslUpdateMsgApplyHasMsgKey(&updateMsg);
+	rsslMsgKeyApplyHasName(&updateMsg.msgBase.msgKey);
+	updateMsg.msgBase.msgKey.name = MSG_KEY_NAME;
+	rsslMsgKeyApplyHasServiceId(&updateMsg.msgBase.msgKey);
+	updateMsg.msgBase.msgKey.serviceId = MSGKEY_SVC_ID;
+
+	rsslClearEncodeIterator(&_eIter);
+	rsslSetEncodeIteratorBuffer(&_eIter, &_rsslEncodeBuffer);
+	rsslSetEncodeIteratorRWFVersion(&_eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_ENCODE_CONTAINER, rsslEncodeMsgInit(&_eIter, (RsslMsg*)&updateMsg, 0));
+
+	/* Encode an empty map. */
+	rsslClearMap(&map);
+	map.containerType = RSSL_DT_NO_DATA;
+	map.keyPrimitiveType = RSSL_DT_UINT;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMapInit(&_eIter, &map, 0, 0));
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMapComplete(&_eIter, RSSL_TRUE));
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(&_eIter, RSSL_TRUE));
+
+	ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
+
+	/* Check message. */
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Update", _jsonDocument["Type"].GetString());
+
+	/* Check Map. */
+	ASSERT_TRUE(_jsonDocument.HasMember("Map"));
+	ASSERT_TRUE(_jsonDocument["Map"].IsObject());
+
+	ASSERT_TRUE(_jsonDocument["Map"].HasMember("KeyType"));
+	ASSERT_TRUE(_jsonDocument["Map"]["KeyType"].IsString());
+	EXPECT_STREQ("UInt", _jsonDocument["Map"]["KeyType"].GetString());
+
+	/* Check MapEntry */
+	ASSERT_TRUE(_jsonDocument["Map"].HasMember("Entries"));
+
+	/* Convert back to RWF. */
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslUpdateMsg is correct. */
+	EXPECT_EQ(RSSL_MC_UPDATE, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(RSSL_DT_MAP, rsslMsg.msgBase.containerType);
+	EXPECT_EQ(RDM_UPD_EVENT_TYPE_QUOTE, updateMsg.updateType);
+
+	/* Check Map. */
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
+	ASSERT_EQ(RSSL_DT_NO_DATA, map.containerType);
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry,NULL));
 }

@@ -14,7 +14,7 @@ using namespace std;
 using namespace json;
 
 /** Size of the RSSL encoding buffer. */
-static const int RSSL_BUFFER_SIZE = 65535;
+static const RsslUInt32 RSSL_BUFFER_SIZE = 65535;
 
 /** RSSL Dictionary */
 static RsslDataDictionary	_rsslDictionary;

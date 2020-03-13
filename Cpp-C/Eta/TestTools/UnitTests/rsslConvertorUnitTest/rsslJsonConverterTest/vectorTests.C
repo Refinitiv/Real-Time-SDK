@@ -7,6 +7,7 @@
 */
 
 #include "rsslJsonConverterTestBase.h"
+#include <cstdarg>
 
 using namespace std;
 using namespace json;
@@ -48,6 +49,36 @@ class VectorTestParams
 			"supportSorting:" << (params.supportSorting ? "true" : "false") << ","
 			"entryPermData:" << (params.entryPermData ? "true" : "false") 
 			<< "]";
+		return out;
+	}
+};
+
+/* Parameters for Vector Entry Action tests. */
+class VectorEntryActionsTestParams
+{
+public:
+
+	RsslVectorEntryActions actionArray[32];
+	RsslUInt8 actionArrayCount;
+
+	VectorEntryActionsTestParams(int numActions, ...)
+	{
+		this->actionArrayCount = numActions;
+		va_list arguments;
+
+		va_start(arguments, numActions);
+		for (int i = 0; i < numActions; i++)
+			this->actionArray[i] = (RsslVectorEntryActions)va_arg(arguments, int);
+
+		va_end(arguments);
+	}
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend ostream &operator<<(ostream &out, const VectorEntryActionsTestParams& params)
+	{
+		out << "VectorEntryAction array contains";
+		for (int i = 0; i < params.actionArrayCount; i++)
+			out << " " << rsslVectorEntryActionToOmmString(params.actionArray[i]);
 		return out;
 	}
 };
@@ -370,7 +401,7 @@ INSTANTIATE_TEST_CASE_P(VectorTests, VectorParamTestFixture, ::testing::Values(
 
 
 /* Test that converts an empty Vector RWF to JSON, and back to RWF. */
-TEST_F(VectorTests, DISABLED_VectorEmptyDataTest /* This test triggers an assertion failure in vector encoding when converting from JSON to RWF. */)
+TEST_F(VectorTests, VectorEmptyDataTest)
 {
 	RsslUpdateMsg updateMsg;
 	RsslMsg rsslMsg;
@@ -396,7 +427,7 @@ TEST_F(VectorTests, DISABLED_VectorEmptyDataTest /* This test triggers an assert
 
 	/* Encode an empty vector. */
 	rsslClearVector(&vector);
-	vector.containerType = RSSL_DT_FIELD_LIST;
+	vector.containerType = RSSL_DT_NO_DATA;
 
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorInit(&_eIter, &vector, 0, 0));
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorComplete(&_eIter, RSSL_TRUE));
@@ -436,7 +467,7 @@ TEST_F(VectorTests, DISABLED_VectorEmptyDataTest /* This test triggers an assert
 
 	/* Check Vector. */
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeVector(&_dIter, &vector));
-	ASSERT_EQ(RSSL_DT_FIELD_LIST, vector.containerType);
+	ASSERT_EQ(RSSL_DT_NO_DATA, vector.containerType);
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
 }
 
@@ -847,3 +878,134 @@ INSTANTIATE_TEST_CASE_P(VectorTests, VectorContainerTypesTestFixture, ::testing:
 	RsslDataTypeParam(RSSL_DT_ELEMENT_LIST)
 ));
 
+class VectorEntryActionsTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<VectorEntryActionsTestParams> {
+};
+
+/* Test that converts a Vector whose entries are each of the different actions from RWF to JSON, and back to RWF. */
+TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
+{
+	VectorEntryActionsTestParams const &params = GetParam();
+
+	RsslUpdateMsg updateMsg;
+	RsslMsg rsslMsg;
+	RsslVector vector;
+	RsslVectorEntry vectorEntry;
+
+	rsslClearUpdateMsg(&updateMsg);
+	updateMsg.msgBase.streamId = 5;
+	updateMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+	updateMsg.msgBase.containerType = RSSL_DT_VECTOR;
+	updateMsg.updateType = RDM_UPD_EVENT_TYPE_QUOTE;
+
+	rsslUpdateMsgApplyHasMsgKey(&updateMsg);
+	rsslMsgKeyApplyHasName(&updateMsg.msgBase.msgKey);
+	updateMsg.msgBase.msgKey.name = MSG_KEY_NAME;
+	rsslMsgKeyApplyHasServiceId(&updateMsg.msgBase.msgKey);
+	updateMsg.msgBase.msgKey.serviceId = MSGKEY_SVC_ID;
+
+	rsslClearEncodeIterator(&_eIter);
+	rsslSetEncodeIteratorBuffer(&_eIter, &_rsslEncodeBuffer);
+	rsslSetEncodeIteratorRWFVersion(&_eIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_ENCODE_CONTAINER, rsslEncodeMsgInit(&_eIter, (RsslMsg*)&updateMsg, 0));
+
+	rsslClearVector(&vector);
+	vector.containerType = RSSL_DT_FIELD_LIST;
+	
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorInit(&_eIter, &vector, 0, 0));
+
+	for (int i = 0; i < params.actionArrayCount; i++)
+	{
+		/* Encode an entry with the action. */
+		rsslClearVectorEntry(&vectorEntry);
+		vectorEntry.action = params.actionArray[i];
+		vectorEntry.index = i + 1;
+		if (vectorEntry.action == RSSL_VTEA_DELETE_ENTRY || vectorEntry.action == RSSL_VTEA_CLEAR_ENTRY)
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorEntry(&_eIter, &vectorEntry));
+		else
+		{
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorEntryInit(&_eIter, &vectorEntry, 0));
+			ASSERT_NO_FATAL_FAILURE(encodeSampleRsslFieldList(&_eIter));
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorEntryComplete(&_eIter, RSSL_TRUE));
+		}
+	}
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeVectorComplete(&_eIter, RSSL_TRUE));
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(&_eIter, RSSL_TRUE));
+
+	ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
+
+	/* Check message. */
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Update", _jsonDocument["Type"].GetString());
+
+	/* Check Vector. */
+	ASSERT_TRUE(_jsonDocument.HasMember("Vector"));
+	ASSERT_TRUE(_jsonDocument["Vector"].IsObject());
+
+	/* Check VectorEntries */
+	ASSERT_TRUE(_jsonDocument["Vector"].HasMember("Entries"));
+	ASSERT_TRUE(_jsonDocument["Vector"]["Entries"].IsArray());
+
+	const Value& entries = _jsonDocument["Vector"]["Entries"];
+	ASSERT_EQ(params.actionArrayCount, entries.Size());
+
+	for (int i = 0; i < params.actionArrayCount; i++)
+	{
+		/* Check Entry with the action. */
+		ASSERT_TRUE(entries[i].HasMember("Index"));
+		ASSERT_TRUE(entries[i]["Index"].IsNumber());
+		EXPECT_EQ(i + 1, entries[i]["Index"].GetInt());
+
+		ASSERT_TRUE(entries[i].HasMember("Action"));
+		ASSERT_TRUE(entries[i]["Action"].IsString());
+		EXPECT_STREQ(rsslVectorEntryActionToOmmString(params.actionArray[i]), entries[i]["Action"].GetString());
+		if ( (strncmp(entries[i]["Action"].GetString(), RSSL_OMMSTR_VTEA_DELETE_ENTRY.data, RSSL_OMMSTR_VTEA_DELETE_ENTRY.length) != 0) &&
+			(strncmp(entries[i]["Action"].GetString(), RSSL_OMMSTR_VTEA_CLEAR_ENTRY.data, RSSL_OMMSTR_VTEA_CLEAR_ENTRY.length) != 0) )
+		{
+			ASSERT_TRUE(entries[i].HasMember("Fields"));
+			ASSERT_NO_FATAL_FAILURE(checkSampleJsonFieldList(entries[i]["Fields"]));
+		}
+	}
+
+	/* Convert back to RWF. */
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslUpdateMsg is correct. */
+	EXPECT_EQ(RSSL_MC_UPDATE, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(RSSL_DT_VECTOR, rsslMsg.msgBase.containerType);
+	EXPECT_EQ(RDM_UPD_EVENT_TYPE_QUOTE, updateMsg.updateType);
+
+	/* Check Vector. */
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeVector(&_dIter, &vector));
+	ASSERT_EQ(params.actionArrayCount == 3 ? RSSL_DT_FIELD_LIST : RSSL_DT_NO_DATA, vector.containerType);
+
+	/* Check VectorEntries. */
+	for (int i = 0; i < params.actionArrayCount; i++)
+	{
+		/* Check Entry with the action. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
+		ASSERT_EQ(params.actionArray[i], vectorEntry.action);
+		if ( (vectorEntry.action != RSSL_VTEA_DELETE_ENTRY) && (vectorEntry.action != RSSL_VTEA_CLEAR_ENTRY) )
+			ASSERT_NO_FATAL_FAILURE(decodeSampleRsslFieldList(RSSL_JSON_JPT_JSON2, &_dIter));
+	}
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
+}
+
+INSTANTIATE_TEST_CASE_P(VectorTests, VectorEntryActionsTestFixture, ::testing::Values(
+	VectorEntryActionsTestParams(3, RSSL_VTEA_INSERT_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_DELETE_ENTRY),
+	VectorEntryActionsTestParams(3, RSSL_VTEA_DELETE_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_SET_ENTRY),
+	VectorEntryActionsTestParams(2, RSSL_VTEA_DELETE_ENTRY, RSSL_VTEA_DELETE_ENTRY),
+	VectorEntryActionsTestParams(3, RSSL_VTEA_CLEAR_ENTRY, RSSL_VTEA_SET_ENTRY, RSSL_VTEA_UPDATE_ENTRY),
+	VectorEntryActionsTestParams(2, RSSL_VTEA_CLEAR_ENTRY, RSSL_VTEA_CLEAR_ENTRY)
+));
