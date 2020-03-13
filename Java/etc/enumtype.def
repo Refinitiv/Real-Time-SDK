@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.39
-!tag Build_RDMD  4.20.39
-!tag DT_Version  20.01
-!tag Date        25-Nov-2019
+!tag RT_Version  4.20.40
+!tag Build_RDMD  4.20.40
+!tag DT_Version  20.21
+!tag Date        10-Feb-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -988,6 +988,7 @@ BIDXID      3298
     229        "IEX"   IEX GROUP INC - (CTA)
     230        "CXD"   Nasdaq CXD
     231        "NED"   AEQUITAS NEO-D
+    232        "LTE"   Long-Term Stock Exchange (LTSE)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4846,6 +4847,7 @@ LEG40_TYPE 12832
      10       "P/C "   put/call
      11       "C/P "   call/put
      12       "IRS "   Interest Rate Swap
+     13       "MBS "   Mortgage-Backed Security
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8670,6 +8672,17 @@ ORDER_EXID 13603
    1588        "JLC"   JLC Network Technology Co., Ltd
    1589        "EIG"   ENERGY INTELLIGENCE
    1590        "FAB"   First Abu Dhabi Bank
+   1591        "DAE"   UK DEP OF AGRICULTURE ENVIRONMENT & RURAL AFFAIRS
+   1592        "DFR"   UK DEPT FOR ENVIRONMENT FOOD & RURAL AFFAIRS
+   1593        "ICF"   INDIA COFFEE BOARD - GOVERNMENT OF INDIA MOCI.
+   1594        "LTE"   Long-Term Stock Exchange (LTSE)
+   1595        "LTG"   LTSE for NASDAQ Global Markets (LTG)
+   1596        "LTS"   LTSE for NASDAQ Global Select (LTS)
+   1597        "LTM"   LTSE for NASDAQ Capital Markets (LTM)
+   1598        "LTQ"   Consolidated Issues listed by LTSE (LTQ)
+   1599        "AWX"   Australian Wool Exchange
+   1600        "AFF"   Affinity (Shipping) LLP
+   1601        "IFA"   ICE Futures Abu Dhabi
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11560,6 +11573,8 @@ RPT_P_METH 13587
      28        "MON"   Price (monetary value)
      29        "PER"   Percentage - 'PERC'
      30        "BPS"   Basis points - 'BAPO'
+     31        "FLT"   Flat
+     32        "DIF"   Differential
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11651,7 +11666,7 @@ P_C_IND1    4737
      34       "PLCA"   Put Event Linked Call American
      35       "PLCE"   Put Event Linked Call European
      36       "PLCB"   Put Event Linked Call Bermuda
-     37       "PLCL"   Put Event Linked Call Event Linekd
+     37       "PLCL"   Put Event Linked Call Event Linked
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13878,6 +13893,7 @@ SEC_STATUS  9000
      28   "  RMK   "   Remarketed
      29   "  TBB   "   To Be Repurchased/Bought Back
      30   "  IBL   "   Pre-issued - Issued before Local Issue Date
+     31   "  ACT   "   Active
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15157,6 +15173,7 @@ OFFBK_COND  9049
      34   "RFCT    "   Request for Cross Trade
      35   "SRFCT   "   Request for Cross Strategy Leg Trade
      36   "IQS     "   Indicative Quote System Originated Trades
+     37   "RFQ     "   Request for Quote Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16734,6 +16751,10 @@ DLVY_TERMS 12959
      19      "FOT  "   Free On Truck
      20      "FOR  "   Free On Road
      21      "PPT  "   Prompt: A near term delivery
+     22      "DAT  "   Delivered at Terminal
+     23      "DAP  "   Delivered at Place
+     24      "DLV  "   Delivered
+     25      "FD   "   Free Delivered
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17151,6 +17172,7 @@ OUT_PROD16 13008
      32   "FO180CST"   Fuel Oil 180 CST
      33   "FO380CST"   Fuel Oil 380 CST
      34   "GO  0.1%"   GasOil 0.1% Sulphur
+     35   "VLFO0.5%"   Very Low Sulphur Fuel Oil 0.5%
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17170,6 +17192,7 @@ AVGPRC_TP2 13082
       7   "TGe24   "   Arithmetic Average of the prices of transactions concluded during the first fixing at particular hours throughout the day N-1 for the same delivery date.
       8   "12M AVG "   12 Months rolling Average Price
       9   "60M AVG "   60 Months rolling Average Price
+     10   "52WK AVG"   52 Week rolling Average Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17255,6 +17278,19 @@ DELIV_PRD  13015
      31   "HOLIDAY "   Holiday
      32   "NXT HOUR"   Next Hour
      33   "INTRADAY"   Intraday
+     34   "HOUR    "   Hour
+     35   "DAY     "   Day
+     36   "MONTH   "   Month
+     37   "QUARTER "   Quarter
+     38   "YEAR    "   Year
+     39   "SEASON  "   Season
+     40   "HLF MNTH"   Half Month
+     41   "GAS YEAR"   Gas Year
+     42   "WTHN DAY"   Within Day
+     43   "MTH AHD "   Month Ahead
+     44   "EXTRADAY"   Extra Day
+     45   "NERC HOL"   NERC Holiday
+     46   "HrClkChg"   Hour (Clock Change)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17724,6 +17760,7 @@ SETTLE_MTH 13044
 LEG2_SET_M 13045
 LEG3_SET_M 13046
 DELIV_MTH  13070
+LEG1_SET_M 13087
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17839,10 +17876,44 @@ FIXING_ST  13081
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET383 13084
-PRE_1ET384 13085
-PRE_1ET385 13086
-PRE_1ET386 13087
+CONV_FUNC  13084
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0          " "   Undefined
+      1          "/"   Division
+      2          "*"   Multiplication
+      3          "+"   Addition
+      4          "-"   Subtraction
+!
+! ACRONYM    FID
+! -------    ---
+!
+AUCTN_B_TP 13085
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "CPT  "   Competitive
+      2      "NCP  "   Non-Competitive
+      3      "COMB "   Combined
+      4      "NULL "   Not Announced
+!
+! ACRONYM    FID
+! -------    ---
+!
+AUCTN_METH 13086
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "AMER    "   American/English Auction
+      2   "DUTCH   "   Dutch Auction
+      3   "HYBRID  "   Hybrid Auction
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET387 13088
 PRE_1ET388 13089
 PRE_1ET389 13090
@@ -18161,6 +18232,8 @@ PRE_1ET700 13401
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
+      1   "N       "   Anonymous-Setting Disabled
+      2   "Y       "   Anonymous-Setting Enabled
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18284,6 +18357,8 @@ MET_TYP17  13559
 MET_TYP18  13560
 MET_TYP19  13561
 MET_TYP20  13562
+MET_TYP21  13604
+MET_TYP22  13605
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -18417,6 +18492,18 @@ MET_TYP20  13562
     127   "WCDALFV "   Weekly Change on Value of Dealer Account Loan Funds
     128   "IMS     "   Internal Matched Shares
     129   "WCIMS   "   Weekly Change on Internal Matched Shares
+    130   "SLS     "   Stock Loan Shortage.
+    131   "FLS     "   Funding Loan Shortage
+    132   "TNSP    "   Today's net short position. New short position opened minus existing short position closed.
+    133   "TNMP    "   Today's net margin buying position. New margin long position opened minus existing margin long position closed.
+    134   "TNLP    "   Today's net loan position change. Net margin buying position minus net short position.
+    135   "MTDTC   "   Margin Trading Days To Cover.
+    136   "TTLP    "   Today's total long positions created from margin buy and short cover.
+    137   "TTSP    "   Today's total short positions created from short selling and the closed of long margin buy position.
+    138   "TNMV    "   Today's net margin buying value. The value of the new margin long position opened minus the value of the existing margin long position closed.
+    139   "TNSV    "   Today's net short position value. The value of the new short position opened minus the value of the existing short position closed.
+    140   "TALB    "   Total amount of loan balance.
+    141   "TALBNC  "   Total amount of loan balance net change.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18950,6 +19037,7 @@ MET_UNIT   13564
     409      "12OZS"   12 Ounces
     410      "16OZS"   16 Ounces
     411      "2 LTR"   2 Litres
+    412      "CHF/P"   Swiss Franc Per Point
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20721,6 +20809,7 @@ ORGN_PORT  13579
     500   "RU KZP  "   Kavkaz
     501   "RU SAB  "   Sabetta
     502   "US CP6  "   Cove Point
+    503   "NO SVG  "   Stavanger
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21574,9 +21663,30 @@ LA_CANAL   13602
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET283 13604
-PRE_2ET284 13605
-PRE_2ET285 13606
+DELIV_METH 13606
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "LNG Carr"   LNG Carrier
+      2   "Cargo   "   Cargo
+      3   "Pipeline"   Pipeline
+      4   "Waterbrn"   Waterborne
+      5   "Coaster "   Coaster
+      6   "Barge   "   Barge
+      7   "Rail-Trk"   Rail and Truck
+      8   "Bunker  "   Bunker
+      9   "Rail    "   Rail
+     10   "Rail-Pln"   Rail and Pipeline
+     11   "Truck   "   Truck
+     12   "In-Cavrn"   In-Cavern Title Transfer
+     13   "Pl-Rl-Tk"   Pipeline, Rail and Truck
+     14   "Rl-Tk-Wb"   Rail, Truck and Waterborne
+     15   "Trk-Wtrb"   Truck and Waterborne
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET286 13607
 PRE_2ET287 13608
 PRE_2ET288 13609
@@ -22340,6 +22450,7 @@ DEF_DMI    32312
       3   "UNSPC_DM"   UNSPEC_DM
       4   "LDM     "   Legacy Data Model
       5   "PDM     "   Platform Data Model
+      6   "MVP     "   MVP Data Model
 !
 ! ACRONYM    FID
 ! -------    ---

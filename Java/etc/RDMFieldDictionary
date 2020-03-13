@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.39_TREP_20.01		11/25/2019
-!	* Modified 11/25/2019 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.39.
+!   Version	 4.20.40_TREP_20.21		02/10/2020
+!	* Modified 02/10/2020 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.40.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.39_TREP
+!   Version: 4.20.40_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Refinitiv 2019
+! Copyright Refinitiv 2020
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.39
-!tag Build     3
-!tag Date      24-Sep-2019
+!tag Version   4.20.40
+!tag Build     2
+!tag Date      15-Jan-2020
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -17916,11 +17916,15 @@ LEG2_SIDE  "LEG2 SIDE"           6570  NULL        ENUMERATED    3 ( 1 )  ENUM  
 ! The side of the market which a Spread Leg represents 
 !
 LEG_OP_DT  "LEG OPTION DELTA"    6571  NULL        PRICE              17  REAL64           7
-LEG1_OP_DT "LEG1 OPTION DELTA"   6572  NULL        PRICE              17  REAL64           7
-LEG2_OP_DT "LEG2 OPTION DELTA"   6573  NULL        PRICE              17  REAL64           7
 !
 ! The difference between the underlying price of the Strategy and the price of the 
 ! Leg, when the Leg is an Option.
+!
+LEG1_OP_DT "LEG1 OPTION DELTA"   6572  NULL        PRICE              17  REAL64           7
+LEG2_OP_DT "LEG2 OPTION DELTA"   6573  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the option or option 
+! spread.
 !
 LEG_PRICE  "LEG PRICE"           6574  NULL        PRICE              17  REAL64           7
 LEG1_PRICE "LEG1 PRICE"          6575  NULL        PRICE              17  REAL64           7
@@ -19883,7 +19887,10 @@ NO_MPANT   "NUM MKT PART"        7154  NULL        INTEGER            15  INT64 
 !
 ! Number of Market Participants.
 !
-PRE_INT276 "PRED INTEGER 276"    7155  NULL        INTEGER            15  INT64            6
+CURVE_POS  "CURVE POS"           7155  NULL        INTEGER            15  INT64            6
+!
+! Derivative Position in the forward curve.
+!
 PRE_INT277 "PRED INTEGER 277"    7156  NULL        INTEGER            15  INT64            6
 PRE_INT278 "PRED INTEGER 278"    7157  NULL        INTEGER            15  INT64            6
 PRE_INT279 "PRED INTEGER 279"    7158  NULL        INTEGER            15  INT64            6
@@ -24699,7 +24706,10 @@ PRE_24T055 "PRED 24 TXT 055"     8686  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! TBD
 !
-PRE_24T056 "PRED 24 TXT 056"     8687  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+UND_EXCH_N "UNDLY EXCH NAME"     8687  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! The primary exchange name for the underlying instrument of the derivative.
+!
 PRE_24T057 "PRED 24 TXT 057"     8688  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T058 "PRED 24 TXT 058"     8689  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T059 "PRED 24 TXT 059"     8690  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -26645,7 +26655,10 @@ SRC_MAT_DT "SRC MAT DATE"        9366  NULL        DATE               11  DATE  
 !
 ! Instrument Maturity Date as provided by the source.
 !
-PRE_DT256  "PRED DATE 256"       9367  NULL        DATE               11  DATE             4
+LEG1_SETDT "LEG1 SETLMENT DT"    9367  NULL        DATE               11  DATE             4
+!
+! Settlement Date - Leg 1.
+!
 PRE_DT257  "PRED DATE 257"       9368  NULL        DATE               11  DATE             4
 PRE_DT258  "PRED DATE 258"       9369  NULL        DATE               11  DATE             4
 PRE_DT259  "PRED DATE 259"       9370  NULL        DATE               11  DATE             4
@@ -30134,55 +30147,241 @@ RFQ_AYLD   "RFQ ASK YLD"        10688  NULL        PRICE              17  REAL64
 !
 ! RFQ BID Yield.
 !
-PRERL1698  "PRED REAL 1698"     10689  NULL        PRICE              17  REAL64           7
-PRERL1699  "PRED REAL 1699"     10690  NULL        PRICE              17  REAL64           7
-PRERL1700  "PRED REAL 1700"     10691  NULL        PRICE              17  REAL64           7
-PRERL1701  "PRED REAL 1701"     10692  NULL        PRICE              17  REAL64           7
-PRERL1702  "PRED REAL 1702"     10693  NULL        PRICE              17  REAL64           7
-PRERL1703  "PRED REAL 1703"     10694  NULL        PRICE              17  REAL64           7
-PRERL1704  "PRED REAL 1704"     10695  NULL        PRICE              17  REAL64           7
-PRERL1705  "PRED REAL 1705"     10696  NULL        PRICE              17  REAL64           7
-PRERL1706  "PRED REAL 1706"     10697  NULL        PRICE              17  REAL64           7
-PRERL1707  "PRED REAL 1707"     10698  NULL        PRICE              17  REAL64           7
-PRERL1708  "PRED REAL 1708"     10699  NULL        PRICE              17  REAL64           7
-PRERL1709  "PRED REAL 1709"     10700  NULL        PRICE              17  REAL64           7
-PRERL1710  "PRED REAL 1710"     10701  NULL        PRICE              17  REAL64           7
-PRERL1711  "PRED REAL 1711"     10702  NULL        PRICE              17  REAL64           7
-PRERL1712  "PRED REAL 1712"     10703  NULL        PRICE              17  REAL64           7
-PRERL1713  "PRED REAL 1713"     10704  NULL        PRICE              17  REAL64           7
-PRERL1714  "PRED REAL 1714"     10705  NULL        PRICE              17  REAL64           7
-PRERL1715  "PRED REAL 1715"     10706  NULL        PRICE              17  REAL64           7
-PRERL1716  "PRED REAL 1716"     10707  NULL        PRICE              17  REAL64           7
-PRERL1717  "PRED REAL 1717"     10708  NULL        PRICE              17  REAL64           7
-PRERL1718  "PRED REAL 1718"     10709  NULL        PRICE              17  REAL64           7
-PRERL1719  "PRED REAL 1719"     10710  NULL        PRICE              17  REAL64           7
-PRERL1720  "PRED REAL 1720"     10711  NULL        PRICE              17  REAL64           7
-PRERL1721  "PRED REAL 1721"     10712  NULL        PRICE              17  REAL64           7
-PRERL1722  "PRED REAL 1722"     10713  NULL        PRICE              17  REAL64           7
-PRERL1723  "PRED REAL 1723"     10714  NULL        PRICE              17  REAL64           7
-PRERL1724  "PRED REAL 1724"     10715  NULL        PRICE              17  REAL64           7
-PRERL1725  "PRED REAL 1725"     10716  NULL        PRICE              17  REAL64           7
-PRERL1726  "PRED REAL 1726"     10717  NULL        PRICE              17  REAL64           7
-PRERL1727  "PRED REAL 1727"     10718  NULL        PRICE              17  REAL64           7
-PRERL1728  "PRED REAL 1728"     10719  NULL        PRICE              17  REAL64           7
-PRERL1729  "PRED REAL 1729"     10720  NULL        PRICE              17  REAL64           7
-PRERL1730  "PRED REAL 1730"     10721  NULL        PRICE              17  REAL64           7
-PRERL1731  "PRED REAL 1731"     10722  NULL        PRICE              17  REAL64           7
-PRERL1732  "PRED REAL 1732"     10723  NULL        PRICE              17  REAL64           7
-PRERL1733  "PRED REAL 1733"     10724  NULL        PRICE              17  REAL64           7
-PRERL1734  "PRED REAL 1734"     10725  NULL        PRICE              17  REAL64           7
-PRERL1735  "PRED REAL 1735"     10726  NULL        PRICE              17  REAL64           7
-PRERL1736  "PRED REAL 1736"     10727  NULL        PRICE              17  REAL64           7
-PRERL1737  "PRED REAL 1737"     10728  NULL        PRICE              17  REAL64           7
-PRERL1738  "PRED REAL 1738"     10729  NULL        PRICE              17  REAL64           7
-PRERL1739  "PRED REAL 1739"     10730  NULL        PRICE              17  REAL64           7
-PRERL1740  "PRED REAL 1740"     10731  NULL        PRICE              17  REAL64           7
-PRERL1741  "PRED REAL 1741"     10732  NULL        PRICE              17  REAL64           7
-PRERL1742  "PRED REAL 1742"     10733  NULL        PRICE              17  REAL64           7
-PRERL1743  "PRED REAL 1743"     10734  NULL        PRICE              17  REAL64           7
-PRERL1744  "PRED REAL 1744"     10735  NULL        PRICE              17  REAL64           7
-PRERL1745  "PRED REAL 1745"     10736  NULL        PRICE              17  REAL64           7
-PRERL1746  "PRED REAL 1746"     10737  NULL        PRICE              17  REAL64           7
+ASIACL_MID "ASIA CLOSE MID"     10689  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Close Mid.
+!
+CORR_90D   "CORRELATION 90D"    10690  NULL        PRICE              17  REAL64           7
+!
+! 90-day Correlation Value.
+!
+EURCL_MID  "EURO CLOSE MID"     10691  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Close Mid.
+!
+DENSITY    "DENSITY"            10692  NULL        PRICE              17  REAL64           7
+!
+! Density. Defined as Mass per unit volume.
+!
+ERL_LAYDAY "EARLIEST LAYDAY"    10693  NULL        PRICE              17  REAL64           7
+!
+! Earliest Layday.
+!
+FLASH_PT   "FLASH POINT"        10694  NULL        PRICE              17  REAL64           7
+!
+! Flash Point. Lowest temperature at which vapors of a combustible liquid will ignite.
+!
+FREEZE_PT  "FREEZE POINT"       10695  NULL        PRICE              17  REAL64           7
+!
+! Freeze Point. The temperature at which a liquid freezes.
+!
+KIN_VISCO  "KINEMATC VISCOSITY" 10696  NULL        PRICE              17  REAL64           7
+!
+! Kinematic Viscosity. Measure of Oil's resistance to flow due to gravity.
+!
+LST_LAYDAY "LATEST LAYDAY"      10697  NULL        PRICE              17  REAL64           7
+!
+! Latest Layday.
+!
+POUR_PT    "POUR POINT"         10698  NULL        PRICE              17  REAL64           7
+!
+! Pour Point. Temperature below which a liquid (crude oil) loses its flow 
+! characteristics.
+!
+RON        "RON"                10699  NULL        PRICE              17  REAL64           7
+!
+! Research Octane Number. A measure of the detonative quality of gasoline.
+!
+LEG3_OP_DT "DELTA FOR OPTION3 " 10700  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 3rd option or 3rd 
+! option in an option spread.
+!
+LEG4_OP_DT "DELTA FOR OPTION4"  10701  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 4th option or 4th 
+! option in an option spread.
+!
+LEG5_OP_DT "DELTA FOR OPTION5"  10702  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 5th option or 5th 
+! option in an option spread.
+!
+LEG6_OP_DT "DELTA FOR OPTION6"  10703  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 6th option or 6th 
+! option in an option spread.
+!
+LEG7_OP_DT "DELTA FOR OPTION7"  10704  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 7th option or 7th 
+! option in an option spread.
+!
+LEG8_OP_DT "DELTA FOR OPTION8"  10705  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 8th option or 8th 
+! option in an option spread.
+!
+LEG9_OP_DT "DELTA FOR OPTION9"  10706  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 9th option or 9th 
+! option in an option spread.
+!
+LEG10_OPDT "DELTA FOR OPTION10" 10707  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 10th option or 
+! 10th option in an option spread.
+!
+LEG11_OPDT "DELTA FOR OPTION11" 10708  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 11th option or 
+! 11th option in an option spread.
+!
+LEG12_OPDT "DELTA FOR OPTION12" 10709  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 12th option or 
+! 12th option in an option spread.
+!
+LEG13_OPDT "DELTA FOR OPTION13" 10710  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 13rd option or 
+! 13rd option in an option spread.
+!
+LEG14_OPDT "DELTA FOR OPTION14" 10711  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 14th option or 
+! 14th option in an option spread.
+!
+LEG15_OPDT "DELTA FOR OPTION15" 10712  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 15th option or 
+! 15th option in an option spread.
+!
+LEG16_OPDT "DELTA FOR OPTION16" 10713  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 16th option or 
+! 16th option in an option spread.
+!
+LEG17_OPDT "DELTA FOR OPTION17" 10714  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 17th option or 
+! 17th option in an option spread.
+!
+LEG18_OPDT "DELTA FOR OPTION18" 10715  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 18th option or 
+! 18th option in an option spread.
+!
+LEG19_OPDT "DELTA FOR OPTION19" 10716  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 19th option or 
+! 19th option in an option spread.
+!
+LEG20_OPDT "DELTA FOR OPTION20" 10717  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 20th option or 
+! 20th option in an option spread.
+!
+LEG21_OPDT "DELTA FOR OPTION21" 10718  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 21th option or 
+! 21th option in an option spread.
+!
+LEG22_OPDT "DELTA FOR OPTION22" 10719  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 22th option or 
+! 22th option in an option spread.
+!
+LEG23_OPDT "DELTA FOR OPTION23" 10720  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 23rd option or 
+! 23rd option in an option spread.
+!
+LEG24_OPDT "DELTA FOR OPTION24" 10721  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 24th option or 
+! 24th option in an option spread.
+!
+LEG25_OPDT "DELTA FOR OPTION25" 10722  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 25th option or 
+! 25th option in an option spread.
+!
+LEG26_OPDT "DELTA FOR OPTION26" 10723  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 26th option or 
+! 26th option in an option spread.
+!
+LEG27_OPDT "DELTA FOR OPTION27" 10724  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 27th option or 
+! 27th option in an option spread.
+!
+LEG28_OPDT "DELTA FOR OPTION28" 10725  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 28th option or 
+! 28th option in an option spread.
+!
+LEG29_OPDT "DELTA FOR OPTION29" 10726  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 29th option or 
+! 29th option in an option spread.
+!
+LEG30_OPDT "DELTA FOR OPTION30" 10727  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 30th option or 
+! 30th option in an option spread.
+!
+LEG31_OPDT "DELTA FOR OPTION31" 10728  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 31th option or 
+! 31th option in an option spread.
+!
+LEG32_OPDT "DELTA FOR OPTION32" 10729  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 32th option or 
+! 32th option in an option spread.
+!
+LEG33_OPDT "DELTA FOR OPTION33" 10730  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 33rd option or 
+! 33rd option in an option spread.
+!
+LEG34_OPDT "DELTA FOR OPTION34" 10731  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 34th option or 
+! 34th option in an option spread.
+!
+LEG35_OPDT "DELTA FOR OPTION35" 10732  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 35th option or 
+! 35th option in an option spread.
+!
+LEG36_OPDT "DELTA FOR OPTION36" 10733  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 36th option or 
+! 36th option in an option spread.
+!
+LEG37_OPDT "DELTA FOR OPTION37" 10734  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 37th option or 
+! 37th option in an option spread.
+!
+LEG38_OPDT "DELTA FOR OPTION38" 10735  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 38th option or 
+! 38th option in an option spread.
+!
+LEG39_OPDT "DELTA FOR OPTION39" 10736  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 39th option or 
+! 39th option in an option spread.
+!
+LEG40_OPDT "DELTA FOR OPTION40" 10737  NULL        PRICE              17  REAL64           7
+!
+! Delta used to calculate the quantity of futures used to cover the 40th option or 
+! 40th option in an option spread.
+!
 PRERL1747  "PRED REAL 1747"     10738  NULL        PRICE              17  REAL64           7
 PRERL1748  "PRED REAL 1748"     10739  NULL        PRICE              17  REAL64           7
 PRERL1749  "PRED REAL 1749"     10740  NULL        PRICE              17  REAL64           7
@@ -31726,7 +31925,10 @@ SC_HLTR_RN "SEC HALT RSM RSN"   11878  NULL        ALPHANUMERIC       10  RMTES_
 ! Secondary field for native feed code articulating the reason a security is resumed 
 ! for trading.
 !
-PRE_10T154 "PRED 10 TXT 154"    11879  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+CAL_CODE_N "CAL CODE NATIVE"    11879  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native Trading Calendar Code.
+!
 PRE_10T155 "PRED 10 TXT 155"    11880  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T156 "PRED 10 TXT 156"    11881  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T157 "PRED 10 TXT 157"    11882  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -32253,8 +32455,14 @@ FISN       "FIN INST SHT NAME"  12223  NULL        ALPHANUMERIC       40  RMTES_
 !
 ! Financial instrument short name in accordance with ISO 18774
 !
-PRE_40T037 "PRED 40 TXT 037"    12224  NULL        ALPHANUMERIC       40  RMTES_STRING    40
-PRE_40T038 "PRED 40 TXT 038"    12225  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+BASIS_LOC  "BASIS LOCATION"     12224  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Location Basis.
+!
+DELIV_LOC  "DELIV LOCATION"     12225  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Delivery Location.
+!
 PRE_40T039 "PRED 40 TXT 039"    12226  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T040 "PRED 40 TXT 040"    12227  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T041 "PRED 40 TXT 041"    12228  NULL        ALPHANUMERIC       40  RMTES_STRING    40
@@ -33952,10 +34160,22 @@ IMB_SIDE2  "IMBALANCE SIDE 2"   13083  NULL        ENUMERATED    3 ( 2 )  ENUM  
 !
 ! The market side (buy or sell) of the secondary order imbalance.
 !
-PRE_1ET383 "PRED 1 ET 383"      13084  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET384 "PRED 1 ET 384"      13085  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET385 "PRED 1 ET 385"      13086  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET386 "PRED 1 ET 386"      13087  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+CONV_FUNC  "CONV FUNCTION"      13084  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+!
+! Common Conversion Function used to convert to the target unit of measure.
+!
+AUCTN_B_TP "AUCTN BIDDING TYPE" 13085  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Auction Bidding Type.
+!
+AUCTN_METH "AUCTN METH TYPE"    13086  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Auction Method Type.
+!
+LEG1_SET_M "LEG1 SET M"         13087  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Settlement Month Code - Leg 1.
+!
 PRE_1ET387 "PRED 1 ET 387"      13088  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET388 "PRED 1 ET 388"      13089  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET389 "PRED 1 ET 389"      13090  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -34269,9 +34489,12 @@ PRE_1ET696 "PRED 1 ET 696"      13397  NULL        ENUMERATED    3 ( 8 )  ENUM  
 PRE_1ET697 "PRED 1 ET 697"      13398  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET698 "PRED 1 ET 698"      13399  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET699 "PRED 1 ET 699"      13400  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET700 "PRED 1 ET 700"      13401  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+PRE_1ET700 "PRED 1 ET 700"      13401  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Refinitiv System Field
 !
 COR_EXID   "CORRECTED TRD EXCH" 13402  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -35038,9 +35261,18 @@ ORDER_EXID "ORDER EXCH ID"      13603  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! The Exchange ID of the order.
 !
-PRE_2ET283 "PRED 2 ET 283"      13604  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET284 "PRED 2 ET 284"      13605  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET285 "PRED 2 ET 285"      13606  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+MET_TYP21  "METRIC TYPE 21"     13604  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 21.
+!
+MET_TYP22  "METRIC TYPE 22"     13605  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 22.
+!
+DELIV_METH "DELIV METHOD"       13606  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Delivery Method.
+!
 PRE_2ET286 "PRED 2 ET 286"      13607  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET287 "PRED 2 ET 287"      13608  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET288 "PRED 2 ET 288"      13609  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -36115,11 +36347,11 @@ SPRDTIM_NS "SPRD TRD TIME NS"   14278  NULL        INTEGER            15  TIME  
 !
 ASK_Y_NS   "ASK YLD TIME NS"    14279  NULL        INTEGER            15  TIME             8
 !
-! Time of the latest update to the A_YIELD_1 (FID 4681).
+! Ask yield update time. 
 !
 BID_Y_NS   "BID YLD TIME NS"    14280  NULL        INTEGER            15  TIME             8
 !
-! Time of the latest update to the B_YIELD_1 (FID 4656).
+! Bid yield update time.
 !
 INGEST_NS  "INGEST NS"          14281  NULL        INTEGER            15  TIME             8
 !
@@ -37816,7 +38048,10 @@ PH_MK_ACVL "PH MKT ACVOL"       15216  NULL        PRICE              17  REAL64
 !
 ! Phone (inter-office) market accumulated volume.
 !
-PRE_LRL148 "PRED LRG REAL 148"  15217  NULL        PRICE              17  REAL64           8
+LT_AUCAMT  "LATEST AUCTN AMT"   15217  NULL        PRICE              17  REAL64           8
+!
+! Latest Auction Offering Amount.
+!
 PRE_LRL149 "PRED LRG REAL 149"  15218  NULL        PRICE              17  REAL64           8
 PRE_LRL150 "PRED LRG REAL 150"  15219  NULL        PRICE              17  REAL64           8
 PRE_LRL151 "PRED LRG REAL 151"  15220  NULL        PRICE              17  REAL64           8
