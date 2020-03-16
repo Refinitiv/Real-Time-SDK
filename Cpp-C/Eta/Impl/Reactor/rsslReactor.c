@@ -1059,8 +1059,12 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	RsslTokenInformation tokenInformation;
 	RsslReactorServiceEndpointEvent reactorServicEndpointEvent;
 	RsslErrorInfo errorInfo;
+	RsslReactorTokenManagementImpl *pTokenManagementImpl = NULL;
+	RsslReactorTokenSessionImpl *pTokenSessionImpl = NULL;
+	RsslHashLink *pHashLink = NULL;
 
 	rsslClearReactorServiceEndpointEvent(&reactorServicEndpointEvent);
+	rsslClearTokenInformation(&tokenInformation);
 	reactorServicEndpointEvent.userSpecPtr = pOpts->userSpecPtr;
 
 	pRsslReactorImpl = (RsslReactorImpl *)pReactor;
@@ -1138,82 +1142,155 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 	}
 
-	pRestRequestArgs = _reactorCreateRequestArgsForPassword(pRsslReactorImpl, &pRsslReactorImpl->tokenServiceURL,
-		&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
+	/* Checks whether there is an existing token session for the user. */
+	pTokenManagementImpl = &pRsslReactorImpl->reactorWorker.reactorTokenManagement;
 
-	if (pRestRequestArgs)
+	RSSL_MUTEX_LOCK(&pTokenManagementImpl->tokenSessionMutex);
+
+	if(pTokenManagementImpl->sessionByNameAndClientIdHt.elementCount != 0)
+		pHashLink = rsslHashTableFind(&pTokenManagementImpl->sessionByNameAndClientIdHt, &pOpts->userName, NULL);
+
+	if (pHashLink != 0)
 	{
-		if (!pRsslReactorImpl->accessTokenRespBuffer.data)
+		RsslReactorOAuthCredential *pOAuthCredential;
+		pTokenSessionImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, hashLinkNameAndClientId, pHashLink);
+
+		/* Checks whether the token session stops sending token reissue requests. */
+		if (pTokenSessionImpl->stopTokenRequest == 0)
 		{
-			pRsslReactorImpl->accessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
-			pRsslReactorImpl->accessTokenRespBuffer.data = (char*)malloc(pRsslReactorImpl->accessTokenRespBuffer.length);
+			pOAuthCredential = pTokenSessionImpl->pOAuthCredential;
+
+			if (pOAuthCredential->pOAuthCredentialEventCallback == 0)
+			{
+				if ((pOAuthCredential->clientSecret.length != pOpts->clientSecret.length) ||
+					(memcmp(pOAuthCredential->clientSecret.data, pOpts->clientSecret.data, pOAuthCredential->clientSecret.length) != 0))
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+						"The Client secret of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
+					return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+				}
+
+				if ((pOAuthCredential->password.length != pOpts->password.length) ||
+					(memcmp(pOAuthCredential->password.data, pOpts->password.data, pOAuthCredential->password.length) != 0))
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+						"The password of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
+					return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+				}
+			}
+
+			if ((pOAuthCredential->clientId.length != pOpts->clientId.length) ||
+				(memcmp(pOAuthCredential->clientId.data, pOpts->clientId.data, pOAuthCredential->clientId.length) != 0))
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+					"The Client ID of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
+				return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+			}
+
+			RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
+			/* Uses the access token from the token session if it is valid */
+			if (pTokenSessionImpl->tokenInformation.accessToken.data != 0)
+			{
+				tokenInformation.accessToken = pTokenSessionImpl->tokenInformation.accessToken;
+				tokenInformation.tokenType = pTokenSessionImpl->tokenInformation.tokenType;
+				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+			}
+			else
+			{
+				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to retrieve token information from the existing token session of the same user name.");
+				return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+			}
+		}
+		else
+		{
+			/* Send the token request by itself as the reactor worker stops updating the access token */
+			pTokenSessionImpl = NULL;
+		}
+	}
+
+	RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+
+	if (pTokenSessionImpl == NULL) /* Checks whether there is an existing token session for the same user */
+	{
+		pRestRequestArgs = _reactorCreateRequestArgsForPassword(pRsslReactorImpl, &pRsslReactorImpl->tokenServiceURL,
+			&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
+
+		if (pRestRequestArgs)
+		{
+			if (!pRsslReactorImpl->accessTokenRespBuffer.data)
+			{
+				pRsslReactorImpl->accessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
+				pRsslReactorImpl->accessTokenRespBuffer.data = (char*)malloc(pRsslReactorImpl->accessTokenRespBuffer.length);
+			}
+
+			if (!pRsslReactorImpl->accessTokenRespBuffer.data) goto memoryAllocationFailed;
+
+			_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
+
+			rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer,
+				&errorInfo.rsslError);
+
+			free(pRestRequestArgs);
+
+			if (restResponse.isMemReallocated)
+			{
+				free(pRsslReactorImpl->accessTokenRespBuffer.data);
+				pRsslReactorImpl->accessTokenRespBuffer = restResponse.reallocatedMem;
+			}
+
+			if (rsslRet != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to send a request to the token service. Text: %s", errorInfo.rsslError.text);
+
+				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+			}
+
+			if (restResponse.statusCode != 200)
+			{
+				rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
+
+				reactorServicEndpointEvent.pErrorInfo = &errorInfo;
+				reactorServicEndpointEvent.statusCode = restResponse.statusCode;
+				(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServicEndpointEvent);
+
+				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+			}
+		}
+		else
+		{
+			return (reactorUnlockInterface(pRsslReactorImpl), pError->rsslError.rsslErrorId);
 		}
 
-		if (!pRsslReactorImpl->accessTokenRespBuffer.data) goto memoryAllocationFailed;
-
-		_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
-
-		rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer, 
-			&errorInfo.rsslError);
-
-		free(pRestRequestArgs);
-
-		if (restResponse.isMemReallocated)
+		if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
 		{
-			free(pRsslReactorImpl->accessTokenRespBuffer.data);
-			pRsslReactorImpl->accessTokenRespBuffer = restResponse.reallocatedMem;
+			if (pRsslReactorImpl->tokenInformationBuffer.data)
+			{
+				free(pRsslReactorImpl->tokenInformationBuffer.data);
+			}
+
+			pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
+			pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
 		}
 
-		if (rsslRet != RSSL_RET_SUCCESS)
-		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Failed to send a request to the token service. Text: %s", errorInfo.rsslError.text);
-			
-			return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
-		}
+		if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
 
-		if (restResponse.statusCode != 200)
+		if (rsslRestParseAccessToken(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
+			&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope,
+			&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
 		{
 			rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
-			
+				"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
+
 			reactorServicEndpointEvent.pErrorInfo = &errorInfo;
 			reactorServicEndpointEvent.statusCode = restResponse.statusCode;
 			(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServicEndpointEvent);
 
 			return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
 		}
-	}
-	else
-	{
-		return (reactorUnlockInterface(pRsslReactorImpl), pError->rsslError.rsslErrorId);
-	}
-
-	if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
-	{
-		if (pRsslReactorImpl->tokenInformationBuffer.data)
-		{
-			free(pRsslReactorImpl->tokenInformationBuffer.data);
-		}
-
-		pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
-		pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
-	}
-
-	if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
-
-	if (rsslRestParseAccessToken(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
-		&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope, 
-		&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
-	{
-		rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
-
-		reactorServicEndpointEvent.pErrorInfo = &errorInfo;
-		reactorServicEndpointEvent.statusCode = restResponse.statusCode;
-		(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServicEndpointEvent);
-
-		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
 	}
 
 	pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pRsslReactorImpl, &pRsslReactorImpl->serviceDiscoveryURL,

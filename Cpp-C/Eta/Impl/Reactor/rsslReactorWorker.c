@@ -2423,7 +2423,18 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 				RTR_ATOMIC_SET(pReactorTokenSession->sendTokenRequest, 1);
 				pReactorTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + pReactorImpl->reissueTokenAttemptInterval;
 			}
+			else
+			{
+				/* Indicates that the Reactor will not attempt to send token reissue request. */
+				RTR_ATOMIC_SET(pReactorTokenSession->stopTokenRequest, 1);
+				pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING;
+			}
 		}
+	}
+	else
+	{
+		/* Indicates that the Reactor will not attempt to send token reissue request. */
+		RTR_ATOMIC_SET(pReactorTokenSession->stopTokenRequest, 1);
 	}
 }
 

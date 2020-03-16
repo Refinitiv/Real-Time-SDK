@@ -58,6 +58,7 @@ typedef struct
 	rtr_atomic_val64				tokenExpiresTime; /* the next expires time in millisecond */
 	RsslBool						resendFromFailure; /* Indicates to resend the request after a response failure */
 	rtr_atomic_val					sendTokenRequest;
+	rtr_atomic_val					stopTokenRequest; /* Indicates that the worker thread is no longer sending token reissue. */
 	RsslErrorInfo					tokenSessionWorkerCerr;
 	RsslInt							originalExpiresIn; /* The original expires in seconds from sending token request using the password grant type.*/
 
