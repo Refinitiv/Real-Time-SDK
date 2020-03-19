@@ -455,15 +455,27 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 		}
 	}
 
-	/* Set default service ID. */
-	if (rsslJsonConverterSetProperty(pReactorImpl->pJsonConverter,
-								RSSL_JSON_CPC_DEFAULT_SERVICE_ID, 
-								&pReactorJsonConverterOptions->defaultServiceId, &rjcError) != RSSL_RET_SUCCESS)
+	if (pReactorJsonConverterOptions->defaultServiceId > 65535)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-		"Failed setting RsslJsonConverter property: default service ID [%s]", rjcError.text);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed setting RsslJsonConverter property: default service ID [%d]. The service ID must be in a range between 0 to 65535", pReactorJsonConverterOptions->defaultServiceId);
 
 		goto FailedToInitJsonConverter;
+	}
+
+	if (pReactorJsonConverterOptions->defaultServiceId >= 0)
+	{
+		RsslUInt16 defaultServiceID = (RsslUInt16)pReactorJsonConverterOptions->defaultServiceId;
+		/* Set default service ID. */
+		if (rsslJsonConverterSetProperty(pReactorImpl->pJsonConverter,
+			RSSL_JSON_CPC_DEFAULT_SERVICE_ID,
+			&defaultServiceID, &rjcError) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed setting RsslJsonConverter property: default service ID [%s]", rjcError.text);
+
+			goto FailedToInitJsonConverter;
+		}
 	}
 
 	/* When converting from RWF to JSON, add a QoS range on requests that do not specify a QoS */

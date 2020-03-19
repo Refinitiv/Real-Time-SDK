@@ -890,7 +890,7 @@ RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, R
 typedef struct {
 	RsslDataDictionary						*pDictionary;					/*!< the RsslDataDictionary to initialize the RWF/JSON converter. */
 	void									*userSpecPtr; 					/*!< user-specified pointer which will be retrieved in the callback function. */
-	RsslUInt16								defaultServiceId;				/*!< Specify a default service ID for a request if both service name and ID are not set. */
+	RsslInt32								defaultServiceId;				/*!< Specify a default service ID for a request if both service name and ID are not set. A service ID must be in between 0 and 65535. */
 	RsslReactorServiceNameToIdCallback		*pServiceNameToIdCallback;		/*!< Callback function that handles conversion from service name to ID. */
 	RsslReactorJsonConversionEventCallback	*pJsonConversionEventCallback;	/*!< Callback function that receives RsslReactorJsonConversionEvent when the JSON converter failed to convert message. */
 	RsslBool								jsonExpandedEnumFields;			/*!< Expand enumerated values in field entries to their display values for JSON protocol. */
@@ -907,6 +907,7 @@ typedef struct {
 RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterOptions *pReactorJsonConverterOptions)
 {
 	memset(pReactorJsonConverterOptions, 0, sizeof(RsslReactorJsonConverterOptions));
+	pReactorJsonConverterOptions->defaultServiceId = -1;
 	pReactorJsonConverterOptions->catchUnknownJsonFids = RSSL_TRUE;
 	pReactorJsonConverterOptions->closeChannelFromFailure = RSSL_TRUE;
 	pReactorJsonConverterOptions->outputBufferSize = 65535;
