@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -55,6 +55,9 @@ typedef struct
 	/* Socket configuration settings, when using a socket connection. */
 	char				hostName[255];					/* Host to connect to. */
 	char				port[255];						/* Port to connect to. */
+
+	/* WebSocket configuration settings, when using a websocket connection. */
+	char				protocolList[255];				/* List of supported WebSocket sub-protocols */
 
 	/* Multicast configuration settings, when using a multicast connection. */
 	char				sendAddress[255];				/* Send address. */
@@ -160,6 +163,10 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 
  static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent); 
+
+ static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
+
+ static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 #ifdef __cplusplus
 }
 #endif

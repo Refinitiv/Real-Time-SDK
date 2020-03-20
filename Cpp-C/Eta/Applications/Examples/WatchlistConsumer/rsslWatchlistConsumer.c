@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /*
@@ -51,6 +51,8 @@ static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
 static RsslBool isConsumerChannelUp = RSSL_FALSE;
 
+static PostServiceInfo serviceInfo;
+
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
@@ -58,6 +60,8 @@ RsslBool runTimeExpired = RSSL_FALSE;
 /* For TREP authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
+
+extern RsslDataDictionary dictionary;
 
 int main(int argc, char **argv)
 {
@@ -69,6 +73,7 @@ int main(int argc, char **argv)
 	RsslReactorConnectInfo				reactorConnectInfo;
 	RsslErrorInfo						rsslErrorInfo;
 	RsslReactorServiceDiscoveryOptions	serviceDiscoveryOpts;
+	RsslReactorJsonConverterOptions		jsonConverterOptions;
 
 	RsslReactorOMMConsumerRole			consumerRole;
 	RsslRDMLoginRequest					loginRequest;
@@ -87,6 +92,9 @@ int main(int argc, char **argv)
 	itemDecoderInit();
 	postHandlerInit();
 	initTunnelStreamMessaging();
+
+	/* handle service updates for channel posting purposes */
+	clearPostServiceInfo(&serviceInfo);
 
 	stopTime = time(NULL);
 
@@ -197,6 +205,7 @@ int main(int argc, char **argv)
 
 	rsslClearReactorConnectOptions(&reactorConnectOpts);
 	rsslClearReactorConnectInfo(&reactorConnectInfo);
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	if(watchlistConsumerConfig.location.length == 0) // Use the default location from the Reactor if not specified
 	{
@@ -212,7 +221,19 @@ int main(int argc, char **argv)
 
 		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 		{
-			serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_SOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			}
+			else if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
+			}
+			else
+			{
+				printf("Error: Invalid encrypted connection type %d for querying EDP service discovery", watchlistConsumerConfig.encryptedConnectionType);
+				exit(-1);
+			}
 		}
 		else
 		{
@@ -276,6 +297,10 @@ int main(int argc, char **argv)
 		reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
 		reactorConnectInfo.location = watchlistConsumerConfig.location;
 		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+		}
 	}
 	else
 	{
@@ -320,6 +345,16 @@ int main(int argc, char **argv)
 	{
 		printf("rsslReactorConnect() failed: %d(%s)\n", 
 				ret, rsslErrorInfo.rsslError.text);
+		exit(-1);
+	}
+
+	jsonConverterOptions.pDictionary = &dictionary;
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
 
@@ -381,7 +416,7 @@ int main(int argc, char **argv)
 			printf("time() failed.\n");
 		}
 
-		if (pConsumerChannel && isConsumerChannelUp && !runTimeExpired)
+		if (pConsumerChannel && !runTimeExpired)
 		{
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				handleSimpleTunnelMsgHandler(pReactor, pConsumerChannel, &simpleTunnelMsgHandler);
@@ -391,10 +426,10 @@ int main(int argc, char **argv)
 			{
 				nextPostTime = currentTime + POST_MESSAGE_FREQUENCY;
 
-				if (watchlistConsumerConfig.post)
+				if (watchlistConsumerConfig.post && isConsumerChannelUp && serviceInfo.isServiceFound && serviceInfo.isServiceUp)
 					sendOnStreamPostMsg(pReactor, pConsumerChannel, postWithMsg);
 
-				if (watchlistConsumerConfig.offPost)
+				if (watchlistConsumerConfig.offPost && isConsumerChannelUp && serviceInfo.isServiceFound && serviceInfo.isServiceUp)
 					sendOffStreamPostMsg(pReactor, pConsumerChannel, postWithMsg);
 
 				if (postWithMsg)
@@ -449,6 +484,7 @@ int main(int argc, char **argv)
 	} while(ret >= RSSL_RET_SUCCESS);
 
 	/* Clean up and exit. */
+	clearPostServiceInfo(&serviceInfo);
 
 	if (pConsumerChannel)
 	{
@@ -967,6 +1003,9 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&simpleTunnelMsgHandler.tunnelStreamHandler,
 				&watchlistConsumerConfig.tunnelStreamServiceName, pService);
+
+			/* handle service updates for channel posting purposes */
+			processPostServiceUpdate(&serviceInfo, &watchlistConsumerConfig.serviceName, pService);
 		}
 	}
 
@@ -980,6 +1019,17 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 		else if (!simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 			printf("  Service in use for tunnel streams does not support them: %s\n\n",
 				watchlistConsumerConfig.tunnelStreamServiceName.data);
+	}
+
+	/* handle service updates for channel posting purposes */
+	if (watchlistConsumerConfig.post || watchlistConsumerConfig.offPost)
+	{
+		if (!serviceInfo.isServiceFound)
+			printf("  Directory response does not contain service name to send post messages: %s\n\n",
+				watchlistConsumerConfig.serviceName.data);
+		else if (!serviceInfo.isServiceUp)
+			printf("  Service in use to send post messages is down: %s\n\n",
+				watchlistConsumerConfig.serviceName.data);
 	}
 
 
@@ -1254,7 +1304,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				rsslClearTraceOptions(&traceOptions);
 				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer\0");
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1344,4 +1394,67 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
+}
+
+void clearPostServiceInfo(PostServiceInfo *serviceInfo)
+{
+	serviceInfo->isServiceFound = RSSL_FALSE;
+	serviceInfo->isServiceUp = RSSL_FALSE;
+	serviceInfo->serviceId = 0;
+}
+
+void processPostServiceUpdate(PostServiceInfo *serviceInfo, RsslBuffer *pMatchServiceName, RsslRDMService* pService)
+{
+	/* Save service information for tunnel stream. */
+	if (!serviceInfo->isServiceFound)
+	{
+		/* Check if the name matches the service we're looking for. */
+		if (pService->flags & RDM_SVCF_HAS_INFO
+			&& rsslBufferIsEqual(&pService->info.serviceName, pMatchServiceName))
+		{
+			serviceInfo->isServiceFound = RSSL_TRUE;
+			serviceInfo->serviceId = (RsslUInt16)pService->serviceId;
+		}
+	}
+
+	if (pService->serviceId == serviceInfo->serviceId)
+	{
+		/* Process the state of the tunnel stream service. */
+		if (pService->action != RSSL_MPEA_DELETE_ENTRY)
+		{
+			/* Check state. */
+			if (pService->flags & RDM_SVCF_HAS_STATE)
+			{
+				serviceInfo->isServiceUp =
+					pService->state.serviceState == 1 &&
+					(!(pService->state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS) ||
+						pService->state.acceptingRequests == 1);
+			}
+		}
+		else
+		{
+			clearPostServiceInfo(serviceInfo);
+		}
+	}
+}
+
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (serviceInfo.isServiceFound && rsslBufferIsEqual(&watchlistConsumerConfig.serviceName, pServiceName))
+	{
+		*pServiceId = (RsslUInt16)serviceInfo.serviceId;
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
 }

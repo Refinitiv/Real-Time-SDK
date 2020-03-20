@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /*
@@ -56,8 +56,8 @@ void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
 		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
-			" -c           Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
-			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
+			" -c           Specifies connection type. Valid arguments are socket, webSocket, http, encrypted, and reliableMCast.\n"
+			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, webSocket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
 			" -clientId    Specifies an unique ID for application making the request to EDP token service (mandatory).\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
@@ -76,6 +76,7 @@ void printUsageAndExit(int argc, char **argv)
 			" -at	       Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			" -ax          Specifies the Authentication Extended information.\n"
 			" -aid	       Specifies the Application ID.\n"
+			" -pl	       Specifies list of supported websocket sub-protocols, white space or ',' delineated.\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
@@ -168,6 +169,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
 	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
 
+	snprintf(watchlistConsumerConfig.protocolList, 255, "rssl.rwf");
+
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
@@ -179,6 +182,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 			if (0 == strcmp(argv[i], "socket"))
 				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[i], "webSocket"))
+				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (0 == strcmp(argv[i], "http"))
 				watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_HTTP;
 			else if (0 == strcmp(argv[i], "encrypted"))
@@ -197,6 +202,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 			if (0 == strcmp(argv[i], "socket"))
 				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[i], "webSocket"))
+				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_WEBSOCKET;
 			else if (0 == strcmp(argv[i], "http"))
 			{
 #ifdef LINUX
@@ -267,6 +274,11 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-pl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.protocolList, 255, "%s", argv[i]);
 		}
 		else if (0 == strcmp(argv[i], "-sa"))
 		{
