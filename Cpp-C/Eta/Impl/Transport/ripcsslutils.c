@@ -1801,6 +1801,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	struct in_addr addr;
 	ripcSSLSession *sess = ripcInitializeSSLSession(fd, SSLProtocolVersion, (RsslSocketChannel*)userSpecPtr, error);
 	OPENSSL_X509_VERIFY_PARAM* params;
+	RsslSocketChannel* chnl = (RsslSocketChannel*)userSpecPtr;
 
 	if (sess == NULL)
 		return 0;
@@ -1823,6 +1824,14 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	if ((*(sslFuncs.set_cipher_list))(sess->connection, CIPHER_LIST) < 1)
 	{
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect error setting up cipher list (no valid ciphers) (errno %d)", __FILE__, __LINE__, errno);
+		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
+		return 0;
+	}
+
+	/* Setup SNI extension.  Note that we're just going to pass in the hostName as is. */
+	if ((*(sslFuncs.ctrl))(sess->connection, RSSL_SSL_CTRL_SET_TLSEXT_HOSTNAME, RSSL_TLSEXT_NAMETYPE_host_name, chnl->hostName) < 1)
+	{
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Error setting up SNI extension (errno %d)", __FILE__, __LINE__, errno);
 		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		return 0;
 	}

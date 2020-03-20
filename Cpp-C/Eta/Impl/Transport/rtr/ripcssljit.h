@@ -171,6 +171,10 @@ typedef int pem_password_cb(char*, int, int, void*);
 # define RSSL_SSL_GEN_IPADD       7
 # define RSSL_SSL_GEN_RID         8
 
+/* Definitions for TLS SNI support */
+#define RSSL_SSL_CTRL_SET_TLSEXT_HOSTNAME  55
+#define RSSL_TLSEXT_NAMETYPE_host_name     0
+
 typedef struct OPENSSL_10_CRYPTO_EX_DATA_st {
 	OPENSSL_STACK *sk;
 	int dummy;
