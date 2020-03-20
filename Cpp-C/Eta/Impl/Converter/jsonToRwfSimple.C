@@ -23,8 +23,9 @@
  //Use 1 to 3 byte variable UTF encoding
 #define MaxUTF8Bytes 3
 
-jsonToRwfSimple::jsonToRwfSimple(int bufSize, unsigned int flags, RsslUInt16 srvcId, int numTokens, int incSize) :
-	_defaultServiceId(srvcId),
+jsonToRwfSimple::jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens, int incSize) :
+	_defaultServiceId(0),
+	_isDefaultServiceId(false),
 	_viewTokPtr(0),
 	_batchReqTokPtr(0),
 	_batchCloseTokPtr(0),
@@ -7187,6 +7188,7 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 				if (compareStrings(*tokPtr, JSON_KEY_SERVICE)) //Service
 				{
 					(*tokPtr)++;
+					bool wrongServiceId = false;
 					switch ((*tokPtr)->type)
 					{
 						case JSMN_STRING: //Service Name
@@ -7195,7 +7197,7 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 							{
 								RsslBuffer serviceName = { (rtrUInt32)((*tokPtr)->end - (*tokPtr)->start), &_jsonMsg[(*tokPtr)->start] };
 								if (_rsslServiceNameToIdCallback(&serviceName, _closure, &keyPtr->serviceId) != RSSL_RET_SUCCESS)
-									keyPtr->serviceId = 0;
+									wrongServiceId = true;
 							}
 							break;
 						}
@@ -7207,7 +7209,8 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 							return false;
 					}
 
-					if (!keyPtr->serviceId)
+					/* there is wrong serviceId integer JSON value or there is no appropriate serviceName to serviceId conversion */
+					if (wrongServiceId)
 					{
 						unexpectedParameter(*tokPtr, __LINE__, __FILE__, &JSON_KEY_SERVICE);
 						return false;
@@ -7498,7 +7501,7 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 	}
 
 	if ( !(flags & RSSL_MKF_HAS_SERVICE_ID) &&
-		 domain != RSSL_DMT_SOURCE && domain != RSSL_DMT_LOGIN && _defaultServiceId != 0)
+		 domain != RSSL_DMT_SOURCE && domain != RSSL_DMT_LOGIN && _isDefaultServiceId)
 	{
 		keyPtr->serviceId = _defaultServiceId;
 		flags |= RSSL_MKF_HAS_SERVICE_ID;

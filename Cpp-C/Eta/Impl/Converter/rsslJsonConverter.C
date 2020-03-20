@@ -49,9 +49,9 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 
 	/*The purpose of this option is to optimize performance of rmdstestclient*/
 	if (pOptions->skipEncodingPayload)
-		pConverterImpl->_jsonToRwfSimple = new jsonToRsslMsgDecoder(pOptions->bufferSize, 0, 0);
+		pConverterImpl->_jsonToRwfSimple = new jsonToRsslMsgDecoder(pOptions->bufferSize, 0);
 	else
-		pConverterImpl->_jsonToRwfSimple = new jsonToRwfSimple(pOptions->bufferSize, 0, 0);
+		pConverterImpl->_jsonToRwfSimple = new jsonToRwfSimple(pOptions->bufferSize, 0);
 
 	if (!pConverterImpl->_jsonToRwfSimple)
 	{

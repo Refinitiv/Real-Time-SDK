@@ -14,7 +14,7 @@
 class jsonToRsslMsgDecoder : public jsonToRwfSimple
 {
  public:
-	jsonToRsslMsgDecoder(int bufSize, unsigned int flags, RsslUInt16 defaultSrvcId, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
+	jsonToRsslMsgDecoder(int bufSize, unsigned int flags, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
 	~jsonToRsslMsgDecoder() {}
 
  protected:

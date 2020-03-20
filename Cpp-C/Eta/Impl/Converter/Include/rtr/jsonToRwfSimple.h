@@ -15,12 +15,12 @@ class EnumTableDefinition; // forward declaration
 class jsonToRwfSimple : public jsonToRwfBase
 {
  public:
-	jsonToRwfSimple(int bufSize, unsigned int flags, RsslUInt16 defaultSrvcId, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
+	jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
 	~jsonToRwfSimple();
 	void reset();
 	RsslBuffer *errorText();
 
-	void setDefaultServiceId(RsslUInt16 serviceId) { _defaultServiceId = serviceId; }
+	void setDefaultServiceId(RsslUInt16 serviceId) { _defaultServiceId = serviceId; _isDefaultServiceId = true; }
 
 	inline void setUseDefaultDynamicQos(RsslBool useDefault)
 	{
@@ -63,6 +63,7 @@ class jsonToRwfSimple : public jsonToRwfBase
 
  private:
 	RsslUInt16		_defaultServiceId;
+	bool			_isDefaultServiceId;
 	jsmntok_t *		_viewTokPtr;
 	jsmntok_t *		_batchReqTokPtr;
 	jsmntok_t *		_batchCloseTokPtr;

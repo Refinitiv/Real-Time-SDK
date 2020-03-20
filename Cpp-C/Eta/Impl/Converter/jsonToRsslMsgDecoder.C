@@ -9,8 +9,8 @@
 
 #include "rtr/jsonToRsslMsgDecoder.h"
 
-jsonToRsslMsgDecoder::jsonToRsslMsgDecoder(int bufSize, unsigned int flags, RsslUInt16 defaultSrvcId, int numTokens, int incSize) :
-	jsonToRwfSimple(bufSize, flags, defaultSrvcId, numTokens, incSize)
+jsonToRsslMsgDecoder::jsonToRsslMsgDecoder(int bufSize, unsigned int flags, int numTokens, int incSize) :
+	jsonToRwfSimple(bufSize, flags, numTokens, incSize)
 { }
 
 bool jsonToRsslMsgDecoder::encodeMsgPayload(RsslMsg *rsslMsgPtr, jsmntok_t *dataTokPtr)
