@@ -61,6 +61,8 @@ RsslBool runTimeExpired = RSSL_FALSE;
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 
+extern RsslDataDictionary dictionary;
+
 int main(int argc, char **argv)
 {
 	RsslReactor							*pReactor;
@@ -71,6 +73,7 @@ int main(int argc, char **argv)
 	RsslReactorConnectInfo				reactorConnectInfo;
 	RsslErrorInfo						rsslErrorInfo;
 	RsslReactorServiceDiscoveryOptions	serviceDiscoveryOpts;
+	RsslReactorJsonConverterOptions		jsonConverterOptions;
 
 	RsslReactorOMMConsumerRole			consumerRole;
 	RsslRDMLoginRequest					loginRequest;
@@ -202,6 +205,7 @@ int main(int argc, char **argv)
 
 	rsslClearReactorConnectOptions(&reactorConnectOpts);
 	rsslClearReactorConnectInfo(&reactorConnectInfo);
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	if(watchlistConsumerConfig.location.length == 0) // Use the default location from the Reactor if not specified
 	{
@@ -217,7 +221,19 @@ int main(int argc, char **argv)
 
 		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 		{
-			serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_SOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			}
+			else if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
+			}
+			else
+			{
+				printf("Error: Invalid encrypted connection type %d for querying EDP service discovery", watchlistConsumerConfig.encryptedConnectionType);
+				exit(-1);
+			}
 		}
 		else
 		{
@@ -281,6 +297,10 @@ int main(int argc, char **argv)
 		reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
 		reactorConnectInfo.location = watchlistConsumerConfig.location;
 		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+		}
 	}
 	else
 	{
@@ -325,6 +345,16 @@ int main(int argc, char **argv)
 	{
 		printf("rsslReactorConnect() failed: %d(%s)\n", 
 				ret, rsslErrorInfo.rsslError.text);
+		exit(-1);
+	}
+
+	jsonConverterOptions.pDictionary = &dictionary;
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
 
@@ -1274,7 +1304,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				rsslClearTraceOptions(&traceOptions);
 				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer\0");
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1406,4 +1436,25 @@ void processPostServiceUpdate(PostServiceInfo *serviceInfo, RsslBuffer *pMatchSe
 			clearPostServiceInfo(serviceInfo);
 		}
 	}
+}
+
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (serviceInfo.isServiceFound && rsslBufferIsEqual(&watchlistConsumerConfig.serviceName, pServiceName))
+	{
+		*pServiceId = (RsslUInt16)serviceInfo.serviceId;
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
 }

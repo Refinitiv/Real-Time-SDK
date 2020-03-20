@@ -15,7 +15,7 @@
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslDataPackage.h"
 
-static RsslDataDictionary dictionary;
+RsslDataDictionary dictionary;
 RsslBool fieldDictionaryLoaded = RSSL_FALSE;
 RsslBool enumDictionaryLoaded = RSSL_FALSE;
 

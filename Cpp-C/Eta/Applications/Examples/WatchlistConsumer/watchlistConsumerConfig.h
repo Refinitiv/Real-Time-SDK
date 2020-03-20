@@ -56,6 +56,9 @@ typedef struct
 	char				hostName[255];					/* Host to connect to. */
 	char				port[255];						/* Port to connect to. */
 
+	/* WebSocket configuration settings, when using a websocket connection. */
+	char				protocolList[255];				/* List of supported WebSocket sub-protocols */
+
 	/* Multicast configuration settings, when using a multicast connection. */
 	char				sendAddress[255];				/* Send address. */
 	char				recvAddress[255];				/* Receive address. */
@@ -160,6 +163,10 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 
  static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent); 
+
+ static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
+
+ static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 #ifdef __cplusplus
 }
 #endif
