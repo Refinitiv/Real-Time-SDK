@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.40_TREP_20.21		02/10/2020
-!	* Modified 02/10/2020 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.40.
+!   Version	 4.20.41_TREP_20.31		03/19/2020
+!	* Modified 03/19/2020 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.41.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.40_TREP
+!   Version: 4.20.41_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.40
-!tag Build     2
-!tag Date      15-Jan-2020
+!tag Version   4.20.41
+!tag Build     6
+!tag Date      19-Mar-2020
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -2978,7 +2978,7 @@ CLOSE_TYPE "CLOSE TYPE"           964  NULL        ENUMERATED    3 ( 2 )  ENUM  
 !
 RATING_2   "RATING 2"             965  NULL        ENUMERATED    3 ( 4 )  ENUM             1
 !
-! A generic rating field whose source is identified by the field RATING_2.
+! A generic rating field whose source is identified by the field RATING_ID2.
 !
 RATING_ID2 "RATING ID 2"          966  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -8049,11 +8049,11 @@ DISC_RATE  "DISCOUNT RATE"       3317  NULL        PRICE              17  REAL64
 !
 DISC_MRGA  "DISC MARGIN A"       3318  NULL        PRICE              17  REAL64           7
 !
-! Discount margin A
+! Ask Discount Margin.
 !
 DISC_MRGB  "DISC MARGIN B"       3319  NULL        PRICE              17  REAL64           7
 !
-! Discount margin B
+! Bid Discount Margin.
 !
 DSPLY_NME2 "DISPLAY NAME 2"      3320  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 !
@@ -19891,12 +19891,30 @@ CURVE_POS  "CURVE POS"           7155  NULL        INTEGER            15  INT64 
 !
 ! Derivative Position in the forward curve.
 !
-PRE_INT277 "PRED INTEGER 277"    7156  NULL        INTEGER            15  INT64            6
-PRE_INT278 "PRED INTEGER 278"    7157  NULL        INTEGER            15  INT64            6
-PRE_INT279 "PRED INTEGER 279"    7158  NULL        INTEGER            15  INT64            6
-PRE_INT280 "PRED INTEGER 280"    7159  NULL        INTEGER            15  INT64            6
-PRE_INT281 "PRED INTEGER 281"    7160  NULL        INTEGER            15  INT64            6
-PRE_INT282 "PRED INTEGER 282"    7161  NULL        INTEGER            15  INT64            6
+NUM_MORD_N "NAT NUM MATCH ORD"   7156  NULL        INTEGER            15  INT64            6
+!
+! Native/source calculated number of matched orders.
+!
+NUM_AB_CPT "NUM ACP BID CPT"     7157  NULL        INTEGER            15  INT64            6
+!
+! Number of Accepted Competitive BIDs.
+!
+NUM_AB_NCP "NUM ACP BID NCP"     7158  NULL        INTEGER            15  INT64            6
+!
+! Number of Accepted Noncompetitive BIDs.
+!
+NUM_ACPBID "NUM ACP BID"         7159  NULL        INTEGER            15  INT64            6
+!
+! Number of Accepted BIDs.
+!
+NUM_TB_CPT "NUM TEND BID CPT"    7160  NULL        INTEGER            15  INT64            6
+!
+! Number of Tendered Competitive BIDs.
+!
+NUM_TB_NCP "NUM TEND BID NCP"    7161  NULL        INTEGER            15  INT64            6
+!
+! Number of Tendered Noncompetitive BIDs.
+!
 PRE_INT283 "PRED INTEGER 283"    7162  NULL        INTEGER            15  INT64            6
 PRE_INT284 "PRED INTEGER 284"    7163  NULL        INTEGER            15  INT64            6
 PRE_INT285 "PRED INTEGER 285"    7164  NULL        INTEGER            15  INT64            6
@@ -26659,11 +26677,26 @@ LEG1_SETDT "LEG1 SETLMENT DT"    9367  NULL        DATE               11  DATE  
 !
 ! Settlement Date - Leg 1.
 !
-PRE_DT257  "PRED DATE 257"       9368  NULL        DATE               11  DATE             4
-PRE_DT258  "PRED DATE 258"       9369  NULL        DATE               11  DATE             4
-PRE_DT259  "PRED DATE 259"       9370  NULL        DATE               11  DATE             4
-PRE_DT260  "PRED DATE 260"       9371  NULL        DATE               11  DATE             4
-PRE_DT261  "PRED DATE 261"       9372  NULL        DATE               11  DATE             4
+ORIG_ISSDT "ORIG ISS DATE"       9368  NULL        DATE               11  DATE             4
+!
+! Original Issue Date.
+!
+YH_PYLD_DT "YR HI PAR YLD DT"    9369  NULL        DATE               11  DATE             4
+!
+! Date on which the Year High Par Yield is updated.
+!
+YH_ZYLD_DT "YR HI ZERO YLD DT"   9370  NULL        DATE               11  DATE             4
+!
+! Date on which the Year High Zero Yield is updated.
+!
+YL_PYLD_DT "YR LO PAR YLD DT"    9371  NULL        DATE               11  DATE             4
+!
+! Date on which the Year Low Par Yield is updated.
+!
+YL_ZYLD_DT "YR LO ZERO YLD DT"   9372  NULL        DATE               11  DATE             4
+!
+! Date on which the Year Low Zero Yield is updated.
+!
 PRE_DT262  "PRED DATE 262"       9373  NULL        DATE               11  DATE             4
 PRE_DT263  "PRED DATE 263"       9374  NULL        DATE               11  DATE             4
 PRE_DT264  "PRED DATE 264"       9375  NULL        DATE               11  DATE             4
@@ -30382,45 +30415,164 @@ LEG40_OPDT "DELTA FOR OPTION40" 10737  NULL        PRICE              17  REAL64
 ! Delta used to calculate the quantity of futures used to cover the 40th option or 
 ! 40th option in an option spread.
 !
-PRERL1747  "PRED REAL 1747"     10738  NULL        PRICE              17  REAL64           7
-PRERL1748  "PRED REAL 1748"     10739  NULL        PRICE              17  REAL64           7
-PRERL1749  "PRED REAL 1749"     10740  NULL        PRICE              17  REAL64           7
-PRERL1750  "PRED REAL 1750"     10741  NULL        PRICE              17  REAL64           7
-PRERL1751  "PRED REAL 1751"     10742  NULL        PRICE              17  REAL64           7
-PRERL1752  "PRED REAL 1752"     10743  NULL        PRICE              17  REAL64           7
-PRERL1753  "PRED REAL 1753"     10744  NULL        PRICE              17  REAL64           7
-PRERL1754  "PRED REAL 1754"     10745  NULL        PRICE              17  REAL64           7
-PRERL1755  "PRED REAL 1755"     10746  NULL        PRICE              17  REAL64           7
-PRERL1756  "PRED REAL 1756"     10747  NULL        PRICE              17  REAL64           7
-PRERL1757  "PRED REAL 1757"     10748  NULL        PRICE              17  REAL64           7
-PRERL1758  "PRED REAL 1758"     10749  NULL        PRICE              17  REAL64           7
-PRERL1759  "PRED REAL 1759"     10750  NULL        PRICE              17  REAL64           7
-PRERL1760  "PRED REAL 1760"     10751  NULL        PRICE              17  REAL64           7
-PRERL1761  "PRED REAL 1761"     10752  NULL        PRICE              17  REAL64           7
-PRERL1762  "PRED REAL 1762"     10753  NULL        PRICE              17  REAL64           7
-PRERL1763  "PRED REAL 1763"     10754  NULL        PRICE              17  REAL64           7
-PRERL1764  "PRED REAL 1764"     10755  NULL        PRICE              17  REAL64           7
-PRERL1765  "PRED REAL 1765"     10756  NULL        PRICE              17  REAL64           7
-PRERL1766  "PRED REAL 1766"     10757  NULL        PRICE              17  REAL64           7
-PRERL1767  "PRED REAL 1767"     10758  NULL        PRICE              17  REAL64           7
-PRERL1768  "PRED REAL 1768"     10759  NULL        PRICE              17  REAL64           7
-PRERL1769  "PRED REAL 1769"     10760  NULL        PRICE              17  REAL64           7
-PRERL1770  "PRED REAL 1770"     10761  NULL        PRICE              17  REAL64           7
-PRERL1771  "PRED REAL 1771"     10762  NULL        PRICE              17  REAL64           7
-PRERL1772  "PRED REAL 1772"     10763  NULL        PRICE              17  REAL64           7
-PRERL1773  "PRED REAL 1773"     10764  NULL        PRICE              17  REAL64           7
-PRERL1774  "PRED REAL 1774"     10765  NULL        PRICE              17  REAL64           7
-PRERL1775  "PRED REAL 1775"     10766  NULL        PRICE              17  REAL64           7
-PRERL1776  "PRED REAL 1776"     10767  NULL        PRICE              17  REAL64           7
-PRERL1777  "PRED REAL 1777"     10768  NULL        PRICE              17  REAL64           7
-PRERL1778  "PRED REAL 1778"     10769  NULL        PRICE              17  REAL64           7
-PRERL1779  "PRED REAL 1779"     10770  NULL        PRICE              17  REAL64           7
-PRERL1780  "PRED REAL 1780"     10771  NULL        PRICE              17  REAL64           7
-PRERL1781  "PRED REAL 1781"     10772  NULL        PRICE              17  REAL64           7
-PRERL1782  "PRED REAL 1782"     10773  NULL        PRICE              17  REAL64           7
-PRERL1783  "PRED REAL 1783"     10774  NULL        PRICE              17  REAL64           7
-PRERL1784  "PRED REAL 1784"     10775  NULL        PRICE              17  REAL64           7
-PRERL1785  "PRED REAL 1785"     10776  NULL        PRICE              17  REAL64           7
+BID_CVR_RT "BID TO COVER RATIO" 10738  NULL        PRICE              17  REAL64           7
+!
+! Bid to Cover Ratio. The number of bids received in the auction divided by the number 
+! of bids accepted.
+!
+PRICE_COMP "PRC RTN COMPONENT"  10739  NULL        PRICE              17  REAL64           7
+!
+! Price return component of the index value. 
+!
+INT_COMP   "INT RTN COMPONENT"  10740  NULL        PRICE              17  REAL64           7
+!
+! Interest return component of the index value.
+!
+CASH_COMP  "CASH RTN COMPONENT" 10741  NULL        PRICE              17  REAL64           7
+!
+! Cash component of the index value.
+!
+ALLOT_RATE "ALLOTMENT RATE"     10742  NULL        PRICE              17  REAL64           7
+!
+! Allotment Rate.
+!
+AVAIL_CAP  "AVAIL CAPACITY"     10743  NULL        PRICE              17  REAL64           7
+!
+! Available Capacity of a refinery unit
+!
+C_SHORT_RT "CLOSE SHORT RATE"   10744  NULL        PRICE              17  REAL64           7
+!
+! The closing Short Rate of the day
+!
+CLS_PYLD   "CLOSE PAR YIELD"    10745  NULL        PRICE              17  REAL64           7
+!
+! The closing Par Yield of the day
+!
+CLS_ZYLD   "CLOSE ZERO YIELD"   10746  NULL        PRICE              17  REAL64           7
+!
+! The closing Zero Yield of the day
+!
+CUTOFF_PRC "CUTOFF PRC"         10747  NULL        PRICE              17  REAL64           7
+!
+! Cutoff price - the minimum acceptable price.
+!
+DEVOLV_AMT "DEVOLVEMENT AMT"    10748  NULL        PRICE              17  REAL64           7
+!
+! Devolvement Amount.
+!
+DEVOLV_YLD "DEVOLVEMENT YLD"    10749  NULL        PRICE              17  REAL64           7
+!
+! Yield associated the devolvement amount in FID DEVOLV_AMT.
+!
+H_SHORT_RT "HIGH SHORT RATE"    10750  NULL        PRICE              17  REAL64           7
+!
+! The highest Short Rate of the day
+!
+HIGH_PYLD  "HIGH PAR YIELD"     10751  NULL        PRICE              17  REAL64           7
+!
+! The highest Par Yield of the day
+!
+HIGH_ZYLD  "HIGH ZERO YIELD"    10752  NULL        PRICE              17  REAL64           7
+!
+! The highest Zero Yield of the day
+!
+L_SHORT_RT "LOW SHORT RATE"     10753  NULL        PRICE              17  REAL64           7
+!
+! The lowest Short Rate of the day
+!
+LOW_PYLD   "LOW PAR YIELD"      10754  NULL        PRICE              17  REAL64           7
+!
+! The lowest Par Yield of the day
+!
+LOW_ZYLD   "LOW ZERO YIELD"     10755  NULL        PRICE              17  REAL64           7
+!
+! The lowest Zero Yield of the day
+!
+MAX_BQT_SZ "MAX BID QUOTE SIZE" 10756  NULL        PRICE              17  REAL64           7
+!
+! Maximum Bid Amount.
+!
+MNBAMT_NCP "MIN BID AMT NCP"    10757  NULL        PRICE              17  REAL64           7
+!
+! Minimum Bid Amount for Noncompetitive Auction.
+!
+MXBAMT_NCP "MAX BID AMT NCP"    10758  NULL        PRICE              17  REAL64           7
+!
+! Maximum Bid Amount for Noncompetitive Auction.
+!
+O_SHORT_RT "OPEN SHORT RATE"    10759  NULL        PRICE              17  REAL64           7
+!
+! The opening Short Rate of the day
+!
+OPEN_PYLD  "OPEN PAR YIELD"     10760  NULL        PRICE              17  REAL64           7
+!
+! The opening Par Yield of the day
+!
+OPEN_ZYLD  "OPEN ZERO YIELD"    10761  NULL        PRICE              17  REAL64           7
+!
+! The opening Zero Yield of the day
+!
+OUTGE_CAP  "OUTAGE CAPACITY"    10762  NULL        PRICE              17  REAL64           7
+!
+! Outage Capacity/Capacity Offline of a refinery unit
+!
+OUTGE_DAYS "OUTAGE DAYS"        10763  NULL        PRICE              17  REAL64           7
+!
+! Outage Duration in Days
+!
+PMD_AUCVOL "PRM DLR TTL AUC VL" 10764  NULL        PRICE              17  REAL64           7
+!
+! Total Accepted Bid Amount from the Primary Dealer(s).
+!
+PMD_BTC_RT "PRM DLR BID CVR RT" 10765  NULL        PRICE              17  REAL64           7
+!
+! Primary Dealer(s) Bid to Cover Ratio. (Total Tendered Bid Amount / Allotted Amount)
+!
+PYLD_NCHG  "PAR YLD NET CHG"    10766  NULL        PRICE              17  REAL64           7
+!
+! Par Yield Net Change.
+!
+PYLD_PCHG  "PAR YLD PCT CHG"    10767  NULL        PRICE              17  REAL64           7
+!
+! Par Yield Percentage Change.
+!
+RETEN_AMT  "RETENTION AMT"      10768  NULL        PRICE              17  REAL64           7
+!
+! Retention Amount.  The amount of security issuance held back to be released directly 
+! to the secondary market.
+!
+SPDTOBASE  "SPREAD TO BASE"     10769  NULL        PRICE              17  REAL64           7
+!
+! Spread to Base.
+!
+UNIT_CAP   "UNIT CAPACITY"      10770  NULL        PRICE              17  REAL64           7
+!
+! The installed capacity of the processing unit in the refinery, measured in BBL/D
+!
+YH_PYLD    "YR HI PAR YLD"      10771  NULL        PRICE              17  REAL64           7
+!
+! The Highest Par Yield of the Year.
+!
+YH_ZYLD    "YR HI ZERO YLD"     10772  NULL        PRICE              17  REAL64           7
+!
+! The Highest Zero Yield of the Year.
+!
+YL_PYLD    "YR LO PAR YLD"      10773  NULL        PRICE              17  REAL64           7
+!
+! The Lowest Par Yield of the Year.
+!
+YL_ZYLD    "YR LO ZERO YLD"     10774  NULL        PRICE              17  REAL64           7
+!
+! The Lowest Zero Yield of the Year.
+!
+ZYLD_NCHG  "ZERO YLD NET CHG"   10775  NULL        PRICE              17  REAL64           7
+!
+! Zero Yield Net Change.
+!
+ZYLD_PCHG  "ZERO YLD PCT CHG"   10776  NULL        PRICE              17  REAL64           7
+!
+! Zero Yield Percentage Change.
+!
 PRERL1786  "PRED REAL 1786"     10777  NULL        PRICE              17  REAL64           7
 PRERL1787  "PRED REAL 1787"     10778  NULL        PRICE              17  REAL64           7
 PRERL1788  "PRED REAL 1788"     10779  NULL        PRICE              17  REAL64           7
@@ -31524,8 +31676,14 @@ RFQ_A_MMID "RFQ ASK MMID"       11704  NULL        ALPHANUMERIC        8  RMTES_
 !
 ! RFQ ASK Market Participant ID.
 !
-PRE_8TX024 "PRED 8 TXT 024"     11705  NULL        ALPHANUMERIC        8  RMTES_STRING     8
-PRE_8TX025 "PRED 8 TXT 025"     11706  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+RFNY_ID    "REFINERY ID"        11705  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! The ID of the Refinery plant
+!
+UNIT_ID    "UNIT ID"            11706  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! The ID of the processing unit in the refinery
+!
 PRE_8TX026 "PRED 8 TXT 026"     11707  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX027 "PRED 8 TXT 027"     11708  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX028 "PRED 8 TXT 028"     11709  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -32463,9 +32621,18 @@ DELIV_LOC  "DELIV LOCATION"     12225  NULL        ALPHANUMERIC       40  RMTES_
 !
 ! Delivery Location.
 !
-PRE_40T039 "PRED 40 TXT 039"    12226  NULL        ALPHANUMERIC       40  RMTES_STRING    40
-PRE_40T040 "PRED 40 TXT 040"    12227  NULL        ALPHANUMERIC       40  RMTES_STRING    40
-PRE_40T041 "PRED 40 TXT 041"    12228  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+RFNY_OWNER "REFINERY OWNER"     12226  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! The name of the processing unit in the refinery
+!
+UNIT_NAME  "UNIT NAME"          12227  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! The type of the processing unit in the refinery
+!
+UNIT_TYPE  "UNIT TYPE"          12228  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! The outage ID of a refinery unit
+!
 PRE_40T042 "PRED 40 TXT 042"    12229  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T043 "PRED 40 TXT 043"    12230  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T044 "PRED 40 TXT 044"    12231  NULL        ALPHANUMERIC       40  RMTES_STRING    40
@@ -34176,10 +34343,22 @@ LEG1_SET_M "LEG1 SET M"         13087  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Settlement Month Code - Leg 1.
 !
-PRE_1ET387 "PRED 1 ET 387"      13088  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET388 "PRED 1 ET 388"      13089  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET389 "PRED 1 ET 389"      13090  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET390 "PRED 1 ET 390"      13091  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+ANONYM_ELG "ANONYMOUS ELGB"     13088  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Anonymous order eligibility flag.
+!
+OUTAGE_TYP "OUTAGE TYPE"        13089  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The outage type of a refinery unit
+!
+OUTGE_STAT "OUTAGE STATUS"      13090  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The outage status of a refinery unit
+!
+PADD       "PADD"               13091  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Petroleum Administration for Defense Districts (PADD)
+!
 PRE_1ET391 "PRED 1 ET 391"      13092  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET392 "PRED 1 ET 392"      13093  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET393 "PRED 1 ET 393"      13094  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -35273,9 +35452,19 @@ DELIV_METH "DELIV METHOD"       13606  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Delivery Method.
 !
-PRE_2ET286 "PRED 2 ET 286"      13607  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET287 "PRED 2 ET 287"      13608  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET288 "PRED 2 ET 288"      13609  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+SC_REGU_CD "SEC REGU COND CD"   13607  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Secondary instrument regulatory condition code associated with the specific market 
+! rule(s).
+!
+PRD_STREAM "PROD STREAM"        13608  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Product stream of a refinery processing unit
+!
+UNIT_STAT  "UNIT STATUS"        13609  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! The status of the processing unit in the refinery
+!
 PRE_2ET289 "PRED 2 ET 289"      13610  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET290 "PRED 2 ET 290"      13611  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET291 "PRED 2 ET 291"      13612  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -38052,10 +38241,22 @@ LT_AUCAMT  "LATEST AUCTN AMT"   15217  NULL        PRICE              17  REAL64
 !
 ! Latest Auction Offering Amount.
 !
-PRE_LRL149 "PRED LRG REAL 149"  15218  NULL        PRICE              17  REAL64           8
-PRE_LRL150 "PRED LRG REAL 150"  15219  NULL        PRICE              17  REAL64           8
-PRE_LRL151 "PRED LRG REAL 151"  15220  NULL        PRICE              17  REAL64           8
-PRE_LRL152 "PRED LRG REAL 152"  15221  NULL        PRICE              17  REAL64           8
+ACBAMT_CPT "ACP BID AMT CPT"    15218  NULL        PRICE              17  REAL64           8
+!
+! Total Accepted Bid Amount for Competitive Auction.
+!
+ACBAMT_NCP "ACP BID AMT NCP"    15219  NULL        PRICE              17  REAL64           8
+!
+! Total Accepted Bid Amount for Noncompetitive Auction.
+!
+TDBAMT_CPT "TEND BID AMT CPT"   15220  NULL        PRICE              17  REAL64           8
+!
+! Total Tendered Bid Amount for Competitive Auction.
+!
+TDBAMT_NCP "TEND BID AMT NCP"   15221  NULL        PRICE              17  REAL64           8
+!
+! Total Tendered Bid Amount for Noncompetitive Auction.
+!
 PRE_LRL153 "PRED LRG REAL 153"  15222  NULL        PRICE              17  REAL64           8
 PRE_LRL154 "PRED LRG REAL 154"  15223  NULL        PRICE              17  REAL64           8
 PRE_LRL155 "PRED LRG REAL 155"  15224  NULL        PRICE              17  REAL64           8
@@ -38084,7 +38285,13 @@ PRE_LRL177 "PRED LRG REAL 177"  15246  NULL        PRICE              17  REAL64
 PRE_LRL178 "PRED LRG REAL 178"  15247  NULL        PRICE              17  REAL64           8
 PRE_LRL179 "PRED LRG REAL 179"  15248  NULL        PRICE              17  REAL64           8
 PRE_LRL180 "PRED LRG REAL 180"  15249  NULL        PRICE              17  REAL64           8
-PR_UINT081 "PRED UNS INT 081"   15250  NULL        INTEGER            15  UINT64           8
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+OUTAGE_ID  "OUTAGE ID"          15250  NULL        INTEGER            15  UINT64           8
+!
+! The outage ID of a refinery unit
+!
 PR_UINT082 "PRED UNS INT 082"   15251  NULL        INTEGER            15  UINT64           8
 PR_UINT083 "PRED UNS INT 083"   15252  NULL        INTEGER            15  UINT64           8
 PR_UINT084 "PRED UNS INT 084"   15253  NULL        INTEGER            15  UINT64           8

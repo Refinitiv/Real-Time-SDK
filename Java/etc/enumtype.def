@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.40
-!tag Build_RDMD  4.20.40
-!tag DT_Version  20.21
-!tag Date        10-Feb-2020
+!tag RT_Version  4.20.41
+!tag Build_RDMD  4.20.41
+!tag DT_Version  20.31
+!tag Date        16-Mar-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -1516,6 +1516,10 @@ LIQ_RATING 12896
     128       "A3+ "   Moderate degree of safety regarding timely payment of financial obligations. Such instruments carry higher credit risk as compared to instruments rated in category A1 or A2.
     129       "A4+ "   Minimal degree of safety regarding timely payment of financial obligations. Such instruments carry very high credit risk and are susceptible to default. A4+ represents higher comparative standing within the A4 category.
     130       "A4  "   Minimal degree of safety regarding timely payment of financial obligations. Such instruments carry very high credit risk and are susceptible to default.
+    131       "MAR1"   The highest category; indicates a very high likelihood that principal and interest will be paid on a timely basis.
+    132       "MAR2"   While the degree of safety regarding timely repayment of principal and payment of interest is strong, the relative degree of safety is not as high as issues rated MARC-1.
+    133       "MAR3"   The lowest investment grade category; indicates that while obligation is more susceptible to adverse developments, both internal and external, the capacity to service principal and interest on a timely basis is considered adequate.
+    134       "MAR4"   The lowest category; regarded as non-investment grade and therefore uncertain in terms of capacity to service principal and interest.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4094,9 +4098,13 @@ CAN_COND    6585
    1019        "019"   Not allocated (was Trade on Dark Book)
    1065        "ODS"   Regular + ISO +Odd Lot Trade
    1265        "SWT"   Regular + ISO + Form T
+   1325        "ODI"   Regular + ISO + Form T +Odd Lot
    2255        "DVP"   Regular + Derivativley Priced
    2275        "DAB"   Regular + Derivativley Priced +Average Price or bunched
    2365        "DAP"   Regular + Derivativley Priced +Average Price Trade
+   7975        "NOD"   Not Last Next Day + Odd Lot
+   8125        "NLT"   Not Last Next Day + Form T
+   8129        "CNT"   Cancel Not Last Next Day + Form T
   21330        "EBO"   EBBO European Best Bid Offer Trade
   21331        "CSC"   Cancellation of Scheduled Auction Trade
   21332        "SCH"   Scheduled Auction Trade
@@ -7795,7 +7803,7 @@ ORDER_EXID 13603
     711        "BBK"   Blockbook
     712        "OMG"   Omega - Candian ATS
     713        "ALP"   Alpha - Canadian ATS
-    714        "CXC"   CHI-X CANADA ATS TSX L1+L2
+    714        "CXC"   Nasdaq CXC
     715        "CTR"   Cantor CO2E
     716        "MAN"   MF Global (Man Financial Global )
     717        "EVO"   Evolution Markets
@@ -8357,7 +8365,7 @@ ORDER_EXID 13603
    1273        "MSX"   MALTA STOCK EXCHANGE LEVEL 1
    1274        "ISD"   ICAP Securities and Derivatives Exchange
    1275        "CX2"   CHI-X CANADA - CX2 - 2ND LIT MARKET
-   1276        "CXX"   CHI-X CANADA - 2ND LIT MARKET - L1
+   1276        "CXX"   Nasdaq CX2
    1277        "NZX"   New Zealand Stock Exchange (DO NOT USE)
    1278        "ODE"   Osaka Dojima Commodities Exchange
    1279        "CS1"   CHI-X CANADA - TSX VENTURE L1
@@ -8683,6 +8691,9 @@ ORDER_EXID 13603
    1599        "AWX"   Australian Wool Exchange
    1600        "AFF"   Affinity (Shipping) LLP
    1601        "IFA"   ICE Futures Abu Dhabi
+   1602        "LTO"   Netherlands Agricultural and Horticultural Association
+   1603        "COA"   Canadian Oilseed Processors Association
+   1604        "DCA"   DCANZ - Dairy Companies Association of New Zealand
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11046,6 +11057,7 @@ OR_RNK_RUL  3425
       8       "PT  "   Price, Time
       9       "PTR "   Price, Time, Rank
      10       "T   "   Time
+     11       "  11"   Not allocated (was Price, Visibility, Time)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16916,7 +16928,7 @@ CARGO_TYPE 12976
       8   "WINE    "   Wine
       9   "PALMOIL "   Palm Oil
      10   "VEG OIL "   Vegetable Oil
-     11   "IRONORE "   Ore
+     11   "IRONORE "   Iron Ore
      12   "COAL    "   Coal
      13   "GRAIN   "   Grain
      14   "SUGAR   "   Sugar
@@ -16925,6 +16937,7 @@ CARGO_TYPE 12976
      17   "VEGTABLE"   Vegetables
      18   "FRUIT   "   Fruits
      19   "BAUXITE "   Bauxite
+     20   "ORE     "   Ore
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17914,10 +17927,57 @@ AUCTN_METH 13086
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET387 13088
-PRE_1ET388 13089
-PRE_1ET389 13090
-PRE_1ET390 13091
+ANONYM_ELG 13088
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "N  "   Not Eligible
+      2        "Y  "   Eligible
+!
+! ACRONYM    FID
+! -------    ---
+!
+OUTAGE_TYP 13089
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Planned "   Planned Outage
+      2   "Unplannd"   Unplanned Outage
+!
+! ACRONYM    FID
+! -------    ---
+!
+OUTGE_STAT 13090
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Past    "   Past
+      2   "Future  "   Future
+      3   "Ongoing "   Ongoing
+!
+! ACRONYM    FID
+! -------    ---
+!
+PADD       13091
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "PADD I  "   East Coast
+      2   "PADD IA "   New England
+      3   "PADD IB "   Central Atlantic
+      4   "PADD IC "   Lower Atlantic
+      5   "PADD II "   Midwest
+      6   "PADD III"   Gulf Coast
+      7   "PADD IV "   Rocky Mountain
+      8   "PADD V  "   West Coast
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET391 13092
 PRE_1ET392 13093
 PRE_1ET393 13094
@@ -18509,6 +18569,7 @@ MET_TYP22  13605
 ! -------    ---
 !
 REGU_COND  13409
+SC_REGU_CD 13607
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -19038,6 +19099,8 @@ MET_UNIT   13564
     410      "16OZS"   16 Ounces
     411      "2 LTR"   2 Litres
     412      "CHF/P"   Swiss Franc Per Point
+    413      " IMM "   IMM Index
+    414      "RATE "   Rate Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20810,6 +20873,18 @@ ORGN_PORT  13579
     501   "RU SAB  "   Sabetta
     502   "US CP6  "   Cove Point
     503   "NO SVG  "   Stavanger
+    504   "CN BYQ  "   Bayuquan
+    505   "CN JNZ  "   Jinzhou
+    506   "CN SHP  "   Qinhuangdao
+    507   "CN YTG  "   Yantai
+    508   "CN LYG  "   Lianyungang
+    509   "CN NDE  "   Ningde
+    510   "CN HUA  "   Huangpu
+    511   "JP NAS  "   Naoshima
+    512   "JP IHA  "   Niihama
+    513   "JP SAG  "   Saganoseki
+    514   "JP HIB  "   Hibi
+    515   "NA WVB  "   Walvis Bay
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21687,9 +21762,42 @@ DELIV_METH 13606
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET286 13607
-PRE_2ET287 13608
-PRE_2ET288 13609
+PRD_STREAM 13608
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "PrmCrude"   Primary Crude Processing
+      2   "Nap/Gsln"   Naphtha/Gasoline Stream
+      3   "LightPrd"   Light End/Refinery Gas Stream
+      4   "MidDist "   Middle Distillate Stream
+      5   "HvyDist "   Heavy Distillate Stream
+      6   "Residual"   Residual Stream
+      7   "Infra   "   Infrastructure
+      8   "Unclassd"   Unclassified
+!
+! ACRONYM    FID
+! -------    ---
+!
+UNIT_STAT  13609
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Operatnl"   Operational
+      2   "Canceled"   Cancelled
+      3   "Removed "   Removed
+      4   "Mothball"   Mothballed
+      5   "On Hold "   On Hold
+      6   "Closed  "   Closed
+      7   "Shutterd"   Shuttered
+      8   "Planned "   Planned
+      9   "UndrCons"   Under Construction
+     10   "Engineer"   Engineered
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET289 13610
 PRE_2ET290 13611
 PRE_2ET291 13612
