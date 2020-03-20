@@ -61,22 +61,18 @@ set(rsslJCAdditionalFiles
 					rjcbuffer.C
 					)
 
-#[==========================================================[
+
 if (CMAKE_HOST_WIN32)
 	set(rjcWinRCFiles
-#                ${Eta_SOURCE_DIR}/Include/rjc.rc
-#                ${Eta_SOURCE_DIR}/Include/rjcResource.h
+                ${Eta_SOURCE_DIR}/Include/rsslJsonConverter.rc
+                ${Eta_SOURCE_DIR}/Include/rsslResource.h
 		)
-else()
-#		set(staticVersionSrc	rjcVersionStatic.c)
-#		set(sharedVersionSrc	rjcVersionShared.c)
 endif()
-#]==========================================================]
-
 
 add_library( librsslJsonConverter_shared SHARED 
 									${rsslJCSrcFiles} 
 									${rsslJCIncFiles} 
+									${rjcWinRCFiles}
 									${rsslJCAdditionalFiles}
 								)
 

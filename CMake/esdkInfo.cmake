@@ -16,7 +16,7 @@ set(esdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 11 )
 set( librsslVA_SO_VERSION 14 )
-set( libema_SO_VERSION 8 )
+set( libema_SO_VERSION 9 )
 set( librsslJsonConverter_SO_VERSION 1 )
 
 set(Ansi_VERSION_MAJOR 1)
