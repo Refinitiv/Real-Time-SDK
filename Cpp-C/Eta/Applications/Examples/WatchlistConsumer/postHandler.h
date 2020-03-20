@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #ifndef POST_HANDLER_H
@@ -34,6 +34,23 @@ typedef struct
 	MarketPriceItem	*itemData;			/* Associated data. */
 	RsslBool		IsRefreshComplete;	/* Whether a refresh has been sent. */
 } PostItemInfo;
+
+/* Maintains information about a posting service. */
+typedef struct
+{
+	/* Service ID to use for posting. */
+	RsslUInt16							serviceId;
+
+	/* Whether we have identified the service we will use for posting. */
+	RsslBool							isServiceFound;
+
+	/* Whether the service we will use for posting is up. */
+	RsslBool							isServiceUp;
+} PostServiceInfo;
+
+void clearPostServiceInfo(PostServiceInfo *serviceInfo);
+
+void processPostServiceUpdate(PostServiceInfo *serviceInfo, RsslBuffer *pMatchServiceName, RsslRDMService* pService);
 
 void postHandlerInit();
 
