@@ -66,7 +66,7 @@ public:
 		@param[in] serviceDiscoveryURL specifies the service discovery URL to override the default value.
 		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
 	 */
-	ServiceEndpointDiscovery(const EmaString& tokenServiceURL = "https://api.refinitiv.com/auth/oauth2/beta1/token",
+	ServiceEndpointDiscovery(const EmaString& tokenServiceURL = "https://api.refinitiv.com/auth/oauth2/v1/token",
 							 const EmaString& serviceDiscoveryURL = "https://api.refinitiv.com/streaming/pricing/v1/");
 	//@}
 

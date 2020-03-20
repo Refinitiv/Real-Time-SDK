@@ -2177,7 +2177,7 @@ public class ReactorWatchlistEDPJunit
 			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
 
 			Buffer url = CodecFactory.createBuffer();
-			url.data("https://api.refinitiv.com/auth/oauth2/beta1/token");
+			url.data("https://api.refinitiv.com/auth/oauth2/v1/token");
 			reactorOptions.tokenServiceURL(url);
 
 			/* Create reactor. */

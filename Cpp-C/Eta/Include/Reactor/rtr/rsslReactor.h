@@ -312,8 +312,8 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->port = 55000;
 	pReactorOpts->serviceDiscoveryURL.data = (char *)"https://api.refinitiv.com/streaming/pricing/v1/";
 	pReactorOpts->serviceDiscoveryURL.length = 47;
-	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/beta1/token";
-	pReactorOpts->tokenServiceURL.length = 49;
+	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/v1/token";
+	pReactorOpts->tokenServiceURL.length = 46;
 	pReactorOpts->tokenReissueRatio = 0.8;
 	pReactorOpts->reissueTokenAttemptLimit = -1;
 	pReactorOpts->reissueTokenAttemptInterval = 5000;

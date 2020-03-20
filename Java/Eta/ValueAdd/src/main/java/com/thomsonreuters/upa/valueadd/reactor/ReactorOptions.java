@@ -40,7 +40,7 @@ public class ReactorOptions
     static final String DEFAULT_SCHEME = "https";
     static final String API_GATEWAY_HOST = "api.refinitiv.com";
     static final String SERVICE_DISCOVERY_PATH = "/streaming/pricing/v1/";
-    static final String TOKEN_SERVICE_PATH = "/auth/oauth2/beta1/token";
+    static final String TOKEN_SERVICE_PATH = "/auth/oauth2/v1/token";
 	
     private Buffer _serviceDiscoveryURL = CodecFactory.createBuffer();
     private Buffer _tokenServiceURL = CodecFactory.createBuffer();

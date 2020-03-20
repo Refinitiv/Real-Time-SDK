@@ -137,7 +137,7 @@ public :
 		@param[in] tokenServiceUrl specifies an URL for token service.
 		@return reference to this object
 	*/
-	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/beta1/token" );
+	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token" );
 
 	/** Specifies an URL to override the default for the EDP service discovery to get global endpoints
 		@param[in] serviceDiscoveryUrl specifies an URL for EDP service discovery.
