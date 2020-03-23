@@ -1,7 +1,7 @@
 ///*
 // *|---------------------------------------------------------------
-// *|		Copyright (C) 2019 Refinitiv,			  --
-// *| All rights reserved. Duplication or distribution prohibited --
+// *|	Copyright (C) 2019-2020 Refinitiv. All rights reserved.   --
+// *|            Duplication or distribution prohibited           --
 // *|---------------------------------------------------------------
 // */
 
