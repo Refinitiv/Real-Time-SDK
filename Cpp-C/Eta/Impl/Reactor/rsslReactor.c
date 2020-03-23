@@ -5245,7 +5245,7 @@ RSSL_VA_API RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *channel, RsslUI
 	RsslRet ret;
 	RsslBuffer *pBuffer = NULL;
 
-	if ( (channel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE) && packedBuffer )
+	if ( (channel->pRsslChannel && channel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE) && packedBuffer )
 	{
 		RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)channel;
 		RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
@@ -5309,7 +5309,7 @@ RSSL_VA_API RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *channel, RsslBu
 	RsslRet ret = RSSL_RET_FAILURE;
 	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)channel;
 
-	if ( (channel != NULL) && (channel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE) )
+	if ( (channel != NULL) && (channel->pRsslChannel != NULL) && (channel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE) )
 	{
 		RsslHashLink *pHashLink;
 		RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
@@ -5352,7 +5352,7 @@ RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pChannel, Rssl
 {
 	RsslBuffer *pNewBuffer = NULL;
 
-	if (pChannel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	if (pChannel->pRsslChannel && pChannel->pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 	{
 		RsslRet ret;
 		RsslDecodeIterator dIter;
