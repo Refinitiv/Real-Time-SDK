@@ -5217,6 +5217,11 @@ void rwsReleaseSession(rwsSession_t *wsSess)
 			_rsslFree(wsSess->host);
 			wsSess->host = 0;
 		}
+		if (wsSess->port)
+		{
+			_rsslFree(wsSess->port);
+			wsSess->port = 0;
+		}
 		if (wsSess->origin)
 		{
 			_rsslFree(wsSess->origin);

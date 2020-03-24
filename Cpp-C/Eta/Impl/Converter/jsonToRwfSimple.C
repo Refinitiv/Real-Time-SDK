@@ -60,6 +60,12 @@ jsonToRwfSimple::~jsonToRwfSimple()
 		free(pEnumTableDefinitionTemp);
 		_enumTableDefinition = NULL;
 	}
+
+	if(_utf8Buf)
+	{
+		delete[] _utf8Buf;
+		_utf8Buf = NULL;
+	}
 }
 
 bool jsonToRwfSimple::encodeMsgPayload(RsslMsg *rsslMsgPtr, jsmntok_t *dataTokPtr)
