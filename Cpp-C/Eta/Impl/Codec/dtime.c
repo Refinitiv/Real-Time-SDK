@@ -1227,7 +1227,6 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		oTime->millisecond = 65535;
 		oTime->microsecond = 2047;
 		oTime->nanosecond = 2047;
-		//printf("9\n");
 		return RSSL_RET_BLANK_DATA;
 	}
 
