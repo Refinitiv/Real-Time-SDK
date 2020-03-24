@@ -959,7 +959,7 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		else if (*tmp == ':')
 		{
 			tmpInt = 0;
-
+			++tmp;
 			while (tmp <= end && isdigit(*tmp))
 			{
 				tmpInt = tmpInt * 10 + (*tmp - '0');
@@ -979,12 +979,12 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				return RSSL_RET_SUCCESS;
 			}
 
-			tmp++;
 			tmpInt = 0;
 			numberCount = 0;
 			if (tmp == end || *tmp != ':')
 				return RSSL_RET_INVALID_DATA;
 
+			tmp++;
 			while (tmp <= end && isdigit(*tmp))
 			{
 				tmpInt = tmpInt * 10 + (*tmp - '0');
@@ -1005,12 +1005,12 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				return RSSL_RET_SUCCESS;
 			}
 
-			tmp++;
 			tmpInt = 0;
 			numberCount = 0;
 			if (tmp == end || *tmp != ':')
 				return RSSL_RET_INVALID_DATA;
 
+			tmp++;
 			while (tmp <= end && isdigit(*tmp))
 			{
 				tmpInt = tmpInt * 10 + (*tmp - '0');
