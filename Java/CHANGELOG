@@ -1,31 +1,42 @@
-This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the 
-Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history 
-starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) 
-of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and 
-EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-There are three types of ESDK releases that append a letter directly followed by a 
-number to the version number. 
+There are three types of ESDK releases that append a letter directly followed by a number to the version number. 
 
-"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to 
-    Customer Zone, Developer Community and GitHub. 
+"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
 "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency ESDK releases that are uploaded to 
-    Customer Zone and Developer Community but not to GitHub.
-    Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.4.0.G1 aka EMA 3.4.0.G1 and ETA 3.4.0.G1
+CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.5.0.L1 aka EMA 3.5.0.L1 and ETA 3.5.0.L1
 ----------------------------------------------------------------------------------------
 
 Customer Issues Resolved
 ------------------
-[GitHub # 110] - [ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider 
-
+[Case Number: 07645599] - [ESDK-3614] - EMAJ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary'
+[GitHub # 113] - [ESDK-3615] - Add port info into OmmConsumerEvent::getChannelInformation
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+ESDK Java Release 1.5.0.L1 (Mar 31, 2020)
+--------------------------------------------
+
+EMA Java 3.5.0.L1 Issues Resolved
+---------------------------------
+[ESDK-3614] - EMAJ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary' - [Case Number: 07645599]
+[ESDK-3615] - Add port info into OmmConsumerEvent::getChannelInformation - [GitHub # 113]
+[ESDK-3677] - Update the example in the EMA Java config guide to set a default for NumInputBuffers
+
+ETA Java 3.5.0.L1 Issues Resolved
+---------------------------------
+[ESDK-45] - Watchlist example issue: With service down, posting is still attempted
+
+Both ETA Java and EMA Java 3.5.0.L1 Issues Resolved
+---------------------------------------------------
+[ESDK-3834] - Update default token service URL to use verison v1
+
 --------------------------------------------
 ESDK Java Release 1.4.0.G1 (Jan 10, 2020)
 --------------------------------------------
@@ -91,10 +102,7 @@ ESDK Java Release 1.3.1.L1 (July 31, 2019)
 
 New Features Added
 ------------------
-This release adds ability in EMA to clone and copy messages in order to decode 
-payload outside of message callbacks. Please note that client_id is now a manadatory 
-input for Cloud connectivity. ESDK Java now supports JDK 1.11 and OpenJDK 1.8
-with an upgrade in gradle version to 5.X. ESDK Java no longer supports JDK1.7.
+This release adds ability in EMA to clone and copy messages in order to decode payload outside of message callbacks. Please note that client_id is now a manadatory input for Cloud connectivity. ESDK Java now supports JDK 1.11 and OpenJDK 1.8 with an upgrade in gradle version to 5.X. ESDK Java no longer supports JDK1.7.
 
 EMA Java 3.3.1.L1 Issues Resolved
 ---------------------------------
@@ -139,9 +147,7 @@ ESDK Java Release 1.3.0.L1 (March 26, 2019)
 
 New Features Added
 ------------------
-This ESDK release provides support for EDP Session management (token renewal)
-and Service Discovery (discovering host/port information based on Cloud region
-and type of connection ). 
+This ESDK release provides support for EDP Session management (token renewal) and Service Discovery (discovering host/port information based on Cloud region and type of connection ). 
 
 EMA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
@@ -170,9 +176,7 @@ ESDK Java Release 1.2.2.L1 (November 15, 2018)
 
 New Features Added
 ------------------
-Provides the functionality for Non-interactive, Interactive, and Consumer 
-applications to get channel information from the EMA's callback methods via 
-OmmProviderEvent and OmmConsumerEvent classes
+Provides the functionality for Non-interactive, Interactive, and Consumer applications to get channel information from the EMA's callback methods via OmmProviderEvent and OmmConsumerEvent classes
 
 EMA Java 3.2.2.L1 Issues Resolved
 ---------------------------------
@@ -254,8 +258,7 @@ ESDK Java Release 1.2.0.L1 (April 27, 2018)
 
 New Features Added
 ------------------
-ESDK Java now utilizes a Gradle build environment. Refer to the ESDK Java Migration Guide for detailed
-instructions regarding how to build EMA Java with Gradle.
+ESDK Java now utilizes a Gradle build environment. Refer to the ESDK Java Migration Guide for detailed instructions regarding how to build EMA Java with Gradle.
 
 EMA now supports encrypted connection type.
 

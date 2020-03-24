@@ -5,7 +5,7 @@ The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA 
 
 The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
-Copyright (C) 2019 Refinitiv. All rights reserved,
+Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -36,7 +36,6 @@ Users are welcome to migrate open source code to the platforms they prefer, howe
 
 Platforms:
 
-	Microsoft Windows Server 2008 Enterprise Edition or later 64-bit
 	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
 	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
 	Microsoft Windows 7 Professional or later 64-bit
@@ -86,18 +85,19 @@ This release has been tested with supported valid OS/compiler combinations.
 ##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
-	Red Hat Advanced Server 6.4 64-bit with GCC 4.4.4 (RHEL6_64_GCC444) - prebuilt libraries
-	Red Hat Advanced Server 6.3 64-bit with GCC 4.4.6 (RHEL6_64_GCC446) - natively built libraries
-	Red Hat Advanced Server 6.9 64-bit with GCC 4.4.7 (RHEL6_64_GCC447) - natively built libraries
-	Red Hat Advanced Server 7.4 64-bit with GCC 4.8.5 (RHEL7_64_GCC485) - prebuilt libraries 
-	Oracle Linux Server 6.4 64-bit with GCC 4.4.4 (RHEL6_64_GCC444) - prebuilt libraries
-	Oracle Linux Server 7.0 64-bit with GCC 4.8.2 (OL7_64_GCC482) - prebuilt & natively built libraries 
-	Oracle Linux Server 7.1 64-bit with GCC 4.8.3 (OL7_64_GCC483) - prebuilt & natively built libraries
-	Oracle Linux Server 7.5 64-bit with GCC 4.8.5 (OL7_64_GCC485) - prebuilt & natively built libraries
-	CentOS 7.0 64-bit with GCC 4.8.2 (OL7_64_GCC482) - prebuilt libraries
-	Oracle Linux Server 7.6 64-bit with GCC 7.4.0 (OL7_64_GCC740) - natively built libraries
-	Red Hat Linux Server 7.6 64-bit with GCC 7.4.0 (RHEL7_64_GCC740) - natively built libraries
-	Red Hat Linux Server 6.10 64-bit with GCC 7.4.0 (RHEL6_64_GCC740) - natively built libraries
+	OS					GCC Version		Use-Prebuilt Library			Use-Natively Build Library
+	--------------------------------	------------		----------------------			----------------------------		
+	Oracle Linux Server 6.6 64-bit 		GCC 4.4.4  		RHEL6_64_GCC444				OL6_64_GCC444
+	Red Hat Advanced Server 6.3 64-bit   	GCC 4.4.6		RHEL6_64_GCC444 		 	RHEL6_64_GCC446	
+	Red Hat Advanced Server 6.9 64-bit   	GCC 4.4.7		RHEL6_64_GCC444 		 	RHEL6_64_GCC447	
+	CentOS 7.0 64-bit                	GCC 4.8.2		OL7_64_GCC482				CENTOS7_64_GCC482
+	Oracle Linux Server 7.7 64-bit 		GCC 4.8.5		OL7_64_GCC482				OL7_64_GCC485
+	Red Hat Advanced Server 7.7 64-bit 	GCC 4.8.5 		OL7_64_GCC482				RHEL7_64_GCC485
+	Oracle Linux Server 7.7 64-bit     	GCC 7.4.0		n/a           				OL7_64_GCC740
+	Red Hat Linux Server 6.10 64-bit 	GCC 7.4.0 		n/a					RHEL6_64_GCC740
+	Red Hat Linux Server 7.7 64-bit 	GCC 7.4.0 		n/a					RHEL7_64_GCC740
+
+	n/a = This is not a tested combination
 
 #### Proxy Authentication Support
 
@@ -119,7 +119,7 @@ This release supports encryption for TLS 1.2.
 
 ### Interoperability
 
-ESDK Java supports connectivity to the following platforms:
+ESDK Cpp-C supports connectivity to the following platforms:
 
 - Enterprise Platform for Real-Time (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher. 
 - Elektron: Elektron Deployed, Elektron Hosted, Elektron Direct Feed
@@ -143,14 +143,11 @@ Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/ESDK_C_Installation_
 ## Install ESDK 
 There are 3 ways to install Eletron SDK:
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. Please note that the build will auto pull the appropriate BinaryPack which is also available in the [releases section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases).
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Elektron-SDK-BinaryPack/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to ESDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning ESDK GitHub repo with --recursive to include submodule found in [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. 
 
 Elektron SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
 
-Elektron SDK package is also available on [Customer Zone](https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx). 
-
-- Category: "MDS - API"
-- Product: "Elektron SDK"
+Elektron SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
 
 ## Building ESDK
 
@@ -210,12 +207,8 @@ Starting with ESDK1.3.1, DACS and ANSI libraries are available for 32-bits in th
 
 # Obtaining the Refinitiv Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of TREP Templates Service Pack.
 
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - General
-- **Products**: TREP Templates Service Pack
 
 # Developing 
 
@@ -232,7 +225,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

@@ -6,7 +6,7 @@ The Elektron Message API: This is an easy-to-use, performant, open source messag
 EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
 
-Copyright (C) 2019 Refinitiv. All rights reserved,
+Copyright (C) 2019-2020 Refinitiv. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -34,7 +34,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 
 - File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
 
-- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceXXX, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
+- Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTrace, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 
 ## Consumer Features:
 
@@ -100,14 +100,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.4.0.G1
+    libema.lib                ema3.5.0.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.4.0.G1
-    libema.dll                ema3.4.0.G1
+    libema.lib                ema3.5.0.L1
+    libema.dll                ema3.5.0.L1
 
 #### Linux
     
@@ -127,13 +127,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.4.0.G1
+    libema.a                    ema3.5.0.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.4.0.1           libema.so.8          ema3.4.0.G1
+    libema.so.3.5.0.0           libema.so.9          ema3.5.0.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -146,24 +146,28 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
 
+- EMA can not download dictionary from Enterprise Platform over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
+
+- The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
+
 # Reference Information
 
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Elektron Message API - C++ Edition
-    Release Number: 3.4.0
+    Release Number: 3.5.0
     Load Number: 1
-    Windows Load ID: ema3.4.0.L1.win
-        Supersedes: ema3.3.1.L1.win
-    Linux Load ID: ema3.4.0.L1.linux
-        Supersedes: ema3.3.1.L1.linux
+    Windows Load ID: ema3.5.0.L1.win
+        Supersedes: ema3.4.0.L1.win
+    Linux Load ID: ema3.5.0.L1.linux
+        Supersedes: ema3.4.0.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

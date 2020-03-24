@@ -5,7 +5,7 @@ The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA 
 
 The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
-Copyright (C) 2019 Refinitiv. All rights reserved,
+Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -34,7 +34,6 @@ The Elektron-SDK provides support for multicast connections using JNI libraries.
 
 Platforms:
 
-	Windows Server 2008 Enterprise Edition or later 64-bit
 	Windows Server 2012 Enterprise Edition or later 64-bit
 	Windows Server 2016 Enterprise Edition or later 64-bit
 	Microsoft Windows 7 Professional or later 64-bit
@@ -79,11 +78,7 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption for TLS 1.0, TLS 1.1 and TLS 1.2.  
-
-**Future Deprecation Notice:** 
-In the next major release of ESDK, support for TLS 1.0 will be dropped.
-
+This release supports encryption for TLS 1.2.  
 
 ##### Generating a keystore file
 The **keystore** file is used to contain your own private keys and public key certificates
@@ -119,7 +114,11 @@ Please refer to Installation Guides for [ETA](Java/Eta/Docs/ESDK_J_Installation_
 ## Install ESDK 
 This section shows the required setup needed before you can build any of the Java APIs.
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on the [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Elektron-SDK-BinaryPack/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to ESDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning ESDK GitHub repo with --recursive to include submodule found in [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. 
+
+Elektron SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-java/downloads).
+
+Elektron SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
 
 ## Building ESDK
 
@@ -173,12 +172,7 @@ This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
 
 # Obtaining the Refinitiv Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - General
-- **Products**: TREP Templates Service Pack
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of TREP Templates Service Pack.
 
 # Maven Central
 
@@ -189,40 +183,40 @@ You can download ESDK libraries and dependencies from Maven Central using severa
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.4.0.0</version>
+		<version>3.5.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.4.0.0</version>
+		<version>3.5.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.4.0.0</version>
+		<version>3.5.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.4.0.0</version>
+		<version>3.5.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.4.0.0</version>
+		<version>3.5.0.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.4.0.0'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.4.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.4.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.4.0.0'
-        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.4.0.0'
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.0.0'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.0.0'
+        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.0.0'
 
 # Developing 
 

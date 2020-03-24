@@ -3,10 +3,13 @@ This is the **Elektron Transport API (ETA)**, the high performance, low latency,
 
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
-ETA Java contains open source components.  The transport, decoder, encoder, and cache components are open source. 
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls ETA dependent libraries from that location.
+ETA Java contains open source components. The transport, decoder, encoder, and cache components are open source. 
 
-Copyright (C) 2019 Refinitiv. All rights reserved,
+This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases) and is auto pulled by ESDK Gradle build.
+
+This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
+
+Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
 # ETA Java Documentation
 
@@ -114,22 +117,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.4.0.1.jar               eta3.4.0.G1       The ETA - Java Edition library.  Includes
+    upa-3.5.0.0.jar               eta3.5.0.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.4.0.1.jar       eta3.4.0.G1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.5.0.0.jar       eta3.5.0.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.4.0.1.jar  eta3.4.0.G1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.5.0.0.jar  eta3.5.0.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.4.0.0.jar          eta3.4.0.G1       The ANSI decoders and encoders.
+    ansipage-3.5.0.0.jar          eta3.5.0.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/UPA/RSSL JNI Libs        eta3.4.0.G1       The JNI libraries for Reliable Multicast
+    ETAC/UPA/RSSL JNI Libs        eta3.5.0.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -158,17 +161,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Elektron Transport API - Java Edition
-    Release Number: 3.4.0
+    Release Number: 3.5.0
     Load Number: 1
-    Load ID: etaj3.4.0.L1.all
-        Supersedes: etaj3.3.1.L1.all.rrg
+    Load ID: etaj3.5.0.L1.all
+        Supersedes: etaj3.4.0.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.39_TREP_20.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.
