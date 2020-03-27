@@ -37,7 +37,7 @@ namespace json {
     bool IsArray() const { return (jsonValue->type == cJSON_Array); }
     bool IsObject() const{ return (jsonValue->type == cJSON_Object); }
     bool IsRaw() const { return (jsonValue->type == cJSON_Raw);}
-    bool HasMember(const std::string& key) const { return (cJSON_HasObjectItem(jsonValue, key.c_str())); }
+    bool HasMember(const std::string& key) const { return (cJSON_HasObjectItem(jsonValue, key.c_str()) != 0); }
 
     const char* GetString() const
     {
