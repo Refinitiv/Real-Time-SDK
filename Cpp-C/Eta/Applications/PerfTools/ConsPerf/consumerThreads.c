@@ -571,7 +571,7 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 			RsslBuffer *msgBuf;
 
 			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-							estimateItemPostBufferLength(&pPostItem->itemInfo), RSSL_FALSE, 
+							estimateItemPostBufferLength(&pPostItem->itemInfo, pConsumerThread->pChannel->protocolType), RSSL_FALSE,
 							&pConsumerThread->threadRsslError)))
 			{
 				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
@@ -672,7 +672,7 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		{
 			RsslBuffer *msgBuf;
 			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-							estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo), RSSL_FALSE, 
+							estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo, pConsumerThread->pChannel->protocolType), RSSL_FALSE,
 							&pConsumerThread->threadRsslError)))
 			{
 				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
@@ -775,7 +775,7 @@ static RsslRet printEstimatedPostMsgSizes(ConsumerThread *pConsumerThread)
 
 			for (i = 0; i < getMarketPricePostMsgCount(); ++i)
 			{
-				testBuffer.length = estimateItemPostBufferLength(pItemInfo);
+				testBuffer.length = estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 				testBuffer.data = (char*)malloc(testBuffer.length);
 				if ((ret = encodeItemPost(pConsumerThread->pChannel, pItemInfo, &testBuffer, &postUserInfo, 0)) < RSSL_RET_SUCCESS)
 				{
@@ -787,7 +787,7 @@ static RsslRet printEstimatedPostMsgSizes(ConsumerThread *pConsumerThread)
 						"         estimated length: %u bytes\n" 
 						"    approx encoded length: %u bytes\n", 
 						i+1,
-						estimateItemPostBufferLength(pItemInfo),
+						estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 						testBuffer.length);
 				free(testBuffer.data);
 			}
@@ -810,7 +810,7 @@ static RsslRet printEstimatedPostMsgSizes(ConsumerThread *pConsumerThread)
 
 		for (i = 0; i < getMarketByOrderPostMsgCount(); ++i)
 		{
-			testBuffer.length = estimateItemPostBufferLength(pItemInfo);
+			testBuffer.length = estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			testBuffer.data = (char *)malloc(testBuffer.length);
 			if ((ret = encodeItemPost(pConsumerThread->pChannel, pItemInfo, &testBuffer, &postUserInfo, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -822,7 +822,7 @@ static RsslRet printEstimatedPostMsgSizes(ConsumerThread *pConsumerThread)
 					"         estimated length: %u bytes\n" 
 					"    approx encoded length: %u bytes\n", 
 					i+1, 
-					estimateItemPostBufferLength(pItemInfo),
+					estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 					testBuffer.length);
 			free(testBuffer.data);
 		}
@@ -881,7 +881,7 @@ static RsslRet printEstimatedGenMsgSizes(ConsumerThread *pConsumerThread)
 
 			for (i = 0; i < getMarketPriceGenMsgCount(); ++i)
 			{
-				testBuffer.length = estimateItemGenMsgBufferLength(pItemInfo);
+				testBuffer.length = estimateItemGenMsgBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 				testBuffer.data = (char*)malloc(testBuffer.length);
 				if ((ret = encodeItemGenMsg(pConsumerThread->pChannel, pItemInfo, &testBuffer, 0)) < RSSL_RET_SUCCESS)
 				{
@@ -893,7 +893,7 @@ static RsslRet printEstimatedGenMsgSizes(ConsumerThread *pConsumerThread)
 						"         estimated length: %u bytes\n" 
 						"    approx encoded length: %u bytes\n", 
 						i+1,
-						estimateItemGenMsgBufferLength(pItemInfo),
+						estimateItemGenMsgBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 						testBuffer.length);
 				free(testBuffer.data);
 			}
@@ -916,7 +916,7 @@ static RsslRet printEstimatedGenMsgSizes(ConsumerThread *pConsumerThread)
 
 		for (i = 0; i < getMarketByOrderPostMsgCount(); ++i)
 		{
-			testBuffer.length = estimateItemPostBufferLength(pItemInfo);
+			testBuffer.length = estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			testBuffer.data = (char *)malloc(testBuffer.length);
 			if ((ret = encodeItemPost(pConsumerThread->pChannel, pItemInfo, &testBuffer, &postUserInfo, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -928,7 +928,7 @@ static RsslRet printEstimatedGenMsgSizes(ConsumerThread *pConsumerThread)
 					"         estimated length: %u bytes\n" 
 					"    approx encoded length: %u bytes\n", 
 					i+1, 
-					estimateItemPostBufferLength(pItemInfo),
+					estimateItemPostBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 					testBuffer.length);
 			free(testBuffer.data);
 		}

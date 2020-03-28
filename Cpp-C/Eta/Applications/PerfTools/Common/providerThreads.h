@@ -181,6 +181,8 @@ typedef struct {
 
 	RsslBuffer		*preEncMarketPriceMsgs;		/* Buffer of a pre-encoded market price message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
 	RsslBuffer		*preEncMarketByOrderMsgs;	/* Buffer of a pre-encoded market by order message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
+
+	RsslUInt32		remaingPackedBufferLength; /* Keep track of the remaining packed buffer for handling JSON protocol */
 } ProviderSession;
 
 /* Clears providerThreadConfig to defaults. */

@@ -3532,6 +3532,17 @@ _DEBUG_TRACE_WS_READ("Update inBL %d ->compressed %d reassemComp %d\n",
 			return NULL;
 		}
 
+		if ((frame->opcode == RWS_OPC_PING) || (frame->opcode == RWS_OPC_PONG))
+		{
+			wsSess->inputReadCursor += frame->hdrLen + frame->payloadLen;
+
+			if (wsSess->inputReadCursor == wsSess->actualInBuffLen)
+			{
+				wsSess->inputReadCursor = 0;
+				wsSess->actualInBuffLen = 0;
+			}
+		}
+
 		handleWebSocketMessages(rsslSocketChannel, readret, wsSess, frame, *bytesRead, uncompBytesRead, error);
 
 		if (*readret == RSSL_RET_FAILURE)
@@ -3848,19 +3859,19 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 	{
 		_decodeWSFrame(frame, buffer, bytesRead);
 
+		if (frame->partial)
+		{
+			_DEBUG_TRACE_WS_READ("Read PARTIAL %d of %d msg:\n", frame->cursor, frame->hdrLen+ frame->payloadLen)
+
+			return totalCC;
+		}
+
 		/* move ->inputBufCursor past the WS frame header */
 		if (bytesRead >= frame->hdrLen && (frame->advancedInputCursor == RSSL_FALSE))
 		{
 			rsslSocketChannel->inputBufCursor += frame->hdrLen;
 			rsslSocketChannel->inBufProtOffset += frame->hdrLen;
 			frame->advancedInputCursor = RSSL_TRUE;
-		}
-
-		if (frame->partial)
-		{
-			_DEBUG_TRACE_WS_READ("Read PARTIAL %d of %d msg:\n", frame->cursor, frame->hdrLen+ frame->payloadLen)
-
-			return totalCC;
 		}
 
 		switch(frame->opcode)
@@ -4032,6 +4043,8 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 {
 	int cc;
 	RsslSocketChannel	*rsslSocketChannel = (RsslSocketChannel *)transport;
+	rwsSession_t *wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+	rwsFrameHdr_t           *frame = &wsSess->frameHdr;
 
 	rwflags |= RIPC_RW_WAITALL;
 
@@ -4042,9 +4055,44 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 	{
 		rsslSocketChannel->inputBuffer->length += cc;
 
-		*ret = RSSL_RET_SUCCESS;
+		if( !frame->partial )
+		{
+			if ( (frame->opcode == RWS_OPC_PING) || (frame->opcode == RWS_OPC_PONG) )
+			{
+				wsSess->inputReadCursor += frame->hdrLen + frame->payloadLen;
 
-		return cc;
+				if (wsSess->inputReadCursor == wsSess->actualInBuffLen)
+				{
+					wsSess->inputReadCursor = 0;
+					wsSess->actualInBuffLen = 0;
+				}
+
+				rsslSocketChannel->inputBufCursor += (RsslUInt32)frame->payloadLen;
+
+				if (rsslSocketChannel->inputBufCursor == rsslSocketChannel->inputBuffer->length)
+				{
+					rsslSocketChannel->inputBufCursor = 0;
+					rsslSocketChannel->inputBuffer->length = 0;
+					*ret = RSSL_RET_READ_WOULD_BLOCK;
+				}
+				else
+				{
+					*ret = RSSL_RET_READ_PING;
+				}
+
+				return 0;
+			}
+			else
+			{
+				*ret = RSSL_RET_SUCCESS;
+				return cc;
+			}
+		}
+		else
+		{
+			*ret = RSSL_RET_READ_WOULD_BLOCK;
+			return RSSL_RET_FAILURE;
+		}
 	}
 	else 
 	{
@@ -4080,7 +4128,6 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 	rwsSession_t *wsSess;
 	int	i = 0;
 	int uncompBytes = 0;
-	int retVal = 0;
 	rtr_msgb_t		*ripcBuffer = NULL;
 	rtr_msgb_t		*msgb = NULL;
 	RsslQueueLink	*pLink = 0;
@@ -4321,9 +4368,15 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 		for (i = 0; i < RIPC_MAX_PRIORITY_QUEUE; i++)
 			retval += rsslSocketChannel->priorityQueues[i].queueLength;
 
-		if (retval > (RsslInt32)rsslSocketChannel->high_water_mark)
+		if ( (forceFlush == RSSL_WRITE_DIRECT_SOCKET_WRITE) || (retval > (RsslInt32)rsslSocketChannel->high_water_mark) )
 		{
 			retval = ipcFlushSession(rsslSocketChannel, error);
+
+			if (retval == RSSL_RET_FAILURE)
+			{
+				/* This is used to indicate that the write flush failed */
+				rsslBufImpl->bufferInfo = NULL;
+			}
 		}
 	}
 

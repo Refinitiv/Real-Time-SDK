@@ -69,7 +69,7 @@ typedef struct {
 } ItemInfo;
 
 /* Estimate an appropriate buffer size for the refresh message. */
-RsslUInt32 estimateItemRefreshBufferLength(ItemInfo *itemInfo);
+RsslUInt32 estimateItemRefreshBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol);
 
 /* Encode a refresh message for the item. */
 RsslRet encodeItemRefresh(RsslChannel* chnl, 
@@ -77,7 +77,7 @@ RsslRet encodeItemRefresh(RsslChannel* chnl,
 		RsslUInt encodeStartTime);
 
 /* Estimate an appropriate buffer size for the next update message. */
-RsslUInt32 estimateItemUpdateBufferLength(ItemInfo *itemInfo);
+RsslUInt32 estimateItemUpdateBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol);
 
 /* Encode an update message for the item. */
 RsslRet encodeItemUpdate(RsslChannel* chnl, 
@@ -85,7 +85,7 @@ RsslRet encodeItemUpdate(RsslChannel* chnl,
 		RsslUInt encodeStartTime);
 
 /* Estimate an appropriate buffer size for the next post message. */
-RsslUInt32 estimateItemPostBufferLength(ItemInfo *itemInfo);
+RsslUInt32 estimateItemPostBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol);
 
 /* Encode a post message for the item. */
 RsslRet encodeItemPost(RsslChannel* chnl, 
@@ -97,7 +97,7 @@ RsslRet createItemPost(RsslChannel* chnl, ItemInfo* itemInfo, RsslPostMsg* pPost
 					   RsslPostUserInfo *pPostUserInfo, RsslUInt encodeStartTime);
 
 /* Estimate an appropriate buffer size for the next generic message. */
-RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo);
+RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol);
 
 /* Encode a generic message for the item. */
 RsslRet encodeItemGenMsg(RsslChannel* chnl, 

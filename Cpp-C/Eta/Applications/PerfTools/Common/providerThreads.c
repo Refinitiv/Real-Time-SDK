@@ -328,6 +328,7 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 	pSession->packedBufferCount = 0;
 	pSession->timeActivated = 0;
 	pSession->lastWriteRet = 0;
+	pSession->remaingPackedBufferLength = 0;
 
 
 	hashTableInit(&pSession->itemAttributesTable, 
@@ -367,7 +368,7 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 		for(i = 0; i < updateCount; ++i)
 		{
 			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketPriceMsgs[i];
-			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo);
+			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
 			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -389,7 +390,7 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 		for(i = 0; i < updateCount; ++i)
 		{
 			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[i];
-			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo);
+			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
 			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -489,7 +490,7 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 
 		printf("Approximate message sizes:\n");
 
-		testBuffer.length = estimateItemRefreshBufferLength(pItemInfo);
+		testBuffer.length = estimateItemRefreshBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 		testBuffer.data = (char*)malloc(testBuffer.length);
 		if ((ret = encodeItemRefresh(pSession->pChannelInfo->pChannel, pItemInfo, &testBuffer, NULL, 0)) < RSSL_RET_SUCCESS)
 		{
@@ -499,14 +500,14 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 		printf(	"  MarketPrice RefreshMsg(without name):\n" 
 				"         estimated length: %u bytes\n" 
 				"    approx encoded length: %u bytes\n", 
-				estimateItemRefreshBufferLength(pItemInfo),
+				estimateItemRefreshBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 				testBuffer.length);
 		free(testBuffer.data);
 
 		/* Update msgs */
 		for (i = 0; i < getMarketPriceUpdateMsgCount(); ++i)
 		{
-			testBuffer.length = estimateItemUpdateBufferLength(pItemInfo);
+			testBuffer.length = estimateItemUpdateBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			testBuffer.data = (char*)malloc(testBuffer.length);
 			if ((ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, pItemInfo, &testBuffer, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -517,7 +518,7 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 					"         estimated length: %u bytes\n" 
 					"    approx encoded length: %u bytes\n", 
 					i+1,
-					estimateItemUpdateBufferLength(pItemInfo),
+					estimateItemUpdateBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 					testBuffer.length);
 			free(testBuffer.data);
 		}
@@ -537,7 +538,7 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 		pItemInfo->attributes.domainType = RSSL_DMT_MARKET_BY_ORDER;
 		pItemInfo->itemData = (void*)mboItem;
 
-		testBuffer.length = estimateItemRefreshBufferLength(pItemInfo);
+		testBuffer.length = estimateItemRefreshBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 		testBuffer.data = (char*)malloc(testBuffer.length);
 		if ((ret = encodeItemRefresh(pSession->pChannelInfo->pChannel, pItemInfo, &testBuffer, NULL, 0)) < RSSL_RET_SUCCESS)
 		{
@@ -547,14 +548,14 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 		printf(	"  MarketByOrder RefreshMsg(without name): \n"
 				"         estimated length: %u bytes\n" 
 				"    approx encoded length: %u bytes\n", 
-				estimateItemRefreshBufferLength(pItemInfo),
+				estimateItemRefreshBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 				testBuffer.length);
 		free(testBuffer.data);
 
 		/* Update msgs */
 		for (i = 0; i < getMarketByOrderUpdateMsgCount(); ++i)
 		{
-			testBuffer.length = estimateItemUpdateBufferLength(pItemInfo);
+			testBuffer.length = estimateItemUpdateBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE);
 			testBuffer.data = (char*)malloc(testBuffer.length);
 			if ((ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, pItemInfo, &testBuffer, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
@@ -565,7 +566,7 @@ RsslRet printEstimatedMsgSizes(ProviderThread *pProvThread, ProviderSession *pSe
 					"         estimated length: %u bytes\n" 
 					"    approx encoded length: %u bytes\n", 
 					i+1, 
-					estimateItemUpdateBufferLength(pItemInfo),
+					estimateItemUpdateBufferLength(pItemInfo, RSSL_RWF_PROTOCOL_TYPE),
 					testBuffer.length);
 			free(testBuffer.data);
 		}
@@ -757,6 +758,7 @@ RsslRet sendRefreshBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	RsslInt32 refreshLeft;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	ItemInfo *item;
+	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
 	/* Determine refreshes to send out. */
 	refreshLeft = rotatingQueueGetCount(&pSession->refreshItemList);
@@ -772,7 +774,7 @@ RsslRet sendRefreshBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		item = RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink);
 
 		/* get a buffer for the response */
-		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemRefreshBufferLength(item))) 
+		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemRefreshBufferLength(item, protocolType)))
 					< RSSL_RET_SUCCESS))
 			return ret;
 
@@ -809,6 +811,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	RsslInt32 latencyUpdateNumber;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	ItemInfo *nextItem;
+	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
 	TimeValue measureEncodeStartTime, measureEncodeEndTime;
 
@@ -839,7 +842,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		nextItem = RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink);
 
 		/* get a buffer for the response */
-		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemUpdateBufferLength(nextItem))) < RSSL_RET_SUCCESS))
+		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemUpdateBufferLength(nextItem, protocolType))) < RSSL_RET_SUCCESS))
 		{
 			if (ret == RSSL_RET_BUFFER_NO_BUFFERS)
 				countStatAdd(&pProvThread->outOfBuffersCount, updatesLeft);
@@ -923,6 +926,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	RsslInt32 latencyGenMsgNumber;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	ItemInfo *nextItem;
+	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
 	TimeValue measureEncodeStartTime, measureEncodeEndTime;
 
@@ -956,7 +960,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		nextItem = RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink);
 
 		/* get a buffer for the response */
-		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemGenMsgBufferLength(nextItem))) < RSSL_RET_SUCCESS))
+		if (rtrUnlikely((ret = getItemMsgBuffer(pProvThread, pSession, estimateItemGenMsgBufferLength(nextItem, protocolType))) < RSSL_RET_SUCCESS))
 		{
 			if (ret == RSSL_RET_BUFFER_NO_BUFFERS)
 				countStatAdd(&pProvThread->outOfBuffersCount, genMsgsLeft);
@@ -1041,7 +1045,6 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 {
 	RsslChannel *pChannel = pSession->pChannelInfo->pChannel;
 	RsslBuffer *pMsgBuffer = 0;
-	RsslError	  error;
 	RsslUInt32 outBytes;
 	RsslUInt32 uncompOutBytes;
 	RsslRet ret;
@@ -1077,7 +1080,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 					else
 					{
 						fprintf(stderr, 
-								"writeCurrentBuffer(): Failed to convert RWF > JSON %s\n", 
+								"rjcMsgConvertToJson(): Failed to convert RWF > JSON %s\n", 
 								eInfo.rsslError.text);
 						rsslReleaseBuffer(pSession->pWritingBuffer, &eInfo.rsslError);
 						return RSSL_RET_FAILURE;
@@ -1088,10 +1091,30 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 			if (pMsgBuffer != NULL)
 			{
-				memcpy(pSession->pWritingBuffer->data, pMsgBuffer->data, pMsgBuffer->length);
-				pSession->pWritingBuffer->length = pMsgBuffer->length;
-				rsslReleaseBuffer(pMsgBuffer, &eInfo.rsslError);
-				pMsgBuffer = 0;
+				if (providerThreadConfig.totalBuffersPerPack == 1) /* Not packing. */
+				{
+					/* Release the original RWF buffer and point the writing buffer to the JSON buffer */
+					rsslReleaseBuffer(pSession->pWritingBuffer, &eInfo.rsslError);
+					pSession->pWritingBuffer = pMsgBuffer;
+				}
+				else
+				{
+					/* Ensure there is enough space to copy data */
+					if (pSession->remaingPackedBufferLength >= pMsgBuffer->length)
+					{
+						memcpy(pSession->pWritingBuffer->data, pMsgBuffer->data, pMsgBuffer->length);
+						pSession->pWritingBuffer->length = pMsgBuffer->length;
+						rsslReleaseBuffer(pMsgBuffer, &eInfo.rsslError);
+					}
+					else
+					{
+						fprintf(stderr,
+							"writeCurrentBuffer: The remaining packed buffer length %d is not enough to copy data length %d.\n",
+							pSession->remaingPackedBufferLength, pMsgBuffer->length);
+						rsslReleaseBuffer(pSession->pWritingBuffer, &eInfo.rsslError);
+						return RSSL_RET_FAILURE;
+					}
+				}
 			}
 		}
 
@@ -1143,9 +1166,6 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 	countStatIncr(&pProvThread->bufferSentCount);
 
-	if (pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
-		rsslReleaseBuffer(pSession->pWritingBuffer, &error);
-
 	if (ret >= RSSL_RET_SUCCESS)
 	{
 		pSession->pWritingBuffer = 0;
@@ -1181,12 +1201,19 @@ static RsslRet getNewBuffer(ProviderThread *pProvThread, ProviderSession *pSessi
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
-		pSession->pWritingBuffer = rsslGetBuffer(pSession->pChannelInfo->pChannel, length, providerThreadConfig.totalBuffersPerPack > 1 ? RSSL_TRUE : RSSL_FALSE , pError);
+		RsslBool packedBuffer = providerThreadConfig.totalBuffersPerPack > 1 ? RSSL_TRUE : RSSL_FALSE;
+
+		pSession->pWritingBuffer = rsslGetBuffer(pSession->pChannelInfo->pChannel, length, packedBuffer, pError);
 		if (!pSession->pWritingBuffer)
 		{
 			if (pError->rsslErrorId != RSSL_RET_BUFFER_NO_BUFFERS)
 				printf("rsslGetBuffer() failed: (%d) %s \n", pError->rsslErrorId, pError->text);
 			return pError->rsslErrorId;
+		}
+
+		if (pSession->pChannelInfo->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && packedBuffer)
+		{
+			pSession->remaingPackedBufferLength = length;
 		}
 	}
 	else // use UPA VA Reactor
@@ -1300,13 +1327,22 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 					if ((pMsgBuffer = rjcMsgConvertToJson(&(pProvThread->rjcSess), pChannel,
 															pSession->pWritingBuffer, &eInfo)) == NULL)
 					{
-						//fprintf(stderr, "sendItemMsgBuffer(): Failed to convert RWF > JSON %s\n", eInfo.rsslError.text);
-
-						if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
+						if (eInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
 						{
-							printf("rsslFlush() failed with return code %d - <%s>\n", 
+							if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
+							{
+								printf("rsslFlush() failed with return code %d - <%s>\n", 
 									ret, error.text);
-							return ret;
+								return ret;
+							}
+						}
+						else
+						{
+							fprintf(stderr, 
+								"rjcMsgConvertToJson(): Failed to convert RWF > JSON %s\n", 
+								eInfo.rsslError.text);
+							rsslReleaseBuffer(pSession->pWritingBuffer, &eInfo.rsslError);
+							return RSSL_RET_FAILURE;
 						}
 					}
 
@@ -1323,6 +1359,8 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 				printf("rsslPackBuffer failed: %d <%s>", error.rsslErrorId, error.text);
 				return RSSL_RET_FAILURE;
 			}
+
+			pSession->remaingPackedBufferLength = pSession->pWritingBuffer->length;
 		}
 		else // use UPA VA Reactor
 		{

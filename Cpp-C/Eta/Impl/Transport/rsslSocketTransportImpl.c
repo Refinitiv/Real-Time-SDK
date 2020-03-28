@@ -696,6 +696,44 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		inBytes = cc;
 		if (rsslSocketChannel->blocking == 0)
 			canRead = 0;
+
+		/* Handle partial read for websocket frame for the websocket connection. */
+		if (rsslSocketChannel->rwsSession)
+		{
+			rwsSession_t		*wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+			rwsFrameHdr_t		*frame = &(wsSess->frameHdr);
+			
+			if (frame->partial)
+			{
+				*readret = RSSL_RET_READ_WOULD_BLOCK;
+				return 0;
+			}
+			else if ( (frame->opcode == RWS_OPC_PING) || (frame->opcode == RWS_OPC_PONG) )
+			{
+				wsSess->inputReadCursor += frame->hdrLen + frame->payloadLen;
+
+				if (wsSess->inputReadCursor == wsSess->actualInBuffLen)
+				{
+					wsSess->inputReadCursor = 0;
+					wsSess->actualInBuffLen = 0;
+				}
+
+				rsslSocketChannel->inputBufCursor += (RsslUInt32)frame->payloadLen;
+
+				if (rsslSocketChannel->inputBufCursor == rsslSocketChannel->inputBuffer->length)
+				{
+					rsslSocketChannel->inputBufCursor = 0;
+					rsslSocketChannel->inputBuffer->length = 0;
+					*readret = RSSL_RET_READ_WOULD_BLOCK;
+					return 0;
+				}
+				else
+				{
+					*readret = RSSL_RET_SUCCESS;
+					return 0;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -706,6 +744,11 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		if (*readret != RSSL_RET_SUCCESS)
 		{
 			inBytes = (RsslInt32)(rsslSocketChannel->inputBuffer->length - inputBufferLength); /* Set the partial bytes read if any */
+
+			/* Handles RWS_OPC_PING or  RWS_OPC_PING frames to ignore and read more data if any. */
+			if (*readret == RSSL_RET_READ_PING)
+				*readret = RSSL_RET_SUCCESS;
+
 			return 0;
 		}
 

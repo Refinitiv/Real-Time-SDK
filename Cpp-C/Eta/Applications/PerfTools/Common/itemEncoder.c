@@ -8,7 +8,7 @@
 #include "itemEncoder.h"
 #include <assert.h>
 
-RsslUInt32 estimateItemRefreshBufferLength(ItemInfo *itemInfo)
+RsslUInt32 estimateItemRefreshBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol)
 {
 	RsslUInt32 bufferSize = 64;
 
@@ -30,6 +30,9 @@ RsslUInt32 estimateItemRefreshBufferLength(ItemInfo *itemInfo)
 			assert(0);
 			break;
 	}
+
+	if (protocol == RSSL_JSON_PROTOCOL_TYPE)
+		bufferSize *= 2;
 
 	return bufferSize;
 }
@@ -110,7 +113,7 @@ RsslRet encodeItemRefresh(RsslChannel* chnl,
 	return RSSL_RET_SUCCESS;
 }
 
-RsslUInt32 estimateItemUpdateBufferLength(ItemInfo *itemInfo)
+RsslUInt32 estimateItemUpdateBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol)
 {
 	RsslUInt32 bufferSize = 64;
 
@@ -128,6 +131,9 @@ RsslUInt32 estimateItemUpdateBufferLength(ItemInfo *itemInfo)
 			assert(0);
 			break;
 	}
+
+	if (protocol == RSSL_JSON_PROTOCOL_TYPE)
+		bufferSize *= 2;
 
 	return bufferSize;
 }
@@ -191,7 +197,7 @@ RsslRet encodeItemUpdate(RsslChannel* chnl,
 	return RSSL_RET_SUCCESS;
 }
 
-RsslUInt32 estimateItemPostBufferLength(ItemInfo *itemInfo)
+RsslUInt32 estimateItemPostBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol)
 {
 	RsslUInt32 bufferSize = 64;
 
@@ -209,6 +215,9 @@ RsslUInt32 estimateItemPostBufferLength(ItemInfo *itemInfo)
 			assert(0);
 			break;
 	}
+
+	if (protocol == RSSL_JSON_PROTOCOL_TYPE)
+		bufferSize *= 2;
 
 	return bufferSize;
 }
@@ -354,7 +363,7 @@ RsslRet createItemPost(RsslChannel* chnl, ItemInfo* itemInfo, RsslPostMsg* pPost
 	return RSSL_RET_SUCCESS;
 }
 
-RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo)
+RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo, RsslUInt32 protocol)
 {
 	RsslUInt32 bufferSize = 64;
 
@@ -372,6 +381,9 @@ RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo)
 			assert(0);
 			break;
 	}
+
+	if (protocol == RSSL_RWF_PROTOCOL_TYPE)
+		bufferSize *= 2;
 
 	return bufferSize;
 }
