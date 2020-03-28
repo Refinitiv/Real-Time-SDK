@@ -2312,7 +2312,7 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 	}
 	if(_errorLine)
 	{
-		writeBufVar(&JSON_LINE, _errorFile);
+		writeBufVar(&JSON_LINE, _errorFile != NULL);
 		uInt32ToString(*_errorLine);
 	}
 	if(_errorOffset)

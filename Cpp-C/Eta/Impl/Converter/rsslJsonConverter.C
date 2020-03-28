@@ -371,7 +371,7 @@ RSSL_RJC_API RsslRet rsslGetConverterJsonMsg(RsslJsonConverter pConverter, RsslG
 	switch(pOptions->transportProtocol)
 	{
 		case RSSL_JSON_TP_WS:
-			*pOutBuffer = *pIntConverter->getJsonMsg(pOptions->streamId, pOptions->solicited, pOptions->isCloseMsg);
+			*pOutBuffer = *pIntConverter->getJsonMsg(pOptions->streamId, pOptions->solicited != 0, pOptions->isCloseMsg != 0);
 			return RSSL_RET_SUCCESS;
 
 		default:
