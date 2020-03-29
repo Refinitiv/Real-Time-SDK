@@ -751,7 +751,7 @@ bool jsonToRwfBase::processFloat(jsmntok_t ** const tokPtr, RsslBuffer ** const 
 		case JSMN_STRING:
 			if (compareStrings(*tokPtr, JSON_INFINITY))
 			{
-					_floatVar = INFINITY;
+					_floatVar = (float)INFINITY;
 					*ptrVoidPtr = &_floatVar;
 					*ptrBufPtr = 0;
 					(*tokPtr)++;
@@ -759,7 +759,7 @@ bool jsonToRwfBase::processFloat(jsmntok_t ** const tokPtr, RsslBuffer ** const 
 			}
 			else if (compareStrings(*tokPtr, JSON_NEG_INFINITY))
 			{
-					_floatVar = -INFINITY;
+					_floatVar = (float)(-INFINITY);
 					*ptrVoidPtr = &_floatVar;
 					*ptrBufPtr = 0;
 					(*tokPtr)++;
@@ -767,7 +767,7 @@ bool jsonToRwfBase::processFloat(jsmntok_t ** const tokPtr, RsslBuffer ** const 
 			}
 			else if (compareStrings(*tokPtr, JSON_NAN))
 			{
-					_floatVar = NAN;
+					_floatVar = (float)NAN;
 					*ptrVoidPtr = &_floatVar;
 					*ptrBufPtr = 0;
 					(*tokPtr)++;
