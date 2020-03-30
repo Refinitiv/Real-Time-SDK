@@ -102,6 +102,13 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     Security Compliance: Refinitiv Security Compliant
     Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
 
+# Security
+
+    The components in this package have been scanned using the below software and security scanning products:
+
+    Veracode, Refinitiv Standard v21, https://www.veracode.com/.
+    Black Duck by Synopsis, 2019.12.1, https://www.blackducksoftware.com/.
+
 # Notes
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
 - Java unit tests may use [Mockito](http://site.mockito.org/) for creation of mock objects. Mockito is distributed under the MIT license.
