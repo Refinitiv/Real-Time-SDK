@@ -769,7 +769,6 @@ void DictionaryCallbackClient::initialize()
 		}
 
 		_ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType = Dictionary::ChannelDictionaryEnum;
-		return;
 	}
 	else if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg && !_ommBaseImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
