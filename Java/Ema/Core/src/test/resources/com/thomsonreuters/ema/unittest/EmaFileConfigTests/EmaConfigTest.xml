@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmaConfig>
 
+	<GlobalConfig>
+		<ReactorMsgEventPoolLimit value="2000"/>
+		<ReactorChannelEventPoolLimit value="1500"/>
+		<WorkerEventPoolLimit value="1000"/>
+	</GlobalConfig>
+	
 <!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->
 <!-- if application does not specify it through OmmConsumerConfig::consumerName()				-->
 <!-- first consumer on the consumerList is a default consumer if this parameter is not specified	-->

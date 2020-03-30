@@ -30,12 +30,40 @@ public class ReactorFactory
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
     
+    private static int _reactorMsgEventPoolLimit = Integer.MAX_VALUE;
+    private static int _reactorChannelEventPoolLimit = Integer.MAX_VALUE;
+    private static int _workerEventPoolLimit = Integer.MAX_VALUE;
     /**
      * Instantiates a new reactor factory.
      */
     private ReactorFactory()
     {
         throw new AssertionError();
+    }
+
+    
+    /**
+     * Sets maximum number of events in _reactorMsgEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param reactorMsgEventPoolLimit value to set
+     */
+    public static void setReactorMsgEventPoolLimit(int reactorMsgEventPoolLimit) {
+        ReactorFactory._reactorMsgEventPoolLimit = reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Sets maximum number of events in _reactorChannelEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param reactorChannelEventPoolLimit value to set
+     */
+    public static void setReactorChannelEventPoolLimit(int reactorChannelEventPoolLimit) {
+        ReactorFactory._reactorChannelEventPoolLimit = reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Sets maximum number of events in _workerEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param workerEventPoolLimit value to set
+     */
+    public static void setWorkerEventPoolLimit(int workerEventPoolLimit) {
+        ReactorFactory._workerEventPoolLimit = workerEventPoolLimit > 0 ? workerEventPoolLimit : Integer.MAX_VALUE;
     }
 
     /**
@@ -55,7 +83,7 @@ public class ReactorFactory
     {
         if (errorInfo == null)
         {
-            System.out.println("ReactoryFactor.createReactor: ReactorErrorInfo cannot be null, reactor not created.");
+            System.out.println("ReactorFactory.createReactor: ReactorErrorInfo cannot be null, reactor not created.");
             return null;
         }
          
@@ -394,7 +422,9 @@ public class ReactorFactory
         if(reactorMsgEvent == null)
         {
             reactorMsgEvent = new ReactorMsgEvent();
-            _reactorMsgEventPool.updatePool(reactorMsgEvent);
+            if(_reactorMsgEventPool.size() < _reactorMsgEventPoolLimit) {
+                _reactorMsgEventPool.updatePool(reactorMsgEvent);
+            }
         }
         else
         {
@@ -414,7 +444,9 @@ public class ReactorFactory
         if(reactorChannelEvent == null)
         {
             reactorChannelEvent = new ReactorChannelEvent();
-            _reactorChannelEventPool.updatePool(reactorChannelEvent);
+            if(_reactorChannelEventPool.size() < _reactorChannelEventPoolLimit) {
+                _reactorChannelEventPool.updatePool(reactorChannelEvent);
+            }
         }
         else
         {
@@ -536,7 +568,9 @@ public class ReactorFactory
         if(workerEvent == null)
         {
             workerEvent = new WorkerEvent();
-            _workerEventPool.updatePool(workerEvent);
+            if(_workerEventPool.size() < _workerEventPoolLimit) {
+                _workerEventPool.updatePool(workerEvent);
+            }
         }
         else
         {
@@ -728,5 +762,4 @@ public class ReactorFactory
         }
         return wlView;
     }
-
 }

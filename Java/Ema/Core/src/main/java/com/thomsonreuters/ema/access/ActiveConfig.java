@@ -43,6 +43,7 @@ abstract class BaseConfig
 		userDispatch = DEFAULT_USER_DISPATCH;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 		traceStr = new StringBuilder(500);
+		globalConfig = new GlobalConfig();
 	}
 	
 	void clear()
@@ -57,6 +58,7 @@ abstract class BaseConfig
 		configuredName = null;
 		instanceName = null;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		globalConfig.clear();
 		traceStr.setLength(0);
 	}
 	
@@ -87,6 +89,7 @@ abstract class BaseConfig
 	int		    			userDispatch;
 	boolean 				xmlTraceEnable;
 	StringBuilder			traceStr;
+	GlobalConfig            globalConfig;
 }
 
 abstract class ActiveConfig extends BaseConfig
@@ -735,5 +738,29 @@ class ServiceDictionaryConfig
 			}
 			return null;
 		}
+	}
+}
+
+class GlobalConfig
+{
+	final static int DEFAULT_EVENT_POOL_LIMIT = -1;
+
+	int reactorMsgEventPoolLimit;
+	int reactorChannelEventPoolLimit;
+	int workerEventPoolLimit;
+
+	GlobalConfig()
+	{
+		super();
+		reactorMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		reactorChannelEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+	}
+
+	void clear()
+	{
+		reactorMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		reactorChannelEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 	}
 }
