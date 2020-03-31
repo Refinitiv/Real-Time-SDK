@@ -8,15 +8,15 @@
 include(rcdevExternalUtils)
 
 if(NOT elektron-sdk-binarypack_url)
-	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-1.4.0.L1/Elektron-SDK-BinaryPack-1.4.0.L1.tar.xz")
+	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-1.5.0.L1/Elektron-SDK-BinaryPack-1.5.0.L1.tar.xz")
 endif()
 if(NOT elektron-sdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(elektron-sdk-binarypack_hash "MD5=88f99cdf35c59d75ffcac0ccfe143028")
+	set(elektron-sdk-binarypack_hash "MD5=95216c54b548907287776d9c4f194e97")
 endif()
 if(NOT elektron-sdk-binarypack_version)
-	set(elektron-sdk-binarypack_version "1.4.0.0")
+	set(elektron-sdk-binarypack_version "1.5.0.0")
 endif()
 	
 # If the option for using the system installed 
