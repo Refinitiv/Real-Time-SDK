@@ -542,6 +542,8 @@ class ProgrammaticConfigure
 		ElementEntry reactorMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorMsgEventPoolLimit");
 		ElementEntry reactorChannelEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorChannelEventPoolLimit");
 		ElementEntry workerEventPoolLimit = getIntElementEntry(globalConfigEntry, "WorkerEventPoolLimit");
+		ElementEntry tunnelStreamMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamMsgEventPoolLimit");
+		ElementEntry tunnelStreamStatusEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamStatusEventPoolLimit");
 
 		if (reactorMsgEventPoolLimit != null) {
 			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
@@ -551,6 +553,12 @@ class ProgrammaticConfigure
 		}
 		if (workerEventPoolLimit != null) {
 			config.workerEventPoolLimit = convertToInt(workerEventPoolLimit.intValue());
+		}
+		if (tunnelStreamMsgEventPoolLimit != null) {
+			config.tunnelStreamMsgEventPoolLimit = convertToInt(tunnelStreamMsgEventPoolLimit.intValue());
+		}
+		if (tunnelStreamStatusEventPoolLimit != null) {
+			config.tunnelStreamStatusEventPoolLimit = convertToInt(tunnelStreamStatusEventPoolLimit.intValue());
 		}
 		return config;
 	}

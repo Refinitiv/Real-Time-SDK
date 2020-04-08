@@ -51,7 +51,12 @@ abstract class BaseConfig
 		.append("\n\t userDispatch: ").append(userDispatch) 
 		.append("\n\t configuredName: ").append(configuredName) 
 		.append("\n\t instanceName: ").append(instanceName) 
-		.append("\n\t xmlTraceEnable: ").append(xmlTraceEnable);
+		.append("\n\t xmlTraceEnable: ").append(xmlTraceEnable)
+		.append("\n\t globalConfig.reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
+		.append("\n\t globalConfig.reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
+		.append("\n\t globalConfig.workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
+		.append("\n\t globalConfig.tunnelStreamMsgEventPoolLimit: ").append(globalConfig.tunnelStreamMsgEventPoolLimit)
+		.append("\n\t globalConfig.tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit);
 		
 		return traceStr;
 	}

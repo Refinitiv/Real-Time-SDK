@@ -1008,6 +1008,8 @@ class ConfigReader
 			String workerEventPoolLimit = getValueFromNode(globalConfigNode, "WorkerEventPoolLimit");
 			String reactorChannelEventPoolLimit = getValueFromNode(globalConfigNode, "ReactorChannelEventPoolLimit");
 			String reactorMsgEventPoolLimit = getValueFromNode(globalConfigNode, "ReactorMsgEventPoolLimit");
+			String tunnelStreamMsgEventPoolLimit = getValueFromNode(globalConfigNode, "TunnelStreamMsgEventPoolLimit");
+			String tunnelStreamStatusEventPoolLimit = getValueFromNode(globalConfigNode, "TunnelStreamStatusEventPoolLimit");
 			
 			if(workerEventPoolLimit != null){
 				globalConfig.workerEventPoolLimit = Integer.parseInt(workerEventPoolLimit); 
@@ -1017,6 +1019,12 @@ class ConfigReader
 			}
 			if(reactorMsgEventPoolLimit != null){
 				globalConfig.reactorMsgEventPoolLimit = Integer.parseInt(reactorMsgEventPoolLimit);
+			}
+			if(tunnelStreamMsgEventPoolLimit != null){
+				globalConfig.tunnelStreamMsgEventPoolLimit = Integer.parseInt(tunnelStreamMsgEventPoolLimit);
+			}
+			if(tunnelStreamStatusEventPoolLimit != null){
+				globalConfig.tunnelStreamStatusEventPoolLimit = Integer.parseInt(tunnelStreamStatusEventPoolLimit);
 			}
 		}
 		

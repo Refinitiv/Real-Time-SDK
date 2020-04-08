@@ -33,6 +33,8 @@ public class ReactorFactory
     private static int _reactorMsgEventPoolLimit = Integer.MAX_VALUE;
     private static int _reactorChannelEventPoolLimit = Integer.MAX_VALUE;
     private static int _workerEventPoolLimit = Integer.MAX_VALUE;
+    private static int _tunnelStreamMsgEventPoolLimit= Integer.MAX_VALUE;
+    private static int _tunnelStreamStatusEventPoolLimit = Integer.MAX_VALUE;
     /**
      * Instantiates a new reactor factory.
      */
@@ -64,6 +66,22 @@ public class ReactorFactory
      */
     public static void setWorkerEventPoolLimit(int workerEventPoolLimit) {
         ReactorFactory._workerEventPoolLimit = workerEventPoolLimit > 0 ? workerEventPoolLimit : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Sets maximum number of events in _tunnelStreamMsgEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param tunnelStreamMsgEventPoolLimit value to set
+     */
+    public static void setTunnelStreamMsgEventPoolLimit(int tunnelStreamMsgEventPoolLimit) {
+        ReactorFactory._tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Sets maximum number of events in _tunnelStreamStatusEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param tunnelStreamStatusEventPoolLimit value to set
+     */
+    public static void setTunnelStreamStatusEventPoolLimit(int tunnelStreamStatusEventPoolLimit) {
+        ReactorFactory._tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : Integer.MAX_VALUE;
     }
 
     /**
@@ -508,7 +526,9 @@ public class ReactorFactory
         if(tunnelStreamStatusEvent == null)
         {
             tunnelStreamStatusEvent = new TunnelStreamStatusEvent();
-            _tunnelStreamStatusEventPool.updatePool(tunnelStreamStatusEvent);
+            if(_tunnelStreamStatusEventPool.size() < _tunnelStreamStatusEventPoolLimit) {
+                _tunnelStreamStatusEventPool.updatePool(tunnelStreamStatusEvent);
+            }
         }
         else
         {
@@ -528,7 +548,9 @@ public class ReactorFactory
         if(tunnelStreamMsgEvent == null)
         {
             tunnelStreamMsgEvent = new TunnelStreamMsgEvent();
-            _tunnelStreamMsgEventPool.updatePool(tunnelStreamMsgEvent);
+            if(_tunnelStreamMsgEventPool.size() < _tunnelStreamMsgEventPoolLimit) {
+                _tunnelStreamMsgEventPool.updatePool(tunnelStreamMsgEvent);
+            }
         }
         else
         {

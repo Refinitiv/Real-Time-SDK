@@ -76,6 +76,10 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReactorChannelEventPoolLimit value == 1500", intValue == 1500);
 		intValue = testConfig.xmlConfig().getGlobalConfig().workerEventPoolLimit;
 		TestUtilities.checkResult("WorkerEventPoolLimit value == 1000", intValue == 1000);
+		intValue = testConfig.xmlConfig().getGlobalConfig().tunnelStreamMsgEventPoolLimit;
+		TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit value == 2500", intValue == 2500);
+		intValue = testConfig.xmlConfig().getGlobalConfig().tunnelStreamStatusEventPoolLimit;
+		TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit value == 3000", intValue == 3000);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );
@@ -564,6 +568,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorMsgEventPoolLimit", 100));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorChannelEventPoolLimit", 150));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("WorkerEventPoolLimit", 200));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 250));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 300));
 			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
 			innerElementList.clear();
 			
@@ -710,6 +716,10 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReactorChannelEventPoolLimit == 150", value == 150);
 			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.workerEventPoolLimit;
 			TestUtilities.checkResult("WorkerEventPoolLimit == 200", value == 200);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamMsgEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 250", value == 250);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 300", value == 300);
 			
 			
 			// Check values of Consumer_1
@@ -2350,6 +2360,8 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorMsgEventPoolLimit", 2000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorChannelEventPoolLimit", 1500));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("WorkerEventPoolLimit", 1000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 2500));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 3000));
 			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
 			innerElementList.clear();
 			
@@ -2605,6 +2617,10 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("ReactorChannelEventPoolLimit == 1500", value == 1500);
 			value = prov.activeConfig().globalConfig.workerEventPoolLimit;
 			TestUtilities.checkResult("WorkerEventPoolLimit == 1000", value == 1000);
+			value = prov.activeConfig().globalConfig.tunnelStreamMsgEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 2500", value == 2500);
+			value = prov.activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 3000", value == 3000);
 			
 			// Check Server configuration:
 			// Check Server_1 configuration.

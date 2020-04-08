@@ -7,6 +7,8 @@ class GlobalConfig
 	int reactorMsgEventPoolLimit;
 	int reactorChannelEventPoolLimit;
 	int workerEventPoolLimit;
+	int tunnelStreamMsgEventPoolLimit;
+	int tunnelStreamStatusEventPoolLimit;
 
 	GlobalConfig()
 	{
@@ -14,6 +16,8 @@ class GlobalConfig
 		reactorMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		reactorChannelEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		tunnelStreamMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 	}
 
 	void clear()
@@ -21,5 +25,7 @@ class GlobalConfig
 		reactorMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		reactorChannelEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		tunnelStreamMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 	}
 }
