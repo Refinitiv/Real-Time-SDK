@@ -29,12 +29,13 @@ public class ReactorFactory
     static VaPool _wlItemGroupPool = new VaPool(true);
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
-    
-    private static int _reactorMsgEventPoolLimit = Integer.MAX_VALUE;
-    private static int _reactorChannelEventPoolLimit = Integer.MAX_VALUE;
-    private static int _workerEventPoolLimit = Integer.MAX_VALUE;
-    private static int _tunnelStreamMsgEventPoolLimit= Integer.MAX_VALUE;
-    private static int _tunnelStreamStatusEventPoolLimit = Integer.MAX_VALUE;
+
+    private static final int DEFAULT_POOL_LIMIT = -1;
+    private static int _reactorMsgEventPoolLimit = DEFAULT_POOL_LIMIT;
+    private static int _reactorChannelEventPoolLimit = DEFAULT_POOL_LIMIT;
+    private static int _workerEventPoolLimit = DEFAULT_POOL_LIMIT;
+    private static int _tunnelStreamMsgEventPoolLimit= DEFAULT_POOL_LIMIT;
+    private static int _tunnelStreamStatusEventPoolLimit = DEFAULT_POOL_LIMIT;
     /**
      * Instantiates a new reactor factory.
      */
@@ -49,7 +50,7 @@ public class ReactorFactory
      * @param reactorMsgEventPoolLimit value to set
      */
     public static void setReactorMsgEventPoolLimit(int reactorMsgEventPoolLimit) {
-        ReactorFactory._reactorMsgEventPoolLimit = reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : Integer.MAX_VALUE;
+        ReactorFactory._reactorMsgEventPoolLimit = reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : DEFAULT_POOL_LIMIT;
     }
 
     /**
@@ -57,7 +58,7 @@ public class ReactorFactory
      * @param reactorChannelEventPoolLimit value to set
      */
     public static void setReactorChannelEventPoolLimit(int reactorChannelEventPoolLimit) {
-        ReactorFactory._reactorChannelEventPoolLimit = reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : Integer.MAX_VALUE;
+        ReactorFactory._reactorChannelEventPoolLimit = reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : DEFAULT_POOL_LIMIT;
     }
 
     /**
@@ -65,7 +66,7 @@ public class ReactorFactory
      * @param workerEventPoolLimit value to set
      */
     public static void setWorkerEventPoolLimit(int workerEventPoolLimit) {
-        ReactorFactory._workerEventPoolLimit = workerEventPoolLimit > 0 ? workerEventPoolLimit : Integer.MAX_VALUE;
+        ReactorFactory._workerEventPoolLimit = workerEventPoolLimit > 0 ? workerEventPoolLimit : DEFAULT_POOL_LIMIT;
     }
 
     /**
@@ -73,7 +74,7 @@ public class ReactorFactory
      * @param tunnelStreamMsgEventPoolLimit value to set
      */
     public static void setTunnelStreamMsgEventPoolLimit(int tunnelStreamMsgEventPoolLimit) {
-        ReactorFactory._tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : Integer.MAX_VALUE;
+        ReactorFactory._tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : DEFAULT_POOL_LIMIT;
     }
 
     /**
@@ -81,7 +82,7 @@ public class ReactorFactory
      * @param tunnelStreamStatusEventPoolLimit value to set
      */
     public static void setTunnelStreamStatusEventPoolLimit(int tunnelStreamStatusEventPoolLimit) {
-        ReactorFactory._tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : Integer.MAX_VALUE;
+        ReactorFactory._tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : DEFAULT_POOL_LIMIT;
     }
 
     /**
@@ -440,7 +441,7 @@ public class ReactorFactory
         if(reactorMsgEvent == null)
         {
             reactorMsgEvent = new ReactorMsgEvent();
-            if(_reactorMsgEventPool.size() < _reactorMsgEventPoolLimit) {
+            if(checkPoolLimit(_reactorMsgEventPool, _reactorMsgEventPoolLimit)) {
                 _reactorMsgEventPool.updatePool(reactorMsgEvent);
             }
         }
@@ -462,7 +463,7 @@ public class ReactorFactory
         if(reactorChannelEvent == null)
         {
             reactorChannelEvent = new ReactorChannelEvent();
-            if(_reactorChannelEventPool.size() < _reactorChannelEventPoolLimit) {
+            if(checkPoolLimit(_reactorChannelEventPool, _reactorChannelEventPoolLimit)) {
                 _reactorChannelEventPool.updatePool(reactorChannelEvent);
             }
         }
@@ -526,7 +527,7 @@ public class ReactorFactory
         if(tunnelStreamStatusEvent == null)
         {
             tunnelStreamStatusEvent = new TunnelStreamStatusEvent();
-            if(_tunnelStreamStatusEventPool.size() < _tunnelStreamStatusEventPoolLimit) {
+            if(checkPoolLimit(_tunnelStreamStatusEventPool, _tunnelStreamStatusEventPoolLimit)) {
                 _tunnelStreamStatusEventPool.updatePool(tunnelStreamStatusEvent);
             }
         }
@@ -548,7 +549,7 @@ public class ReactorFactory
         if(tunnelStreamMsgEvent == null)
         {
             tunnelStreamMsgEvent = new TunnelStreamMsgEvent();
-            if(_tunnelStreamMsgEventPool.size() < _tunnelStreamMsgEventPoolLimit) {
+            if(checkPoolLimit(_tunnelStreamMsgEventPool, _tunnelStreamMsgEventPoolLimit)) {
                 _tunnelStreamMsgEventPool.updatePool(tunnelStreamMsgEvent);
             }
         }
@@ -590,7 +591,7 @@ public class ReactorFactory
         if(workerEvent == null)
         {
             workerEvent = new WorkerEvent();
-            if(_workerEventPool.size() < _workerEventPoolLimit) {
+            if(checkPoolLimit(_workerEventPool, _workerEventPoolLimit)) {
                 _workerEventPool.updatePool(workerEvent);
             }
         }
@@ -783,5 +784,10 @@ public class ReactorFactory
             wlView.clear();
         }
         return wlView;
+    }
+    
+    private static boolean checkPoolLimit(VaPool pool, int limit)
+    {
+        return limit > 0 && pool.size() < limit;
     }
 }
