@@ -19,6 +19,7 @@ abstract class ActiveServerConfig extends BaseConfig
 	final static boolean DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM            = false;
 	final static boolean DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE    = false;
 	final static boolean DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE          = false;
+	final static boolean DEFAULT_ENFORCE_ACK_ID_VALIDATION          = false;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				  = 60000;
 	final static int DEFAULT_CONNECTION_MINPINGTIMEOUT            = 20000;
 	final static int DEFAULT_SERVER_SYS_SEND_BUFFER_SIZE		  = 65535;
@@ -33,7 +34,8 @@ abstract class ActiveServerConfig extends BaseConfig
 	boolean                                acceptMessageSameKeyButDiffStream;
 	boolean                                acceptMessageThatChangesService;
 	boolean                                acceptMessageWithoutQosInRange;
-	
+	boolean                                enforceAckIDValidation;
+
 	private LongObject							         serviceId = new LongObject();
 	private HashMap<LongObject, ServiceDictionaryConfig> serviceDictionaryConfigMap;
 
@@ -49,6 +51,7 @@ abstract class ActiveServerConfig extends BaseConfig
 		acceptMessageSameKeyButDiffStream = DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM;
 		acceptMessageThatChangesService = DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE;
 		acceptMessageWithoutQosInRange = DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE;
+		enforceAckIDValidation = DEFAULT_ENFORCE_ACK_ID_VALIDATION;
 	}
 	
 	void clear()
@@ -60,20 +63,22 @@ abstract class ActiveServerConfig extends BaseConfig
 		acceptMessageSameKeyButDiffStream = DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM;
 		acceptMessageThatChangesService = DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE;
 		acceptMessageWithoutQosInRange = DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE;
+		enforceAckIDValidation = DEFAULT_ENFORCE_ACK_ID_VALIDATION;
 		serviceDictionaryConfigMap.clear();
 	}
 	
 	StringBuilder configTrace()
 	{
 		super.configTrace();
-		traceStr.append("\n\t defaultServiceName: ").append(defaultServiceName) 
-		.append("\n\t acceptMessageWithoutAcceptingRequests: ").append(acceptMessageWithoutAcceptingRequests) 
-		.append("\n\t acceptDirMessageWithoutMinFilters: ").append(acceptDirMessageWithoutMinFilters) 
-		.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin) 
-		.append("\n\t acceptMessageSameKeyButDiffStream: ").append(acceptMessageSameKeyButDiffStream) 
-		.append("\n\t acceptMessageThatChangesService: ").append(acceptMessageThatChangesService) 
-		.append("\n\t acceptMessageWithoutQosInRange: ").append(acceptMessageWithoutQosInRange); 
-		
+		traceStr.append("\n\t defaultServiceName: ").append(defaultServiceName)
+				.append("\n\t acceptMessageWithoutAcceptingRequests: ").append(acceptMessageWithoutAcceptingRequests)
+				.append("\n\t acceptDirMessageWithoutMinFilters: ").append(acceptDirMessageWithoutMinFilters)
+				.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin)
+				.append("\n\t acceptMessageSameKeyButDiffStream: ").append(acceptMessageSameKeyButDiffStream)
+				.append("\n\t acceptMessageThatChangesService: ").append(acceptMessageThatChangesService)
+				.append("\n\t acceptMessageWithoutQosInRange: ").append(acceptMessageWithoutQosInRange)
+				.append("\n\t enforceAckIDValidation: ").append(enforceAckIDValidation);
+
 		return traceStr;
 	}
 	
@@ -107,9 +112,9 @@ abstract class ActiveServerConfig extends BaseConfig
 		while(iterator.hasNext())
 		{
 			ServiceDictionaryConfig serviceDictionaryConfig = iterator.next();
-			
+
 			if( ( serviceDictionaryConfig.dictionaryProvidedList.size() != 0 ) || ( serviceDictionaryConfig.dictionaryUsedList.size() != 0 ) )
-			serviceDictionaryConfigMap.put( new LongObject().value(serviceDictionaryConfig.serviceId), serviceDictionaryConfig);
+				serviceDictionaryConfigMap.put( new LongObject().value(serviceDictionaryConfig.serviceId), serviceDictionaryConfig);
 		}
 	}
 }

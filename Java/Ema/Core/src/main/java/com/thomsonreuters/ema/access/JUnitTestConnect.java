@@ -174,6 +174,7 @@ public class JUnitTestConnect
 	public static final int IProviderAcceptMessageSameKeyButDiffStream = ConfigManager.IProviderAcceptMessageSameKeyButDiffStream;
 	public static final int IProviderAcceptMessageThatChangesService = ConfigManager.IProviderAcceptMessageThatChangesService;
 	public static final int IProviderAcceptMessageWithoutQosInRange = ConfigManager.IProviderAcceptMessageWithoutQosInRange;
+	public static final int IProviderEnforceAckIDValidation = ConfigManager.IProviderEnforceAckIDValidation;
 	
 	// Server: Global
 	public static final int Server = ConfigManager.Server;
@@ -1259,6 +1260,8 @@ public class JUnitTestConnect
 				return activeConfig.acceptMessageWithoutBeingLogin;
 			else if (configParam == IProviderAcceptMessageWithoutQosInRange)
 				return activeConfig.acceptMessageWithoutQosInRange;
+			else if (configParam == IProviderEnforceAckIDValidation)
+				return activeConfig.enforceAckIDValidation;
 		}
 		else if (type == ConfigGroupTypeServer)
 		{

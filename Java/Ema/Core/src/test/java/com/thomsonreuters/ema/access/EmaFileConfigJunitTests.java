@@ -2377,6 +2377,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutAcceptingRequests", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutBeingLogin", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutQosInRange", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EnforceAckIDValidation", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("FieldDictionaryFragmentSize", 2000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("EnumTypeFragmentSize", 1000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("RefreshFirstRequired", 0));
@@ -2586,6 +2587,8 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("AcceptMessageSameKeyButDiffStream == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderAcceptMessageThatChangesService);
 			TestUtilities.checkResult("AcceptMessageThatChangesService == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderEnforceAckIDValidation);
+			TestUtilities.checkResult("IProviderEnforceAckIDValidation == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderRefreshFirstRequired);
 			TestUtilities.checkResult("RefreshFirstRequired == 0", boolValue == false);
 			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DictionaryFieldDictFragmentSize);
@@ -3449,6 +3452,8 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			TestUtilities.checkResult("AcceptMessageSameKeyButDiffStream == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderAcceptMessageThatChangesService);
 			TestUtilities.checkResult("AcceptMessageThatChangesService == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderEnforceAckIDValidation);
+			TestUtilities.checkResult("EnforceAckIDValidation == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderRefreshFirstRequired);
 			TestUtilities.checkResult("RefreshFirstRequired == 0", boolValue == false);
 			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DictionaryFieldDictFragmentSize);

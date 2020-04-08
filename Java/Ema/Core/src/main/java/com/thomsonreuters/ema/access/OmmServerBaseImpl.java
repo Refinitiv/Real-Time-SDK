@@ -115,6 +115,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	private RefreshMsgImpl				_refreshMsgImpl;
 	private StatusMsgImpl				_statusMsgImpl;
 	private GenericMsgImpl				_genericMsgImpl;
+	private PostMsgImpl 				_postMsgImpl;
 	
 	private RequestMsg 					_rsslReqMsg;
 	
@@ -1560,6 +1561,16 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_genericMsgImpl.clear();
 		
 		return _genericMsgImpl;
+	}
+
+	public PostMsgImpl postMsg()
+	{
+		if (_postMsgImpl == null)
+			_postMsgImpl = new PostMsgImpl(_objManager);
+		else
+			_postMsgImpl.clear();
+
+		return _postMsgImpl;
 	}
 	
 	public RequestMsg rsslRequestMsg()

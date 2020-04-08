@@ -1128,6 +1128,10 @@ class ProgrammaticConfigure
 													{
 														((ActiveServerConfig)activeConfig).acceptMessageWithoutBeingLogin = eentry.intValue() > 0 ? true : false;
 													}
+													else if (eentry.name().equals("EnforceAckIDValidation"))
+													{
+														((ActiveServerConfig)activeConfig).enforceAckIDValidation = eentry.intValue() > 0 ? true : false;
+													}
 													else if (eentry.name().equals("AcceptMessageWithoutQosInRange"))
 													{
 														((ActiveServerConfig)activeConfig).acceptMessageWithoutQosInRange = eentry.intValue() > 0 ? true : false;

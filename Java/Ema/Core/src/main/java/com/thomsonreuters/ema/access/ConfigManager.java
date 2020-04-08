@@ -237,6 +237,7 @@ class ConfigManager
 	public static final int IProviderAcceptMessageSameKeyButDiffStream = 811;
 	public static final int IProviderAcceptMessageThatChangesService = 812;
 	public static final int IProviderAcceptMessageWithoutQosInRange = 813;
+	public static final int IProviderEnforceAckIDValidation = 814;
 	
 	// Server: Global
 	public static final int ServerGroup = 900;
@@ -477,6 +478,7 @@ class ConfigManager
 		IProviderTagDict.add( "AcceptMessageSameKeyButDiffStream", IProviderAcceptMessageSameKeyButDiffStream);
 		IProviderTagDict.add( "AcceptMessageThatChangesService", IProviderAcceptMessageThatChangesService);
 		IProviderTagDict.add( "AcceptMessageWithoutQosInRange", IProviderAcceptMessageWithoutQosInRange);
+		IProviderTagDict.add( "EnforceAckIDValidation", IProviderEnforceAckIDValidation );
 		IProviderTagDict.add( "FieldDictionaryFragmentSize", DictionaryFieldDictFragmentSize);
 		IProviderTagDict.add( "EnumTypeFragmentSize", DictionaryEnumTypeFragmentSize);
 		IProviderTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
@@ -674,7 +676,8 @@ class ConfigManager
 		"DictionaryRequestTimeOut",
 		"DirectoryRequestTimeOut",
 		"DisconnectOnGap",
-		"EnableSessionManagement",
+		"EnableSessionManagement", 
+		"EnforceAckIDValidation",
 		"EnumTypeFragmentSize",
 		"FieldDictionaryFragmentSize",
 		"GuaranteedOutputBuffers",
