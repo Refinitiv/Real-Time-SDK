@@ -1005,26 +1005,43 @@ class ConfigReader
 			if(globalConfigNode == null){
 				return;
 			}
-			String workerEventPoolLimit = getValueFromNode(globalConfigNode, "WorkerEventPoolLimit");
-			String reactorChannelEventPoolLimit = getValueFromNode(globalConfigNode, "ReactorChannelEventPoolLimit");
-			String reactorMsgEventPoolLimit = getValueFromNode(globalConfigNode, "ReactorMsgEventPoolLimit");
-			String tunnelStreamMsgEventPoolLimit = getValueFromNode(globalConfigNode, "TunnelStreamMsgEventPoolLimit");
-			String tunnelStreamStatusEventPoolLimit = getValueFromNode(globalConfigNode, "TunnelStreamStatusEventPoolLimit");
+			Integer workerEventPoolLimit = getIntValueFromNode(globalConfigNode, "WorkerEventPoolLimit");
+			Integer reactorChannelEventPoolLimit = getIntValueFromNode(globalConfigNode, "ReactorChannelEventPoolLimit");
+			Integer reactorMsgEventPoolLimit = getIntValueFromNode(globalConfigNode, "ReactorMsgEventPoolLimit");
+			Integer tunnelStreamMsgEventPoolLimit = getIntValueFromNode(globalConfigNode, "TunnelStreamMsgEventPoolLimit");
+			Integer tunnelStreamStatusEventPoolLimit = getIntValueFromNode(globalConfigNode, "TunnelStreamStatusEventPoolLimit");
 			
 			if(workerEventPoolLimit != null){
-				globalConfig.workerEventPoolLimit = Integer.parseInt(workerEventPoolLimit); 
+				globalConfig.workerEventPoolLimit = workerEventPoolLimit; 
 			}
 			if(reactorChannelEventPoolLimit != null){
-				globalConfig.reactorChannelEventPoolLimit = Integer.parseInt(reactorChannelEventPoolLimit);
+				globalConfig.reactorChannelEventPoolLimit = reactorChannelEventPoolLimit;
 			}
 			if(reactorMsgEventPoolLimit != null){
-				globalConfig.reactorMsgEventPoolLimit = Integer.parseInt(reactorMsgEventPoolLimit);
+				globalConfig.reactorMsgEventPoolLimit = reactorMsgEventPoolLimit;
 			}
 			if(tunnelStreamMsgEventPoolLimit != null){
-				globalConfig.tunnelStreamMsgEventPoolLimit = Integer.parseInt(tunnelStreamMsgEventPoolLimit);
+				globalConfig.tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit;
 			}
 			if(tunnelStreamStatusEventPoolLimit != null){
-				globalConfig.tunnelStreamStatusEventPoolLimit = Integer.parseInt(tunnelStreamStatusEventPoolLimit);
+				globalConfig.tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit;
+			}
+		}
+
+		private Integer getIntValueFromNode(ConfigurationNode globalConfig, String attributeName) {
+			String value = getValueFromNode(globalConfig, attributeName);
+			if(value == null){
+				return null;
+			}
+			try
+			{
+				return Integer.valueOf(value);
+			}
+			catch(NumberFormatException exception)
+			{
+				errorTracker().append( "value [").append(value).append("] for config element [").append(attributeName)
+						.append("] is not a signed integer; element ignored").create(Severity.ERROR);
+				return null;
 			}
 		}
 		
