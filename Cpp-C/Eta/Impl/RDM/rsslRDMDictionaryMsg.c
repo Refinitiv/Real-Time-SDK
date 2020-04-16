@@ -130,7 +130,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 						if (dictEncodeRet != RSSL_RET_DICT_PART_ENCODED)
 						{
 							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslEncodeEnumTypeDictionaryAsMultiPart failed: %.*s", errorText.length, errorText.data);
-							return ret;
+							return dictEncodeRet;
 						}
 					}
 

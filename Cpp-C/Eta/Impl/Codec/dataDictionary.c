@@ -1233,7 +1233,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 
 	element.dataType = RSSL_DT_INT;
 	element.name = RSSL_ENAME_DICT_TYPE;
-	if (rsslEncodeElementEntry( seriesIter, &element, &type) < 0)
+	if ((ret = rsslEncodeElementEntry( seriesIter, &element, &type)) < 0)
 	{
 		_setError(errorText, "rsslEncodeElementEntry failed %d - Type",ret);
 		return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1242,7 +1242,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 	element.dataType = RSSL_DT_INT;
 	element.name = RSSL_ENAME_DICTIONARY_ID;
 	tmpI64 = dictionary->info_DictionaryId;
-	if (rsslEncodeElementEntry( seriesIter, &element, &tmpI64) < 0)
+	if ((ret = rsslEncodeElementEntry( seriesIter, &element, &tmpI64)) < 0)
 	{
 		_setError(errorText, "rsslEncodeElementEntry failed %d - DictionaryId",ret);
 		return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1254,7 +1254,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 		/* Version */
 		element.dataType = RSSL_DT_ASCII_STRING;
 		element.name = RSSL_ENAME_DICT_VERSION;
-		if (rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoField_Version ) < 0)
+		if ((ret = rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoField_Version )) < 0)
 		{
 			_setError(errorText, "rsslEncodeElementEntry failed %d - Version",ret);
 			return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1265,7 +1265,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 		/* RT_Version */
 		element.dataType = RSSL_DT_ASCII_STRING;
 		element.name = RSSL_ENAME_ENUM_RT_VERSION;
-		if (rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_RT_Version ) < 0)
+		if ((ret = rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_RT_Version )) < 0)
 		{
 			_setError(errorText, "rsslEncodeElementEntry failed %d - RT_Version",ret);
 			return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1274,7 +1274,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 		/* DT_Version */
 		element.dataType = RSSL_DT_ASCII_STRING;
 		element.name = RSSL_ENAME_ENUM_DT_VERSION;
-		if (rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_DT_Version ) < 0)
+		if ((ret = rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_DT_Version )) < 0)
 		{
 			_setError(errorText, "rsslEncodeElementEntry failed %d - DT_Version",ret);
 			return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1282,7 +1282,7 @@ static RsslRet rsslEncodeDataDictSummaryData(
 		/* Version */
 		element.dataType = RSSL_DT_ASCII_STRING;
 		element.name = RSSL_ENAME_DICT_VERSION;
-		if (rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_DT_Version ) < 0)
+		if ((ret = rsslEncodeElementEntry( seriesIter, &element, &dictionary->infoEnum_DT_Version )) < 0)
 		{
 			_setError(errorText, "rsslEncodeElementEntry failed %d - Version",ret);
 			return (ret == RSSL_RET_BUFFER_TOO_SMALL ? ret : RSSL_RET_FAILURE);
@@ -1824,7 +1824,7 @@ RSSL_API RsslRet rsslDecodeFieldDictionary(
 		/* since we own dictionary, lets assume that we create memory here - they should only delete this with our
 			delete dictionary function */
 
-		if (rsslDecodeElementList(dIter, &elementList, NULL) < 0)
+		if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) < 0)
 			return (_setError(errorText, "rsslDecodeElementList failed - %d", ret), _finishFailure(0, dictionary, 0, 0, 0));
 
 		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
@@ -1852,7 +1852,7 @@ RSSL_API RsslRet rsslDecodeFieldDictionary(
 			return (_setError(errorText, "rsslDecodeSeriesEntry failed - %d", ret), _finishFailure(0, dictionary, 0, 0, 0));
 
 		/* decode element list here */
-		if (rsslDecodeElementList(dIter, &elementList, &elListSetDb) < 0)
+		if ((ret = rsslDecodeElementList(dIter, &elementList, &elListSetDb)) < 0)
 			return (_setError(errorText, "rsslDecodeElementList failed - %d", ret), _finishFailure(0, dictionary, 0, 0, 0));
 
 
@@ -2318,7 +2318,7 @@ RSSL_API RsslRet rsslDecodeEnumTypeDictionary(
 	/* decode summary data */
 	if (rsslSeriesCheckHasSummaryData(&series))
 	{
-		if (rsslDecodeElementList(dIter, &elementList, NULL) < 0)
+		if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) < 0)
 			return (_setError(errorText, "rsslDecodeElementList failed - %d", ret), _finishEnumLoadFailure(0, dictionary, pFids, pEnumTypesHead, NULL));
 
 		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
@@ -2348,7 +2348,7 @@ RSSL_API RsslRet rsslDecodeEnumTypeDictionary(
 			 return (_setError(errorText, "rsslDecodeSeriesEntry failed - %d", ret), _finishEnumLoadFailure(0, dictionary, pFids, pEnumTypesHead, NULL));
 
 		/* decode element list here */
-		if (rsslDecodeElementList(dIter, &elementList, &elListSetDb) < 0)
+		if ((ret = rsslDecodeElementList(dIter, &elementList, &elListSetDb)) < 0)
 			return (_setError(errorText, "rsslDecodeElementList failed - %d", ret), _finishEnumLoadFailure(0, dictionary, pFids, pEnumTypesHead, NULL));
 
 		while ( (ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)

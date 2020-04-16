@@ -604,6 +604,25 @@ DictionaryPayload* DictionaryHandler::getDictionaryPayload(const EmaString& serv
 	}
 }
 
+void DictionaryHandler::logReactorReleaseBufferError(const char* errorMethod, OmmServerBaseImpl* ommServerBaseImpl, ClientSession* clientSession, RsslErrorInfo* rsslErrorInfo)
+{
+	if (ommServerBaseImpl != NULL && clientSession!= NULL && rsslErrorInfo!= NULL
+		&& OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+	{
+		EmaString errorText;
+		errorText.set("Internal error. Failed to encode dictionary message in DictionaryHandler::")
+			.append(errorMethod)
+			.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+			.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName())
+			.append("Error Id ").append(rsslErrorInfo->rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo->rsslError.sysError).append(CR)
+			.append("Error Location ").append(rsslErrorInfo->errorLocation).append(CR)
+			.append("Error Text ").append(rsslErrorInfo->rsslError.text);
+
+		ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
+	}
+}
+
 RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reactor, RsslReactorChannel* reactorChannel, RsslRDMDictionaryMsg* dictionaryRequest, Dictionary* dictionary, RsslErrorInfo* rsslErrorInfo)
 {
 	OmmServerBaseImpl* ommServerBaseImpl = (OmmServerBaseImpl*)reactor->userSpecPtr;
@@ -680,6 +699,10 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendFieldDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -696,6 +719,10 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendFieldDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -723,6 +750,10 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendFieldDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -753,21 +784,9 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 					ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 				}
 
-				if (ret = rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+				if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
 				{
-					if (OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
-					{
-						EmaString errorText;
-						errorText.set("Internal error. Failed to release buffer in DictionaryHandler::sendFieldDictionaryResponse()")
-							.append(CR).append("Client handle ").append(clientSession->getClientHandle())
-							.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName())
-							.append("Error Id ").append(rsslErrorInfo->rsslError.rsslErrorId).append(CR)
-							.append("Internal sysError ").append(rsslErrorInfo->rsslError.sysError).append(CR)
-							.append("Error Location ").append(rsslErrorInfo->errorLocation).append(CR)
-							.append("Error Text ").append(rsslErrorInfo->rsslError.text);
-
-						ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
-					}
+					logReactorReleaseBufferError("sendFieldDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
 				}
 			}
 
@@ -869,6 +888,10 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendEnumTypeDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -885,6 +908,10 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendEnumTypeDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -912,6 +939,10 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				logReactorReleaseBufferError("sendEnumTypeDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -939,18 +970,9 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			if (ret = rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+			if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
-				EmaString errorText;
-				errorText.set("Internal error. Failed to release buffer in DictionaryHandler::sendEnumTypeDictionaryResponse().")
-					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
-					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName())
-					.append("Error Id ").append(rsslErrorInfo->rsslError.rsslErrorId).append(CR)
-					.append("Internal sysError ").append(rsslErrorInfo->rsslError.sysError).append(CR)
-					.append("Error Location ").append(rsslErrorInfo->errorLocation).append(CR)
-					.append("Error Text ").append(rsslErrorInfo->rsslError.text);
-
-				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
+				logReactorReleaseBufferError("sendEnumTypeDictionaryResponse()", ommServerBaseImpl, clientSession, rsslErrorInfo);
 			}
 
 			return RSSL_RET_FAILURE;
@@ -1090,6 +1112,10 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
+		if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			logReactorReleaseBufferError("sendRequestReject()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+		}
 		return RSSL_RET_FAILURE;
 	}
 
@@ -1106,6 +1132,10 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
+		if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			logReactorReleaseBufferError("sendRequestReject()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+		}
 		return RSSL_RET_FAILURE;
 	}
 
@@ -1127,6 +1157,10 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
+		if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			logReactorReleaseBufferError("sendRequestReject()", ommServerBaseImpl, clientSession, rsslErrorInfo);
+		}
 		return RSSL_RET_FAILURE;
 	}
 
@@ -1154,23 +1188,10 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
-		if (ret = rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
+		if (rsslReactorReleaseBuffer(reactorChannel, msgBuf, rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			if (OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
-			{
-				EmaString errorText;
-				errorText.set("Internal error. Failed to submit release buffer in DictionaryHandler::sendRequestReject()")
-					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
-					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName())
-					.append("Error Id ").append(rsslErrorInfo->rsslError.rsslErrorId).append(CR)
-					.append("Internal sysError ").append(rsslErrorInfo->rsslError.sysError).append(CR)
-					.append("Error Location ").append(rsslErrorInfo->errorLocation).append(CR)
-					.append("Error Text ").append(rsslErrorInfo->rsslError.text);
-
-				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
-			}
+			logReactorReleaseBufferError("sendRequestReject()", ommServerBaseImpl, clientSession, rsslErrorInfo);
 		}
-
 		return RSSL_RET_FAILURE;
 	}
 

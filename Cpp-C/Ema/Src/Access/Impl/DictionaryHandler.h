@@ -125,6 +125,8 @@ private:
 
 	void removeDictionary(const EmaString&);
 
+	static void logReactorReleaseBufferError(const char* errorMethod, OmmServerBaseImpl* ommServerBaseImpl, ClientSession* clientSession, RsslErrorInfo* rsslErrorInfo);
+
 	typedef HashTable< EmaString, DictionaryPayload*, EmaStringPtrHasher, EmaStringPtrEqual_To > DictionaryInfoHash;
 	typedef HashTable< UInt64, Dictionary*, UInt64rHasher, UInt64Equal_To> ServiceDictionaryByIdHash;
 

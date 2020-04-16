@@ -18,8 +18,8 @@ bool loadDictionaryFromFile( RsslDataDictionary* pDictionary )
 	char errTxt[256];
 	RsslBuffer errorText = {255, ( char* )errTxt};
 
-	const char* fieldDictionaryFileName = "RDMFieldDictionary";
-	const char* enumTableFileName = "enumtype.def";
+	const char* fieldDictionaryFileName = "RDMFieldDictionaryTest";
+	const char* enumTableFileName = "enumtypeTest.def";
 
 	rsslClearDataDictionary( pDictionary );
 

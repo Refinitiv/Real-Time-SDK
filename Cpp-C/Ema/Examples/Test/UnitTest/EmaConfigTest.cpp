@@ -21,6 +21,12 @@ using namespace std;
 
 class EmaConfigTest : public ::testing::Test {
 public:
+	static const char* emaConfigXMLFileNameTest;
+	static const char* fieldDictionaryFileNameTest;
+	static const char* enumTableFileNameTest;
+
+	static const char* fieldDictionaryFileNameDefault;
+	static const char* enumTableFileNameDefault;
 
 	void SetUp() {
 		SCOPED_TRACE("EmaConfigTest SetUp");
@@ -31,15 +37,15 @@ public:
 			<< "Error: failed to load config file from current working dir "
 			<< workingDir.c_str();
 		
-		configPath.append(workingDir).append("//EmaConfigTest.xml");
+		configPath.append(workingDir).append(emaConfigXMLFileNameTest);
 		SCOPED_TRACE("Loading Ema config file from ");
 		SCOPED_TRACE(configPath);
 
 		SCOPED_TRACE("Starting provider1 with port 14002 and provider2 with port 14008\n");
 		try
 		{
-			provider1 = new OmmProvider(OmmIProviderConfig().port("14002"), appClient);
-			provider2 = new OmmProvider(OmmIProviderConfig().port("14008"), appClient);
+			provider1 = new OmmProvider(OmmIProviderConfig(configPath).port("14002"), appClient);
+			provider2 = new OmmProvider(OmmIProviderConfig(configPath).port("14008"), appClient);
 		}
 		catch (const OmmException& excp)
 		{
@@ -64,6 +70,13 @@ EmaString EmaConfigTest::configPath = EmaString("");
 OmmProvider* EmaConfigTest::provider1 = 0;
 OmmProvider* EmaConfigTest::provider2 = 0;
 AppClient EmaConfigTest::appClient;
+
+const char* EmaConfigTest::emaConfigXMLFileNameTest = "//EmaConfigTest.xml";
+const char* EmaConfigTest::fieldDictionaryFileNameTest = "./RDMFieldDictionaryTest";
+const char* EmaConfigTest::enumTableFileNameTest = "./enumtypeTest.def";
+
+const char* EmaConfigTest::fieldDictionaryFileNameDefault = "./RDMFieldDictionary";
+const char* EmaConfigTest::enumTableFileNameDefault = "./enumtype.def";
 
 TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 {
@@ -298,9 +311,9 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<Dictionary::DictionaryType>( "DictionaryGroup|DictionaryList|Dictionary.Dictionary_2|DictionaryType", dictionaryType );
 	EXPECT_TRUE( debugResult && dictionaryType == Dictionary::FileDictionaryEnum) << "extracting DictionaryType from EmaConfig.xml";
 	debugResult = config.get<EmaString>( "DictionaryGroup|DictionaryList|Dictionary.Dictionary_2|RdmFieldDictionaryFileName", retrievedValue );
-	EXPECT_TRUE( debugResult && retrievedValue == "./RDMFieldDictionary" ) << "extracting RDMFieldDictionary from EmaConfig.xml";
+	EXPECT_TRUE( debugResult && retrievedValue == fieldDictionaryFileNameTest ) << "extracting RDMFieldDictionary from EmaConfig.xml";
 	debugResult = config.get<EmaString>( "DictionaryGroup|DictionaryList|Dictionary.Dictionary_2|EnumTypeDefFileName", retrievedValue );
-	EXPECT_TRUE( debugResult && retrievedValue == "./enumtype.def" ) << "extracting enumtype.def from EmaConfig.xml";
+	EXPECT_TRUE( debugResult && retrievedValue == enumTableFileNameTest ) << "extracting enumtype.def from EmaConfig.xml";
 
 	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Consumer_15|Dictionary", retrievedValue );
 	EXPECT_TRUE( ! debugResult ) << "correctly detecting missing name item in a list";
@@ -416,8 +429,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", 0)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -475,8 +488,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
-		EXPECT_TRUE( activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary" ) << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-		EXPECT_TRUE( activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def" ) << "enumtypeDefFileName , \"./enumtype.def\"";
+		EXPECT_TRUE( activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest ) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
+		EXPECT_TRUE( activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest ) << "enumtypeDefFileName , " << enumTableFileNameTest;
 	}
 	catch ( const OmmException& excp )
 	{
@@ -763,8 +776,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", 0)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -826,8 +839,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
-		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary" ) << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def" ) << "enumtypeDefFileName , \"./enumtype.def\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest ) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest ) << "enumtypeDefFileName , " << enumTableFileNameTest;
 	}
 	catch (const OmmException& excp)
 	{
@@ -881,8 +894,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", 0)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -906,8 +919,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->location == "eu-west") << "EncryptedChannelConfig::location , \"eu-west\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->enableSessionMgnt == 1) << "EncryptedChannelConfig::enableSessionMgnt , 1";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
-		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest) << "enumtypeDefFileName , " << enumTableFileNameTest;
 	}
 	catch (const OmmException& excp)
 	{
@@ -974,8 +987,8 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", 1)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -1100,7 +1113,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			<< "Error: failed to load config file from current working dir "
 			<< workingDir.c_str();
 		EmaString localConfigPath;
-		localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+		localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig(localConfigPath).config(configDB1).config(configDB2).config(configDB3).config(configDB4));
 		//OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig(localConfigPath).config(configDB1).config(configDB2).config(configDB3).config(configDB4), true);
@@ -1262,8 +1275,8 @@ TEST_F(EmaConfigTest, testProgCfgChannelAfterChannelSet)
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", Dictionary::FileDictionaryEnum)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -1379,8 +1392,8 @@ TEST_F(EmaConfigTest, testProgCfgChannelSetAfterChannel)
 		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 			ElementList()
 			.addEnum("DictionaryType", Dictionary::FileDictionaryEnum)
-			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 		elementList.addMap("DictionaryList", innerMap);
 
@@ -1534,8 +1547,8 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 			innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 				ElementList()
 				.addEnum("DictionaryType", Dictionary::FileDictionaryEnum)
-				.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-				.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 			elementList.addMap("DictionaryList", innerMap);
 
@@ -1550,7 +1563,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 			ASSERT_EQ(getCurrentDir(workingDir), true)
 				<< "Error: failed to load config file from current working dir "
 				<< workingDir.c_str();
-			localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 			OmmNiProviderConfig niprovConfig(localConfigPath);
 			OmmNiProviderImpl ommNiProviderImpl(niprovConfig.config(outermostMap), appClient);
@@ -1723,8 +1736,8 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 			innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
 				ElementList()
 				.addEnum("DictionaryType", Dictionary::FileDictionaryEnum)
-				.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-				.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
 
 			elementList.addMap("DictionaryList", innerMap);
 
@@ -1739,7 +1752,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 			ASSERT_EQ(getCurrentDir(workingDir), true)
 				<< "Error: failed to load config file from current working dir "
 				<< workingDir.c_str();
-			localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 			OmmConsumerConfig consumerConfig(localConfigPath);
 			if (testCase == 0)
@@ -1851,7 +1864,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 		ASSERT_EQ(getCurrentDir(workingDir), true)
 			<< "Error: failed to load config file from current working dir "
 			<< workingDir.c_str();
-		localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+		localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 		OmmNiProviderConfig niProviderConfig(localConfigPath);
 		niProviderConfig.config(outermostMap).tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName");
@@ -2024,8 +2037,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addEnum("DictionaryType", 1)
 				.addAscii("RdmFieldDictionaryItemName", "RWFFld")
 				.addAscii("EnumTypeDefItemName", "RWFEnum")
-				.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
-				.addAscii("EnumTypeDefFileName", "./enumtype.def").complete())
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete())
 				.addKeyAscii("Dictionary_4", MapEntry::AddEnum,
 					ElementList()
 					.addEnum("DictionaryType", 1)
@@ -2141,7 +2154,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				ASSERT_EQ(getCurrentDir(workingDir), true)
 					<< "Error: failed to load config file from current working dir "
 					<< workingDir.c_str();
-				localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+				localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 			}
 
@@ -2273,8 +2286,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			DictionaryConfig* dictionaryProvidedConfig = dictProvided3.back();
 			EXPECT_TRUE(dictionaryProvidedConfig->dictionaryName == "Dictionary_3") << "dictionaryProvidedConfig->dictionaryName , \"Dictionary_3\"";
 			EXPECT_TRUE(dictionaryProvidedConfig->dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryProvidedConfig->dictionaryType , Dictionary::FileDictionaryEnum";
-			EXPECT_TRUE(dictionaryProvidedConfig->rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "dictionaryProvidedConfig->rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-			EXPECT_TRUE(dictionaryProvidedConfig->enumtypeDefFileName == "./enumtype.def") << "dictionaryProvidedConfig->enumtypeDefFileName  , \"./enumtype.def\"";
+			EXPECT_TRUE(dictionaryProvidedConfig->rdmfieldDictionaryFileName == fieldDictionaryFileNameTest) << "dictionaryProvidedConfig->rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
+			EXPECT_TRUE(dictionaryProvidedConfig->enumtypeDefFileName == enumTableFileNameTest) << "dictionaryProvidedConfig->enumtypeDefFileName , " << enumTableFileNameTest;
 			EXPECT_TRUE(dictionaryProvidedConfig->rdmFieldDictionaryItemName == "RWFFld") << "dictionaryProvidedConfig->rdmFieldDictionaryItemName , \"RWFFld\"";
 			EXPECT_TRUE(dictionaryProvidedConfig->enumTypeDefItemName == "RWFEnum") << "dictionaryProvidedConfig->enumTypeDefItemName  , \"RWFEnum\"";
 
@@ -2351,15 +2364,15 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			dictionaryProvidedConfig = dictProvided4.back();
 			EXPECT_TRUE(dictionaryProvidedConfig->dictionaryName == "Dictionary_2") << "dictionaryProvidedConfig->dictionaryName , \"Dictionary_2\"";
 			EXPECT_TRUE(dictionaryProvidedConfig->dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryProvidedConfig->dictionaryType , Dictionary::FileDictionaryEnum";
-			EXPECT_TRUE(dictionaryProvidedConfig->rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "dictionaryProvidedConfig->rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-			EXPECT_TRUE(dictionaryProvidedConfig->enumtypeDefFileName == "./enumtype.def") << "dictionaryProvidedConfig->enumtypeDefFileName  , \"./enumtype.def\"";
+			EXPECT_TRUE(dictionaryProvidedConfig->rdmfieldDictionaryFileName == fieldDictionaryFileNameDefault) << "dictionaryProvidedConfig->rdmfieldDictionaryFileName = " << fieldDictionaryFileNameDefault;
+			EXPECT_TRUE(dictionaryProvidedConfig->enumtypeDefFileName == enumTableFileNameDefault) << "dictionaryProvidedConfig->enumtypeDefFileName , " << enumTableFileNameDefault;
 			EXPECT_TRUE(dictionaryProvidedConfig->rdmFieldDictionaryItemName == "RWFFld") << "dictionaryProvidedConfig->rdmFieldDictionaryItemName , \"RWFFld\"";
 			EXPECT_TRUE(dictionaryProvidedConfig->enumTypeDefItemName == "RWFEnum") << "dictionaryProvidedConfig->enumTypeDefItemName  , \"RWFEnum\"";
 			dictionaryUsedConfig = dictUsed4.back();
 			EXPECT_TRUE(dictionaryUsedConfig->dictionaryName == "Dictionary_6") << "dictionaryUsedConfig.dictionaryName , \"Dictionary_6\"";
 			EXPECT_TRUE(dictionaryUsedConfig->dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryUsedConfig.dictionaryType , Dictionary::FileDictionaryEnum";
-			EXPECT_TRUE(dictionaryUsedConfig->rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "dictionaryUsedConfig.rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-			EXPECT_TRUE(dictionaryUsedConfig->enumtypeDefFileName == "./enumtype.def") << "dictionaryUsedConfig.enumtypeDefFileName  , \"./enumtype.def\"";
+			EXPECT_TRUE(dictionaryUsedConfig->rdmfieldDictionaryFileName == fieldDictionaryFileNameDefault) << "dictionaryUsedConfig.rdmfieldDictionaryFileName , " << fieldDictionaryFileNameDefault;
+			EXPECT_TRUE(dictionaryUsedConfig->enumtypeDefFileName == enumTableFileNameDefault) << "dictionaryUsedConfig.enumtypeDefFileName , " << enumTableFileNameDefault;
 			EXPECT_TRUE(dictionaryUsedConfig->rdmFieldDictionaryItemName == "RWFFld") << "dictionaryUsedConfig.rdmFieldDictionaryItemName , \"RWFFld\"";
 			EXPECT_TRUE(dictionaryUsedConfig->enumTypeDefItemName == "RWFEnum") << "dictionaryUsedConfig.enumTypeDefItemName  , \"RWFEnum\"";
 
@@ -2590,7 +2603,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				ASSERT_EQ(getCurrentDir(workingDir), true)
 					<< "Error: failed to load config file from current working dir "
 					<< workingDir.c_str();
-				localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+				localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 			}
 
 			OmmNiProviderConfig niprovConfig(localConfigPath);
@@ -2923,14 +2936,25 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			elementList.addMap("DirectoryList", innerMap).complete();
 			configDB5.addKeyAscii("DirectoryGroup", MapEntry::AddEnum, elementList).complete();
 
+			EmaString fieldDictionaryFileNm;
+			EmaString enumTableFileNm;
+
 			EmaString localConfigPath;
-			if (testCase == 1)
+			if (testCase == 0)
+			{
+				fieldDictionaryFileNm.set(fieldDictionaryFileNameDefault);
+				enumTableFileNm.set(enumTableFileNameDefault);
+			}
+			else if (testCase == 1)
 			{
 				EmaString workingDir;
 				ASSERT_EQ(getCurrentDir(workingDir), true)
 					<< "Error: failed to load config file from current working dir "
 					<< workingDir.c_str();
-				localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+				localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
+
+				fieldDictionaryFileNm.set(fieldDictionaryFileNameTest);
+				enumTableFileNm.set(enumTableFileNameTest);
 			}
 
 			OmmIProviderConfig iprovConfig(localConfigPath);
@@ -3058,8 +3082,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 
 			DictionaryConfig* dictionaryUsedConfig = dictUsed3.back();
 			EXPECT_TRUE(dictionaryUsedConfig->dictionaryName == "Dictionary_3") << "dictionaryUsedConfig->dictionaryName , \"Dictionary_3\"";
-			EXPECT_TRUE(dictionaryUsedConfig->rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "dictionaryUsedConfig->rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
-			EXPECT_TRUE(dictionaryUsedConfig->enumtypeDefFileName == "./enumtype.def") << "dictionaryUsedConfig->enumtypeDefFileName  , \"./enumtype.def\"";
+			EXPECT_TRUE(dictionaryUsedConfig->rdmfieldDictionaryFileName == fieldDictionaryFileNm) << "dictionaryUsedConfig->rdmfieldDictionaryFileName , " << fieldDictionaryFileNm;
+			EXPECT_TRUE(dictionaryUsedConfig->enumtypeDefFileName == enumTableFileNm) << "dictionaryUsedConfig->enumtypeDefFileName , " << enumTableFileNm;
 			EXPECT_TRUE(dictionaryUsedConfig->rdmFieldDictionaryItemName == "RWFFld") << "dictionaryUsedConfig->rdmFieldDictionaryItemName , \"RWFFld\"";
 			EXPECT_TRUE(dictionaryUsedConfig->enumTypeDefItemName == "RWFEnum") << "dictionaryUsedConfig->enumTypeDefItemName  , \"RWFEnum\"";
 
@@ -3240,7 +3264,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				ASSERT_EQ(getCurrentDir(workingDir), true)
 					<< "Error: failed to load config file from current working dir "
 					<< workingDir.c_str();
-				localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+				localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 			}
 
 			OmmNiProviderConfig niprovConfig(localConfigPath);
@@ -3492,7 +3516,7 @@ TEST_F(EmaConfigTest, testSetInstanceNameByFunctionCall)
 			ASSERT_EQ(getCurrentDir(workingDir), true)
 					<< "Error: failed to load config file from current working dir "
 					<< workingDir.c_str();
-			localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 			if (testCase == 0)
 			{
@@ -3566,7 +3590,7 @@ TEST_F(EmaConfigTest, testLoadDictConfigBetweenProgrammaticAndFileForIProv)
 			ASSERT_EQ(getCurrentDir(workingDir), true)
 				<< "Error: failed to load config file from current working dir "
 				<< workingDir.c_str();
-			localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
 			OmmIProviderConfig iprovConfig(localConfigPath);
 			OmmIProviderImpl ommIProviderImpl(iprovConfig.config(outermostMap).providerName("Provider_2"), appClient);

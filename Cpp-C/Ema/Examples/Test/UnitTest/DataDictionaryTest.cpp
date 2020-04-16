@@ -14,8 +14,8 @@ using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 using namespace std;
 
-const char* fieldDictionaryFileName = "RDMFieldDictionary";
-const char* enumTableFileName = "enumtype.def";
+const char* fieldDictionaryFileName = "RDMFieldDictionaryTest";
+const char* enumTableFileName = "enumtypeTest.def";
 
 bool
 comparingEnumType( RsslEnumType* rsslEnumType, const EnumType& enumType, bool payloadOnly ) {

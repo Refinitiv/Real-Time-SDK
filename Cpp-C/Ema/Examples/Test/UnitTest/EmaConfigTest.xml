@@ -282,7 +282,7 @@
 			<AcceptMessageWithoutQosInRange value="0"/>
 			<RefreshFirstRequired value="1"/>
 			<ItemCountHint value="500000"/>
-			<EnumTypeFragmentSize value="2500"/>
+			<EnumTypeFragmentSize value="25000"/>
 			<FieldDictionaryFragmentSize value="1500"/>
 			<ServiceCountHint value="655"/>
 			<RequestTimeout value="8000"/>
@@ -750,8 +750,8 @@
 			<DictionaryType value="DictionaryType::FileDictionary"/>
 
 			<!-- dictionary names are optional: defaulted to RDMFieldDictionary and enumtype.def -->
-			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
-			<EnumTypeDefFileName value="./enumtype.def"/>
+			<RdmFieldDictionaryFileName value="./RDMFieldDictionaryTest"/>
+			<EnumTypeDefFileName value="./enumtypeTest.def"/>
 		</Dictionary>
 		<Dictionary>
 			<Name value="Dictionary_3"/>
@@ -759,8 +759,8 @@
 			<DictionaryType value="DictionaryType::FileDictionary"/>
 
 			<!-- dictionary file names are optional: defaulted to ./RDMFieldDictionary and ./enumtype.def -->
-			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
-			<EnumTypeDefFileName value="./enumtype.def"/>
+			<RdmFieldDictionaryFileName value="./RDMFieldDictionaryTest"/>
+			<EnumTypeDefFileName value="./enumtypeTest.def"/>
 			
 			<!-- <dictionary>ItemName represents the names shown in DictionariesProvided and DictionariesUsed
 				elements of the Directory InfoFilter -->
