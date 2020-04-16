@@ -70,15 +70,15 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 90000 );
 		int intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DispatchTimeoutApiThread);
 		TestUtilities.checkResult("DispatchTimeoutApiThread value == 90", intValue == 90 );
-		intValue = testConfig.xmlConfig().getGlobalConfig().reactorMsgEventPoolLimit;
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit).intValue();
 		TestUtilities.checkResult("ReactorMsgEventPoolLimit value == 2000", intValue == 2000);
-		intValue = testConfig.xmlConfig().getGlobalConfig().reactorChannelEventPoolLimit;
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorChannelEventPoolLimit).intValue();
 		TestUtilities.checkResult("ReactorChannelEventPoolLimit value == 1500", intValue == 1500);
-		intValue = testConfig.xmlConfig().getGlobalConfig().workerEventPoolLimit;
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.WorkerEventPoolLimit).intValue();
 		TestUtilities.checkResult("WorkerEventPoolLimit value == 1000", intValue == 1000);
-		intValue = testConfig.xmlConfig().getGlobalConfig().tunnelStreamMsgEventPoolLimit;
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.TunnelStreamMsgEventPoolLimit).intValue();
 		TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit value == 2500", intValue == 2500);
-		intValue = testConfig.xmlConfig().getGlobalConfig().tunnelStreamStatusEventPoolLimit;
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit).intValue();
 		TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit value == 3000", intValue == 3000);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);

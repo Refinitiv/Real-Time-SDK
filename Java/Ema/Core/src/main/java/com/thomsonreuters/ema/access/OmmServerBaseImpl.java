@@ -597,7 +597,34 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_activeServerConfig.serverConfig = socketServerConfig;
 		}
 
-		_activeServerConfig.globalConfig = config.xmlConfig().getGlobalConfig();
+		ConfigAttributes globalConfigAttributes = config.xmlConfig().getGlobalConfig();
+
+		if(globalConfigAttributes != null){
+			_activeServerConfig.globalConfig = new GlobalConfig();
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.WorkerEventPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.workerEventPoolLimit = ce.intValue();
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ReactorChannelEventPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.reactorChannelEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.reactorMsgEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamMsgEventPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.tunnelStreamMsgEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit)) != null)
+			{
+				_activeServerConfig.globalConfig.tunnelStreamStatusEventPoolLimit = ce.intValue();
+			}
+		}
 		
 		ProgrammaticConfigure pc = config.programmaticConfigure();
 		if (pc != null)

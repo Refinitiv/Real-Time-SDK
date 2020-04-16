@@ -249,6 +249,14 @@ class ConfigReader
 			return null;
 		}
 
+		ConfigAttributes getNodeWithAttributeList(Branch branch){
+			XMLnode list = getChildren(branch,0);
+			if(list == null){
+				return null;
+			}
+			return list._attributeList;
+		}
+		
 		ConfigAttributes getNodeWithAttributeList(Branch branch,String nodeName,int attributeId)
 		{
 			XMLnode list = getChildren(branch,0);
@@ -294,8 +302,6 @@ class ConfigReader
 		private XMLnode	_defaultNiProviderNode;
 		private XMLnode	_defaultIProviderNode;
 		private boolean _getDefaultName = false;
-
-		private GlobalConfig globalConfig = new GlobalConfig();
 
 		boolean _debugDump = false;
 
@@ -797,7 +803,7 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.ConsumerTagDict;
 						}
-						if( configNodeChild.getName().equals("IProviderGroup"))
+						else if( configNodeChild.getName().equals("IProviderGroup"))
 						{
 							tagDict = ConfigManager.IProviderTagDict;
 						}
@@ -826,6 +832,10 @@ class ConfigReader
 						else if( configNodeChild.getName().equals("DictionaryGroup"))
 						{
 							tagDict = ConfigManager.DictionaryTagDict;
+						}
+						else if( configNodeChild.getName().equals("GlobalConfig"))
+						{
+							tagDict = ConfigManager.GlobalConfigDict;
 						}
 					}
 					
@@ -985,8 +995,6 @@ class ConfigReader
 			ConfigurationNode doc =  config.getRootNode();
 			level = 1;
 
-			readGlobalConfig(doc);
-
 			xmlRoot = new XMLnode("root",level,null,ConfigManager.ROOT);
 			xmlRoot.setErrorTracker(errorTracker());
 
@@ -998,72 +1006,6 @@ class ConfigReader
 
 			// debugging
 			// xmlRoot.dump(0);
-		}
-
-		private void readGlobalConfig(ConfigurationNode rootNode) {
-			ConfigurationNode globalConfigNode = getFirstNode(rootNode, "GlobalConfig");
-			if(globalConfigNode == null){
-				return;
-			}
-			Integer workerEventPoolLimit = getIntValueFromNode(globalConfigNode, "WorkerEventPoolLimit");
-			Integer reactorChannelEventPoolLimit = getIntValueFromNode(globalConfigNode, "ReactorChannelEventPoolLimit");
-			Integer reactorMsgEventPoolLimit = getIntValueFromNode(globalConfigNode, "ReactorMsgEventPoolLimit");
-			Integer tunnelStreamMsgEventPoolLimit = getIntValueFromNode(globalConfigNode, "TunnelStreamMsgEventPoolLimit");
-			Integer tunnelStreamStatusEventPoolLimit = getIntValueFromNode(globalConfigNode, "TunnelStreamStatusEventPoolLimit");
-			
-			if(workerEventPoolLimit != null){
-				globalConfig.workerEventPoolLimit = workerEventPoolLimit; 
-			}
-			if(reactorChannelEventPoolLimit != null){
-				globalConfig.reactorChannelEventPoolLimit = reactorChannelEventPoolLimit;
-			}
-			if(reactorMsgEventPoolLimit != null){
-				globalConfig.reactorMsgEventPoolLimit = reactorMsgEventPoolLimit;
-			}
-			if(tunnelStreamMsgEventPoolLimit != null){
-				globalConfig.tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit;
-			}
-			if(tunnelStreamStatusEventPoolLimit != null){
-				globalConfig.tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit;
-			}
-		}
-
-		private Integer getIntValueFromNode(ConfigurationNode globalConfig, String attributeName) {
-			String value = getValueFromNode(globalConfig, attributeName);
-			if(value == null){
-				return null;
-			}
-			try
-			{
-				return Integer.valueOf(value);
-			}
-			catch(NumberFormatException exception)
-			{
-				errorTracker().append( "value [").append(value).append("] for config element [").append(attributeName)
-						.append("] is not a signed integer; element ignored").create(Severity.ERROR);
-				return null;
-			}
-		}
-		
-		private String getValueFromNode(ConfigurationNode globalConfig, String attributeName) {
-			List<ConfigurationNode> children = globalConfig.getChildren(attributeName);
-			if(!children.isEmpty()){
-				List<ConfigurationNode> valueAttribute = children.get(0).getAttributes("value");
-				if(!valueAttribute.isEmpty()){
-					return (String) valueAttribute.get(0).getValue();
-				}
-			}
-			return null;
-		}
-
-		private ConfigurationNode getFirstNode(ConfigurationNode parentNode, String name) {
-			List<ConfigurationNode> nodes = parentNode.getChildren(name);
-			if(!nodes.isEmpty()){
-				return nodes.get(0);
-			}
-			else{
-				return null;
-			}
 		}
 
 		void verifyAndGetDefaultConsumer()
@@ -1692,8 +1634,13 @@ class ConfigReader
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SERVER_LIST,serverName,ConfigManager.ServerName));
 		}
 		
-		GlobalConfig getGlobalConfig(){
-			return globalConfig;
+		ConfigAttributes getGlobalConfig(){
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.GLOBAL_CONFIG));
 		}
 
 		void debugDump(String txt)

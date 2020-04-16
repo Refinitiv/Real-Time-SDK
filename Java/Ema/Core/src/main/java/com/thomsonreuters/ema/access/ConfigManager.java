@@ -30,6 +30,7 @@ class ConfigManager
 	static TagDictionary ServiceTagDict;
 	static TagDictionary IProviderTagDict;
 	static TagDictionary ServerTagDict;
+	static TagDictionary GlobalConfigDict;
 	
 	static Branch DEFAULT_CONSUMER;
 	static Branch DEFAULT_NIPROVIDER;
@@ -44,6 +45,7 @@ class ConfigManager
 	static Branch DICTIONARY_LIST;
 	static Branch CHANNEL_LIST;
 	static Branch SERVER_LIST;
+	static Branch GLOBAL_CONFIG;
 	static Branch DIRECTORY_LIST;
 	
 	
@@ -250,6 +252,14 @@ class ConfigManager
 	public static final int ServerPort = 1002;
 	public static final int ServerTcpNodelay = 1003;
 	public static final int ServerDirectSocketWrite = 1004;
+
+	// GlobalConfig
+	public static final int GlobalConfig = 1100;
+	public static final int WorkerEventPoolLimit = 1101;
+	public static final int ReactorChannelEventPoolLimit = 1102;
+	public static final int ReactorMsgEventPoolLimit = 1103;
+	public static final int TunnelStreamMsgEventPoolLimit = 1104;
+	public static final int TunnelStreamStatusEventPoolLimit = 1105;
 	
 	public static final int MAX_UINT16 = 0xFFFF;
 	
@@ -266,6 +276,7 @@ class ConfigManager
 		ServiceTagDict = acquire().new TagDictionary();
 		IProviderTagDict = acquire().new TagDictionary();
 		ServerTagDict = acquire().new TagDictionary();
+		GlobalConfigDict = acquire().new TagDictionary();
 		
 		ConsumerTagDict.add( "ConsumerGroup",ConsumerGroup );
 		ConsumerTagDict.add( "DefaultConsumer",DefaultConsumer );
@@ -497,6 +508,13 @@ class ConfigManager
 		ServerTagDict.add( "DirectWrite",ServerDirectSocketWrite );
 		ServerTagDict.add( "ConnectionMinPingTimeout", ConnectionMinPingTimeout);
 		ServerTagDict.add( "InitializationTimeout", ServerInitTimeout );
+
+		GlobalConfigDict.add( "GlobalConfig", GlobalConfig );
+		GlobalConfigDict.add( "WorkerEventPoolLimit", WorkerEventPoolLimit );
+		GlobalConfigDict.add( "ReactorChannelEventPoolLimit",ReactorChannelEventPoolLimit );
+		GlobalConfigDict.add( "ReactorMsgEventPoolLimit",ReactorMsgEventPoolLimit );
+		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
+		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
 		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
@@ -564,6 +582,10 @@ class ConfigManager
 		SERVER_LIST.add(ConfigManager.ServerGroup,ConfigManager.ServerTagDict);
 		SERVER_LIST.add(ConfigManager.ServerList,ConfigManager.ServerTagDict);
 		SERVER_LIST.complete();
+
+		GLOBAL_CONFIG = ConfigManager.acquire().new Branch();
+		GLOBAL_CONFIG.add(ConfigManager.GlobalConfig, ConfigManager.GlobalConfigDict);
+		GLOBAL_CONFIG.complete();
 	}
 
 	public static String AsciiValues[] = {
@@ -629,7 +651,12 @@ class ConfigManager
 		"ReconnectMinDelay",
 		"ReissueTokenAttemptLimit",
 		"ReissueTokenAttemptInterval",
-		"XmlTraceMaxFileSize"
+		"XmlTraceMaxFileSize",
+		"WorkerEventPoolLimit",
+		"ReactorChannelEventPoolLimit",
+		"ReactorMsgEventPoolLimit",
+		"TunnelStreamMsgEventPoolLimit",
+		"TunnelStreamStatusEventPoolLimit"
 	};
 
 	public static String UInt64Values[] = {
