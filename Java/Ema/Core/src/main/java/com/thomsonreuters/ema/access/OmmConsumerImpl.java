@@ -340,7 +340,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				strBuilder().append("directory retrieval failed (timed out after waiting ")
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
-				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
+				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED_SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
@@ -378,7 +379,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				strBuilder().append("dictionary retrieval failed (timed out after waiting ")
 						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
-				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
+				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED_SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)

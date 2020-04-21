@@ -1,19 +1,31 @@
 package com.thomsonreuters.upa.transport;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 
-import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 // CryptoHelper is a partial Java SocketChannel implementation that uses
 // the Java SSLEngine to do encryption and decryption of application data
@@ -66,19 +78,125 @@ import javax.net.ssl.SSLEngineResult.Status;
 
 class CryptoHelper
 {
-    CryptoHelper(RsslSocketChannel rsslSocketChannel, SSLContext context, SocketChannel socketChannel)
+
+    public static final String[] CLIENT_PROTOCOLS = {"TLSv1.2"};
+
+    /**
+     * "HTTPS" algorithm performs endpoint verification as described in 
+     * https://tools.ietf.org/html/rfc2818#section-3
+     * When client receives certificate from the server, client verifies that certificate
+     * matches hostname of the remote server
+     */
+    public static final String ENDPOINT_IDENTIFICATION_ALGORITHM = "HTTPS";
+
+    private final SSLContext cntx;
+
+    CryptoHelper(ConnectOptions options) throws IOException
     {
-        _rsslSocketChannel = rsslSocketChannel;
-        _context = context;
+        assert (options != null) : "options cannot be null";
+
+        KeyStore clientKS;
+        javax.net.ssl.KeyManagerFactory clientKMF;
+        javax.net.ssl.TrustManagerFactory clientTMF;
+
+        // keystore password
+        String keystorePassword = options.tunnelingInfo().KeystorePasswd();
+        String keystoreFile = options.tunnelingInfo().KeystoreFile();
+        char[] keystorePasswordChars = keystorePassword != null ? keystorePassword.toCharArray() : null;
+        if (keystoreFile != null && !keystoreFile.isEmpty())
+        {
+            clientKS = initializeClientKeystore(keystorePasswordChars, keystoreFile, options.tunnelingInfo().KeystoreType());
+        }
+        else
+        {
+            //If KeyStore is set to null then TrustManagerFactory will be initialized with certificates from
+            //default trusted keystore
+            clientKS = null;
+        }
+        // create a TrustManagerFactory
+        try
+        {
+            if (options.tunnelingInfo().TrustManagerAlgorithm().equals(""))
+            {
+                // get default trust management algorithm for security provider
+                // (default: PKIX for security provider SunJSSE)
+                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm(),
+                        options.tunnelingInfo().SecurityProvider());
+            }
+            else
+                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(options.tunnelingInfo().TrustManagerAlgorithm(),
+                        options.tunnelingInfo().SecurityProvider());
+        }
+        catch (NoSuchAlgorithmException | NoSuchProviderException e)
+        {
+            throw new IOException("Error when creating TrustManagerFactory: " + e.getMessage());
+        }
+
+        // initialize the above TrustManagerFactory
+        try
+        {
+            clientTMF.init(clientKS);
+        }
+        catch (KeyStoreException e)
+        {
+            throw new IOException("Error when initializing TrustManagerFactory:  " + e.getMessage());
+        }
+
+        // create a Java SSLContext object
+        try
+        {
+            cntx = SSLContext.getInstance(options.tunnelingInfo().SecurityProtocol());
+            if (options.tunnelingInfo().KeyManagerAlgorithm().equals(""))
+            {
+                // get default key management algorithm for security provider
+                // (default: SunX509 for security provider SunJSSE)
+                clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm(),
+                        options.tunnelingInfo().SecurityProvider());
+            }
+            else
+            {
+                clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(options.tunnelingInfo().KeyManagerAlgorithm(),
+                        options.tunnelingInfo().SecurityProvider());
+            }
+            clientKMF.init(clientKS, keystorePasswordChars);
+
+            cntx.init(clientKMF.getKeyManagers(), clientTMF.getTrustManagers(), null);
+        }
+        catch (NoSuchAlgorithmException | NoSuchProviderException | KeyStoreException e)
+        {
+            throw new IOException("Error when initializing SSLContext:  " + e.getMessage());
+        } catch (UnrecoverableKeyException e)
+        {
+            throw new IOException("UnrecoverableKeyException when initializing SSLContext:  " + e.getMessage());
+        }
+        catch (KeyManagementException e)
+        {
+            throw new IOException("KeyManagementException when initializing SSLContext:  " + e.getMessage());
+        }
+        
+        _connectionKeyManagerAlgorigthm = options.tunnelingInfo().KeyManagerAlgorithm();
+    }
+
+    public void initializeEngine(SocketChannel socketChannel) throws IOException
+    {
         _socketChannel = socketChannel;
+        InetSocketAddress remoteAddress = (InetSocketAddress) socketChannel.getRemoteAddress();
+        String hostName = remoteAddress.getHostName();
+        int port = remoteAddress.getPort();
 
         // setup Java SSLEngine to be used
-        _engine = _context.createSSLEngine();
+        _engine = cntx.createSSLEngine(hostName, port);
         _engine.setUseClientMode(true);
+
+        SSLParameters sslParameters = new SSLParameters();
+        sslParameters.setProtocols(CLIENT_PROTOCOLS);
+        sslParameters.setEndpointIdentificationAlgorithm(ENDPOINT_IDENTIFICATION_ALGORITHM);
+        sslParameters.setServerNames(Collections.singletonList(new SNIHostName(hostName)));
+        _engine.setSSLParameters(sslParameters);
 
         // get the largest possible buffer size for the application data buffers that are used for Java SSLEngine
         final int appBufferSize = _engine.getSession().getApplicationBufferSize();
-        
+
         // get the largest possible buffer size for the network data buffers that are used for Java SSLEngine
         final int sslBufferSize = _engine.getSession().getPacketBufferSize();
 
@@ -90,58 +208,47 @@ class CryptoHelper
         _netSendBuffer = ByteBuffer.allocateDirect(2 * sslBufferSize);
     }
 
-    void setChannel(SocketChannel socketChannel)
+    private KeyStore initializeClientKeystore(char[] clientKeystorePassword, String keystoreFile, String keystoreType) throws IOException
     {
-        _socketChannel = socketChannel;
-    }
-
-    // Implementation of SocketChannel::read(ByteBuffer[] dsts, int offset, int length).
-    // dsts has only 2 ByteBuffers (dsts[0] and dsts[1])
-    final int read(final ByteBuffer[] dsts, final int offset, final int length) throws IOException
-    {
-        decryptNetworkData(true);
-
-        // this checks whether the server side initiated key renegotiation and thus new handshake started
-        if ((_engine.getHandshakeStatus() != HandshakeStatus.FINISHED) && (_engine.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING))
+        KeyStore ClientKS;
+        try
         {
-            performHandshake();
+            // ClientKS=KeyStore.getInstance("JKS"); //JKS=JavaKeyStore
+            if (keystoreType.equals(""))
+            {
+                // get JavaKeyStore from java.security file (default: keystore.type=jks)
+                ClientKS = KeyStore.getInstance(KeyStore.getDefaultType());
+            } else
+            {
+                ClientKS = KeyStore.getInstance(keystoreType);
+            }
+        } catch (KeyStoreException e)
+        {
+            throw new IOException("Error when getting keystore type  " + e.getMessage());
         }
 
-        readCount = 0;
-        // if _appRecvBuffer has data, then empty it into destination buffers dsts (dsts[0], dsts[1])
-        if (_appRecvBuffer.position() > 0)
+        // load the keystore from the keystore file
+        try
         {
-            // make _appRecvBuffer readable
-            _appRecvBuffer.flip();
+            FileInputStream _fstream = new FileInputStream(keystoreFile);
 
-            // empty _appRecvBuffer into the destination buffer dsts[0] and/or into dsts[1]
-            // first check if dsts[1] has no data
-            if (dsts[1].position() == 0)
-            {
-                // first empty _appRecvBuffer into dsts[0]
-                byteTransfer(_appRecvBuffer, dsts[0]);
-
-                // if dsts[0] is full and more bytes available in _appRecvBuffer,
-                // so then empty _appRecvBuffer into dsts[1], which has no data
-                if (!dsts[0].hasRemaining())
-                    byteTransfer(_appRecvBuffer, dsts[1]);
-            }
-            else
-            {
-                // only empty _appRecvBuffer into dsts[1], which already has some data
-                byteTransfer(_appRecvBuffer, dsts[1]);
-            }
-
-            // setup _appRecvBuffer back to writable (with any 'un-got' data at beginning of _appRecvBuffer)
-            _appRecvBuffer.compact();
+            ClientKS.load(_fstream, clientKeystorePassword);
         }
-
-        return readCount;
+        catch (IOException | NoSuchAlgorithmException e)
+        {
+            throw new IOException("Error when loading keystore from certificate file  " + e.getMessage());
+        }
+        catch (CertificateException e)
+        {
+            throw new IOException("CertificateException when loading keystore from certificate file  " + e.getMessage());
+        }
+        return ClientKS;
     }
 
     // Implementation of SocketChannel::read(ByteBuffer dst)
     final int read(final ByteBuffer dst) throws IOException
     {
+        checkEngine();
         decryptNetworkData(true);
 
         // this checks whether the server side initiated key renegotiation and thus new handshake started
@@ -184,6 +291,7 @@ class CryptoHelper
     // (src should be immediately readable)
     final int write(final ByteBuffer src) throws IOException
     {
+        checkEngine();
         // clear _appSendBuffer before using it
         _appSendBuffer.clear();
 
@@ -241,17 +349,19 @@ class CryptoHelper
     // We must send the appropriate alerts to indicate to the peer that we intend to close the TLS/SSL connection.
     void cleanup() throws IOException
     {
-        _appSendBuffer.clear();
+        if(_appSendBuffer != null){
+            _appSendBuffer.clear();
+        }
 
         if (_engine != null)
             _engine.closeOutbound();
         _engine = null;
-        _context = null;
     }
 
     // Process the encrypted or decrypted data or process the handshake information
     void performHandshake() throws IOException
     {
+        checkEngine();
         boolean handshakeComplete = false;
         // continue handshaking until we've finished.
         while (!handshakeComplete)
@@ -298,7 +408,7 @@ class CryptoHelper
         }
 
         // check certificate(s) validity (maybe has expired?) after handshake is done
-        if (_rsslSocketChannel._cachedConnectOptions.tunnelingInfo().KeyManagerAlgorithm().endsWith("X509"))
+        if (_connectionKeyManagerAlgorigthm.endsWith("X509"))
         {
             try
             {
@@ -447,37 +557,26 @@ class CryptoHelper
         // fill the _netRecvBuffer
         return _socketChannel.read(_netRecvBuffer);
     }
-
-    // Write unencrypted data directly to _socketChannel
-    int writeToChannel(ByteBuffer src) throws IOException
-    {
-        return _socketChannel.write(src);
-    }
-
-    // Read unencrypted data directly from _socketChannel into a ByteBuffer
-    int readFromChannel(ByteBuffer src) throws IOException
-    {
-        return _socketChannel.read(src);
-    }
-
-    // Read unencrypted data directly from _socketChannel into a ByteBuffer[]
-    long readFromChannel(ByteBuffer[] dsts) throws IOException
-    {
-        return _socketChannel.read(dsts, 0, dsts.length);
-    }
-
+    
     // Start TLS/SSL handshaking with the server peer.
-    void startHandshake() throws IOException
+    void doHandshake() throws IOException
     {
+        checkEngine();
         _engine.beginHandshake();
         performHandshake();
     }
+    
+    private void checkEngine()
+    {
+        if(_engine == null){
+            throw new IllegalStateException("SSL engine is not initialized");
+        }
+    }
 
-    private RsslSocketChannel _rsslSocketChannel;
+    private String _connectionKeyManagerAlgorigthm;
     private SocketChannel _socketChannel;
 
     public SSLEngine _engine;
-    private SSLContext _context;
 
     // the Java SSLEngine buffers
     private ByteBuffer _netRecvBuffer; // for the data (handshake and encrypted) received directly from the network.

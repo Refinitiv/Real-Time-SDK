@@ -944,33 +944,21 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		case ConnectionTypes.SOCKET:
 		{
 			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-			
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					socketChannelConfig.hostName = ce.asciiValue();
-			}
-			else
-				socketChannelConfig.hostName = tempHost;
 
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					socketChannelConfig.serviceName = ce.asciiValue();
-			}
-			else
-				socketChannelConfig.serviceName = tempService;
-			
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				socketChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
 
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
-				socketChannelConfig.directWrite = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
-			
 			currentChannelConfig = socketChannelConfig;
 			
+			break;
+		}
+		case ConnectionTypes.ENCRYPTED_SOCKET:
+		{
+			EncryptedSocketChannelConfig socketChannelConfig = new EncryptedSocketChannelConfig();
+
+			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
+			socketChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
+			currentChannelConfig = socketChannelConfig;
+
 			break;
 		}
 		case ConnectionTypes.HTTP:
@@ -1036,13 +1024,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			
 			if (connectionType == ConnectionTypes.ENCRYPTED)
 			{
-				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStoreType = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStoreType;
-				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStoreFile = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStoreFile;
-				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStorePasswd = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStorePasswd;
-				((EncryptedChannelConfig)tunnelingChannelCfg).SecurityProtocol = ((EncryptedChannelConfig)programTunnelingChannelCfg).SecurityProtocol;
-				((EncryptedChannelConfig)tunnelingChannelCfg).SecurityProvider = ((EncryptedChannelConfig)programTunnelingChannelCfg).SecurityProvider;
-				((EncryptedChannelConfig)tunnelingChannelCfg).KeyManagerAlgorithm = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyManagerAlgorithm;
-				((EncryptedChannelConfig)tunnelingChannelCfg).TrustManagerAlgorithm = ((EncryptedChannelConfig)programTunnelingChannelCfg).TrustManagerAlgorithm;
+				((EncryptedChannelConfig) tunnelingChannelCfg).encryptionConfig.copy(configImpl.encryptionCfg());
 			}
 			
 			currentChannelConfig =  tunnelingChannelCfg;
@@ -1131,7 +1113,35 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		
 		return currentChannelConfig;
 	}
-	
+
+	private void readSocketChannelConfig(EmaConfigImpl configImpl, ConfigAttributes attributes, SocketChannelConfig socketChannelConfig)
+	{
+		ConfigElement ce;
+		String tempHost = configImpl.getUserSpecifiedHostname();
+		if (tempHost == null)
+		{
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+				socketChannelConfig.hostName = ce.asciiValue();
+		}
+		else
+			socketChannelConfig.hostName = tempHost;
+
+		String tempService = configImpl.getUserSpecifiedPort();
+		if (tempService == null)
+		{
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+				socketChannelConfig.serviceName = ce.asciiValue();
+		}
+		else
+			socketChannelConfig.serviceName = tempService;
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+			socketChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
+			socketChannelConfig.directWrite = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
+	}
+
 	@Override
 	public StringBuilder strBuilder()
 	{
@@ -1168,23 +1178,20 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
 				strBuilder().append("login failed (timed out after waiting ")
 						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET ||
+						currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED_SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
-				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP)
+				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP || 
+						currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 				{
 					HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
-				} else if (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
-				{
-					EncryptedChannelConfig channelConfig = (EncryptedChannelConfig) currentConfig;
-					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
 				}
-				
+
 				String excepText = _strBuilder.toString();
 	
 				if (_loggerClient.isErrorEnabled())

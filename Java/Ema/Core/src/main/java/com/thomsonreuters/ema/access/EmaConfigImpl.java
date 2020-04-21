@@ -127,6 +127,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     
     private static String 						_defaultAppName = "ema";
     private HttpChannelConfig 				    _tunnelingChannelCfg;
+	private EncryptionConfig _encyptionCfg;
     
     private Buffer								_clientId = CodecFactory.createBuffer();
     private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
@@ -829,9 +830,17 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	public HttpChannelConfig tunnelingChannelCfg()
 	{
 		if (_tunnelingChannelCfg == null)
-			_tunnelingChannelCfg = new EncryptedChannelConfig() ;
+			_tunnelingChannelCfg = new HttpChannelConfig() ;
 		
 		return _tunnelingChannelCfg;
+	}
+
+	public EncryptionConfig encryptionCfg()
+	{
+		if (_encyptionCfg == null)
+			_encyptionCfg = new EncryptionConfig() ;
+
+		return _encyptionCfg;
 	}
 	
 	Buffer clientId()

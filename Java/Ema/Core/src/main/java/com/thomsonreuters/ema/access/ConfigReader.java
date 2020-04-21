@@ -401,6 +401,8 @@ class ConfigReader
 					channelType = ConnectionTypes.HTTP;
 				else if(enumValue.equals("RSSL_ENCRYPTED"))
 					channelType = ConnectionTypes.ENCRYPTED;
+				else if(enumValue.equals("RSSL_ENCRYPTED_SOCKET"))
+					channelType = ConnectionTypes.ENCRYPTED_SOCKET;
 				else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 					channelType = ConnectionTypes.RELIABLE_MCAST;
 				else

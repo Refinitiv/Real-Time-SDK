@@ -517,6 +517,28 @@ class SocketChannelConfig extends ChannelConfig
 	}
 }
 
+class EncryptedSocketChannelConfig extends SocketChannelConfig
+{
+	EncryptionConfig encryptionConfig = new EncryptionConfig();
+
+	EncryptedSocketChannelConfig()
+	{
+		clear();
+	}
+
+	@Override
+	void clear()
+	{
+		super.clear();
+		if(encryptionConfig != null)
+		{
+			encryptionConfig.clear();
+		}
+		rsslConnectionType = ConnectionTypes.ENCRYPTED_SOCKET;
+	}
+}
+
+
 class SocketServerConfig extends ServerConfig
 {
 	String serviceName;
@@ -642,17 +664,11 @@ class HttpChannelConfig extends ChannelConfig
 
 class EncryptedChannelConfig extends HttpChannelConfig
 {
-	/* Additional configuration parameters for ENCRYPTED connection type*/ 
-	String				KeyStoreType;
-	String				KeyStoreFile;
-	String				KeyStorePasswd;
-	String				SecurityProvider;
-	String 				SecurityProtocol;		
-	String				KeyManagerAlgorithm;
-	String				TrustManagerAlgorithm;
+	/* Additional configuration parameters for ENCRYPTED connection type*/
+	EncryptionConfig encryptionConfig = new EncryptionConfig();
 	String				location;
 	boolean				enableSessionMgnt;
-	
+
 	EncryptedChannelConfig()
 	{
 		clear();
@@ -662,7 +678,10 @@ class EncryptedChannelConfig extends HttpChannelConfig
 	void clear() 
 	{
 		super.clear();
-		
+		if(encryptionConfig != null)
+		{
+			encryptionConfig.clear();
+		}
 		// Override the default value for hostname and port as
 		// the Reactor can query them from EDP-RT service discovery if not specified.
 		hostName = "";
@@ -670,6 +689,44 @@ class EncryptedChannelConfig extends HttpChannelConfig
 		rsslConnectionType = ConnectionTypes.ENCRYPTED;
 		location = ActiveConfig.DEFAULT_REGION_LOCATION;
 		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
+	}
+}
+
+class EncryptionConfig
+{
+	String				KeyStoreType;
+	String				KeyStoreFile;
+	String				KeyStorePasswd;
+	String				SecurityProvider;
+	String 				SecurityProtocol;
+	String				KeyManagerAlgorithm;
+	String				TrustManagerAlgorithm;
+
+	EncryptionConfig()
+	{
+		clear();
+	}
+
+	void clear()
+	{
+		KeyStoreType = null;
+		KeyStoreFile = null;
+		KeyStorePasswd = null;
+		SecurityProvider = null;
+		SecurityProtocol = null;
+		KeyManagerAlgorithm = null;
+		TrustManagerAlgorithm = null;
+	}
+
+	void copy(EncryptionConfig source)
+	{
+		KeyStoreType = source.KeyStoreType;
+		KeyStoreFile = source.KeyStoreFile;
+		KeyStorePasswd = source.KeyStorePasswd;
+		SecurityProvider = source.SecurityProvider;
+		SecurityProtocol = source.SecurityProtocol;
+		KeyManagerAlgorithm = source.KeyManagerAlgorithm;
+		TrustManagerAlgorithm = source.TrustManagerAlgorithm;
 	}
 }
 

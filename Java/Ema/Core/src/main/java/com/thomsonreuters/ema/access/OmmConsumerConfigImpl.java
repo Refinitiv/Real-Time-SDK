@@ -301,49 +301,49 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	@Override
 	public OmmConsumerConfig tunnelingKeyStoreType(String keyStoreType)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreType = keyStoreType;
+		encryptionCfg().KeyStoreType = keyStoreType;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingKeyStoreFile(String keyStoreFile)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreFile = keyStoreFile;
+		encryptionCfg().KeyStoreFile = keyStoreFile;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingKeyStorePasswd(String keyStorePasswd)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStorePasswd = keyStorePasswd;
+		encryptionCfg().KeyStorePasswd = keyStorePasswd;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingSecurityProtocol(String securityProtocol)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProtocol = securityProtocol;
+		encryptionCfg().SecurityProtocol = securityProtocol;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingSecurityProvider(String securityProvider)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProvider = securityProvider;
+		encryptionCfg().SecurityProvider = securityProvider;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingKeyManagerAlgorithm(String KeyManagerAlgorithm)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyManagerAlgorithm = KeyManagerAlgorithm;
+		encryptionCfg().KeyManagerAlgorithm = KeyManagerAlgorithm;
 		return this;
 	}
 
 	@Override
 	public OmmConsumerConfig tunnelingTrustManagerAlgorithm(String trustManagerAlgorithm)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).TrustManagerAlgorithm = trustManagerAlgorithm;
+		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
 	

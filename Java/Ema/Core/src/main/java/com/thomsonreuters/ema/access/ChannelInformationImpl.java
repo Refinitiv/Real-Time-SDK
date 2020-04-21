@@ -214,6 +214,7 @@ class ChannelInformationImpl implements ChannelInformation
 		case 3: return ConnectionTypes.UNIDIR_SHMEM;
 		case 4: return ConnectionTypes.RELIABLE_MCAST;
 		case 6: return ConnectionTypes.SEQUENCED_MCAST;
+		case 7: return ConnectionTypes.ENCRYPTED_SOCKET;
 		default: return _connectionType;	
 		}
 	}

@@ -1250,7 +1250,8 @@ class ProgrammaticConfigure
 					{
 					case ConnectionTypes.SOCKET:
 					case ConnectionTypes.HTTP:
-					case ConnectionTypes.ENCRYPTED:
+					case ConnectionTypes.ENCRYPTED: 
+					case ConnectionTypes.ENCRYPTED_SOCKET:
 						flags |= ChannelEntryFlag.CHANNELTYPE_FLAG;
 						break;
 					default:
@@ -1362,16 +1363,18 @@ class ProgrammaticConfigure
 			}
 	
 			ChannelConfig currentChannelConfig = null;
-	
-			if ( channelType == ConnectionTypes.SOCKET )
+			
+			if (channelType == ConnectionTypes.ENCRYPTED_SOCKET || channelType == ConnectionTypes.SOCKET)
 			{
-				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+				SocketChannelConfig socketChannelConfig = channelType == ConnectionTypes.ENCRYPTED_SOCKET ? 
+						new EncryptedSocketChannelConfig() : new SocketChannelConfig();
 				socketChannelConfig.serviceName = activeConfig.defaultServiceName;
 				currentChannelConfig = socketChannelConfig;
 				activeConfig.channelConfigSet.add( currentChannelConfig );
 
 				SocketChannelConfig fileCfgSocket = null;
-				if ( fileCfg != null && fileCfg.rsslConnectionType == ConnectionTypes.SOCKET )
+				if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET ||
+						fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED_SOCKET))
 					fileCfgSocket = (SocketChannelConfig)( fileCfg );
 
 				if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
@@ -1393,6 +1396,15 @@ class ProgrammaticConfigure
 					socketChannelConfig.serviceName = port;
 				else if ( fileCfgSocket != null )
 					socketChannelConfig.serviceName = fileCfgSocket.serviceName;
+
+				if (fileCfgSocket != null)
+				{
+					if (channelType == ConnectionTypes.ENCRYPTED_SOCKET && fileCfgSocket.rsslConnectionType == ConnectionTypes.ENCRYPTED_SOCKET)
+					{
+						((EncryptedSocketChannelConfig) socketChannelConfig).encryptionConfig.copy(((EncryptedSocketChannelConfig) fileCfgSocket).encryptionConfig);
+					}
+				}
+
 
 			}
 			else if ( channelType == ConnectionTypes.ENCRYPTED || channelType == ConnectionTypes.HTTP )
@@ -1468,13 +1480,7 @@ class ProgrammaticConfigure
 					
 					if (channelType == ConnectionTypes.ENCRYPTED && fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					{
-						((EncryptedChannelConfig)httpChannelConfig).KeyStoreType = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStoreType;
-						((EncryptedChannelConfig)httpChannelConfig).KeyStoreFile = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStoreFile;
-						((EncryptedChannelConfig)httpChannelConfig).KeyStorePasswd = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStorePasswd;
-						((EncryptedChannelConfig)httpChannelConfig).SecurityProvider = ((EncryptedChannelConfig)fileCfgEncrypt).SecurityProvider;
-						((EncryptedChannelConfig)httpChannelConfig).SecurityProtocol = ((EncryptedChannelConfig)fileCfgEncrypt).SecurityProtocol;
-						((EncryptedChannelConfig)httpChannelConfig).KeyManagerAlgorithm = ((EncryptedChannelConfig)fileCfgEncrypt).KeyManagerAlgorithm;
-						((EncryptedChannelConfig)httpChannelConfig).TrustManagerAlgorithm = ((EncryptedChannelConfig)fileCfgEncrypt).TrustManagerAlgorithm;
+						((EncryptedChannelConfig) httpChannelConfig).encryptionConfig.copy(((EncryptedChannelConfig) fileCfgEncrypt).encryptionConfig);
 					}
 				}
 			}
@@ -1534,7 +1540,18 @@ class ProgrammaticConfigure
 				currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
 		}
 	}
-	
+
+	private void copyEncryptionConfig(EncryptionConfig encryptionConfig, EncryptionConfig sourceEncryptionConfig)
+	{
+		encryptionConfig.KeyStoreType = sourceEncryptionConfig.KeyStoreType;
+		encryptionConfig.KeyStoreFile = sourceEncryptionConfig.KeyStoreFile;
+		encryptionConfig.KeyStorePasswd = sourceEncryptionConfig.KeyStorePasswd;
+		encryptionConfig.SecurityProvider = sourceEncryptionConfig.SecurityProvider;
+		encryptionConfig.SecurityProtocol = sourceEncryptionConfig.SecurityProtocol;
+		encryptionConfig.KeyManagerAlgorithm = sourceEncryptionConfig.KeyManagerAlgorithm;
+		encryptionConfig.TrustManagerAlgorithm = sourceEncryptionConfig.TrustManagerAlgorithm;
+	}
+
 	void retrieveServerInfo(MapEntry mapEntry, String serverName,
 		ActiveServerConfig activeServerConfig, int setByFnCalled, ServerConfig fileCfg)
 	{
@@ -2360,6 +2377,8 @@ class ProgrammaticConfigure
 				channelType = ConnectionTypes.HTTP;
 			else if(enumValue.equals("RSSL_ENCRYPTED"))
 				channelType = ConnectionTypes.ENCRYPTED;
+			else if(enumValue.equals("RSSL_ENCRYPTED_SOCKET"))
+				channelType = ConnectionTypes.ENCRYPTED_SOCKET;
 			else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 				channelType = ConnectionTypes.RELIABLE_MCAST;
 			else

@@ -56,8 +56,15 @@ public class ConnectionTypes
     
     public static final int SEQUENCED_MCAST = 6;
 
+    /**
+     * Indicates that the {@link Channel} is using an SSL/TLS encrypted
+     * TCP-based socket connection. This type can be used by
+     * a UPA Transport consumer based application.
+     */
+    public static final int ENCRYPTED_SOCKET = 7;
+    
     /* max defined connectionType */
-    static final int MAX_DEFINED = SEQUENCED_MCAST;
+    static final int MAX_DEFINED = ENCRYPTED_SOCKET;
     
     /**
      * Provide string representation for a connection type value.
@@ -79,6 +86,8 @@ public class ConnectionTypes
                 return "shmem";
             case RELIABLE_MCAST:
                 return "reliableMCast";
+            case ENCRYPTED_SOCKET:
+                return "encryptedSocket";
             default:
                 return Integer.toString(type);
         }

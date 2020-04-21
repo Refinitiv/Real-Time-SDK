@@ -148,9 +148,9 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     protected String _additionalHttpConnectParams = null;
     String db;  // debug env variable
 
-    RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool)
+    protected RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
     {
-        super(transport, channelPool);
+        super(transport, channelPool, encrypted);
 
         _http = true;
         HTTP_HEADER4 = 4;
@@ -164,6 +164,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         HTTP_ContentType = new byte[38];
 
         _internalMaxFragmentSize = (6 * 1024) + RIPC_HDR_SIZE;
+    }
+
+    RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool)
+    {
+        this(transport, channelPool, false);
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -246,7 +251,14 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     @Override
     public int connectionType()
     {
-        return ConnectionTypes.HTTP;
+        if (_encrypted)
+        {
+            return ConnectionTypes.ENCRYPTED;
+        }
+        else
+        {
+            return ConnectionTypes.HTTP;
+        }
     }
 
     int connect(ConnectOptions opts, Error error)
@@ -263,6 +275,19 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             if (opts != null)
             {
                 _cachedConnectOptions = opts;
+                try
+                {
+                    _scktChannel.initialize(_cachedConnectOptions);
+                }
+                catch (IOException ex)
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.FAILURE);
+                    error.sysError(0);
+                    error.text("Failed to initialize socket channel: " + ex.getMessage());
+                    return TransportReturnCodes.FAILURE;
+                }
+                
                 dataFromOptions(opts);
             }
             else
@@ -279,6 +304,18 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         else if (opts != null && opts != _cachedConnectOptions)
         {
             _cachedConnectOptions = opts;
+            try
+            {
+                _scktChannel.initialize(_cachedConnectOptions);
+            }
+            catch (IOException ex)
+            {
+                error.channel(null);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text("Failed to initialize socket channel: " + ex.getMessage());
+                return TransportReturnCodes.FAILURE;
+            }
             dataFromOptions(opts);
         }
 
@@ -304,7 +341,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
                 _scktChannel.socket().setReceiveBufferSize(_cachedConnectOptions.sysRecvBufSize());
@@ -372,15 +409,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             else
             {
                 _initChnlState = InitChnlState.HTTP_CONNECTING;
-                try
-                {
-                    initializeEngine();
-                }
-                catch (IOException e)
-                {
-                    if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                        System.out.println("IOException initializeTLS: " + e.getMessage());
-                }
             }
 
             _state = ChannelState.INITIALIZING;
@@ -418,15 +446,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 else
                                 {
                                     _initChnlState = InitChnlState.HTTP_CONNECTING;
-                                    try
-                                    {
-                                        initializeEngine();
-                                    }
-                                    catch (IOException e)
-                                    {
-                                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                                            System.out.println("IOException initializeTLS: " + e.getMessage());
-                                    }
                                 }
                                 continue;
                             }
@@ -495,7 +514,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 }
                 else
                 {
-                    _crypto.write(_pingBuffer);
+                    _scktChannel.write(_pingBuffer);
                     retVal = 0;
                 }
             }
@@ -622,7 +641,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     if (_initChnlState == InitChnlState.RECONNECTING && !_cachedConnectOptions.blocking())
                     {
                         // The far end closed connection. Try another protocol.
-                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
+                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
                         if (connect(_cachedConnectOptions, error) == TransportReturnCodes.SUCCESS)
                         {
                             if (_httpProxy)
@@ -631,7 +650,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 _initChnlState = InitChnlState.HTTP_CONNECTING;
 
                             ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
+                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
                             return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
                         }
                         else
@@ -681,11 +700,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         }
 
         return retVal;
-    }
-
-    protected void initializeEngine() throws IOException
-    {
-        // no further initialization needed for RsslHttpSocketChannel
     }
 
     /* Write CONNECT HTTP to proxy with no credentials (first attempt, i.e. initiating authentication).
@@ -900,9 +914,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 {
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println("Connection established to proxy " + _httpProxyHost + ":" + _httpProxyPort);
-
-                    // possible extra initialization (none for HTTP, initaializeTLS for Encrypted)
-                    initializeEngine();
                 }
                 else
                 {
@@ -1535,13 +1546,13 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             System.err.println("IOException forceReconnect(): " + e.getMessage());
         }
 
-        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
+        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
 
         _ipcProtocol = null;
         this.connect(_cachedConnectOptions, error);
 
         ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-        ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
+        ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
     }
 
     /* Reconnect and bridge connections.
@@ -1755,7 +1766,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 {
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println("Connection established to proxy " + _httpProxyHost + ":" + _httpProxyPort);
-                    initializeEngine();
                     _httpReconnectProxyActive = true;
                 }
                 else
@@ -1839,7 +1849,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
 
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)

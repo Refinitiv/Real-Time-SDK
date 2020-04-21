@@ -243,19 +243,12 @@ public class Transport
                     switch (opts.connectionType())
                     {
                         case ConnectionTypes.SOCKET:
-                            if (transport == null) // not initialized yet - first connection for this transport
-                            {
-                                transport = new SocketProtocol(opts);
-                                _transports[opts.connectionType()] = transport;
-                            }
-                            channel = transport.channel(opts, error);
-                            break;
+                        case ConnectionTypes.ENCRYPTED_SOCKET:
                         case ConnectionTypes.HTTP:
                         case ConnectionTypes.ENCRYPTED:
                             if (transport == null) // not initialized yet - first connection for this transport
                             {
                                 transport = new SocketProtocol(opts);
-                                ((SocketProtocol)transport).setHTTP();
                                 _transports[opts.connectionType()] = transport;
                             }
                             channel = transport.channel(opts, error);

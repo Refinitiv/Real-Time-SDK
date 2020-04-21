@@ -20,6 +20,7 @@ import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.WriteFlags;
 import com.thomsonreuters.upa.transport.WritePriorities;
@@ -608,7 +609,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		
 		switch (channelCfg.rsslConnectionType)
 		{
-		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
+		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET: 
+		case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET:
 			{
 				SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
 				strConnectionType = "SOCKET";
@@ -696,7 +698,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			
 			if (connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET  ||
 				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP ||
-				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
+				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED ||
+				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET)
 			{
 				ChannelInfo channelInfo = channelInfo(channelConfig.name, _rsslReactor);
 				channelInfo._channelConfig = channelConfig;
@@ -737,26 +740,31 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				switch (connectOptions.connectionType())
 				{
 				case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
+				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET:
+				{
+					connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
+					try
 					{
-						connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
-						try
-						{
 						connectOptions.unifiedNetworkInfo().serviceName(((SocketChannelConfig) channelConfig).serviceName);
-						}
-						catch(Exception e) 
-						{
-			        	   if (_baseImpl.loggerClient().isErrorEnabled())
-			        	   {
-			        		   StringBuilder tempErr = _baseImpl.strBuilder();
-								tempErr.append("Failed to set service name on channel options, received exception: '")
-			        				     .append(e.getLocalizedMessage())
-			        				     .append( "'. ");
-					        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			        	   }
-						}
-						connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
-					break;
 					}
+					catch (Exception e)
+					{
+						if (_baseImpl.loggerClient().isErrorEnabled())
+						{
+							StringBuilder tempErr = _baseImpl.strBuilder();
+							tempErr.append("Failed to set service name on channel options, received exception: '")
+									.append(e.getLocalizedMessage())
+									.append("'. ");
+							_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+						}
+					}
+					connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
+					if (connectOptions.connectionType() == ConnectionTypes.ENCRYPTED_SOCKET)
+					{
+						readEncryptedChannelConfig(connectOptions, ((EncryptedSocketChannelConfig) channelConfig).encryptionConfig);
+					}
+					break;
+				}
 				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
 				case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
 					{
@@ -992,37 +1000,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
         
         if (channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
         {
-        	rsslOptions.tunnelingInfo().tunnelingType("encrypted"); 
-	        
-        	if (((EncryptedChannelConfig)channelConfig).KeyStoreFile == null)
-	        {
-        		if (_baseImpl.loggerClient().isErrorEnabled())
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Keystore file is missing for connectionType of encryption", Severity.ERROR));
-
-            	throw _baseImpl.ommIUExcept().message( "Keystore file is missing for connectionType of encryption", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
-	        }
-	        
-	        if (((EncryptedChannelConfig)channelConfig).KeyStorePasswd == null)
-	        {
-	        	if (_baseImpl.loggerClient().isErrorEnabled())
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Keystore password is missing for connectionType of encryption", Severity.ERROR));
-
-            	throw _baseImpl.ommIUExcept().message( "Keystore password is missing for connectionType of encryption", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
-	        }
-	                
-	        rsslOptions.tunnelingInfo().KeystoreFile(((EncryptedChannelConfig)channelConfig).KeyStoreFile);
-	        rsslOptions.tunnelingInfo().KeystorePasswd(((EncryptedChannelConfig)channelConfig).KeyStorePasswd);     
-	        if (((EncryptedChannelConfig)channelConfig).KeyStoreType != null)
-	        	 rsslOptions.tunnelingInfo().KeystoreType(((EncryptedChannelConfig)channelConfig).KeyStoreType);
-	        if (((EncryptedChannelConfig)channelConfig).SecurityProtocol != null)
-	        	 rsslOptions.tunnelingInfo().SecurityProtocol(((EncryptedChannelConfig)channelConfig).SecurityProtocol);
-	        if (((EncryptedChannelConfig)channelConfig).SecurityProvider != null)
-	        	 rsslOptions.tunnelingInfo().SecurityProvider(((EncryptedChannelConfig)channelConfig).SecurityProvider);
-	        if (((EncryptedChannelConfig)channelConfig).TrustManagerAlgorithm != null)
-	        	 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(((EncryptedChannelConfig)channelConfig).TrustManagerAlgorithm);
-	        if (((EncryptedChannelConfig)channelConfig).KeyManagerAlgorithm != null)
-	        	 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(((EncryptedChannelConfig)channelConfig).KeyManagerAlgorithm);
-        }
+			readEncryptedChannelConfig(rsslOptions,((EncryptedChannelConfig) channelConfig).encryptionConfig);
+		}
         else
         	rsslOptions.tunnelingInfo().tunnelingType("http"); 
         
@@ -1038,7 +1017,24 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				.append(rsslOptions.credentialsInfo().toString()).append( OmmLoggerClient.CR );
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, tempTrace.toString(), Severity.TRACE));
 		}	
-	}    
+	}
+
+	private void readEncryptedChannelConfig(ConnectOptions rsslOptions, EncryptionConfig channelConfig)
+	{
+		rsslOptions.tunnelingInfo().tunnelingType("encrypted");
+		rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.KeyStoreFile);
+		rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.KeyStorePasswd);
+		if (channelConfig.KeyStoreType != null)
+			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.KeyStoreType);
+		if (channelConfig.SecurityProtocol != null)
+			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.SecurityProtocol);
+		if (channelConfig.SecurityProvider != null)
+			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.SecurityProvider);
+		if (channelConfig.TrustManagerAlgorithm != null)
+			 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.TrustManagerAlgorithm);
+		if (channelConfig.KeyManagerAlgorithm != null)
+			 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.KeyManagerAlgorithm);
+	}
 
 	private void setRsslReactorChannel(ReactorChannel rsslReactorChannl, ReactorChannelInfo rsslReactorChannlInfo, ReactorErrorInfo rsslReactorErrorInfo)
 	{

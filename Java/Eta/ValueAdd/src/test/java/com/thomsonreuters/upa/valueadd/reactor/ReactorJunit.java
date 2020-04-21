@@ -45,6 +45,7 @@ import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.InProgInfo;
 import com.thomsonreuters.upa.transport.ReadArgs;
 import com.thomsonreuters.upa.transport.Server;
+import com.thomsonreuters.upa.transport.SocketHelper;
 import com.thomsonreuters.upa.transport.TestClient;
 import com.thomsonreuters.upa.transport.TestServer;
 import com.thomsonreuters.upa.transport.Transport;

@@ -136,11 +136,6 @@ public class TransportJunit
                         try 
                         {
                             _scktChannel.close();
-                            if(_encrypted)
-                            {
-                                if(_crypto != null)
-                                    _crypto.cleanup();
-                            }
                         } 
                         catch (IOException e) 
                         {

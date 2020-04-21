@@ -173,8 +173,8 @@ class RsslSocketChannel extends UpaNode implements Channel
     // Used to print/log debug output, must be used within the scope of a lock
     StringBuilder _debugOutput;
 
-    java.nio.channels.SocketChannel _scktChannel;
-    java.nio.channels.SocketChannel _oldScktChannel;
+    SocketHelper _scktChannel;
+    SocketHelper _oldScktChannel;
 
     int _state;
 
@@ -253,7 +253,6 @@ class RsslSocketChannel extends UpaNode implements Channel
     protected int HTTP_HEADER4 = 0;   // HTTP chunk header size for RIPC Connection Reply (value=4 when http)
     protected int CHUNKEND_SIZE = 0;  // HTTP chunk end size, i.e. /r/n (value = 2 when http)
     protected int HTTP_PROVIDER_EXTRA = 8;
-    CryptoHelper _crypto = null;     // encryptor/decryptor
 
     boolean _isProviderHTTP = false;
     RsslHttpSocketChannelProvider _providerHelper = null;
@@ -302,7 +301,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         public static final int WAIT_CLIENT_KEY = 18; // used with conn version 14 or higher for key exchange
     }
 
-    RsslSocketChannel(SocketProtocol transport, Pool channelPool)
+    protected RsslSocketChannel(SocketProtocol transport, Pool channelPool, SocketHelper socketHelper)
     {
         // _maxFragmentSize (which we return to the user) is RIPC MAX_USER_MSG_SIZE - RIPC PACKED_HDR_SIZE.
         // Buffer sizes will be allocated at _internalMaxFragmentSize as RIPC MAX_USER_MSG_SIZE + RIPC_HDR_SIZE.
@@ -337,6 +336,18 @@ class RsslSocketChannel extends UpaNode implements Channel
         _state = ChannelState.INACTIVE;
 
         _shared_key = 0;
+        _scktChannel = socketHelper;
+    }
+
+    RsslSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
+    {
+        this(transport, channelPool, encrypted ? new EncryptedSocketHelper() : new SocketHelper());
+        _encrypted = encrypted;
+    }
+    
+    RsslSocketChannel(SocketProtocol transport, Pool channelPool)
+    {
+        this(transport, channelPool, false);
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -398,7 +409,14 @@ class RsslSocketChannel extends UpaNode implements Channel
     @Override
     public int connectionType()
     {
-        return ConnectionTypes.SOCKET;
+        if (_encrypted)
+        {
+            return ConnectionTypes.ENCRYPTED_SOCKET;
+        }
+        else
+        {
+            return ConnectionTypes.SOCKET;
+        }
     }
 
     /* Resets this object back to default values.
@@ -1157,11 +1175,6 @@ class RsslSocketChannel extends UpaNode implements Channel
             try
             {
                 _scktChannel.close();
-                if (_encrypted)
-                {
-                    if (_crypto != null)
-                        _crypto.cleanup();
-                }
             }
             catch (IOException e)
             {
@@ -2798,6 +2811,18 @@ class RsslSocketChannel extends UpaNode implements Channel
             if (opts != null)
             {
                 _cachedConnectOptions = opts;
+                try
+                {
+                    _scktChannel.initialize(_cachedConnectOptions);
+                }
+                catch (IOException ex)
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.FAILURE);
+                    error.sysError(0);
+                    error.text("Failed to initialize socket channel: " + ex.getMessage());
+                    return TransportReturnCodes.FAILURE;
+                }
                 dataFromOptions(opts);
             }
             else
@@ -2814,6 +2839,18 @@ class RsslSocketChannel extends UpaNode implements Channel
         else if (opts != null && opts != _cachedConnectOptions)
         {
             _cachedConnectOptions = opts;
+            try
+            {
+                _scktChannel.initialize(_cachedConnectOptions);
+            }
+            catch (IOException ex)
+            {
+                error.channel(null);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text("Failed to initialize socket channel: " + ex.getMessage());
+                return TransportReturnCodes.FAILURE;
+            }
             dataFromOptions(opts);
         }
 
@@ -2839,7 +2876,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
                 _scktChannel.socket().setReceiveBufferSize(_cachedConnectOptions.sysRecvBufSize());
@@ -3004,7 +3041,7 @@ class RsslSocketChannel extends UpaNode implements Channel
 
         // set socket channel
         // it was created by server accept
-        _scktChannel = socketChannel;
+        _scktChannel.setSocketChannel(socketChannel);
 
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
@@ -3152,13 +3189,13 @@ class RsslSocketChannel extends UpaNode implements Channel
     @Override @Deprecated
     public java.nio.channels.SocketChannel scktChannel()
     {
-        return _scktChannel;
+        return _scktChannel.getSocketChannel();
     }
 
     @Override @Deprecated
     public java.nio.channels.SocketChannel oldScktChannel()
     {
-        return _oldScktChannel;
+        return _oldScktChannel.getSocketChannel();
     }
 
     @Override
@@ -3167,13 +3204,13 @@ class RsslSocketChannel extends UpaNode implements Channel
     	if (_providerHelper != null && _providerHelper._pipeNode != null)
     		return _providerHelper._pipeNode._pipe.source();
     	
-        return _scktChannel;
+        return _scktChannel.getSocketChannel();
     }
 
     @Override
     public SelectableChannel oldSelectableChannel()
     {
-        return _oldScktChannel;
+        return _oldScktChannel.getSocketChannel();
     }
 
     @Override
@@ -3225,12 +3262,12 @@ class RsslSocketChannel extends UpaNode implements Channel
                     if (_initChnlState == InitChnlState.RECONNECTING && !_cachedConnectOptions.blocking())
                     {
                         // The far end closed connection. Try another protocol.
-                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
+                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
                         if (connect(_cachedConnectOptions, error) == TransportReturnCodes.SUCCESS)
                         {
                             _initChnlState = InitChnlState.CONNECTING;
                             ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
+                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
                             return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
                         }
                         else
@@ -3330,13 +3367,8 @@ class RsslSocketChannel extends UpaNode implements Channel
             }
         }
         _ipcProtocol.protocolOptions()._componentInfo = _componentInfo;
-        if (!_encrypted)
-        {
-            _scktChannel.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
-        }
-        else
-            _crypto.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
-
+        _scktChannel.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
+        
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
         _initChnlState = InitChnlState.WAIT_ACK;
