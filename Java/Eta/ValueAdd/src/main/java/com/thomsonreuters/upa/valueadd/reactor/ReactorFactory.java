@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
+import com.thomsonreuters.upa.valueadd.common.LimitedVaPool;
 import com.thomsonreuters.upa.valueadd.common.VaPool;
 
 /**
@@ -11,15 +12,15 @@ public class ReactorFactory
     static VaPool _rdmLoginMsgEventPool = new VaPool(true);
     static VaPool _rdmDirectoryMsgEventPool = new VaPool(true);
     static VaPool _rdmDictionaryMsgEventPool = new VaPool(true);
-    static VaPool _reactorMsgEventPool = new VaPool(true);
-    static VaPool _reactorChannelEventPool = new VaPool(true);
+    static LimitedVaPool _reactorMsgEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _reactorChannelEventPool = new LimitedVaPool(true);
     static VaPool _reactorAuthTokenEventPool = new VaPool(true);
     static VaPool _reactorServiceEndpointEventPool = new VaPool(true);
     static VaPool _reactorServiceDiscoveryOptionsPool = new VaPool(true);
     static VaPool _queueMsgEventPool = new VaPool(true);
-    static VaPool _tunnelStreamMsgEventPool = new VaPool(true);
-    static VaPool _tunnelStreamStatusEventPool = new VaPool(true);
-    static VaPool _workerEventPool = new VaPool(true);
+    static LimitedVaPool _tunnelStreamMsgEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _tunnelStreamStatusEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _workerEventPool = new LimitedVaPool(true);
     static VaPool _watchlistPool = new VaPool(true);
     static VaPool _postTimeoutInfoPool = new VaPool(true);
     static VaPool _itemAggregationKeyPool = new VaPool(true);
@@ -31,11 +32,6 @@ public class ReactorFactory
     static VaPool _wlViewPool = new VaPool(true);
 
     private static final int DEFAULT_POOL_LIMIT = -1;
-    private static int _reactorMsgEventPoolLimit = DEFAULT_POOL_LIMIT;
-    private static int _reactorChannelEventPoolLimit = DEFAULT_POOL_LIMIT;
-    private static int _workerEventPoolLimit = DEFAULT_POOL_LIMIT;
-    private static int _tunnelStreamMsgEventPoolLimit= DEFAULT_POOL_LIMIT;
-    private static int _tunnelStreamStatusEventPoolLimit = DEFAULT_POOL_LIMIT;
     /**
      * Instantiates a new reactor factory.
      */
@@ -50,7 +46,7 @@ public class ReactorFactory
      * @param reactorMsgEventPoolLimit value to set
      */
     public static void setReactorMsgEventPoolLimit(int reactorMsgEventPoolLimit) {
-        ReactorFactory._reactorMsgEventPoolLimit = reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : DEFAULT_POOL_LIMIT;
+        ReactorFactory._reactorMsgEventPool.setLimit(reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -58,7 +54,7 @@ public class ReactorFactory
      * @param reactorChannelEventPoolLimit value to set
      */
     public static void setReactorChannelEventPoolLimit(int reactorChannelEventPoolLimit) {
-        ReactorFactory._reactorChannelEventPoolLimit = reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : DEFAULT_POOL_LIMIT;
+        ReactorFactory._reactorChannelEventPool.setLimit(reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -66,7 +62,7 @@ public class ReactorFactory
      * @param workerEventPoolLimit value to set
      */
     public static void setWorkerEventPoolLimit(int workerEventPoolLimit) {
-        ReactorFactory._workerEventPoolLimit = workerEventPoolLimit > 0 ? workerEventPoolLimit : DEFAULT_POOL_LIMIT;
+        ReactorFactory._workerEventPool.setLimit(workerEventPoolLimit > 0 ? workerEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -74,7 +70,7 @@ public class ReactorFactory
      * @param tunnelStreamMsgEventPoolLimit value to set
      */
     public static void setTunnelStreamMsgEventPoolLimit(int tunnelStreamMsgEventPoolLimit) {
-        ReactorFactory._tunnelStreamMsgEventPoolLimit = tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : DEFAULT_POOL_LIMIT;
+        ReactorFactory._tunnelStreamMsgEventPool.setLimit(tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -82,7 +78,7 @@ public class ReactorFactory
      * @param tunnelStreamStatusEventPoolLimit value to set
      */
     public static void setTunnelStreamStatusEventPoolLimit(int tunnelStreamStatusEventPoolLimit) {
-        ReactorFactory._tunnelStreamStatusEventPoolLimit = tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : DEFAULT_POOL_LIMIT;
+        ReactorFactory._tunnelStreamStatusEventPool.setLimit(tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -441,9 +437,7 @@ public class ReactorFactory
         if(reactorMsgEvent == null)
         {
             reactorMsgEvent = new ReactorMsgEvent();
-            if(checkPoolLimit(_reactorMsgEventPool, _reactorMsgEventPoolLimit)) {
-                _reactorMsgEventPool.updatePool(reactorMsgEvent);
-            }
+            _reactorMsgEventPool.updatePool(reactorMsgEvent);
         }
         else
         {
@@ -463,9 +457,7 @@ public class ReactorFactory
         if(reactorChannelEvent == null)
         {
             reactorChannelEvent = new ReactorChannelEvent();
-            if(checkPoolLimit(_reactorChannelEventPool, _reactorChannelEventPoolLimit)) {
-                _reactorChannelEventPool.updatePool(reactorChannelEvent);
-            }
+            _reactorChannelEventPool.updatePool(reactorChannelEvent);
         }
         else
         {
@@ -527,9 +519,7 @@ public class ReactorFactory
         if(tunnelStreamStatusEvent == null)
         {
             tunnelStreamStatusEvent = new TunnelStreamStatusEvent();
-            if(checkPoolLimit(_tunnelStreamStatusEventPool, _tunnelStreamStatusEventPoolLimit)) {
-                _tunnelStreamStatusEventPool.updatePool(tunnelStreamStatusEvent);
-            }
+            _tunnelStreamStatusEventPool.updatePool(tunnelStreamStatusEvent);
         }
         else
         {
@@ -549,9 +539,7 @@ public class ReactorFactory
         if(tunnelStreamMsgEvent == null)
         {
             tunnelStreamMsgEvent = new TunnelStreamMsgEvent();
-            if(checkPoolLimit(_tunnelStreamMsgEventPool, _tunnelStreamMsgEventPoolLimit)) {
-                _tunnelStreamMsgEventPool.updatePool(tunnelStreamMsgEvent);
-            }
+            _tunnelStreamMsgEventPool.updatePool(tunnelStreamMsgEvent);
         }
         else
         {
@@ -591,9 +579,7 @@ public class ReactorFactory
         if(workerEvent == null)
         {
             workerEvent = new WorkerEvent();
-            if(checkPoolLimit(_workerEventPool, _workerEventPoolLimit)) {
-                _workerEventPool.updatePool(workerEvent);
-            }
+            _workerEventPool.updatePool(workerEvent);
         }
         else
         {
@@ -784,10 +770,5 @@ public class ReactorFactory
             wlView.clear();
         }
         return wlView;
-    }
-    
-    private static boolean checkPoolLimit(VaPool pool, int limit)
-    {
-        return limit > 0 && pool.size() < limit;
     }
 }
