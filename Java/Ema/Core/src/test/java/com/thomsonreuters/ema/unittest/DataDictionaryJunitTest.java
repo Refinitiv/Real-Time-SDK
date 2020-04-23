@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.unittest;
 
+import com.thomsonreuters.ema.access.*;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
@@ -14,13 +15,6 @@ import java.util.List;
 
 import org.junit.*;
 
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.Series;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.rdm.DataDictionary;
 import com.thomsonreuters.ema.rdm.DictionaryEntry;
@@ -1248,4 +1242,70 @@ public class DataDictionaryJunitTest extends TestCase {
 			TestUtilities.checkResult(false, "Calling DictionaryUtility.enumType(fid, enumvalue) from an existing EnumType - exception not expected");
 		}
 	}
+
+	@Test
+	public void testDataDictionary_entryShouldReturnSameEntry()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryShouldReturnSameEntry()","Test entry(x) and entry(y) calls return same internal reference, entry(int), entry(int) should interference each other");
+
+		DictionaryEntry entry11 = globalDataDictionary.entry(11);
+		String entry11AcronymBefore = entry11.acronym();
+
+		DictionaryEntry entry12 = globalDataDictionary.entry(12);
+		TestUtilities.checkResult(entry11 == entry12, "Check globalDataDictionary.entry(int) returns same internal DictionaryEntry");
+		TestUtilities.checkResult(entry11AcronymBefore.equals(entry11.acronym()) == false, "Check entry acronym was changed");
+	}
+
+	@Test
+	public void testDataDictionary_entryShouldReturnDifferentDictionaryEntry()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryShouldReturnDifferentDictionaryEntry()","Test entry(x, xHolder) and entry(y, yHolder) calls return different out reference, calls are not interference each other");
+
+		DictionaryEntry entry11 = EmaFactory.createDictionaryEntry();
+		globalDataDictionary.entry(11, entry11);
+		String entry11AcronymBefore = entry11.acronym();
+
+		DictionaryEntry entry12 = EmaFactory.createDictionaryEntry();
+		globalDataDictionary.entry(12, entry12);
+		TestUtilities.checkResult(entry11 != entry12, "Check globalDataDictionary.entry(int, DictionaryEntry) calls are not interference each other");
+		TestUtilities.checkResult(entry11AcronymBefore.equals(entry11.acronym()), "Check acronym was not changed after globalDataDictionary.entry(int, DictionaryEntry) was called with another id");
+	}
+
+	@Test
+	public void testDataDictionary_entryWithNullArgumentShouldRaiseOMMInvalidUsage()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryWithNullArgumentShouldRaiseOMMInvalidUsage()","Test entry(x, xHolder) should raise exception in case xHolder is internal var and is not managed by the user");
+
+		boolean entryCallFailed = false;
+		try {
+			globalDataDictionary.entry(11, null);
+		} catch (OmmException excp) {
+			entryCallFailed = true;
+			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "Exception was expected and OmmException type is OmmInvalidUsageException");
+			TestUtilities.checkResult(((OmmInvalidUsageException)excp).errorCode() == OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT, "OmmInvalidUsageException errorCode is INVALID_ARGUMENT");
+		} finally {
+			TestUtilities.checkResult(entryCallFailed, "OmmInvalidUsageException was expected");
+		}
+	}
+
+	@Test
+	public void testDataDictionary_entryWithNonFactoryDictionaryEntryShouldRaiseOMMInvalidUsage()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryWithNonFactoryDictionaryEntryShouldRaiseOMMInvalidUsage()","Test entry(x, xHolder) should raise exception in case xHolder is internal var and is not managed by the user");
+
+		DictionaryEntry entry11 = globalDataDictionary.entry(11);
+		String entry11AcronymBefore = entry11.acronym();
+
+		boolean entryCallFailed = false;
+		try {
+			globalDataDictionary.entry(11, entry11);
+		} catch (OmmException excp) {
+			entryCallFailed = true;
+			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "Exception was expected and OmmException type is OmmInvalidUsageException");
+			TestUtilities.checkResult(((OmmInvalidUsageException)excp).errorCode() == OmmInvalidUsageException.ErrorCode.INVALID_USAGE, "OmmInvalidUsageException errorCode is INVALID_USAGE");
+		} finally {
+			TestUtilities.checkResult(entryCallFailed, "OmmInvalidUsageException was expected");
+		}
+	}
+
 }

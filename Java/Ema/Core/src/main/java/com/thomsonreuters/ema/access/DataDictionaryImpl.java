@@ -819,6 +819,22 @@ class DataDictionaryImpl implements DataDictionary
 
 	@Override
 	public DictionaryEntry entry(int fieldId) {
+		getEntry(fieldId, dictionaryEntryImpl);
+		return dictionaryEntryImpl;
+	}
+
+	@Override
+	public void entry(int fieldId, DictionaryEntry entryDst) {
+		if (entryDst == null) {
+			throw ommIUExcept().message("DictionaryEntry entryDst parameter is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		if (!((DictionaryEntryImpl)entryDst).isManagedByUser()) {
+			throw  ommIUExcept().message("DictionaryEntry entryDst parameter should be created by EmaFactory.createDictionaryEntry call", OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+		}
+		getEntry(fieldId, (DictionaryEntryImpl) entryDst);
+	}
+
+	private void getEntry(int fieldId, DictionaryEntryImpl entryDst) {
 		try {
 			dictionaryLock.lock();
 
@@ -831,7 +847,8 @@ class DataDictionaryImpl implements DataDictionary
 
 			if ( dictionaryEntry != null )
 			{
-				return dictionaryEntryImpl.dictionaryEntry(this, dictionaryEntry);
+				entryDst.dictionaryEntry(this, dictionaryEntry);
+				return;
 			}
 
 			throw ommIUExcept().message("The Field ID " + fieldId + " does not exist in the field dictionary", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
@@ -936,6 +953,22 @@ class DataDictionaryImpl implements DataDictionary
 
 	@Override
 	public DictionaryEntry entry(String fieldName) {
+		getEntry(fieldName, dictionaryEntryImpl);
+		return dictionaryEntryImpl;
+	}
+
+	@Override
+	public void entry(String fieldName, DictionaryEntry entryDst) {
+		if (entryDst == null) {
+			throw ommIUExcept().message("DictionaryEntry entryDst parameter is null", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+		if (!((DictionaryEntryImpl)entryDst).isManagedByUser()) {
+			throw  ommIUExcept().message("DictionaryEntry entryDst parameter should be created by EmaFactory. call", OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+		}
+		getEntry(fieldName, (DictionaryEntryImpl) entryDst);
+	}
+
+	private void getEntry(String fieldName, DictionaryEntryImpl entryDst) {
 		try {
 			dictionaryLock.lock();
 
@@ -949,12 +982,12 @@ class DataDictionaryImpl implements DataDictionary
 				throw ommIUExcept().message("The Field name " + fieldName + " does not exist in the field dictionary", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 			}
 
-			return entry(fieldNameToIdMap().get(fieldName));
+			getEntry(fieldNameToIdMap().get(fieldName), entryDst);
 		} finally {
 			dictionaryLock.unlock();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		try {

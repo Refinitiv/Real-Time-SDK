@@ -287,6 +287,9 @@ Series300Consumer332-Dict-006
 
 Series300Consumer332-Dict-007
     Alters consumer to create multiple threads that call DataDictionary.entry()
+	
+Series300Consumer332-Dict-008
+    Alters consumer to call new interface DataDictionary.entry(int id, DictionaryEntry entryDst)
 
 Module:  Series300Consumer333 
 Series300Consumer333-GenM-001

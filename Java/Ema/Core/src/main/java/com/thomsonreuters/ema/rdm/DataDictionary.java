@@ -306,7 +306,21 @@ public interface DataDictionary
      * @return the dictionary entry if it exists
      */
     public DictionaryEntry entry(String fieldName);
-    
+
+    /**
+     * Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
+     *
+     * @param fieldName the field name to get the dictionary entry for
+     * @param entryDst out parameter, dictionary entry.
+     *
+     * @throws OmmInvalidUsageException if the entry does not exist or entryDst is null or is owned by API.
+     *
+     * Same like {@link DataDictionary#entry(String)} note, entryDst should be created first and managed by the user
+     * Otherwise Dictionary is owned by API and method will throw {@link OmmInvalidUsageException }
+     * with {@link OmmInvalidUsageException.ErrorCode.INVALID_USAGE} error code
+     */
+    void entry(String fieldName, DictionaryEntry entryDst);
+
     /**
      * Check whether the DictionaryEntry exists 
      * 
@@ -326,7 +340,21 @@ public interface DataDictionary
      * @return the dictionary entry if it exists
      */
     public DictionaryEntry entry(int fieldId);
-    
+
+    /**
+     * Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
+     *
+     * @param fieldId the fieldId to get the dictionary entry for
+     * @param entryDst out parameter, dictionary entry.
+     *
+     * @throws OmmInvalidUsageException if the entry does not exist or entryDst is null or is owned by API.
+     *
+     * Same like {@link DataDictionary#entry(int)} note, entryDst should be created first and managed by the user.
+     * Otherwise Dictionary is owned by API and method will throw {@link OmmInvalidUsageException }
+     * with {@link OmmInvalidUsageException.ErrorCode.INVALID_USAGE} error code
+     */
+    void entry(int fieldId, DictionaryEntry entryDst);
+
     /**
      * Check whether the EnumEntry exists
      * 

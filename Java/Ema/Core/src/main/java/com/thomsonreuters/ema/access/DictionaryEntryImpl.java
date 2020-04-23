@@ -21,8 +21,14 @@ class DictionaryEntryImpl extends VaNode implements DictionaryEntry
 	private EnumTypeTableImpl									enumTypeTableImpl;
 	private EnumTypeImpl										enumTypeImpl;
 	private StringBuilder 										toStringValue;
-	
+	private boolean												isManagedByUser;
+
 	DictionaryEntryImpl() {
+		this(false);
+	}
+
+	DictionaryEntryImpl(boolean isManagedByUser) {
+		this.isManagedByUser = isManagedByUser;
 	}
 	
 	DictionaryEntryImpl dictionaryEntry(DataDictionaryImpl dataDictionary, com.thomsonreuters.upa.codec.DictionaryEntry dictionaryEntry)
@@ -160,5 +166,15 @@ class DictionaryEntryImpl extends VaNode implements DictionaryEntry
 			ommIUExcept = new OmmInvalidUsageExceptionImpl();
 
 		return ommIUExcept;
+	}
+
+	/**
+	 * Detects if DictionaryEntry was created by user
+	 *
+	 * @see {@link EmaFactory#createDictionaryEntry()}
+	 * @return true when DictionaryEntry instance was created by user, false - instance was created by API.
+	 */
+	boolean isManagedByUser() {
+		return isManagedByUser;
 	}
 }
