@@ -173,7 +173,8 @@ class EmaObjectManager
 		{
 			if (!_byteBufferList[pos].isEmpty())
 			{
-				retVal = (ByteBuffer) (_byteBufferList[pos].remove(_byteBufferList[pos].size() - 1).clear());
+				retVal = _byteBufferList[pos].remove(_byteBufferList[pos].size() - 1);
+				retVal.clear();
 				return retVal;
 			}
 
@@ -187,7 +188,8 @@ class EmaObjectManager
 				{
 					if (length < _byteBufferList[MAX_NUM_BYTE_BUFFER].get(index).capacity())
 					{
-						retVal = (ByteBuffer) (_byteBufferList[MAX_NUM_BYTE_BUFFER].remove(index).clear());
+						retVal = _byteBufferList[MAX_NUM_BYTE_BUFFER].remove(index);
+						retVal.clear();
 						return retVal;
 					}
 				}
