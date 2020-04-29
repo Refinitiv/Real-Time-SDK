@@ -4,8 +4,8 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.41_TREP_20.31		03/19/2020
-!	* Modified 03/19/2020 at Oak Brook:
+!   Version	 4.20.41_TREP_20.41		04/22/2020
+!	* Modified 04/22/2020 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.41.
 !
 !   RDM Field Dictionary
@@ -30,8 +30,8 @@
 !tag Desc      RDF-D RWF field set
 !tag Type      1
 !tag Version   4.20.41
-!tag Build     6
-!tag Date      19-Mar-2020
+!tag Build     7
+!tag Date      31-Mar-2020
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN

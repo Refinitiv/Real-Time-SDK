@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.41
 !tag Build_RDMD  4.20.41
-!tag DT_Version  20.31
-!tag Date        16-Mar-2020
+!tag DT_Version  20.41
+!tag Date        20-Apr-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4856,6 +4856,8 @@ LEG40_TYPE 12832
      11       "C/P "   call/put
      12       "IRS "   Interest Rate Swap
      13       "MBS "   Mortgage-Backed Security
+     14       "WNT "   Warrants
+     15       "LEPO"   Low Exercise Price Options
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5091,6 +5093,7 @@ LEG2_PAYFQ 12961
     138   "206 DAYS"   Every 206 days
     139   "363 DAYS"   Every 363 days
     140   "88 DAYS "   Every 88 days
+    141   "364 DAYS"   Every 364 days
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8694,6 +8697,9 @@ ORDER_EXID 13603
    1602        "LTO"   Netherlands Agricultural and Horticultural Association
    1603        "COA"   Canadian Oilseed Processors Association
    1604        "DCA"   DCANZ - Dairy Companies Association of New Zealand
+   1605        "NQT"   NYSE BQT Best Quotes and Trades
+   1606        "SRA"   SRA - Sugar Regulatory Administration
+   1607        "MRR"   Mercaris Inc
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13234,6 +13240,7 @@ REFPRC_TP4 13491
      37   "CLSFIX  "   Close Fixing
      38   "Block   "   Block Deal Reference Price
      39   "INT_REF "   Intraday reference price
+     40   "  EEP   "   Early Evaluation Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17043,6 +17050,9 @@ ROUTE_INDX 12977
      94   "TC15    "   Mediterranean to Japan
      95   "TD22    "   US Gulf to China
      96   "TD25    "   US Gulf to Mediterranean
+     97   "CTC     "   Capesize Time Charter Average
+     98   "PTC     "   Panamax Time Charter Average
+     99   "STC     "   Supramax Time Charter Average
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17206,6 +17216,7 @@ AVGPRC_TP2 13082
       8   "12M AVG "   12 Months rolling Average Price
       9   "60M AVG "   60 Months rolling Average Price
      10   "52WK AVG"   52 Week rolling Average Price
+     11   "YEAR AVG"   Calendar year average price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19229,6 +19240,9 @@ SETT_RUL   13438
       6      "T+3  "   Settlement date is transaction date plus 3
       7      "T+4  "   Settlement date is transaction date plus 4
       8      "T+5  "   Settlement date is transaction date plus 5
+      9      "DF_SL"   Deferred fee - shorts pay longs
+     10      "DF_LS"   Deferred fee - longs pay shorts
+     11      "DF_FL"   Deferred fee - flat, no payment required
 !
 ! ACRONYM    FID
 ! -------    ---
