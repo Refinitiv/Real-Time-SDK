@@ -192,6 +192,17 @@ public:
 	* Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
 	*
 	* @param[in] fieldId specifies the fieldId to get the dictionary entry for
+	* @entry[out] the entry in the dictionary corresponding to the given fieldId, if the entry exists
+	*
+	* @throw OmmInvalidUsageException if the entry does not exist
+	* Same like {@link DataDictionary#getEntry(thomsonreuters::ema::access::Int16)} note, entry should be created first and managed by the user
+	*/
+	void getEntry(thomsonreuters::ema::access::Int16 fieldId, DictionaryEntry& entry) const;
+
+	/**
+	* Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
+	*
+	* @param[in] fieldId specifies the fieldId to get the dictionary entry for
 	*
 	* @throw OmmInvalidUsageException if the entry does not exist
 	*
@@ -207,6 +218,17 @@ public:
 	* @return true if the DictionaryEntry exists otherwise false
 	*/
 	bool hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+
+	/**
+	* Returns the entry in the dictionary corresponding to the given fieldName, if the entry exists.
+	*
+	* @param[in] fieldName specifies the fieldId to get the dictionary entry for
+	* @entry[out] the entry in the dictionary corresponding to the given fieldName, if the entry exists
+	*
+	* @throw OmmInvalidUsageException if the entry does not exist
+	* Same like {@link DataDictionary#getEntry(const thomsonreuters::ema::access::EmaString&)} note, entry should be created first and managed by the user
+	*/
+	void getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	/**
 	* Returns the entry in the dictionary corresponding to the given fieldName, if the entry exists.

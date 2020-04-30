@@ -920,3 +920,91 @@ TEST_F( DataDictionaryTest, DictionaryEnumTypeDefEncodeWithFragmentation ) {
     EXPECT_FALSE( true ) <<  "unexpected exception: DataDictionary::encodeEnumTypeDictionary(fragmentationSize) failed to encode enumerated type dictionary";
   }
 }
+
+TEST_F(DataDictionaryTest, DictionaryEntrySequentialCallsGetEntryShouldReturnSameEntry) {
+	const DictionaryEntry& dictionaryEntryFid1 = globalDataDictionary.getEntry(1);
+	const EmaString entry1AcronymBefore = dictionaryEntryFid1.getAcronym();  // store copy of the acronym
+
+	const DictionaryEntry& dictionaryEntryFid4 = globalDataDictionary.getEntry(4);
+	EXPECT_TRUE(dictionaryEntryFid4 == dictionaryEntryFid1) << "Check globalDataDictionary.entry(int) returns same internal DictionaryEntry";
+	
+	const EmaString entry4Acronym = dictionaryEntryFid4.getAcronym();
+	EXPECT_STRNE(entry1AcronymBefore.c_str(), entry4Acronym.c_str()) << "Check entry acronym was changed";
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntrySequentialCallsGetEntryByNameShouldReturnSameEntry) {
+	const char* nameEntry1 = "PROD_PERM";  // 1
+	const char* nameEntry4 = "RDN_EXCHID";  // 4
+
+	EXPECT_TRUE(globalDataDictionary.hasEntry(nameEntry1));
+	const DictionaryEntry& entry1 = globalDataDictionary.getEntry(nameEntry1);
+	const EmaString entry1AcronymBefore = entry1.getAcronym();  // store copy of the acronym
+
+	EXPECT_TRUE(globalDataDictionary.hasEntry(nameEntry4));
+	const DictionaryEntry& entry4 = globalDataDictionary.getEntry(nameEntry4);
+	EXPECT_EQ(entry4, entry1) << "Check globalDataDictionary.entry(nameEntry) returns same internal DictionaryEntry";
+
+	const EmaString entry4Acronym = entry4.getAcronym();
+	EXPECT_STRNE(entry1AcronymBefore.c_str(), entry4Acronym.c_str()) << "Check entry acronym was changed";
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntrySequentialCallsGetEntryExShouldReturnDifferentEntry) {
+	DictionaryEntry entry11;  // this DictionaryEntry instance created by user directly (managed by user)
+	globalDataDictionary.getEntry(11, entry11);
+	const EmaString entry11AcronymBefore = entry11.getAcronym();  // store copy of the acronym
+
+	DictionaryEntry entry12;  // this DictionaryEntry instance created by user directly (managed by user)
+	globalDataDictionary.getEntry(12, entry12);
+
+	EXPECT_NE(entry11, entry12) << "Check globalDataDictionary.entry(int, DictionaryEntry&) calls are not interference each other";
+
+	const EmaString entry12Acronym = entry12.getAcronym();
+	EXPECT_STRNE(entry11AcronymBefore.c_str(), entry12Acronym.c_str()) << "Check entry acronym was changed";
+	EXPECT_STREQ(entry11AcronymBefore.c_str(), entry11.getAcronym().c_str()) << "Check acronym was not changed after globalDataDictionary.entry(int, DictionaryEntry&) was called with another id";
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntrySequentialCallsGetEntryByNameExShouldReturnDifferentEntry) {
+	const char* nameEntry11 = "NETCHNG_1";  // 11
+	const char* nameEntry12 = "HIGH_1";  // 12
+
+	EXPECT_TRUE(globalDataDictionary.hasEntry(nameEntry11));
+	DictionaryEntry entry11;  // this DictionaryEntry instance created by user directly (managed by user)
+	globalDataDictionary.getEntry(nameEntry11, entry11);
+	const EmaString entry11AcronymBefore = entry11.getAcronym();  // store copy of the acronym
+
+	EXPECT_TRUE(globalDataDictionary.hasEntry(nameEntry12));
+	DictionaryEntry entry12;  // this DictionaryEntry instance created by user directly (managed by user)
+	globalDataDictionary.getEntry(nameEntry12, entry12);
+
+	EXPECT_NE(entry11, entry12) << "Check globalDataDictionary.entry(nameEntry, DictionaryEntry&) calls are not interference each other";
+
+	const EmaString entry12Acronym = entry12.getAcronym();
+	EXPECT_STRNE(entry11AcronymBefore.c_str(), entry12Acronym.c_str()) << "Check entry acronym was changed";
+	EXPECT_STREQ(entry11AcronymBefore.c_str(), entry11.getAcronym().c_str()) << "Check acronym was not changed after globalDataDictionary.entry(nameEntry, DictionaryEntry&) was called with another id";
+}
+
+// void DataDictionary::getEntry(Int16 fieldId, DictionaryEntry& entry) const;
+// Should generate exception OmmInvalidUsageException
+// when pass parameter on bad way
+// Good choice: we should create a DictionaryEntry instance
+// and should not leverage an internal entry that is created by API
+TEST_F(DataDictionaryTest, DictionaryEntryCallGetEntryShouldGenerateOmmInvalidUsageExceptionWhenPassAPIEntry) {
+	// get a reference of DictionaryEntry to the internal instance of the globalDataDictionary (created by API)
+	const DictionaryEntry& dictionaryEntryFid1 = globalDataDictionary.getEntry(1);
+	DictionaryEntry* dictionaryEntryInternalRef = const_cast<DictionaryEntry*>(&dictionaryEntryFid1);
+
+	EXPECT_THROW(globalDataDictionary.getEntry(1, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
+	ASSERT_THROW(globalDataDictionary.getEntry(11, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntryCallGetEntryByNameShouldGenerateOmmInvalidUsageExceptionWhenPassAPIEntry) {
+	const char* nameEntry4 = "RDN_EXCHID";  // 4
+	const char* nameEntry11 = "NETCHNG_1";  // 11
+
+	// get a reference of DictionaryEntry to the internal instance of the globalDataDictionary (created by API)
+	const DictionaryEntry& dictionaryEntryFid1 = globalDataDictionary.getEntry(1);
+	DictionaryEntry* dictionaryEntryInternalRef = const_cast<DictionaryEntry*>(&dictionaryEntryFid1);
+
+	EXPECT_THROW(globalDataDictionary.getEntry(nameEntry4, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
+	ASSERT_THROW(globalDataDictionary.getEntry(nameEntry11, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
+}

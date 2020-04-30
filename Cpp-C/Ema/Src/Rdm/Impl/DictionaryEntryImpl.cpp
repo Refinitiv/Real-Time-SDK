@@ -15,7 +15,7 @@
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 
-DictionaryEntryImpl::DictionaryEntryImpl()
+DictionaryEntryImpl::DictionaryEntryImpl(bool isManagedByUser) : _isManagedByUser(isManagedByUser)
 {
 }
 
@@ -161,4 +161,9 @@ const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::toString() co
 	}
 
 	return _stringToString;
+}
+
+bool DictionaryEntryImpl::isManagedByUser() const
+{
+	return _isManagedByUser;
 }

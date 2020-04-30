@@ -34,6 +34,7 @@ DataDictionaryImpl::DataDictionaryImpl(bool ownRsslDataDictionary) :
 	_pEnumTypeTableList(0),
 	_ownRsslDataDictionary(ownRsslDataDictionary),
 	_pfieldNameToIdHash(0),
+	_dictionaryEntry(false),
 	_dataAccessMutex()
 {
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
@@ -66,6 +67,7 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 	_pEnumTypeTableList(0),
 	_ownRsslDataDictionary(true),
 	_pfieldNameToIdHash(0),
+	_dictionaryEntry(false),
 	_dataAccessMutex()
 {
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
@@ -249,7 +251,7 @@ const EmaVector<DictionaryEntry>& DataDictionaryImpl::getEntries() const
 	if ( _loadedFieldDictionary )
 	{
 		RsslDictionaryEntry* rsslDictionaryEntry = 0;
-		DictionaryEntry dictionaryEntry;
+		DictionaryEntry dictionaryEntry(false);
 
 		for (Int32 index = _pRsslDataDictionary->minFid ; index <= _pRsslDataDictionary->maxFid; index++)
 		{
@@ -419,10 +421,8 @@ bool DataDictionaryImpl::hasEntry(thomsonreuters::ema::access::Int32 fieldId) co
 	return false;
 }
 
-const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
+void DataDictionaryImpl::getEntryInt(Int32 fieldId, DictionaryEntry& entry) const
 {
-	MutexLocker lock(_dataAccessMutex);
-
 	if (!_loadedFieldDictionary)
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -432,15 +432,31 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 
 	if ( rsslDictionaryEntry )
 	{
-		_dictionaryEntry._pImpl->rsslDictionaryEntry(rsslDictionaryEntry);
-
-		return _dictionaryEntry;
+		return entry._pImpl->rsslDictionaryEntry(rsslDictionaryEntry);
 	}
 
 	EmaString errorText("The Field ID ");
 	errorText.append(fieldId).append(" does not exist in the field dictionary");
 	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
-	
+}
+
+void DataDictionaryImpl::getEntry(Int32 fieldId, DictionaryEntry& entry) const
+{
+	if (!entry._pImpl->isManagedByUser())
+	{
+		throwIueException( "DictionaryEntry entry parameter should not be created by API", OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	MutexLocker lock(_dataAccessMutex);
+
+	getEntryInt(fieldId, entry);
+}
+
+const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
+{
+	MutexLocker lock(_dataAccessMutex);
+
+	getEntryInt(fieldId, _dictionaryEntry);
 	return _dictionaryEntry;
 }
 
@@ -458,10 +474,8 @@ bool DataDictionaryImpl::hasEntry(const thomsonreuters::ema::access::EmaString& 
 	return pNameToIdMap != 0 ? pNameToIdMap->find(fieldName) != 0 : false;
 }
 
-const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const
+void DataDictionaryImpl::getEntryInt(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
 {
-	MutexLocker lock(_dataAccessMutex);
-
 	if ( !_loadedFieldDictionary )
 	{
 		throwIueException( "The field dictionary information was not loaded", OmmInvalidUsageException::InvalidOperationEnum );
@@ -475,14 +489,32 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::a
 
 		if ( pFid )
 		{
-			return getEntry(*pFid);
+			return getEntryInt(*pFid, entry);
 		}
 	}
 
 	EmaString errorText("The Field name ");
 	errorText.append(fieldName).append(" does not exist in the field dictionary");
 	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
+}
 
+void DataDictionaryImpl::getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
+{
+	if (!entry._pImpl->isManagedByUser())
+	{
+		throwIueException( "DictionaryEntry entry parameter should not be created by API", OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	MutexLocker lock(_dataAccessMutex);
+
+	getEntryInt(fieldName, entry);
+}
+
+const DictionaryEntry& DataDictionaryImpl::getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const
+{
+	MutexLocker lock(_dataAccessMutex);
+
+	getEntryInt(fieldName, _dictionaryEntry);
 	return _dictionaryEntry;
 }
 
