@@ -477,6 +477,8 @@ Series400Consumer421-PConfig-003
     In programmatic Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName
     In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
 
+Series400Consumer421-PConfig-002
+    Alters consumer to add new GlobalConfig parameters EventPoolLimits for 5 types of EventPool.
 
 Module:  Series400Consumer430
 -----------------------------
@@ -711,6 +713,9 @@ Series400Provider421-PConfig-003:
         -Added programmatic config for only Dictionary_1 where RdmFieldDictionaryItemName is RWFFld3
          and EnumTypeDefItemName RWFEnum3
         -Removed code for programmatic configure Provider_1 and Server_1
+
+Series400Provider421-PConfig-004:		
+	 Alters consumer to add new GlobalConfig parameters EventPoolLimits for 5 types of EventPool.
 
 Module:  Series100NiProvider100
 ---------------------------
