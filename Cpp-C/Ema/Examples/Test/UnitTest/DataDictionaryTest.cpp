@@ -261,7 +261,7 @@ protected:
     }
     ASSERT_TRUE( comparingDataDictionary(&globalRsslDataDictionary, globalDataDictionary) ) << "DataDictionarySetUp failed when comparing field dictionaries";
 
-    ASSERT_EQ( rsslLoadEnumTypeDictionary(enumTableFileName, &globalRsslDataDictionary, &errorText), 0) << "Failed to load enumerated types information with RsslDataDictionary";
+    ASSERT_EQ( rsslLoadEnumTypeDictionary(enumTableFileName, &globalRsslDataDictionary, &errorText), 0) << "Failed to load enumerated types information with RsslDataDictionary: " << errTxt;
     try	{
       globalDataDictionary.loadEnumTypeDictionary(enumTableFileName);
     }
@@ -1007,4 +1007,40 @@ TEST_F(DataDictionaryTest, DictionaryEntryCallGetEntryByNameShouldGenerateOmmInv
 
 	EXPECT_THROW(globalDataDictionary.getEntry(nameEntry4, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
 	ASSERT_THROW(globalDataDictionary.getEntry(nameEntry11, *dictionaryEntryInternalRef), OmmInvalidUsageException) << "OmmInvalidUsageException was expected because an entry must be created directly";
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntryCallGetEntryExShouldGenerateOmmExceptionWhenNonExistEntry)
+{
+	EXPECT_FALSE(globalDataDictionary.hasEntry(-555)) << "checking non existing dictionary entry";
+
+	DictionaryEntry entry_minus555;  // this DictionaryEntry instance created by user directly (managed by user)
+	EXPECT_THROW(globalDataDictionary.getEntry(-555, entry_minus555), OmmException) << "OmmException expected from non existing dictionary entry";
+
+	try {
+		globalDataDictionary.getEntry(-555, entry_minus555);
+		EXPECT_FALSE(true) << "expected exception after calling getEntry(fid, DictionaryEntry&) for non-existing dictionary entry";
+	}
+	catch (const OmmException& excp)
+	{
+		EXPECT_EQ(excp.getExceptionType(), OmmException::OmmInvalidUsageExceptionEnum) << "Invalid usage exception type after calling getEntry(fid) from non existing dictionary entry";
+	}
+}
+
+TEST_F(DataDictionaryTest, DictionaryEntryCallGetEntryExByNameShouldGenerateOmmExceptionWhenNonExistEntry)
+{
+	const char* nameEntryNonExist = "PROD_PERM_PERIOD_ERA";  // non existing dictionary entry
+
+	EXPECT_FALSE(globalDataDictionary.hasEntry(nameEntryNonExist)) << "checking non existing dictionary entry";
+
+	DictionaryEntry entryNonExist;  // this DictionaryEntry instance created by user directly (managed by user)
+	EXPECT_THROW(globalDataDictionary.getEntry(nameEntryNonExist, entryNonExist), OmmException) << "OmmException expected from non existing dictionary entry";
+
+	try {
+		globalDataDictionary.getEntry(nameEntryNonExist, entryNonExist);
+		EXPECT_FALSE(true) << "expected exception after calling getEntry(nameEntry, DictionaryEntry&) for non-existing dictionary entry";
+	}
+	catch (const OmmException& excp)
+	{
+		EXPECT_EQ(excp.getExceptionType(), OmmException::OmmInvalidUsageExceptionEnum) << "Invalid usage exception type after calling getEntry(nameEntry) from non existing dictionary entry";
+	}
 }
