@@ -1179,6 +1179,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.reissueTokenAttemptInterval = eentry.getInt();
 												}
+												else if (eentry.getName() == "MaxEventsInPool")
+												{
+													activeConfig.setMaxEventsInPool(eentry.getInt());
+												}
 												break;
 
 											case DataType::DoubleEnum:
@@ -1350,6 +1354,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "PipePort")
 									{
 										activeConfig.pipePort = eentry.getInt();
+									}
+									else if (eentry.getName() == "MaxEventsInPool")
+									{
+										activeConfig.setMaxEventsInPool(eentry.getInt());
 									}
 									break;
 								}

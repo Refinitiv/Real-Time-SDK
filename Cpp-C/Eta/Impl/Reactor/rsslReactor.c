@@ -607,6 +607,11 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		pReactorOpts->reissueTokenAttemptLimit = -1;
 	}
 
+	if (pReactorOpts->maxEventsInPool <= 0)
+	{
+		pReactorOpts->maxEventsInPool = -1;
+	}
+
 	/* Create internal reactor object */
 	if (!(pReactorImpl = (RsslReactorImpl*)malloc(sizeof(RsslReactorImpl))))
 	{
@@ -618,6 +623,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 
 	/* Copy options */
 	pReactorImpl->dispatchDecodeMemoryBufferSize = pReactorOpts->dispatchDecodeMemoryBufferSize;
+	pReactorImpl->maxEventsInPool = pReactorOpts->maxEventsInPool;
 	pReactorImpl->reactor.userSpecPtr = pReactorOpts->userSpecPtr;
 	pReactorImpl->tokenReissueRatio = pReactorOpts->tokenReissueRatio;
 	pReactorImpl->reissueTokenAttemptLimit = pReactorOpts->reissueTokenAttemptLimit;
@@ -2672,7 +2678,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 
 	if(pReactorChannel->reactorParentQueue ==  &pReactorImpl->closingChannels)
 	{
-		rsslReactorEventQueueReturnToPool((RsslReactorEventImpl*)pEvent, &pReactorImpl->reactorWorker.workerQueue);
+		rsslReactorEventQueueReturnToPool((RsslReactorEventImpl*)pEvent, &pReactorImpl->reactorWorker.workerQueue, pReactorImpl->maxEventsInPool);
 		return RSSL_RET_SUCCESS;
 	}
 
@@ -2926,7 +2932,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 	RsslReactorChannelImpl *pReactorChannel;
 	RsslReactorCallbackRet cret = RSSL_RC_CRET_SUCCESS;
 
-	pEvent = rsslReactorEventQueueGet(pQueue, &ret);
+	pEvent = rsslReactorEventQueueGet(pQueue, pReactorImpl->maxEventsInPool, &ret);
 
 
 	if(pEvent)

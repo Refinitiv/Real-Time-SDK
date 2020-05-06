@@ -54,6 +54,7 @@
 #include "rtr/rsslReactor.h"
 
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslConsumerRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static time_t cacheTime = 0;
@@ -155,6 +156,7 @@ void printUsageAndExit(char *appName)
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
 			"\n -runtime adjusts the running time of the application.\n"
+			"\n -maxEventsInPool size of event pool.\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -1067,6 +1069,11 @@ void parseCommandLine(int argc, char **argv)
 				if (timeToRun == 0)
 					timeToRun = 5;
 			}
+			else if (strcmp("-maxEventsInPool", argv[i]) == 0)
+			{
+				i += 2;
+				maxEventsInPool = atoi(argv[i - 1]);
+			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
 			{
 				if (pCommand == NULL)
@@ -1774,6 +1781,8 @@ int main(int argc, char **argv)
 	/* Create an RsslReactor which will manage our channels. */
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	reactorOpts.maxEventsInPool = maxEventsInPool;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{

@@ -578,7 +578,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				{
 					RsslReactorEventImpl *pEvent;
 					/* Message in event queue */
-					if ((pEvent = rsslReactorEventQueueGet(pEventQueue, &ret)))
+					if ((pEvent = rsslReactorEventQueueGet(pEventQueue, pReactorImpl->maxEventsInPool, &ret)))
 					{
 						switch(pEvent->base.eventType)
 						{
@@ -1995,7 +1995,7 @@ void _reactorWorkerShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pError
 	{
 		RsslRet ret;
 
-		pEvent = (RsslReactorStateEvent*)rsslReactorEventQueueGet(&pReactorImpl->reactorWorker.workerQueue, &ret);
+		pEvent = (RsslReactorStateEvent*)rsslReactorEventQueueGet(&pReactorImpl->reactorWorker.workerQueue, pReactorImpl->maxEventsInPool, &ret);
 		if (!RSSL_ERROR_INFO_CHECK(ret >= RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
 			return;
 

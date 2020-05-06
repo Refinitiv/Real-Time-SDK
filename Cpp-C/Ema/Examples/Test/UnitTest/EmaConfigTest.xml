@@ -37,6 +37,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
+			<MaxEventsInPool value="200"/>
 			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
@@ -78,6 +79,7 @@
 			<ReconnectAttemptLimit value="5"/>
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
+			<MaxEventsInPool value="300"/>
 			<XmlTraceFileName value="EmaMyTrace3"/>
 			<XmlTraceMaxFileSize value="66666666" />
 			<XmlTraceToFile value="1" />
@@ -217,6 +219,7 @@
 
 			<Directory value="Directory_3"/>
 			
+			<MaxEventsInPool value="200"/>
 			<ReconnectAttemptLimit value="5"/>
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
@@ -290,6 +293,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
+			<MaxEventsInPool value="300"/>
 			<PipePort value="7001"/>
 			<XmlTraceFileName value="EmaMyTrace2"/>
 			<XmlTraceMaxFileSize value="66666666" />

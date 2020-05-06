@@ -12,6 +12,9 @@
 #include "rtr/rsslVAUtils.h"
 #include "rtr/rsslNotifier.h"
 
+#include "rtr/rsslQueue.h"
+#include "rtr/rsslEventSignal.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,6 +112,68 @@ typedef struct
 	RsslNotifierEvent *pNotifierEvent; /* Notification for the reactorChannel. */
 } MyReactorChannel;
 
+/*These copy of structures from Reactor structures need to be used for casting in reactorUnitTests_EventPoolSize
+@ATTENTION! 
+@These structures would be modified if the original (from Reactor) structures were modified!
+*/
+typedef struct 
+{
+	RsslQueue eventPool;
+	RsslQueue eventQueue;
+	RsslMutex eventPoolLock;
+	RsslMutex eventQueueLock;
+	void *pLastEvent;
+	void *pParentGroup;
+	RsslQueueLink readyEventQueueLink;
+	RsslBool isInActiveEventQueueGroup;
+}MyReactorEventQueue;
+
+typedef struct 
+{
+	RsslQueue readyEventQueueGroup;
+	RsslMutex lock;
+	RsslEventSignal eventSignal;
+}MyReactorEventQueueGroup;
+
+typedef struct 
+{
+	RsslQueue initializingChannels;	
+	RsslQueue activeChannels;			
+	RsslQueue inactiveChannels;			
+	RsslQueue reconnectingChannels;
+	RsslQueue disposableRestHandles; 
+	RsslNotifier *pNotifier; 
+	RsslNotifierEvent *pQueueNotifierEvent;	
+	RsslInt64 lastRecordedTimeMs;
+	RsslThreadId thread;
+	MyReactorEventQueue workerQueue;
+}MyRsslReactorWorker;
+
+typedef struct 
+{
+	RsslReactor reactor;							
+	void *channelPoolArray;
+	RsslQueue channelPool;				
+	RsslQueue initializingChannels;	
+	RsslQueue activeChannels;			
+	RsslQueue inactiveChannels;			
+	RsslQueue closingChannels;			
+	RsslQueue reconnectingChannels;		
+	RsslThreadId thread;
+	MyReactorEventQueue reactorEventQueue; 
+	RsslNotifier *pNotifier; 
+	RsslNotifierEvent *pQueueNotifierEvent; 
+	RsslBuffer memoryBuffer;
+	RsslInt64 lastRecordedTimeMs;
+	RsslInt32 channelCount;			
+	RsslInt32 maxEventsInPool; 
+	RsslMutex interfaceLock; 
+	RsslBool inReactorFunction;
+	MyReactorEventQueueGroup activeEventQueueGroup;
+	MyRsslReactorWorker reactorWorker;			
+}MyReactorImpl;
+
+
 static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pEvent);
 static RsslReactorCallbackRet defaultMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pInfo);
 static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMLoginMsgEvent *pInfo);
@@ -193,6 +258,7 @@ static void reactorUnitTests_AddConnectionFromCallbacks(RsslConnectionTypes conn
 static void reactorUnitTests_MultiThreadDispatch(RsslConnectionTypes connectionType);
 #ifdef COMPILE_64BITS
 static void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType);
+static void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType);
 #endif
 static void reactorUnitTests_WaitWhileChannelDown(RsslConnectionTypes connectionType);
 static void reactorUnitTests_ReconnectAttemptLimit(RsslConnectionTypes connectionType);
@@ -306,6 +372,10 @@ TEST_P(ReactorUtilTest, ReconnectAttemptLimit)
 TEST_P(ReactorUtilTest, ManyConnections)
 {
 	reactorUnitTests_ManyConnections(GetParam());
+}
+TEST_P(ReactorUtilTest, EventQueuePerformence)
+{
+	reactorUnitTests_EventPoolSize(GetParam());
 }
 #endif
 
@@ -2328,7 +2398,6 @@ static RsslRet dispatchChannelEvents(MyReactor *pMyReactor, RsslReactorChannel *
 static RsslRet dispatchEvent(MyReactor *pMyReactor, RsslUInt32 timeoutMsec)
 {
 	return dispatchEvents(pMyReactor, timeoutMsec, 1);
-
 }
 
 /* Wait for notification, then call rsslReactorDispatch to get an event.
@@ -4964,6 +5033,113 @@ void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType)
 
 	free(myConsumerChannels);
 	free(myProviderChannels);
+}
+
+void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
+{
+	/*Test using a very large number of connections between two reactors -- open them, close them and dispatch.
+	 * This scenario reproduces the situation when the event queue growing out of control (this drive to memory leak). */
+	int i;
+	int numConnections = 500; /* The number of connections must be set according to the performance of testing machine. */
+	RsslRet rsslRet;
+	MyReactorChannel *myConsumerChannels;
+	MyReactorChannel *myProviderChannels;
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
+	myConsumerChannels = (MyReactorChannel*)calloc(sizeof(MyReactorChannel), numConnections);
+	myProviderChannels = (MyReactorChannel*)calloc(sizeof(MyReactorChannel), numConnections);
+	ASSERT_TRUE(myConsumerChannels != NULL);
+	ASSERT_TRUE(myProviderChannels != NULL);
+
+	clearObjects();
+
+	/*Set size of pool*/
+	mOpts.maxEventsInPool = 1;
+	initReactors(&mOpts, RSSL_FALSE);
+
+	/* Create notifiers. */
+	pProvMon->pNotifier = rsslCreateNotifier(1024);
+	ASSERT_TRUE(pProvMon->pNotifier != NULL);
+	pConsMon->pNotifier = rsslCreateNotifier(1024);
+	ASSERT_TRUE(pConsMon->pNotifier != NULL);
+
+	/* Add notification for cons/prov reactor's event queue. */
+	pConsMon->pReactorNotifierEvent = rsslCreateNotifierEvent();
+	ASSERT_TRUE(pConsMon->pReactorNotifierEvent != NULL);
+	ASSERT_TRUE(rsslNotifierAddEvent(pConsMon->pNotifier, pConsMon->pReactorNotifierEvent, pConsMon->pReactor->eventFd, pConsMon) == 0);
+	ASSERT_TRUE(rsslNotifierRegisterRead(pConsMon->pNotifier, pConsMon->pReactorNotifierEvent) == 0);
+	pProvMon->pReactorNotifierEvent = rsslCreateNotifierEvent();
+	ASSERT_TRUE(pProvMon->pReactorNotifierEvent != NULL);
+	ASSERT_TRUE(rsslNotifierAddEvent(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent, pProvMon->pReactor->eventFd, pProvMon) == 0);
+	ASSERT_TRUE(rsslNotifierRegisterRead(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent) == 0);
+
+	MyReactorImpl *pMyConsReactorImpl = (MyReactorImpl*)pConsMon->pReactor;
+	MyRsslReactorWorker *myConsReacotrWorker = &(pMyConsReactorImpl->reactorWorker);
+	RsslQueue *evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
+
+	/*Check pool size before connection*/
+	ASSERT_EQ(evtPoolCons->count, 10);
+	
+	 /* Open connections */	
+	for (i = 0; i < numConnections; ++i)
+	{
+		/* Cons: Connect client */
+		connectOpts[index].rsslConnectOptions.userSpecPtr = &myConsumerChannels[i];
+		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+		/* Prov: Accept client connection */
+		while (waitForConnection(pServer[index], 200) == false);;
+		acceptOpts.rsslAcceptOptions.userSpecPtr = &myProviderChannels[i];
+	    ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	    /* Prov: dispatch; last received event should be conn ready */
+		do { rsslRet = dispatchEvents(pProvMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || RSSL_RET_READ_WOULD_BLOCK); } while (pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+		/* Cons: dispatch; last received event should be conn ready */
+		do { rsslRet = dispatchEvents(pConsMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || RSSL_RET_READ_WOULD_BLOCK); } while (pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+
+		ASSERT_TRUE(myConsumerChannels[i].pReactorChannel != NULL);
+		ASSERT_TRUE(myProviderChannels[i].pReactorChannel != NULL);
+	}
+
+	/*Check pool size after connection*/
+	ASSERT_TRUE((RsslInt32)evtPoolCons->count <= mOpts.maxEventsInPool);
+
+	/* Close connections */
+	for (i = 0; i < numConnections; ++i)
+	{
+		removeConnection(pProvMon, myProviderChannels[i].pReactorChannel);
+	}
+
+	/*Check pool size after disconnection*/
+	ASSERT_TRUE((RsslInt32)evtPoolCons->count <= mOpts.maxEventsInPool);
+
+	do { rsslRet = dispatchEvents(pProvMon, 200, 1000); } while (rsslRet == RSSL_RET_READ_WOULD_BLOCK);
+	ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+
+	///* Cons: Conn down */
+	do { rsslRet = dispatchEvents(pConsMon, 200, 1000); ASSERT_TRUE(rsslRet >= RSSL_RET_SUCCESS || rsslRet == RSSL_RET_READ_WOULD_BLOCK); } while (pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN);
+
+	/*Check pool size after dispaticing*/
+	ASSERT_TRUE((RsslInt32)evtPoolCons->count <= mOpts.maxEventsInPool);
+
+	rsslNotifierRemoveEvent(pConsMon->pNotifier, pConsMon->pReactorNotifierEvent);
+	rsslNotifierRemoveEvent(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent);
+
+	rsslDestroyNotifierEvent(pProvMon->pReactorNotifierEvent);
+	rsslDestroyNotifierEvent(pConsMon->pReactorNotifierEvent);
+	rsslDestroyNotifier(pConsMon->pNotifier);
+	rsslDestroyNotifier(pProvMon->pNotifier);
+
+	free(myConsumerChannels);
+	free(myProviderChannels);
+
+	/*Set value back to default*/
+	mOpts.maxEventsInPool = -1; 
 }
 #endif
 

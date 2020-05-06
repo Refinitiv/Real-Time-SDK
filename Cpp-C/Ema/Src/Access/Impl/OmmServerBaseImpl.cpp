@@ -128,6 +128,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	_activeServerConfig.instanceName.append("_").append(id);
 
 	const UInt32 maxUInt32( 0xFFFFFFFF );
+	const Int32 maxInt32( 0x7FFFFFFF );
 	UInt64 tmp;
 	EmaString instanceNodeName(pConfigServerImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeServerConfig.configuredName).append("|");
@@ -151,10 +152,14 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeServerConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+	
+	Int64 tmp1;
+	
+	if (pConfigServerImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
+		_activeServerConfig.maxEventsInPool = static_cast<Int32>(tmp1 > maxInt32 ? maxInt32 : tmp1 < -1 ? -1 : tmp1);
 
 	pConfigServerImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName);
 
-	Int64 tmp1;
 	if (pConfigServerImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
 	{
 		_activeServerConfig.xmlTraceMaxFileSize = tmp1;

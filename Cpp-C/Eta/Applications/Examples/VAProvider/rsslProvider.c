@@ -49,6 +49,7 @@ static char libsslName[255];
 static char libcryptoName[255];
 static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
@@ -84,6 +85,7 @@ void exitWithUsage()
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf(" -maxEventsInPool size of event pool\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -352,6 +354,11 @@ int main(int argc, char **argv)
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
 		}
+		else if (strcmp("-maxEventsInPool", argv[iargs]) == 0)
+		{
+			++iargs;
+			maxEventsInPool = atoi(argv[iargs]);
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -385,6 +392,8 @@ int main(int argc, char **argv)
 	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	reactorOpts.maxEventsInPool = maxEventsInPool;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{

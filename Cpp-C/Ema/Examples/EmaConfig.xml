@@ -142,6 +142,8 @@
 
 			<MaxDispatchCountUserThread value="500" />
 
+			<MaxEventsInPool value="500" />
+
 			<PipePort value="9009" />
 
 			<RefreshFirstRequired value="1" />

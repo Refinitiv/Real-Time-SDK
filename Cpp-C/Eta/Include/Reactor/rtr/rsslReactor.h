@@ -288,7 +288,8 @@ RTR_C_INLINE void rsslClearReactorChannelRole(RsslReactorChannelRole *pRole)
  */
 typedef struct {
 	RsslInt32	dispatchDecodeMemoryBufferSize;	/*!< Size of the memory buffer(in bytes) that the RsslReactor will use when decoding RsslRDMMsgs to pass to callback functions. */
-	void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
+    RsslInt32   maxEventsInPool;        /*!< Specifies maximum amount of the events in the RsslReactor pool. The default value -1 the maximum is not specified.>*/
+    void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
 	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the EDP-RT service discovery. The service discovery is used when the connection arguments is not specified
 												 * in the RsslReactorConnectInfo.rsslConnectOptions */
 	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying EDP-RT service
@@ -309,6 +310,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 {
 	memset(pReactorOpts, 0, sizeof(RsslCreateReactorOptions));
 	pReactorOpts->dispatchDecodeMemoryBufferSize = 65536;
+	pReactorOpts->maxEventsInPool = -1;
 	pReactorOpts->port = 55000;
 	pReactorOpts->serviceDiscoveryURL.data = (char *)"https://api.refinitiv.com/streaming/pricing/v1/";
 	pReactorOpts->serviceDiscoveryURL.length = 47;

@@ -363,6 +363,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 			.addInt("DispatchTimeoutApiThread", 60)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 300)
+			.addInt("MaxEventsInPool", 100)
 			.addInt("ReconnectAttemptLimit", 1)
 			.addInt("ReconnectMinDelay", 500)
 			.addInt("ReconnectMaxDelay", 500)
@@ -459,6 +460,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE( activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 		EXPECT_TRUE( activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+		EXPECT_TRUE( activeConfig.maxEventsInPool == 100) << "maxEventsInPool , 100";
 		EXPECT_TRUE( activeConfig.reconnectAttemptLimit == 1) << "reconnectAttemptLimit , 1";
 		EXPECT_TRUE( activeConfig.reconnectMinDelay == 500) << "reconnectMinDelay , 500";
 		EXPECT_TRUE( activeConfig.reconnectMaxDelay == 500) << "reconnectMaxDelay , 500";
@@ -698,6 +700,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 300)
 			.addUInt("MaxDispatchCountUserThread", 700)
+			.addInt("MaxEventsInPool", 300)
 			.addAscii("XmlTraceFileName", "MyXMLTrace")
 			.addInt("XmlTraceMaxFileSize", 50000000)
 			.addUInt("XmlTraceToFile", 0)
@@ -806,6 +809,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 		EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+		EXPECT_TRUE(activeConfig.maxEventsInPool == 300) << "maxEventsInPool , 300";
 		EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 10) << "reconnectAttemptLimit , 10";
 		EXPECT_TRUE(activeConfig.reconnectMinDelay == 4444) << "reconnectMinDelay , 4444";
 		EXPECT_TRUE(activeConfig.reconnectMaxDelay == 7777) << "reconnectMaxDelay , 7777";
@@ -1037,6 +1041,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 900)
 			.addUInt("MaxDispatchCountUserThread", 900)
+			.addInt("MaxEventsInPool", 900)
 			.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 			.addInt("XmlTraceMaxFileSize", 70000000)
 			.addUInt("XmlTraceToFile", 1)
@@ -1135,6 +1140,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE( activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 		EXPECT_TRUE( activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+		EXPECT_TRUE( activeConfig.maxEventsInPool == 900) << "maxEventsInPool , 900";
 		EXPECT_TRUE( activeConfig.pipePort == 9696) << "pipePort , 9696";
 		EXPECT_TRUE( activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 		EXPECT_TRUE( activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
@@ -1931,6 +1937,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 300)
 				.addUInt("MaxDispatchCountUserThread", 700)
+				.addInt("MaxEventsInPool", 600)
 				.addAscii("XmlTraceFileName", "MyXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 50000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2183,6 +2190,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 600) << "maxEventsInPool , 600";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "MyXMLTrace") << "xmlTraceFileName , \"MyXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 50000000) << "xmlTraceMaxFileSize , 50000000";
 			EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
@@ -2423,6 +2431,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 300)
 				.addUInt("MaxDispatchCountUserThread", 700)
+				.addInt("MaxEventsInPool", 400)
 				.addAscii("XmlTraceFileName", "MyXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 50000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2629,6 +2638,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 400) << "MaxEventsInPool , 400";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "MyXMLTrace") << "xmlTraceFileName , \"MyXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 50000000) << "xmlTraceMaxFileSize , 50000000";
 			EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
@@ -2800,6 +2810,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 900)
 				.addUInt("MaxDispatchCountUserThread", 900)
+				.addInt("MaxEventsInPool", 1000)
 				.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 70000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2972,6 +2983,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 1000) << "maxEventsInPool , 1000";
 			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "ConfigDbXMLTrace") << "xmlTraceFileName , \"ConfigDbXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 70000000) << "xmlTraceMaxFileSize , 70000000";
@@ -3133,6 +3145,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 900)
 				.addUInt("MaxDispatchCountUserThread", 900)
+				.addInt("MaxEventsInPool", 500)
 				.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 70000000)
 				.addUInt("XmlTraceToFile", 1)
@@ -3282,6 +3295,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 500) << "MaxEventsInPool , 500";
 			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 			EXPECT_TRUE(activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";

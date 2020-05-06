@@ -84,6 +84,7 @@
 #define DEFAULT_NREQ								  3
 #define DEFAULT_PKT_POOLLIMIT_HIGH					  190000
 #define DEFAULT_PKT_POOLLIMIT_LOW					  180000
+#define DEFAULT_MAX_EVENT_IN_POOL					  -1
 #define DEFAULT_TDATA								  1
 #define DEFAULT_TOKEN_REISSUE_RATIO					  0.8
 #define DEFAULT_TRREQ								  4
@@ -412,6 +413,7 @@ public:
 	void setCatchUnhandledException(UInt64 value);
 	void setMaxDispatchCountApiThread(UInt64 value);
 	void setMaxDispatchCountUserThread(UInt64 value);
+	void setMaxEventsInPool(Int64 value);
 	void setRequestTimeout(UInt64 value);
 	virtual EmaString configTrace();
 
@@ -423,6 +425,7 @@ public:
 	Int64					dispatchTimeoutApiThread;
 	UInt32					maxDispatchCountApiThread;
 	UInt32					maxDispatchCountUserThread;
+	Int32					maxEventsInPool;
 	Int64					xmlTraceMaxFileSize;
 	bool					xmlTraceToFile;
 	bool					xmlTraceToStdout;

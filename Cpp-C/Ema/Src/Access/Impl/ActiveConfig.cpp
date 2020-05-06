@@ -147,6 +147,7 @@ BaseConfig::BaseConfig() :
 	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
 	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
 	maxDispatchCountUserThread(DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD),
+	maxEventsInPool(DEFAULT_MAX_EVENT_IN_POOL),
 	requestTimeout(DEFAULT_REQUEST_TIMEOUT),
 	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
 	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
@@ -187,6 +188,7 @@ void BaseConfig::clear()
 	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+	maxEventsInPool = DEFAULT_MAX_EVENT_IN_POOL;
 	requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
 	xmlTraceToFile = DEFAULT_XML_TRACE_TO_FILE;
@@ -222,6 +224,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t dispatchTimeoutApiThread: ").append(dispatchTimeoutApiThread)
 		.append("\n\t maxDispatchCountApiThread: ").append(maxDispatchCountApiThread)
 		.append("\n\t maxDispatchCountUserThread : ").append(maxDispatchCountUserThread)
+		.append("\n\t maxEventsInPool : ").append(maxEventsInPool)
 		.append("\n\t requestTimeout : ").append(requestTimeout)
 		.append("\n\t xmlTraceMaxFileSize : ").append(xmlTraceMaxFileSize)
 		.append("\n\t xmlTraceToFile : ").append(xmlTraceToFile)
@@ -297,6 +300,15 @@ void BaseConfig::setMaxDispatchCountUserThread(UInt64 value)
 		maxDispatchCountUserThread = 0xFFFFFFFF;
 	else
 		maxDispatchCountUserThread = (UInt32)value;
+}
+
+void BaseConfig::setMaxEventsInPool(Int64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0x7FFFFFFF)
+		maxEventsInPool = 0x7FFFFFFF;
+	else
+		maxEventsInPool = (Int32)value;
 }
 
 ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :

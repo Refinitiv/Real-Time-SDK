@@ -324,6 +324,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	_activeConfig.instanceName.append("_").append(id);
 
 	const UInt32 maxUInt32(0xFFFFFFFF);
+	const Int32 maxInt32(0x7FFFFFFF);
 	UInt64 tmp;
 	EmaString instanceNodeName(pConfigImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeConfig.configuredName).append("|");
@@ -355,6 +356,13 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+	
+	Int64 tmp1;
+	
+	if (pConfigImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
+	{
+		_activeConfig.maxEventsInPool = static_cast<Int32>(tmp1 > maxInt32 ? maxInt32 : tmp1 < -1 ? -1 : tmp1);
+	}
 
 	if (pConfigImpl->getUserSpecifiedLibSslName().length() > 0)
 	{
@@ -367,7 +375,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.libcurlName = pConfigImpl->getUserSpecifiedLibcurlName();
 	}
 
-	Int64 tmp1;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectAttemptLimit", tmp1))
 	{
 		_activeConfig.setReconnectAttemptLimit(tmp1);
@@ -1262,6 +1269,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		if (_activeConfig.restRequestTimeOut != DEFAULT_REST_REQUEST_TIMEOUT)
 			reactorOpts.restRequestTimeOut = _activeConfig.restRequestTimeOut;
+
+        if (_activeConfig.maxEventsInPool != DEFAULT_MAX_EVENT_IN_POOL)
+            reactorOpts.maxEventsInPool = _activeConfig.maxEventsInPool;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 

@@ -88,6 +88,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"ReissueTokenAttemptLimit",
 	"ReissueTokenAttemptInterval",
 	"XmlTraceMaxFileSize",
+	"MaxEventsInPool",
 };
 
 thomsonreuters::ema::access::EmaString UInt64Values[] = {

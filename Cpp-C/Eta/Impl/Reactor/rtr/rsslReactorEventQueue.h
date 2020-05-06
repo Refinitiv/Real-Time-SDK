@@ -219,10 +219,19 @@ RTR_C_INLINE RsslReactorEventImpl *rsslReactorEventQueueGetFromPool(RsslReactorE
 
 
 /* This should not be run if the event has alredy been placed into an event queue. */
-RTR_C_INLINE void rsslReactorEventQueueReturnToPool(RsslReactorEventImpl *pEvent, RsslReactorEventQueue *pQueue)
+RTR_C_INLINE void rsslReactorEventQueueReturnToPool(RsslReactorEventImpl *pEvent, RsslReactorEventQueue *pQueue, RsslInt32 poolSize)
 {
 	RSSL_MUTEX_LOCK(&pQueue->eventPoolLock);
-	rsslQueueAddLinkToBack(&pQueue->eventPool, &pEvent->base.eventQueueLink);
+
+	if (poolSize == -1 || (RsslInt32)pQueue->eventPool.count < poolSize)
+	{
+		rsslQueueAddLinkToBack(&pQueue->eventPool, &pEvent->base.eventQueueLink);
+	}
+	else 
+	{
+		free(pEvent);
+	}
+
 	RSSL_MUTEX_UNLOCK(&pQueue->eventPoolLock);
 }
 
@@ -242,7 +251,7 @@ RTR_C_INLINE RsslRet rsslReactorEventQueuePut(RsslReactorEventQueue *pQueue, Rss
 
 		RSSL_MUTEX_LOCK(&pQueue->pParentGroup->lock);
 
-		if (pQueue->isInActiveEventQueueGroup) return (RSSL_MUTEX_UNLOCK(&pQueue->pParentGroup->lock), RSSL_RET_SUCCESS);
+		if (pQueue->isInActiveEventQueueGroup) return (RSSL_MUTEX_UNLOCK(&pQueue->pParentGroup->lock), RSSL_MUTEX_UNLOCK(&pQueue->eventQueueLock), RSSL_RET_SUCCESS);
 
 		/* Add to parent list of active queues */
 		rsslQueueAddLinkToBack(&pQueue->pParentGroup->readyEventQueueGroup, &pQueue->readyEventQueueLink);
@@ -273,7 +282,7 @@ RTR_C_INLINE RsslRet rsslReactorEventQueuePut(RsslReactorEventQueue *pQueue, Rss
 	return RSSL_RET_SUCCESS;
 }
 
-RTR_C_INLINE RsslReactorEventImpl* rsslReactorEventQueueGet(RsslReactorEventQueue *pQueue, RsslRet *pRet)
+RTR_C_INLINE RsslReactorEventImpl* rsslReactorEventQueueGet(RsslReactorEventQueue *pQueue, RsslInt32 poolSize, RsslRet *pRet)
 {
 	RsslRet count;
 	RsslReactorEventImpl *pEvent;
@@ -284,7 +293,7 @@ RTR_C_INLINE RsslReactorEventImpl* rsslReactorEventQueueGet(RsslReactorEventQueu
 		/* Return previous event to pool */
 
 		RSSL_MUTEX_LOCK(&pQueue->eventPoolLock);
-		rsslQueueAddLinkToBack(&pQueue->eventPool, &pQueue->pLastEvent->base.eventQueueLink);
+		rsslReactorEventQueueReturnToPool(pQueue->pLastEvent, pQueue, poolSize);
 		RSSL_MUTEX_UNLOCK(&pQueue->eventPoolLock);
 
 		pQueue->pLastEvent = 0;
