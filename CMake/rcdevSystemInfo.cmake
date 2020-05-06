@@ -75,7 +75,7 @@ macro(rcdev_set_new_postprefix_path)
 	# Newer style path post suffix
 	#    OL6_64_GNU444/Debug
 	#               or
-	#    WIN_64_VS140\Release_MD
+	#    WIN_64_v140\Release_MD
 	#
 	set(_h_os_v ${RCDEV_HOST_SYSTEM_NAME_ABREV})
 	set(_h_rel  "_${RCDEV_HOST_SYSTEM_BITS}_")
@@ -525,14 +525,18 @@ elseif (CMAKE_HOST_WIN32)
 		set(RCDEV_HOST_BUILD_DEBUG_MDD "Debug_MDd")
 		set(RCDEV_HOST_BUILD_RELEASE_MD "Release_MD")
 	endif()
-	set(RCDEV_HOST_COMPILER "VS")
+	set(RCDEV_HOST_COMPILER "v")
 	set(RCDEV_HOST_COMPILER_U ${RCDEV_HOST_COMPILER})
 	string(TOLOWER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_L)
 	set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
 	if (MSVC)
 		DEBUG_PRINT(MSVC_TOOLSET_VERSION)
-		if (MSVC_VERSION GREATER 1910 OR MSVC_VERSION EQUAL 1910)
-			set(_compilerVer "150")
+		if (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS_EQUAL 1924)
+			set(_compilerVer "142")
+			set(_msvcVer "16")
+			set(_msvcYear "2019")
+		elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS_EQUAL 1916)
+			set(_compilerVer "141")
 			set(_msvcVer "15")
 			set(_msvcYear "2017")
 		elseif (MSVC_VERSION EQUAL 1900)
