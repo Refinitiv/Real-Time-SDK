@@ -1215,6 +1215,43 @@ void rwfToJsonBase::floatToStr(RsslFloat value)
 	}
 
 	//Standardize Inf, -Inf and NaN formats
+#if defined(_MSC_VER) && (_MSC_VER == 1700)
+	// VS2012 expected 1.#INF0000 & 1.#QNAN format
+	switch(*(ptr + 3))
+	{
+		case 'I':
+			if (isNeg)
+				writeString("-Inf");
+			else
+				writeString("Inf");
+			break;
+		case 'Q':
+			writeString("NaN");
+			break;
+		default: //For everything else
+			writeValue(buf);
+			break;
+	}
+
+#elif defined(_MSC_VER) && (_MSC_VER == 1800)
+	// VS2013 expected 1.#INF0000 & 1.#IND format
+	switch(*(ptr + 5))
+	{
+	case 'F':
+		if (isNeg)
+			writeString("-Inf");
+		else
+			writeString("Inf");
+		break;
+	case 'D':
+		writeString("NaN");
+		break;
+	default: //For everything else
+		writeValue(buf);
+		break;
+}
+
+#else
 	switch(*ptr)
 	{
 		case 'I':
@@ -1230,6 +1267,7 @@ void rwfToJsonBase::floatToStr(RsslFloat value)
 			writeValue(buf);
 			break;
 	}
+#endif
 }
 
 void rwfToJsonBase::doubleToStr(RsslDouble value)
@@ -1246,6 +1284,41 @@ void rwfToJsonBase::doubleToStr(RsslDouble value)
 	}
 
 	//Standardize Inf, -Inf and NaN formats
+#if defined(_MSC_VER) && (_MSC_VER == 1700)
+	// VS2012 expected 1.#INF0000 & 1.#QNAN format
+	switch(*(ptr + 3))
+	{
+		case 'I':
+			if (isNeg)
+				writeString("-Inf");
+			else
+				writeString("Inf");
+			break;
+		case 'Q':
+			writeString("NaN");
+			break;
+		default: //For everything else
+			writeValue(buf);
+			break;
+	}
+#elif defined(_MSC_VER) && (_MSC_VER == 1800)
+	// VS2013 expected 1.#INF0000 & 1.#IND format
+	switch(*(ptr + 5))
+	{
+	case 'F':
+		if (isNeg)
+			writeString("-Inf");
+		else
+			writeString("Inf");
+		break;
+	case 'D':
+		writeString("NaN");
+		break;
+	default: //For everything else
+		writeValue(buf);
+		break;
+	}
+#else
 	switch(*ptr)
 	{
 		case 'I':
@@ -1261,5 +1334,6 @@ void rwfToJsonBase::doubleToStr(RsslDouble value)
 			writeValue(buf);
 			break;
 	}
+#endif
 }
 

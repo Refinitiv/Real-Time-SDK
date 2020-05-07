@@ -609,7 +609,7 @@ TEST_P(InvalidFloatDoubleStringTestFixture, InvalidFloatDoubleStringTests)
 {
 	const char* floatString = GetParam();
 
-	std::ostringstream jsonStringStream("", ios_base::app);
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
 	std::string jsonString;
 	   
 	/* Build message containing the invalid float string. */
@@ -692,7 +692,7 @@ TEST_P(HugeFloatDoubleTestFixture, HugeFloatDoubleTest)
 	RsslFieldList fieldList;
 	RsslFieldEntry fieldEntry;
 	HugeFloatDoubleTestParams const &params = GetParam();
-	std::ostringstream jsonStringStream("", ios_base::app);
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
 	std::string jsonString;
 
 	/* Confirm that the number in JSON is large enough that strtof will actually indicate overflow */
