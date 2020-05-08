@@ -46,6 +46,14 @@
 
 #include "dictionaries.h"
 
+#ifndef nextafter
+#define nextafter _nextafter
+#endif
+
+#ifndef nextafterf
+#define nextafterf _nextafterf
+#endif
+
 /* Report Mode */
 
 /* Controls whether to test array with both parameters as NULL for blank or with empty buffer passed in for blank */
@@ -10467,13 +10475,13 @@ TEST(realFloatIntConvertTest, RealHintExponent0Test)
 
 	// tests middle in range values
 	rsslClearReal(&testReal);
-	testFloat = 1000000000.;
+	testFloat = 1000000000.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 1000000000);
 
 	rsslClearReal(&testReal);
-	testFloat = -1000000000.;
+	testFloat = -1000000000.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, -1000000000);
@@ -10493,43 +10501,43 @@ TEST(realFloatIntConvertTest, RealHintExponent0Test)
 	//ASSERT_EQ(testReal.value, -1000000000000000000); // it's not equal: precise of float is lower to int64
 
 	rsslClearReal(&testReal);
-	testFloat = 12.;
+	testFloat = 12.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 12);
 
 	rsslClearReal(&testReal);
-	testFloat = 123.;
+	testFloat = 123.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 123);
 
 	rsslClearReal(&testReal);
-	testFloat = 1234.;
+	testFloat = 1234.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 1234);
 
 	rsslClearReal(&testReal);
-	testFloat = 12345.;
+	testFloat = 12345.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 12345);
 
 	rsslClearReal(&testReal);
-	testFloat = 123456.;
+	testFloat = 123456.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 123456);
 
 	rsslClearReal(&testReal);
-	testFloat = 1234567.;
+	testFloat = 1234567.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 1234567);
 
 	rsslClearReal(&testReal);
-	testFloat = 12345678.;
+	testFloat = 12345678.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 12345678);
@@ -10653,11 +10661,11 @@ TEST(realFloatIntConvertTest, RealHintExponent_14Test)
 
 	// tests out of range values
 	rsslClearReal(&testReal);
-	testFloat = 1000000.;
+	testFloat = 1000000.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
 
 	rsslClearReal(&testReal);
-	testFloat = -1000000.;
+	testFloat = -1000000.f;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
 
 
@@ -10721,7 +10729,7 @@ TEST(realFloatIntConvertTest, RealHintExponent7Test)
 	short i;
 
 	const RsslInt iFactor = 10000000;
-	const RsslFloat dFactor = 10000000.;
+	const RsslFloat dFactor = 10000000.f;
 	const RsslRealHints rhExponent = RSSL_RH_EXPONENT7;
 
 	// tests digits -9 .. 0 .. 9
@@ -10736,13 +10744,13 @@ TEST(realFloatIntConvertTest, RealHintExponent7Test)
 
 	// tests middle in range values
 	rsslClearReal(&testReal);
-	testFloat = 123. * dFactor;
+	testFloat = 123.f * dFactor;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, 123);
 
 	rsslClearReal(&testReal);
-	testFloat = -123. * dFactor;
+	testFloat = -123.f * dFactor;
 	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, -123);
@@ -10965,7 +10973,7 @@ TEST(realFloatIntConvertTest, RealHintFraction_256Test)
 	short i;
 
 	const RsslInt iFactor = 256;
-	const RsslFloat dFactor = 256.;
+	const RsslFloat dFactor = 256.f;
 	const RsslRealHints rhExponent = RSSL_RH_FRACTION_256;
 
 	// tests digits -9 .. 0 .. 9

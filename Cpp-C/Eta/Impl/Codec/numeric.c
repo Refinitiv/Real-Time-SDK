@@ -53,6 +53,8 @@ static RsslDouble powHints[] = {0.00000000000001, 0.0000000000001, 0.00000000000
 
 RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUInt8 iHint)
 {
+	double res;
+
 	RSSL_ASSERT(oReal, Invalid parameters or parameters passed in as NULL);
 
 	if (iHint > RSSL_RH_NOT_A_NUMBER || iHint == 31)
@@ -88,7 +90,6 @@ RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUIn
 	{
 		oReal->hint = iHint;
 
-		double res;
 #if defined (WIN32) || defined (_WIN32)
 		if (iHint < RSSL_RH_FRACTION_1)
 		{
@@ -123,6 +124,8 @@ RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUIn
 	
 RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8 iHint)
 {
+	float res;
+
 	RSSL_ASSERT(oReal, Invalid parameters or parameters passed in as NULL);
 	
 	if (iHint > RSSL_RH_NOT_A_NUMBER || iHint == 31)
@@ -158,7 +161,6 @@ RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8
 	{
 		oReal->hint = iHint;
 
-		float res;
 #if defined (WIN32) || defined (_WIN32)
 		if (iHint < RSSL_RH_FRACTION_1)
 		{
