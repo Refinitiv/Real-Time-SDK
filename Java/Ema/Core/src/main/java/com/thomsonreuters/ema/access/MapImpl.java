@@ -137,7 +137,10 @@ class MapImpl extends CollectionDataImpl implements Map
 	@Override
 	public boolean addAll(Collection<? extends MapEntry> c)
 	{
-		throw new UnsupportedOperationException("Map collection doesn't support this operation.");
+		if (c == null)
+			throw new NullPointerException("Passed in collection is null.");
+		
+		return _mapCollection.addAll(c);
 	}
 
 	@Override
