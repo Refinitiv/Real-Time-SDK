@@ -42,9 +42,6 @@
 #ifdef WIN32
 #define snprintf _snprintf
 #include <windows.h>
-#endif
-
-#include "dictionaries.h"
 
 #ifndef nextafter
 #define nextafter _nextafter
@@ -53,6 +50,9 @@
 #ifndef nextafterf
 #define nextafterf _nextafterf
 #endif
+#endif
+
+#include "dictionaries.h"
 
 /* Report Mode */
 
