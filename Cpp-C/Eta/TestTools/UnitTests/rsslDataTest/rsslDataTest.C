@@ -11061,6 +11061,19 @@ TEST(realFloatIntConvertTest, RealHintFraction_256Test)
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
 
+TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
+{
+	RsslTime oTime;
+	RsslBuffer dateTimeStrBuf;
+
+	/* ESDK-3859 */
+	char* invalidTimeValue = "1.1:22:33:444";
+	dateTimeStrBuf.data = invalidTimeValue;
+	dateTimeStrBuf.length = (rtrUInt32)strlen(invalidTimeValue);
+
+	ASSERT_TRUE(rsslTimeStringToTime(&oTime, &dateTimeStrBuf) == RSSL_RET_INVALID_DATA);
+}
+
 TEST(partialUpdateTest, partialUpdateTest)
 {
 	partialUpdateTest();
