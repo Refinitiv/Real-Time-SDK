@@ -249,6 +249,14 @@ class ConfigReader
 			return null;
 		}
 
+		ConfigAttributes getNodeWithAttributeList(Branch branch){
+			XMLnode list = getChildren(branch,0);
+			if(list == null){
+				return null;
+			}
+			return list._attributeList;
+		}
+		
 		ConfigAttributes getNodeWithAttributeList(Branch branch,String nodeName,int attributeId)
 		{
 			XMLnode list = getChildren(branch,0);
@@ -795,7 +803,7 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.ConsumerTagDict;
 						}
-						if( configNodeChild.getName().equals("IProviderGroup"))
+						else if( configNodeChild.getName().equals("IProviderGroup"))
 						{
 							tagDict = ConfigManager.IProviderTagDict;
 						}
@@ -824,6 +832,10 @@ class ConfigReader
 						else if( configNodeChild.getName().equals("DictionaryGroup"))
 						{
 							tagDict = ConfigManager.DictionaryTagDict;
+						}
+						else if( configNodeChild.getName().equals("GlobalConfig"))
+						{
+							tagDict = ConfigManager.GlobalConfigDict;
 						}
 					}
 					
@@ -982,7 +994,7 @@ class ConfigReader
 
 			ConfigurationNode doc =  config.getRootNode();
 			level = 1;
-			
+
 			xmlRoot = new XMLnode("root",level,null,ConfigManager.ROOT);
 			xmlRoot.setErrorTracker(errorTracker());
 
@@ -1620,6 +1632,15 @@ class ConfigReader
 			}
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SERVER_LIST,serverName,ConfigManager.ServerName));
+		}
+		
+		ConfigAttributes getGlobalConfig(){
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.GLOBAL_CONFIG));
 		}
 
 		void debugDump(String txt)
