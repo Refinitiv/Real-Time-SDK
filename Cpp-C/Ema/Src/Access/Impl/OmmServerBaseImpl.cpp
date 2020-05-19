@@ -470,6 +470,13 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			else
 				socketServerConfig->tcpNodelay = RSSL_FALSE;
 
+			tempUInt = DEFAULT_SERVER_SHAREDSOCKET;
+			pConfigServerImpl->get<UInt64>(serverNodeName + "ServerSharedSocket", tempUInt);
+			if (tempUInt)
+				socketServerConfig->serverSharedSocket = RSSL_TRUE;
+			else
+				socketServerConfig->serverSharedSocket = RSSL_FALSE;
+
 			tempUInt = 0;
 			if (pConfigServerImpl->get<UInt64>(serverNodeName + "MaxFragmentSize", tempUInt))
 				socketServerConfig->maxFragmentSize = tempUInt;
@@ -942,6 +949,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			bindOptions.tcpOpts.tcp_nodelay = socketServerConfig->tcpNodelay;
 			bindOptions.serviceName = const_cast<char *>(socketServerConfig->serviceName.c_str());
 			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
+			bindOptions.serverSharedSocket = socketServerConfig->serverSharedSocket;
 
 			if (RSSL_CONN_TYPE_WEBSOCKET == _activeServerConfig.pServerConfig->connectionType)
 			{

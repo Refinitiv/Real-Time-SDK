@@ -77,6 +77,7 @@
 #define DEFAULT_OBJECT_NAME							   EmaString( "" )
 #define DEFAULT_SSL_CA_STORE						   EmaString( "" )
 #define DEFAULT_TCP_NODELAY							   RSSL_TRUE
+#define DEFAULT_SERVER_SHAREDSOCKET					   RSSL_FALSE
 #define DEFAULT_CONS_MCAST_CFGSTRING				   EmaString( "" )
 #define DEFAULT_PACKET_TTL							  5
 #define DEFAULT_NDATA								  7
@@ -302,6 +303,7 @@ public:
 
 	EmaString		serviceName;
 	RsslBool		tcpNodelay;
+	RsslBool		serverSharedSocket;
 
 	EmaString				libSslName;
 	EmaString				libCryptoName;

@@ -124,6 +124,7 @@ typedef struct {
 	RsslUInt32		sendBufSize;			/* send buffer size for accepted connections */
 	RsslUInt32		recvBufSize;			/* receive buffer size to use for accepted connections */
 	RsslComponentInfo	connOptsCompVer;	/* the component version string passed in by the user through the connectOpts*/
+	RsslBool		serverSharedSocket;		/* will be allowed to share socket */
 } rsslServerImpl;
 
 typedef struct {

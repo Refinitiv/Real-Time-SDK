@@ -785,6 +785,7 @@ SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
 ServerConfig(RSSL_CONN_TYPE_SOCKET),
 serviceName(defaultServiceName),
 tcpNodelay(DEFAULT_TCP_NODELAY),
+serverSharedSocket(DEFAULT_SERVER_SHAREDSOCKET),
 maxFragmentSize(DEFAULT_MAX_FRAGMENT_SIZE),
 wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
@@ -797,6 +798,7 @@ SocketServerConfig::~SocketServerConfig()
 void SocketServerConfig::clear()
 {
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	serverSharedSocket = DEFAULT_SERVER_SHAREDSOCKET;
 	libSslName.clear();
 	libCryptoName.clear();
 	libCurlName.clear();

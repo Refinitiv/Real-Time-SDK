@@ -578,6 +578,17 @@ int ipcSockOpts(RsslSocket fd, ripcSocketOption *option)
 			break;
 		}
 
+#if defined(Linux)
+		case RIPC_SOPT_REUSEPORT:
+		{
+			int reuseFlag = (option->options.turn_on ? 1 : 0);
+			if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (char *)&reuseFlag,
+				(int)sizeof(reuseFlag)) < 0)
+				ret = -1;
+			break;
+		}
+#endif
+
 #if defined(_WIN32) && defined(SO_EXCLUSIVEADDRUSE)
 		case RIPC_SOPT_EXCLUSIVEADDRUSE:
 		{
@@ -1038,17 +1049,38 @@ RsslInt32 ipcSrvrBind(rsslServerImpl *srvr, RsslError *error)
 	}
 
 #if defined(_WIN32)
-	sockopts.code = RIPC_SOPT_EXCLUSIVEADDRUSE;
-	sockopts.options.turn_on = 1;
-	if (ipcSockOpts(sock_fd, &sockopts) < 0)
+	// Windows. When server provides sharing for the socket then we use REUSEADDR instead of EXCLUSIVEADDRUSE.
+	// (Microsoft docs). As long as SO_REUSEADDR socket option can be used to potentially hijack a port in a server application,
+	// the application must be considered to be not secure.
+	if (srvr->serverSharedSocket == RSSL_TRUE)
 	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1002 Could not to set SO_EXCLUSIVEADDRUSE on socket. System errno: (%d)\n",
-			__FILE__, __LINE__, errno);
+		sockopts.code = RIPC_SOPT_REUSEADDR;
+		sockopts.options.turn_on = 1;
+		if (ipcSockOpts(sock_fd, &sockopts) < 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Could not to set SO_REUSEADDR on socket. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
 
-		sock_close(sock_fd);
-		return -1;
+			sock_close(sock_fd);
+			return -1;
+		}
+	}
+	else
+	{
+		sockopts.code = RIPC_SOPT_EXCLUSIVEADDRUSE;
+		sockopts.options.turn_on = 1;
+		if (ipcSockOpts(sock_fd, &sockopts) < 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Could not to set SO_EXCLUSIVEADDRUSE on socket. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			sock_close(sock_fd);
+			return -1;
+		}
 	}
 #else
 	sockopts.code = RIPC_SOPT_REUSEADDR;
@@ -1062,6 +1094,22 @@ RsslInt32 ipcSrvrBind(rsslServerImpl *srvr, RsslError *error)
 
 		sock_close(sock_fd);
 		return -1;
+	}
+
+	if (srvr->serverSharedSocket)
+	{
+		sockopts.code = RIPC_SOPT_REUSEPORT;
+		sockopts.options.turn_on = 1;
+		if (ipcSockOpts(sock_fd, &sockopts) < 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Could not to set SO_REUSEPORT on socket. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			sock_close(sock_fd);
+			return -1;
+		}
 	}
 #endif
 

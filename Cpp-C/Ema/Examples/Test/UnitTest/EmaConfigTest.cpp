@@ -335,6 +335,21 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|ChannelSet", v );
 	EXPECT_TRUE( debugResult && v.size() == 1 && v[0] == "CS2" ) << "correctly extracted only last ChannelSet value (into vector) when both Channel and Channel_Sets configured";
 
+	// Checks all values from Server:ServerSharedSocket
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_1|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Server_1|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_2|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult == false && uintValue == 0) << "extracting Server_2|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_11|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult == false && uintValue == 0) << "extracting Server_11|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_12|ServerSharedSocket from EmaConfig.xml";
+
+
 	config.configErrors().printErrors(OmmLoggerClient::WarningEnum);
 }
 
@@ -2224,6 +2239,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 66) << "SocketServerConfig::initializationTimeout , 66";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket == 0) << "SocketServerConfig::serverSharedSocket , 0";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -3840,4 +3856,189 @@ TEST_F(EmaConfigTest, testReuseProgrammaticInterface)
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
 			EXPECT_TRUE(false) << "Unexpected exception in testLoadingIProvConfigurationFromProgrammaticConfig()";
 		}
+}
+
+TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
+{
+	//test case 0: section "ServerSharedSocket" is absent
+	//test case 1: section "ServerSharedSocket" is equal 0 (False)
+	//test case 2: section "ServerSharedSocket" is equal 1 (True)
+	for (int testCase = 0; testCase < 3; testCase++)
+	{
+		std::cout << std::endl << " #####Now it is running test case " << testCase << std::endl;
+
+		Map outermostMap, innerMap;
+		ElementList elementList;
+		try
+		{
+			elementList.addAscii("DefaultIProvider", "Provider_1");
+
+			innerMap.addKeyAscii("Provider_1", MapEntry::AddEnum, ElementList()
+				.addAscii("Server", "Server_1")
+				.addAscii("Logger", "Logger_1")
+				.addAscii("Directory", "Directory_1").complete())
+				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
+					.addAscii("Server", "Server_2")
+					.addAscii("Directory", "Directory_2")
+					.addAscii("Logger", "Logger_2").complete())
+				.complete();
+
+			elementList.addMap("IProviderList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("IProviderGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+			switch (testCase)
+			{
+			case 0:  // section "ServerSharedSocket" is absent
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+
+			case 1:  // section "ServerSharedSocket" is equal 0 (False)
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.addUInt("ServerSharedSocket", 0)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+
+			case 2:  // section "ServerSharedSocket" is equal 1 (True)
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.addUInt("ServerSharedSocket", 1)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+			}
+
+			elementList.addMap("ServerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("ServerGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+			innerMap.addKeyAscii("Logger_2", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("LoggerType", 1)
+				.addAscii("FileName", "logFile")
+				.addEnum("LoggerSeverity", 3).complete())
+				.addKeyAscii("Logger_1", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("LoggerType", 0)
+					.addAscii("FileName", "logFile")
+					.addEnum("LoggerSeverity", 3).complete()).complete();
+
+			elementList.addMap("LoggerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+			innerMap.addKeyAscii("Dictionary_3", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("DictionaryType", 1)
+				.addAscii("RdmFieldDictionaryItemName", "RWFFld")
+				.addAscii("EnumTypeDefItemName", "RWFEnum")
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete())
+				.addKeyAscii("Dictionary_4", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("DictionaryType", 1)
+					.addAscii("RdmFieldDictionaryItemName", "RWFFld_ID4")
+					.addAscii("EnumTypeDefItemName", "RWFEnum_ID4")
+					.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary_ID4")
+					.addAscii("EnumTypeDefFileName", "./enumtype_ID4.def").complete()).complete();
+
+			elementList.addMap("DictionaryList", innerMap);
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+
+			EmaString localConfigPath;
+			OmmIProviderConfig iprovConfig(localConfigPath);
+			OmmIProviderImpl ommIProviderImpl(iprovConfig.config(outermostMap), appClient);
+
+			OmmIProviderActiveConfig& activeConfig = static_cast<OmmIProviderActiveConfig&>(ommIProviderImpl.getActiveConfig());
+			bool found = ommIProviderImpl.getInstanceName().find("Provider_1") >= 0 ? true : false;
+			EXPECT_TRUE(found) << "ommIProviderImpl.getIProviderName() , \"Provider_1_1\"";
+			EXPECT_TRUE(activeConfig.pServerConfig->name == "Server_1") << "Server name , \"Server_1\"";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->getType() == 0) << "SocketServerConfig::getType , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 66) << "SocketServerConfig::initializationTimeout , 66";
+			if (testCase < 2)
+			{
+				EXPECT_EQ(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 0";
+			}
+			else
+			{
+				EXPECT_NE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 1";
+			}
+		}
+		catch (const OmmException& excp)
+		{
+			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+			EXPECT_TRUE(false) << "Unexpected exception in testServerSharedSocketProgrammaticConfigForIProv()";
+		}
+	}
 }

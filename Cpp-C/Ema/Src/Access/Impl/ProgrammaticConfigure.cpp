@@ -2218,7 +2218,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName, wsProtocols;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout, maxFragmentSize;
+		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2392,6 +2392,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				maxFragmentSize = serverEntry.getUInt();
 				flags |= MaxFragmentSizeFlagEnum;
 			}
+			else if (serverEntry.getName() == "ServerSharedSocket")
+			{
+				serverSharedSocket = serverEntry.getUInt();
+				flags |= ServerSharedSocketEnum;
+			}
 			break;
 		}
 	}
@@ -2492,6 +2497,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->maxFragmentSize = maxFragmentSize;
 			else if (fileCfgSocket)
 				pCurrentServerConfig->maxFragmentSize = fileCfgSocket->maxFragmentSize;
+
+			if (flags & ServerSharedSocketEnum)
+				pCurrentServerConfig->serverSharedSocket = serverSharedSocket ? RSSL_TRUE : RSSL_FALSE;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->serverSharedSocket = fileCfgSocket->serverSharedSocket;
 
 
 			if (serverType == RSSL_CONN_TYPE_ENCRYPTED)

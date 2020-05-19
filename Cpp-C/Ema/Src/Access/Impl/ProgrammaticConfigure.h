@@ -76,6 +76,7 @@ public:
 		LibCryptoNameEnum =				0x080000,
 		LibCurlNameEnum =				0x100000,
 		MaxFragmentSizeFlagEnum =		0x200000,
+		ServerSharedSocketEnum =		0x400000,
 
 	};
 

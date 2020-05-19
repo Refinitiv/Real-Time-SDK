@@ -2830,6 +2830,133 @@ TEST(OpenSSLHostNameValidation, HostNameValidation)
 	EXPECT_TRUE(output == RSSL_FALSE);
 }
 
+
+class BindSharedServerSocketOpt : public ::testing::Test {
+protected:
+	RsslServer* pServer;
+
+	virtual void SetUp()
+	{
+		RsslError err;
+
+		pServer = NULL;
+
+		rsslInitialize(RSSL_LOCK_GLOBAL, &err);
+	}
+
+	virtual void TearDown()
+	{
+		RsslError err;
+		rsslCloseServer(pServer, &err);
+		rsslUninitialize();
+		pServer = NULL;
+	}
+
+	void runRsslBind(RsslBindOptions& bindOpts)
+	{
+		RsslError err;
+
+		bindOpts.serviceName = (char*)"15000";
+		bindOpts.protocolType = TEST_PROTOCOL_TYPE;  /* These tests are just sending a pre-set string across the wire, so protocol type should not be RWF */
+
+		pServer = rsslBind(&bindOpts, &err);
+
+		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(pServer->socketId, 0) << "The server socket should be not Null";
+	}
+
+	void testSocketOpt(int optname, bool isExpectedResultTrue, const char* sockOptName)
+	{
+		int optVal;
+		socklen_t lenVal = sizeof(int);
+		int iResult = getsockopt(pServer->socketId, SOL_SOCKET, optname, (char*)&optVal, &lenVal);
+		ASSERT_EQ(iResult, 0) << "getsockopt " << sockOptName << ":  failed";
+		ASSERT_EQ(lenVal, sizeof(int)) << "getsockopt " << sockOptName << ":  invalid length = " << lenVal;
+
+		if (isExpectedResultTrue) {
+			EXPECT_NE(optVal, 0) << "getsockopt " << sockOptName << ": should be True";
+		}
+		else {
+			EXPECT_EQ(optVal, 0) << "getsockopt " << sockOptName << ": should be False";
+		}
+	}
+};
+
+/* Testing setup of the socket options for server call Bind */
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitValues)
+{
+	// Tests default init-values
+	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+#if defined(_WIN32)
+	testSocketOpt(SO_REUSEADDR,			false,	"SO_REUSEADDR");
+	testSocketOpt(SO_EXCLUSIVEADDRUSE,	true,	"SO_EXCLUSIVEADDRUSE");
+#else  // Linux
+	testSocketOpt(SO_REUSEADDR,			true,	"SO_REUSEADDR");
+	testSocketOpt(SO_REUSEPORT,			false,	"SO_REUSEPORT");
+#endif
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOpts)
+{
+	// Tests rsslClearBindOpts
+	RsslBindOptions bindOpts;
+	rsslClearBindOpts(&bindOpts);
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+#if defined(_WIN32)
+	testSocketOpt(SO_REUSEADDR, false, "SO_REUSEADDR");
+	testSocketOpt(SO_EXCLUSIVEADDRUSE, true, "SO_EXCLUSIVEADDRUSE");
+#else  // Linux
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+	testSocketOpt(SO_REUSEPORT, false, "SO_REUSEPORT");
+#endif
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalse)
+{
+	// Tests serverSharedSocket off
+	RsslBindOptions bindOpts;
+	rsslClearBindOpts(&bindOpts);
+	bindOpts.serverSharedSocket = RSSL_FALSE;
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+#if defined(_WIN32)
+	testSocketOpt(SO_REUSEADDR, false, "SO_REUSEADDR");
+	testSocketOpt(SO_EXCLUSIVEADDRUSE, true, "SO_EXCLUSIVEADDRUSE");
+#else  // Linux
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+	testSocketOpt(SO_REUSEPORT, false, "SO_REUSEPORT");
+#endif
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOnWhenSetTrue)
+{
+	// Tests serverSharedSocket on
+	RsslBindOptions bindOpts;
+	rsslClearBindOpts(&bindOpts);
+	bindOpts.serverSharedSocket = RSSL_TRUE;
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket permits sharing
+#if defined(_WIN32)
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+	testSocketOpt(SO_EXCLUSIVEADDRUSE, false, "SO_EXCLUSIVEADDRUSE");
+#else  // Linux
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+	testSocketOpt(SO_REUSEPORT, true, "SO_REUSEPORT");
+#endif
+}
+
+
 int main(int argc, char* argv[])
 {
 	int ret;

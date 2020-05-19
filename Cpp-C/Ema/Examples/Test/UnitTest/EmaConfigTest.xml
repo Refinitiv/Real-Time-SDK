@@ -471,6 +471,7 @@
             <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
             <TcpNodelay value="1"/>
             <Port value="14002"/>
+            <ServerSharedSocket value="0"/>
         </Server>
 		<Server>
             <Name value="Server_2"/>
@@ -505,6 +506,21 @@
             <Port value="14011"/>
             <MaxFragmentSize value="100500"/>
             <WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+        </Server>
+        <Server>
+            <Name value="Server_12"/>
+            <ServerType value="ServerType::RSSL_SOCKET"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::None"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="30000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14002"/>
+            <ServerSharedSocket value="1"/>
         </Server>
     </ServerList>
 </ServerGroup>

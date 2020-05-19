@@ -7488,6 +7488,8 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	}
 
 	rsslServerSocketChannel->connType = connType;
+	
+	rsslSrvrImpl->serverSharedSocket = opts->serverSharedSocket;
 
 	if ((retCode = (transFuncs[connType].bindSrvr(rsslSrvrImpl, error))) < 0)
 	{

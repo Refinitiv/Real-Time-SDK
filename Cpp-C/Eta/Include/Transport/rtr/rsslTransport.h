@@ -849,6 +849,7 @@ typedef struct {
 	RsslBool		forceCompression;		/*!< @brief Lets the server force the client to use compression */
 	RsslBool		serverBlocking;			/*!< @brief If RSSL_TRUE, the server will be allowed to block. */
 	RsslBool		channelsBlocking;		/*!< @brief If RSSL_TRUE, the channels will be allowed to block. */
+	RsslBool		serverSharedSocket;		/*!< @brief If RSSL_TRUE, the server will be allowed to share socket. */
 	RsslBool		tcp_nodelay;			/*!< @deprecated DEPRECATED: Only used with connectionType of SOCKET.  If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslBindOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types */
 	RsslBool		serverToClientPings;	/*!< @brief If RSSL_TRUE, pings will be sent from server side to client side */
 	RsslBool		clientToServerPings;	/*!< @brief If RSSL_TRUE, pings will be sent from client side to server side */
@@ -878,7 +879,7 @@ typedef struct {
  * @brief RSSL Bind Options initialization
  * @see RsslBindOptions
  */
-#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0, RSSL_INIT_WEBSOCKET_OPTS, RSSL_INIT_BIND_ENCRYPTION_OPTS }
+#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0, RSSL_INIT_WEBSOCKET_OPTS, RSSL_INIT_BIND_ENCRYPTION_OPTS }
 
 /**
  * @brief Clears RSSL Bind Options 
@@ -897,6 +898,7 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->forceCompression = RSSL_FALSE;
 	opts->serverBlocking = RSSL_FALSE;
 	opts->channelsBlocking = RSSL_FALSE;
+	opts->serverSharedSocket = RSSL_FALSE;
 	opts->tcp_nodelay = RSSL_FALSE;
 	opts->serverToClientPings = RSSL_TRUE;
 	opts->clientToServerPings = RSSL_TRUE;
