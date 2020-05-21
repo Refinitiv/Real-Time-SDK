@@ -181,6 +181,8 @@ provider-Dict-001: Alters Provider to not return failure if it receives a source
 not send dictionary reject if it receives an invalid dictionary request. This is done by commenting out
 sendDictionaryRequestReject in rsslDictionaryProvider.c.
 
+provider-Multi-001: Alters Provider to enable serverSharedSocket = RSSL_TRUE.
+
 Module:  VA Provider 
 -----------------
 
