@@ -85,7 +85,7 @@ VAConsumer
 
 or
 
-VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>] [-clientId <Client ID>] [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
+VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>] [-clientId <Client ID>] [-sessionMgnt] [-takeExclusiveSignOnControl <true/false> ] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
 
 -tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
 
@@ -99,6 +99,9 @@ specified, the consumer will use the ItemList from the directory response.
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
 authentication token management and query EDP-RT service discovery on be half of users.
+
+Specifying the -takeExclusiveSignOnControl <true/false> option will set exclusive sign on control to force sign-out
+for the same credentials when enabling the session management. Defaults to true.
 
 Specifying the -view option will result in a dynamic view being requested with any
 MarketPrice items.  If the provider does not indicate support for dynamic views, this

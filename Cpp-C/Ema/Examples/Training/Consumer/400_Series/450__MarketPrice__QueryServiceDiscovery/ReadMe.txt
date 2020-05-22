@@ -30,6 +30,7 @@ including:
  to access this page).
 - location location to get an endpoint from EDP-RT service discovery. Now, it is either
 "us-east" by default or "eu-west" (optional).
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet.
@@ -40,7 +41,7 @@ use of a proxy to get to the Internet.
 -pdomain Proxy Domain (optional).
 
 Example command line: 
-Cons450 -username <machine ID> -password <machine ID password>
+Cons450 -username <machine ID> -password <machine ID password> -clientId <client ID>
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods

@@ -79,10 +79,11 @@ or
 
 WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ] [ -ec <encrypted protocol> ]
   [ -if <Interface Name> ] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ]
-  [ -sessionMgnt ] [ -l <Location Name> ] [ -query ] [ -s <ServiceName>] [ -mp <MarketPrice ItemName> ]
-  [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] 
-  [ -sl <SymbolList ItemName> ] [ -sld <SymbolList ItemName> ] [ -view ] [ -runTime <TimeToRun> ]
-  [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
+  [ -sessionMgnt ] [ -takeExclusiveSignOnControl <true/false> ] [ -l <Location Name> ] [ -query ] 
+  [ -s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ]
+  [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ]
+  [ -sld <SymbolList ItemName> ] [ -view ] [ -runTime <TimeToRun> ] [-at <AuthenticationToken>] 
+  [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
   Connection options for socket, http, and encrypted connection types:
     [ -h <Server Hostname> ] [ -p <Port> ]
@@ -112,6 +113,9 @@ You can generate and manage client Ids at the following URL: https://emea1.apps.
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
 authentication token management and query EDP-RT service discovery(if -query is not specified)
 on be half of users.
+
+Specifying the -takeExclusiveSignOnControl <true/false> option will set exclusive sign on control to force sign-out
+for the same credentials when enabling the session management. Defaults to true.
 
 The -l option specifies a location name that is used to get an endpoint from the
 EDP service discovery information. Defaults to "us-east".

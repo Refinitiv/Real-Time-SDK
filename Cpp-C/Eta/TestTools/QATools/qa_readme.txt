@@ -141,6 +141,9 @@ Note: Only single digit viewId's are supported;
 Note: Up to 9 mp arguments can be given when used with the event specified delay request
 (so, if no -e1/e2/e3 etc arguments are given, then more than 9 mp items are fine)
 
+wlconsumer-ConsFunc-002:  Altered WLConsumer to accept tokenServiceUrl, serviceDiscoveryUrl 
+for testing sessionMgnt, it fixes tokenReissueRatio to 0.1 (10 seconds)
+
 wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and 
 market price streams. 
 GenericMsg contains ElementList with one ElementEntry. 

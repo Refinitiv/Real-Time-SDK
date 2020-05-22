@@ -97,6 +97,12 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption & tokenScope(const EmaString& tokenScope = "trapi.streaming.pricing.read");
 
+	/** Specifies optionally the exclusive sign on control to force sign-out of other applications using the same credentials.
+		@param[in] takeExclusiveSignOnControl the exclusive sign on control.
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption& takeExclusiveSignOnControl( bool takeExclusiveSignOnControl = true );
+
 	/** \deprecated the transport() function should be used instead.
 		Specifies a transport protocol to get endpoints according to the protocol.
 		@param[in] transport specifies a transport protocol
@@ -166,6 +172,7 @@ private:
 	EmaString			_clientId;
 	EmaString			_clientSecret;
 	EmaString			_tokenScope;
+	bool				_takeExclusiveSignOnControl;
 	EmaString			_proxyHostName;
 	EmaString			_proxyPort;
 	EmaString			_proxyUserName;

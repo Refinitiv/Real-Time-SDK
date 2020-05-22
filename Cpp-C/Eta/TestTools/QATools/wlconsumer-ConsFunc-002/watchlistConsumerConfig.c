@@ -78,6 +78,8 @@ void printUsageAndExit(int argc, char **argv)
 			" -ax          Specifies the Authentication Extended information.\n"
 			" -aid	       Specifies the Application ID.\n"
 			" -pl	       Specifies list of supported websocket sub-protocols, white space or ',' delineated.\n"
+		    " -tokenServiceUrl Specifies tokenServiceUrl when sessionMgnt enabled.\n"
+		    " -serviceDiscoveryUrl Specifies serviceDiscoveryUrl when sessionMgnt enabled.\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
@@ -165,7 +167,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.proxyUserName, 255, "");
 	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "");
 	snprintf(watchlistConsumerConfig.proxyDomain, 255, "");
-
+	//API QA
+	snprintf(watchlistConsumerConfig.tokenServiceUrl, 255, "");
+	snprintf(watchlistConsumerConfig.serviceDiscoveryUrl, 255, "");
+	//END API QA
 	snprintf(watchlistConsumerConfig.libsslName, 255, "");
 	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
 	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
@@ -277,6 +282,18 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", argv[i]);
 		}
+		// API QA
+		else if (0 == strcmp(argv[i], "-tokenServiceUrl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.tokenServiceUrl, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-serviceDiscoveryUrl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.serviceDiscoveryUrl, 255, "%s", argv[i]);
+		}
+		// END API QA
 		else if (0 == strcmp(argv[i], "-pl"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);

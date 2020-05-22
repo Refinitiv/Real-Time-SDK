@@ -1233,7 +1233,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	if (pTokenSessionImpl == NULL) /* Checks whether there is an existing token session for the same user */
 	{
 		pRestRequestArgs = _reactorCreateRequestArgsForPassword(pRsslReactorImpl, &pRsslReactorImpl->tokenServiceURL,
-			&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
+			&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, 
+			pOpts->takeExclusiveSignOnControl, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
 
 		if (pRestRequestArgs)
 		{
@@ -5670,6 +5671,8 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pCurPos += pOAuthCredentialRenewalOutImpl->proxyUserName.length;
 	}
 
+	pOAuthCredentialRenewalOut->takeExclusiveSignOnControl = pOAuthCredentialRenewal->takeExclusiveSignOnControl;
+
 	return pOAuthCredentialRenewalOut;
 }
 
@@ -5713,7 +5716,8 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopy(RsslReactorOAuthCreden
 
 	/* Copies a reference to the callback if specified by users */
 	pOAuthCredentialOut->pOAuthCredentialEventCallback = pOAuthCredentialEventCallback;
-
+	pOAuthCredentialOut->takeExclusiveSignOnControl = pOAuthCredential ? pOAuthCredential->takeExclusiveSignOnControl : RSSL_TRUE;
+	
 	pCurPos = pData + msgSize;
 
 	rsslClearBuffer(&dataBuffer);
@@ -6140,7 +6144,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 }
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pRsslReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *pPassword, RsslBuffer* pNewPassword, RsslBuffer *pClientId, 
-								RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pHeaderAndDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError)
+								RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBool takeExclusiveSignOnControl, RsslBuffer *pHeaderAndDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError)
 {
 	/* Get authentication token using the password */
 	RsslRestRequestArgs *pRequestArgs = 0;
@@ -6155,6 +6159,8 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pRssl
 	RsslBool	hasClientSecret = RSSL_FALSE;
 	RsslBuffer	clientId = RSSL_INIT_BUFFER;
 	RsslBool	hasNewPassword = RSSL_FALSE;
+	RsslBuffer	takeExclusiveSignOn = takeExclusiveSignOnControl ? 
+		rssl_rest_take_exclusive_sign_on_true_text : rssl_rest_take_exclusive_sign_on_false_text;
 
 	pRsslEncodedUrl = rsslRestEncodeUrlData(pPassword, &pError->rsslError);
 
@@ -6263,7 +6269,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pRssl
 		pUserName->length + rssl_rest_password_text.length +
 		pPassword->length + rssl_rest_client_id_text.length +
 		clientId.length + rssl_rest_scope_text.length +
-		tokenScope.length + rssl_rest_take_exclusive_sign_on_true_text.length + 1;
+		tokenScope.length + takeExclusiveSignOn.length + 1;
 
 	/* Send the client secret only when it isn't an empty string. */
 	if (pClientSecret->length && pClientSecret->data)
@@ -6319,7 +6325,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pRssl
 	}
 	strncat(pRequestArgs->httpBody.data, rssl_rest_scope_text.data, rssl_rest_scope_text.length);
 	strncat(pRequestArgs->httpBody.data, tokenScope.data, tokenScope.length);
-	strncat(pRequestArgs->httpBody.data, rssl_rest_take_exclusive_sign_on_true_text.data, rssl_rest_take_exclusive_sign_on_true_text.length);
+	strncat(pRequestArgs->httpBody.data, takeExclusiveSignOn.data, takeExclusiveSignOn.length);
 	pRequestArgs->httpBody.length = (RsslUInt32)strlen(pRequestArgs->httpBody.data);
 
 	pCurPos = (pHeaderAndDataBodyBuf->data + pRequestArgs->httpBody.length + 1); // Adding 1 for null terminate string
@@ -6580,6 +6586,8 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 	RsslReactorTokenSessionEvent *pEvent = NULL;
 	RsslReactorTokenSessionEventType tokenSessionEventType = RSSL_RCIMPL_TSET_INIT;
 
+	pError->rsslError.rsslErrorId = RSSL_RET_SUCCESS; /* Always clears the error ID as it is used to check the result of this function. */
+
 	pReactorOAuthCredential = pTokenSessionImpl->pOAuthCredential;
 
 	if ((!pConnOptions->connectionInfo.unified.address || !(*pConnOptions->connectionInfo.unified.address)) &&
@@ -6633,8 +6641,8 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 			pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorChannelImpl->pParentReactor, &tokenServiceURL,
 				&pReactorOAuthCredential->userName, &pReactorOAuthCredential->password, NULL, &pReactorOAuthCredential->clientId,
-				&pReactorOAuthCredential->clientSecret, &pReactorOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf,
-				pTokenSessionImpl, pError);
+				&pReactorOAuthCredential->clientSecret, &pReactorOAuthCredential->tokenScope, pReactorOAuthCredential->takeExclusiveSignOnControl, 
+				&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, pError);
 
 			if (pRestRequestArgs)
 			{
@@ -7268,6 +7276,13 @@ RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAut
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 			"The token scope of RsslReactorOAuthCredential is not equal for the same token session.");
+		return RSSL_FALSE;
+	}
+
+	if (pOAuthOther && (pOAuthCredential->takeExclusiveSignOnControl != pOAuthOther->takeExclusiveSignOnControl) )
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"The takeExclusiveSignOnControl of RsslReactorOAuthCredential is not equal for the same token session.");
 		return RSSL_FALSE;
 	}
 

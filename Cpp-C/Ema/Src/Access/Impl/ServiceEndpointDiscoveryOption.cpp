@@ -33,6 +33,7 @@ ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clear()
 	_proxyDomain.clear();
 	_transport = UnknownTransportEnum;
 	_dataFormat = UnknownDataFormatEnum;
+	_takeExclusiveSignOnControl = true;
 	return *this;
 }
 
@@ -63,6 +64,12 @@ ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clientSecret(con
 ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::tokenScope(const EmaString& tokenScope)
 {
 	_tokenScope = tokenScope;
+	return *this;
+}
+
+ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::takeExclusiveSignOnControl( bool takeExclusiveSignOnControl )
+{
+	_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	return *this;
 }
 

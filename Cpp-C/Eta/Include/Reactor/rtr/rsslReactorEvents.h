@@ -261,6 +261,7 @@ typedef struct
 	RsslBuffer					clientId;					/*!< A unique ID defined for an application marking the request. Optional */
 	RsslBuffer					clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	RsslBuffer					tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
+	RsslBool					takeExclusiveSignOnControl;	/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
 } RsslReactorOAuthCredentialRenewal;
 
 /**
@@ -272,6 +273,7 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewal(RsslReactorOAuthCredent
 	memset(pOAuthCredentialRenewal, 0, sizeof(RsslReactorOAuthCredentialRenewal));
 	pOAuthCredentialRenewal->tokenScope.data = (char *)"trapi.streaming.pricing.read";
 	pOAuthCredentialRenewal->tokenScope.length = 28;
+	pOAuthCredentialRenewal->takeExclusiveSignOnControl = RSSL_TRUE;
 }
 
 /**

@@ -130,8 +130,14 @@ public :
 	/** Specifies optionally token scope to limit the scope of generated token from the token service.
 		@param[in] tokenScope specifies a token scope
 		@return reference to this object
-*/
+	*/
 	OmmConsumerConfig& tokenScope( const EmaString& tokenScope = "trapi.streaming.pricing.read" );
+
+	/** Specifies optionally the exclusive sign on control to force sign-out of other applications using the same credentials.
+		@param[in] takeExclusiveSignOnControl the exclusive sign on control.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& takeExclusiveSignOnControl( bool takeExclusiveSignOnControl = true );
 
 	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.

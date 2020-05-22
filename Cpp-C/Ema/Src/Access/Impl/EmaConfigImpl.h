@@ -1210,6 +1210,7 @@ public:
 	void clientId( const EmaString& );
 	void clientSecret(const EmaString& );
 	void tokenScope( const EmaString& );
+	void takeExclusiveSignOnControl( bool );
 	void tokenServiceUrl( const EmaString& );
 	void serviceDiscoveryUrl( const EmaString& );
 
@@ -1368,6 +1369,7 @@ protected:
 	EmaString		_clientId;
 	EmaString		_clientSecret;
 	EmaString		_tokenScope;
+	bool			_takeExclusiveSignOnControl;
 	EmaString		_tokenServiceUrl;
 	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;

@@ -22,6 +22,7 @@ EmaString proxyPort;
 EmaString proxyUserName;
 EmaString proxyPasswd;
 EmaString proxyDomain;
+bool takeExclusiveSignOnControl = true;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -104,6 +105,7 @@ void printHelp()
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
 		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -143,6 +145,22 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < ( argc - 1 ) ) clientId.set( argv[++i] );
 			}
+			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					EmaString takeExclusiveSignOnControlStr = argv[++i];
+
+					if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("true"))
+					{
+						takeExclusiveSignOnControl = true;
+					}
+					else if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("false"))
+					{
+						takeExclusiveSignOnControl = false;
+					}
+				}
+			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
 				if ( i < ( argc - 1 ) ) proxyHostName.set( argv[++i] );
@@ -174,7 +192,7 @@ int main( int argc, char* argv[] )
 
 		// Query endpoints from EDP-RT service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transport( ServiceEndpointDiscoveryOption::TcpEnum )
+			.clientId( clientId ).transport( ServiceEndpointDiscoveryOption::TcpEnum ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
 			.proxyDomain( proxyDomain ), client );
 
@@ -187,7 +205,8 @@ int main( int argc, char* argv[] )
 		createProgramaticConfig( configDb );
 
 		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_1" ).username( userName ).password( password )
-			.clientId( clientId ).config( configDb ).tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
+			.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
+			.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
 			.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain ) );
 
 		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );

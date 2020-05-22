@@ -782,7 +782,8 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_libSslName(),
 	_libCryptoName(),
 	_libcurlName(),
-	_sslCAStoreSetViaFunctionCall()
+	_sslCAStoreSetViaFunctionCall(),
+	_takeExclusiveSignOnControl(true)
 {
 }
 
@@ -835,6 +836,7 @@ void EmaConfigImpl::clear()
 	_tokenScope.clear();
 	_tokenServiceUrl.clear();
 	_serviceDiscoveryUrl.clear();
+	_takeExclusiveSignOnControl = true;
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -880,6 +882,11 @@ void EmaConfigImpl::clientSecret( const EmaString& clientSecret )
 void EmaConfigImpl::tokenScope( const EmaString& tokenScope)
 {
 	_tokenScope = tokenScope;
+}
+
+void EmaConfigImpl::takeExclusiveSignOnControl( bool takeExclusiveSignOnControl )
+{
+	_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 }
 
 void EmaConfigImpl::tokenServiceUrl( const EmaString& tokenServiceUrl )

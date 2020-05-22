@@ -73,6 +73,10 @@ typedef struct
 	char				proxyUserName[255];				/* Proxy user name */
 	char				proxyPasswd[255];				/* Proxy password */
 	char				proxyDomain[255];				/* Proxy domain */
+	//API QA
+	char				tokenServiceUrl[255];			/* Token Service Url */
+	char				serviceDiscoveryUrl[255];		/* Service Discovery Url */
+	//END API QA
 
 	char				libsslName[255];
 	char				libcryptoName[255];

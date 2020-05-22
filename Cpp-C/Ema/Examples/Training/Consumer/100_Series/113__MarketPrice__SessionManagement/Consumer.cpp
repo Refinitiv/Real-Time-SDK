@@ -32,6 +32,7 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -78,6 +79,22 @@ int main( int argc, char* argv[] )
 				{
 					clientIdSet = 1;
 					config.clientId( argv[++i] );
+				}
+			}
+			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					EmaString takeExclusiveSignOnControlStr = argv[++i];
+
+					if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("true"))
+					{
+						config.takeExclusiveSignOnControl( true );
+					}
+					else if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("false"))
+					{
+						config.takeExclusiveSignOnControl( false );
+					}
 				}
 			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )

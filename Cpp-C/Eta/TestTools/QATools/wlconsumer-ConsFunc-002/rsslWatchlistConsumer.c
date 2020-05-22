@@ -63,6 +63,7 @@ static RsslBool canSendLoginReissue;
 
 extern RsslDataDictionary dictionary;
 
+
 int main(int argc, char **argv)
 {
 	RsslReactor							*pReactor;
@@ -201,6 +202,20 @@ int main(int argc, char **argv)
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
+	//APIQA
+	reactorOpts.tokenReissueRatio = 0.1;
+
+	if (watchlistConsumerConfig.tokenServiceUrl[0] != '\0')
+	{
+		printf("Connecting to tokenServiceUrl: %s\n", watchlistConsumerConfig.tokenServiceUrl);
+		reactorOpts.tokenServiceURL.data = watchlistConsumerConfig.tokenServiceUrl;
+	}
+	if (watchlistConsumerConfig.serviceDiscoveryUrl[0] != '\0')
+	{
+		printf("Connecting to serviceDiscoveryUrl: %s\n", watchlistConsumerConfig.serviceDiscoveryUrl);
+		reactorOpts.serviceDiscoveryURL.data = watchlistConsumerConfig.serviceDiscoveryUrl;
+	}
+	//End APIQA
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -274,7 +289,7 @@ int main(int argc, char **argv)
 			serviceDiscoveryOpts.proxyDomain.data = watchlistConsumerConfig.proxyDomain;
 			serviceDiscoveryOpts.proxyDomain.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyDomain.data);
 		}
-
+		
 		serviceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 		if(rsslReactorQueryServiceDiscovery(pReactor, &serviceDiscoveryOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)

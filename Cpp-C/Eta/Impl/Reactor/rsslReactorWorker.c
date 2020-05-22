@@ -861,6 +861,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->clientId) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
 												&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, // Specified by users as needed.
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->tokenScope) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope),
+												pTokenSessionImpl ? (pTokenSessionImpl->pOAuthCredential->takeExclusiveSignOnControl) : (pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.takeExclusiveSignOnControl),
 												pTokenSessionImpl ? &pTokenSessionImpl->rsslPostDataBodyBuf : &pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf,
 												pUserSpec, pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr : &pReactorWorker->workerCerr);
 
@@ -1500,6 +1501,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								&pTokenSessionImpl->pOAuthCredential->clientId,
 								&pTokenSessionImpl->pOAuthCredential->clientSecret,
 								&pTokenSessionImpl->pOAuthCredential->tokenScope,
+								pTokenSessionImpl->pOAuthCredential->takeExclusiveSignOnControl,
 								&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
 
 							if (pRestRequestArgs)
@@ -1849,6 +1851,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								&pTokenSession->pOAuthCredential->clientId,
 								&pTokenSession->pOAuthCredential->clientSecret,
 								&pTokenSession->pOAuthCredential->tokenScope,
+								pTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 								&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
 
 							if (pRestRequestArgs)
@@ -3156,6 +3159,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						&pReactorTokenSession->pOAuthCredential->clientId,
 						&pReactorTokenSession->pOAuthCredential->clientSecret,
 						&pReactorTokenSession->pOAuthCredential->tokenScope,
+						pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 						&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 
 					if (pRestRequestArgs)
@@ -3254,6 +3258,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						&pReactorTokenSession->pOAuthCredential->clientId,
 						&pReactorTokenSession->pOAuthCredential->clientSecret,
 						&pReactorTokenSession->pOAuthCredential->tokenScope,
+						pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 						&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 
 					if (pRestRequestArgs)

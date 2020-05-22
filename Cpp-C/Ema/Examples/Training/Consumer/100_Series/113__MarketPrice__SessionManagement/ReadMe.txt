@@ -26,6 +26,7 @@ including:
  You can generate and manage client Ids at the following URL:
  https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
  to access this page).
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet. 
@@ -36,7 +37,7 @@ use of a proxy to get to the Internet.
 -pdomain Proxy Domain (optional).
 
 Example command line: 
-Cons113 -username <machine ID> -password <machine ID password>
+Cons113 -username <machine ID> -password <machine ID password> -clientId <client ID>
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods
