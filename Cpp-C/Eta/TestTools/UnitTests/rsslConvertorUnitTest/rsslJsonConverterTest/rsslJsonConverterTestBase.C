@@ -702,6 +702,24 @@ void MsgConversionTestBase::getJsonToRsslError(RsslJsonProtocolType protocolType
 		printf("** Converter Error Text : %s\n", pConverterError->text);
 }
 
+void MsgConversionTestBase::getJsonToRsslParserError(RsslJsonConverterError *pConverterError)
+{
+	RsslParseJsonBufferOptions parseOptions;
+
+	if (cmdlPrintJsonBuffer)
+		printf("** JSON buffer: %.*s\n", _jsonBuffer.length, _jsonBuffer.data);
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_NE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, pConverterError), RSSL_RET_SUCCESS)
+		<< "rsslParseJsonBuffer NOT failed: ";
+#else
+	ASSERT_NE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, pConverterError), RSSL_RET_SUCCESS)
+		<< "rsslParseJsonBuffer NOT failed: ";
+#endif
+}
+
 void MsgConversionTestBase::encodeSampleRsslFieldList(RsslEncodeIterator *pIter, RsslLocalFieldSetDefDb * setDb)
 {
 	RsslFieldList fieldList;

@@ -174,6 +174,9 @@ class MsgConversionTestBase : public ::testing::Test
 		/** Convert the JSON in _jsonBuffer to RWF, expecting an error. */
 		void getJsonToRsslError(RsslJsonProtocolType protocolType, RsslJsonConverterError *pConverterError);
 
+		/** Convert the JSON in _jsonBuffer to RWF, expecting a Parser error. */
+		void getJsonToRsslParserError(RsslJsonConverterError *pConverterError);
+
 		/** Check a Base64-encoded buffer **/
 		void checkJsonBase64String(const RsslBuffer *pExpectedRsslBuffer, const Value & jsonStringValue);
 

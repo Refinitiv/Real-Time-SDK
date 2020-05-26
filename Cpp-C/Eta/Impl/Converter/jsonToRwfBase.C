@@ -725,8 +725,11 @@ bool jsonToRwfBase::processUnsignedInteger(jsmntok_t ** const tokPtr, RsslBuffer
 
 	if (_jsonMsg[(*tokPtr)->start] != 'n')
 	{
-		_uintVar = rtr_atoull_size(&_jsonMsg[(*tokPtr)->start],
-					 &_jsonMsg[(*tokPtr)->end]);
+		if (rtr_atoull_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &_uintVar) != &_jsonMsg[(*tokPtr)->end])
+		{
+			unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+			return false;
+		}
 
 		*ptrVoidPtr = &_uintVar;
 		*ptrBufPtr = 0;
