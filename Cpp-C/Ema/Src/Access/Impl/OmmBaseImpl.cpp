@@ -749,6 +749,12 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 		pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "EncryptedProtocolType", socketChannelCfg->encryptedConnectionType);
 
+		if (RSSL_CONN_TYPE_WEBSOCKET == socketChannelCfg->encryptedConnectionType)
+		{
+			pConfigImpl->get<UInt64>(channelNodeName + "WsMaxMsgSize", socketChannelCfg->wsMaxMsgSize);
+			pConfigImpl->get<EmaString>(channelNodeName + "WsProtocols", socketChannelCfg->wsProtocols);
+		}
+
 		if (pConfigImpl->getUserSpecifiedSslCAStore().length() > 0)
 		{
 			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();

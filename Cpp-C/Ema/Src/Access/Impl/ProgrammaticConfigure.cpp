@@ -2090,7 +2090,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if (fileCfgSocket)
 					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
 
-				if (channelType == RSSL_CONN_TYPE_WEBSOCKET)
+				if (channelType == RSSL_CONN_TYPE_WEBSOCKET || (channelType == RSSL_CONN_TYPE_ENCRYPTED && socketChannelConfig->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
 				{
 					if (websocketFlags & 0x01)
 						socketChannelConfig->wsProtocols = wsProtocols;
@@ -2527,7 +2527,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
 			}
 
-			if (serverType == RSSL_CONN_TYPE_WEBSOCKET)
+			if (serverType == RSSL_CONN_TYPE_WEBSOCKET || serverType == RSSL_CONN_TYPE_ENCRYPTED)
 			{
 				if (websocketFlags & 0x01)
 					pCurrentServerConfig->wsProtocols = wsProtocols;
