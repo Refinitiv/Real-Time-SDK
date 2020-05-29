@@ -53,7 +53,7 @@ class WlDirectoryHandler implements WlHandler
     RefreshMsg	_tempRefreshMsg;
     DirectoryStatus _tempDirectoryStatus;
     UpdateMsg _tempUpdateMsg;
-    boolean _recievedRefresh;
+    boolean _receivedRefresh;
     boolean _roleDirectoryRequestAdded;
     int _directoryStreamId;
     boolean _hasPendingRequest;
@@ -99,7 +99,7 @@ class WlDirectoryHandler implements WlHandler
         _tempRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
         _tempDirectoryStatus = (DirectoryStatus)DirectoryMsgFactory.createMsg();
         _tempUpdateMsg = (UpdateMsg)CodecFactory.createMsg();
-        _recievedRefresh = false;
+        _receivedRefresh = false;
         _roleDirectoryRequestAdded = false;
         _hasPendingRequest = false;
         
@@ -557,7 +557,7 @@ class WlDirectoryHandler implements WlHandler
         switch (msg.msgClass())
         {
             case MsgClasses.REFRESH:
-            	if (!_recievedRefresh)
+            	if (!_receivedRefresh)
             		ret = readRefreshMsg(wlStream, dIter, msg, errorInfo);
             	else
             		ret = readRefreshMsgAsUpdate(wlStream, dIter, msg, errorInfo);
@@ -873,7 +873,7 @@ class WlDirectoryHandler implements WlHandler
             }
         }
         
-        _recievedRefresh = true;
+        _receivedRefresh = true;
 
         return ret;
     }
@@ -1513,7 +1513,7 @@ class WlDirectoryHandler implements WlHandler
         _tempDirectoryStatus.clear();
         _tempUpdateMsg.clear();
         _requestDispatchFlag = false;
-        _recievedRefresh = false;
+        _receivedRefresh = false;
         _roleDirectoryRequestAdded = false;
         _hasPendingRequest = false;
     }

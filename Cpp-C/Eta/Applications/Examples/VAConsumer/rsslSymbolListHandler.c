@@ -289,7 +289,7 @@ RsslRet processSymbolListResponse(RsslReactor *pReactor, RsslReactorChannel *pRe
 			break;
 
 		default:
-			printf("\nRecieved Unhandled Item Msg Class: %d\n", msg->msgBase.msgClass);
+			printf("\nReceived Unhandled Item Msg Class: %d\n", msg->msgBase.msgClass);
 			break;
 	}
 

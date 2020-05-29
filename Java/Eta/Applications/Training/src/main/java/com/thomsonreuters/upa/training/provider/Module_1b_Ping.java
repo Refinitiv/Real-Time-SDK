@@ -697,7 +697,7 @@ public class Module_1b_Ping
                             /* In this training example we will not encounter any messages containing data */
                             else
                             {
-                                System.out.printf("\nMessage Recieved!  Message length is %d bytes.\n", msgBuf.length());
+                                System.out.printf("\nMessage Received!  Message length is %d bytes.\n", msgBuf.length());
                             }
                         }
                     }

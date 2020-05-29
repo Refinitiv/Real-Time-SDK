@@ -1750,11 +1750,11 @@ public class Module_5_ItemRequest
 
                 if (key != null)
                 {
-                    System.out.printf("Recieved Login Response for Username: %s\n", key.name().toString());
+                    System.out.printf("Received Login Response for Username: %s\n", key.name().toString());
                 }
                 else
                 {
-                    System.out.printf("Recieved Login Response for Username: Unknown\n");
+                    System.out.printf("Received Login Response for Username: Unknown\n");
                 }
 
                 pState = ((RefreshMsg)msg).state();

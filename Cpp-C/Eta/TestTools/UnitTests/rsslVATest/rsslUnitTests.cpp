@@ -496,7 +496,7 @@ static void rsslUnitTests_DirectoryPacking()
 
 /*This test packs 2 MP refresh messages into the same buffer, then adds a login
 refresh message to the buffer before sending it. It then checks to see if the
-messages are recieved correctly.*/
+messages are received correctly.*/
 static void rsslUnitTests_LoginPacking()
 {
 	RsslChannel* pConsumerChannel;

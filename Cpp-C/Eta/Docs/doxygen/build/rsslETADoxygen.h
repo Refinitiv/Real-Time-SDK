@@ -181,7 +181,7 @@
  *  See \ref RsslArrayGroup for more information.<BR><BR><BR>
  *
  *  @section QosOverview QoS Encoding/Decoding Interface Function List
- *  The \ref RsslQos primitive type allows the user to represent quality of service information, including timeliness (data age) and rate (data's period of change), associated with the content being sent or recieved.
+ *  The \ref RsslQos primitive type allows the user to represent quality of service information, including timeliness (data age) and rate (data's period of change), associated with the content being sent or received.
  *  <ul>
  *  <li>rsslEncodeQos() - Encodes an \ref RsslQos primitive type.  This will perform any necessary byte swapping when encoding into the buffer referred to by the \ref RsslEncodeIterator.</li><BR>
  *  <li>rsslDecodeQos() - Decodes an \ref RsslQos primitive type.  This will perform any necessary byte swapping when decoding from the buffer referred to by the \ref RsslDecodeIterator.</li><BR><BR>
@@ -2632,7 +2632,7 @@
  *
  *  When decoding an RsslQos, although fewer bytes may be on the wire, the full signed integer value is reconstructed into the \ref RsslQos type.
  *  @note <ul><li>When decoding a blank value, ::RSSL_RET_BLANK_DATA is returned.</li>
- *	<li>If an unspecified RsslQos is recieved (e.g. sent by a version of a component that was released prior to unspecified QoS being restricted on the wire), this will be interpredted by the RsslQos decode functionality as a QoS of ::RSSL_QOS_TIME_REALTIME and ::RSSL_QOS_RATE_TICK_BY_TICK</li></ul>
+ *	<li>If an unspecified RsslQos is received (e.g. sent by a version of a component that was released prior to unspecified QoS being restricted on the wire), this will be interpredted by the RsslQos decode functionality as a QoS of ::RSSL_QOS_TIME_REALTIME and ::RSSL_QOS_RATE_TICK_BY_TICK</li></ul>
  * 
  *  @section QosDecExample RsslQos Decoding Example
  *  @code
@@ -2811,7 +2811,7 @@
  *
  *  When decoding an RsslState, although fewer bytes may be on the wire, the full signed integer value is reconstructed into the \ref RsslState type.
  *  @note <ul><li>When decoding a blank value, ::RSSL_RET_BLANK_DATA is returned.</li>
- *	<li>If an unspecified RsslQos is recieved (e.g. sent by a version of a component that was released prior to unspecified QoS being restricted on the wire), this will be interpredted by the RsslQos decode functionality as a QoS of ::RSSL_QOS_TIME_REALTIME and ::RSSL_QOS_RATE_TICK_BY_TICK</li></ul>
+ *	<li>If an unspecified RsslQos is received (e.g. sent by a version of a component that was released prior to unspecified QoS being restricted on the wire), this will be interpredted by the RsslQos decode functionality as a QoS of ::RSSL_QOS_TIME_REALTIME and ::RSSL_QOS_RATE_TICK_BY_TICK</li></ul>
  * 
  *  @section StateDecExample RsslState Decoding Example
  *  @code

@@ -3647,7 +3647,7 @@ public class ReactorWatchlistJUnitNew
     public void batchRequestOutOfOrderTest()
     {
         /* Test a batch request/refresh exchange with the watchlist enabled, where two requests are sent
-         * before both are recieved. */
+         * before both are received. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
