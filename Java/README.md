@@ -81,12 +81,7 @@ Authentication Schemes:
 This release supports encryption for TLS 1.2.  
 
 ##### Generating a keystore file
-The **keystore** file is used to contain your own private keys and public key certificates
-which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. 
-The following is the steps to create a keystore file and import a intermediate certificate from DigiCert.
-- Download the DigiCert SHA2 Secure Server CA certificate at https://dl.cacerts.digicert.com/DigiCertSHA2SecureServerCA.crt
-- Use the Java **keytool** tool to import the certificate into an existing or a new Java keystore file below.
-  keytool -import -alias digicert -keystore <keystore filename> -storepass <keystore password> -file DigiCertSHA2SecureServerCA.crt
+The **keystore** file is used to contain your own private keys and public key certificates which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. If you do not need to include your own private keys, the recommendation is to use the cacerts file as your keystore file.  The **cacerts** file comes with your java installation. If you do need to [create your own keystore file](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html), please follow industry standard instructions. 
 
 ### Interoperability
 
