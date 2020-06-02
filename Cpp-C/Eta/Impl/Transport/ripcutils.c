@@ -581,10 +581,14 @@ int ipcSockOpts(RsslSocket fd, ripcSocketOption *option)
 #if defined(Linux)
 		case RIPC_SOPT_REUSEPORT:
 		{
+#if defined(SO_REUSEPORT)
 			int reuseFlag = (option->options.turn_on ? 1 : 0);
 			if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (char *)&reuseFlag,
 				(int)sizeof(reuseFlag)) < 0)
 				ret = -1;
+#else
+			ret = -1;
+#endif
 			break;
 		}
 #endif
@@ -1102,10 +1106,17 @@ RsslInt32 ipcSrvrBind(rsslServerImpl *srvr, RsslError *error)
 		sockopts.options.turn_on = 1;
 		if (ipcSockOpts(sock_fd, &sockopts) < 0)
 		{
+#if defined(SO_REUSEPORT)
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 1002 Could not to set SO_REUSEPORT on socket. System errno: (%d)\n",
 				__FILE__, __LINE__, errno);
+#else
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Could not to set SO_REUSEPORT on socket. Linux PC does not support SO_REUSEPORT. GCC version: %d.%d.%d\n",
+				__FILE__, __LINE__, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif
 
 			sock_close(sock_fd);
 			return -1;

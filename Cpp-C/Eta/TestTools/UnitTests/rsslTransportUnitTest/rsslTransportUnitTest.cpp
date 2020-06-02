@@ -2883,6 +2883,7 @@ protected:
 };
 
 /* Testing setup of the socket options for server call Bind */
+#if defined(_WIN32) || defined(SO_REUSEPORT)
 TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitValues)
 {
 	// Tests default init-values
@@ -2955,6 +2956,65 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOnWhenSetTrue)
 	testSocketOpt(SO_REUSEPORT, true, "SO_REUSEPORT");
 #endif
 }
+
+#else  // Linux && !defined(SO_REUSEPORT)  // LUP - Linux Unsopported SO_REUSEPORT
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitValuesLUP)
+{
+	// Tests default init-values
+	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOptsLUP)
+{
+	// Tests rsslClearBindOpts
+	RsslBindOptions bindOpts;
+	rsslClearBindOpts(&bindOpts);
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalseLUP)
+{
+	// Tests serverSharedSocket off
+	RsslBindOptions bindOpts;
+	rsslClearBindOpts(&bindOpts);
+	bindOpts.serverSharedSocket = RSSL_FALSE;
+
+	runRsslBind(bindOpts);
+
+	// Tests the socket options: the server socket does not permit sharing
+	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
+}
+
+TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeErrorOnRsslBindLUP)
+{
+	// Tests serverSharedSocket on
+	RsslBindOptions bindOpts;
+	RsslError err;
+	rsslClearBindOpts(&bindOpts);
+	bindOpts.serverSharedSocket = RSSL_TRUE;
+
+	bindOpts.serviceName = (char*)"15000";
+	bindOpts.protocolType = TEST_PROTOCOL_TYPE;  /* These tests are just sending a pre-set string across the wire, so protocol type should not be RWF */
+
+	// Tests rsslBind returns NULL because SO_REUSEPORT option is unsupported
+	pServer = rsslBind(&bindOpts, &err);
+
+	ASSERT_EQ(pServer, (RsslServer*)NULL) << "rsslBind should return NULL when required set unsupported option SO_REUSEPORT";
+	ASSERT_EQ(err.rsslErrorId, RSSL_RET_FAILURE) << "Error ccode should set to General Failure";
+	ASSERT_EQ(err.sysError, 0) << "SysError should be equal to 0";
+}
+
+#endif
 
 
 int main(int argc, char* argv[])
