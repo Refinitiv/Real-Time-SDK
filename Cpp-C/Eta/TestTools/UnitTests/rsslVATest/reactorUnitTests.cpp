@@ -5175,6 +5175,7 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 
 	/*Set value back to default*/
 	mOpts.maxEventsInPool = -1;
+	initReactors(&mOpts, RSSL_FALSE);
 }
 #endif
 
