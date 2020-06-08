@@ -28,6 +28,9 @@ including:
  to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 
+Optional RIC item name parameters.
+-itemName Request item name (optional). The default item name is IBM.N.
+
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet. 
 -ph Proxy host name (optional).
@@ -54,7 +57,7 @@ Cons113 -username <machine ID> -password <machine ID password> -clientId <client
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.
 + Opens a streaming item interest
-  - MarketPrice IBM.N item from the ELEKTRON_DD service
+  - MarketPrice IBM.N (or optional itemName) item from the ELEKTRON_DD service
 + Processes data received from the API for 900 seconds
   - All received messages are processed on the API's thread of control
 + Exits

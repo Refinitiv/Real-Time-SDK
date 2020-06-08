@@ -34,6 +34,7 @@ void printHelp()
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
+		<< " -itemName Request item name (optional)." << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
 		<< " -plogin User name on proxy server (optional)." << endl
@@ -49,6 +50,8 @@ int main( int argc, char* argv[] )
 		UInt8 userNameSet = 0;
 		UInt8 passwordSet = 0;
 		UInt8 clientIdSet = 0;
+
+		EmaString itemName = "IBM.N";
 
 		for ( int i = 1; i < argc; i++ )
 		{
@@ -97,6 +100,10 @@ int main( int argc, char* argv[] )
 					}
 				}
 			}
+			else if (strcmp(argv[i], "-itemName") == 0)
+			{
+				itemName.set(i < (argc - 1) ? argv[++i] : NULL);
+			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
 				config.tunnelingProxyHostName( i < ( argc - 1 ) ? argv[++i] : NULL );
@@ -127,7 +134,7 @@ int main( int argc, char* argv[] )
 		}
 
 		OmmConsumer consumer( config.consumerName( "Consumer_3" ) );
-		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );
+		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
 		sleep( 900000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
