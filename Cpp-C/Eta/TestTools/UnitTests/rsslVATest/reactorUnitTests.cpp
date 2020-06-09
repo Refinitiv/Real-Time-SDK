@@ -5113,7 +5113,7 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 	RsslQueue *evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
 
 	/*Check pool size before connection*/
-	ASSERT_TRUE((RsslUInt32)evtPoolCons->count > mOpts.maxEventsInPool);
+	ASSERT_TRUE((RsslInt32)evtPoolCons->count > mOpts.maxEventsInPool);
 
 	/* Open connections */
 	for (i = 0; i < numConnections; ++i)
