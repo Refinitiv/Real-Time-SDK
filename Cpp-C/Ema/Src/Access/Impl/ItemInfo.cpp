@@ -10,6 +10,8 @@
 #include "OmmServerBaseImpl.h"
 #include "rtr/rsslRDM.h"
 
+#include "OmmIProviderImpl.h"
+
 #include <new>
 
 using namespace thomsonreuters::ema::access;
@@ -21,13 +23,24 @@ _flags(None),
 _itemGroup(),
 _pClientSession(0),
 _sentRefresh(false),
-_ommServerBaseimpl(ommServerBaseimpl)
+_ommServerBaseimpl(ommServerBaseimpl),
+_pPostIdHash(0)
 {
 	rsslClearMsgKey(&_rsslMsgKey);
+
+	if (static_cast<OmmIProviderActiveConfig&>(_ommServerBaseimpl.getActiveConfig()).getEnforceAckIDValidation())
+	{
+		_pPostIdHash = new PostIdHash();
+	}
 }
 
 ItemInfo::~ItemInfo()
 {
+	if (_pPostIdHash)
+	{
+		delete _pPostIdHash;
+	}
+
 	if (_rsslMsgKey.encAttrib.data)
 	{
 		free(_rsslMsgKey.encAttrib.data);
@@ -322,4 +335,58 @@ bool ItemInfo::operator==(const ItemInfo& other) const
 	}
 
 	return true;
+}
+
+size_t ItemInfo::UInt32rHasher::operator()(const UInt32& value) const
+{
+	return value;
+}
+
+bool ItemInfo::UInt32Equal_To::operator()(const UInt32& x, const UInt32& y) const
+{
+	return x == y ? true : false;
+}
+
+void ItemInfo::addPostId(UInt32 postId)
+{
+	if (_pPostIdHash)
+	{
+		UInt32* count = _pPostIdHash->find(postId);
+		if (count)
+		{
+			++(*count);
+		}
+		else
+		{
+			_pPostIdHash->insert(postId, 0);
+		}
+	}
+}
+
+bool ItemInfo::removePostId(UInt32 postId)
+{
+	if (_pPostIdHash)
+	{
+		UInt32* count = _pPostIdHash->find(postId);
+		if (count)
+		{
+			if (*count > 0)
+			{
+				--(*count);
+			}
+			else
+			{
+				_pPostIdHash->erase(postId);
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return true;
+	}
 }

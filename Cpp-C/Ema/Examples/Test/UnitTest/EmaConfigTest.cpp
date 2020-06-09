@@ -2126,6 +2126,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addUInt("FieldDictionaryFragmentSize", 2000)
 				.addUInt("EnumTypeFragmentSize", 1000)
 				.addUInt("RefreshFirstRequired", 0)
+				.addUInt("EnforceAckIDValidation", 0)
 				.addUInt("RequestTimeout", 2400)
 				.addInt("DispatchTimeoutApiThread", 60)
 				.addUInt("CatchUnhandledException", 1)
@@ -2373,6 +2374,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.acceptMessageSameKeyButDiffStream == true) << "acceptMessageSameKeyButDiffStream , true";
 			EXPECT_TRUE(activeConfig.acceptMessageThatChangesService == true) << "acceptMessageThatChangesService , true";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
+			EXPECT_TRUE(activeConfig.getEnforceAckIDValidation() == false) << "enforceAckIDValidation , false";
 			EXPECT_TRUE(activeConfig.getMaxFieldDictFragmentSize() == 2000) << "maxFieldDictFragmentSize , 2000";
 			EXPECT_TRUE(activeConfig.getMaxEnumTypeFragmentSize() == 1000) << "maxEnumTypeFragmentSize , 1000";
 
@@ -3017,6 +3019,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("XmlTraceHex", 1)
 				.addInt("PipePort", 9696)
 				.addUInt("RefreshFirstRequired", 0)
+				.addUInt("EnforceAckIDValidation", 0)
 				.addUInt("AcceptDirMessageWithoutMinFilters", 1)
 				.addUInt("AcceptMessageSameKeyButDiffStream", 1)
 				.addUInt("AcceptMessageThatChangesService", 1)
@@ -3190,6 +3193,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
+			EXPECT_TRUE(activeConfig.getEnforceAckIDValidation() == false) << "enforceAckIDValidation , false";
 			EXPECT_TRUE(activeConfig.acceptDirMessageWithoutMinFilters == true) << "acceptDirMessageWithoutMinFilters , true";
 			EXPECT_TRUE(activeConfig.acceptMessageWithoutAcceptingRequests == true) << "acceptMessageWithoutAcceptingRequests , true";
 			EXPECT_TRUE(activeConfig.acceptMessageWithoutBeingLogin == true) << "acceptMessageWithoutBeingLogin , true";

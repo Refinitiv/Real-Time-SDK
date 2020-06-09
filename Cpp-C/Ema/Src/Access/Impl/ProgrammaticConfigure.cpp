@@ -1576,6 +1576,10 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 												{
 													static_cast<OmmIProviderActiveConfig&>(activeConfig).setRefreshFirstRequired(eentry.getUInt());
 												}
+												else if (eentry.getName() == "EnforceAckIDValidation")
+												{
+													static_cast<OmmIProviderActiveConfig&>(activeConfig).setEnforceAckIDValidation(eentry.getUInt());
+												}
 												else if (eentry.getName() == "EnumTypeFragmentSize")
 												{
 													static_cast<OmmIProviderActiveConfig&>(activeConfig).setMaxEnumTypeFragmentSize(eentry.getUInt());

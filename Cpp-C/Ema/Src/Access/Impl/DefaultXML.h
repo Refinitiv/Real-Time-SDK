@@ -112,6 +112,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"DirectoryRequestTimeOut",
 	"DisconnectOnGap",
 	"EnableSessionManagement",
+	"EnforceAckIDValidation",
 	"EnumTypeFragmentSize",
 	"FieldDictionaryFragmentSize",
 	"GuaranteedOutputBuffers",

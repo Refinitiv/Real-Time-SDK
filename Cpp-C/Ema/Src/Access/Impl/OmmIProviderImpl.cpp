@@ -16,6 +16,7 @@
 #include "UpdateMsgEncoder.h"
 #include "StatusMsgEncoder.h"
 #include "GenericMsgEncoder.h"
+#include "AckMsgEncoder.h"
 #include "Utilities.h"
 #include "EmaRdm.h"
 #include "OmmQosDecoder.h"
@@ -182,6 +183,9 @@ void OmmIProviderImpl::readCustomConfig(EmaConfigServerImpl* pConfigImpl)
 	UInt64 tmp = 0;
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "RefreshFirstRequired", tmp))
 		_ommIProviderActiveConfig.refreshFirstRequired = (tmp > 0 ? true : false);
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnforceAckIDValidation", tmp))
+		_ommIProviderActiveConfig.enforceAckIDValidation = (tmp > 0 ? true : false);
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "AcceptMessageWithoutAcceptingRequests", tmp))
 		_ommIProviderActiveConfig.acceptMessageWithoutAcceptingRequests = (tmp > 0 ? true : false);
@@ -1197,7 +1201,117 @@ void OmmIProviderImpl::unregister(UInt64 handle)
 
 void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 {
-	handleIue("Calling the OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle) method is not support in this release.", OmmInvalidUsageException::InvalidOperationEnum);
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+	const AckMsgEncoder& ackMsgEncoder = static_cast<const AckMsgEncoder&>(ackMsg.getEncoder());
+	submitMsgOpts.pRsslMsg = (RsslMsg*)ackMsgEncoder.getRsslAckMsg();
+
+	_userLock.lock();
+
+	ItemInfoPtr itemInfo = getItemInfo(handle);
+
+	if ((itemInfo == 0))
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit AckMsg with non existent Handle = ");
+		temp.append(handle).append(".");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	if (_ommIProviderActiveConfig.enforceAckIDValidation && !itemInfo->removePostId(submitMsgOpts.pRsslMsg->ackMsg.ackId))
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit AckMsg with non existent AckId = ");
+		temp.append(submitMsgOpts.pRsslMsg->ackMsg.ackId).append(".");
+		temp.append(" Handle = ").append(handle).append(".");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	if (itemInfo->getDomainType() == ema::rdm::MMT_DICTIONARY || itemInfo->getDomainType() == ema::rdm::MMT_DIRECTORY)
+	{
+		_userLock.unlock();
+		EmaString temp(itemInfo->getDomainType() == ema::rdm::MMT_DICTIONARY ?
+			"Attempt to submit AckMsg with Dictionary domain while this is not supported." :
+			"Attempt to submit AckMsg with Directory domain while this is not supported.");
+		temp.append(" Handle = ").append(handle).append(".");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+	if (ackMsgEncoder.hasServiceName())
+	{
+		const EmaString& serviceName = ackMsgEncoder.getServiceName();
+		UInt64* pServiceId = _ommIProviderDirectoryStore.getServiceIdByName(&serviceName);
+
+		if (!pServiceId)
+		{
+			EmaString temp("Attempt to submit AckMsg with service name of ");
+			temp.append(serviceName).append(" whose matching service id of ").append(*pServiceId).append(" that was not included in the SourceDirectory.");
+
+			if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity && _pLoggerClient)
+			{
+				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+			}
+		}
+		else if (*pServiceId > 0xFFFF)
+		{
+			EmaString temp("Attempt to submit AckMsg with service name of ");
+			temp.append(serviceName).append(" whose matching service id of ").append(*pServiceId).append(" is out of range.");
+
+			if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity && _pLoggerClient)
+			{
+				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+			}
+		}
+		else
+		{
+			submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId = (RsslUInt16)*pServiceId;
+			submitMsgOpts.pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+			submitMsgOpts.pRsslMsg->ackMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+		}
+	}
+	else if (ackMsgEncoder.hasServiceId())
+	{
+		RsslUInt16 serviceId = submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId;
+		EmaStringPtr* pServiceName = _ommIProviderDirectoryStore.getServiceNameById(serviceId);
+
+		if (!pServiceName)
+		{
+			EmaString temp("Attempt to submit AckMsg with service Id of ");
+			temp.append(serviceId).append(" that was not included in the SourceDirectory.");
+			temp.append(" Handle = ").append(handle).append(".");
+
+			if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity && _pLoggerClient)
+			{
+				_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+			}
+		}
+	}
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo(&rsslErrorInfo);
+	Int32 retCode;
+	if ((retCode = rsslReactorSubmitMsg(_pRsslReactor, itemInfo->getClientSession()->getChannel(), &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmIProviderImpl::submit( const AckMsg& ).");
+		temp.append(CR).append(itemInfo->getClientSession()->toString()).append(CR)
+			.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+		handleIue(temp, retCode);
+
+		return;
+	}
+
+	_userLock.unlock();
 }
 
 DirectoryServiceStore& OmmIProviderImpl::getDirectoryServiceStore()
