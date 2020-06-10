@@ -317,7 +317,7 @@ public interface DataDictionary
      *
      * Same like {@link DataDictionary#entry(String)} note, entryDst should be created first and managed by the user
      * Otherwise Dictionary is owned by API and method will throw {@link OmmInvalidUsageException }
-     * with {@link OmmInvalidUsageException.ErrorCode.INVALID_USAGE} error code
+     * with {@link OmmInvalidUsageException.ErrorCode#INVALID_USAGE} error code
      */
     void entry(String fieldName, DictionaryEntry entryDst);
 
@@ -351,7 +351,7 @@ public interface DataDictionary
      *
      * Same like {@link DataDictionary#entry(int)} note, entryDst should be created first and managed by the user.
      * Otherwise Dictionary is owned by API and method will throw {@link OmmInvalidUsageException }
-     * with {@link OmmInvalidUsageException.ErrorCode.INVALID_USAGE} error code
+     * with {@link OmmInvalidUsageException.ErrorCode#INVALID_USAGE} error code
      */
     void entry(int fieldId, DictionaryEntry entryDst);
 
