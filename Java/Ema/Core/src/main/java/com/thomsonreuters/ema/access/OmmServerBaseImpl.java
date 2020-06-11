@@ -931,13 +931,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	
 	void pipeWrite() throws IOException
 	{
-		if (_pipeWriteCount.incrementAndGet() == 1)
+		if (_pipe.sink().isOpen() && _pipeWriteCount.incrementAndGet() == 1)
 			_pipe.sink().write(ByteBuffer.wrap(_pipeWriteByte));
 	}
 	
 	void pipeRead() throws IOException
 	{
-		if (_pipeWriteCount.decrementAndGet() == 0)
+		if (_pipe.source().isOpen() && _pipeWriteCount.decrementAndGet() == 0)
 		{
 			_pipeReadByte.clear();
 			_pipe.source().read(_pipeReadByte);
