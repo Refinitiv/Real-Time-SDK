@@ -23,6 +23,7 @@ EmaString proxyUserName;
 EmaString proxyPasswd;
 EmaString proxyDomain;
 bool takeExclusiveSignOnControl = true;
+bool connectWebSocket = false;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -69,8 +70,17 @@ void createProgramaticConfig( Map& configDb )
 	Map elementMap;
 	ElementList elementList;
 
-	elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
-		ElementList().addAscii( "Channel", "Channel_1" ).complete() ).complete();
+	if (connectWebSocket)
+	{
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
+			ElementList().addAscii( "Channel", "Channel_1" ).addAscii( "Dictionary", "Dictionary_1" ).complete() ).complete();
+	}
+	else
+	{
+		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
+			ElementList().addAscii( "Channel", "Channel_1" ).complete() ).complete();
+	}
 
 	elementList.addMap( "ConsumerList", elementMap );
 
@@ -80,21 +90,50 @@ void createProgramaticConfig( Map& configDb )
 	configDb.addKeyAscii( "ConsumerGroup", MapEntry::AddEnum, elementList );
 	elementList.clear();
 
-	elementMap.addKeyAscii( "Channel_1", MapEntry::AddEnum,
-		ElementList()
-		.addEnum( "ChannelType", 1 ) // Use the RSSL_CONN_TYPE_ENCRYPTED connection
-		.addAscii( "Host", host )
-		.addAscii( "Port", port )
-		.addUInt( "EnableSessionManagement", 1 )
-		.addEnum( "EncryptedProtocolType", 0 ) // Use the standard TCP transport protocol and OpenSSL for encryption on Windows
-		.complete() ).complete();
+	ElementList channelElementList;
+
+	channelElementList
+		.addEnum("ChannelType", 1) // Use the RSSL_CONN_TYPE_ENCRYPTED connection
+		.addAscii("Host", host)
+		.addAscii("Port", port)
+		.addUInt("EnableSessionManagement", 1);
+
+	if (connectWebSocket)
+	{
+		channelElementList.addEnum("EncryptedProtocolType", 7); // Use the WebSocket transport protocol and OpenSSL for encryption on Windows
+		channelElementList.addAscii("WsProtocols", "tr_json2");
+	}
+	else
+	{
+		channelElementList.addEnum("EncryptedProtocolType", 0); // Use the standard TCP transport protocol and OpenSSL for encryption on Windows
+	}
+
+	channelElementList.complete();
+
+	elementMap.addKeyAscii("Channel_1", MapEntry::AddEnum, channelElementList);
+	elementMap.complete();
 
 	elementList.addMap( "ChannelList", elementMap );
 
 	elementList.complete();
-	elementMap.clear();
 
 	configDb.addKeyAscii( "ChannelGroup", MapEntry::AddEnum, elementList );
+
+	if (connectWebSocket)
+	{
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		configDb.addKeyAscii("DictionaryGroup", MapEntry::AddEnum,
+			ElementList().addMap("DictionaryList",
+				Map().addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+					ElementList().
+					addEnum("DictionaryType", 0). // Use FileDictionaryEnum
+					addAscii("RdmFieldDictionaryFileName", "RDMFieldDictionary").
+					addAscii("EnumTypeDefFileName", "enumtype.def").
+					complete()).
+				complete()).
+			complete());
+	}
+
 	configDb.complete();
 }
 
@@ -106,8 +145,9 @@ void printHelp()
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
 		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
-		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -itemName Request item name (optional)." << endl
+		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
+		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
 		<< " -plogin User name on proxy server (optional)." << endl
@@ -168,6 +208,10 @@ int main( int argc, char* argv[] )
 			{
 				itemName.set(i < (argc - 1) ? argv[++i] : NULL);
 			}
+			else if (strcmp(argv[i], "-websocket") == 0)
+			{
+				connectWebSocket = true;
+			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
 				if ( i < ( argc - 1 ) ) proxyHostName.set( argv[++i] );
@@ -197,9 +241,15 @@ int main( int argc, char* argv[] )
 			return -1;
 		}
 
+		ServiceEndpointDiscoveryOption::TransportProtocol transportProtocol = ServiceEndpointDiscoveryOption::TcpEnum;
+		if (connectWebSocket)
+		{
+			transportProtocol = ServiceEndpointDiscoveryOption::WebsocketEnum;
+		}
+
 		// Query endpoints from EDP-RT service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transport( ServiceEndpointDiscoveryOption::TcpEnum ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
+			.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
 			.proxyDomain( proxyDomain ), client );
 

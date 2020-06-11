@@ -48,6 +48,17 @@
       <Dictionary value="Dictionary_1"/>
       <XmlTraceToStdout value="0"/>
     </Consumer>
+
+    <Consumer>
+      <Name value="Consumer_4"/>
+
+      <!-- Use the "Channel_11" to select EncryptedProtocolType::RSSL_WEBSOCKET	-->
+      <ChannelSet value="Channel_11"/>
+
+      <Logger value="Logger_1"/>
+      <Dictionary value="Dictionary_2"/>
+      <XmlTraceToStdout value="0"/>
+    </Consumer>
 		
 	</ConsumerList>
 </ConsumerGroup>
@@ -214,6 +225,21 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- EMA discovers a host and a port from EDP-RT service discovery for the specified location 
+			     when both of them are not set and the session management is enable. -->
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="tr_json2"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>

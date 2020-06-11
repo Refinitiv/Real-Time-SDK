@@ -27,6 +27,7 @@ including:
  https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
  to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
+-websocket Use the WebSocket transport protocol (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.
@@ -50,6 +51,11 @@ Cons113 -username <machine ID> -password <machine ID password> -clientId <client
   - Sets the consumer name to "Consumer_3"
   - The Consumer_3 uses the Channel_3 channel name for using the RSSL_ENCRYPTED
 	channel type and the RSSL_SOCKET encrypted protocol type for both
+	Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
+	are needed to run this example.
+  - or sets the consumer name to "Consumer_4" in case of the WebSocket transport protocol
+  - The Consumer_4 uses the Channel_11 channel name for using the RSSL_ENCRYPTED
+	channel type and the RSSL_WEBSOCKET encrypted protocol type for both
 	Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
 	are needed to run this example.
   - Loads configuration information for the specified consumer name
