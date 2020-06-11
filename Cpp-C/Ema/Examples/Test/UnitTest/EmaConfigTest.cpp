@@ -32,6 +32,11 @@ public:
 		SCOPED_TRACE("EmaConfigTest SetUp");
 		if (hasRun == true)
 			return;
+
+		// The default path uses when creating Config instance
+		// and was set an empty path to EmaConfigTest.xml or a directory
+		EmaConfigBaseImpl::setDefaultConfigFileName(emaConfigXMLFileNameTest);
+
 		EmaString workingDir;
 		ASSERT_EQ(getCurrentDir(workingDir), true)
 			<< "Error: failed to load config file from current working dir "

@@ -1177,6 +1177,8 @@ public:
 
 	virtual EmaString getConfiguredName() = 0;
 
+	static void setDefaultConfigFileName(const EmaString&);
+
 protected:
 
 	XMLnode*				_pEmaConfig;
@@ -1188,7 +1190,7 @@ protected:
 private:
 
 	HashTable< EmaString, ConfigElement::ConfigElementType> nameToValueHashTable;
-
+	static EmaString		defaultEmaConfigXMLFileName;
 };
 
 class EmaConfigImpl : public EmaConfigBaseImpl

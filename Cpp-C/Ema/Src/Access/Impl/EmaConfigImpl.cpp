@@ -34,6 +34,10 @@ using namespace thomsonreuters::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
+static const char* strEmaConfigXMLFileName = "EmaConfig.xml";
+
+EmaString EmaConfigBaseImpl::defaultEmaConfigXMLFileName(strEmaConfigXMLFileName);
+
 EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
 	_pProgrammaticConfigure(0),
@@ -162,6 +166,14 @@ const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
 	return 0;
 }
 
+void EmaConfigBaseImpl::setDefaultConfigFileName(const EmaString& pathConfigFileName)
+{
+	if (!pathConfigFileName.empty())
+		defaultEmaConfigXMLFileName = pathConfigFileName;
+	else
+		defaultEmaConfigXMLFileName = strEmaConfigXMLFileName;
+}
+
 //  helper function for handling errors in readXMLconfiguration
 static OmmLoggerClient::Severity handleConfigurationPathError(const EmaString& errorMsg, bool userSpecifiedPath) {
 	if (userSpecifiedPath)
@@ -182,7 +194,7 @@ static OmmLoggerClient::Severity handleConfigurationPathError(const EmaString& e
 OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaString& path)
 {
 	EmaString fileName;		// eventual location of config file
-	const EmaString defaultFileName( "EmaConfig.xml" ); // used if path is empty or contains a directory
+	const EmaString defaultFileName( defaultEmaConfigXMLFileName ); // used if path is empty or contains a directory
 
 	if ( path.empty() )
 		fileName = defaultFileName;
