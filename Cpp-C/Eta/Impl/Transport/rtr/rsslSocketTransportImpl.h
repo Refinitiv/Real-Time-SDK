@@ -734,7 +734,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvr
 
 /* Socket Channel functions for active WS connections using a non-RWF protocol */
 /* Contains code necessary to close a socket connection (client or server side) */
-RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error);
+RsslRet rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error);
 
 /* Contains code necessary to read from a socket connection (client or server side) */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslChnlImpl, RsslReadOutArgs *readOutArgs, RsslRet *readRet, RsslError *error);

@@ -43,13 +43,15 @@
 #define snprintf _snprintf
 #include <windows.h>
 
-#ifndef nextafter
+#if defined(_MSC_VER) && (_MSC_VER == 1700 || _MSC_VER == 1800)
 #define nextafter _nextafter
+#if defined _M_X64
+#define nextafterf _nextafterf  /* x64 only */
+#else
+#define DO_NOT_TEST_FLOAT
+#endif
 #endif
 
-#ifndef nextafterf
-#define nextafterf _nextafterf
-#endif
 #endif
 
 #include "dictionaries.h"
@@ -9605,6 +9607,7 @@ void testCompareFloatToReal(const RsslReal testReal, const RsslInt testIntVal)
 	}
 }
 
+#ifndef DO_NOT_TEST_FLOAT
 void testFloatToRealConvert(const RsslFloat dFactor, const RsslRealHints rhExponent)
 {
 	RsslFloat testFloat;
@@ -9714,7 +9717,9 @@ void testFloatToRealConvert(const RsslFloat dFactor, const RsslRealHints rhExpon
 		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::min)());
 	}
 }
+#endif
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintExponentAllTest)
 {
 	testFloatToRealConvert(1e14f, RSSL_RH_EXPONENT_14);
@@ -9751,6 +9756,7 @@ TEST(realFloatIntConvertTest, RealHintExponentAllTest)
 	testFloatToRealConvert(128.f, RSSL_RH_FRACTION_128);
 	testFloatToRealConvert(256.f, RSSL_RH_FRACTION_256);
 }
+#endif
 
 TEST(realDoubleIntConvertTest, RealHintExponent0Test)
 {
@@ -10455,6 +10461,7 @@ TEST(realDoubleIntConvertTest, RealHintFraction_256Test)
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintExponent0Test)
 {
 	RsslFloat testFloat;
@@ -10624,7 +10631,9 @@ TEST(realFloatIntConvertTest, RealHintExponent0Test)
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
+#endif
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintExponent_14Test)
 {
 	RsslFloat testFloat;
@@ -10721,7 +10730,9 @@ TEST(realFloatIntConvertTest, RealHintExponent_14Test)
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
+#endif
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintExponent7Test)
 {
 	RsslFloat testFloat;
@@ -10816,7 +10827,9 @@ TEST(realFloatIntConvertTest, RealHintExponent7Test)
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
+#endif
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintFraction_1Test)
 {
 	RsslFloat testFloat;
@@ -10965,7 +10978,9 @@ TEST(realFloatIntConvertTest, RealHintFraction_1Test)
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
+#endif
 
+#ifndef DO_NOT_TEST_FLOAT
 TEST(realFloatIntConvertTest, RealHintFraction_256Test)
 {
 	RsslFloat testFloat;
@@ -11060,6 +11075,7 @@ TEST(realFloatIntConvertTest, RealHintFraction_256Test)
 	ASSERT_EQ(testReal.hint, rhExponent);
 	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
 }
+#endif
 
 TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
 {
