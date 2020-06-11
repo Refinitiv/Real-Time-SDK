@@ -26,6 +26,8 @@ void setAuthenticationToken(char* authenticationToken);
 void setAuthenticationExtended(char* authenticationExtended);
 /* allows the application to set an application id */
 void setApplicationId(char* applicationId);
+/* allows the application to set RTT support */
+void setRTTSupported(RsslBool rttSupport);
 
 /* sends a login request */
 RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role, LoginSuccessCallback loginSuccessCB);
@@ -43,6 +45,8 @@ RsslBool isLoginStreamClosedRecoverable();
 RsslBool isLoginStreamSuspect();
 /* returns whether provider dictionary download is supported */
 RsslBool isProviderDictionaryDownloadSupported();
+/* returns whether RTT is supported*/
+RsslBool isRTTSupported();
 
 #ifdef __cplusplus
 };

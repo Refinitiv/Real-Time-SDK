@@ -92,6 +92,7 @@ typedef struct
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
 	RsslBuffer			appId;					/* Application ID */
+	RsslBool			RTTSupport;						/* Enable the RTT feature on this reactor channel */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with

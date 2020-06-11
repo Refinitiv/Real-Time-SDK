@@ -1232,7 +1232,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							/* Flush */
 							ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-
 							/* Checks whether the users wants the Reactor to always a ping message for the JSON protocol by not updating the lastPingSentMs field */
 							if (pReactorChannel->sendWSPingMessage == RSSL_FALSE)
 							{

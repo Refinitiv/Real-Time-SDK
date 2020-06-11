@@ -34,6 +34,8 @@ typedef struct {
 	RsslUInt64	DownloadConnectionConfig;
 	RsslChannel*	Chnl;
 	RsslBool		IsInUse;
+	RsslBool		RTT;
+	RsslUInt		RTTLatency;
 } RsslLoginRequestInfo;
 
 /* reasons a login request is rejected */
@@ -66,6 +68,7 @@ typedef struct {
 	RsslUInt64  SupportProviderDictionaryDownload;
 	RsslUInt64	SupportStandby;
 	RsslBool	isSolicited;
+	RsslBool	RTT;
 } RsslLoginResponseInfo;
 
 RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo, RsslBuffer* msgBuf);
@@ -75,7 +78,11 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
 RsslRet encodeLoginClose(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId);
 RsslRet encodeLoginCloseStatus(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId);
 RsslRet encodeLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, RsslLoginRejectReason reason, RsslBuffer* msgBuf);
-RsslRet encodeLoginGenericMsg(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId);
+RsslRet encodeLoginRTTServer(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId, RsslUInt LastLatency);
+RsslRet encodeAndSendLoginRTTClient(RsslChannel* chnl, RsslInt32 streamId, RsslUInt ticks);
+RsslRet decodeLoginRTTForServer(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter, RsslUInt *latency);
+RsslRet decodeLoginRTTForClient(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter);
+
 
 /*
  * Clears the login request information.
@@ -102,6 +109,8 @@ RTR_C_INLINE void clearLoginReqInfo(RsslLoginRequestInfo* loginReqInfo)
 	loginReqInfo->DownloadConnectionConfig = 0;
 	loginReqInfo->Chnl = 0;
 	loginReqInfo->IsInUse = RSSL_FALSE;
+	loginReqInfo->RTT = RSSL_FALSE;
+	loginReqInfo->RTTLatency = 0;
 }
 
 /*

@@ -95,6 +95,12 @@ RTR_C_INLINE void rsslClearMsgEvent(RsslMsgEvent *pEvent)
 	pEvent->pFTGroupId = NULL;
 }
 
+typedef enum
+{
+	RSSL_RDM_LG_LME_NONE = 0x00,	/*!< No flags for this event. */
+	RSSL_RDM_LG_LME_RTT_RESPONSE_SENT = 0x01	/*!< The RTT response has already been sent for this event.  No further user reponse is required. */
+} RsslRDMLoginRTTEventFlags;
+
 /**
  * @brief Event provided to Login Message Callback functions.  
  * @see RsslMsgEvent
@@ -103,6 +109,7 @@ typedef struct
 {
 	RsslMsgEvent	baseMsgEvent;		/*!< Base Message event. */
 	RsslRDMLoginMsg		*pRDMLoginMsg;	/*!< The RDM Representation of the decoded Login message.  If not present, an error was encountered while decoding and information will be in baseMsgEvent.pErrorInfo */
+	RsslUInt32		flags;				/*!< Flags indicating any additional behaviors for this Login event. */
 } RsslRDMLoginMsgEvent;
 
 /**
@@ -113,6 +120,7 @@ RTR_C_INLINE void rsslClearRDMLoginMsgEvent(RsslRDMLoginMsgEvent *pEvent)
 {
 	rsslClearMsgEvent(&pEvent->baseMsgEvent);
 	pEvent->pRDMLoginMsg = NULL;
+	pEvent->flags = RSSL_RDM_LG_LME_NONE;
 }
 
 /**

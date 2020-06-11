@@ -63,6 +63,7 @@ static time_t statisticInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
+static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 
 #define MAX_CHAN_COMMANDS 4
@@ -115,7 +116,7 @@ static char _bufferArray[6144];
 void printUsageAndExit(char *appName)
 {
 	
-	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedWebSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
+	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedWebSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime] [-rtt]\n"
 			"\n -tcp specifies a socket connection while -encrypted specifies a encrypted connection to open and a list of items to request:\n"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
@@ -150,6 +151,7 @@ void printUsageAndExit(char *appName)
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
 			"\n -x provides an XML trace of messages\n"
+			"\n -rtt all connections support the RTT feature in login\n"
 			"\n"
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
@@ -333,6 +335,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-rtt", argv[i]) == 0)
+			{
+				i++;
+				RTTSupport = RSSL_TRUE;
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || 
 					(strcmp("-webSocket", argv[i]) == 0) || 
@@ -1234,7 +1241,7 @@ void parseCommandLine(int argc, char **argv)
 		}
 	}
 
-	/* Set proxy info for every channel. */
+	/* Set proxy and RTT info for every channel. */
 	for (i = 0; i < channelCommandCount; i++)
 	{
 		ChannelCommand *pCommand = &chanCommands[i];
@@ -1662,6 +1669,10 @@ int main(int argc, char **argv)
 		loginRequest.applicationId = appId;
 	}
 		
+	if (RTTSupport == RSSL_TRUE)
+	{
+		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
 
 	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */
 	if (rsslInitDefaultRDMDirectoryRequest(&dirRequest, 2) != RSSL_RET_SUCCESS)

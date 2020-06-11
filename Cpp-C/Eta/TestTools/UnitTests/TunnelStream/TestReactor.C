@@ -10,7 +10,7 @@
 #include "TestUtil.h"
 #include "Consumer.h"
 #include "Provider.h"
-#include "TunnelStreamGetTime.h"
+#include "rtr/rsslGetTime.h"
 #include "gtest/gtest.h"
 
 using namespace testing;
@@ -60,7 +60,7 @@ void TestReactor::dispatch(RsslInt expectedEventCount, RsslUInt timeoutMsec)
 	/* Ensure no events were missed from previous calls to dispatch. */
 	ASSERT_EQ(0, _eventQueue.size());
 
-	currentTimeUsec = getTimeNano()/1000;
+	currentTimeUsec = rsslGetTimeMicro();
 		
 	stopTimeUsec =  (RsslUInt)(timeoutMsec);
 	stopTimeUsec *= 1000;
@@ -109,7 +109,7 @@ void TestReactor::dispatch(RsslInt expectedEventCount, RsslUInt timeoutMsec)
 			} while (lastDispatchRet > 0);
 		}
 
-		currentTimeUsec = getTimeNano()/1000;
+		currentTimeUsec = rsslGetTimeMicro();
 			
 		/* If we've hit our expected number of events, drop the stopping time to at most 100ms from now.  
 			* Keep dispatching a short time to ensure no unexpected events are received, and that any internal flush events are processed. */
@@ -306,7 +306,7 @@ void TestReactor::accept(ConsumerProviderSessionOptions* pOpts, TestReactorCompo
 		ASSERT_EQ(NULL, pComponent->reactorChannel());
 			
 		/* Wait for server channel to trigger. */
-		currentTimeUsec = getTimeNano()/1000;
+		currentTimeUsec = rsslGetTimeMicro();
 		
 		stopTimeUsec =  (RsslUInt)(timeoutMsec);
 		stopTimeUsec *= 1000;
@@ -334,7 +334,7 @@ void TestReactor::accept(ConsumerProviderSessionOptions* pOpts, TestReactorCompo
 				return;
 			}
 
-		   currentTimeUsec = getTimeNano()/1000;
+		   currentTimeUsec = rsslGetTimeMicro();
 		} while (currentTimeUsec < stopTimeUsec);
 			
 		FAIL() << "Server did not receive accept notification.";

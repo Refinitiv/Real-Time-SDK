@@ -9,6 +9,16 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVASendMessage.c
+
+  rsslConsumer.h            rsslDictionaryHandler.h        rsslDirectoryHandler.h
+  rsslLoginConsumer.h       rsslMarketByOrderHandler.h     rsslMarketByPriceHandler.h
+  rsslMarketPriceHandler.h  rsslPostHandler.h              rsslSymbolListHandler.h
+  rsslYieldCurveHandler.h   rsslChannelCommand.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVACacheHandler.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVAMarketPriceItems.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVASendMessage.h
   )
 
 	add_executable( VAConsumer_shared ${SOURCE_FILES} )

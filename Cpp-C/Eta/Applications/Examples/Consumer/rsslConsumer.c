@@ -101,6 +101,7 @@ static RsslBool mbpItemReq = RSSL_FALSE;
 static RsslBool slReq = RSSL_FALSE;
 static RsslBool isInLoginSuspectState = RSSL_FALSE;
 static RsslBool jsonEnumExpand = RSSL_FALSE;
+static RsslBool supportRTT = RSSL_FALSE;
 
 static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
@@ -445,6 +446,11 @@ int main(int argc, char **argv)
 				i++;
 				jsonEnumExpand = RSSL_TRUE;
 			}
+			else if (strcmp("-rtt", argv[i]) == 0)
+			{
+				i++;
+				supportRTT = RSSL_TRUE;
+			}
 			else if(strcmp("-runtime", argv[i]) == 0)
 			{
 				i += 2;
@@ -453,7 +459,7 @@ int main(int argc, char **argv)
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
-				printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td] [-pl \"<sub-protocol list>\"] [-jsonEnumExpand]\n", argv[0], argv[0]);
+				printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td] [-pl \"<sub-protocol list>\"] [-jsonEnumExpand] [-rtt]\n", argv[0], argv[0]);
 				printf("\n -mp or -mpps For each occurance, requests item using Market Price domain. (-mpps for private stream)\n");
 				printf(" -mbo or -mbops For each occurance, requests item using Market By Order domain. (-mbops for private stream)\n");
 				printf(" -mbp or -mbpps For each occurance, requests item using Market By Price domain. (-mbpps for private stream)\n");
@@ -482,6 +488,7 @@ int main(int argc, char **argv)
 				printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 				printf(" -pl or -protocolList white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
 				printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
+				printf("\n -rtt If specified, the consumer connection will support the round trip time functionality in the login stream.\n");
 #ifdef _WIN32
 				/* WINDOWS: wait for user to enter something before exiting  */
 				printf("\nPress Enter or Return key to exit application:");
@@ -504,6 +511,8 @@ int main(int argc, char **argv)
 			
 
 		printf("serviceName: %s\n", serviceName);
+
+		setRTTSupported(supportRTT);
 
 		/* if no items were requested but a command line was specified, use the default item */
 		if (!mpItemReq && !mboItemReq && !mbpItemReq && !slReq && !ycItemReq)

@@ -136,7 +136,6 @@ static const char * const _lbColor[] = {
 	#define _TRACE_FPRINTF(fmt, lbl, ci, ...) 
 
 #endif /* if defined _DEBUG_CONN || _DEBUG_READ || ...  */
-
 #if defined (_DEBUG_MUTEX) || (MUTEX_DEBUG)
 	
 	#ifdef WIN32

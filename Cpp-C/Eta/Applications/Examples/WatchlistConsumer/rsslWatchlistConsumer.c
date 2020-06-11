@@ -170,6 +170,11 @@ int main(int argc, char **argv)
 		loginRequest.applicationId = watchlistConsumerConfig.appId;
 	}
 
+	if (watchlistConsumerConfig.RTTSupport == RSSL_TRUE)
+	{
+		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
+
 	/* Setup consumer role for connection. */
 	rsslClearOMMConsumerRole(&consumerRole);
 	consumerRole.pLoginRequest = &loginRequest;
@@ -902,6 +907,16 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 
 			break;
 		}
+		case RDM_LG_MT_RTT:
+			printf("\nReceived Login RTT Msg\n");
+			printf("	Ticks: %llu\n", pLoginMsg->RTT.ticks);
+			if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_LATENCY)
+				printf("	Last Latency: %llu\n", pLoginMsg->RTT.lastLatency);
+			if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+				printf("	TCP Retransmissions: %llu\n", pLoginMsg->RTT.tcpRetrans);
+			if (pMsgEvent->flags & RSSL_RDM_LG_LME_RTT_RESPONSE_SENT)
+				printf("RTT Response sent to provider.\n");
+			break;
 
 		default:
 			printf("\n  Received Unhandled Login Msg Type: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);

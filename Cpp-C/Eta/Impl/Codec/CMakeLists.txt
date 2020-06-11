@@ -112,6 +112,7 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Util/shmemcirbuf.c
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sha_1.c
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sl1_64.c
+				${Eta_SOURCE_DIR}/Impl/Util/rsslGetTime.c
 
                 #Utils header files
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/os.h
@@ -127,6 +128,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslTypes.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslVAUtils.h
 				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslCurlJIT.h
+				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslGetTime.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/application_signing.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/byteswap.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/custmem.h
@@ -302,7 +304,7 @@ else()
 								)
 
     if (CMAKE_HOST_WIN32)
-		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4 Iphlpapi.lib )
 	else()
 		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4)
 	endif()
@@ -379,6 +381,7 @@ else()
                                     ws2_32.lib
 									crypt32.lib
 									cryptui.lib
+									Iphlpapi.lib
 									ZLIB::ZLIB 
 									LZ4::LZ4
 								)

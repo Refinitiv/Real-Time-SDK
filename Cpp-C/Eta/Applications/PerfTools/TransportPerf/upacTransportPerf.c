@@ -8,7 +8,7 @@
 #include "transportPerfConfig.h"
 #include "statistics.h"
 #include "upacTransportPerf.h"
-#include "getTime.h" 
+#include "rtr/rsslGetTime.h" 
 #include "testUtils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +87,7 @@ RsslRet processMsg(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, Rssl
 	SessionHandler *pHandler = (SessionHandler*)pChanHandler->pUserSpec;
 	TransportSession *pSession = (TransportSession*)pChannelInfo->pUserSpec;
 	RsslChannel *pChannel = pChannelInfo->pChannel;
-	TimeValue timeTracker;
+	RsslTimeValue timeTracker;
 	RsslInt32 offset = 0;
 	RsslUInt32 msgLen = 0;
 
@@ -133,12 +133,12 @@ RsslRet processMsg(ChannelHandler *pChanHandler, ChannelInfo *pChannelInfo, Rssl
 
 			++pSession->recvSequenceNumber;
 
-			memset(&timeTracker, 0, sizeof(TimeValue ));
+			memset(&timeTracker, 0, sizeof(RsslTimeValue ));
 			memcpy(&timeTracker, pMsgBuf->data + offset + SEQNUM_SZ, SEQNUM_SZ);
 
 			if (timeTracker)
 			{
-				timeRecordSubmit(&pHandler->latencyRecords, timeTracker, getTimeNano(), 1000);
+				timeRecordSubmit(&pHandler->latencyRecords, timeTracker, rsslGetTimeNano(), 1000);
 			}
 		}
 		else
@@ -256,7 +256,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 
 	/* Record first connection time. */
 	if (!pHandler->transportThread.connectTime)
-		pHandler->transportThread.connectTime = getTimeNano();
+		pHandler->transportThread.connectTime = rsslGetTimeNano();
 
 	/* Print component version. */
 	if ((ret = rsslGetChannelInfo(pChannelInfo->pChannel, &channelInfo, &error)) != RSSL_RET_SUCCESS)
@@ -311,7 +311,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 		exit(-1);
 	}
 
-	pSession->timeActivated = getTimeNano();
+	pSession->timeActivated = rsslGetTimeNano();
 
 	return RSSL_RET_SUCCESS;
 }
@@ -342,7 +342,7 @@ void processInactiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannelI
 	RSSL_MUTEX_UNLOCK(&pHandler->handlerLock);
 
 	/* Record last disconnection time. */
-	pHandler->transportThread.disconnectTime = getTimeNano();
+	pHandler->transportThread.disconnectTime = rsslGetTimeNano();
 }
 
 
@@ -354,7 +354,7 @@ RSSL_THREAD_DECLARE(runConnectionHandler, pArg)
 
 	SessionHandler *pHandler = (SessionHandler*)pArg;
 	TransportThread *pTransportThread = &pHandler->transportThread;
-	TimeValue currentTime, nextTickTime;
+	RsslTimeValue currentTime, nextTickTime;
 	struct timeval time_interval;
 	RsslInt32 tickSetMsgCount = 0; /* Holds the number of messages sent in one run of ticks */
 	RsslInt32 currentTicks = 0;
@@ -410,7 +410,7 @@ RSSL_THREAD_DECLARE(runConnectionHandler, pArg)
 		} while (!signal_shutdown);
 	}
 
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	nextTickTime = currentTime + nsecPerTick;
 
 	time_interval.tv_sec = 0; time_interval.tv_usec = 0;
@@ -535,7 +535,7 @@ int main(int argc, char **argv)
 	fd_set useExcept;
 	int selRet;
 
-	TimeValue currentTime, nextTickTime;
+	RsslTimeValue currentTime, nextTickTime;
 	RsslInt32 currentTicks;
 
 	RsslQueue latencyRecords;
@@ -558,7 +558,7 @@ int main(int argc, char **argv)
 	/* Determine update rates on per-tick basis */
 	nsecPerTick = 1000000000LL/(RsslInt64)transportThreadConfig.ticksPerSec;
 
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	nextTickTime = currentTime;
 	currentTicks = 0;
 
@@ -630,7 +630,7 @@ int main(int argc, char **argv)
 	clearValueStatistics(&totalLatencyStats);
 
 	time_interval.tv_sec = 0; time_interval.tv_usec = 0;
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 	currentTicks = 0;
 
 	if (initResourceUsageStats(&resourceStats) != RSSL_RET_SUCCESS)
@@ -649,7 +649,7 @@ int main(int argc, char **argv)
 		/* Windows does not allow select() to be called with empty file descriptor sets. */
 		if (transportPerfConfig.appType == APPTYPE_CLIENT)
 		{
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			selRet = 0;
 			Sleep( (DWORD)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000000 : 0));
 		}
@@ -657,7 +657,7 @@ int main(int argc, char **argv)
 #endif
 		{
 			/* select() on remaining time for this tick. If we went into the next tick, don't delay at all. */
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			time_interval.tv_usec = (long)((currentTime > nextTickTime) ? 0 : ((nextTickTime - currentTime)/1000));
 
 
@@ -1025,10 +1025,10 @@ static RsslChannel* startConnection()
 
 static void initRuntime()
 {
-	TimeValue currentTime = 0;
+	RsslTimeValue currentTime = 0;
 
 	/* get current time */
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	
 	runTime = currentTime + ((RsslInt64)transportPerfConfig.runTime * 1000000000LL);
 }
@@ -1099,7 +1099,7 @@ void cleanUpAndExit()
 static void printSummaryStats(FILE *file)
 {
 	RsslInt32 i;
-	TimeValue earliestConnectTime, latestDisconnectTime;
+	RsslTimeValue earliestConnectTime, latestDisconnectTime;
 	double connectedTime;
 
 	earliestConnectTime = 0;

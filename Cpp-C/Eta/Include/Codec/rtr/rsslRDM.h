@@ -228,6 +228,11 @@ typedef enum {
 	RDM_LOGIN_USER_AUTHN_TOKEN 		= 5 	/*!< (5) String defining User Authentication Token */
 } RDMLoginUserIdTypes;
 
+
+typedef enum {
+	RDM_LOGIN_RTT_ELEMENT = 2		/*!< (2) RTT Information encoded in an element list */
+}RDMLoginRTTFormat;
+
 /** 
  * @brief General OMM strings associated with the different user ID types.
  * @see RDMLoginUserIdTypes, rsslRDMLoginUserIdTypeToOmmString
@@ -866,6 +871,11 @@ static const RsslBuffer RSSL_ENAME_AUTHN_TT_REISSUE = { 23, (char*)"Authenticati
 static const RsslBuffer RSSL_ENAME_AUTHN_EXTENDED_RESP = { 26, (char*)"AuthenticationExtendedResp" };
 static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_CODE = { 23, (char*)"AuthenticationErrorCode" };
 static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_TEXT = { 23, (char*)"AuthenticationErrorText" };
+
+//Round Trip Time - well known element names
+static const RsslBuffer RSSL_ENAME_RTT = { 16 , (char*)"RoundTripLatency" };
+static const RsslBuffer RSSL_ENAME_RTT_TICKS = { 5 , (char*)"Ticks" };
+static const RsslBuffer RSSL_ENAME_RTT_TCP_RETRANS = { 10 , (char*)"TcpRetrans" };
 
 //Warm Standby - Well known Element Names
 static const RsslBuffer RSSL_ENAME_SUPPORT_STANDBY = { 14 , (char*)"SupportStandby" };

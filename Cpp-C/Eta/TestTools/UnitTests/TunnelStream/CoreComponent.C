@@ -192,7 +192,7 @@ void CoreComponent::dispatch(RsslUInt expectedEventCount, RsslUInt timeoutMsec)
 	/* Ensure no events were missed from previous calls to dispatch. */
 	ASSERT_EQ(0, _eventQueue.size());
 
-	currentTimeUsec = getTimeNano()/1000;
+	currentTimeUsec = rsslGetTimeMicro();
 		
 	stopTimeUsec =  (RsslUInt)(timeoutMsec);
 	stopTimeUsec *= 1000;
@@ -226,7 +226,7 @@ void CoreComponent::dispatch(RsslUInt expectedEventCount, RsslUInt timeoutMsec)
 			} while (lastReadRet > 0);
 		}
 
-		currentTimeUsec = getTimeNano()/1000;
+		currentTimeUsec = rsslGetTimeMicro();
 	} while(currentTimeUsec < stopTimeUsec && (expectedEventCount == 0 || _eventQueue.size() < expectedEventCount));
 		
 	ASSERT_EQ(expectedEventCount, _eventQueue.size());

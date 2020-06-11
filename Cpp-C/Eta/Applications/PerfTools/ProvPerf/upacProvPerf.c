@@ -9,7 +9,7 @@
 #include "provPerfConfig.h"
 #include "statistics.h"
 #include "dictionaryProvider.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "testUtils.h"
 #include "rtr/rsslReactor.h"
 #include <stdio.h>
@@ -34,9 +34,9 @@ static Provider provider;
 static RsslBool signal_shutdown = RSSL_FALSE;
 static fd_set	readfds;
 static fd_set	exceptfds;
-static TimeValue rsslProviderRuntime = 0;
+static RsslTimeValue rsslProviderRuntime = 0;
 
-TimeValue _currentTime;
+RsslTimeValue _currentTime;
 
 static RsslServer *rsslSrvr = NULL;
 
@@ -88,7 +88,7 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 	ProviderThread *pProvThread = (ProviderThread*)pArg;
 	RsslErrorInfo rsslErrorInfo;
 
-	TimeValue nextTickTime;
+	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 
 	if (pProvThread->cpuId >= 0)
@@ -100,7 +100,7 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 		}
 	}
 
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 
 	pProvThread->rjcSess.options.pDictionary = pProvThread->pDictionary;
 	pProvThread->rjcSess.options.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;
@@ -139,9 +139,9 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 {
 	ProviderThread *pProvThread = (ProviderThread*)pArg;
 
-	TimeValue nextTickTime;
+	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
-	TimeValue currentTime;
+	RsslTimeValue currentTime;
 	RsslRet ret;
 	int selRet;
 	struct timeval time_interval;
@@ -192,7 +192,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
 	FD_SET(pProvThread->pReactor->eventFd, &pProvThread->readfds);
 
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 
 	/* this is the main loop */
 	while(rtrLikely(!signal_shutdown))
@@ -204,7 +204,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 			/* Windows does not allow select() to be called with empty file descriptor sets. */
 			if (pProvThread->readfds.fd_count == 0)
 			{
-				currentTime = getTimeNano();
+				currentTime = rsslGetTimeNano();
 				selRet = 0;
 				Sleep((DWORD)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000000 : 0));
 			}
@@ -215,7 +215,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 				useWrt = pProvThread->wrtfds;
 				useExcept = pProvThread->exceptfds;
 
-				currentTime = getTimeNano();
+				currentTime = rsslGetTimeNano();
 				time_interval.tv_usec = (long)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000 : 0);
 				time_interval.tv_sec = 0;
 
@@ -353,7 +353,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			pProvSession->pChannelInfo->pReactorChannel = pReactorChannel;
 			pProvSession->pChannelInfo->pReactor = pReactor;
 			rsslQueueAddLinkToBack(&pProviderThread->channelHandler.activeChannelList, &pProvSession->pChannelInfo->queueLink);
-			pProvSession->timeActivated = getTimeNano();
+			pProvSession->timeActivated = rsslGetTimeNano();
 
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -389,7 +389,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN:
 		{
-			pProviderThread->stats.inactiveTime = getTimeNano();
+			pProviderThread->stats.inactiveTime = rsslGetTimeNano();
 
 			printf("Channel Closed.\n");
 
@@ -556,11 +556,11 @@ int main(int argc, char **argv)
 	RsslBindOptions sopts;
 	RsslErrorInfo rsslErrorInfo;
 
-	TimeValue nextTickTime;
+	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks;
 	RsslUInt32 currentRuntimeSec = 0, intervalSeconds = 0;
 
-	TimeValue tickSetStartTime; /* Holds when a paritcular run of ticks started(basically one second's worth)*/
+	RsslTimeValue tickSetStartTime; /* Holds when a paritcular run of ticks started(basically one second's worth)*/
 
 	/* Read in configuration and echo it. */
 	initProvPerfConfig(argc, argv);
@@ -579,7 +579,7 @@ int main(int argc, char **argv)
 
 	nsecPerTick = 1000000000LL/(RsslInt64)providerThreadConfig.ticksPerSec;
 
-	_currentTime = getTimeNano();
+	_currentTime = rsslGetTimeNano();
 	nextTickTime = _currentTime;
 	currentTicks = 0;
 
@@ -608,7 +608,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize run-time */
-	rsslProviderRuntime = getTimeNano() + ((RsslInt64)provPerfConfig.runTime * 1000000000LL);
+	rsslProviderRuntime = rsslGetTimeNano() + ((RsslInt64)provPerfConfig.runTime * 1000000000LL);
 
 	providerInit(&provider, PROVIDER_INTERACTIVE,
 			processActiveChannel,
@@ -661,9 +661,9 @@ int main(int argc, char **argv)
 	FD_SET(rsslSrvr->socketId,&exceptfds);
 
 	time_interval.tv_sec = 0; time_interval.tv_usec = 0;
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 	currentTicks = 0;
-	tickSetStartTime = getTimeNano();
+	tickSetStartTime = rsslGetTimeNano();
 
 	/* this is the main loop */
 	while(1)
@@ -672,7 +672,7 @@ int main(int argc, char **argv)
 		useExcept = exceptfds;
 
 		/* select() on remaining time for this tick. If we went into the next tick, don't delay at all. */
-		_currentTime = getTimeNano();
+		_currentTime = rsslGetTimeNano();
 		time_interval.tv_usec = (long)((_currentTime > nextTickTime) ? 0 : ((nextTickTime - _currentTime)/1000));
 		selRet = select(FD_SETSIZE, &useRead, NULL, &useExcept, &time_interval);
 
@@ -864,7 +864,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 	if (ret = (printEstimatedMsgSizes(pProvThread, pProvSession)) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	pProvSession->timeActivated = getTimeNano();
+	pProvSession->timeActivated = rsslGetTimeNano();
 
 	return RSSL_RET_SUCCESS;
 }
@@ -874,7 +874,7 @@ void processInactiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannelI
 	ProviderThread *pProvThread = (ProviderThread*)pChanHandler->pUserSpec;
 	ProviderSession *pProvSession = (ProviderSession*)pChannelInfo->pUserSpec;
 
-	pProvThread->stats.inactiveTime = getTimeNano();
+	pProvThread->stats.inactiveTime = rsslGetTimeNano();
 
 	if(pError)
 		printf("Channel Closed: %s(%s)\n", rsslRetCodeToString(pError->rsslErrorId), pError->text);
@@ -1168,7 +1168,7 @@ static RsslRet processItemRequest(ProviderThread *pProvThread, ProviderSession *
 	{
 		countStatIncr(&pProvThread->stats.genMsgRecvCount);
 		if (!pProvThread->stats.firstGenMsgRecvTime)
-			pProvThread->stats.firstGenMsgRecvTime = getTimeNano();
+			pProvThread->stats.firstGenMsgRecvTime = rsslGetTimeNano();
 		return processGenMsg(pProvThread, dIter, pProvSession, &msg->genericMsg);
 	}
 
@@ -1316,12 +1316,12 @@ static RsslRet reflectPostMsg(ProviderThread *pProvThread, RsslDecodeIterator *p
 	return sendItemMsgBuffer(pProvThread, pProvSession, RSSL_FALSE);
 }
 
-RTR_C_INLINE void updateLatencyStats(ProviderThread *pProviderThread, TimeValue timeTracker)
+RTR_C_INLINE void updateLatencyStats(ProviderThread *pProviderThread, RsslTimeValue timeTracker)
 {
-	TimeValue currentTime;
-	TimeValue unitsPerMicro;
+	RsslTimeValue currentTime;
+	RsslTimeValue unitsPerMicro;
 
-	currentTime = providerThreadConfig.nanoTime ? getTimeNano() : getTimeMicro();
+	currentTime = providerThreadConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 	unitsPerMicro = providerThreadConfig.nanoTime ? 1000 : 1;
 
 	timeRecordSubmit(&pProviderThread->genMsgLatencyRecords, timeTracker, currentTime, unitsPerMicro);
@@ -1723,9 +1723,9 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Prov
 static RsslRet processGenMsg(ProviderThread *pProvThread, RsslDecodeIterator *pIter, ProviderSession *watchlist, RsslGenericMsg *pGenMsg)
 {
 	RsslRet ret = 0;
-	TimeValue decodeTimeStart;
+	RsslTimeValue decodeTimeStart;
 	if (providerThreadConfig.measureDecode)
-		decodeTimeStart = getTimeNano();
+		decodeTimeStart = rsslGetTimeNano();
 
 	if((ret = decodePayload(pIter, (RsslMsg*)pGenMsg, pProvThread)) 
 			!= RSSL_RET_SUCCESS)
@@ -1738,7 +1738,7 @@ static RsslRet processGenMsg(ProviderThread *pProvThread, RsslDecodeIterator *pI
 
 	if (providerThreadConfig.measureDecode)
 	{
-		TimeValue decodeTimeEnd = getTimeNano();
+		RsslTimeValue decodeTimeEnd = rsslGetTimeNano();
 		timeRecordSubmit(&pProvThread->updateDecodeTimeRecords, decodeTimeStart, decodeTimeEnd, 1000);
 	}
 

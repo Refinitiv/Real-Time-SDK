@@ -280,9 +280,11 @@ RSSL_API RsslRet rsslUninitialize();
  */
  
 /**
- * @brief Multicast statistics returned by rsslGetChannelInfo call.
+ * @brief Multicast statistics returned by rsslGetChannelInfo and rsslGetChannelStats call.
  * @see rsslGetChannelInfo
+ * @see rsslGetChannelStats
  * @see RsslChannelInfo
+ * @see RsslChannelStats
  */
 typedef struct {
 	RsslUInt64		mcastSent;			/*!< @brief This is the number of multicast packets sent by this channel */
@@ -295,6 +297,37 @@ typedef struct {
 	RsslUInt64		retransPktsSent;	/*!< @brief This is the number of retransmitted packets sent by this channel, populated only for reliable multicast connection types.  This value includes retransmit packets for both multicast and unicast data.  Positive values indicate a possible network problem, more severe as value is larger */
 	RsslUInt64		retransPktsRcvd;	/*!< @brief This is the number of retransmitted packets received by this channel, populated only for reliable multicast connection types.  This value includes retransmit packets for both multicast and unicast data.  Positive values indicate a possible network problem, more severe as value is larger */
 } RsslMCastStats;
+
+
+/**
+* @brief Options of which locks are enabled in RSSL.
+* @see rsslInitialize
+*/
+typedef enum
+{
+	RSSL_TCP_STATS_NONE = 0,					/*!< (0x00) Initialization value, nothing has been set to this flag set */
+	RSSL_TCP_STATS_RETRANSMIT = 0x01			/*!< (0x01) TCP Retransmission count has been set */
+} RsslStatFlags;
+
+/**
+* @brief RSSL TCP channel statistics Statistics returned by the rsslGetChannelStats call.
+* @see rsslGetChannelStats
+* @see RsslChannelStats
+*/
+typedef struct {
+	RsslUInt	flags;						/*!< @brief Flags indicating set figures in these statistics */
+	RsslInt64 tcpRetransmitCount;			/*!< @brief This is number of TCP retransmissions for the current TCP connection. */
+} RsslTCPStats;
+
+/**
+* @brief RSSL TCP channel statistics Statistics returned by the rsslGetChannelStats call.
+* @see rsslGetChannelStats
+* @see RsslMCastStats
+*/
+typedef struct {
+	RsslMCastStats multicastStats;			/*!< @brief  When using a multicast connection type, this will be populated with information about the multicast protocol. */
+	RsslTCPStats tcpStats;					/*!< @brief  When using a multicast connection type, this will be populated with information about the current TCP channel's statistics. */
+} RsslChannelStats;
 
 
 /**
@@ -350,6 +383,23 @@ typedef struct {
 RSSL_API RsslRet rsslGetChannelInfo( RsslChannel *chnl, 
 											   RsslChannelInfo *info, 
 											   RsslError *error);
+
+/**
+* @brief Gets statisitcal information about the channel
+*
+* Typical use:<BR>
+* Retrieves channel statistical information.  For non-WinInet TCP-based connections, this includes the TCP Retransmission count for the current underlying connection.
+* For Multicast connections, this includes the information contained in the RsslMCastStats structure.
+* @note For Windows usage, the application needs to be run wtih Administrator privileges in order to collect this information. 
+*
+* @param chnl RSSL Channel to get information about
+* @param stats RSSL Channel Stats structure to be populated
+* @param error RSSL Error, to be populated in event of an error
+* @return RsslRet RSSL return value
+*/
+RSSL_API RsslRet rsslGetChannelStats(RsslChannel *chnl,
+	RsslChannelStats *stats,
+	RsslError *error);
 
 											   
 /**

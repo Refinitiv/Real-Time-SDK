@@ -4,6 +4,10 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
   watchlistConsumerConfig.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.c
+
+  itemDecoder.h        postHandler.h        watchlistConsumerConfig.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.h
   )
 
 	add_executable( WatchlistConsumer_shared ${SOURCE_FILES} )

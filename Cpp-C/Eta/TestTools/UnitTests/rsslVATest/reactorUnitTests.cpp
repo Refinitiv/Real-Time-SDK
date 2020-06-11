@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include "rtr/rsslThread.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -37,6 +37,21 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #endif
+
+void time_sleep(int millisec)
+{
+#ifdef WIN32
+	Sleep(millisec);
+#else
+	if (millisec)
+	{
+		struct timespec ts;
+		ts.tv_sec = millisec / 1000;
+		ts.tv_nsec = (millisec % 1000) * 1000000;
+		nanosleep(&ts, NULL);
+	}
+#endif
+}
 
 #define MAX_REACTOR_CONS (FD_SETSIZE/3)
 

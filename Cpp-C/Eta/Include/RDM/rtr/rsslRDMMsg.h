@@ -48,7 +48,7 @@ RTR_C_INLINE RsslRet rsslEncodeRDMMsg(RsslEncodeIterator *pIter, RsslRDMMsg *pRD
 {
 	switch(pRDMMsg->rdmMsgBase.domainType)
 	{
-		case RSSL_DMT_LOGIN: return rsslEncodeRDMLoginMsg(pIter, (RsslRDMLoginMsg*)pRDMMsg, pBytesWritten, pError);
+	case RSSL_DMT_LOGIN: return rsslEncodeRDMLoginMsg(pIter, (RsslRDMLoginMsg*)pRDMMsg, pBytesWritten, pError);
 		case RSSL_DMT_SOURCE: return rsslEncodeRDMDirectoryMsg(pIter, (RsslRDMDirectoryMsg*)pRDMMsg, pBytesWritten, pError);
 		case RSSL_DMT_DICTIONARY:return rsslEncodeRDMDictionaryMsg(pIter, (RsslRDMDictionaryMsg*)pRDMMsg, pBytesWritten, pError);
 		default: return RSSL_RET_INVALID_ARGUMENT;

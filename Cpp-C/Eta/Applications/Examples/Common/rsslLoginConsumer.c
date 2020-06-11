@@ -1,4 +1,3 @@
-
 /*
  * This is the login consumer for both the rsslConsumer and
  * rsslNIProvider applications.  It only supports a single
@@ -54,6 +53,7 @@ static RsslBool isClosed = RSSL_FALSE;
 static RsslBool isClosedRecoverable = RSSL_FALSE;
 static RsslBool isSuspect = RSSL_TRUE;
 static RsslBool isProvDicDownloadSupported = RSSL_FALSE;
+static RsslBool RTTSupport = RSSL_FALSE;
 
 /* returns whether login stream is closed */
 RsslBool isLoginStreamClosed()
@@ -114,6 +114,16 @@ void setApplicationId(char* applicationId)
 {
 	snprintf(cmdLineApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", applicationId);
 }
+
+/*
+* Sets the RTT support flag.
+* rttSupport - whether or not this connection supports the RTT feature.
+*/
+void setRTTSupported(RsslBool rttSupport)
+{
+	RTTSupport = rttSupport;
+}
+
 
 
 /*
@@ -227,6 +237,10 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 			/* provider role */
 			loginReqInfo.Role = RSSL_PROVIDER; 
 		}
+		
+		/* Set RTT support for this connection */
+		loginReqInfo.RTT = RTTSupport;
+
 		/* keep default values for all others */
 
 		/* encode login request */
@@ -435,6 +449,14 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 		return RSSL_RET_FAILURE;
 		break;
 
+	case RSSL_MC_GENERIC:
+		if (msg->msgBase.containerType != RSSL_DT_ELEMENT_LIST)
+			break;
+		printf("Received Login Generic RTT message\n");
+		ret = decodeLoginRTTForClient(chnl, msg, dIter);
+		if (ret != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+		break;
 	default:
 		printf("\nReceived Unhandled Login Msg Class: %d\n", msg->msgBase.msgClass);
 		return RSSL_RET_FAILURE;

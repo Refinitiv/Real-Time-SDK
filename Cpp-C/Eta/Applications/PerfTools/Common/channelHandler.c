@@ -24,12 +24,12 @@ static void _flushDone(ChannelHandler *pHandler, ChannelInfo *pChannelInfo)
 
 static void _processActiveChannel(ChannelHandler *pHandler, ChannelInfo *pChannelInfo)
 {
-	TimeValue currentTime;
+	RsslTimeValue currentTime;
 	RsslUInt64 pingTimeoutNsec;
 	RsslError error;
 
 	/* Set the next send/receive ping times. */
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	pingTimeoutNsec = (RsslInt64)pChannelInfo->pChannel->pingTimeout * 1000000000ULL;
 	pChannelInfo->nextSendPingTime = currentTime + pingTimeoutNsec/3;
 	pChannelInfo->nextReceivePingTime = currentTime + pingTimeoutNsec;
@@ -261,12 +261,12 @@ RsslRet channelHandlerWaitForChannelInit(ChannelHandler *pHandler, ChannelInfo *
 }
 
 
-void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec)
+void channelHandlerReadChannels(ChannelHandler *pHandler, RsslTimeValue stopTimeNsec)
 {
 	int selRet;
 	RsslQueueLink *pLink;
 
-	TimeValue currentTime;
+	RsslTimeValue currentTime;
 
 	fd_set useReadFds;
 	fd_set useExceptFds;
@@ -281,7 +281,7 @@ void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec
 		/* Windows does not allow select() to be called with empty file descriptor sets. */
 		if (rsslQueueGetElementCount(&pHandler->initializingChannelList) + rsslQueueGetElementCount(&pHandler->activeChannelList) == 0)
 		{
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			selRet = 0;
 			Sleep( (DWORD)((currentTime < stopTimeNsec) ? (stopTimeNsec - currentTime)/1000000 : 0));
 		}
@@ -326,7 +326,7 @@ void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec
 					FD_SET(pChannelInfo->pChannel->socketId, &useWriteFds);
 			}
 
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			time_interval.tv_usec = (long)((currentTime < stopTimeNsec) ? (stopTimeNsec - currentTime)/1000 : 0);
 			time_interval.tv_sec = 0;
 
@@ -402,18 +402,18 @@ void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec
 
 void channelHandlerCheckPings(ChannelHandler *pHandler)
 {
-	TimeValue currentTime;
+	RsslTimeValue currentTime;
 	RsslRet ret;
 	RsslQueueLink *pLink;
 	RsslError rsslError;
 
 	/* get current time */
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 
 	RSSL_QUEUE_FOR_EACH_LINK(&pHandler->activeChannelList, pLink)
 	{
 		ChannelInfo *pChannelInfo = RSSL_QUEUE_LINK_TO_OBJECT(ChannelInfo, queueLink, pLink);
-		TimeValue pingTimeoutNsec = (RsslInt64)pChannelInfo->pChannel->pingTimeout * 1000000000LL;
+		RsslTimeValue pingTimeoutNsec = (RsslInt64)pChannelInfo->pChannel->pingTimeout * 1000000000LL;
 
 		if (!pChannelInfo->checkPings)
 			continue;

@@ -5768,5 +5768,23 @@
  */
  
 
+/* Start of Util Group */ 
+
+/**
+ *	@defgroup RSSLUtils Transport API Utility Functions
+ *	@brief These functions are additional utility functions included in the Transport API
+ *	@{
+ *
+ *	@defgroup RSSLGetTime Transport API GetTime Utility Functions
+ *	@brief These functions are platform independent get time functions.  These functions provide Nano-second, Mirco-Second and Milli-Second access to timers. 
+ *  These timers are based on a high-resolution non-decreasing time, not the system clock, and are not affected by changes to the clock.
+ *	@{
+ *	@}
+ *
+ *	@}
+ */
+ 
+/* End of Util Group */
+
 
 

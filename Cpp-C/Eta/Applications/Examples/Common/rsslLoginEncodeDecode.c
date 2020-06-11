@@ -4,6 +4,8 @@
  */
 
 #include "rsslLoginEncodeDecode.h"
+#include "rsslSendMessage.h"
+#include "rtr/rsslGetTime.h"
 #if defined(_WIN32)
 #include <winsock2.h>
 #include <time.h>
@@ -32,6 +34,7 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 	RsslElementList	elementList = RSSL_INIT_ELEMENT_LIST;
 	RsslBuffer applicationId, applicationName, position, password, instanceId, authenticationToken, authenticationExtended;
 	RsslEncodeIterator encodeIter;
+	RsslUInt tmp;
 
 	/* clear encode iterator */
 	rsslClearEncodeIterator(&encodeIter);
@@ -216,6 +219,19 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 		return ret;
 	}
 
+	/* RTT support */
+	if (loginReqInfo->RTT == RSSL_TRUE)
+	{
+		element.dataType = RSSL_DT_UINT;
+		element.name = RSSL_ENAME_RTT;
+		tmp = RDM_LOGIN_RTT_ELEMENT;
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &tmp)) < RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+			return ret;
+		}
+	}
+
 	/* complete encode element list */
 	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 	{
@@ -256,6 +272,7 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 	RsslRet ret = 0;
 	RsslElementList	elementList;
 	RsslElementEntry	element;
+	RsslUInt tmp;
 
 	/* get StreamId */
 	loginReqInfo->StreamId = msg->requestMsg.msgBase.streamId;
@@ -457,6 +474,21 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 						return ret;
 					}
 				}
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
+				{
+					ret = rsslDecodeUInt(dIter, &tmp);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					
+					if (tmp == 2)
+						loginReqInfo->RTT = RSSL_TRUE;
+					else
+						loginReqInfo->RTT = RSSL_FALSE;
+
+				}
 			}
 			else
 			{
@@ -488,6 +520,7 @@ RsslRet encodeLoginResponse(RsslChannel* chnl, RsslLoginResponseInfo* loginRespI
 	RsslElementEntry	element = RSSL_INIT_ELEMENT_ENTRY;
 	RsslElementList	elementList = RSSL_INIT_ELEMENT_LIST;
 	RsslBuffer applicationId, applicationName, position;
+	RsslUInt tmp;
 	char hostName[256], stateText[MAX_LOGIN_INFO_STRLEN];
 	RsslEncodeIterator encodeIter;
 
@@ -656,6 +689,19 @@ RsslRet encodeLoginResponse(RsslChannel* chnl, RsslLoginResponseInfo* loginRespI
 		return ret;
 	}
 
+	/* RTT support */
+	if (loginRespInfo->RTT == RSSL_TRUE)
+	{
+		element.dataType = RSSL_DT_UINT;
+		element.name = RSSL_ENAME_RTT;
+		tmp = RDM_LOGIN_RTT_ELEMENT;
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &tmp)) < RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+			return ret;
+		}
+	}
+
 	/* complete encode element list */
 	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 	{
@@ -696,6 +742,7 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
 	RsslMsgKey* key = 0;
 	RsslElementList	elementList;
 	RsslElementEntry	element;
+	RsslUInt tmp;
 
 	/* set stream id */
 	loginRespInfo->StreamId = msg->msgBase.streamId;
@@ -948,6 +995,23 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
 						return ret;
 					}
 				}
+				/* RTT */
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
+				{
+					ret = rsslDecodeUInt(dIter, &tmp);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+
+					if (tmp == 2)
+						loginRespInfo->RTT = RSSL_TRUE;
+					else
+						loginRespInfo->RTT = RSSL_FALSE;
+
+				}
+
 			}
 			else
 			{
@@ -1053,81 +1117,6 @@ RsslRet encodeLoginCloseStatus(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet encodeLoginGenericMsg(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId)
-{
-	RsslRet ret = 0;
-	RsslEncodeIterator encodeIter;
-	RsslUInt16 partNum = 333;
-	RsslUInt32 seqNum = 222;
-	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456;
-	RsslUInt8 nameType = 255;
-	RsslGenericMsg genericMsg = RSSL_INIT_GENERIC_MSG;
-	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf;
-	char encData[] = "This is a generic msg", keyName[] = "GenericeyName", keyAttrib[] = "keyAttrib";
-
-	/* clear encode iterator */
-	rsslClearEncodeIterator(&encodeIter);
-
-	/* set-up message */
-	encDataBuf.data = encData;
-	encDataBuf.length = sizeof(encData);
-	encMsgBuf.data = 0;
-	encMsgBuf.length = 0;
-	keyNameBuf.data = keyName;
-	keyNameBuf.length = sizeof(keyName);
-	keyAttribBuf.data = keyAttrib;
-	keyAttribBuf.length = sizeof(keyAttrib);
-
-	genericMsg.msgBase.msgClass = RSSL_MC_GENERIC;
-	genericMsg.msgBase.domainType = RSSL_DMT_TRANSACTION;
-	genericMsg.msgBase.containerType = RSSL_DT_OPAQUE;
-	genericMsg.msgBase.streamId = streamId;
-	rsslGenericMsgApplyHasMsgKey(&genericMsg);
-	rsslMsgKeyApplyHasServiceId(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.serviceId = serviceId;
-	rsslMsgKeyApplyHasNameType(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.nameType = nameType;
-	rsslMsgKeyApplyHasName(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.name.data = keyNameBuf.data;
-	genericMsg.msgBase.msgKey.name.length = keyNameBuf.length;
-	rsslMsgKeyApplyHasFilter(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.filter = filter;
-	rsslMsgKeyApplyHasIdentifier(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.identifier = identifier;
-	genericMsg.msgBase.msgKey.attribContainerType = RSSL_DT_OPAQUE;
-	rsslMsgKeyApplyHasAttrib(&genericMsg.msgBase.msgKey);
-	genericMsg.msgBase.msgKey.encAttrib.data = keyAttribBuf.data;
-	genericMsg.msgBase.msgKey.encAttrib.length = keyAttribBuf.length;
-	genericMsg.msgBase.encDataBody.data = encDataBuf.data;
-	genericMsg.msgBase.encDataBody.length = encDataBuf.length;
-	genericMsg.msgBase.encMsgBuffer.data = encMsgBuf.data;
-	genericMsg.msgBase.encMsgBuffer.length = encMsgBuf.length;
-
-	rsslGenericMsgApplyHasPartNum(&genericMsg);
-	genericMsg.partNum = partNum;
-	rsslGenericMsgApplyHasSeqNum(&genericMsg);
-	genericMsg.seqNum = seqNum;
-
-	rsslGenericMsgApplyMessageComplete(&genericMsg);
-	
-	/* encode message */
-	if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
-	{
-		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
-		return ret;
-	}
-	rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
-	if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&genericMsg)) < RSSL_RET_SUCCESS)
-	{
-		printf("rsslEncodeMsg() failed with return code: %d\n", ret);
-		return ret;
-	}
-
-	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
-
-	return RSSL_RET_SUCCESS;
-}
-
 /*
  * Encodes the login request reject status.  Returns success if
  * encoding succeeds or failure if encoding fails.
@@ -1186,6 +1175,385 @@ RsslRet encodeLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, RsslLogi
 	}
 
 	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	return RSSL_RET_SUCCESS;
+}
+
+/* Encodes the server side RTT message. Rturns success if
+ * encoding succeeds or failure if encoding fails. 
+ * chnl - The channel to send request reject status message to
+ * msgBuf - The message buffer to encode the login request reject into
+ * streamId - The stream id of the request
+ * lastLatency - the latency, in microseconds, of the last RTT message response.  If this is 0, no latency will be encoded.
+ */
+RsslRet encodeLoginRTTServer(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 streamId, RsslUInt lastLatency)
+{
+	RsslRet ret = 0;
+	RsslGenericMsg msg = RSSL_INIT_GENERIC_MSG;
+	RsslEncodeIterator encodeIter;
+	RsslElementList	elementList;
+	RsslElementEntry	element;
+	RsslChannelStats stats;
+	RsslTimeValue ticks;
+	RsslError error;
+
+	/* clear encode iterator */
+	rsslClearEncodeIterator(&encodeIter);
+	
+	/* set-up message */
+	msg.msgBase.msgClass = RSSL_MC_GENERIC;
+	msg.msgBase.streamId = streamId;
+	msg.msgBase.domainType = RSSL_DMT_LOGIN;
+	msg.msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+	msg.flags = RSSL_GNMF_PROVIDER_DRIVEN;
+
+	if ((ret = rsslGetChannelStats(chnl, &stats, &error)) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslGetChannelStats() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* Get the current ticks. */
+	ticks = rsslGetTicks();
+
+	/* encode message */
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+		return ret;
+	}
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+	/* since we have a payload we want to encode, we need to use rsslEncodeMsgInit */
+	if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&msg, 0)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsgInit() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* encode the element list */
+	rsslClearElementList(&elementList);
+	elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+	if ((ret = rsslEncodeElementListInit(&encodeIter, &elementList, 0, 0)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	rsslClearElementEntry(&element);
+	element.name = RSSL_ENAME_RTT_TICKS;
+	element.dataType = RSSL_DT_UINT;
+
+	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, (RsslUInt*)&ticks)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	rsslClearElementEntry(&element);
+	element.name = RSSL_ENAME_RTT_TCP_RETRANS;
+	element.dataType = RSSL_DT_UINT;
+
+	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &stats.tcpStats.tcpRetransmitCount)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	if (lastLatency != 0)
+	{
+		rsslClearElementEntry(&element);
+		element.name = RSSL_ENAME_RTT;
+		element.dataType = RSSL_DT_UINT;
+
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &lastLatency)) < RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+			return ret;
+		}
+	}
+
+	/* complete encode element list */
+	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementListComplete() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* complete encode message */
+	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsgComplete() failed with return code: %d\n", ret);
+		return ret;
+	}
+	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	return RSSL_RET_SUCCESS;
+}
+
+/* Encodes the and sends the client side RTT message. Rturns success if
+* encoding succeeds or failure if encoding fails.
+* chnl - The channel to send request reject status message to
+* streamId - The stream id of the request
+* ticks - ticks received from the server
+*/
+RsslRet encodeAndSendLoginRTTClient(RsslChannel* chnl, RsslInt32 streamId, RsslUInt ticks)
+{
+	RsslRet ret = 0;
+	RsslGenericMsg msg = RSSL_INIT_GENERIC_MSG;
+	RsslEncodeIterator encodeIter;
+	RsslElementList	elementList;
+	RsslElementEntry	element;
+	RsslChannelStats stats;
+	RsslBuffer* msgBuf;
+	RsslError error;
+	RsslWriteInArgs args;
+
+	/* clear encode iterator */
+	rsslClearEncodeIterator(&encodeIter);
+	rsslClearWriteInArgs(&args);
+
+	/* set-up message */
+	msg.msgBase.msgClass = RSSL_MC_GENERIC;
+	msg.msgBase.streamId = streamId;
+	msg.msgBase.domainType = RSSL_DMT_LOGIN;
+	msg.msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+	msg.flags = RSSL_GNMF_PROVIDER_DRIVEN;
+
+	if((msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
+	{
+		printf("rsslGetBuffer() failed with return code: %d\n", error.rsslErrorId);
+		return error.rsslErrorId;
+	}
+
+	if (ret = rsslGetChannelStats(chnl, &stats, &error))
+	{
+		printf("rsslGetChannelStats() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* encode message */
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+		return ret;
+	}
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+	/* since we have a payload we want to encode, we need to use rsslEncodeMsgInit */
+	if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&msg, 0)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsgInit() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* encode the element list */
+	rsslClearElementList(&elementList);
+	elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+	if ((ret = rsslEncodeElementListInit(&encodeIter, &elementList, 0, 0)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	rsslClearElementEntry(&element);
+	element.name = RSSL_ENAME_RTT_TICKS;
+	element.dataType = RSSL_DT_UINT;
+
+	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, (RsslUInt*)&ticks)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	if (stats.tcpStats.flags &= RSSL_TCP_STATS_RETRANSMIT)
+	{
+		rsslClearElementEntry(&element);
+		element.name = RSSL_ENAME_RTT_TCP_RETRANS;
+		element.dataType = RSSL_DT_UINT;
+
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &stats.tcpStats.tcpRetransmitCount)) < RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+			return ret;
+		}
+	}
+
+	/* complete encode element list */
+	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeElementListComplete() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	/* complete encode message */
+	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsgComplete() failed with return code: %d\n", ret);
+		return ret;
+	}
+	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	if((ret = sendMessageEx(chnl, msgBuf, &args))  == RSSL_RET_FAILURE)
+	{
+		printf("rsslEncodeMsgComplete() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+/*
+* Decodes the login RTT message for the server side;
+* Returns success if decoding succeeds or failure if decoding fails.
+* loginRespInfo - The login response information structure
+* msg - The partially decoded message
+* dIter - The decode iterator
+* latency - this sill be filled with the current message's round trip latency
+*/
+RsslRet decodeLoginRTTForServer(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter, RsslUInt* latency)
+{
+	RsslRet ret = 0;
+	RsslElementList	elementList;
+	RsslElementEntry	element;
+	RsslUInt tmp;
+	RsslInt32 streamId;
+	RsslUInt oldTicks;
+	RsslTimeValue currTicks;
+
+	/* get StreamId */
+	streamId = msg->genericMsg.msgBase.streamId;
+
+	printf("Received login RTT message from Consumer "SOCKET_PRINT_TYPE".\n", chnl->socketId);
+
+	/* decode element list */
+	if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+	{
+		/* decode each element entry in list */
+		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+		{
+			if (ret == RSSL_RET_SUCCESS)
+			{
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT_TICKS))
+				{
+					ret = rsslDecodeUInt(dIter, &oldTicks);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					printf("\tRTT Tick value is " RTR_LLU "us.\n", oldTicks);
+				}
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT_TCP_RETRANS))
+				{
+					ret = rsslDecodeUInt(dIter, &tmp);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					printf("\tConsumer side TCP retransmissions: " RTR_LLU "\n", tmp);
+
+				}
+			}
+			else
+			{
+				printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
+				return ret;
+			}
+		}
+	}
+	else
+	{
+		printf("rsslDecodeElementList() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	currTicks = rsslGetTicks();
+
+	*latency = (RsslUInt)(((RsslDouble)currTicks - (RsslDouble)oldTicks) / rsslGetTicksPerMicro());
+
+	printf("\tLast RTT message latency is " RTR_LLU "us.\n", *latency);
+
+	return RSSL_RET_SUCCESS;
+}
+
+/*
+* Decodes the login RTT message for the client side.  When decoding is complete, it will attempt to send an RTT response immediately.
+* Returns success if decoding succeeds or failure if decoding fails.
+* loginRespInfo - The login response information structure
+* msg - The partially decoded message
+* dIter - The decode iterator
+*/
+RsslRet decodeLoginRTTForClient(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter)
+{
+	RsslRet ret = 0;
+	RsslElementList	elementList;
+	RsslElementEntry	element;
+	RsslUInt tmp;
+	RsslInt32 streamId;
+	RsslUInt ticks;
+
+	/* get StreamId */
+	streamId = msg->genericMsg.msgBase.streamId;
+
+	printf("Received login RTT message from Provider "SOCKET_PRINT_TYPE".\n", chnl->socketId);
+
+	/* decode element list */
+	if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+	{
+		/* decode each element entry in list */
+		while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+		{
+			if (ret == RSSL_RET_SUCCESS)
+			{
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT_TICKS))
+				{
+					ret = rsslDecodeUInt(dIter, &ticks);
+					printf("\tTicks: %llu\n", ticks);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+				}
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT_TCP_RETRANS))
+				{
+					ret = rsslDecodeUInt(dIter, &tmp);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					printf("\tProvider side TCP Retransmissions: %llu\n", tmp);
+
+				}
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_RTT))
+				{
+					ret = rsslDecodeUInt(dIter, &tmp);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					printf("\tLast Latency: %llu\n", tmp);
+
+				}
+			}
+			else
+			{
+				printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
+				return ret;
+			}
+		}
+	}
+	else
+	{
+		printf("rsslDecodeElementList() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	printf("Sending RTT response to server.\n");
+
+	encodeAndSendLoginRTTClient(chnl, streamId, ticks);
 
 	return RSSL_RET_SUCCESS;
 }

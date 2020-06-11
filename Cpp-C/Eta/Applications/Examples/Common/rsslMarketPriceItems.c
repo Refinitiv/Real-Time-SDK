@@ -43,9 +43,9 @@ void initMarketPriceItemFields(RsslMarketPriceItem* mpItem)
 	rsslDateStringToDate(&mpItem->DIVPAYDATE, &tempBuffer);
 	mpItem->TRDPRC_1 = 1.00;
 	mpItem->BID = 0.99;
-	mpItem->ASK = 1.03;
+	mpItem->ASK = 203.03;
 	mpItem->ACVOL_1 = 100000;
-	mpItem->NETCHNG_1 = 2.15;
+	mpItem->NETCHNG_1 = 203.15;
 	rsslDateTimeLocalTime(&mpItem->ASK_TIME);
 	mpItem->PERATIO = 5.00;
 	mpItem->SALTIME = mpItem->ASK_TIME;

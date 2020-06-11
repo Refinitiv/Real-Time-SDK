@@ -74,11 +74,11 @@ typedef struct {
 
 /* Maintains counts and other values for measuring statistics on a consumer thread. */
 typedef struct {
-	TimeValue	imageRetrievalStartTime;		/* Time at which first item request was made. */
-	TimeValue	imageRetrievalEndTime;			/* Time at which last item refresh was received. */
-	TimeValue	firstUpdateTime;				/* Time at which first item update was received. */
-	TimeValue	firstGenMsgSentTime;			/* Time at which first generic message was sent */
-	TimeValue	firstGenMsgRecvTime;			/* Time at which first generic message was received */
+	RsslTimeValue	imageRetrievalStartTime;		/* Time at which first item request was made. */
+	RsslTimeValue	imageRetrievalEndTime;			/* Time at which last item refresh was received. */
+	RsslTimeValue	firstUpdateTime;				/* Time at which first item update was received. */
+	RsslTimeValue	firstGenMsgSentTime;			/* Time at which first generic message was sent */
+	RsslTimeValue	firstGenMsgRecvTime;			/* Time at which first generic message was received */
 
 
 	CountStat		refreshCount;				/* Number of item refreshes received. */

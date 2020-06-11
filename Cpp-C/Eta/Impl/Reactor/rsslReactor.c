@@ -1578,8 +1578,8 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 			goto reactorConnectFail;
 	}
 
-	/* Keeps the original login request if any after copying the role when session management is enabled  */
-	if (pReactorChannel->supportSessionMgnt && pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
+	/* Keeps the original login request */
+	if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
 	{
 		pReactorChannel->userName = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName;
 		pReactorChannel->flags = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags;
@@ -2545,7 +2545,7 @@ static RsslRet _reactorSendRDMMessage(RsslReactorImpl *pReactorImpl, RsslReactor
 		processOpts.pRdmMsg = pRDMMsg;
 
 		if ((ret = rsslWatchlistSubmitMsg(pReactorChannel->pWatchlist, &processOpts, pError))
-				!= RSSL_RET_SUCCESS)
+				< RSSL_RET_SUCCESS)
 			return ret;
 
 		if (pReactorChannel->pWatchlist->state & RSSLWL_STF_NEED_FLUSH) 
@@ -3687,6 +3687,38 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						if (ret == RSSL_RET_SUCCESS)
 						{
 							loginEvent.pRDMLoginMsg = pLoginResponse;
+							if (pLoginResponse->rdmMsgBase.rdmMsgType == RDM_LG_MT_RTT && (pReactorChannel->flags & RDM_LG_RQF_RTT_SUPPORT))
+							{ 
+								RsslRDMLoginRTT rttMsg;
+								RsslChannelStats stats;
+								RsslError error;
+
+								rsslClearRDMLoginRTT(&rttMsg);
+								if (rsslGetChannelStats(pReactorChannel->reactorChannel.pRsslChannel, &stats, &error) == RSSL_RET_FAILURE)
+								{
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to retrieve channel stats, error output: %s", error.text);
+									if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+										return RSSL_RET_FAILURE;
+									return RSSL_RET_SUCCESS;
+								}
+
+								rttMsg.rdmMsgBase.streamId = pLoginResponse->rdmMsgBase.streamId;
+								rttMsg.ticks = pLoginResponse->RTT.ticks;
+								if (stats.tcpStats.flags &= RSSL_TCP_STATS_RETRANSMIT)
+								{
+									rttMsg.flags |= RDM_LG_RTT_HAS_TCP_RETRANS;
+									rttMsg.tcpRetrans = stats.tcpStats.tcpRetransmitCount;
+								}
+
+								if ((ret = _reactorSendRDMMessage(pReactorImpl, pReactorChannel, (RsslRDMMsg*)&rttMsg, pError)) != RSSL_RET_SUCCESS)
+								{
+									if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+										return RSSL_RET_FAILURE;
+									return RSSL_RET_SUCCESS;
+								}
+								loginEvent.flags |= RSSL_RDM_LG_LME_RTT_RESPONSE_SENT;
+							}
+
 							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 							*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
 							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
@@ -4254,10 +4286,10 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						if (ret == RSSL_RET_SUCCESS) loginEvent.pRDMLoginMsg = &loginResponse;
 						else loginEvent.baseMsgEvent.pErrorInfo = pError;
 
-							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-							*pCret = (*pProviderRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
-							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
-						}
+						_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+						*pCret = (*pProviderRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+						_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+					}
 					else
 					{
 						ret = RSSL_RET_SUCCESS;

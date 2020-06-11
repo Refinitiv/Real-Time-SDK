@@ -13,7 +13,7 @@
 #include "consumerThreads.h"
 #include "marketByOrderDecoder.h"
 #include "marketPriceDecoder.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "testUtils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +49,7 @@ ConsumerStats totalStats;
 /* CPU & Memory Usage samples */
 static ValueStatistics cpuUsageStats, memUsageStats;
 
-TimeValue currentTime, startTime, endTime;
+RsslTimeValue currentTime, startTime, endTime;
 RsslUInt32 currentRuntimeSec = 0, intervalSeconds = 0;
 
 RsslBool refreshRetrievalTimePrinted = RSSL_FALSE;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	RsslRet	retval = 0;
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	RsslInt32 i;
-	TimeValue nextTime;
+	RsslTimeValue nextTime;
 	
 
 #ifndef _WIN32
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	endTime = getTimeNano() + consPerfConfig.steadyStateTime * 1000000000ULL;
+	endTime = rsslGetTimeNano() + consPerfConfig.steadyStateTime * 1000000000ULL;
 
 
 	/* Reset resource usage. */
@@ -201,7 +201,7 @@ int main(int argc, char **argv)
 	clearValueStatistics(&cpuUsageStats);
 	clearValueStatistics(&memUsageStats);
 
-	startTime = getTimeNano();
+	startTime = rsslGetTimeNano();
 
 	/* Sleep for one more second so some stats can be gathered before first printout. */
 	SLEEP(1);
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 	/* main polling thread here */
 	while(!shutdownThreads)
 	{
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 		++currentRuntimeSec;
 		++intervalSeconds;
 
@@ -240,10 +240,10 @@ int main(int argc, char **argv)
 		nextTime = currentTime + 1000000000LL;
 		
 #ifdef _WIN32
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 		Sleep((DWORD)((nextTime-currentTime)/1000000)); // millisecond sleep
 #else
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 		sleeptime.tv_sec = 0;
 		sleeptime.tv_nsec = nextTime - currentTime;
 		if (sleeptime.tv_nsec >= 1000000000)
@@ -512,7 +512,7 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 		{
 			if (consumerThreads[i].stats.imageRetrievalEndTime)
 			{
-				TimeValue imageRetrievalStartTime = consumerThreads[i].stats.imageRetrievalStartTime,
+				RsslTimeValue imageRetrievalStartTime = consumerThreads[i].stats.imageRetrievalStartTime,
 						  imageRetrievalEndTime = consumerThreads[i].stats.imageRetrievalEndTime;
 
 				/* To get the total time it took to retrieve all images, find the earliest start time
@@ -541,7 +541,7 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 
 			if (displayStats)
 			{
-				TimeValue imageRetrievalTime = consumerThreads[i].stats.imageRetrievalEndTime - 
+				RsslTimeValue imageRetrievalTime = consumerThreads[i].stats.imageRetrievalEndTime - 
 					consumerThreads[i].stats.imageRetrievalStartTime;
 
 				printf("  - Image retrieval time for %d images: %.3fs (%.0f images/s)\n", 
@@ -564,7 +564,7 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 			if (displayStats)
 			{
 				/* Print overall image retrieval stats. */
-				TimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
+				RsslTimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
 						totalStats.imageRetrievalStartTime);
 
 				printf("\nOverall image retrieval time for %d images: %.3fs (%.0f Images/s).\n\n", 
@@ -604,7 +604,7 @@ void consumerCleanupThreads()
 	else
 		collectStats(RSSL_FALSE, RSSL_FALSE, 0, 0);
 
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 
 	printSummaryStatistics(stdout);
 	printSummaryStatistics(summaryFile);
@@ -641,7 +641,7 @@ void consumerCleanupThreads()
 
 void printSummaryStatistics(FILE *file)
 {
-	TimeValue firstUpdateTime;
+	RsslTimeValue firstUpdateTime;
 	RsslInt32 i;
 	RsslUInt64 totalUpdateCount = countStatGetTotal(&totalStats.startupUpdateCount)
 		+ countStatGetTotal(&totalStats.steadyStateUpdateCount);
@@ -656,7 +656,7 @@ void printSummaryStatistics(FILE *file)
 
 	for(i = 0; i < consPerfConfig.threadCount; ++i)
 	{
-		TimeValue imageRetrievalTime = consumerThreads[i].stats.imageRetrievalEndTime ?
+		RsslTimeValue imageRetrievalTime = consumerThreads[i].stats.imageRetrievalEndTime ?
 			(consumerThreads[i].stats.imageRetrievalEndTime 
 			- consumerThreads[i].stats.imageRetrievalStartTime) : 0;
 
@@ -1029,7 +1029,7 @@ void printSummaryStatistics(FILE *file)
 
 	if (totalStats.imageRetrievalEndTime)
 	{
-		TimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
+		RsslTimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
 				totalStats.imageRetrievalStartTime);
 
 		fprintf(file,

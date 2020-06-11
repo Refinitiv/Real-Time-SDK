@@ -240,6 +240,8 @@ typedef struct RsslTransChannelFuncs {
 	RsslRet  (RTR_FASTCALL *channelPing)( rsslChannelImpl *rsslChnlImpl, RsslError *error );
 	/* Gets Channel Information */
 	RsslRet  (RTR_FASTCALL *channelGetInfo)( rsslChannelImpl *rsslChnlImpl, RsslChannelInfo *info, RsslError *error );
+	/* Gets Channel Information */
+	RsslRet(RTR_FASTCALL *channelGetStats)(rsslChannelImpl *rsslChnlImpl, RsslChannelStats *info, RsslError *error);
 	/* Allows for changing channel options */
 	RsslRet  (RTR_FASTCALL *channelIoctl)( rsslChannelImpl *rsslChnlImpl, RsslIoctlCodes code, void *value, RsslError *error );
 } RsslTransportChannelFuncs;

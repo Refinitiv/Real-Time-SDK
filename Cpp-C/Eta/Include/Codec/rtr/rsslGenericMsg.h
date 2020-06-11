@@ -67,15 +67,16 @@ RTR_C_ALWAYS_INLINE void rsslClearGenericMsg(RsslGenericMsg *pGenericMsg)
  * @see RsslGenericMsg, RsslMsg
  */
 typedef enum {
-	RSSL_GNMF_NONE					= 0x000,		/*!< (0x000) No RsslGenericFlags are present.  */
-	RSSL_GNMF_HAS_EXTENDED_HEADER	= 0x001,		/*!< (0x001) This RsslGenericMsg has an extended header buffer, contained in RsslGenericMsg::extendedHeader.  */
-	RSSL_GNMF_HAS_PERM_DATA			= 0x002,		/*!< (0x002) This RsslGenericMsg has permission information, contained in RsslGenericMsg::permData. */
-	RSSL_GNMF_HAS_MSG_KEY			= 0x004,		/*!< (0x004) This RsslGenericMsg has a message key, contained in RsslGenericMsg::msgBase::msgKey.  */
-	RSSL_GNMF_HAS_SEQ_NUM			= 0x008,		/*!< (0x008) This RsslGenericMsg has a sequence number, contained in RsslGenericMsg::seqNum. */
-	RSSL_GNMF_MESSAGE_COMPLETE		= 0x010,		/*!< (0x010) Indicates that this RsslGenericMsg is the final part of a multi-part generic message. This flag should be set on both single-part generic messages, as well as the final message in a multi-part generic message sequence. */
-	RSSL_GNMF_HAS_SECONDARY_SEQ_NUM	= 0x020,		/*!< (0x020) This RsslGenericMsg has a secondary sequence number, contained in RsslGenericMsg::secondarySeqNum */
-	RSSL_GNMF_HAS_PART_NUM			= 0x040,		/*!< (0x040) This RsslGenericMsg has a part number, contained in RsslGenericMsg::partNum. */
-	RSSL_GNMF_HAS_REQ_MSG_KEY		= 0x080			/*!< (0x080) The RsslGenericMsg has the original request's message key, contained in \ref RsslGenericMsg::msgBase::reqMsgKey*/
+	RSSL_GNMF_NONE					= 0x0000,		/*!< (0x0000) No RsslGenericFlags are present.  */
+	RSSL_GNMF_HAS_EXTENDED_HEADER	= 0x0001,		/*!< (0x0001) This RsslGenericMsg has an extended header buffer, contained in RsslGenericMsg::extendedHeader.  */
+	RSSL_GNMF_HAS_PERM_DATA			= 0x0002,		/*!< (0x0002) This RsslGenericMsg has permission information, contained in RsslGenericMsg::permData. */
+	RSSL_GNMF_HAS_MSG_KEY			= 0x0004,		/*!< (0x0004) This RsslGenericMsg has a message key, contained in RsslGenericMsg::msgBase::msgKey.  */
+	RSSL_GNMF_HAS_SEQ_NUM			= 0x0008,		/*!< (0x0008) This RsslGenericMsg has a sequence number, contained in RsslGenericMsg::seqNum. */
+	RSSL_GNMF_MESSAGE_COMPLETE		= 0x0010,		/*!< (0x0010) Indicates that this RsslGenericMsg is the final part of a multi-part generic message. This flag should be set on both single-part generic messages, as well as the final message in a multi-part generic message sequence. */
+	RSSL_GNMF_HAS_SECONDARY_SEQ_NUM	= 0x0020,		/*!< (0x0020) This RsslGenericMsg has a secondary sequence number, contained in RsslGenericMsg::secondarySeqNum */
+	RSSL_GNMF_HAS_PART_NUM			= 0x0040,		/*!< (0x0040) This RsslGenericMsg has a part number, contained in RsslGenericMsg::partNum. */
+	RSSL_GNMF_HAS_REQ_MSG_KEY		= 0x0080,		/*!< (0x0080) The RsslGenericMsg has the original request's message key, contained in \ref RsslGenericMsg::msgBase::reqMsgKey*/
+	RSSL_GNMF_PROVIDER_DRIVEN		= 0x4000		/*!< (0x4000) This RsslGenericMsg is sent from a provider and is not in response to a specific request */
 } RsslGenericFlags;
 
 /** 
@@ -90,6 +91,8 @@ static const RsslBuffer RSSL_OMMSTR_GNMF_MESSAGE_COMPLETE = { 15, (char*)"Messag
 static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_SECONDARY_SEQ_NUM = { 18, (char*)"HasSecondarySeqNum" };
 static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_PART_NUM = { 10, (char*)"HasPartNum" };
 static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_REQ_MSG_KEY = { 12, (char*)"HasReqMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_PROVIDER_DRIVEN = { 14, (char*)"ProviderDriven" };
+
 
 /**
  * @brief Provide general OMM string representation of RsslGenericFlags
@@ -288,6 +291,16 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasSecondarySeqNum(RsslGenericMsg *p
 RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasReqMsgKey(RsslGenericMsg *pGenericMsg)
 {
 	pGenericMsg->flags |= RSSL_GNMF_HAS_REQ_MSG_KEY;
+}
+
+/**
+* @brief Applies the ::RSSL_GNMF_PROVIDER_DRIVEN flag on the given RsslGenericMsg.
+*
+* @param pGenericMsg Pointer to the generic message.
+*/
+RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyProviderDriven(RsslGenericMsg *pGenericMsg)
+{
+	pGenericMsg->flags |= RSSL_GNMF_PROVIDER_DRIVEN;
 }
 
 /**
