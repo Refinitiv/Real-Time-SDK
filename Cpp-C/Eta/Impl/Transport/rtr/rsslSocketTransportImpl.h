@@ -249,7 +249,7 @@ typedef struct {
 
 	int (*getSockName)(RsslSocket fd, struct sockaddr *address, int *address_len, void* transport);
 	int (*setSockOpts)(RsslSocket fd, ripcSocketOption *option, void* transport);
-	int (*getSockOpts)(RsslSocket fd, int code, void* value, void* transport, RsslError *error);
+	int (*getSockOpts)(RsslSocket fd, int code, void* value, int* transport, RsslError *error);
 	int (*connected)(RsslSocket fd, void* transport);
 	int (*shutdownServer)(void *srvr);
 	void (*uninitialize)();
