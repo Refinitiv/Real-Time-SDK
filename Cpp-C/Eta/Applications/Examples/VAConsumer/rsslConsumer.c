@@ -1668,7 +1668,7 @@ int main(int argc, char **argv)
 		loginRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
 		loginRequest.applicationId = appId;
 	}
-		
+
 	if (RTTSupport == RSSL_TRUE)
 	{
 		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;

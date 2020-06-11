@@ -2064,6 +2064,49 @@ void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInfor
   return;
 }
 
+void OmmServerBaseImpl::getConnectedClientChannelStatsImpl(UInt64 clientHandle, ChannelStatistics& cs) {
+	RsslReactorChannelStats rsslReactorChannelStats;
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret;
+
+	cs.clear();
+
+	_userLock.lock();
+
+	for (UInt32 index = 0; index < connectedChannels.size(); ++index) {
+		if ((UInt64)connectedChannels[index] == clientHandle) {
+
+			RsslReactorChannel* rrc = connectedChannels[index];
+
+			// create connected component info
+			if ((ret = rsslReactorGetChannelStats(rrc, &rsslReactorChannelStats, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				_userLock.unlock();
+				EmaString temp("Call to rsslReactorGetChannelStats() failed. Internal sysError='");
+				temp.append(rsslErrorInfo.rsslError.sysError)
+					.append("' Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append("' ")
+					.append("' Error Location='").append(rsslErrorInfo.errorLocation).append("' ")
+					.append("' Error text='").append(rsslErrorInfo.rsslError.text).append("'. ");
+				handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+				return;
+			}
+
+			if (rsslReactorChannelStats.rsslChannelStats.tcpStats.flags & RSSL_TCP_STATS_RETRANSMIT)
+			{
+				cs.tcpRetransmitCount(rsslReactorChannelStats.rsslChannelStats.tcpStats.tcpRetransmitCount);
+			}
+
+			_userLock.unlock();
+			return;
+		}
+	}
+
+	_userLock.unlock();
+
+	EmaString temp("Invalid clientHandle to call getConnectedClientChannelStats().");
+	handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+}
+
 RsslReactorCallbackRet OmmServerBaseImpl::jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
 {
 	if (pEvent->pError)

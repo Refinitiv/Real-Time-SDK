@@ -22,7 +22,6 @@ typedef int DUMMY_SOCKET;
 
 #undef maxValue
 #undef minValue
-#include "../Common/GetTime.h"
 #include <float.h>
 #include "Ema.h"
 #include <stdio.h>

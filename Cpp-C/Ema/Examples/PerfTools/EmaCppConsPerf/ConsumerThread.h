@@ -41,7 +41,6 @@
 
 #include "ConsPerfConfig.h"
 #include "../Common/Statistics.h"
-#include "../Common/GetTime.h"
 #include "../Common/AppVector.h"
 #include "../Common/Mutex.h"
 #include "../Common/AppUtil.h"

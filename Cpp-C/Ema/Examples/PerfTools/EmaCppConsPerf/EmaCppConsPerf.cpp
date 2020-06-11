@@ -1100,7 +1100,7 @@ void EmaCppConsPerf::consumerCleanupThreads()
 	else
 		collectStats(false, false, 0, 0);
 
-	currentTime = GetTime::getTimeNano();
+	currentTime = GetTime::getNanos();
 
 	printSummaryStatistics(stdout);
 	printSummaryStatistics(summaryFile);
@@ -1226,16 +1226,16 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	UInt32 currentRuntimeSec = 0;
 	UInt32 intervalSeconds = 0;
 
-	endTime = GetTime::getTimeMilli() + consPerfConfig.steadyStateTime * 1000;
+	endTime = GetTime::getMillis() + consPerfConfig.steadyStateTime * 1000;
 	
 
-	startTime = GetTime::getTimeMilli();
+	startTime = GetTime::getMillis();
 
 	// Sleep for one more second so some stats can be gathered before first printout.
 	AppUtil::sleep( 1000 );
 	while ( !shutdownThreads() )
 	{		
-		currentTime = GetTime::getTimeMilli();
+		currentTime = GetTime::getMillis();
 		++currentRuntimeSec;
 		++intervalSeconds;
 

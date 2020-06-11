@@ -135,6 +135,7 @@
 #include "Access/Include/Common.h"
 #include "Access/Include/OmmProviderConfig.h"
 #include "Access/Include/ChannelInformation.h"
+#include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/EmaVector.h"
 
 namespace thomsonreuters {
@@ -347,6 +348,18 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void getConnectedClientChannelInfo(EmaVector<ChannelInformation> &);
+
+	/** Provides channel statistical information about connected client. Only relevant to IProvider
+		applications. This method throws an exception is called by NiProvider applications.
+		@param[in] clientHandleidentifies handle associated with connected client
+				   information about connected clients is added
+		@param[out] cs caller provided ChannelStatistics; data will be cleared before statistics
+				   information about connected clients is added
+		@return void
+		@throw OmmInvalidUsageException if is called by an NiProvider application.
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void getConnectedClientChannelStats(UInt64 clientHandle, ChannelStatistics & cs);
 
 	/** Provides channel information about the active channel.  Only relevant to NiProvider
 		application. This method throws an exception is called by IProvider applications.

@@ -1915,6 +1915,13 @@ void OmmNiProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformati
   throwIueException( "NIProvider applications do not support the getConnectedClientChannelInfo method", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
+/* method getConnectedClientChannelStats not supported for NIProvider applications. Function is
+ * defined here because the function is defined in a common base class
+ */
+void OmmNiProviderImpl::getConnectedClientChannelStats(UInt64, ChannelStatistics&) {
+  throwIueException("NIProvider applications do not support the getConnectedClientChannelStats method", OmmInvalidUsageException::InvalidOperationEnum);
+}
+
 void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
   Channel* pChannel;
   RsslReactorChannel* rsslReactorChannel;

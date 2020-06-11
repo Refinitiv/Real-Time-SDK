@@ -361,6 +361,51 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 
 			return RSSL_RC_CRET_SUCCESS;
 		}
+		case RDM_LG_MT_RTT:
+		{
+			if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Received RTT message on login domain.");
+				temp.append(CR).append("Stream Id ").append(pLoginMsg->rdmMsgBase.streamId)
+					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
+
+				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+			}
+
+			ItemInfo* itemInfo = clientSession->getItemInfo(pLoginMsg->rdmMsgBase.streamId);
+
+			if (itemInfo)
+			{
+				RsslMsg *pRsslMsg = pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg;
+				const RsslDataDictionary* rsslDataDictionary = 0;
+
+				if (itemInfo->hasServiceId())
+				{
+					Dictionary* dictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId(itemInfo->getServiceId());
+
+					if (dictionary)
+					{
+						rsslDataDictionary = dictionary->getRsslDictionary();
+					}
+				}
+
+				StaticDecoder::setRsslData(&ommServerBaseImpl->_genericMsg, pRsslMsg,
+					pReactorChannel->majorVersion,
+					pReactorChannel->minorVersion,
+					rsslDataDictionary);
+
+				ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
+				ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;
+				ommServerBaseImpl->ommProviderEvent._provider = ommServerBaseImpl->getProvider();
+				ommServerBaseImpl->ommProviderEvent._handle = (UInt64)itemInfo;
+
+				ommServerBaseImpl->_pOmmProviderClient->onAllMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+				ommServerBaseImpl->_pOmmProviderClient->onGenericMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+			}
+
+			break;
+		}
 		default:
 		{
 			EmaString temp("Rejected unhandled login message type ");

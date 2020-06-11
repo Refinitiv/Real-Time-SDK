@@ -113,6 +113,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"DisconnectOnGap",
 	"EnableSessionManagement",
 	"EnforceAckIDValidation",
+	"EnableRtt",
 	"EnumTypeFragmentSize",
 	"FieldDictionaryFragmentSize",
 	"GuaranteedOutputBuffers",

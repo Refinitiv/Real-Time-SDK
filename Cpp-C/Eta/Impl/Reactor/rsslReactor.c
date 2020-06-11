@@ -3710,7 +3710,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 									rttMsg.tcpRetrans = stats.tcpStats.tcpRetransmitCount;
 								}
 
-								if ((ret = _reactorSendRDMMessage(pReactorImpl, pReactorChannel, (RsslRDMMsg*)&rttMsg, pError)) != RSSL_RET_SUCCESS)
+								if ((ret = _reactorSendRDMMessage(pReactorImpl, pReactorChannel, (RsslRDMMsg*)&rttMsg, pError)) < RSSL_RET_SUCCESS)
 								{
 									if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
 										return RSSL_RET_FAILURE;

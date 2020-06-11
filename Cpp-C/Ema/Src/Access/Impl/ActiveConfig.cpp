@@ -159,6 +159,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
 	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
+	enableRtt(DEFAULT_ENABLE_RTT),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -200,6 +201,7 @@ void BaseConfig::clear()
 	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
 	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
+	enableRtt = DEFAULT_ENABLE_RTT;
 	loggerConfig.clear();
 	libSslName.clear();
 	libCryptoName.clear();
@@ -236,6 +238,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
 		.append("\n\t xmlTraceDump : ").append(xmlTraceDump)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)
+		.append("\n\t enableRtt : ").append(enableRtt)
 		.append("\n\t libSslName : ").append(libSslName)
 		.append("\n\t libCryptoName : ").append(libCryptoName)
 		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio)

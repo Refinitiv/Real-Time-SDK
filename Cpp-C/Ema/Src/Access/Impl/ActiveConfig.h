@@ -112,6 +112,7 @@
 #define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  65535
+#define DEFAULT_ENABLE_RTT							  false
 
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
@@ -437,6 +438,7 @@ public:
 	bool					xmlTracePing;
 	bool					xmlTraceHex;
 	bool					xmlTraceDump;
+	bool					enableRtt;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.

@@ -280,6 +280,16 @@ void GenericMsgEncoder::payload( const ComplexType& load )
 #endif
 }
 
+void GenericMsgEncoder::providerDriven( bool providerDriven )
+{
+	acquireEncIterator();
+
+	if (providerDriven)
+		_rsslGenericMsg.flags |= RSSL_GNMF_PROVIDER_DRIVEN;
+	else
+		_rsslGenericMsg.flags &= ~RSSL_GNMF_PROVIDER_DRIVEN;
+}
+
 RsslMsg* GenericMsgEncoder::getRsslMsg() const
 {
 	return (RsslMsg*) &_rsslGenericMsg;

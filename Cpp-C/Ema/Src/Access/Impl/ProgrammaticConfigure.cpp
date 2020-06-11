@@ -1141,7 +1141,11 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
 												}
-											
+												else if (eentry.getName() == "EnableRtt")
+												{
+													activeConfig.enableRtt = eentry.getUInt() ? true : false;
+												}
+
 												break;
 
 											case DataType::IntEnum:

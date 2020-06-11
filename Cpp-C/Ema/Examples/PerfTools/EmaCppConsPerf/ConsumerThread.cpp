@@ -348,7 +348,7 @@ void ConsumerThread::run()
 		AppUtil::sleep( 10 );
 	}
 
-	currentTime = GetTime::getTimeMicro();
+	currentTime = GetTime::getMicros();
 	nextTickTime = currentTime + microSecPerTick;
 	itemsRequestedCount = 0;
 
@@ -360,7 +360,7 @@ void ConsumerThread::run()
 			{
 				break;
 			}
-			currentTime = GetTime::getTimeMicro();
+			currentTime = GetTime::getMicros();
 			// read until no more to read and then write leftover from previous burst
 			if( currentTime >= nextTickTime)
 			{
@@ -395,7 +395,7 @@ void ConsumerThread::run()
 				failureLocation = "ConsumerThread::run() - sendBursts failed at UserDispatch";
 				break;
 			}
-			currentTime = GetTime::getTimeMicro();
+			currentTime = GetTime::getMicros();
 			if( currentTime < nextTickTime )			
 				pEmaOmmConsumer->dispatch( (nextTickTime - currentTime) ); // Dispatch either sleeps or works (dispatching msgs) till next tick time;
 			else
@@ -422,7 +422,7 @@ bool ConsumerThread::sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 
 		if (currentTicks > pConsPerfCfg->_requestsPerTickRemainder)
 				++requestBurstCount;
 		if( !stats.imageRetrievalStartTime )
-			stats.imageRetrievalStartTime = GetTime::getTimeNano();
+			stats.imageRetrievalStartTime = GetTime::getNanos();
 			
 			if(sendItemRequestBurst(requestBurstCount) == false)
 			{
@@ -506,7 +506,7 @@ void ConsumerThread::updateLatencyStats( TimeValue timeTracker, LatencyRecords* 
 	TimeRecord ldata;
 
 	ldata.startTime = timeTracker;
-	ldata.endTime = GetTime::getTimeMicro();
+	ldata.endTime = GetTime::getMicros();
 	ldata.ticks = 1;
 
 	statsMutex.lock();
@@ -715,7 +715,7 @@ void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::Refresh
 			}
 
 			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
-				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getTimeNano();
+				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getNanos();
 		}
 	}
 }
@@ -724,7 +724,7 @@ void MarketPriceClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMs
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
-		pConsumerThread->stats.firstUpdateTime = GetTime::getTimeNano();
+		pConsumerThread->stats.firstUpdateTime = GetTime::getNanos();
 
 	if( !decodeMPUpdate(update.getPayload().getFieldList(),  DataType::UpdateMsgEnum) )
 	{
@@ -982,7 +982,7 @@ void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::Refre
 			}
 		
 			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
-				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getTimeNano();
+				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getNanos();
 		}
 	}
 }
@@ -991,7 +991,7 @@ void MarketByOrderClient::onUpdateMsg( const thomsonreuters::ema::access::Update
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
-		pConsumerThread->stats.firstUpdateTime = GetTime::getTimeNano();
+		pConsumerThread->stats.firstUpdateTime = GetTime::getNanos();
 
 	if( !decodeMBOUpdate(update.getPayload().getMap(),  DataType::UpdateMsgEnum) )
 	{

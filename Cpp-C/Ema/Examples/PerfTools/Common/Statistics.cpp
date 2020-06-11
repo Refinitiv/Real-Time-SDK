@@ -158,7 +158,7 @@ bool ResourceUsageStats::getResourceUsageStats()
 	cpuUsageFraction = (double)(userUsec - _prevUserTimeUsec + kernelUsec - _prevKernelTimeUsec);
 
 	/* Divide over total time to get the CPU usage as a fraction. */
-	currentTimeUsec = GetTime::getTimeMicro();
+	currentTimeUsec = GetTime::getMicros();
 	cpuUsageFraction /= ((double)(currentTimeUsec - _prevTimeUsec));
 
 	_prevUserTimeUsec = userUsec; 

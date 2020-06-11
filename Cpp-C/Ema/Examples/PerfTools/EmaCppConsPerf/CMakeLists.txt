@@ -8,7 +8,6 @@ set(_ConsPerfSrcFiles
         ConsumerThread.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppUtil.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.cpp
-        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfConfig.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Statistics.cpp
@@ -17,7 +16,6 @@ set(_ConsPerfSrcFiles
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppUtil.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppVector.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.h
-        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfConfig.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Statistics.h

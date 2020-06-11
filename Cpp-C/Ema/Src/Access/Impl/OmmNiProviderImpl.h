@@ -108,6 +108,8 @@ public :
     void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&);
     void getChannelInformation(ChannelInformation&);
 
+	void getConnectedClientChannelStats(UInt64, ChannelStatistics&);
+
 	void modifyIOCtl(Int32 code, Int32 value, UInt64 handle);
 
 	void closeChannel(UInt64 clientHandle);

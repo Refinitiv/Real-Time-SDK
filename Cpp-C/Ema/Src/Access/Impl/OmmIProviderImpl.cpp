@@ -1537,6 +1537,10 @@ void OmmIProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformatio
   return getConnectedClientChannelInfoImpl(ci);
 }
 
+void OmmIProviderImpl::getConnectedClientChannelStats(UInt64 clientHandle, ChannelStatistics & cs) {
+	return getConnectedClientChannelStatsImpl(clientHandle, cs);
+}
+
 /* method getChannelInfo not supported for IProvider objects. Function is defined
  * here because the function is defined in a common base class
  */

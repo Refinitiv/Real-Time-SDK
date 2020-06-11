@@ -472,6 +472,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
+	{
+		_activeConfig.enableRtt = tmp > 0 ? true : false;
+	}
+
 	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReissueTokenAttemptLimit", tempInt))
 		_activeConfig.reissueTokenAttemptLimit = tempInt;
