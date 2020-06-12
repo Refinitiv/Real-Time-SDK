@@ -19,6 +19,9 @@ Series100Consumer100-InitAuthFail-001
     Alters consumer to use OMMErrorClient. AppErrorClient callback onInvalidUsage
     should be triggered with error text 'RDMLogin stream was closed with status message'
 
+Series100Consumer100-LoginStatusMessage-001
+    Alters consumer to run forever till interrupt. Dictionary is loaded from the file
+
 Module:  Series100Consumer110 
 -----------------
 
@@ -635,6 +638,10 @@ Series100Provider100-ProvFunc-010
 
 Series100Provider100-InitAuthFail-001
     Alters Interactive provide to reject login request
+
+Series100Provider100-LoginStatusMessage-001
+    Alters Interactive Provider to reject logon message with Status message,
+    state 'Closed, Recoverable/Suspect/Usage error'
 
 Module:	 Series100IProvider170
 ---------------------------

@@ -1120,6 +1120,9 @@ class WlLoginHandler implements WlHandler
 				_stream.state().dataState(DataStates.SUSPECT);
 
 				// call back user with login status of OPEN/SUSPECT
+				_statusMsg.clear();
+				_statusMsg.msgClass(MsgClasses.STATUS);
+				_statusMsg.domainType(DomainTypes.LOGIN);
 				_statusMsg.streamId(streamId);
 				_statusMsg.applyHasState();
 				_statusMsg.state().streamState(StreamStates.OPEN);
@@ -1127,6 +1130,8 @@ class WlLoginHandler implements WlHandler
 				_statusMsg.state().code(StateCodes.NONE);
 				_statusMsg.state().text(_tempBuffer);
 
+				_loginStatus.clear();
+				_loginStatus.rdmMsgType(LoginMsgType.STATUS);
 				_loginStatus.streamId(streamId);
 				_loginStatus.applyHasState();
 				_loginStatus.state().streamState(StreamStates.OPEN);
@@ -1295,6 +1300,9 @@ class WlLoginHandler implements WlHandler
 		int streamId = (loginRequest != null ? loginRequest.streamId() : 0);
 
 		// call back user with login status of OPEN/SUSPECT
+		_statusMsg.clear();
+		_statusMsg.msgClass(MsgClasses.STATUS);
+		_statusMsg.domainType(DomainTypes.LOGIN);
 		_statusMsg.streamId(streamId);
 		_statusMsg.applyHasState();
 		_statusMsg.state().streamState(StreamStates.OPEN);
@@ -1302,6 +1310,8 @@ class WlLoginHandler implements WlHandler
 		_statusMsg.state().code(StateCodes.NONE);
 		_statusMsg.state().text(_tempBuffer);
 
+		_loginStatus.clear();
+		_loginStatus.rdmMsgType(LoginMsgType.STATUS);
 		_loginStatus.streamId(streamId);
 		_loginStatus.applyHasState();
 		_loginStatus.state().streamState(StreamStates.OPEN);
