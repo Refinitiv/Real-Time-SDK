@@ -8,8 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -52,6 +51,7 @@ import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ConnectOptions;
@@ -77,6 +77,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRTT;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.reactor.ConsumerCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ConsumerRole;
@@ -99,6 +100,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /** Provides the logic that consumer connections use in upajConsPerf for
   * connecting to a provider, requesting items, and processing the received
@@ -180,6 +183,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private DictionaryRequest _dictionaryRequest; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Buffer _fieldDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Buffer _enumTypeDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
+
+    private Map<Channel, Integer> fdSocketValueMap = new HashMap<>();
 
     {
     	_eIter = CodecFactory.createEncodeIterator();
@@ -426,8 +431,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 		System.exit(-1);
                 	}
                 }
-                if (handshake == TransportReturnCodes.SUCCESS)
-                	break;
+                if (handshake == TransportReturnCodes.SUCCESS) {
+                    final int fdSocketValue = ChannelHelper.defineFdValueOfSelectableChannel(_channel.selectableChannel());
+                    fdSocketValueMap.put(_channel, fdSocketValue);
+                    break;
+                }
                 
                 System.out.println("Connection failure: " + _error.text() + ". Will retry shortly.");
                 try
@@ -503,6 +511,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             {
                 _role.rdmLoginRequest().userName().data(_consPerfConfig.username());
             }
+            if (_consPerfConfig.enableRtt()) {
+                _role.rdmLoginRequest().attrib().applyHasSupportRoundTripLatencyMonitoring();
+            }
             _role.initDefaultRDMDirectoryRequest();
             // enable watchlist if configured
             if (_consPerfConfig.useWatchlist())
@@ -559,6 +570,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 _loginHandler.applicationName("upajConsPerf");
                 _loginHandler.userName(_consPerfConfig.username());
                 _loginHandler.role(Login.RoleTypes.CONS);
+                _loginHandler.enableRtt(_consPerfConfig.enableRtt());
         
                 // Send login request message
                 TransportBuffer msg = _loginHandler.getRequestMsg(_channel, _error, _eIter);
@@ -983,6 +995,15 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         		closeChannelAndShutDown("Provider for this connection does not support posting.");
         		return;
         	}
+        }
+
+        if (_consPerfConfig.enableRtt()
+                && Objects.equals(MsgClasses.GENERIC, _responseMsg.msgClass())
+                && Objects.equals(DataTypes.ELEMENT_LIST, _responseMsg.containerType())) {
+            final TransportBuffer loginRttMsgBuffer = _loginHandler.getRttMsg(_channel, _error, _eIter);
+            write(loginRttMsgBuffer);
+            _loginHandler.logRttResponse(fdSocketValueMap.get(_channel));
+            return;
         }
 
         //Handle login states
@@ -1888,7 +1909,12 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 {
                     closeChannelAndShutDown("Channel.info() failed");
                     return ReactorCallbackReturnCodes.FAILURE;
-                } 
+                }
+
+                //define socket id
+                final int fdSocketValue = ChannelHelper.defineFdValueOfSelectableChannel(_reactorChannel.channel().selectableChannel());
+                fdSocketValueMap.put(_reactorChannel.channel(), fdSocketValue);
+
                 System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
 
                 break;
@@ -1916,6 +1942,10 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     System.out.println("selector register failed: " + e.getLocalizedMessage());
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
+
+                //define socket id
+                final int fdSocketValue = ChannelHelper.defineFdValueOfSelectableChannel(_reactorChannel.channel().selectableChannel());
+                fdSocketValueMap.put(_reactorChannel.channel(), fdSocketValue);
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_READY:
@@ -2057,6 +2087,19 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 {
                     closeChannelAndShutDown("Provider for this connection does not support posting.");
                 }
+                break;
+            case RTT:
+                LoginRTT loginRTT = (LoginRTT) event.rdmLoginMsg();
+                System.out.printf("\nReceived login RTT message from Provider %d.\n",
+                        fdSocketValueMap.get(event.reactorChannel().channel()));
+                System.out.printf("\tTicks: %du\n", NANOSECONDS.toMicros(loginRTT.ticks()));
+                if (loginRTT.checkHasRTLatency()) {
+                    System.out.printf("\tLast Latency: %du\n", NANOSECONDS.toMicros(loginRTT.rtLatency()));
+                }
+                if (loginRTT.checkHasTCPRetrans()) {
+                    System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
+                }
+                System.out.println("RTT Response sent to provider by reactor.\n");
                 break;
             default:
                 break;

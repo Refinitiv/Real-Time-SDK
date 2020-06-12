@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -12,6 +14,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
 import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
@@ -36,6 +39,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryReques
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRTT;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
@@ -78,7 +82,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     private Msg _tmpMsg;
     
     private int _connectionCount; //Number of client sessions currently connected.
-    
+
     private long _nsecPerTick; /* nanoseconds per tick */
     private long _millisPerTick; /* milliseconds per tick */
     private long _divisor = 1;
@@ -102,7 +106,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _channelInfo = TransportFactory.createChannelInfo();
         _itemRequestHandler = new ItemRequestHandler();
         _channelHandler = new ChannelHandler(this);
-        
+
         _nsecPerTick = 1000000000 / ProviderPerfConfig.ticksPerSec();
         _millisPerTick = 1000 / ProviderPerfConfig.ticksPerSec();
         if (ProviderPerfConfig.ticksPerSec() > 1000)
@@ -406,6 +410,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _loginProvider.initDefaultPosition();
         _loginProvider.applicationId(applicationId);
         _loginProvider.applicationName(applicationName);
+        _loginProvider.enableRtt(ProviderPerfConfig.enableRtt());
 
         if (!_dictionaryProvider.loadDictionary(_error))
         {
@@ -553,6 +558,17 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                }
            }
 
+           if (ProviderPerfConfig.enableRtt()) {
+               if (ProviderPerfConfig.useReactor()) {
+                   ret = _loginProvider.reactorSendRttMessage(clientChannelInfo, _error);
+               } else {
+                   ret = _loginProvider.sendRttMessage(_channelHandler, clientChannelInfo, _error);
+                   if (ret > TransportReturnCodes.SUCCESS) {
+                       _channelHandler.requestFlush(clientChannelInfo);
+                   }
+               }
+           }
+
            // Use remaining time in the tick to send refreshes.
            while(ret >= TransportReturnCodes.SUCCESS &&  providerSession.refreshItemList().count() != 0 && currentTime() < stopTime)
                ret = sendRefreshBurst(providerSession, _error);
@@ -681,6 +697,8 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 provSession.clientChannelInfo().channel = reactorChannel.channel();
                 provSession.clientChannelInfo().parentQueue = _channelHandler.activeChannelList();
                 provSession.clientChannelInfo().parentQueue.add(provSession.clientChannelInfo());
+                provSession.clientChannelInfo().socketFdValue =
+                        ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
 
                 provSession.timeActivated(System.nanoTime());
                 
@@ -701,7 +719,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 System.out.println("Channel Change - Old Channel: "
                         + event.reactorChannel().oldSelectableChannel() + " New Channel: "
                         + event.reactorChannel().selectableChannel());
-                
+
                 // cancel old reactorChannel select
                 try
                 {
@@ -724,6 +742,9 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                     System.out.println("selector register failed: " + e.getLocalizedMessage());
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
+                //define new socket fd value
+                provSession.clientChannelInfo().socketFdValue =
+                        ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -823,7 +844,15 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 //send login response
                 LoginRequest loginRequest = (LoginRequest)loginMsg;
                 loginRequest.copy(_loginProvider.loginRequest());
+                if (ProviderPerfConfig.enableRtt()) {
+                    _loginProvider.createLoginRtt(reactorChannel.channel());
+                }
                 _loginProvider.sendRefreshReactor(provSession.clientChannelInfo(), event.errorInfo().error());
+                break;
+            case RTT:
+                LoginRTT loginRTT = (LoginRTT) loginMsg;
+                loginRTT.copy(_loginProvider.loginRTT());
+                _loginProvider.processRttMessage(provSession.clientChannelInfo());
                 break;
             case CLOSE:
                 System.out.println("Received Login Close for streamId " + loginMsg.streamId());
@@ -970,7 +999,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     
         return selectTime;
     }
-    
+
     Lock handlerLock()
     {
     	return _channelHandler.handlerLock();

@@ -8,8 +8,10 @@ import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
+import java.util.concurrent.TimeUnit;
+
 @SuppressWarnings("deprecation")
-class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, LoginPost, LoginStatus, LoginConsumerConnectionStatus, LoginClose
+class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, LoginPost, LoginStatus, LoginConsumerConnectionStatus, LoginClose, LoginRTT
 {
     private LoginMsgType rdmLoginMsgType;
 
@@ -20,6 +22,7 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
     private LoginAckImpl loginAck;
     private LoginPostImpl loginPost;
     private LoginConsumerConnectionStatusImpl loginConnStatus;
+    private LoginRTTImpl loginRTT;
 
     LoginMsgImpl()
     {
@@ -60,7 +63,9 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
     {
         return loginStatus;
     }
-    
+
+    private LoginRTTImpl rdmLoginRTT() { return loginRTT; }
+
     public LoginMsgType rdmMsgType()
     {
         return rdmLoginMsgType;
@@ -100,6 +105,10 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 if (loginRefresh == null)
                     loginRefresh = new LoginRefreshImpl();
                 break;
+            case RTT:
+                if (loginRTT == null)
+                    loginRTT = new LoginRTTImpl();
+                break;
             default:
                 assert (false);
                 break;
@@ -125,6 +134,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 return rdmLoginPost().streamId();
             case CONSUMER_CONNECTION_STATUS:
                 return rdmLoginConnStatus().streamId();
+            case RTT:
+                return rdmLoginRTT().streamId();
             default:
                 assert (false); // not supported on this message class
                 return CodecReturnCodes.FAILURE;
@@ -157,6 +168,9 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
             case CONSUMER_CONNECTION_STATUS:
                 rdmLoginConnStatus().streamId(streamId);
                 break;
+            case RTT:
+                rdmLoginRTT().streamId(streamId);
+                break;
             default:
                 assert (false); // not supported on this message class
         }
@@ -180,6 +194,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 return rdmLoginAck().encode(encodeIter);
             case CONSUMER_CONNECTION_STATUS:
                 return rdmLoginConnStatus().encode(encodeIter);
+            case RTT:
+                return rdmLoginRTT().encode(encodeIter);
             default:
                 assert (false); // not supported on this message class
                 return CodecReturnCodes.FAILURE;
@@ -204,6 +220,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 return rdmLoginAck().decode(dIter, msg);
             case CONSUMER_CONNECTION_STATUS:
                 return rdmLoginConnStatus().decode(dIter, msg);
+            case RTT:
+                return rdmLoginRTT().decode(dIter, msg);
             default:
                 assert (false); // not supported on this message class
                 return CodecReturnCodes.FAILURE;
@@ -228,6 +246,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 return rdmLoginPost().toString();
             case CONSUMER_CONNECTION_STATUS:
                 return rdmLoginConnStatus().toString();
+            case RTT:
+                return rdmLoginRTT().toString();
             default:
                 assert (false); // not supported on this message class
                 return null;
@@ -250,6 +270,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
             loginRequest.clear();
         if (loginPost != null)
             loginPost.clear();
+        if (loginRTT != null)
+            loginRTT.clear();
     }
 
     public void flags(int flags)
@@ -268,6 +290,9 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
             case CONSUMER_CONNECTION_STATUS:
                 rdmLoginConnStatus().flags(flags);
                 break;
+            case RTT:
+                rdmLoginRTT().flags(flags);
+                break;
             default:
                 assert (false); // not supported on this message class
         }
@@ -285,6 +310,8 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
                 return rdmLoginStatus().flags();
             case CONSUMER_CONNECTION_STATUS:
                 return rdmLoginConnStatus().flags();
+            case RTT:
+                return rdmLoginRTT().flags();
             default:
                 assert (false); // not supported on this message class
                 return 0;
@@ -1020,7 +1047,94 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
     {
         return rdmLoginStatus().copy(destStatusMsg);
     }
-    
+
+    ////////////////////////// RTT /////////////////////////////
+    @Override
+    public int copy(LoginRTT destRTTMsg) {
+        return loginRTT.copy(destRTTMsg);
+    }
+
+    @Override
+    public void tcpRetrans(long tcpretrans) {
+        loginRTT.tcpRetrans(tcpretrans);
+    }
+
+    @Override
+    public void rtLatency(long latency) {
+        loginRTT.rtLatency(latency);
+    }
+
+    @Override
+    public void ticks(long ticks) {
+        loginRTT.ticks(ticks);
+    }
+
+    @Override
+    public long ticks() {
+        return loginRTT.ticks();
+    }
+
+    @Override
+    public long rtLatency() {
+        return loginRTT.rtLatency();
+    }
+
+    @Override
+    public long tcpRetrans() {
+        return loginRTT.tcpRetrans();
+    }
+
+    @Override
+    public boolean checkProviderDriven() {
+        return loginRTT.checkProviderDriven();
+    }
+
+    @Override
+    public void applyProviderDriven() {
+        loginRTT.applyProviderDriven();
+    }
+
+    @Override
+    public boolean checkHasTCPRetrans() {
+        return loginRTT.checkHasTCPRetrans();
+    }
+
+    @Override
+    public void applyHasTCPRetrans() {
+        loginRTT.applyHasTCPRetrans();
+    }
+
+    @Override
+    public boolean checkHasRTLatency() {
+        return loginRTT.checkHasRTLatency();
+    }
+
+    @Override
+    public void applyHasRTLatency() {
+        loginRTT.applyHasRTLatency();
+    }
+
+    @Override
+    public void initRTT(int streamId) {
+        loginRTT.initRTT(streamId);
+    }
+
+    @Override
+    public long calculateRTTLatency(TimeUnit timeUnit) {
+        final long nanosRttLatency = loginRTT.calculateRTTLatency();
+        if (timeUnit != TimeUnit.NANOSECONDS) {
+            return timeUnit.convert(nanosRttLatency, TimeUnit.NANOSECONDS);
+        }
+        return nanosRttLatency;
+    }
+
+    @Override
+    public void updateRTTActualTicks() {
+        loginRTT.ticks(System.nanoTime());
+    }
+
+    /////////////////////////////////// end RTT ///////////////////////////////////
+
     @Override
     public int domainType()
     {

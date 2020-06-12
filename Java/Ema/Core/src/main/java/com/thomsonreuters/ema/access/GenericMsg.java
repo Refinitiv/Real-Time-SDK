@@ -101,6 +101,13 @@ public interface GenericMsg extends Msg
 	public boolean complete();
 
 	/**
+	 * Returns ProviderDriven.
+	 *
+	 * @return true if this is provider driven generic message.
+	 */
+	public boolean isProviderDriven();
+
+	/**
 	 * Clears the GenericMsg.<br>
 	 * Invoking clear() method clears all the values and resets all the defaults.
 	 * 
@@ -258,4 +265,13 @@ public interface GenericMsg extends Msg
 	 * @return reference to this object
 	 */
 	public GenericMsg complete(boolean complete);
+
+	/**
+	 * Specifies whether the message is provider driven.<br>
+	 *
+	 * @param providerDriven specifies if this message is provider driven, i.e. was initiated by the provider
+	 *                       and not the part of the response to any consumer request
+	 * @return reference to this object
+	 */
+	public GenericMsg providerDriven(boolean providerDriven);
 }

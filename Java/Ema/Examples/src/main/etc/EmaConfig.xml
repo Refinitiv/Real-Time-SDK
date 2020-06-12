@@ -44,6 +44,15 @@
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
 
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_RTT"/>
+			<Channel value="Channel_1"/>
+			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="1"/>
+			<EnableRtt value="1"/>
+		</Consumer>
+
 	</ConsumerList>
 </ConsumerGroup>
 

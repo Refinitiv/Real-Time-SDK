@@ -4,6 +4,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,14 +64,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.queue.QueueMsg;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
 
@@ -116,6 +110,7 @@ public class Reactor
     Msg _msg = CodecFactory.createMsg();
     WriteArgs _writeArgs = TransportFactory.createWriteArgs();
     WriteArgs _writeArgsAggregator = TransportFactory.createWriteArgs();
+    ReactorSubmitOptions reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
     ReadArgs _readArgsAggregator = TransportFactory.createReadArgs();
     InitArgs _initArgs = TransportFactory.createInitArgs();
     LoginMsg _loginMsg = LoginMsgFactory.createMsg();
@@ -2799,7 +2794,9 @@ public class Reactor
                 	{
                 		reactorChannel.watchlist()._loginHandler._loginRequestForEDP.userName(loginRequest.userName());
                 	}
-                	reactorChannel.watchlist().channelUp(errorInfo);
+                	reactorChannel.watchlist()._loginHandler.rttEnabled =
+                            loginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring();
+                    reactorChannel.watchlist().channelUp(errorInfo);
                 }
             }
             else
@@ -2952,6 +2949,59 @@ public class Reactor
         }
         else
             reactorChannel.flushAgain(false);
+    }
+
+    /**
+     *
+     * @param msg - generic msg which should be decoded and handled.
+     * @param reactorChannel - channel connection between client and server.
+     * @param errorInfo - Warning/Error information buffer.
+     * @param decodeIterator - An iterator for decoding the RWF content.
+     * @return true when message must be proceeded. Method is returned false if result of this method should be ignored.
+     * For instance: when {@link LoginMsg#rdmMsgType()} is {@link LoginMsgType#RTT} and RTT messaging is not supported by a
+     * {@link ConsumerRole}
+     */
+    @SuppressWarnings("fallthrough")
+    private boolean proceedLoginGenericMsg(ReactorChannel reactorChannel, DecodeIterator decodeIterator,
+                                           Msg msg, ReactorErrorInfo errorInfo) {
+        LoginMsg loginGenericMsg = _loginMsg;
+        if (Objects.equals(DataTypes.ELEMENT_LIST, msg.containerType())) {
+            loginGenericMsg.rdmMsgType(LoginMsgType.RTT);
+            switch (reactorChannel.role().type()) {
+                case ReactorRoleTypes.PROVIDER:
+                    break;
+                case ReactorRoleTypes.CONSUMER: {
+                    ConsumerRole consumerRole = (ConsumerRole) reactorChannel.role();
+                    if (consumerRole.rttEnabled()) {
+                        returnBackRTTMessage(msg, reactorChannel, errorInfo);
+                        break;
+                    }
+                }
+                default: {
+                    /*return false when it is not enabled for consumer or when it is NIProvider
+                    for preventing further handling*/
+                    return false;
+                }
+            }
+        } else {
+            loginGenericMsg.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
+        }
+        loginGenericMsg.decode(decodeIterator, msg);
+        return true;
+    }
+
+    private void returnBackRTTMessage(Msg msg, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo) {
+        reactorSubmitOptions.clear();
+        int retval = submitChannel(reactorChannel, msg, reactorSubmitOptions, errorInfo);
+
+        if (retval != CodecReturnCodes.SUCCESS) {
+            populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "Reactor.returnBackRTTMessage",
+                    "Reactor.submitChannel failed to return back login RTT message: <"
+                            + CodecReturnCodes.toString(retval) + ">" + " error="
+                            + errorInfo.error().text());
+        }
     }
 
     private void encodeAndWriteDirectoryRequest(DirectoryRequest directoryRequest, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -3400,9 +3450,9 @@ public class Reactor
                 loginMsg = _loginMsg;
                 break;
             case MsgClasses.GENERIC:
-                LoginConsumerConnectionStatus loginCCS = (LoginConsumerConnectionStatus)_loginMsg;
-                loginCCS.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
-                loginCCS.decode(dIter, msg);
+                if (!proceedLoginGenericMsg(reactorChannel, dIter, msg, errorInfo)) {
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
                 loginMsg = _loginMsg;
                 break;
             case MsgClasses.POST:
@@ -3414,75 +3464,68 @@ public class Reactor
                 break;
         }
 
-        retval = sendAndHandleLoginMsgCallback("Reactor.processLoginMessage", reactorChannel, transportBuffer, msg, loginMsg, errorInfo);
+        if (retval != ReactorCallbackReturnCodes.FAILURE) {
+            retval = sendAndHandleLoginMsgCallback("Reactor.processLoginMessage", reactorChannel, transportBuffer, msg, loginMsg, errorInfo);
 
-        if (retval == ReactorCallbackReturnCodes.RAISE)
-            retval = sendAndHandleDefaultMsgCallback("Reactor.processLoginMessage", reactorChannel, transportBuffer, msg, errorInfo);
-        
-        if (retval == ReactorCallbackReturnCodes.SUCCESS)
-        {
-        	ReactorRole reactorRole = reactorChannel.role();
-            /*
-             * check if this is a reactorChannel's role is CONSUMER, a Login REFRESH, if the reactorChannel State is UP,
-             * and that the loginRefresh's state was OK.
-             * If all this is true, check if a directoryRequest is populated. If so, send the directoryRequest. if not, change the
-             * reactorChannel state to READY. 
-             */
-            if (reactorChannel.state() == State.UP
-                    && reactorChannel.role().type() == ReactorRoleTypes.CONSUMER 
-            		&& msg.streamId() == ((ConsumerRole)reactorRole).rdmLoginRequest().streamId()
-                    && _loginMsg.rdmMsgType() == LoginMsgType.REFRESH  
-                    && ((LoginRefresh)_loginMsg).state().streamState() == StreamStates.OPEN
-                    && ((LoginRefresh)_loginMsg).state().dataState() == DataStates.OK)
-            {
-		        DirectoryRequest directoryRequest = ((ConsumerRole)reactorRole).rdmDirectoryRequest();
-		        if (directoryRequest != null)
-		        {
-                    // a rdmDirectoryRequest was specified, send it out.
-                    encodeAndWriteDirectoryRequest(directoryRequest, reactorChannel, errorInfo);
-		        }
-		        else
-		        {
-		            // no rdmDirectoryRequest defined, so just send CHANNEL_READY
-		            reactorChannel.state(State.READY);
-		            if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
-		                                                  ReactorChannelEventTypes.CHANNEL_READY,
-		                                                  reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS)
-		            {
-		                return retval;
-		            }
-		        }
-            }
-            
-            /*
-             * check if this is a reactorChannel's role is NIPROVIDER, a Login REFRESH, if the reactorChannel State is UP,
-             * and that the loginRefresh's state was OK.
-             * If all this is true, check if a directoryRefresh is populated. If so, send the directoryRefresh. if not, change the
-             * reactorChannel state to READY. 
-             */
-            if (reactorChannel.state() == State.UP
-                    && reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER 
-            		&& msg.streamId() == ((NIProviderRole)reactorRole).rdmLoginRequest().streamId()
-                    && _loginMsg.rdmMsgType() == LoginMsgType.REFRESH  
-                    && ((LoginRefresh)_loginMsg).state().streamState() == StreamStates.OPEN
-                    && ((LoginRefresh)_loginMsg).state().dataState() == DataStates.OK)
-            {
+            if (retval == ReactorCallbackReturnCodes.RAISE)
+                retval = sendAndHandleDefaultMsgCallback("Reactor.processLoginMessage", reactorChannel, transportBuffer, msg, errorInfo);
 
-                DirectoryRefresh directoryRefresh = ((NIProviderRole)reactorRole).rdmDirectoryRefresh();
-		        if (directoryRefresh != null)
-		        {
-		            // a rdmDirectoryRefresh was specified, send it out.
-		            encodeAndWriteDirectoryRefresh(directoryRefresh, reactorChannel, errorInfo);
-		        }
-		        
-	            // send CHANNEL_READY
-	            reactorChannel.state(State.READY);
-	            if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
-	                                                  ReactorChannelEventTypes.CHANNEL_READY,
-	                                                  reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS)
-	            {
-	                return retval;
-	            }
+            if (retval == ReactorCallbackReturnCodes.SUCCESS) {
+                ReactorRole reactorRole = reactorChannel.role();
+                /*
+                 * check if this is a reactorChannel's role is CONSUMER, a Login REFRESH, if the reactorChannel State is UP,
+                 * and that the loginRefresh's state was OK.
+                 * If all this is true, check if a directoryRequest is populated. If so, send the directoryRequest. if not, change the
+                 * reactorChannel state to READY.
+                 */
+                if (reactorChannel.state() == State.UP
+                        && reactorChannel.role().type() == ReactorRoleTypes.CONSUMER
+                        && msg.streamId() == ((ConsumerRole) reactorRole).rdmLoginRequest().streamId()
+                        && _loginMsg.rdmMsgType() == LoginMsgType.REFRESH
+                        && ((LoginRefresh) _loginMsg).state().streamState() == StreamStates.OPEN
+                        && ((LoginRefresh) _loginMsg).state().dataState() == DataStates.OK) {
+                    DirectoryRequest directoryRequest = ((ConsumerRole) reactorRole).rdmDirectoryRequest();
+                    if (directoryRequest != null) {
+                        // a rdmDirectoryRequest was specified, send it out.
+                        encodeAndWriteDirectoryRequest(directoryRequest, reactorChannel, errorInfo);
+                    } else {
+                        // no rdmDirectoryRequest defined, so just send CHANNEL_READY
+                        reactorChannel.state(State.READY);
+                        if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
+                                ReactorChannelEventTypes.CHANNEL_READY,
+                                reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
+                            return retval;
+                        }
+                    }
+                }
+
+                /*
+                 * check if this is a reactorChannel's role is NIPROVIDER, a Login REFRESH, if the reactorChannel State is UP,
+                 * and that the loginRefresh's state was OK.
+                 * If all this is true, check if a directoryRefresh is populated. If so, send the directoryRefresh. if not, change the
+                 * reactorChannel state to READY.
+                 */
+                if (reactorChannel.state() == State.UP
+                        && reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER
+                        && msg.streamId() == ((NIProviderRole) reactorRole).rdmLoginRequest().streamId()
+                        && _loginMsg.rdmMsgType() == LoginMsgType.REFRESH
+                        && ((LoginRefresh) _loginMsg).state().streamState() == StreamStates.OPEN
+                        && ((LoginRefresh) _loginMsg).state().dataState() == DataStates.OK) {
+
+                    DirectoryRefresh directoryRefresh = ((NIProviderRole) reactorRole).rdmDirectoryRefresh();
+                    if (directoryRefresh != null) {
+                        // a rdmDirectoryRefresh was specified, send it out.
+                        encodeAndWriteDirectoryRefresh(directoryRefresh, reactorChannel, errorInfo);
+                    }
+
+                    // send CHANNEL_READY
+                    reactorChannel.state(State.READY);
+                    if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
+                            ReactorChannelEventTypes.CHANNEL_READY,
+                            reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
+                        return retval;
+                    }
+                }
             }
         }
         

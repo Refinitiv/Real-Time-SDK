@@ -23,13 +23,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 
 import static org.junit.Assert.fail;
 
@@ -97,6 +91,10 @@ public class TestUtil
             case CONSUMER_CONNECTION_STATUS:
                 destMsg.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
                 ((LoginConsumerConnectionStatus)srcMsg).copy((LoginConsumerConnectionStatus)destMsg); 
+                break;
+            case RTT:
+                destMsg.rdmMsgType(LoginMsgType.RTT);
+                ((LoginRTT) srcMsg).copy((LoginRTT) destMsg);
                 break;
             default: 
                 fail("Unknown LoginMsgType."); 

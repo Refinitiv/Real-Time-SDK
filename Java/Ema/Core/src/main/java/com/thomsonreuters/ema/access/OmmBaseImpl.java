@@ -814,6 +814,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if(doubleValue > 0)
 					_activeConfig.tokenReissueRatio = doubleValue;
 			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.EnableRtt)) != null)
+			{
+				long rttVal = ce.intLongValue();
+				if (rttVal > 0) {
+					config.loginReq().attrib().applyHasSupportRoundTripLatencyMonitoring();
+				}
+			}
 		}
 
 		// .........................................................................

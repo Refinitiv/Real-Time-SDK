@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -63,10 +64,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgTyp
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
 public class ReactorJunit
 {
@@ -1085,6 +1082,310 @@ public class ReactorJunit
 
             if (theReactorChannel != null)
             {
+                SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
+                key.cancel();
+            }
+
+            assertNotNull(reactor);
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
+            assertNotNull(errorInfo);
+            assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
+            assertEquals(true, reactor.isShutdown());
+
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
+            assertNotNull(event);
+            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
+        }
+    }
+
+    @Test
+    public void reactorDefaultConsumerRtt() {
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/210_Provider_LoginRefresh_RttNotification.txt";
+        Reactor reactor = null;
+        ReactorErrorInfo errorInfo = null;
+        ReactorChannel theReactorChannel = null;
+        Selector selector = null;
+        ReactorCallbackHandler callbackHandler = null;
+        TestServer testServer = null;
+
+        try {
+            NetworkReplay replay = parseReplayFile(inputFile);
+
+            /*
+             * create a testServer which will send RIPC ConnectAck.
+             */
+            int serverPort = ++_serverPort;
+            testServer = new TestServer(serverPort);
+            testServer.setupServerSocket();
+
+            /*
+             * create ReactorErrorInfo.
+             */
+            errorInfo = ReactorFactory.createReactorErrorInfo();
+            assertNotNull(errorInfo);
+
+            /*
+             * create a Reactor.
+             */
+            reactor = createReactor(errorInfo);
+
+            assertEquals(false, reactor.isShutdown());
+
+            /*
+             * create a selector and register with the reactor's reactorChannel.
+             */
+            theReactorChannel = reactor.reactorChannel();
+            assertNotNull(theReactorChannel);
+
+            selector = SelectorProvider.provider().openSelector();
+            theReactorChannel.selectableChannel().register(selector, SelectionKey.OP_READ, theReactorChannel);
+
+            /*
+             * create a Client Connection.
+             */
+            ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptions(String.valueOf(serverPort));
+            callbackHandler = new ReactorCallbackHandler(selector);
+            assertEquals(null, callbackHandler.lastChannelEvent());
+            ConsumerRole consumerRole = createDefaultConsumerRole(callbackHandler);
+            consumerRole.initDefaultRDMLoginRequest();
+            consumerRole.rdmLoginRequest().attrib().applyHasSupportRoundTripLatencyMonitoring();
+            // make sure dictionary download mode is none
+            reactor.connect(rcOpts, consumerRole, errorInfo);
+
+            // wait for the TestServer to accept a connection.
+            testServer.waitForAcceptable();
+            testServer.acceptSocket();
+
+            // have the TestServer read a message (the RIPC ConnectReq)
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            verifyConnectReq(testServer.buffer());
+
+            // have the TestServer send the ConnectAck to the Reactor.
+            testServer.writeMessageToSocket(replay.read());
+            // read the extra RIPC 14 handshake message
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            assertEquals(KEY_EXCHANGE, testServer.buffer().get(2)); // verify KEY_EXCHANGE flag
+
+            /*
+             * dispatch on the reactor's reactorChannel. There should be one
+             * "WorkerEvent" to dispatch on. There should be one
+             * ReactorChannelEventCallback waiting, 1) CHANNEL_UP.
+             */
+            ReactorJunit.dispatchReactor(selector, reactor);
+            // verify that the ReactorChannelEventCallback was called.
+            assertEquals(1, callbackHandler.channelEventCount());
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
+            assertNotNull(channelEvent);
+            assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+            /*
+             * the reactor will send out our default LoginRequest. wait for
+             * testServer to read the LoginRequest, then send the LoginResponse
+             */
+            testServer.waitForReadable();
+            // wait and read one message.
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            verifyMessage(testServer.buffer(), MsgClasses.REQUEST, DomainTypes.LOGIN);
+            // have the TestServer send the LoginRefresh to the Reactor.
+            testServer.writeMessageToSocket(replay.read());
+
+            /*
+             * call dispatch which should read the LoginRefresh, invoke
+             * callback. Have callback return RAISE, then Reactor should call
+             * defaultMsgCallback.
+             */
+            callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.RAISE);
+            ReactorJunit.dispatchReactor(selector, reactor);
+            // verify that the RDMLoginMsgCallback and defaultMsgCallback was
+            // called.
+            assertEquals(1, callbackHandler.loginMsgEventCount());
+            assertEquals(1, callbackHandler.defaultMsgEventCount());
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
+            assertNotNull(loginMsgEvent);
+            verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
+            verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
+            assertNotNull(msgEvent);
+            verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
+
+
+            testServer.waitForReadable();
+            // wait and read one message.
+            testServer.readMessageFromSocket();
+
+            // Send RTT message to Reactor
+            callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
+            testServer.writeMessageToSocket(replay.read());
+            ReactorJunit.dispatchReactor(selector, reactor);
+
+            // verify that the LoginMsgCallback was called.
+            assertEquals(2, callbackHandler.loginMsgEventCount());
+
+            // verify RTT message
+            RDMLoginMsgEvent rttLoginMsgEvent = callbackHandler.lastLoginMsgEvent();
+            assertNotNull(rttLoginMsgEvent);
+            verifyMessage(rttLoginMsgEvent.transportBuffer(), MsgClasses.GENERIC, DomainTypes.LOGIN);
+            verifyLoginRttMessage(rttLoginMsgEvent.rdmLoginMsg());
+            LoginRTT loginRttOnReactor = (LoginRTT) rttLoginMsgEvent.rdmLoginMsg();
+
+            // wait for returning RTT message from Consumer
+            testServer.waitForReadable();
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            //verify that it is GENERIC message.
+            verifyMessage(testServer.buffer(), MsgClasses.GENERIC, DomainTypes.LOGIN);
+        } catch (Exception e) {
+            assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+        } finally {
+            testServer.shutDown();
+
+            if (theReactorChannel != null) {
+                SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
+                key.cancel();
+            }
+
+            assertNotNull(reactor);
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
+            assertNotNull(errorInfo);
+            assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
+            assertEquals(true, reactor.isShutdown());
+
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
+            assertNotNull(event);
+            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
+        }
+    }
+
+    @Test
+    public void reactorDefaultConsumerDisabledRtt() {
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/210_Provider_LoginRefresh_RttNotification.txt";
+        Reactor reactor = null;
+        ReactorErrorInfo errorInfo = null;
+        ReactorChannel theReactorChannel = null;
+        Selector selector = null;
+        ReactorCallbackHandler callbackHandler = null;
+        TestServer testServer = null;
+
+        try {
+            NetworkReplay replay = parseReplayFile(inputFile);
+
+            /*
+             * create a testServer which will send RIPC ConnectAck.
+             */
+            int serverPort = ++_serverPort;
+            testServer = new TestServer(serverPort);
+            testServer.setupServerSocket();
+
+            /*
+             * create ReactorErrorInfo.
+             */
+            errorInfo = ReactorFactory.createReactorErrorInfo();
+            assertNotNull(errorInfo);
+
+            /*
+             * create a Reactor.
+             */
+            reactor = createReactor(errorInfo);
+
+            assertEquals(false, reactor.isShutdown());
+
+            /*
+             * create a selector and register with the reactor's reactorChannel.
+             */
+            theReactorChannel = reactor.reactorChannel();
+            assertNotNull(theReactorChannel);
+
+            selector = SelectorProvider.provider().openSelector();
+            theReactorChannel.selectableChannel().register(selector, SelectionKey.OP_READ, theReactorChannel);
+
+            /*
+             * create a Client Connection.
+             */
+            ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptions(String.valueOf(serverPort));
+            callbackHandler = new ReactorCallbackHandler(selector);
+            assertEquals(null, callbackHandler.lastChannelEvent());
+            ConsumerRole consumerRole = createDefaultConsumerRole(callbackHandler);
+            consumerRole.initDefaultRDMLoginRequest();
+            // make sure dictionary download mode is none
+            reactor.connect(rcOpts, consumerRole, errorInfo);
+
+            // wait for the TestServer to accept a connection.
+            testServer.waitForAcceptable();
+            testServer.acceptSocket();
+
+            // have the TestServer read a message (the RIPC ConnectReq)
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            verifyConnectReq(testServer.buffer());
+
+            // have the TestServer send the ConnectAck to the Reactor.
+            testServer.writeMessageToSocket(replay.read());
+            // read the extra RIPC 14 handshake message
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            assertEquals(KEY_EXCHANGE, testServer.buffer().get(2)); // verify KEY_EXCHANGE flag
+
+            /*
+             * dispatch on the reactor's reactorChannel. There should be one
+             * "WorkerEvent" to dispatch on. There should be one
+             * ReactorChannelEventCallback waiting, 1) CHANNEL_UP.
+             */
+            ReactorJunit.dispatchReactor(selector, reactor);
+            // verify that the ReactorChannelEventCallback was called.
+            assertEquals(1, callbackHandler.channelEventCount());
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
+            assertNotNull(channelEvent);
+            assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+            /*
+             * the reactor will send out our default LoginRequest. wait for
+             * testServer to read the LoginRequest, then send the LoginResponse
+             */
+            testServer.waitForReadable();
+            // wait and read one message.
+            assertTrue(testServer.readMessageFromSocket() > 0);
+            verifyMessage(testServer.buffer(), MsgClasses.REQUEST, DomainTypes.LOGIN);
+            // have the TestServer send the LoginRefresh to the Reactor.
+            testServer.writeMessageToSocket(replay.read());
+
+            /*
+             * call dispatch which should read the LoginRefresh, invoke
+             * callback. Have callback return RAISE, then Reactor should call
+             * defaultMsgCallback.
+             */
+            callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.RAISE);
+            ReactorJunit.dispatchReactor(selector, reactor);
+            // verify that the RDMLoginMsgCallback and defaultMsgCallback was
+            // called.
+            assertEquals(1, callbackHandler.loginMsgEventCount());
+            assertEquals(1, callbackHandler.defaultMsgEventCount());
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
+            assertNotNull(loginMsgEvent);
+            verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
+            verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
+            assertNotNull(msgEvent);
+            verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
+
+
+            testServer.waitForReadable();
+            // wait and read one message.
+            testServer.readMessageFromSocket();
+
+            // Send RTT message to Reactor
+            callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
+            int writtenBytes = testServer.writeMessageToSocket(replay.read());
+            ReactorJunit.dispatchReactor(selector, reactor);
+
+            // verify that the LoginMsgCallback hadn't been called for RTT.
+            assertEquals(1, callbackHandler.loginMsgEventCount());
+
+            // verify that obtained data is not returned back RTT message
+            testServer.waitForReadable();
+            assertTrue(testServer.readMessageFromSocket() < writtenBytes);
+        } catch (Exception e) {
+            assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+        } finally {
+            testServer.shutDown();
+
+            if (theReactorChannel != null) {
                 SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
                 key.cancel();
             }
@@ -6157,6 +6458,10 @@ public class ReactorJunit
     static void verifyLoginMessage(LoginMsg loginMsg)
     {
         assertEquals(LoginMsgType.REFRESH, loginMsg.rdmMsgType());
+    }
+
+    static void verifyLoginRttMessage(LoginMsg loginMsg) {
+        assertEquals(LoginMsgType.RTT, loginMsg.rdmMsgType());
     }
 
     /* verify directory message is a refresh */

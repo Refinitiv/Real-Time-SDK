@@ -22,4 +22,5 @@ public class ClientChannelInfo
     public long                         nextSendPingTime;       // Time before which a ping should be sent for this channel.
     public Queue<ClientChannelInfo>     parentQueue;            // Reference back to the list this channel is an element of.
     public ReactorChannel               reactorChannel;         // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    public int                          socketFdValue;          // Defined Socket FD Value.
 }

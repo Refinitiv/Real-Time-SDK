@@ -1730,6 +1730,11 @@ final class MsgImpl implements Msg, AckMsg, CloseMsg, GenericMsg, PostMsg, Refre
     }
 
     @Override
+    public boolean checkIsProviderDriven() {
+        return ((_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.PROVIDER_DRIVEN) > 0 ? true : false);
+    }
+
+    @Override
     public void applyMessageComplete()
     {
         _generalInt[MsgFields.Common.Int.FLAGS] |= GenericMsgFlags.MESSAGE_COMPLETE;
@@ -1739,6 +1744,11 @@ final class MsgImpl implements Msg, AckMsg, CloseMsg, GenericMsg, PostMsg, Refre
     public void applyHasSecondarySeqNum()
     {
         _generalInt[MsgFields.Common.Int.FLAGS] |= GenericMsgFlags.HAS_SECONDARY_SEQ_NUM;
+    }
+
+    @Override
+    public void applyProviderDriven() {
+        _generalInt[MsgFields.Common.Int.FLAGS] |= GenericMsgFlags.PROVIDER_DRIVEN;
     }
 
     @Override

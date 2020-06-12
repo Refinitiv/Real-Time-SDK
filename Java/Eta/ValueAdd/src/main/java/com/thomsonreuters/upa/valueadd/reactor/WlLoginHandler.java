@@ -1,32 +1,12 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CopyMsgFlags;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.MsgKeyFlags;
-import com.thomsonreuters.upa.codec.PostMsg;
-import com.thomsonreuters.upa.codec.GenericMsg;
-import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.RequestMsg;
-import com.thomsonreuters.upa.codec.RequestMsgFlags;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
+
+import java.util.Objects;
 
 /* The login stream handler for the watchlist. */
 class WlLoginHandler implements WlHandler 
@@ -44,12 +24,14 @@ class WlLoginHandler implements WlHandler
 	Msg _tempMsg = CodecFactory.createMsg();
 	LoginRefresh _loginRefresh;
 	LoginStatus _loginStatus;
+	LoginRTT loginRTT;
 	StatusMsg _statusMsg;
 	Buffer _tempBuffer;
 	boolean _awaitingResumeAll;
 	boolean _userloginStreamOpen;
 	int _requestCount; // tracks pending requests so re-issues aren't sent until refresh is received
-    boolean _hasPendingRequest;
+	boolean _hasPendingRequest;
+	boolean rttEnabled;
 
 	WlInteger _tempWlInteger = ReactorFactory.createWlInteger();
 
@@ -60,6 +42,8 @@ class WlLoginHandler implements WlHandler
 		_loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
 		_loginStatus = (LoginStatus) LoginMsgFactory.createMsg();
 		_loginStatus.rdmMsgType(LoginMsgType.STATUS);
+		loginRTT = (LoginRTT) LoginMsgFactory.createMsg();
+		loginRTT.rdmMsgType(LoginMsgType.RTT);
 		_statusMsg = (StatusMsg) CodecFactory.createMsg();
 		_statusMsg.msgClass(MsgClasses.STATUS);
 		_statusMsg.domainType(DomainTypes.LOGIN);
@@ -923,11 +907,24 @@ class WlLoginHandler implements WlHandler
 	{
 		WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger);
 
+		//Redirect message to the provider.
+		boolean isRttMessage = Objects.equals(DataTypes.ELEMENT_LIST, msg.containerType());
+
 		// call back user
-		return _watchlist.reactor().sendAndHandleDefaultMsgCallback(
-				"WlLoginHandler.readGenericMsg", _watchlist.reactorChannel(),
-				null, msg, (wlRequest != null ? wlRequest.streamInfo() : null),
-				errorInfo);
+		if (!isRttMessage) {
+			return _watchlist.reactor().sendAndHandleDefaultMsgCallback(
+					"WlLoginHandler.readGenericMsg", _watchlist.reactorChannel(),
+					null, msg, (wlRequest != null ? wlRequest.streamInfo() : null),
+					errorInfo);
+		} else if (rttEnabled) {
+			submitMsg(wlRequest, msg, _submitOptions, errorInfo);
+			loginRTT.clear();
+			loginRTT.decode(dIter, msg);
+			return _watchlist.reactor().sendAndHandleLoginMsgCallback("WlLoginHandler.readGenericMsg",
+					_watchlist.reactorChannel(), null, msg, loginRTT, (wlRequest != null ? wlRequest.streamInfo() : null),
+					errorInfo);
+		}
+		return ReactorReturnCodes.SUCCESS;
 	}
 
 	/* Reads an Ack message. */
@@ -1349,5 +1346,7 @@ class WlLoginHandler implements WlHandler
 		_awaitingResumeAll = false;
 		_requestCount = 0;
 		_hasPendingRequest = false;
+		loginRTT.clear();
+		rttEnabled = false;
 	}
 }

@@ -22,7 +22,7 @@ public class WatchlistConsumerConfig
 	private boolean enableHttp;
 	private boolean cacheOption;
 	private int cacheInterval;
-	
+
 	List<ConnectionArg> connectionList = new ArrayList<ConnectionArg>();
 	   
     // default server host name
@@ -555,6 +555,10 @@ public class WatchlistConsumerConfig
     {
 		return CommandLine.value("aid");
     }
+
+    boolean enableRTT() {
+		return CommandLine.booleanValue("rtt");
+	}
 	
 	int itemCount()
 	{
@@ -634,7 +638,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.");
         CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
         CommandLine.addOption("clientId", "Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.");
-
+        CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");
     }
 }
 

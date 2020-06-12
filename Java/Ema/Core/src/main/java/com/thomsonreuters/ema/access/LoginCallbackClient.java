@@ -126,7 +126,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		LoginMsg loginMsg = event.rdmLoginMsg();
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		ReactorChannel rsslReactorChannel  = event.reactorChannel();
-		
+
 		_baseImpl.eventReceived();
 
 		if (loginMsg == null)
@@ -456,9 +456,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	{
 		if (_loginItemList == null)
 			return ReactorCallbackReturnCodes.SUCCESS;
-		
+
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl();
+			_genericMsg = new GenericMsgImpl(_baseImpl.objManager());
 		_genericMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
 							((ChannelInfo)event.reactorChannel().userSpecObj()).rsslDictionary());
 		
@@ -705,13 +705,15 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			_genericMsg = new GenericMsgImpl(_baseImpl.objManager());
 		
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
-	
-		for (Item<T> loginItem : _loginItemList)
-		{
-			_eventImpl._item = loginItem;
-			
-			notifyOnAllMsg(_genericMsg);
-			notifyOnGenericMsg();
+
+		if (_loginItemList != null) {
+			for (Item<T> loginItem : _loginItemList)
+			{
+				_eventImpl._item = loginItem;
+
+				notifyOnAllMsg(_genericMsg);
+				notifyOnGenericMsg();
+			}
 		}
 		
 		return ReactorCallbackReturnCodes.SUCCESS;

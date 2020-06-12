@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
 
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import org.junit.Test;
 
 import com.thomsonreuters.upa.codec.Buffer;
@@ -38,22 +39,7 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.rdm.Login.ServerTypes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConnectionConfig;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConnectionConfig.ServerInfo;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAck;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatusFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginPost;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefreshFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatusFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginWarmStandbyInfo;
 
 @SuppressWarnings("deprecation")
 public class LoginJunit
@@ -196,6 +182,128 @@ public class LoginJunit
         loginConnStatusMsg1.warmStandbyInfo().action(loginWarmStandbyInfo1.action());
         loginConnStatusMsg1.streamId(streamId);
         loginConnStatusMsg1.toString();
+        System.out.println("Done.");
+    }
+
+    @Test
+    public void loginRTTTest() {
+        LoginRTT encLoginRTTMsg = (LoginRTT)LoginMsgFactory.createMsg();
+        encLoginRTTMsg.rdmMsgType(LoginMsgType.RTT);
+        LoginRTT decLoginRTTMsg = (LoginRTT)LoginMsgFactory.createMsg();
+        decLoginRTTMsg.rdmMsgType(LoginMsgType.RTT);
+        int flagsBase[] = {
+                LoginRTTFlags.ROUND_TRIP_LATENCY,
+                LoginRTTFlags.HAS_TCP_RETRANS,
+                LoginRTTFlags.PROVIDER_DRIVEN
+        };
+        int streamId = 1;
+        long ticks = System.nanoTime();
+        long rtLatency = 500;
+        long retrans = 5;
+
+        System.out.println("LoginRTT encode/decode tests...");
+        int[] flagsList = TypedMessageTestUtil._createFlagCombinations(flagsBase, false);
+        for (int flags : flagsList) {
+            dIter.clear();
+            encIter.clear();
+            encLoginRTTMsg.streamId(streamId);
+            encLoginRTTMsg.flags(flags);
+            if (encLoginRTTMsg.checkHasRTLatency()) {
+                encLoginRTTMsg.rtLatency(rtLatency);
+            }
+            if (encLoginRTTMsg.checkHasTCPRetrans()) {
+                encLoginRTTMsg.tcpRetrans(retrans);
+            }
+            encLoginRTTMsg.ticks(ticks);
+            Buffer membuf = CodecFactory.createBuffer();
+            membuf.data(ByteBuffer.allocate(1024));
+            encIter.setBufferAndRWFVersion(membuf, Codec.majorVersion(), Codec.minorVersion());
+            int ret = encLoginRTTMsg.encode(encIter);
+            assertEquals(CodecReturnCodes.SUCCESS, ret);
+            dIter.setBufferAndRWFVersion(membuf, Codec.majorVersion(),
+                    Codec.minorVersion());
+            ret = msg.decode(dIter);
+            assertEquals(CodecReturnCodes.SUCCESS, ret);
+            ret = decLoginRTTMsg.decode(dIter, msg);
+            assertEquals(CodecReturnCodes.SUCCESS, ret);
+
+            assertEquals(LoginMsgType.RTT, decLoginRTTMsg.rdmMsgType());
+            assertEquals(encLoginRTTMsg.streamId(), decLoginRTTMsg.streamId());
+            assertEquals(encLoginRTTMsg.flags(), decLoginRTTMsg.flags());
+            assertEquals(encLoginRTTMsg.rdmMsgType(), decLoginRTTMsg.rdmMsgType());
+            assertEquals(decLoginRTTMsg.ticks(), ticks);
+            if (encLoginRTTMsg.checkHasRTLatency()) {
+                assertEquals(decLoginRTTMsg.rtLatency(), rtLatency);
+            }
+            if (encLoginRTTMsg.checkHasTCPRetrans()) {
+                assertEquals(decLoginRTTMsg.tcpRetrans(), retrans);
+            }
+        }
+        System.out.println("Done.");
+    }
+
+    @Test
+    public void loginRTTinitTest() {
+        LoginRTT encLoginRTTMsg = (LoginRTT)LoginMsgFactory.createMsg();
+        encLoginRTTMsg.rdmMsgType(LoginMsgType.RTT);
+        LoginRTT decLoginRTTMsg = (LoginRTT)LoginMsgFactory.createMsg();
+        decLoginRTTMsg.rdmMsgType(LoginMsgType.RTT);
+        int streamId = 1;
+
+        System.out.println("LoginRTT initRTT test...");
+        long t1 = System.nanoTime();
+        encLoginRTTMsg.initRTT(streamId);
+        long t2 = System.nanoTime();
+
+        Buffer membuf = CodecFactory.createBuffer();
+        membuf.data(ByteBuffer.allocate(1024));
+        encIter.setBufferAndRWFVersion(membuf, Codec.majorVersion(), Codec.minorVersion());
+        int ret = encLoginRTTMsg.encode(encIter);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
+        dIter.setBufferAndRWFVersion(membuf, Codec.majorVersion(),
+                Codec.minorVersion());
+        ret = msg.decode(dIter);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
+        ret = decLoginRTTMsg.decode(dIter, msg);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
+
+        assertEquals(1, decLoginRTTMsg.streamId());
+        assert(decLoginRTTMsg.ticks() >= t1);
+        assert(decLoginRTTMsg.ticks() <= t2);
+        assert(decLoginRTTMsg.checkProviderDriven());
+        System.out.println("Done.");
+    }
+
+    @Test
+    public void loginRTTcopyTest() {
+        int streamId = 1;
+
+        LoginRTT rttMsg1 = (LoginRTT)LoginMsgFactory.createMsg();
+        LoginRTT rttMsg2 = (LoginRTT)LoginMsgFactory.createMsg();
+        rttMsg1.rdmMsgType(LoginMsgType.RTT);
+        rttMsg2.rdmMsgType(LoginMsgType.RTT);
+
+        long latency = 300;
+        long retrans = 5;
+
+        System.out.println("LoginRTT copy test...");
+
+        rttMsg1.initRTT(streamId);
+        rttMsg1.applyHasRTLatency();
+        rttMsg1.rtLatency(latency);
+        rttMsg1.applyHasTCPRetrans();
+        rttMsg1.tcpRetrans(retrans);
+
+        int ret = rttMsg1.copy(rttMsg2);
+
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
+        assertEquals(rttMsg1.ticks(), rttMsg2.ticks());
+        assertEquals(rttMsg1.tcpRetrans(), rttMsg2.tcpRetrans());
+        assertEquals(retrans, rttMsg2.tcpRetrans());
+        assertEquals(rttMsg1.rtLatency(), rttMsg2.rtLatency());
+        assertEquals(latency, rttMsg2.rtLatency());
+        assertEquals(rttMsg1.checkProviderDriven(), rttMsg2.checkProviderDriven());
+
         System.out.println("Done.");
     }
 

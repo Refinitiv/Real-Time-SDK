@@ -1,6 +1,9 @@
 package com.thomsonreuters.upa.perftools.upajprovperf;
 
 import java.net.InetAddress;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -14,19 +17,19 @@ import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
 import com.thomsonreuters.upa.perftools.common.PerfToolsReturnCodes;
+import com.thomsonreuters.upa.perftools.common.ProviderPerfConfig;
 import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.Channel;
+import com.thomsonreuters.upa.shared.LoginRttInfo;
+import com.thomsonreuters.upa.shared.LoginRttInfoList;
+import com.thomsonreuters.upa.transport.*;
 import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.WritePriorities;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Determines the information a provider needs for accepting logins, and
@@ -35,17 +38,23 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 public class LoginProvider
 {
     private static final int      REFRESH_MSG_SIZE = 512;
+    private static final int      RTT_MSG_SIZE = 1024;
+    private static final int      RTT_NOTIFICATION_INTERVAL = 5;
 
     private LoginRefresh          _loginRefresh;
     private LoginRequest          _loginRequest;
+    private LoginRTT               loginRtt;
     private EncodeIterator        _encodeIter;
     private String                _applicationId;
     private String                _applicationName;
     private String                _position;
-    
+    private boolean               enableRtt;
+
     private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
-    
+
+    private LoginRttInfoList loginRttInfoList = new LoginRttInfoList();;
+
     /**
      * Instantiates a new login provider.
      */
@@ -53,14 +62,18 @@ public class LoginProvider
     {
         _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
         _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
+        loginRtt = (LoginRTT) LoginMsgFactory.createMsg();
         _encodeIter = CodecFactory.createEncodeIterator();
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
-        
+        loginRtt.rdmMsgType(LoginMsgType.RTT);
+
         _errorInfo = ReactorFactory.createReactorErrorInfo();
         _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
         _reactorSubmitOptions.clear();
         _reactorSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+
+        loginRttInfoList.init();
     }
 
     /**
@@ -80,7 +93,7 @@ public class LoginProvider
         switch (msg.msgClass())
         {
             case MsgClasses.REQUEST:
-                
+
                 // decode login request
                 _loginRequest.clear();
                 int ret = _loginRequest.decode(dIter, msg);
@@ -91,8 +104,23 @@ public class LoginProvider
                     return PerfToolsReturnCodes.FAILURE;
                 }
 
+                //create relative RTT instance if feature has been enabled
+                if (enableRtt) {
+                    createLoginRtt(clientChannelInfo.channel);
+                }
+
                 //send login response
                 return sendRefresh(channelHandler, clientChannelInfo, error);
+            case MsgClasses.GENERIC:
+                loginRtt.clear();
+                ret = loginRtt.decode(dIter, msg);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    error.text("LoginRTT.decode() failed with return code:  " + CodecReturnCodes.toString(ret));
+                    error.errorId(ret);
+                    return PerfToolsReturnCodes.FAILURE;
+                }
+                processRttMessage(clientChannelInfo);
+                break;
             case MsgClasses.CLOSE:
                 System.out.println("Received Login Close for streamId " + msg.streamId());
                 break;
@@ -115,7 +143,7 @@ public class LoginProvider
         _loginRefresh.clear();
 
         Channel channel = clientChannelInfo.channel;
-        
+
         // get a buffer for the login response
         TransportBuffer msgBuf = channel.getBuffer(REFRESH_MSG_SIZE, false, error);
 
@@ -143,9 +171,9 @@ public class LoginProvider
 
         _loginRefresh.applySolicited();
 
-       
+
         _loginRefresh.applyHasAttrib();
-        
+
         // ApplicationId
         _loginRefresh.attrib().applyHasApplicationId();
         _loginRefresh.attrib().applicationId().data(_applicationId);
@@ -165,6 +193,10 @@ public class LoginProvider
         _loginRefresh.attrib().applyHasSingleOpen();
         _loginRefresh.attrib().singleOpen(0);
 
+        if (ProviderPerfConfig.enableRtt()) {
+            _loginRefresh.attrib().applyHasSupportRoundTripLatencyMonitoring();
+        }
+
 
         //
         // this provider supports
@@ -172,8 +204,8 @@ public class LoginProvider
         //
         _loginRefresh.applyHasFeatures();
         _loginRefresh.features().applyHasSupportBatchRequests();
-        _loginRefresh.features().supportBatchRequests(1); 
-        
+        _loginRefresh.features().supportBatchRequests(1);
+
         _loginRefresh.features().applyHasSupportPost();
         _loginRefresh.features().supportOMMPost(1);
 
@@ -202,6 +234,90 @@ public class LoginProvider
         return channelHandler.writeChannel(clientChannelInfo, msgBuf, 0, error);
     }
 
+    /**
+     * Method sends RTT message via core transport channel
+     *
+     * @param channelHandler    the channel handler.
+     * @param clientChannelInfo the information about connected channel.
+     * @param error             buffer for showing warnings and errors to end user.
+     * @return {@link PerfToolsReturnCodes#SUCCESS} when message will be sent successfully or
+     * when at least one sending was for specified channel during last {@link #RTT_NOTIFICATION_INTERVAL} seconds.
+     */
+    public int sendRttMessage(ChannelHandler channelHandler, ClientChannelInfo clientChannelInfo, Error error) {
+        Channel channel = clientChannelInfo.channel;
+        LoginRttInfo loginRttInfo = getLoginRtt(channel);
+        if (isRttReadyToSend(loginRttInfo)) {
+            loginRtt = loginRttInfo.loginRtt();
+
+            _encodeIter.clear();
+
+            TransportBuffer transportBuffer = channel.getBuffer(RTT_MSG_SIZE, false, error);
+            if (transportBuffer == null) {
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            int ret = _encodeIter.setBufferAndRWFVersion(transportBuffer, channel.majorVersion(), channel.minorVersion());
+            if (ret != CodecReturnCodes.SUCCESS) {
+                error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            loginRtt.updateRTTActualTicks();
+            ret = loginRtt.encode(_encodeIter);
+            if (ret != CodecReturnCodes.SUCCESS) {
+                error.text("LoginRTT.encode() failed with return code: " + CodecReturnCodes.toString(ret));
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            _reactorSubmitOptions.clear();
+            return channelHandler.writeChannel(clientChannelInfo, transportBuffer, 0, error);
+        }
+        return PerfToolsReturnCodes.SUCCESS;
+    }
+
+    /**
+     * Encodes and send RTT message.
+     *
+     * @param clientChannelInfo - information about client's channel.
+     * @param error             - error buffer for errors and warnings.
+     * @return {@link PerfToolsReturnCodes#SUCCESS} when message will be sent successfully.
+     */
+    public int reactorSendRttMessage(ClientChannelInfo clientChannelInfo, Error error) {
+        ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
+        LoginRttInfo loginRttInfo = getLoginRtt(reactorChannel.channel());
+        if (isRttReadyToSend(loginRttInfo)) {
+            loginRtt = loginRttInfo.loginRtt();
+
+            _encodeIter.clear();
+
+            TransportBuffer transportBuffer = reactorChannel.getBuffer(RTT_MSG_SIZE, false, _errorInfo);
+            if (transportBuffer == null) {
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            int ret = _encodeIter.setBufferAndRWFVersion(transportBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());
+            if (ret != CodecReturnCodes.SUCCESS) {
+                error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            loginRtt.updateRTTActualTicks();
+            ret = loginRtt.encode(_encodeIter);
+            if (ret != CodecReturnCodes.SUCCESS) {
+                error.text("LoginRTT.encode() failed with return code: " + CodecReturnCodes.toString(ret));
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            _reactorSubmitOptions.clear();
+            return clientChannelInfo.reactorChannel.submit(transportBuffer, _reactorSubmitOptions, _errorInfo);
+        }
+        return PerfToolsReturnCodes.SUCCESS;
+    }
+
     /*
      * Encodes and sends login refresh.
      */
@@ -211,7 +327,7 @@ public class LoginProvider
         _loginRefresh.clear();
 
         ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
-        
+
         // get a buffer for the login response
         TransportBuffer msgBuf = reactorChannel.getBuffer(REFRESH_MSG_SIZE, false, _errorInfo);
 
@@ -239,9 +355,9 @@ public class LoginProvider
 
         _loginRefresh.applySolicited();
 
-       
+
         _loginRefresh.applyHasAttrib();
-        
+
         // ApplicationId
         _loginRefresh.attrib().applyHasApplicationId();
         _loginRefresh.attrib().applicationId().data(_applicationId);
@@ -268,8 +384,8 @@ public class LoginProvider
         //
         _loginRefresh.applyHasFeatures();
         _loginRefresh.features().applyHasSupportBatchRequests();
-        _loginRefresh.features().supportBatchRequests(1); 
-        
+        _loginRefresh.features().supportBatchRequests(1);
+
         _loginRefresh.features().applyHasSupportPost();
         _loginRefresh.features().supportOMMPost(1);
 
@@ -299,8 +415,24 @@ public class LoginProvider
     }
 
     /**
+     * Handle RTT message received from consumer.
+     * @param clientChannelInfo information about the channel which consumer has been enabled to.
+     */
+    public void processRttMessage(ClientChannelInfo clientChannelInfo) {
+        System.out.printf("\nReceived login RTT message from Consumer %d.\n", clientChannelInfo.socketFdValue);
+        System.out.printf("\tRTT Tick value is %dus.\n", TimeUnit.NANOSECONDS.toMicros(loginRtt.ticks()));
+        if (loginRtt.checkHasTCPRetrans()) {
+            System.out.printf("\tConsumer side TCP retransmissions: %d\n", loginRtt.tcpRetrans());
+        }
+        long calculatedRtt = loginRtt.calculateRTTLatency(TimeUnit.MICROSECONDS);
+        LoginRTT storedLoginRtt = getLoginRtt(clientChannelInfo.channel).loginRtt();
+        loginRtt.copy(storedLoginRtt);
+        System.out.printf("\tLast RTT message latency is %dus.\n\n", calculatedRtt);
+    }
+
+    /**
      * Returns DACS application id for the login message.
-     * 
+     *
      * @return  DACS application id for the login message.
      */
     public String applicationId()
@@ -319,8 +451,8 @@ public class LoginProvider
     }
 
     /**
-     * Returns applicationName for the login message. 
-     * 
+     * Returns applicationName for the login message.
+     *
      * @return applicationName.
      */
     public String applicationName()
@@ -329,7 +461,7 @@ public class LoginProvider
     }
 
     /**
-     * Sets applicationName for the login message. 
+     * Sets applicationName for the login message.
      *
      * @param applicationName the application name
      */
@@ -340,7 +472,7 @@ public class LoginProvider
 
     /**
      * Returns DACS position for login message.
-     * 
+     *
      * @return DACS position for login message.
      */
     public String position()
@@ -383,5 +515,69 @@ public class LoginProvider
     public LoginRequest loginRequest()
     {
         return _loginRequest;
+    }
+
+    /**
+     *
+     * @return current instance of LoginRTT
+     */
+    public LoginRTT loginRTT() {
+        return loginRtt;
+    }
+
+    /**
+     * Creates {@link LoginRttInfo} wrapper for the specified channel. If all slots in {@link LoginRttInfoList}
+     * has been occupied - try to free slots and use one of them for the specified channel.
+     * @param channel for which {@link LoginRttInfo} wrapper should be created.
+     * @return filled {@link LoginRttInfo} if at least one slot in {@link LoginRttInfoList} is available. Returns null
+     * if slots are busy even after attempt of clearing.
+     */
+    public LoginRttInfo createLoginRtt(Channel channel) {
+        LoginRttInfo loginRttInfo = createLoginRttInfoFromRequestAndApplyFlags(channel);
+        if (Objects.isNull(loginRttInfo)) {
+            //Clear RTT list for all connections which have been closed
+            clearRttInfo();
+            loginRttInfo = createLoginRttInfoFromRequestAndApplyFlags(channel);
+        }
+        return loginRttInfo;
+    }
+
+    public LoginRttInfo getLoginRtt(Channel channel) {
+        return loginRttInfoList.get(channel);
+    }
+
+    public void enableRtt(boolean enableRtt) {
+        this.enableRtt = enableRtt;
+    }
+
+    public boolean enableRtt() {
+        return this.enableRtt;
+    }
+
+    private LoginRttInfo createLoginRttInfoFromRequestAndApplyFlags(Channel channel) {
+        LoginRttInfo loginRttInfo = loginRttInfoList.createFromRequest(channel, loginRequest());
+        if (Objects.nonNull(loginRttInfo)) {
+            //could be added or deleted also another flags for demonstration different behaviour
+            loginRttInfo.loginRtt().applyHasRTLatency();
+        }
+        return loginRttInfo;
+    }
+
+    private void clearRttInfo() {
+        StreamSupport.stream(loginRttInfoList.spliterator(), false)
+                .filter(info -> info.isInUse() && Objects.equals(ChannelState.CLOSED, info.channel().state()))
+                .forEach(info -> info.clear());
+    }
+
+    private boolean isRttReadyToSend(LoginRttInfo loginRttInfo) {
+        if (ProviderPerfConfig.enableRtt() && Objects.nonNull(loginRttInfo)) {
+            final long rttLastSendTime = loginRttInfo.rttLastSendNanoTime();
+            final long rttSendTime = System.nanoTime();
+            if (SECONDS.convert(rttSendTime - rttLastSendTime, TimeUnit.NANOSECONDS) > RTT_NOTIFICATION_INTERVAL) {
+                loginRttInfo.rttLastSendNanoTime(rttSendTime);
+                return true;
+            }
+        }
+        return false;
     }
 }

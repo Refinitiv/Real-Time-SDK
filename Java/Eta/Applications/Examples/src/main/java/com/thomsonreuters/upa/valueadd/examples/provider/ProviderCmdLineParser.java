@@ -11,6 +11,7 @@ class ProviderCmdLineParser implements CommandLineParser
 	private int runtime = 1200; // default runtime is 1200 seconds
 	private boolean enableXmlTracing;
 	private boolean cacheOption;
+	private boolean enableRtt;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -55,7 +56,10 @@ class ProviderCmdLineParser implements CommandLineParser
     			{
     				cacheOption =  true;
     				++argsCount;								
-    			}
+    			} else if ("-rtt".equals(args[argsCount])) {
+    				enableRtt = true;
+    				++argsCount;
+				}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -82,7 +86,8 @@ class ProviderCmdLineParser implements CommandLineParser
 				"\n -id service id (defaults to 1)\n" +
 				"\n -x provides an XML trace of messages\n" +
 				"\n -cache turn on the cache feature of the application\n" +
-				"\n -runtime application runtime in seconds (default is 1200)");
+				"\n -runtime application runtime in seconds (default is 1200)" +
+				"\n -rtt application (provider) supports calculation of Round Trip Latency");
 	}
 
 	String portNo()
@@ -118,5 +123,9 @@ class ProviderCmdLineParser implements CommandLineParser
 	boolean cacheOption()
 	{
 		return cacheOption;
+	}
+
+	boolean enableRtt() {
+		return enableRtt;
 	}
 }

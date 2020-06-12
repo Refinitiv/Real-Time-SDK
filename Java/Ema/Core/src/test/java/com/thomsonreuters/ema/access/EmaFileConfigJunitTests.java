@@ -105,6 +105,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReissueTokenAttemptInterval == 7000", intValue == 7000);
 		double doubleValue = JUnitTestConnect.configDoubleIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio);
 		TestUtilities.checkResult("TokenReissueRatio == 0.5", doubleValue == 0.5);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
+		TestUtilities.checkResult("EnableRtt value > 0", intLongValue > 0 );
 		
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -115,6 +117,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_1");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
+		TestUtilities.checkResult("EnableRtt value == 0", intLongValue == 0 );
 		
 		// Check values of Consumer_3
 		System.out.println("\nRetrieving Consumer_3 configuration values "); 
@@ -596,6 +600,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptLimit", 9));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
 			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -710,6 +715,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReissueTokenAttemptInterval == 9000", intValue == 9000);
 			double doubleValue = JUnitTestConnect.activeConfigGetDoubleValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio, -1);
 			TestUtilities.checkResult("TokenReissueRatio == 0.9", doubleValue == 0.9);
+			String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
+			TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
 			int value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorMsgEventPoolLimit;
 			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  100", value == 100);
 			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorChannelEventPoolLimit;
@@ -4235,7 +4242,8 @@ public void testLoadConfigFromProgrammaticForIProvConsMix()
 
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2"));
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_2"));
-		
+		innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
+
 		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 		innerElementList.clear();
 		
@@ -4287,6 +4295,8 @@ public void testLoadConfigFromProgrammaticForIProvConsMix()
 		String ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+		String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
+		TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
 	}
 	catch ( OmmException excp)
 	{

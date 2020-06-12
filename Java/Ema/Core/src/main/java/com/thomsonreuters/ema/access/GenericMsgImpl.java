@@ -147,6 +147,11 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	}
 
 	@Override
+	public boolean isProviderDriven() {
+		return ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).checkIsProviderDriven();
+	}
+
+	@Override
 	public GenericMsg streamId(int streamId)
 	{
 		msgStreamId(streamId);
@@ -261,6 +266,20 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 		 
 		return this;
 	}
+
+	@Override
+	public GenericMsg providerDriven(boolean providerDriven)
+	{
+		int flags = 	((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).flags();
+		if (providerDriven)
+			flags |= GenericMsgFlags.PROVIDER_DRIVEN;
+		else
+			flags &= ~GenericMsgFlags.PROVIDER_DRIVEN;
+
+		((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).flags(flags);
+
+		return this;
+	}
 	
 	@Override
 	public String toString()
@@ -302,6 +321,8 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 			Utilities.addIndent(_toString, indent, true).append("permissionData=\"");
 			Utilities.asHexString(_toString, permissionData()).append("\"");
 		}
+		if (isProviderDriven())
+			Utilities.addIndent(_toString, indent, true).append("ProviderDriven");
 		
 		indent--;
 		if (hasMsgKey())

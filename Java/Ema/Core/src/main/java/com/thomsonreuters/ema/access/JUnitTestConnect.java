@@ -63,6 +63,7 @@ public class JUnitTestConnect
 	public static final int DirectWrite  = ConfigManager.ChannelDirectSocketWrite;
 	public static final int EnableSessionMgnt = ConfigManager.ChannelEnableSessionMgnt;
 	public static final int Location = ConfigManager.ChannelLocation;
+	public static final int EnableRtt = ConfigManager.EnableRtt;
 	
 	// Consumer Parameters:
 	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
@@ -753,20 +754,20 @@ public class JUnitTestConnect
 	{
 		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
 		return ce != null ? ce.intLongValue() : 0;
-	}
+		}
 
 	// used only for JUNIT tests
 	public static int configGetIntValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
 		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
 		return ce != null ? ce.intValue() : 0;
-	}
+		}
 	
 	public static double configDoubleIntValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
 		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
 		return ce != null ? ce.doubleValue() : 0;
-	}
+		}
 
 	// used only for JUNIT tests
 	public static String configGetStringValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
@@ -968,7 +969,7 @@ public class JUnitTestConnect
 		else if (type == ConfigGroupTypeChannel)
 		{
 			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
-		}
+				}
 		else if (type == ConfigGroupTypeDictionary)
 		{
 			DictionaryConfig dictConfig = activeConfig.dictionaryConfig;
@@ -999,6 +1000,9 @@ public class JUnitTestConnect
 		{
 			if (configParam == ConsumerDefaultConsumerName)
 				return activeConfig.configuredName;
+			if (configParam == EnableRtt) {
+				return String.valueOf(activeConfig.rsslRDMLoginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
+			}
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{

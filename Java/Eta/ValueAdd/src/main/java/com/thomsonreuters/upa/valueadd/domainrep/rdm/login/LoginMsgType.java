@@ -40,7 +40,10 @@ public enum LoginMsgType
     
     /** (7) Indicates an off-stream Ack Message. */
     @Deprecated
-    ACK(7);
+    ACK(7),
+
+    /** Indicates that a message is an RTT message */
+    RTT(8);
 
     private LoginMsgType(int value)
     {

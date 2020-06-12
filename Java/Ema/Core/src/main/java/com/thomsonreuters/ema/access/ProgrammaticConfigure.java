@@ -1029,6 +1029,11 @@ class ProgrammaticConfigure
 												else
 													((ActiveConfig)activeConfig).restRequestTimeout = 0;
 											}
+											else if (eentry.name().equals("EnableRtt")) {
+												if (eentry.uintValue() > 0) {
+													((ActiveConfig)activeConfig).rsslRDMLoginRequest.attrib().applyHasSupportRoundTripLatencyMonitoring();
+												}
+											}
 											break;
 										case DataTypes.DOUBLE:
 											if ( eentry.name().equals("TokenReissueRatio"))

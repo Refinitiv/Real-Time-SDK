@@ -181,6 +181,43 @@ class LoginHandler implements RDMLoginMsgCallback
 			
 			break;
 			}
+		case RTT:
+			{
+				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+				{
+					StringBuilder temp = _ommServerBaseImpl.strBuilder();
+					temp.append("Received RoundTripLatency message.")
+							.append(OmmLoggerClient.CR).append("Stream Id ").append(loginMsgEvent.msg().streamId())
+							.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName())
+							.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value());
+
+					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+							temp.toString(), Severity.TRACE));
+				}
+
+				_streamId.value(loginMsgEvent.msg().streamId());
+
+				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
+
+				if( itemInfo != null )
+				{
+					GenericMsgImpl genericMsg = _ommServerBaseImpl.genericMsg();
+
+					genericMsg.decode(loginMsgEvent.msg(), loginMsgEvent.reactorChannel().majorVersion(),
+							loginMsgEvent.reactorChannel().minorVersion(), null);
+
+					_ommServerBaseImpl.ommProviderEvent()._clientHandle = clientSession.clientHandle();
+					_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
+					_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
+					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = loginMsgEvent.reactorChannel();
+
+					_ommServerBaseImpl.ommProviderClient().onAllMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
+					_ommServerBaseImpl.ommProviderClient().onGenericMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
+				}
+
+				break;
+			}
 		case CLOSE:
 			{		
 				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())

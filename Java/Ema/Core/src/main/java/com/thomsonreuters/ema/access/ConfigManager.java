@@ -108,6 +108,7 @@ class ConfigManager
 	public static final int TokenReissueRatio = 46;
 	public static final int ReissueTokenAttemptLimit = 47;
 	public static final int ReissueTokenAttemptInterval = 48;
+	public static final int EnableRtt = 49;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -320,6 +321,7 @@ class ConfigManager
 		ConsumerTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
 		ConsumerTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
 		ConsumerTagDict.add( "XmlTraceWrite",XmlTraceWrite );
+		ConsumerTagDict.add( "EnableRtt",EnableRtt );
 		
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -729,7 +731,8 @@ class ConfigManager
 		"XmlTraceToFile",		
 		"XmlTraceToMultipleFiles",
 		"XmlTraceToStdout",
-		"XmlTraceWrite"
+		"XmlTraceWrite",
+		"EnableRtt"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	
