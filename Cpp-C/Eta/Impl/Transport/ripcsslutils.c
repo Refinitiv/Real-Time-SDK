@@ -1559,7 +1559,7 @@ RsslInt32 ripcSSLRead( void *sslSess, char *buf, RsslInt32 max_len, ripcRWFlags 
 			break;
 			case RSSL_SSL_ERROR_SYSCALL:
 				/* OpenSSL does provide a way to get last error(get_last_socket_error() */
-				if(errno == EAGAIN || errno == EINTR)
+				if((errno == EAGAIN) || (errno == EINTR) || (errno == _IPC_WOULD_BLOCK))
 					return totalBytes;
 				else
 					return (-1);
@@ -1611,7 +1611,7 @@ RsslInt32 ripcSSLWrite( void *sslSess, char *buf, RsslInt32 len, ripcRWFlags fla
 			break;
 			case RSSL_SSL_ERROR_SYSCALL:
 				/* OpenSSL does provide a way to get last error(get_last_socket_error() */
-				if(errno == EAGAIN || errno == EINTR)
+				if ((errno == EAGAIN) || (errno == EINTR) || (errno == _IPC_WOULD_BLOCK))
 					return totalOut;
 				else
 					return (-1);
