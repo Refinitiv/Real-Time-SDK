@@ -39,7 +39,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryReques
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRTT;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
@@ -410,7 +409,6 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _loginProvider.initDefaultPosition();
         _loginProvider.applicationId(applicationId);
         _loginProvider.applicationName(applicationName);
-        _loginProvider.enableRtt(ProviderPerfConfig.enableRtt());
 
         if (!_dictionaryProvider.loadDictionary(_error))
         {
@@ -558,16 +556,6 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                }
            }
 
-           if (ProviderPerfConfig.enableRtt()) {
-               if (ProviderPerfConfig.useReactor()) {
-                   ret = _loginProvider.reactorSendRttMessage(clientChannelInfo, _error);
-               } else {
-                   ret = _loginProvider.sendRttMessage(_channelHandler, clientChannelInfo, _error);
-                   if (ret > TransportReturnCodes.SUCCESS) {
-                       _channelHandler.requestFlush(clientChannelInfo);
-                   }
-               }
-           }
 
            // Use remaining time in the tick to send refreshes.
            while(ret >= TransportReturnCodes.SUCCESS &&  providerSession.refreshItemList().count() != 0 && currentTime() < stopTime)
@@ -697,8 +685,6 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 provSession.clientChannelInfo().channel = reactorChannel.channel();
                 provSession.clientChannelInfo().parentQueue = _channelHandler.activeChannelList();
                 provSession.clientChannelInfo().parentQueue.add(provSession.clientChannelInfo());
-                provSession.clientChannelInfo().socketFdValue =
-                        ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
 
                 provSession.timeActivated(System.nanoTime());
                 
@@ -742,9 +728,6 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                     System.out.println("selector register failed: " + e.getLocalizedMessage());
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
-                //define new socket fd value
-                provSession.clientChannelInfo().socketFdValue =
-                        ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -844,15 +827,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 //send login response
                 LoginRequest loginRequest = (LoginRequest)loginMsg;
                 loginRequest.copy(_loginProvider.loginRequest());
-                if (ProviderPerfConfig.enableRtt()) {
-                    _loginProvider.createLoginRtt(reactorChannel.channel());
-                }
                 _loginProvider.sendRefreshReactor(provSession.clientChannelInfo(), event.errorInfo().error());
-                break;
-            case RTT:
-                LoginRTT loginRTT = (LoginRTT) loginMsg;
-                loginRTT.copy(_loginProvider.loginRTT());
-                _loginProvider.processRttMessage(provSession.clientChannelInfo());
                 break;
             case CLOSE:
                 System.out.println("Received Login Close for streamId " + loginMsg.streamId());

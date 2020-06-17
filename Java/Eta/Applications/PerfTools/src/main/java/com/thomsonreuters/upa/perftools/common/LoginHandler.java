@@ -8,10 +8,6 @@ import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 
-import java.util.Objects;
-
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
 /**
  * This is the Login handler for the UPA Consumer and NIProvider application. It
  * provides methods for encoding and sending of login request, as well as
@@ -25,7 +21,6 @@ public class LoginHandler
 
     public static final int MAX_MSG_SIZE = 1024;
     public static int TRANSPORT_BUFFER_SIZE_REQUEST = MAX_MSG_SIZE;
-    public static int TRANSPORT_BUFFER_SIZE_RTT = MAX_MSG_SIZE;
     public static int TRANSPORT_BUFFER_SIZE_CLOSE = MAX_MSG_SIZE;
     
     private ConsumerLoginState loginState = ConsumerLoginState.PENDING_LOGIN;
@@ -33,13 +28,11 @@ public class LoginHandler
     // For requests
     private String _userName;
     private String _applicationName;
-    private boolean enableRtt;
 
     private int _role = Login.RoleTypes.CONS;
 
     private LoginRequest _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
     private LoginClose _loginClose = (LoginClose)LoginMsgFactory.createMsg();
-    private LoginRTT loginRTT = (LoginRTT) LoginMsgFactory.createMsg();
 
     private LoginRefresh _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
     private LoginStatus _loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
@@ -54,7 +47,6 @@ public class LoginHandler
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
         _loginStatus.rdmMsgType(LoginMsgType.STATUS);
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
-        loginRTT.rdmMsgType(LoginMsgType.RTT);
     }
     
     /**
@@ -108,14 +100,6 @@ public class LoginHandler
         _role = role;
     }
 
-    public void enableRtt(boolean enableRtt) {
-        this.enableRtt = enableRtt;
-    }
-
-    public boolean enableRtt() {
-        return this.enableRtt;
-    }
-
     /**
      * Sends a login request to a channel. This consists of getting a message
      * buffer, setting the login request information, encoding the login
@@ -148,10 +132,6 @@ public class LoginHandler
             _loginRequest.applyHasAttrib();
             _loginRequest.attrib().applyHasApplicationName();
             _loginRequest.attrib().applicationName().data(_applicationName);
-        }
-
-        if (enableRtt) {
-            _loginRequest.attrib().applyHasSupportRoundTripLatencyMonitoring();
         }
 
         _loginRequest.applyHasRole();
@@ -212,32 +192,6 @@ public class LoginHandler
     }
 
     /**
-     * Get transport buffer for earlier prepared RTT message (obtained from Provider)
-     * @param channel - channel instance
-     * @param error - error buffer for showing warnings and errors to the end user.
-     * @param encodeIterator - instance for encoding login RTT.
-     * @return
-     */
-    public TransportBuffer getRttMsg(Channel channel, Error error, EncodeIterator encodeIterator) {
-        final TransportBuffer transportBuffer = channel.getBuffer(TRANSPORT_BUFFER_SIZE_RTT, false, error);
-
-        if (Objects.isNull(transportBuffer)) {
-            return null;
-        }
-
-        encodeIterator.clear();
-        encodeIterator.setBufferAndRWFVersion(transportBuffer, channel.majorVersion(), channel.minorVersion());
-
-        int ret = loginRTT.encode(encodeIterator);
-        if (ret != CodecReturnCodes.SUCCESS) {
-            error.text("Encoding of login RTT failed: <" + CodecReturnCodes.toString(ret) + ">");
-            return null;
-        }
-
-        return transportBuffer;
-    }
-
-    /**
      * Processes login response. This consists of looking at the msg class and
      * decoding message into corresponding RDM login message. For every
      * login status and login refresh, it updates login states (closed, closed
@@ -261,8 +215,6 @@ public class LoginHandler
             case MsgClasses.UPDATE:
                 System.out.println("Received Login Update");
                 return CodecReturnCodes.SUCCESS;
-            case MsgClasses.GENERIC:
-                return handleLoginRtt(msg, dIter, error);
             case MsgClasses.CLOSE:
                 System.out.println("Received Login Close");
                 loginState = ConsumerLoginState.CLOSED;
@@ -343,30 +295,5 @@ public class LoginHandler
             this.loginState = ConsumerLoginState.SUSPECT;
         }
         return CodecReturnCodes.SUCCESS;
-    }
-
-    private int handleLoginRtt(Msg msg, DecodeIterator dIter, Error error) {
-        if (enableRtt) {
-            loginRTT.clear();
-            int ret = loginRTT.decode(dIter, msg);
-            if (ret != CodecReturnCodes.SUCCESS) {
-                error.text("Decoding of login RTT failed: <" + CodecReturnCodes.toString(ret) + ">");
-                return ret;
-            }
-
-        }
-        return CodecReturnCodes.SUCCESS;
-    }
-
-    public void logRttResponse(int socketId) {
-        System.out.printf("\nReceived login RTT message from Provider %d.\n", socketId);
-        System.out.printf("\tTicks: %du\n", NANOSECONDS.toMicros(loginRTT.ticks()));
-        if (loginRTT.checkHasRTLatency()) {
-            System.out.printf("\tLast Latency: %du\n", NANOSECONDS.toMicros(loginRTT.rtLatency()));
-        }
-        if (loginRTT.checkHasTCPRetrans()) {
-            System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
-        }
-        System.out.println();
     }
 }

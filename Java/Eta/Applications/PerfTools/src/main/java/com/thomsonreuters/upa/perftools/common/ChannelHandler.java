@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.Error;
@@ -397,8 +396,6 @@ public class ChannelHandler
         {
             case TransportReturnCodes.CHAN_INIT_IN_PROGRESS:
                 if (_inProgInfo.flags() == InProgFlags.SCKT_CHNL_CHANGE) {
-                    clientChannelInfo.socketFdValue =
-                            ChannelHelper.defineFdValueOfSelectableChannel(channel.selectableChannel());
                     requestFlush(clientChannelInfo);
                 }
                 break;
@@ -534,7 +531,6 @@ public class ChannelHandler
         _initializingChannelList.remove(clientChannelInfo);
         clientChannelInfo.parentQueue = _activeChannelList;
         clientChannelInfo.parentQueue.add(clientChannelInfo);
-        clientChannelInfo.socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(clientChannelInfo.channel.selectableChannel());
     }
 
     /**

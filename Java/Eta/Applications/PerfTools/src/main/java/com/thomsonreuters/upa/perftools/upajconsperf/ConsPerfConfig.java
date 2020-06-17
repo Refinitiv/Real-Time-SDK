@@ -59,8 +59,6 @@ public class ConsPerfConfig
 	private boolean _useWatchlist;          /* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
 	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
 
-	private boolean enableRtt;
-	
     {
         CommandLine.programName("upajConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
@@ -97,7 +95,6 @@ public class ConsPerfConfig
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
         CommandLine.addOption("watchlist", false, "Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving");
         CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
-        CommandLine.addOption("rtt", false, "Enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
     }
 	
     /**
@@ -140,7 +137,6 @@ public class ConsPerfConfig
     	_useReactor = CommandLine.booleanValue("reactor");
         _useWatchlist = CommandLine.booleanValue("watchlist");
         _busyRead = CommandLine.booleanValue("busyRead");
-        enableRtt = CommandLine.booleanValue("rtt");
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -333,8 +329,7 @@ public class ConsPerfConfig
 				"               Tick Rate: " + _ticksPerSec + "\n" +
 				"               Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
                 " Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
-                "               Busy Read: " + (_busyRead ? "Yes" : "No") + "\n" +
-				"              Enable RTT: " + (enableRtt ? "Yes" : "No") + "\n";
+                "               Busy Read: " + (_busyRead ? "Yes" : "No") + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -720,14 +715,4 @@ public class ConsPerfConfig
     {
         return _busyRead;
     }
-
-	/**
-	 * Flag which determines support of RTT feature by a consumer.
-	 *
-	 * @return Returns true when consumer will return back RTT messages from provider.
-	 * Return false when consumer will ignore them.
-	 */
-	public boolean enableRtt() {
-		return enableRtt;
-	}
 }

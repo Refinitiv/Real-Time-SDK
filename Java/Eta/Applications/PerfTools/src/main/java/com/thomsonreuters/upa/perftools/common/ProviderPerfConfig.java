@@ -53,8 +53,6 @@ public class ProviderPerfConfig
     private static boolean             _directWrite;                 // direct write enabled
     private static boolean             _useReactor;                  // Use the VA Reactor instead of the UPA Channel for sending and receiving.
 
-    private static boolean             enableRtt;                    // enable RTT feature
-    
     static
     {
         CommandLine.programName("upajProvPerf");
@@ -89,7 +87,6 @@ public class ProviderPerfConfig
         CommandLine.addOption("runTime", 360, "Runtime of the application, in seconds");
         CommandLine.addOption("threads", 1, "Number of provider threads to create");
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
-        CommandLine.addOption("rtt", false, "application (provider) supports calculation of Round Trip Latency");
     }
 
     private ProviderPerfConfig()
@@ -135,7 +132,6 @@ public class ProviderPerfConfig
         String latencyGenMsgRate = CommandLine.value("genericMsgLatencyRate");
         _directWrite = CommandLine.booleanValue("directWrite");
         _useReactor = CommandLine.booleanValue("reactor");
-        enableRtt = CommandLine.booleanValue("rtt");
         try
         {
             _runTime = CommandLine.intValue("runTime");
@@ -283,8 +279,7 @@ public class ProviderPerfConfig
                 "            Service Name: " + _serviceName + "\n" +
                 "              Service ID: " + _serviceId + "\n" +
                 "              Open Limit: " + _openLimit + "\n" +
-                "             Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n" +
-                "             RTT enabled: " + (enableRtt ? "Yes" : "No") + "\n";
+                "             Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
     }
 
     /**
@@ -873,13 +868,5 @@ public class ProviderPerfConfig
     public static boolean useReactor()
     {
         return _useReactor;
-    }
-
-    /**
-     * Flag which determines that application (provider) supports calculation of Round Trip Latency (or not).
-     * @return true when provider has support of RTT feature. False when this feature is disabled.
-     */
-    public static boolean enableRtt() {
-        return enableRtt;
     }
 }
