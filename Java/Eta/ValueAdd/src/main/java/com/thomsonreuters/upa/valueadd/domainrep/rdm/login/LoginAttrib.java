@@ -336,7 +336,6 @@ public interface LoginAttrib {
 	/**
 	 * Returns supportRttMonitoring for the login request and refresh messages.
 	 * Value of 2 indicates that application (provider or consumer) supports RTT monitoring.
-	 * Value of 1 indicates that application supports legacy RTT monitoring.
 	 * Another value indicates that application doesn't support RTT monitoring.
 	 *
 	 * @param supportConsumerRTTMonitoring identifier value of supporting the RTT feature.
