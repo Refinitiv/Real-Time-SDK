@@ -1037,7 +1037,11 @@ RsslRet tunnelStreamRead(RsslTunnelStream *pTunnel, RsslMsg *pMsg, RsslErrorInfo
 						/* Put any retransmissions back on the list. */
 						rsslQueuePrepend(&pTunnelImpl->_tunnelBufferTransmitList, &retransmitQueue);
 
-						_tunnelStreamUnsetResponseTimer(pTunnelImpl);
+						/* Don't unset the response time while the tunnel stream is waiting for the authentication response. */
+						if (pTunnelImpl->_state != TSS_WAIT_AUTH_LOGIN_RESPONSE)
+						{
+							_tunnelStreamUnsetResponseTimer(pTunnelImpl);
+						}
 
 						if (rsslQueueGetElementCount(&pTunnelImpl->_tunnelBufferTransmitList) > 0)
 							tunnelStreamSetNeedsDispatch(pTunnelImpl);
@@ -2541,7 +2545,6 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 						if ((ret = _tunnelStreamHandleEstablished(pTunnelImpl, pErrorInfo)) != RSSL_RET_SUCCESS)
 							return RSSL_RET_FAILURE;
 
-						_tunnelStreamUnsetResponseTimer(pTunnelImpl);
 						if (pTunnelImpl->base.classOfService.authentication.type == RDM_COS_AU_OMM_LOGIN)
 						{
 							if (pTunnelImpl->_pAuthLoginRequest == NULL)
@@ -2571,7 +2574,10 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 							return RSSL_RET_SUCCESS;
 						}
 						else
+						{
+							_tunnelStreamUnsetResponseTimer(pTunnelImpl);
 							pTunnelImpl->_state = TSS_OPEN;
+						}
 					}
 					break;
 
