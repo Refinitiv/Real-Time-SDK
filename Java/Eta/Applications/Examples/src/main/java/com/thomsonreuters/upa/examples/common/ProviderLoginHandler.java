@@ -81,7 +81,7 @@ public class ProviderLoginHandler
 
     /**
      * Set flag for defining supporting of the RTT feature by current provider.
-     * @param enableRtt
+     * @param enableRtt - value for setting.
      */
     public void enableRtt(boolean enableRtt) {
         this.enableRtt = enableRtt;

@@ -17,8 +17,7 @@ public interface LoginRTT extends LoginMsg {
      * Performs a deep copy of {@link LoginRTT} object.
      *
      * @param destRTTMsg Message to copy login RTT object into. It
-     *            cannot be null.
-     *
+     *                   cannot be null.
      * @return UPA return value indicating success or failure of copy operation.
      */
     public int copy(LoginRTT destRTTMsg);
@@ -27,7 +26,6 @@ public interface LoginRTT extends LoginMsg {
      * Sets number of retransmissions for the {@link LoginRTT} object.
      *
      * @param tcpretrans current number of retransmissions.
-     *
      */
     public void tcpRetrans(long tcpretrans);
 
@@ -35,7 +33,6 @@ public interface LoginRTT extends LoginMsg {
      * Sets the RTT latency for the {@link LoginRTT} object.
      *
      * @param latency current RTT latency.
-     *
      */
     public void rtLatency(long latency);
 
@@ -43,7 +40,6 @@ public interface LoginRTT extends LoginMsg {
      * Sets ticks for the {@link LoginRTT} object.
      *
      * @param ticks current ticks.
-     *
      */
     public void ticks(long ticks);
 
@@ -70,7 +66,7 @@ public interface LoginRTT extends LoginMsg {
 
     /**
      * Checks the presence of PROVIDER_DRIVEN flag
-     *
+     * <p>
      * This flag can also be bulk-get by {@link #flags()}
      *
      * @return true if PROVIDER_DRIVEN is set, false otherwise
@@ -79,14 +75,14 @@ public interface LoginRTT extends LoginMsg {
 
     /**
      * Sets PROVIDER_DRIVEN flag to true
-     *
+     * <p>
      * This flag is also applied when the user calls {@link #initRTT(int)} ()} method
      */
     public void applyProviderDriven();
 
     /**
      * Checks the presence of HAS_TCP_RETRANS flag
-     *
+     * <p>
      * This flag can also be bulk-get by {@link #flags()}
      *
      * @return true if HAS_TCP_RETRANS is set, false otherwise
@@ -95,13 +91,12 @@ public interface LoginRTT extends LoginMsg {
 
     /**
      * Sets HAS_TCP_RETRANS flag to true
-     *
      */
     public void applyHasTCPRetrans();
 
     /**
      * Checks the presence of ROUND_TRIP_LATENCY flag
-     *
+     * <p>
      * This flag can also be bulk-get by {@link #flags()}
      *
      * @return true if ROUND_TRIP_LATENCY is set, false otherwise
@@ -110,17 +105,20 @@ public interface LoginRTT extends LoginMsg {
 
     /**
      * Sets ROUND_TRIP_LATENCY flag to true
-     *
      */
     public void applyHasRTLatency();
 
     /**
-     * Initializes the {@link LoginRTTImpl} object with proper values and sets ticks
+     * Initializes the {@link LoginRTTImpl} object with proper values and sets ticks.
+     *
+     * @param streamId unique identifier of message associated with all messages flowing within a stream.
      */
     public void initRTT(int streamId);
 
     /**
      * Calculates the {@link LoginRTTImpl#rtLatency()} variable for specified {@link LoginRTTImpl#ticks()}
+     *
+     * @param timeUnit defines the time unit of calculation result.
      * @return calculated {@link LoginRTTImpl#rtLatency()}
      */
     long calculateRTTLatency(TimeUnit timeUnit);

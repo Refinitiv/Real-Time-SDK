@@ -155,7 +155,7 @@ public class LoginHandler
 
     /**
      * Flag which defines supporting of the RTT feature by this application.
-     * @param enableRtt
+     * @param enableRtt - value for setting.
      */
     public void enableRtt(boolean enableRtt) {
         this.enableRtt = enableRtt;
