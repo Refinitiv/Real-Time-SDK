@@ -748,6 +748,7 @@ class WlLoginHandler implements WlHandler
 					_stream.close();
 					_stream.returnToPool();
 					_stream = null;
+					_loginRequestForEDP = null;
 				}
 				break;
 			case StreamStates.OPEN:
@@ -1147,24 +1148,24 @@ class WlLoginHandler implements WlHandler
 		}
 	}
 	
-	/* Handles channel up event. */
-	void channelUp(ReactorErrorInfo errorInfo) 
+	/* Sends login request */
+	void sendLoginRequest(boolean noRefresh, ReactorErrorInfo errorInfo)
 	{
 		boolean newStream = false;
 		boolean newRequest = false;
 
 		_userloginStreamOpen = true;
-
-		// notify login stream that channel is up
-		if (_stream != null) 
-		{
-			_stream.channelUp();
-		}
-
+		
 		LoginRequest loginRequest = null;
 		
 		if (_watchlist.reactorChannel().enableSessionManagement())
 		{
+			String authToken = _watchlist.reactorChannel()._loginRequestForEDP.userName().toString();
+			
+			/* Don't send a login request as the access token is invalid */
+			if(authToken.isEmpty())
+				return;
+			
 			if (_loginRequestForEDP == null
 					&& _watchlist.role().rdmLoginRequest() != null) 
 			{
@@ -1172,25 +1173,32 @@ class WlLoginHandler implements WlHandler
 				_loginRequestForEDP = (LoginRequest) LoginMsgFactory.createMsg();
 				_loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
 
-				_watchlist.reactorChannel()._loginRequestForEDP.copy(_loginRequestForEDP);
-
-				// create login stream if not created yet
-				if (_stream == null) 
-				{
-					newStream = true;
-
-					_loginRequestForEDP.streamId(_loginStreamId);
-
-					// create stream
-					_stream = ReactorFactory.createWlStream();
-					_stream.handler(this);
-					_stream.watchlist(_watchlist);
-					_stream.streamId(_loginRequestForEDP.streamId());
-					_stream.domainType(_loginRequestForEDP.domainType());
-				}
-				
+				_watchlist.reactorChannel()._loginRequestForEDP.copy(_loginRequestForEDP);	
 			}
+			else
+			{
+				_loginRequestForEDP.userName().data(authToken);
+			}
+				
 			loginRequest = _loginRequestForEDP;
+			
+			if(noRefresh)
+				loginRequest.applyNoRefresh();
+			
+			// create login stream if not created yet
+			if (_stream == null) 
+			{
+				newStream = true;
+
+				_loginRequestForEDP.streamId(_loginStreamId);
+
+				// create stream
+				_stream = ReactorFactory.createWlStream();
+				_stream.handler(this);
+				_stream.watchlist(_watchlist);
+				_stream.streamId(_loginRequestForEDP.streamId());
+				_stream.domainType(_loginRequestForEDP.domainType());
+			}
 		}
 		else
 		{
@@ -1219,10 +1227,11 @@ class WlLoginHandler implements WlHandler
 			}
 		}
 		_loginRequest.rdmMsgType(LoginMsgType.REQUEST);
-		loginRequest = _loginRequest;		
-		}
+		loginRequest = _loginRequest;
 		
-
+		if(noRefresh)
+			loginRequest.applyNoRefresh();
+		}
 		
 		// send login request via stream
 		if (loginRequest != null && _stream != null) 
@@ -1231,7 +1240,7 @@ class WlLoginHandler implements WlHandler
 			{
 				loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
 			}
-			if (loginRequest.checkNoRefresh())
+			if (!noRefresh && loginRequest.checkNoRefresh())
 			{
 				loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
 			}
@@ -1273,6 +1282,7 @@ class WlLoginHandler implements WlHandler
 				if (newRequest) 
 				{
 					_loginRequest = null;
+					_loginRequestForEDP = null;
 				}
 
 				// if new stream, return stream to pool
@@ -1282,6 +1292,18 @@ class WlLoginHandler implements WlHandler
 				}
 			}
 		}
+	}
+	
+	/* Handles channel up event. */
+	void channelUp(ReactorErrorInfo errorInfo) 
+	{
+		// notify login stream that channel is up
+		if (_stream != null) 
+		{
+			_stream.channelUp();
+		}
+
+		sendLoginRequest(false, errorInfo);
 	}
 
 	@Override

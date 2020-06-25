@@ -30,6 +30,7 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.ClassesOfService;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectOptions;
@@ -797,7 +798,9 @@ public class Reactor
     			reactorChannel._loginRequestForEDP = (LoginRequest)LoginMsgFactory.createMsg();
     			reactorChannel._loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
     			
-        		loginRequest.copy(reactorChannel._loginRequestForEDP);    			
+        		loginRequest.copy(reactorChannel._loginRequestForEDP);
+        		reactorChannel._loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+        		reactorChannel._loginRequestForEDP.flags(reactorChannel._loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
     		}
     	}
     	
@@ -966,7 +969,7 @@ public class Reactor
     	{
    			public void onNewAuthToken(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo)
    			{
-   	        	if (reactorChannel != null && (reactorChannel.state() == State.READY || reactorChannel.state() == State.EDP_RT))
+   	        	if (reactorChannel != null && (reactorChannel.state() == State.UP || reactorChannel.state() == State.READY || reactorChannel.state() == State.EDP_RT))
             	{
    	        		// only send reissue if watchlist enabled
    	        		if (reactorChannel.watchlist() != null)
@@ -982,14 +985,12 @@ public class Reactor
    					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, errorInfo);
    					
    					if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
-						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD)
+						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD ||
+						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
    					{
-   						if (reactorChannel.state() != ReactorChannel.State.EDP_RT && reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED)
+   						if (reactorChannel.handlesTokenReissueFailed() )
    						{
-   							if (reactorChannel.handlesTokenReissueFailed() )
-   							{
-   								reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
-   							}
+   							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
    						}
    					}
    				}
@@ -1129,9 +1130,17 @@ public class Reactor
 		}
        
         if (loginRequest != null)
-        {    	
-        	loginRequest.applyNoRefresh();
-            encodeAndWriteLoginRequest(loginRequest, reactorChannel, errorInfo);
+        {   
+        	_reactorLock.lock();
+        	
+        	try
+        	{
+        		reactorChannel.watchlist().loginHandler().sendLoginRequest(true, errorInfo);
+        	}
+        	finally
+        	{
+        		_reactorLock.unlock();
+        	}
         }
     }
     

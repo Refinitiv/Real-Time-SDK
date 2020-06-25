@@ -302,6 +302,9 @@ abstract class RestClient implements Runnable, RestCallback {
 						errorText = response.jsonObject().toString();
 					}
 					
+					/* This is used to indicate that the token is no longer valid */
+					reactorChannel._loginRequestForEDP.userName().data("");
+					
 					reactorChannel.reactor().populateErrorInfo(_errorInfo, ReactorReturnCodes.FAILURE, "RestClient.RestResponseCallback", 
 							"Failed REST request from HTTP status code " + response.statusCode() + " for user: " + ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString() + 
 							". Text: " + errorText);
@@ -358,22 +361,27 @@ abstract class RestClient implements Runnable, RestCallback {
 	{
 		ReactorChannel reactorChannel = (ReactorChannel)event.userSpecObj();
 
-		onError( reactorChannel, event.errorInfo() );
-		if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
+		if (reactorChannel != null)
 		{
 			if(reactorChannel.sessionMgntState() == SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
 					reactorChannel.sessionMgntState() == SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD)
 			{
 				reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE);
+				/* This is used to indicate that the token is no longer valid */
+				reactorChannel._loginRequestForEDP.userName().data("");
 			}
 			else
 			{
 				reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
 			}
-			
-			reactorChannel.state(State.EDP_RT_FAILED);
+
+			if (reactorChannel.state() == State.EDP_RT) {
+				reactorChannel.state(State.EDP_RT_FAILED);
+			}
 		}
-		
+
+		onError( reactorChannel, event.errorInfo() );
+
 		return ReactorReturnCodes.SUCCESS;
 	}	
 	

@@ -1310,20 +1310,23 @@ class WlDirectoryHandler implements WlHandler
         
         if (_stream.state().streamState() == StreamStates.OPEN)
         {
-            if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED_RECOVER)
+            if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED_RECOVER || _watchlist.reactorChannel().enableSessionManagement())
             {
                 // login stream in close recover state
                 _stream.state().clear();
                 _stream.state().streamState(StreamStates.CLOSED_RECOVER);
                 _stream.state().dataState(DataStates.SUSPECT);
+                
+                // clear service cache
+                _serviceCache.clearCache(false);
             }
-
-            // clear service cache
-            _serviceCache.clearCache(false);
             
             // close stream if login stream is closed
-            if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED)
+            else if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED)
             {                
+            	// clear service cache
+                _serviceCache.clearCache(false);
+                
                 closeDirectoryStream();
             }
         }
