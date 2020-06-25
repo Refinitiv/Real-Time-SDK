@@ -22,6 +22,7 @@ typedef int DUMMY_SOCKET;
 
 #undef maxValue
 #undef minValue
+#include "../Common/GetTime.h"
 #include <float.h>
 #include "Ema.h"
 #include <stdio.h>
@@ -31,7 +32,7 @@ struct ResourceUsageStats {
 	double cpuUsageFraction;
 	UInt64 memUsageBytes;
 
-	TimeValue _prevTimeUsec;
+	PerfTimeValue _prevTimeUsec;
 	Int64 _prevUserTimeUsec;
 	Int64 _prevKernelTimeUsec;
 	ResourceUsageStats() : cpuUsageFraction(0), memUsageBytes(0), _prevTimeUsec(0), _prevUserTimeUsec(0), _prevKernelTimeUsec(0) {};
@@ -95,9 +96,9 @@ struct ValueStatistics
 
 struct TimeRecord
 {
-	TimeValue startTime;	// Recorded start time.
-	TimeValue endTime;		// Recorded end time. 
-	TimeValue ticks;		// Units per microsecond.
+	PerfTimeValue startTime;	// Recorded start time.
+	PerfTimeValue endTime;		// Recorded end time. 
+	PerfTimeValue ticks;		// Units per microsecond.
 	TimeRecord() : startTime(0), endTime(0), ticks(0) {};
 	TimeRecord& operator=(const TimeRecord& other)
 	{

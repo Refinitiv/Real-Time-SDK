@@ -72,7 +72,7 @@ bool ResourceUsageStats::initResourceUsageStats()
 bool ResourceUsageStats::getResourceUsageStats()
 {
 	Int64 userUsec, kernelUsec;
-	TimeValue currentTimeUsec;
+	PerfTimeValue currentTimeUsec;
 
 
 #if defined(WIN32)
@@ -158,7 +158,7 @@ bool ResourceUsageStats::getResourceUsageStats()
 	cpuUsageFraction = (double)(userUsec - _prevUserTimeUsec + kernelUsec - _prevKernelTimeUsec);
 
 	/* Divide over total time to get the CPU usage as a fraction. */
-	currentTimeUsec = GetTime::getMicros();
+	currentTimeUsec = perftool::common::GetTime::getTimeMicro();
 	cpuUsageFraction /= ((double)(currentTimeUsec - _prevTimeUsec));
 
 	_prevUserTimeUsec = userUsec; 
