@@ -292,9 +292,7 @@ RTR_C_INLINE RsslReactorEventImpl* rsslReactorEventQueueGet(RsslReactorEventQueu
 	{
 		/* Return previous event to pool */
 
-		RSSL_MUTEX_LOCK(&pQueue->eventPoolLock);
 		rsslReactorEventQueueReturnToPool(pQueue->pLastEvent, pQueue, poolSize);
-		RSSL_MUTEX_UNLOCK(&pQueue->eventPoolLock);
 
 		pQueue->pLastEvent = 0;
 	}

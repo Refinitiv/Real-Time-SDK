@@ -28,6 +28,8 @@
 			<MaxDispatchCountApiThread value="5000"/>
 
 			<MaxDispatchCountUserThread value="5000"/>
+
+			<MsgKeyInUpdates value="0"/>
 		</Consumer>
 		
 		<Consumer>
