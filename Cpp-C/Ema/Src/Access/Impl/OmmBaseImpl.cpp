@@ -917,6 +917,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if ( pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
 		{
 			newChannelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+			newChannelConfig->compressionThresholdSet = true;
 			setCompressionThresholdFromConfigFile = true;
 		}
 

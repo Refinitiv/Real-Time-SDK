@@ -730,6 +730,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			boolean setCompressionThresholdFromConfigFile = false;
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionThreshold)) != null)
 			{
+				newServerConfig.compressionThresholdSet = true;
 				setCompressionThresholdFromConfigFile = true;
 				if ( ce.intLongValue()  > maxInt )
 					newServerConfig.compressionThreshold = maxInt;

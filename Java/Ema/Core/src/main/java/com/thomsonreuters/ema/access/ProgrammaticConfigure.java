@@ -1563,7 +1563,10 @@ class ProgrammaticConfigure
 				currentChannelConfig.compressionType = fileCfg.compressionType;
 
 			if ( (flags & ChannelEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0)
+			{
+				currentChannelConfig.compressionThresholdSet = true;
 				currentChannelConfig.compressionThreshold = convertToInt(compressionThreshold);
+			}
 			else if ( useFileCfg )
 				currentChannelConfig.compressionThreshold = fileCfg.compressionThreshold;
 	
@@ -1775,7 +1778,10 @@ class ProgrammaticConfigure
 				currentServerConfig.compressionType = fileCfg.compressionType;
 
 			if ((flags & ServerEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0)
+			{
+				currentServerConfig.compressionThresholdSet = true;
 				currentServerConfig.compressionThreshold = convertToInt(compressionThreshold);
+			}
 			else if ( fileCfg != null )
 				currentServerConfig.compressionThreshold = fileCfg.compressionThreshold;
 

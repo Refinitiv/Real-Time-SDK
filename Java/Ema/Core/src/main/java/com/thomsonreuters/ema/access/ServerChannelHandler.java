@@ -151,34 +151,37 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
 
-                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, serverConfig.compressionThreshold, errorInfo) != ReactorReturnCodes.SUCCESS)
+                if(serverConfig.compressionThresholdSet)
                 {
-                    if (_serverImpl.loggerClient().isErrorEnabled())
-                    {
-                        StringBuilder temp = _serverImpl.strBuilder();
-
-                        temp.append("Failed to set compression threshold on channel ").append(clientSession.clientHandle().value()).append(OmmLoggerClient.CR)
-                        .append("Instance Name ").append(_serverImpl.activeConfig().instanceName).append(OmmLoggerClient.CR);
-                        
-                        if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
-                        {
-                            temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode()))
-                            .append(OmmLoggerClient.CR).append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
-                        }
-                        else
-                        {
-                            temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
-                        }
-
-                        temp.append("Error Id ").append(errorInfo.error().errorId()).append(OmmLoggerClient.CR).append("Internal sysError ").append(errorInfo.error().sysError())
-                        .append(OmmLoggerClient.CR).append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR).append("Error text ").append(errorInfo.error().text());
-
-                        _serverImpl.loggerClient().error(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.ERROR));
-                    }
-
-                    closeChannel(rsslReactorChannel);
-
-                    return ReactorCallbackReturnCodes.SUCCESS;
+	                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, serverConfig.compressionThreshold, errorInfo) != ReactorReturnCodes.SUCCESS)
+	                {
+	                    if (_serverImpl.loggerClient().isErrorEnabled())
+	                    {
+	                        StringBuilder temp = _serverImpl.strBuilder();
+	
+	                        temp.append("Failed to set compression threshold on channel ").append(clientSession.clientHandle().value()).append(OmmLoggerClient.CR)
+	                        .append("Instance Name ").append(_serverImpl.activeConfig().instanceName).append(OmmLoggerClient.CR);
+	                        
+	                        if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+	                        {
+	                            temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode()))
+	                            .append(OmmLoggerClient.CR).append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+	                        }
+	                        else
+	                        {
+	                            temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	                        }
+	
+	                        temp.append("Error Id ").append(errorInfo.error().errorId()).append(OmmLoggerClient.CR).append("Internal sysError ").append(errorInfo.error().sysError())
+	                        .append(OmmLoggerClient.CR).append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR).append("Error text ").append(errorInfo.error().text());
+	
+	                        _serverImpl.loggerClient().error(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	                    }
+	
+	                    closeChannel(rsslReactorChannel);
+	
+	                    return ReactorCallbackReturnCodes.SUCCESS;
+	                }
                 }
                 
                 List<ComponentInfo> componentInfoList = reactorChannelInfo.channelInfo().componentInfo();

@@ -644,7 +644,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
-	pChannel( 0 )
+	pChannel( 0 ),
+	compressionThresholdSet(false)
 {
 }
 
@@ -662,6 +663,7 @@ void ChannelConfig::clear()
 	sysRecvBufSize = DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 	pChannel = 0;
+	compressionThresholdSet = false;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -699,7 +701,8 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
 	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),
 	sysRecvBufSize(DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE),
-	highWaterMark(DEFAULT_HIGH_WATER_MARK)
+	highWaterMark(DEFAULT_HIGH_WATER_MARK),
+	compressionThresholdSet(false)
 {
 
 }
@@ -724,6 +727,7 @@ void ServerConfig::clear()
 	sysRecvBufSize = DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE;
 	sysSendBufSize = DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
+	compressionThresholdSet = false;
 }
 
 void ServerConfig::setGuaranteedOutputBuffers(UInt64 value)

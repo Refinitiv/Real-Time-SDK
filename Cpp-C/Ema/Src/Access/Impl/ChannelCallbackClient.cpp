@@ -858,26 +858,30 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			return RSSL_RC_CRET_SUCCESS;
 		}
 #endif
-		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &pChannelConfig->compressionThreshold, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+		/* Set the compression threshold parameter if it is specified explicitly by users */
+		if (pChannelConfig->compressionThresholdSet)
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &pChannelConfig->compressionThreshold, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
-				EmaString temp( "Failed to set compression threshold on channel " );
-				temp.append( pChannel->getName() ).append( CR )
-				.append( "Consumer Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
-				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
-				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-				.append( "Error text " ).append( rsslErrorInfo.rsslError.text );
+				if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Failed to set compression threshold on channel ");
+					temp.append(pChannel->getName()).append(CR)
+						.append("Consumer Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
+						.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error text ").append(rsslErrorInfo.rsslError.text);
 
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+					_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+				}
+
+				_ommBaseImpl.closeChannel(pRsslReactorChannel);
+
+				return RSSL_RC_CRET_SUCCESS;
 			}
-
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
-			return RSSL_RC_CRET_SUCCESS;
 		}
 
 		pChannel->setRsslChannel( pRsslReactorChannel )

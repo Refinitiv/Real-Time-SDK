@@ -1113,6 +1113,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			boolean setCompressionThresholdFromConfigFile = false;
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
 			{
+				currentChannelConfig.compressionThresholdSet = true;
 				setCompressionThresholdFromConfigFile = true;
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.compressionThreshold = maxInt;

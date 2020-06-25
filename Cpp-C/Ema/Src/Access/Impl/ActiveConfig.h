@@ -157,6 +157,7 @@ public :
 	EmaString				interfaceName;
 	RsslCompTypes			compressionType;
 	UInt32					compressionThreshold;
+	bool					compressionThresholdSet;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					initializationTimeout;
@@ -195,6 +196,7 @@ public:
 	EmaString				name;
 	EmaString				interfaceName;
 	RsslCompTypes			compressionType;
+	bool					compressionThresholdSet;
 	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;

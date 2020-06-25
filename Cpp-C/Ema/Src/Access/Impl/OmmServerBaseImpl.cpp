@@ -510,6 +510,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "CompressionThreshold", tempUInt))
 	{
 		newServerConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		newServerConfig->compressionThresholdSet = true;
 		setCompressionThresholdFromConfigFile = true;
 	}
 
@@ -928,6 +929,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout;
 	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout;
 	bindOptions.componentVersion = (char *)componentVersion.c_str();
+	bindOptions.forceCompression = RSSL_TRUE;
 
 
 	switch (_activeServerConfig.pServerConfig->connectionType)

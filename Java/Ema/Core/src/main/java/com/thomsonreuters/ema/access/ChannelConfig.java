@@ -13,6 +13,7 @@ class ChannelConfig
 	String				interfaceName;
 	int					compressionType;
 	int					compressionThreshold;
+	boolean				compressionThresholdSet;
 	int					rsslConnectionType;
 	int					connectionPingTimeout;
 	int					guaranteedOutputBuffers;
@@ -41,6 +42,7 @@ class ChannelConfig
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT;
+		compressionThresholdSet = false;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

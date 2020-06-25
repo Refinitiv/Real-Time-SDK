@@ -13,6 +13,7 @@ class ServerConfig
 	String				interfaceName;
 	int					compressionType;
 	int					compressionThreshold;
+	boolean				compressionThresholdSet;
 	int					rsslConnectionType;
 	int					connectionPingTimeout;
 	int					guaranteedOutputBuffers;
@@ -43,6 +44,7 @@ class ServerConfig
 		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
+		compressionThresholdSet = false;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

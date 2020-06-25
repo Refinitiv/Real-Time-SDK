@@ -2162,8 +2162,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			else if ( useFileCfg )
 				pCurrentChannelConfig->compressionType = fileCfg->compressionType;
 
-			if ( flags & 0x1000000 )
-				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )compressionThreshold;
+			if (flags & 0x1000000)
+			{
+				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
+				pCurrentChannelConfig->compressionThresholdSet = true;
+			}
 			else if ( useFileCfg ) {
 				pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
 
@@ -2452,7 +2455,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->interfaceName = fileCfg->interfaceName;
 
 			if (flags & ConnMinPingTimeoutFlagEnum)
-				pCurrentServerConfig->connectionMinPingTimeout = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)connectionMinPingTimeout;
+				pCurrentServerConfig->connectionMinPingTimeout = connectionMinPingTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)connectionMinPingTimeout;
 			else if(fileCfgSocket)
 				pCurrentServerConfig->connectionMinPingTimeout = fileCfg->connectionMinPingTimeout;
 
@@ -2462,7 +2465,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->compressionType = fileCfg->compressionType;
 
 			if (flags & CompressThresHoldFlagEnum)
+			{
 				pCurrentServerConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
+				pCurrentServerConfig->compressionThresholdSet = true;
+			}
 			else if (fileCfgSocket)
 				pCurrentServerConfig->compressionThreshold = fileCfg->compressionThreshold;
 
