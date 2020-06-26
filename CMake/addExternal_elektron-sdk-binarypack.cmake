@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019-2020 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 include(rcdevExternalUtils)
 
 if(NOT elektron-sdk-binarypack_url)
-	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-1.5.0.L1/Elektron-SDK-BinaryPack-1.5.0.L1.tar.xz")
+	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-1.5.0.G1/Elektron-SDK-BinaryPack-1.5.0.G1.tar.xz")
 endif()
 if(NOT elektron-sdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(elektron-sdk-binarypack_hash "MD5=95216c54b548907287776d9c4f194e97")
+	set(elektron-sdk-binarypack_hash "MD5=c1a74713f99f1844c74342f62da3c700")
 endif()
 if(NOT elektron-sdk-binarypack_version)
-	set(elektron-sdk-binarypack_version "1.5.0.0")
+	set(elektron-sdk-binarypack_version "1.5.0.1")
 endif()
 	
 # If the option for using the system installed 
