@@ -18,9 +18,9 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-- Red Hat Advanced Server 6.0 Release 64-bit
-- Oracle Linux Server 6.0 or 7.0 Release 64-bit
-- CentOS 7.0 Release 64-bit
+- Red Hat Advanced Server 6.X Release 64-bit
+- Oracle Linux Server 6.X or 7.X Release 64-bit
+- CentOS 7.X Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type

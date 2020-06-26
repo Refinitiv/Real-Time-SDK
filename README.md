@@ -11,6 +11,8 @@ For any further information please contact us at legal@refinitiv.com.
 # Elektron SDK
 This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the open source Elektron Message API (EMA) and the open source Elektron Transport API (ETA).
 
+Elektron SDK will be undergoing brand changes to Refinitiv Real-Time SDK over the upcoming releases. 
+
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
 The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Refinitiv low-level, open source Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.

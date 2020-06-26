@@ -19,7 +19,7 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Elektron-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8.
+The Elektron-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11.
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
@@ -62,6 +62,7 @@ This release has been tested with the following:
 	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
 	Open JDK (1.8)
+	Open JDK (1.11)
 
 #### Proxy Authentication Support
 
@@ -178,40 +179,40 @@ You can download ESDK libraries and dependencies from Maven Central using severa
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.5.0.0</version>
+		<version>3.5.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.5.0.0</version>
+		<version>3.5.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.5.0.0</version>
+		<version>3.5.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.5.0.0</version>
+		<version>3.5.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.5.0.0</version>
+		<version>3.5.0.1</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.0.0'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.0.0'
-        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.0.0'
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.0.1'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.0.1'
+        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.0.1'
 
 # Developing 
 
