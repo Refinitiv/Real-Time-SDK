@@ -94,7 +94,7 @@ void timeRecordQueueCleanup(TimeRecordQueue *pRecordQueue)
 	}
 }
 
-RsslRet timeRecordSubmit(TimeRecordQueue *pRecordQueue, TimeValue startTime, TimeValue endTime, TimeValue ticks)
+RsslRet timeRecordSubmit(TimeRecordQueue *pRecordQueue, RsslTimeValue startTime, RsslTimeValue endTime, RsslTimeValue ticks)
 {
 	RsslQueueLink *pLink;
 	TimeRecord *pRecord;
@@ -160,7 +160,7 @@ RsslRet getResourceUsageStats(ResourceUsageStats *pStats)
 {
 
 	RsslInt64 userUsec, kernelUsec;
-	TimeValue currentTimeUsec;
+	RsslTimeValue currentTimeUsec;
 
 
 #ifdef WIN32
@@ -267,7 +267,7 @@ RsslRet getResourceUsageStats(ResourceUsageStats *pStats)
 	pStats->cpuUsageFraction = (RsslDouble)(userUsec - pStats->_prevUserTimeUsec + kernelUsec - pStats->_prevKernelTimeUsec);
 
 	/* Divide over total time to get the CPU usage as a fraction. */
-	currentTimeUsec = getTimeMicro();
+	currentTimeUsec = rsslGetTimeMicro();
 	pStats->cpuUsageFraction /= ((RsslDouble)(currentTimeUsec - pStats->_prevTimeUsec));
 
 	pStats->_prevUserTimeUsec = userUsec; 

@@ -813,7 +813,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	ItemInfo *nextItem;
 	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
-	TimeValue measureEncodeStartTime, measureEncodeEndTime;
+	RsslTimeValue measureEncodeStartTime, measureEncodeEndTime;
 
 	/* Determine updates to send out. Spread the remainder out over the first ticks */
 	updatesLeft = providerThreadConfig._updatesPerTick;
@@ -835,7 +835,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		/* When appropriate, provide a latency timestamp for the updates. */
 		if (providerThreadConfig.latencyUpdatesPerSec == ALWAYS_SEND_LATENCY_UPDATE 
 				|| latencyUpdateNumber == (updatesLeft-1))
-			latencyStartTime = providerThreadConfig.nanoTime ? getTimeNano() : getTimeMicro();
+			latencyStartTime = providerThreadConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 		else
 			latencyStartTime = 0;
 
@@ -850,7 +850,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		}
 
 		if (providerThreadConfig.measureEncode)
-			measureEncodeStartTime = getTimeNano();
+			measureEncodeStartTime = rsslGetTimeNano();
 
 		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
 		{
@@ -903,7 +903,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		if (providerThreadConfig.measureEncode)
 		{
-			measureEncodeEndTime = getTimeNano();
+			measureEncodeEndTime = rsslGetTimeNano();
 			timeRecordSubmit(&pProvThread->messageEncodeTimeRecords, measureEncodeStartTime, measureEncodeEndTime, 1000);
 		}
 
@@ -928,7 +928,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	ItemInfo *nextItem;
 	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
-	TimeValue measureEncodeStartTime, measureEncodeEndTime;
+	RsslTimeValue measureEncodeStartTime, measureEncodeEndTime;
 
 	/* Determine generic messages to send out. Spread the remainder out over the first ticks */
 	genMsgsLeft = providerThreadConfig._genMsgsPerTick;
@@ -952,7 +952,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 				|| latencyGenMsgNumber == (genMsgsLeft-1))
 		{
 			countStatIncr(&pProvThread->stats.latencyGenMsgSentCount);
-			latencyStartTime = providerThreadConfig.nanoTime ? getTimeNano() : getTimeMicro();
+			latencyStartTime = providerThreadConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 		}
 		else
 			latencyStartTime = 0;
@@ -968,7 +968,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		}
 
 		if (providerThreadConfig.measureEncode)
-			measureEncodeStartTime = getTimeNano();
+			measureEncodeStartTime = rsslGetTimeNano();
 
 		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
 		{
@@ -1021,7 +1021,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		if (providerThreadConfig.measureEncode)
 		{
-			measureEncodeEndTime = getTimeNano();
+			measureEncodeEndTime = rsslGetTimeNano();
 			timeRecordSubmit(&pProvThread->messageEncodeTimeRecords, measureEncodeStartTime,
 								measureEncodeEndTime, 1000);
 		}
@@ -1031,7 +1031,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		countStatIncr(&pProvThread->stats.genMsgSentCount);
 		if (!pProvThread->stats.firstGenMsgSentTime)
-			pProvThread->stats.firstGenMsgSentTime = getTimeNano();
+			pProvThread->stats.firstGenMsgSentTime = rsslGetTimeNano();
 	}
 
 	if (rtrUnlikely(++pProvThread->currentTicks == providerThreadConfig.ticksPerSec))
@@ -1598,7 +1598,7 @@ void providerThreadSendMsgBurst(ProviderThread *pProvThread, RsslUInt64 stopTime
 
 		/* Use remaining time in the tick to send refreshes. */
 		while (ret >= RSSL_RET_SUCCESS && rotatingQueueGetCount(&pSession->refreshItemList) != 0
-				&& getTimeNano() < stopTime)
+				&& rsslGetTimeNano() < stopTime)
 			ret = sendRefreshBurst(pProvThread, pSession);
 
 		if (rtrUnlikely(ret < RSSL_RET_SUCCESS))
@@ -1858,8 +1858,8 @@ void providerCollectStats(Provider *pProvider, RsslBool writeStats, RsslBool dis
 void providerPrintSummaryStats(Provider *pProvider, FILE *file)
 {
 	RsslInt32 i;
-	TimeValue statsTime;
-	TimeValue currentTime = getTimeNano();
+	RsslTimeValue statsTime;
+	RsslTimeValue currentTime = rsslGetTimeNano();
 
 	if (providerThreadConfig.threadCount > 1)
 	{

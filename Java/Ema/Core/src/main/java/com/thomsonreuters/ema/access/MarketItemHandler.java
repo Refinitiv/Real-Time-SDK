@@ -18,8 +18,10 @@ import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.EncodeIterator;
+import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
+import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.StateCodes;
@@ -66,12 +68,12 @@ class MarketItemHandler implements DefaultMsgCallback
 		_ommServerBaseImpl.eventReceived();
 		com.thomsonreuters.upa.codec.Msg msg = msgEvent.msg();
 		ReactorChannel reactorChannel = msgEvent.reactorChannel();
-		ClientSession clientSession = (ClientSession)msgEvent.reactorChannel().userSpecObj();
+		ClientSession clientSession = (ClientSession) msgEvent.reactorChannel().userSpecObj();
 		
-		if( msg == null )
+		if (msg == null)
 		{
 			if (_ommServerBaseImpl.loggerClient().isErrorEnabled())
-        	{
+			{
 				StringBuilder temp = _ommServerBaseImpl.strBuilder();
 				temp.append("Received error message.")
 				.append(OmmLoggerClient.CR).append("ErrorText ").append(msgEvent.errorInfo().error().text())
@@ -91,40 +93,27 @@ class MarketItemHandler implements DefaultMsgCallback
 			StringBuilder temp = _ommServerBaseImpl.strBuilder();
 			temp.append("Message rejected - there is no logged in user for this session.");
 			
-			sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
+			sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
 			
 			if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-        	{
-				temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msgEvent.msg().streamId())
+			{
+				temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
 				.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
 				.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-				
+
 				_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-	        			temp.toString(), Severity.TRACE));
-        	}
+						temp.toString(), Severity.TRACE));
+			}
 			
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
 		
-		switch(msg.msgClass())
+		ItemInfo itemInfo = clientSession.getItemInfo(_streamId.value(msg.streamId()));
+		switch (msg.msgClass())
 		{
 			case MsgClasses.REQUEST:
 			{
-				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-                {
-                    StringBuilder temp = _ommServerBaseImpl.strBuilder();
-                    temp.append("Received request message.")
-                    .append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-                       
-                    _ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-                    		temp.toString(), Severity.TRACE).toString());
-                }
-				
-				_streamId.value(msg.streamId());
-				
-				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
+				logReceivedMessage(msg, clientSession, "request");
 				
 				ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
 				int flags = msg.msgKey().flags();
@@ -154,29 +143,28 @@ class MarketItemHandler implements DefaultMsgCallback
 							StringBuilder temp = _ommServerBaseImpl.strBuilder();
 							temp.append("Request message rejected - the service Id = ").append(msg.msgKey().serviceId())
 							.append(" does not accept any requests.");
-							
-							sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
-							
+
+							sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
+
 							if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-				        	{
+							{
 								temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-			                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-			                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-								
+										.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+										.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+
 								_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-					        			temp.toString(), Severity.TRACE));
-				        	}
-							
-							if ( itemInfo != null )
+										temp.toString(), Severity.TRACE));
+							}
+
+							if (itemInfo != null)
 							{
 								notifyOnClose(reactorChannel, msg, itemInfo);
 							}
-							
+
 							break;
 						}
-						
-						if ( !_ommServerBaseImpl.activeConfig().acceptMessageWithoutQosInRange && _isDirectoryApiControl 
-								&& !iProviderServcieStore.isValidQosRange(msg.msgKey().serviceId(), (RequestMsg)msg) )
+
+						if (!_ommServerBaseImpl.activeConfig().acceptMessageWithoutQosInRange && _isDirectoryApiControl && !iProviderServcieStore.isValidQosRange(msg.msgKey().serviceId(), (RequestMsg) msg))
 						{
 							StringBuilder temp = _ommServerBaseImpl.strBuilder();
 							temp.append("Request message rejected - the service Id = ").append(msg.msgKey().serviceId())
@@ -195,19 +183,19 @@ class MarketItemHandler implements DefaultMsgCallback
 								temp.append(".");
 							}
 							
-							sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
+							sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
 							
 							if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-				        	{
+							{
 								temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-			                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-			                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+										.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+										.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
 								
 								_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-					        			temp.toString(), Severity.TRACE));
-				        	}
+										temp.toString(), Severity.TRACE));
+							}
 							
-							if ( itemInfo != null )
+							if (itemInfo != null)
 							{
 								notifyOnClose(reactorChannel, msg, itemInfo);
 							}
@@ -217,26 +205,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					}
 					else
 					{
-						StringBuilder temp = _ommServerBaseImpl.strBuilder();
-						temp.append("Request Message rejected - the service Id = ").append(msg.msgKey().serviceId())
-						.append(" does not exist in the source directory.");
-						
-						sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
-						
-						if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-			        	{
-							temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-		                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-		                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-							
-							_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-				        			temp.toString(), Severity.TRACE));
-			        	}
-						
-						if ( itemInfo != null )
-						{
-							notifyOnClose(reactorChannel, msg, itemInfo);
-						}
+						handleNonExistentServiceId(msg, reactorChannel, clientSession, itemInfo);
 						
 						break;
 					}
@@ -247,36 +216,32 @@ class MarketItemHandler implements DefaultMsgCallback
 							reactorChannel.minorVersion(), null);
 				}
 				
-				_ommServerBaseImpl.ommProviderEvent()._clientHandle = clientSession.clientHandle();
-				_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
-				_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
-				
-				if( itemInfo == null )
+				if (itemInfo == null)
 				{
 					itemInfo = ServerPool.getItemInfo();
-				
-					itemInfo.setRequestMsg((RequestMsg)msgEvent.msg());
+					
+					itemInfo.setRequestMsg((RequestMsg) msg);
 					itemInfo.clientSession(clientSession);
 					
 					
-					if ( !_ommServerBaseImpl.activeConfig().acceptMessageSameKeyButDiffStream )
+					if (!_ommServerBaseImpl.activeConfig().acceptMessageSameKeyButDiffStream)
 					{
-						if ( clientSession.checkingExistingReq(itemInfo) )
+						if (clientSession.checkingExistingReq(itemInfo))
 						{
 							StringBuilder temp = _ommServerBaseImpl.strBuilder();
 							temp.append("Request Message rejected - Item already open with exact same message key on another stream.");
 							
-							sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
+							sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
 							
 							if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-				        	{
+							{
 								temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-			                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-			                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+								.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+								.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
 								
 								_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-					        			temp.toString(), Severity.TRACE));
-				        	}
+										temp.toString(), Severity.TRACE));
+							}
 							
 							itemInfo.returnToPool();
 							
@@ -285,10 +250,9 @@ class MarketItemHandler implements DefaultMsgCallback
 					}
 					
 					_ommServerBaseImpl.addItemInfo(clientSession, itemInfo);
-				
-					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
-				
+					
+					setCommonProviderEventAttributes(reactorChannel, itemInfo.handle(), clientSession.clientHandle());
+					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReqMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 				}
@@ -296,9 +260,9 @@ class MarketItemHandler implements DefaultMsgCallback
 				{
 					boolean setMessageKey = false;
 					
-					if ( msg.msgKey().checkHasServiceId() && itemInfo.msgKey().checkHasServiceId() )
+					if (msg.msgKey().checkHasServiceId() && itemInfo.msgKey().checkHasServiceId())
 					{
-						if ( itemInfo.msgKey().serviceId() !=  msg.msgKey().serviceId() )
+						if (itemInfo.msgKey().serviceId() != msg.msgKey().serviceId())
 						{
 							if (!_ommServerBaseImpl.activeConfig().acceptMessageThatChangesService)
 							{
@@ -306,9 +270,9 @@ class MarketItemHandler implements DefaultMsgCallback
 								temp.append("Request Message rejected - Attempt to reissue the service Id from ")
 									.append(itemInfo.serviceId()).append(" to ").append(msg.msgKey().serviceId())
 									.append(" while this is not supported.");
-							
-								sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
-							
+								
+								sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
+								
 								if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
 								{
 									temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
@@ -329,7 +293,7 @@ class MarketItemHandler implements DefaultMsgCallback
 								{
 									_ommServerBaseImpl.removeItemGroup(itemInfo);
 									
-									itemInfo.setRequestMsg((RequestMsg)msgEvent.msg());
+									itemInfo.setRequestMsg((RequestMsg) msg);
 									
 									setMessageKey = true;
 									
@@ -339,127 +303,70 @@ class MarketItemHandler implements DefaultMsgCallback
 						}
 					}
 					
-					if(!setMessageKey)
+					if (!setMessageKey)
 					{
-						itemInfo.setRequestMsg((RequestMsg)msgEvent.msg());
+						itemInfo.setRequestMsg((RequestMsg) msg);
 					}
 					
-					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
+					setCommonProviderEventAttributes(reactorChannel, itemInfo.handle(), clientSession.clientHandle());
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 				}
-			}	
-			break;
-				
-			case MsgClasses.CLOSE:			
+				break;
+			}
+			case MsgClasses.CLOSE:
 			{
-				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-	        	{
-					StringBuilder temp = _ommServerBaseImpl.strBuilder();
-					temp.append("Received close message.")
-					.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-					
-					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-		        			temp.toString(), Severity.TRACE));
-	        	}
+				logReceivedMessage(msg, clientSession, "close");
 				
-				_streamId.value(msg.streamId());
-				_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
-
-				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
-				
-				if ( itemInfo != null )
+				_ommServerBaseImpl.ommProviderEvent()._channel = reactorChannel;
+				if (itemInfo != null)
 				{
 					notifyOnClose(reactorChannel, msg, itemInfo);
 				}
+				break;
 			}
-			break;			
 			case MsgClasses.POST:
 			{
-				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-	        	{
-					StringBuilder temp = _ommServerBaseImpl.strBuilder();
-					temp.append("Received post message.")
-					.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName())
-					.append(OmmLoggerClient.CR).append("Post message is not support for this release.");
-					
-					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-		        			temp.toString(), Severity.TRACE));
-	        	}
+				processPost(msg, reactorChannel, clientSession, itemInfo);
+				break;
 			}
-			break;	
 			case MsgClasses.GENERIC:
 			{
-				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
-	        	{
-					StringBuilder temp = _ommServerBaseImpl.strBuilder();
-					temp.append("Received generic message.")
-					.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-					
-					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-		        			temp.toString(), Severity.TRACE));
-	        	}
-				
-				_streamId.value(msg.streamId());
-				
-				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
-				
-				if ( itemInfo != null )
+				logReceivedMessage(msg, clientSession, "generic");
+				if (itemInfo != null)
 				{
 					GenericMsgImpl genericMsg = _ommServerBaseImpl.genericMsg();
-					
-					DataDictionary dataDictionary = null;
-					
-					if ( itemInfo.msgKey().checkHasServiceId() )
-					{
-						dataDictionary = _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(itemInfo.msgKey().serviceId());
-					}
-					
-					genericMsg.decode(msg, msgEvent.reactorChannel().majorVersion(),
-							msgEvent.reactorChannel().minorVersion(), dataDictionary);
-					
-					_ommServerBaseImpl.ommProviderEvent()._clientHandle = clientSession.clientHandle();
-					_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
-					_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
-					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
-					
+
+					genericMsg.decode(msg, reactorChannel.majorVersion(),
+							reactorChannel.minorVersion(), getDataDictionary(itemInfo));
+
+					setCommonProviderEventAttributes(reactorChannel, itemInfo.handle(), clientSession.clientHandle());
+
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onGenericMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
 				}
+				break;
 			}
-			break;
 			default:
 			{
 				StringBuilder temp = _ommServerBaseImpl.strBuilder();
 				temp.append("Rejected unhandled message type ").append(MsgClasses.toString(msg.msgClass()));
-				
-				_streamId.value(msgEvent.msg().streamId());
-				
-				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
-				
-				if( itemInfo == null )
+
+				if (itemInfo == null)
 				{
-					sendRejectMessage(msgEvent.reactorChannel(), msg, StateCodes.USAGE_ERROR , temp.toString() );
+					sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
 				}
-				
+
 				if (_ommServerBaseImpl.loggerClient().isErrorEnabled())
-	        	{
+				{
 					temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
-                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
-                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
-					
+							.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+							.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+
 					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
-		        			temp.toString(), Severity.ERROR));
-	        	}
+							temp.toString(), Severity.ERROR));
+				}
 			}
 		}
 		
@@ -622,5 +529,108 @@ class MarketItemHandler implements DefaultMsgCallback
 			
 			return;
 	    }
+	}
+
+	private void processPost(Msg msg, ReactorChannel reactorChannel, ClientSession clientSession, ItemInfo itemInfo)
+	{
+		logReceivedMessage(msg, clientSession, "post");
+		if (itemInfo == null)
+		{
+			return;
+		}
+		PostMsgImpl postMsg = _ommServerBaseImpl.postMsg();
+		postMsg.decode(msg, reactorChannel.majorVersion(),
+				reactorChannel.minorVersion(), getDataDictionary(itemInfo));
+
+		if (((PostMsg) msg).checkHasMsgKey() && msg.msgKey().checkHasServiceId())
+		{
+			String serviceName = _ommServerBaseImpl.directoryServiceStore().serviceName(msg.msgKey().serviceId());
+			if (serviceName == null)
+			{
+				StringBuilder temp = _ommServerBaseImpl.strBuilder();
+				temp.append("Request Message invalid - the service Id = ").append(msg.msgKey().serviceId())
+						.append(" does not exist in the source directory.");
+
+				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+				{
+					temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
+							.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+							.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+		
+					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+							temp.toString(), Severity.TRACE));
+				}
+			}
+			else
+			{
+				postMsg.serviceName(serviceName);
+			}
+		}
+
+		setCommonProviderEventAttributes(reactorChannel, itemInfo.handle(), clientSession.clientHandle());
+		if(_ommServerBaseImpl.activeConfig().enforceAckIDValidation) {
+			itemInfo.addPostId(postMsg.postId());
+		}
+		
+		_ommServerBaseImpl.ommProviderClient().onAllMsg(postMsg, _ommServerBaseImpl.ommProviderEvent());
+		_ommServerBaseImpl.ommProviderClient().onPostMsg(postMsg, _ommServerBaseImpl.ommProviderEvent());
+	}
+
+	private void logReceivedMessage(Msg msg, ClientSession clientSession, String messageName)
+	{
+		if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+		{
+			StringBuilder temp = _ommServerBaseImpl.strBuilder();
+			temp.append("Received ").append(messageName).append(" message.")
+					.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
+					.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+					.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+
+			_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+					temp.toString(), Severity.TRACE));
+		}
+	}
+
+	private void setCommonProviderEventAttributes(ReactorChannel reactorChannel, LongObject handle, LongObject clientHandle)
+	{
+		_ommServerBaseImpl.ommProviderEvent()._clientHandle = clientHandle;
+		_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
+		_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
+		_ommServerBaseImpl.ommProviderEvent()._channel = reactorChannel;
+		_ommServerBaseImpl.ommProviderEvent()._handle = handle;
+	}
+
+	private void handleNonExistentServiceId(Msg msg, ReactorChannel reactorChannel, ClientSession clientSession, ItemInfo itemInfo)
+	{
+		StringBuilder temp = _ommServerBaseImpl.strBuilder();
+		temp.append("Request Message rejected - the service Id = ").append(msg.msgKey().serviceId())
+				.append(" does not exist in the source directory.");
+
+		sendRejectMessage(reactorChannel, msg, StateCodes.USAGE_ERROR, temp.toString());
+
+		if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+		{
+			temp.append(OmmLoggerClient.CR).append("Stream Id ").append(msg.streamId())
+					.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+					.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+
+			_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+					temp.toString(), Severity.TRACE));
+		}
+
+		if (itemInfo != null)
+		{
+			notifyOnClose(reactorChannel, msg, itemInfo);
+		}
+	}
+
+
+	private DataDictionary getDataDictionary(ItemInfo itemInfo)
+	{
+		if (itemInfo.msgKey().checkHasServiceId())
+		{
+			return _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(itemInfo.msgKey().serviceId());
+		}
+		return null;
 	}
 }

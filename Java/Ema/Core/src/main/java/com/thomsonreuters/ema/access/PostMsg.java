@@ -284,7 +284,7 @@ public interface PostMsg extends Msg
 	/**
 	 * Specifies SeqNum.
 	 * 
-	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
+	 * @throws OmmOutOfRangeException if seqNum is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param seqNum specifies sequence number
 	 * @return reference to this object

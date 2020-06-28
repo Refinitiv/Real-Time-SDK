@@ -128,6 +128,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	_activeServerConfig.instanceName.append("_").append(id);
 
 	const UInt32 maxUInt32( 0xFFFFFFFF );
+	const Int32 maxInt32( 0x7FFFFFFF );
 	UInt64 tmp;
 	EmaString instanceNodeName(pConfigServerImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeServerConfig.configuredName).append("|");
@@ -151,10 +152,14 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeServerConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+	
+	Int64 tmp1;
+	
+	if (pConfigServerImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
+		_activeServerConfig.maxEventsInPool = static_cast<Int32>(tmp1 > maxInt32 ? maxInt32 : tmp1 < -1 ? -1 : tmp1);
 
 	pConfigServerImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName);
 
-	Int64 tmp1;
 	if (pConfigServerImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
 	{
 		_activeServerConfig.xmlTraceMaxFileSize = tmp1;
@@ -465,6 +470,13 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			else
 				socketServerConfig->tcpNodelay = RSSL_FALSE;
 
+			tempUInt = DEFAULT_SERVER_SHAREDSOCKET;
+			pConfigServerImpl->get<UInt64>(serverNodeName + "ServerSharedSocket", tempUInt);
+			if (tempUInt)
+				socketServerConfig->serverSharedSocket = RSSL_TRUE;
+			else
+				socketServerConfig->serverSharedSocket = RSSL_FALSE;
+
 			tempUInt = 0;
 			if (pConfigServerImpl->get<UInt64>(serverNodeName + "MaxFragmentSize", tempUInt))
 				socketServerConfig->maxFragmentSize = tempUInt;
@@ -498,6 +510,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "CompressionThreshold", tempUInt))
 	{
 		newServerConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		newServerConfig->compressionThresholdSet = true;
 		setCompressionThresholdFromConfigFile = true;
 	}
 
@@ -916,6 +929,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout;
 	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout;
 	bindOptions.componentVersion = (char *)componentVersion.c_str();
+	bindOptions.forceCompression = RSSL_TRUE;
 
 
 	switch (_activeServerConfig.pServerConfig->connectionType)
@@ -937,6 +951,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			bindOptions.tcpOpts.tcp_nodelay = socketServerConfig->tcpNodelay;
 			bindOptions.serviceName = const_cast<char *>(socketServerConfig->serviceName.c_str());
 			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
+			bindOptions.serverSharedSocket = socketServerConfig->serverSharedSocket;
 
 			if (RSSL_CONN_TYPE_WEBSOCKET == _activeServerConfig.pServerConfig->connectionType)
 			{
@@ -2049,6 +2064,49 @@ void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInfor
   _userLock.unlock();
 
   return;
+}
+
+void OmmServerBaseImpl::getConnectedClientChannelStatsImpl(UInt64 clientHandle, ChannelStatistics& cs) {
+	RsslReactorChannelStats rsslReactorChannelStats;
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret;
+
+	cs.clear();
+
+	_userLock.lock();
+
+	for (UInt32 index = 0; index < connectedChannels.size(); ++index) {
+		if ((UInt64)connectedChannels[index] == clientHandle) {
+
+			RsslReactorChannel* rrc = connectedChannels[index];
+
+			// create connected component info
+			if ((ret = rsslReactorGetChannelStats(rrc, &rsslReactorChannelStats, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				_userLock.unlock();
+				EmaString temp("Call to rsslReactorGetChannelStats() failed. Internal sysError='");
+				temp.append(rsslErrorInfo.rsslError.sysError)
+					.append("' Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append("' ")
+					.append("' Error Location='").append(rsslErrorInfo.errorLocation).append("' ")
+					.append("' Error text='").append(rsslErrorInfo.rsslError.text).append("'. ");
+				handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+				return;
+			}
+
+			if (rsslReactorChannelStats.rsslChannelStats.tcpStats.flags & RSSL_TCP_STATS_RETRANSMIT)
+			{
+				cs.tcpRetransmitCount(rsslReactorChannelStats.rsslChannelStats.tcpStats.tcpRetransmitCount);
+			}
+
+			_userLock.unlock();
+			return;
+		}
+	}
+
+	_userLock.unlock();
+
+	EmaString temp("Invalid clientHandle to call getConnectedClientChannelStats().");
+	handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 }
 
 RsslReactorCallbackRet OmmServerBaseImpl::jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)

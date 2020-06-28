@@ -182,6 +182,10 @@ void OmmProvider::getConnectedClientChannelInfo( EmaVector<ChannelInformation>& 
 	return _pImpl->getConnectedClientChannelInfo( ci );
 }
 
+void OmmProvider::getConnectedClientChannelStats( UInt64 clientHandle, ChannelStatistics& cs ) {
+	return _pImpl->getConnectedClientChannelStats( clientHandle, cs );
+}
+
 void OmmProvider::getChannelInformation( ChannelInformation& ci ) {
 	// this function can be called during the OmmProvider constructor (usually from an event
 	// received during that process). If so, just have to return 0.

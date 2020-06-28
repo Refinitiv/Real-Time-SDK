@@ -92,7 +92,9 @@ public class Consumer
 	public static String host;
 	public static String port;
 	public static String location = "us-east";
-	
+
+	public static String itemName = "IBM.N";
+
 	static void printHelp()
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
@@ -107,6 +109,7 @@ public class Consumer
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
+	    		+ "  -itemName Request item name (optional).\n"
 	    		+ "  -ph Proxy host name (optional).\n"
 	    		+ "  -pp Proxy port number (optional).\n"
 	    		+ "  -plogin User name on proxy server (optional).\n"
@@ -160,6 +163,11 @@ public class Consumer
     			{
     				config.tunnelingKeyStorePasswd(argsCount < (args.length-1) ? args[++argsCount] : null);
     				++argsCount;				
+    			}
+    			else if ("-itemName".equals(args[argsCount]))
+    			{
+    				itemName = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;
     			}
     			else if ("-ph".equals(args[argsCount]))
     			{
@@ -285,7 +293,7 @@ public class Consumer
 			}
 					
 			
-			consumer.registerClient(EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("IBM.N"), appClient);
+			consumer.registerClient(EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name(itemName), appClient);
 			
 			Thread.sleep(900000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		} 

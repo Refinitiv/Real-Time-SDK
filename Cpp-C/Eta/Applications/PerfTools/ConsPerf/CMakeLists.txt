@@ -4,7 +4,6 @@ set( SOURCE_FILES
   marketPriceDecoder.c              upacConsPerf.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
-  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.c
@@ -17,7 +16,6 @@ set( SOURCE_FILES
   marketPriceDecoder.h              upacConsPerf.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
-  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.h

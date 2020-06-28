@@ -83,7 +83,8 @@ typedef enum {
 	RIPC_SOPT_CLOEXEC		= 6,	/* Use turn_on */
 	RIPC_SOPT_TCP_NODELAY	= 7,	/* Use turn_on */
 	RIPC_SOPT_EXCLUSIVEADDRUSE = 8,	/* Use Exclusive Address Reuse (WIN) */
-	RIPC_SOPT_KEEPALIVE		= 9
+	RIPC_SOPT_KEEPALIVE		= 9,
+	RIPC_SOPT_REUSEPORT		= 10	/* Use turn_on. Share server socket (Linux). Under Win should set REUSEADDR and remove EXCLUSIVEADDRUSE */
 } ripcSocketOptionsCode;
 
 typedef struct {

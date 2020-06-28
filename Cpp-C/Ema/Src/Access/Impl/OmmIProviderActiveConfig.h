@@ -38,11 +38,15 @@ public:
 
 	bool getRefreshFirstRequired();
 
+	bool getEnforceAckIDValidation();
+
 	void setMaxFieldDictFragmentSize(UInt64);
 
 	void setMaxEnumTypeFragmentSize(UInt64);
 
 	void setRefreshFirstRequired(UInt64);
+
+	void setEnforceAckIDValidation(UInt64);
 
 	EmaString configTrace();
 private:
@@ -53,6 +57,7 @@ private:
 	OmmIProviderConfig::AdminControl		dictionaryAdminControl;
 	OmmIProviderConfig::AdminControl		directoryAdminControl;
 	bool									refreshFirstRequired;
+	bool									enforceAckIDValidation;
 	UInt32									maxFieldDictFragmentSize;
 	UInt32									maxEnumTypeFragmentSize;
 };

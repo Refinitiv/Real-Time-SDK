@@ -24,10 +24,6 @@ import com.thomsonreuters.upa.transport.CompressionTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.ElementEntry;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.ElementList;
 
 class ProgrammaticConfigure
 {
@@ -536,7 +532,36 @@ class ProgrammaticConfigure
 		 for (Map map : _configList)
 			retrieveServer(map, serverName, activeServerConfig, portFnCalled, fileCfg);
 	}
-	
+
+	GlobalConfig retrieveGlobalConfig() {
+		MapEntry globalConfigEntry = getElementListByNameFromConfigList(_configList, "GlobalConfig");
+		if (globalConfigEntry == null) {
+			return null;
+		}
+		GlobalConfig config = new GlobalConfig();
+		ElementEntry reactorMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorMsgEventPoolLimit");
+		ElementEntry reactorChannelEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorChannelEventPoolLimit");
+		ElementEntry workerEventPoolLimit = getIntElementEntry(globalConfigEntry, "WorkerEventPoolLimit");
+		ElementEntry tunnelStreamMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamMsgEventPoolLimit");
+		ElementEntry tunnelStreamStatusEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamStatusEventPoolLimit");
+
+		if (reactorMsgEventPoolLimit != null) {
+			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
+		}
+		if (reactorChannelEventPoolLimit != null) {
+			config.reactorChannelEventPoolLimit = convertToInt(reactorChannelEventPoolLimit.intValue());
+		}
+		if (workerEventPoolLimit != null) {
+			config.workerEventPoolLimit = convertToInt(workerEventPoolLimit.intValue());
+		}
+		if (tunnelStreamMsgEventPoolLimit != null) {
+			config.tunnelStreamMsgEventPoolLimit = convertToInt(tunnelStreamMsgEventPoolLimit.intValue());
+		}
+		if (tunnelStreamStatusEventPoolLimit != null) {
+			config.tunnelStreamStatusEventPoolLimit = convertToInt(tunnelStreamStatusEventPoolLimit.intValue());
+		}
+		return config;
+	}
 	void  retrieveDictionaryConfig( String dictionaryName, ActiveConfig activeConfig )
 	{
 		 for (Map map : _configList)
@@ -1004,6 +1029,11 @@ class ProgrammaticConfigure
 												else
 													((ActiveConfig)activeConfig).restRequestTimeout = 0;
 											}
+											else if (eentry.name().equals("EnableRtt")) {
+												if (eentry.uintValue() > 0) {
+													((ActiveConfig)activeConfig).rsslRDMLoginRequest.attrib().applyHasSupportRoundTripLatencyMonitoring();
+												}
+											}
 											break;
 										case DataTypes.DOUBLE:
 											if ( eentry.name().equals("TokenReissueRatio"))
@@ -1103,6 +1133,10 @@ class ProgrammaticConfigure
 													{
 														((ActiveServerConfig)activeConfig).acceptMessageWithoutBeingLogin = eentry.intValue() > 0 ? true : false;
 													}
+													else if (eentry.name().equals("EnforceAckIDValidation"))
+													{
+														((ActiveServerConfig)activeConfig).enforceAckIDValidation = eentry.intValue() > 0 ? true : false;
+													}
 													else if (eentry.name().equals("AcceptMessageWithoutQosInRange"))
 													{
 														((ActiveServerConfig)activeConfig).acceptMessageWithoutQosInRange = eentry.intValue() > 0 ? true : false;
@@ -1191,7 +1225,42 @@ class ProgrammaticConfigure
 			}
 		}
 	}
+
+	private MapEntry getElementListByNameFromConfigList(List<Map> configList, String name) {
+		for (Map map : configList) {
+			MapEntry globalConfigEntry = getElementListByName(map, name);
+			if(globalConfigEntry != null){
+				return globalConfigEntry;
+			}
+		}
+		return null;
+	}
 	
+	private ElementEntry getIntElementEntry(MapEntry mapEntry, String attributeName) {
+		for (ElementEntry elementEntry : mapEntry.elementList()) {
+			if(elementEntry.loadType() == DataTypes.INT){
+				if (elementEntry.name().equals(attributeName))
+				{
+					return elementEntry;
+				}
+			}
+		}
+		return null;
+	}
+
+	private MapEntry getElementListByName(Map map, String name) {
+		for (MapEntry mapEntry : map)
+		{
+			if (mapEntry.key().dataType() == DataTypes.ASCII &&
+					mapEntry.key().ascii().ascii().equals(name) &&
+					mapEntry.loadType() == DataTypes.ELEMENT_LIST)
+			{
+				return mapEntry;
+			}
+		}
+		return null;
+	}
+
 	@SuppressWarnings("static-access")
 	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg)
 	{
@@ -1494,7 +1563,10 @@ class ProgrammaticConfigure
 				currentChannelConfig.compressionType = fileCfg.compressionType;
 
 			if ( (flags & ChannelEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0)
+			{
+				currentChannelConfig.compressionThresholdSet = true;
 				currentChannelConfig.compressionThreshold = convertToInt(compressionThreshold);
+			}
 			else if ( useFileCfg )
 				currentChannelConfig.compressionThreshold = fileCfg.compressionThreshold;
 	
@@ -1706,7 +1778,10 @@ class ProgrammaticConfigure
 				currentServerConfig.compressionType = fileCfg.compressionType;
 
 			if ((flags & ServerEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0)
+			{
+				currentServerConfig.compressionThresholdSet = true;
 				currentServerConfig.compressionThreshold = convertToInt(compressionThreshold);
+			}
 			else if ( fileCfg != null )
 				currentServerConfig.compressionThreshold = fileCfg.compressionThreshold;
 

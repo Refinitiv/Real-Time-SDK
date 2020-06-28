@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
+import com.thomsonreuters.upa.valueadd.common.LimitedVaPool;
 import com.thomsonreuters.upa.valueadd.common.VaPool;
 
 /**
@@ -11,15 +12,15 @@ public class ReactorFactory
     static VaPool _rdmLoginMsgEventPool = new VaPool(true);
     static VaPool _rdmDirectoryMsgEventPool = new VaPool(true);
     static VaPool _rdmDictionaryMsgEventPool = new VaPool(true);
-    static VaPool _reactorMsgEventPool = new VaPool(true);
-    static VaPool _reactorChannelEventPool = new VaPool(true);
+    static LimitedVaPool _reactorMsgEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _reactorChannelEventPool = new LimitedVaPool(true);
     static VaPool _reactorAuthTokenEventPool = new VaPool(true);
     static VaPool _reactorServiceEndpointEventPool = new VaPool(true);
     static VaPool _reactorServiceDiscoveryOptionsPool = new VaPool(true);
     static VaPool _queueMsgEventPool = new VaPool(true);
-    static VaPool _tunnelStreamMsgEventPool = new VaPool(true);
-    static VaPool _tunnelStreamStatusEventPool = new VaPool(true);
-    static VaPool _workerEventPool = new VaPool(true);
+    static LimitedVaPool _tunnelStreamMsgEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _tunnelStreamStatusEventPool = new LimitedVaPool(true);
+    static LimitedVaPool _workerEventPool = new LimitedVaPool(true);
     static VaPool _watchlistPool = new VaPool(true);
     static VaPool _postTimeoutInfoPool = new VaPool(true);
     static VaPool _itemAggregationKeyPool = new VaPool(true);
@@ -29,13 +30,55 @@ public class ReactorFactory
     static VaPool _wlItemGroupPool = new VaPool(true);
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
-    
+
+    private static final int DEFAULT_POOL_LIMIT = -1;
     /**
      * Instantiates a new reactor factory.
      */
     private ReactorFactory()
     {
         throw new AssertionError();
+    }
+
+    
+    /**
+     * Sets maximum number of events in _reactorMsgEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param reactorMsgEventPoolLimit value to set
+     */
+    public static void setReactorMsgEventPoolLimit(int reactorMsgEventPoolLimit) {
+        ReactorFactory._reactorMsgEventPool.setLimit(reactorMsgEventPoolLimit > 0 ? reactorMsgEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of events in _reactorChannelEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param reactorChannelEventPoolLimit value to set
+     */
+    public static void setReactorChannelEventPoolLimit(int reactorChannelEventPoolLimit) {
+        ReactorFactory._reactorChannelEventPool.setLimit(reactorChannelEventPoolLimit > 0 ? reactorChannelEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of events in _workerEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param workerEventPoolLimit value to set
+     */
+    public static void setWorkerEventPoolLimit(int workerEventPoolLimit) {
+        ReactorFactory._workerEventPool.setLimit(workerEventPoolLimit > 0 ? workerEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of events in _tunnelStreamMsgEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param tunnelStreamMsgEventPoolLimit value to set
+     */
+    public static void setTunnelStreamMsgEventPoolLimit(int tunnelStreamMsgEventPoolLimit) {
+        ReactorFactory._tunnelStreamMsgEventPool.setLimit(tunnelStreamMsgEventPoolLimit > 0 ? tunnelStreamMsgEventPoolLimit : DEFAULT_POOL_LIMIT);
+    }
+
+    /**
+     * Sets maximum number of events in _tunnelStreamStatusEventPoolLimit, if value is negative then amount of events is unlimited 
+     * @param tunnelStreamStatusEventPoolLimit value to set
+     */
+    public static void setTunnelStreamStatusEventPoolLimit(int tunnelStreamStatusEventPoolLimit) {
+        ReactorFactory._tunnelStreamStatusEventPool.setLimit(tunnelStreamStatusEventPoolLimit > 0 ? tunnelStreamStatusEventPoolLimit : DEFAULT_POOL_LIMIT);
     }
 
     /**
@@ -55,7 +98,7 @@ public class ReactorFactory
     {
         if (errorInfo == null)
         {
-            System.out.println("ReactoryFactor.createReactor: ReactorErrorInfo cannot be null, reactor not created.");
+            System.out.println("ReactorFactory.createReactor: ReactorErrorInfo cannot be null, reactor not created.");
             return null;
         }
          
@@ -728,5 +771,4 @@ public class ReactorFactory
         }
         return wlView;
     }
-
 }

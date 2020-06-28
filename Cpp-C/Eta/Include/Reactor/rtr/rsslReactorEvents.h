@@ -95,6 +95,12 @@ RTR_C_INLINE void rsslClearMsgEvent(RsslMsgEvent *pEvent)
 	pEvent->pFTGroupId = NULL;
 }
 
+typedef enum
+{
+	RSSL_RDM_LG_LME_NONE = 0x00,	/*!< No flags for this event. */
+	RSSL_RDM_LG_LME_RTT_RESPONSE_SENT = 0x01	/*!< The RTT response has already been sent for this event.  No further user reponse is required. */
+} RsslRDMLoginRTTEventFlags;
+
 /**
  * @brief Event provided to Login Message Callback functions.  
  * @see RsslMsgEvent
@@ -103,6 +109,7 @@ typedef struct
 {
 	RsslMsgEvent	baseMsgEvent;		/*!< Base Message event. */
 	RsslRDMLoginMsg		*pRDMLoginMsg;	/*!< The RDM Representation of the decoded Login message.  If not present, an error was encountered while decoding and information will be in baseMsgEvent.pErrorInfo */
+	RsslUInt32		flags;				/*!< Flags indicating any additional behaviors for this Login event. */
 } RsslRDMLoginMsgEvent;
 
 /**
@@ -113,6 +120,7 @@ RTR_C_INLINE void rsslClearRDMLoginMsgEvent(RsslRDMLoginMsgEvent *pEvent)
 {
 	rsslClearMsgEvent(&pEvent->baseMsgEvent);
 	pEvent->pRDMLoginMsg = NULL;
+	pEvent->flags = RSSL_RDM_LG_LME_NONE;
 }
 
 /**
@@ -261,6 +269,7 @@ typedef struct
 	RsslBuffer					clientId;					/*!< A unique ID defined for an application marking the request. Optional */
 	RsslBuffer					clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	RsslBuffer					tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
+	RsslBool					takeExclusiveSignOnControl;	/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
 } RsslReactorOAuthCredentialRenewal;
 
 /**
@@ -272,6 +281,7 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewal(RsslReactorOAuthCredent
 	memset(pOAuthCredentialRenewal, 0, sizeof(RsslReactorOAuthCredentialRenewal));
 	pOAuthCredentialRenewal->tokenScope.data = (char *)"trapi.streaming.pricing.read";
 	pOAuthCredentialRenewal->tokenScope.length = 28;
+	pOAuthCredentialRenewal->takeExclusiveSignOnControl = RSSL_TRUE;
 }
 
 /**

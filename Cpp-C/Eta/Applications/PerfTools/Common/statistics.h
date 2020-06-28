@@ -11,7 +11,7 @@
 #ifndef _STATISTICS_H
 #define _STATISTICS_H
 
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslThread.h"
 #include "rtr/rsslTypes.h"
@@ -64,9 +64,9 @@ void printValueStatistics(FILE *file, const char *valueStatsName, const char *co
 /* Stores time information. */
 typedef struct {
 	RsslQueueLink queueLink;
-	TimeValue startTime;	/* Recorded start time. */
-	TimeValue endTime;		/* Recorded end time. */
-	TimeValue ticks;		/* Units per microsecond. */
+	RsslTimeValue startTime;	/* Recorded start time. */
+	RsslTimeValue endTime;		/* Recorded end time. */
+	RsslTimeValue ticks;		/* Units per microsecond. */
 } TimeRecord;
 
 /* Stores a queue and pool of TimeRecord objects.  */
@@ -83,7 +83,7 @@ void timeRecordQueueInit(TimeRecordQueue *pRecordQueue);
 void timeRecordQueueCleanup(TimeRecordQueue *pRecordQueue);
 
 /* Puts latency information into a record and adds the record to the queue. */
-RsslRet timeRecordSubmit(TimeRecordQueue *pRecordQueue, TimeValue startTime, TimeValue endTime, TimeValue ticks);
+RsslRet timeRecordSubmit(TimeRecordQueue *pRecordQueue, RsslTimeValue startTime, RsslTimeValue endTime, RsslTimeValue ticks);
 
 /* Retrieves all time records currently in the queue. */
 void timeRecordQueueGet(TimeRecordQueue *pRecordQueue, RsslQueue *pQueue);
@@ -140,7 +140,7 @@ typedef struct {
 	RsslDouble cpuUsageFraction;
 	RsslUInt64 memUsageBytes;
 
-	TimeValue _prevTimeUsec;
+	RsslTimeValue _prevTimeUsec;
 	RsslInt64 _prevUserTimeUsec;
 	RsslInt64 _prevKernelTimeUsec;
 

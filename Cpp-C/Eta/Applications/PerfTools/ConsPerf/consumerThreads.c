@@ -6,7 +6,7 @@
 */
 
 #include "consumerThreads.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "testUtils.h"
 #include "marketPriceDecoder.h"
 #include "marketPriceEncoder.h"
@@ -562,7 +562,7 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 		assert(pPostItem->itemInfo.itemFlags & ITEM_IS_POST);
 
 		if (latencyUpdateNumber == i)
-			encodeStartTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
+			encodeStartTime = consPerfConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 		else
 			encodeStartTime = 0;
 
@@ -663,7 +663,7 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		if (latencyGenMsgNumber == i)
 		{
 			countStatIncr(&pConsumerThread->stats.latencyGenMsgSentCount);
-			encodeStartTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
+			encodeStartTime = consPerfConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 		}
 		else
 			encodeStartTime = 0;
@@ -728,7 +728,7 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 
 		countStatIncr(&pConsumerThread->stats.genMsgSentCount);
 		if (!pConsumerThread->stats.firstGenMsgSentTime)
-			pConsumerThread->stats.firstGenMsgSentTime = getTimeNano();
+			pConsumerThread->stats.firstGenMsgSentTime = rsslGetTimeNano();
 
 	}
 
@@ -1769,11 +1769,11 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 	RsslRet ret = 0;
 	RsslError closeError;
 
-	TimeValue decodeTimeStart, decodeTimeEnd;
+	RsslTimeValue decodeTimeStart, decodeTimeEnd;
 	ItemInfo *pItemInfo = NULL;
 
 	if (consPerfConfig.measureDecode)
-		decodeTimeStart = getTimeNano();
+		decodeTimeStart = rsslGetTimeNano();
 	
 	if (pMsg->msgBase.streamId < ITEM_STREAM_ID_START || pMsg->msgBase.streamId 
 				>= ITEM_STREAM_ID_START + consPerfConfig.commonItemCount + pConsumerThread->itemListCount)
@@ -1810,7 +1810,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 
 
 			if (!pConsumerThread->stats.firstUpdateTime)
-				pConsumerThread->stats.firstUpdateTime = getTimeNano();
+				pConsumerThread->stats.firstUpdateTime = rsslGetTimeNano();
 
 			if((ret = decodePayload(pDIter, pMsg, pConsumerThread)) 
 					!= RSSL_RET_SUCCESS)
@@ -1822,7 +1822,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 
 			if (consPerfConfig.measureDecode)
 			{
-				decodeTimeEnd = getTimeNano();
+				decodeTimeEnd = rsslGetTimeNano();
 				timeRecordSubmit(&pConsumerThread->updateDecodeTimeRecords, decodeTimeStart, decodeTimeEnd, 1000);
 			}
 			break;
@@ -1895,7 +1895,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 
 							if (rsslQueueGetElementCount(&pConsumerThread->refreshCompleteQueue) == pConsumerThread->itemListCount)
 							{
-								pConsumerThread->stats.imageRetrievalEndTime = getTimeNano();
+								pConsumerThread->stats.imageRetrievalEndTime = rsslGetTimeNano();
 							}
 						}
 					}
@@ -1938,7 +1938,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 		case RSSL_MC_GENERIC:
 			countStatIncr(&pConsumerThread->stats.genMsgRecvCount);
 			if (!pConsumerThread->stats.firstGenMsgRecvTime)
-				pConsumerThread->stats.firstGenMsgRecvTime = getTimeNano();
+				pConsumerThread->stats.firstGenMsgRecvTime = rsslGetTimeNano();
 			if((ret = decodePayload(pDIter, pMsg, pConsumerThread)) 
 					!= RSSL_RET_SUCCESS)
 			{
@@ -1961,7 +1961,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 {
 	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
 	RsslInt64 nsecPerTick;
-	TimeValue currentTime, nextTickTime;
+	RsslTimeValue currentTime, nextTickTime;
 	struct timeval time_interval;
 	fd_set useRead;
 	fd_set useExcept;
@@ -1975,7 +1975,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	RsslDecodeIterator dIter;
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
-	TimeValue decodetime;
+	RsslTimeValue decodetime;
 
 	RsslBool loggedIn = RSSL_FALSE;
 
@@ -2005,7 +2005,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	printEstimatedPostMsgSizes(pConsumerThread);
 	printEstimatedGenMsgSizes(pConsumerThread);
 
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	nextTickTime = currentTime + nsecPerTick;
 	time_interval.tv_sec = 0;
 
@@ -2021,7 +2021,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 		useExcept = pConsumerThread->exceptfds;
 		useWrt = pConsumerThread->wrtfds;
 
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 		time_interval.tv_usec = (long)((currentTime > nextTickTime) ? 0 : ((nextTickTime - currentTime)/1000));
 
 		selRet = select(FD_SETSIZE,&useRead,&useWrt,&useExcept,&time_interval);
@@ -2047,13 +2047,13 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 								messageBuff.data = pConsumerThread->rjcSess.convBuff.data;
 								messageBuff.length = pConsumerThread->rjcSess.convBuff.length;
 
-								decodetime = getTimeNano();
+								decodetime = rsslGetTimeNano();
 								cRet = rjcMsgConvertFromJson(&(pConsumerThread->rjcSess), 
 															 pConsumerThread->pChannel, 
 															 &messageBuff, 
 															 (numConverted == 0 ? msgBuf:NULL), &errInf);
 								numConverted++;
-								decodetime = getTimeNano() - decodetime;
+								decodetime = rsslGetTimeNano() - decodetime;
 
 							
 								if (cRet == RSSL_RET_END_OF_CONTAINER)
@@ -2251,7 +2251,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 				return RSSL_THREAD_RETURN();
 			}
 
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			nextTickTime += nsecPerTick;
 			
 			if (pConsumerThread->pDesiredService)
@@ -2268,7 +2268,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 						++requestBurstCount;
 
 					if (!pConsumerThread->stats.imageRetrievalStartTime)
-						pConsumerThread->stats.imageRetrievalStartTime = getTimeNano();
+						pConsumerThread->stats.imageRetrievalStartTime = rsslGetTimeNano();
 
 					if (sendItemRequestBurst(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
 					{
@@ -2330,7 +2330,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 {
 	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
 	RsslInt64 nsecPerTick;
-	TimeValue currentTime, nextTickTime;
+	RsslTimeValue currentTime, nextTickTime;
 	struct timeval time_interval;
 	fd_set useRead;
 	fd_set useExcept;
@@ -2373,7 +2373,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 		return RSSL_THREAD_RETURN();
 	}
 
-	currentTime = getTimeNano();
+	currentTime = rsslGetTimeNano();
 	nextTickTime = currentTime + nsecPerTick;
 	time_interval.tv_sec = 0;
 
@@ -2390,7 +2390,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 		useExcept = pConsumerThread->exceptfds;
 		useWrt = pConsumerThread->wrtfds;
 
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 		time_interval.tv_usec = (long)((currentTime > nextTickTime) ? 0 : ((nextTickTime - currentTime)/1000));
 
 		selRet = select(FD_SETSIZE,&useRead,&useWrt,&useExcept,&time_interval);
@@ -2417,7 +2417,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 		}
 		else if (selRet == 0)
 		{
-			currentTime = getTimeNano();
+			currentTime = rsslGetTimeNano();
 			nextTickTime += nsecPerTick;
 			
 			if (pConsumerThread->pDesiredService)
@@ -2434,7 +2434,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 						++requestBurstCount;
 
 					if (!pConsumerThread->stats.imageRetrievalStartTime)
-						pConsumerThread->stats.imageRetrievalStartTime = getTimeNano();
+						pConsumerThread->stats.imageRetrievalStartTime = rsslGetTimeNano();
 
 					if (sendItemRequestBurst(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
 					{

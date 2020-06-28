@@ -43,6 +43,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String authenticationToken;
 	private String authenticationExtended;
 	private String applicationId;
+	private boolean enableRtt;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -252,7 +253,10 @@ class ConsumerCmdLineParser implements CommandLineParser
     			{
     				applicationId = args[++argsCount];
     				++argsCount;
-    			}
+    			} else if ("-rtt".equals(args[argsCount])) {
+    				enableRtt = true;
+    				++argsCount;
+				}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -428,6 +432,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return applicationId;
 	}
+
+	boolean enableRtt() {
+		return enableRtt;
+	}
 	
 	@Override
 	public void printUsage()
@@ -478,7 +486,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -runtime adjusts the running time of the application" +
 				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 				"\n -ax Specifies the Authentication Extended information" +
-				"\n -aid Specifies the Application ID");
+				"\n -aid Specifies the Application ID" +
+				"\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
 	}
 }
 

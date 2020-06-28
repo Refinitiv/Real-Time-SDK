@@ -1,5 +1,4 @@
 set(rsslVATestSrcFiles
-	getTime.cpp
 	reactorUnitTests.cpp
 	rdmDictionaryMsgTests.cpp
 	rdmDirectoryMsgTests.cpp
@@ -17,7 +16,6 @@ set(rsslVATestSrcFiles
 	watchlistTestFramework.cpp
 	
 	#headers
-	getTime.h
 	rsslTestFramework.h
 	rsslVATestUtil.h
 	testFramework.h

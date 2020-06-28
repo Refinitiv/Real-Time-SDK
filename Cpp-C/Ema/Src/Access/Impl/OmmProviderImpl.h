@@ -57,6 +57,8 @@ public :
     virtual void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&) = 0;
     virtual void getChannelInformation(ChannelInformation&) = 0;
 
+	virtual void getConnectedClientChannelStats(UInt64, ChannelStatistics&) = 0;
+
 	virtual void modifyIOCtl(Int32 code, Int32 value, UInt64 handle) = 0;
 
 	virtual void closeChannel(UInt64 clientHandle) = 0;

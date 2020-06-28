@@ -56,6 +56,7 @@ extern "C" {
 #define RIPC_HIGH_WATER_MARK		4	/* Set value to high water mark */
 #define RIPC_SYSTEM_READ_BUFFERS	5	/* Set value to # of bytes for buffers */
 #define RIPC_SYSTEM_WRITE_BUFFERS	6	/* Set value to # of bytes for buffers */
+#define RIPC_TCP_INFO				7	/* Get TCP Info to # of bytes for buffers */
 #define RIPC_DBG_FLAGS				8	/* Set value to the enum ripcSessDbgFlags */
 #define RIPC_PRIORITY_FLUSH_STRATEGY 9  /* sets the priority flush strategy */
 #define RIPC_COMPRESSION_THRESHOLD  10  /* sets the compression threshold */

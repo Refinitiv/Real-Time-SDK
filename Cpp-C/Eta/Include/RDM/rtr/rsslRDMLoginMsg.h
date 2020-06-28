@@ -96,7 +96,8 @@ typedef enum {
 	RDM_LG_MT_REFRESH						= 4,	/*!< (4) Login Refresh */
 	RDM_LG_MT_STATUS						= 5,	/*!< (5) Login Status */
 	RDM_LG_MT_POST							= 6, 	/*!< (6) Indicates an off-stream Post Message. */
-	RDM_LG_MT_ACK							= 7 	/*!< (7) Incidates an off-stream Post Acknowledgement. */
+	RDM_LG_MT_ACK							= 7, 	/*!< (7) Incidates an off-stream Post Acknowledgement. */
+	RDM_LG_MT_RTT							= 8 	/*!< (8) Login RTT message. */
 } RsslRDMLoginMsgType;
 
 /**
@@ -120,8 +121,9 @@ typedef enum {
 	RDM_LG_RQF_NO_REFRESH				= 0x001000,	/*!< (0x1000) Indicates the Consumer or Noninteractive provider does not require a refresh. */
 	RDM_LG_RQF_PAUSE_ALL						= 0x002000,	/*!< (0x2000) Used by a Consumer to request that all open items on a channel be paused. Support for this request is indicated by the supportOptimizedPauseResume member of the RsslRDMLoginRefresh */
 	RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD	= 0x004000, /*!< (0x4000) Indiactes presence of the supportProviderDictionaryDownload member */
-	RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN	= 0x8000,	/*!< (0x8000) Indicates presence of the applicationAuthenticationToken member */
-	RDM_LG_RQF_HAS_AUTHN_EXTENDED		= 0x010000	/*!< (0x020000) Indicates presence of extended authentication data. */
+	RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN	= 0x008000,	/*!< (0x8000) Indicates presence of the applicationAuthenticationToken member */
+	RDM_LG_RQF_HAS_AUTHN_EXTENDED		= 0x010000,	/*!< (0x010000) Indicates presence of extended authentication data. */
+	RDM_LG_RQF_RTT_SUPPORT				= 0x020000	/*!< (0x020000) Indicates that the consumer supports the RTT feature. */
 } RsslRDMLoginRequestFlags;
 
 /**
@@ -269,7 +271,8 @@ typedef enum
 	RDM_LG_RFF_HAS_AUTHN_TT_REISSUE				= 0x00800000,	/*!< (0x00800000) Indicates presence of the authentication time to reissue member */
 	RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP			= 0x01000000,	/*!< (0x01000000) Indicates presence of the authentication extended response buffer */
 	RDM_LG_RFF_HAS_AUTHN_ERROR_CODE				= 0x02000000,	/*!< (0x02000000) Indicates presence of the authenication error code */
-	RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT				= 0x04000000	/*!< (0x04000000) Indicates presence of the authentication error text member */
+	RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT				= 0x04000000,	/*!< (0x04000000) Indicates presence of the authentication error text member */
+	RDM_LG_RFF_RTT_SUPPORT						= 0x08000000	/*!< (0x04000000) Indicates RTT feature support. */
 } RsslRDMLoginRefreshFlags;
 
 /**
@@ -402,6 +405,26 @@ typedef struct {
 } RsslRDMLoginStatus;
 
 /**
+* @brief Clears an RsslRDMLoginStatus.
+* @see RsslRDMLoginStatus
+*/
+RTR_C_INLINE void rsslClearRDMLoginStatus(RsslRDMLoginStatus *pStatus)
+{
+	rsslClearRDMMsgBase(&pStatus->rdmMsgBase);
+	pStatus->rdmMsgBase.domainType = RSSL_DMT_LOGIN;
+	pStatus->rdmMsgBase.rdmMsgType = RDM_LG_MT_STATUS;
+	pStatus->flags = RDM_LG_STF_NONE;
+	rsslClearState(&pStatus->state);
+	pStatus->state.streamState = RSSL_STREAM_OPEN;
+	pStatus->state.dataState = RSSL_DATA_OK;
+	pStatus->state.code = RSSL_SC_NONE;
+	rsslClearBuffer(&pStatus->userName);
+	pStatus->userNameType = RDM_LOGIN_USER_NAME;
+	pStatus->authenticationErrorCode = 0;
+	rsslClearBuffer(&pStatus->authenticationErrorText);
+}
+
+/**
  * @brief The RDM Login Consumer Connection Status Flags
  * @see RsslRDMLoginConsumerConnectionStatus, RsslRDMLoginWarmStandbyInfo
  */
@@ -433,24 +456,43 @@ RTR_C_INLINE void rsslClearRDMLoginConsumerConnectionStatus(RsslRDMLoginConsumer
 	rsslClearRDMLoginWarmStandbyInfo(&pConsumerStatus->warmStandbyInfo);
 }
 
+
+
 /**
- * @brief Clears an RsslRDMLoginStatus.
- * @see RsslRDMLoginStatus
- */
-RTR_C_INLINE void rsslClearRDMLoginStatus(RsslRDMLoginStatus *pStatus)
+* @brief The RDM Login RTT Flags
+* @see RsslRDMLoginRTT
+*/
+typedef enum {
+	RDM_LG_RTT_NONE = 0x00,	/*!< (0x00) No flags set. */
+	RDM_LG_RTT_HAS_TCP_RETRANS = 0x01, /*!< (0x01) Indicates presence of the TCP Retransmission count member. */
+	RDM_LG_RTT_HAS_LATENCY = 0x02,	/*!< (0x02) Indicates presence of the last latency member. */
+} RsslRDMLoginRTTFlags;
+
+/**
+* @brief The RDM Login RTT. Used by an OMM Provider and OMM Consumer to test round trip latency for the connection..
+* @see RsslRDMMsgBase, RsslRDMMsg, rsslClearRDMLoginStatus
+*/
+typedef struct {
+	RsslRDMMsgBase	rdmMsgBase;		/*!< The base RDM Message. */
+	RsslUInt32 		flags;			/*!< The RDM Login RTT flags. Populated by RsslRDMLoginRTTFlags. */
+	RsslUInt		ticks;			/*!< Required Tick count, provided by rsslGetTicks. */
+	RsslUInt		lastLatency;	/*!< Optional last latency measurement from the provider. */
+	RsslUInt		tcpRetrans;		/*!< Optional TCP Retransmit count for the current connection. */
+} RsslRDMLoginRTT;
+
+/**
+* @brief Clears an RsslRDMLoginRTT.
+* @see RsslRDMLoginRTT
+*/
+RTR_C_INLINE void rsslClearRDMLoginRTT(RsslRDMLoginRTT *pRTT)
 {
-	rsslClearRDMMsgBase(&pStatus->rdmMsgBase);
-	pStatus->rdmMsgBase.domainType = RSSL_DMT_LOGIN;
-	pStatus->rdmMsgBase.rdmMsgType = RDM_LG_MT_STATUS;
-	pStatus->flags = RDM_LG_STF_NONE;
-	rsslClearState(&pStatus->state);
-	pStatus->state.streamState = RSSL_STREAM_OPEN;
-	pStatus->state.dataState = RSSL_DATA_OK;
-	pStatus->state.code = RSSL_SC_NONE;
-	rsslClearBuffer(&pStatus->userName);
-	pStatus->userNameType = RDM_LOGIN_USER_NAME;
-	pStatus->authenticationErrorCode = 0;
-	rsslClearBuffer(&pStatus->authenticationErrorText);
+	rsslClearRDMMsgBase(&pRTT->rdmMsgBase);
+	pRTT->rdmMsgBase.domainType = RSSL_DMT_LOGIN;
+	pRTT->rdmMsgBase.rdmMsgType = RDM_LG_MT_RTT;
+	pRTT->flags = RDM_LG_RTT_NONE;
+	pRTT->lastLatency = 0;
+	pRTT->ticks = 0;
+	pRTT->tcpRetrans = 0;
 }
 
 /**
@@ -469,6 +511,7 @@ typedef union
 	RsslRDMLoginConsumerConnectionStatus	consumerConnectionStatus;	/*!< Login Consumer Connection Status */
 	RsslRDMLoginRefresh						refresh;					/*!< Login Refresh */
 	RsslRDMLoginStatus						status;						/*!< Login Status */
+	RsslRDMLoginRTT							RTT;						/*!< Login RTT */
 } RsslRDMLoginMsg;
 
 /**
@@ -575,6 +618,17 @@ RSSL_VA_API RsslRet rsslCopyRDMLoginConsumerConnectionStatus(RsslRDMLoginConsume
  * @see RsslRDMLoginStatus
  */
 RSSL_VA_API RsslRet rsslCopyRDMLoginStatus(RsslRDMLoginStatus *pNewStatus, RsslRDMLoginStatus *pOldStatus, RsslBuffer *pNewMemoryBuffer);
+
+/**
+* @brief Fully copies an RsslRDMLoginRTT.
+* @param pNewStatus The resulting copy of the RDM Login RTT
+* @param pOldStatus The RDM Login RTT to be copied
+* @param pNewMemoryBuffer An RsslBuffer pointing to space that may be used as additional storage space for the new message.
+* @return RSSL_RET_SUCCESS, if the message was succesfully copied.
+* @return RSSL_RET_BUFFER_TOO_SMALL, if the size of pNewMemoryBuffer was not large enough to store all additional data.
+* @see RsslRDMLoginStatus
+*/
+RSSL_VA_API RsslRet rsslCopyRDMLoginRTT(RsslRDMLoginRTT *pNewRTT, RsslRDMLoginRTT *pOldRTT, RsslBuffer *pNewMemoryBuffer);
 
 /**
  *	@}

@@ -1141,7 +1141,11 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
 												}
-											
+												else if (eentry.getName() == "EnableRtt")
+												{
+													activeConfig.enableRtt = eentry.getUInt() ? true : false;
+												}
+
 												break;
 
 											case DataType::IntEnum:
@@ -1178,6 +1182,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												else if (eentry.getName() == "ReissueTokenAttemptInterval")
 												{
 													activeConfig.reissueTokenAttemptInterval = eentry.getInt();
+												}
+												else if (eentry.getName() == "MaxEventsInPool")
+												{
+													activeConfig.setMaxEventsInPool(eentry.getInt());
 												}
 												break;
 
@@ -1350,6 +1358,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "PipePort")
 									{
 										activeConfig.pipePort = eentry.getInt();
+									}
+									else if (eentry.getName() == "MaxEventsInPool")
+									{
+										activeConfig.setMaxEventsInPool(eentry.getInt());
 									}
 									break;
 								}
@@ -1567,6 +1579,10 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 												else if (eentry.getName() == "RefreshFirstRequired")
 												{
 													static_cast<OmmIProviderActiveConfig&>(activeConfig).setRefreshFirstRequired(eentry.getUInt());
+												}
+												else if (eentry.getName() == "EnforceAckIDValidation")
+												{
+													static_cast<OmmIProviderActiveConfig&>(activeConfig).setEnforceAckIDValidation(eentry.getUInt());
 												}
 												else if (eentry.getName() == "EnumTypeFragmentSize")
 												{
@@ -2082,7 +2098,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if (fileCfgSocket)
 					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
 
-				if (channelType == RSSL_CONN_TYPE_WEBSOCKET)
+				if (channelType == RSSL_CONN_TYPE_WEBSOCKET || (channelType == RSSL_CONN_TYPE_ENCRYPTED && socketChannelConfig->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
 				{
 					if (websocketFlags & 0x01)
 						socketChannelConfig->wsProtocols = wsProtocols;
@@ -2146,8 +2162,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			else if ( useFileCfg )
 				pCurrentChannelConfig->compressionType = fileCfg->compressionType;
 
-			if ( flags & 0x1000000 )
-				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )compressionThreshold;
+			if (flags & 0x1000000)
+			{
+				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
+				pCurrentChannelConfig->compressionThresholdSet = true;
+			}
 			else if ( useFileCfg ) {
 				pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
 
@@ -2210,7 +2229,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName, wsProtocols;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout, maxFragmentSize;
+		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2384,6 +2403,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				maxFragmentSize = serverEntry.getUInt();
 				flags |= MaxFragmentSizeFlagEnum;
 			}
+			else if (serverEntry.getName() == "ServerSharedSocket")
+			{
+				serverSharedSocket = serverEntry.getUInt();
+				flags |= ServerSharedSocketEnum;
+			}
 			break;
 		}
 	}
@@ -2431,7 +2455,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->interfaceName = fileCfg->interfaceName;
 
 			if (flags & ConnMinPingTimeoutFlagEnum)
-				pCurrentServerConfig->connectionMinPingTimeout = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)connectionMinPingTimeout;
+				pCurrentServerConfig->connectionMinPingTimeout = connectionMinPingTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)connectionMinPingTimeout;
 			else if(fileCfgSocket)
 				pCurrentServerConfig->connectionMinPingTimeout = fileCfg->connectionMinPingTimeout;
 
@@ -2441,7 +2465,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->compressionType = fileCfg->compressionType;
 
 			if (flags & CompressThresHoldFlagEnum)
+			{
 				pCurrentServerConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
+				pCurrentServerConfig->compressionThresholdSet = true;
+			}
 			else if (fileCfgSocket)
 				pCurrentServerConfig->compressionThreshold = fileCfg->compressionThreshold;
 
@@ -2485,6 +2512,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			else if (fileCfgSocket)
 				pCurrentServerConfig->maxFragmentSize = fileCfgSocket->maxFragmentSize;
 
+			if (flags & ServerSharedSocketEnum)
+				pCurrentServerConfig->serverSharedSocket = serverSharedSocket ? RSSL_TRUE : RSSL_FALSE;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->serverSharedSocket = fileCfgSocket->serverSharedSocket;
+
 
 			if (serverType == RSSL_CONN_TYPE_ENCRYPTED)
 			{
@@ -2509,7 +2541,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
 			}
 
-			if (serverType == RSSL_CONN_TYPE_WEBSOCKET)
+			if (serverType == RSSL_CONN_TYPE_WEBSOCKET || serverType == RSSL_CONN_TYPE_ENCRYPTED)
 			{
 				if (websocketFlags & 0x01)
 					pCurrentServerConfig->wsProtocols = wsProtocols;

@@ -36,21 +36,21 @@ subprojects {
 //
 //=========================================================================================
 
-ext.YEAR = '2019'
+ext.YEAR = '2020'
 
-ext.BuildDate = 'Fri Nov 15 12:25:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.5.0.0'
+ext.BuildDate = 'Fri Jun 12 12:25:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.5.0.1'
 ext.SpecificationVersionShort = '3.5.0'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.5.0.L1'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.5.0.G1'
 
 //=========================================================================================
 //

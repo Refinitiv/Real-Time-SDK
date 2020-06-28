@@ -163,7 +163,7 @@ void wtfRdmMsgEventInit(WtfRdmMsgEvent *pEvent, WtfComponent component,
 {
 	pEvent->base.type = WTF_DE_RDM_MSG;
 	pEvent->base.component = component;
-	pEvent->base.timeUsec = getTimeMicro();
+	pEvent->base.timeUsec = rsslGetTimeMicro();
 	pEvent->pRdmMsg = rdmMsgCreateCopy(pRdmMsg);
 	pEvent->pUserSpec = NULL;
 	pEvent->pServiceName = NULL;
@@ -578,7 +578,7 @@ void wtfAcceptWithTime(time_t timeoutMsec)
 
 	ASSERT_TRUE(wtf.pServer != NULL);
 
-	currentTimeUsec = getTimeMicro();
+	currentTimeUsec = rsslGetTimeMicro();
 
 	stopTimeUsec =  (time_t)(timeoutMsec / wtfGlobalConfig.speed);
 	stopTimeUsec *= 1000;
@@ -618,7 +618,7 @@ void wtfAcceptWithTime(time_t timeoutMsec)
 			/* Server descriptor triggered, ready to accept. */
 			break;
 		}
-		currentTimeUsec = getTimeMicro();
+		currentTimeUsec = rsslGetTimeMicro();
 
 	} while(currentTimeUsec <= stopTimeUsec);
 
@@ -735,7 +735,7 @@ void wtfDispatch(WtfComponent component, time_t timeoutMsec)
 		default: assert(0); break;
 	}
 
-	currentTimeUsec = getTimeMicro();
+	currentTimeUsec = rsslGetTimeMicro();
 
 	
 	stopTimeUsec =  (time_t)(timeoutMsec / wtfGlobalConfig.speed);
@@ -798,7 +798,7 @@ void wtfDispatch(WtfComponent component, time_t timeoutMsec)
 			}
 		}
 
-		currentTimeUsec = getTimeMicro();
+		currentTimeUsec = rsslGetTimeMicro();
 
 	} while(currentTimeUsec < stopTimeUsec);
 }
@@ -812,7 +812,7 @@ static void wtfDispatchRaw(RsslChannel *pChannel, WtfComponent component, time_t
 	time_t timeoutUsec;
 	RsslInProgInfo inProg;
 
-	currentTimeUsec = getTimeMicro();
+	currentTimeUsec = rsslGetTimeMicro();
 	stopTimeUsec =  (time_t)(timeoutMsec / wtfGlobalConfig.speed);
 	stopTimeUsec *= 1000;
 	stopTimeUsec += currentTimeUsec;
@@ -927,7 +927,7 @@ static void wtfDispatchRaw(RsslChannel *pChannel, WtfComponent component, time_t
 			}
 		}
 
-		currentTimeUsec = getTimeMicro();
+		currentTimeUsec = rsslGetTimeMicro();
 	} while (currentTimeUsec < stopTimeUsec);
 }
 

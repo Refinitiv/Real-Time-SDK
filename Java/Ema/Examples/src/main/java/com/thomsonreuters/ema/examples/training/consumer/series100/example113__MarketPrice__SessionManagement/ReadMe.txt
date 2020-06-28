@@ -31,6 +31,9 @@ to access this page).
 -keypasswd keystore password for creating an encrypted connection (mandatory).
 Note: please refer to README.md of ESDK Java for generating a keystore file.
 
+Optional RIC item name parameters.
+-itemName Request item name (optional). The default item name is IBM.N.
+
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet.
 -ph Proxy host name (optional).
@@ -59,7 +62,7 @@ gradlew.bat runConsumer113 -PcommandLineArgs='-username <username> -password <pa
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.
 + Opens a streaming item interest
-  - MarketPrice IBM.N item from the ELEKTRON_DD service
+  - MarketPrice IBM.N (or optional itemName) item from the ELEKTRON_DD service
 + Processes data received from the API for 900 seconds
   - All received messages are processed on the API's thread of control
 + Exits

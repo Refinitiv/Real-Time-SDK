@@ -1,18 +1,7 @@
-package com.thomsonreuters.ema.unittest;
-
-
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.OmmConsumer;
+package com.thomsonreuters.ema.access;
 
 import junit.framework.TestCase;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmNiProviderConfig;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.Series;
+import com.thomsonreuters.ema.unittest.TestUtilities;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
@@ -21,9 +10,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceIn
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
 
 import java.util.List;
-
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
 
 public class EmaFileConfigJunitTests extends TestCase  
 {
@@ -57,7 +43,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			System.out.println("Using Ema Config: " + EmaConfigFileLocation);
 		}
 		
-		OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig(EmaConfigFileLocation);
+		OmmConsumerConfigImpl testConfig = (OmmConsumerConfigImpl) EmaFactory.createOmmConsumerConfig(EmaConfigFileLocation);
 		
 		// Check default consumer name (Conusmer_2) and associated values
 		System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_2) "); 
@@ -84,6 +70,16 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 90000 );
 		int intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DispatchTimeoutApiThread);
 		TestUtilities.checkResult("DispatchTimeoutApiThread value == 90", intValue == 90 );
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit).intValue();
+		TestUtilities.checkResult("ReactorMsgEventPoolLimit value == 2000", intValue == 2000);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorChannelEventPoolLimit).intValue();
+		TestUtilities.checkResult("ReactorChannelEventPoolLimit value == 1500", intValue == 1500);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.WorkerEventPoolLimit).intValue();
+		TestUtilities.checkResult("WorkerEventPoolLimit value == 1000", intValue == 1000);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.TunnelStreamMsgEventPoolLimit).intValue();
+		TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit value == 2500", intValue == 2500);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit).intValue();
+		TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit value == 3000", intValue == 3000);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );
@@ -109,6 +105,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReissueTokenAttemptInterval == 7000", intValue == 7000);
 		double doubleValue = JUnitTestConnect.configDoubleIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio);
 		TestUtilities.checkResult("TokenReissueRatio == 0.5", doubleValue == 0.5);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
+		TestUtilities.checkResult("EnableRtt value > 0", intLongValue > 0 );
 		
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -119,6 +117,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_1");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
+		TestUtilities.checkResult("EnableRtt value == 0", intLongValue == 0 );
 		
 		// Check values of Consumer_3
 		System.out.println("\nRetrieving Consumer_3 configuration values "); 
@@ -569,6 +569,14 @@ public class EmaFileConfigJunitTests extends TestCase
 		
 		try
 		{
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorMsgEventPoolLimit", 100));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorChannelEventPoolLimit", 150));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("WorkerEventPoolLimit", 200));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 250));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 300));
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
+			innerElementList.clear();
+			
 			elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1"));
 
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_1"));
@@ -592,6 +600,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptLimit", 9));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
 			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -706,6 +715,18 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReissueTokenAttemptInterval == 9000", intValue == 9000);
 			double doubleValue = JUnitTestConnect.activeConfigGetDoubleValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio, -1);
 			TestUtilities.checkResult("TokenReissueRatio == 0.9", doubleValue == 0.9);
+			String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
+			TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
+			int value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorMsgEventPoolLimit;
+			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  100", value == 100);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorChannelEventPoolLimit;
+			TestUtilities.checkResult("ReactorChannelEventPoolLimit == 150", value == 150);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.workerEventPoolLimit;
+			TestUtilities.checkResult("WorkerEventPoolLimit == 200", value == 200);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamMsgEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 250", value == 250);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 300", value == 300);
 			
 			
 			// Check values of Consumer_1
@@ -2343,6 +2364,14 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 		ElementList innerElementList = EmaFactory.createElementList();
 		try
 		{
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorMsgEventPoolLimit", 2000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorChannelEventPoolLimit", 1500));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("WorkerEventPoolLimit", 1000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 2500));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 3000));
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
+			innerElementList.clear();
+			
 			elementList.add(EmaFactory.createElementEntry().ascii("DefaultIProvider", "Provider_1"));
 
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Server", "Server_1"));
@@ -2355,6 +2384,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutAcceptingRequests", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutBeingLogin", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("AcceptMessageWithoutQosInRange", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EnforceAckIDValidation", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("FieldDictionaryFragmentSize", 2000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("EnumTypeFragmentSize", 1000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("RefreshFirstRequired", 0));
@@ -2539,11 +2569,11 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 
 			System.out.println("Using Ema Config: " + localConfigPath);
 			
-			OmmProvider prov = null;
+			OmmIProviderImpl prov = null;
 			if (testCase == 0)
-				prov = JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig().config(outermostMap));
+				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig().config(outermostMap));
 			else if (testCase == 1)
-				prov = JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig(localConfigPath).config(outermostMap));
+				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig(localConfigPath).config(outermostMap));
 			
 			String defaultProvName = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderName);
 			TestUtilities.checkResult("DefaultProvider value != null", defaultProvName != null);
@@ -2564,6 +2594,8 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("AcceptMessageSameKeyButDiffStream == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderAcceptMessageThatChangesService);
 			TestUtilities.checkResult("AcceptMessageThatChangesService == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderEnforceAckIDValidation);
+			TestUtilities.checkResult("IProviderEnforceAckIDValidation == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderRefreshFirstRequired);
 			TestUtilities.checkResult("RefreshFirstRequired == 0", boolValue == false);
 			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DictionaryFieldDictFragmentSize);
@@ -2587,6 +2619,18 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+
+			// Check Global configuration:
+			int value = prov.activeConfig().globalConfig.reactorMsgEventPoolLimit;
+			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  2000", value == 2000);
+			value = prov.activeConfig().globalConfig.reactorChannelEventPoolLimit;
+			TestUtilities.checkResult("ReactorChannelEventPoolLimit == 1500", value == 1500);
+			value = prov.activeConfig().globalConfig.workerEventPoolLimit;
+			TestUtilities.checkResult("WorkerEventPoolLimit == 1000", value == 1000);
+			value = prov.activeConfig().globalConfig.tunnelStreamMsgEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 2500", value == 2500);
+			value = prov.activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 3000", value == 3000);
 			
 			// Check Server configuration:
 			// Check Server_1 configuration.
@@ -3259,6 +3303,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EnforceAckIDValidation", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -3415,6 +3460,8 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			TestUtilities.checkResult("AcceptMessageSameKeyButDiffStream == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderAcceptMessageThatChangesService);
 			TestUtilities.checkResult("AcceptMessageThatChangesService == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderEnforceAckIDValidation);
+			TestUtilities.checkResult("EnforceAckIDValidation == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderRefreshFirstRequired);
 			TestUtilities.checkResult("RefreshFirstRequired == 0", boolValue == false);
 			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DictionaryFieldDictFragmentSize);
@@ -4196,7 +4243,8 @@ public void testLoadConfigFromProgrammaticForIProvConsMix()
 
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2"));
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_2"));
-		
+		innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
+
 		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 		innerElementList.clear();
 		
@@ -4248,6 +4296,8 @@ public void testLoadConfigFromProgrammaticForIProvConsMix()
 		String ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+		String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
+		TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
 	}
 	catch ( OmmException excp)
 	{

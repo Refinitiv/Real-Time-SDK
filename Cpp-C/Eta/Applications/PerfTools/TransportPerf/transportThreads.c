@@ -63,7 +63,7 @@ void initTransportThreadConfig()
 	}
 
 	/* Must have room for sending both the timestamp and sequence number. */
-	if (transportThreadConfig.msgSize < sizeof(TimeValue)+sizeof(RsslUInt64) )
+	if (transportThreadConfig.msgSize < sizeof(RsslTimeValue)+sizeof(RsslUInt64) )
 	{
 		printf("Config Error: Message size must be at least %u.\n\n", (int)sizeof(RsslUInt64));
 		exit(-1);
@@ -197,7 +197,7 @@ static RsslRet transportSessionSendMsg(TransportThread *pHandler, TransportSessi
 
 	/* Add latency timestamp, if appropriate. */
 	if (sendLatency)
-		currentTime = getTimeNano();
+		currentTime = rsslGetTimeNano();
 	else
 		currentTime = 0;
 

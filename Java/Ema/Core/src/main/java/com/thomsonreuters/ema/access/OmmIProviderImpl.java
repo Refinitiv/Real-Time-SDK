@@ -14,15 +14,24 @@ import org.slf4j.LoggerFactory;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ServiceIdConverter.ServiceIdConversionError;
 import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.thomsonreuters.upa.codec.AckMsgFlags;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.DataStates;
+import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.State;
+import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.codec.UpdateMsgFlags;
 import com.thomsonreuters.upa.transport.Channel;
+import com.thomsonreuters.upa.transport.ChannelInfo;
+import com.thomsonreuters.upa.transport.ComponentInfo;
+import com.thomsonreuters.upa.transport.Error;
+import com.thomsonreuters.upa.transport.TransportFactory;
+import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
@@ -35,11 +44,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.transport.ChannelInfo;
-import com.thomsonreuters.upa.transport.ComponentInfo;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
 {
@@ -50,6 +54,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	private DirectoryMsg	_fanoutDirectoryMsg;
 	protected EmaObjectManager _objManager = new EmaObjectManager();
 	private ItemWatchList	_itemWatchList;
+	private ServiceIdConverter	_serviceIdConverter;
 	private static final long MIN_LONG_VALUE = 1;
     private static final long MAX_LONG_VALUE = Long.MAX_VALUE;
     
@@ -76,6 +81,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
 		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
+		
+		_serviceIdConverter = new ServiceIdConverter(_ommIProviderDirectoryStore);
 	}
 	
 	OmmIProviderImpl(OmmProviderConfig config, OmmProviderClient ommProviderClient, OmmProviderErrorClient providerErrorClient, Object closure)
@@ -197,6 +204,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			if (element != null)
 			{
 				_activeConfig.acceptMessageWithoutQosInRange = element.intLongValue() > 0 ? true : false;
+			}
+
+			element = (ConfigElement)iProviderAttributes.getElement(ConfigManager.IProviderEnforceAckIDValidation);
+
+			if (element != null)
+			{
+				_activeConfig.enforceAckIDValidation = element.intLongValue() > 0 ? true : false;
 			}
 			
 			element = (ConfigElement)iProviderAttributes.getElement(ConfigManager.DictionaryFieldDictFragmentSize);
@@ -438,26 +452,15 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 				return;
 			}
-			
-			if ( refreshMsgImpl.hasServiceName() )
+
+			ServiceIdConversionError encodingError = 
+					_serviceIdConverter.encodeServiceId(refreshMsgImpl, com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY);
+			if (encodingError != ServiceIdConversionError.NONE)
 			{
-				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
-				{
-					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
-				}
-				else
-				{
-					return;
-				}
-			} 
-			else if ( refreshMsgImpl.hasServiceId() )
-			{
-				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
-				{
-					return;
-				}
+				handleServiceIdConversionError(encodingError, refreshMsgImpl);
+				return;
 			}
-			
+
 			if( handle == 0 )
 			{
 				StringBuilder text = strBuilder();
@@ -499,26 +502,15 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
-			
-			if ( refreshMsgImpl.hasServiceName() )
+
+			ServiceIdConversionError encodingError =
+					_serviceIdConverter.encodeServiceId(refreshMsgImpl, com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY);
+			if (encodingError != ServiceIdConversionError.NONE)
 			{
-				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
-				{
-					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
-				}
-				else
-				{
-					return;
-				}
+				handleServiceIdConversionError(encodingError, refreshMsgImpl);
+				return;
 			}
-			else if ( refreshMsgImpl.hasServiceId() )
-			{
-				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
-				{
-					return;
-				}
-			}
-			
+
 			clientSession = itemInfo.clientSession();
 			refreshMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
 			
@@ -541,7 +533,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		
 		userLock().unlock();
 	}
-	
+
 	@Override
 	public void submit(UpdateMsg updateMsg, long handle)
 	{
@@ -664,24 +656,12 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
-			
-			if ( updateMsgImpl.hasServiceName() )
-			{
-				if ( encodeServiceIdFromName(updateMsgImpl.serviceName(), updateMsgImpl._rsslMsg) )
-				{
-					updateMsgImpl._rsslMsg.flags( updateMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.UpdateMsgFlags.HAS_MSG_KEY );
-				}
-				else
-				{
-					return;
-				}
-			}
-			else if ( updateMsgImpl.hasServiceId() )
-			{
-				if ( validateServiceId(updateMsgImpl.serviceId(), updateMsgImpl._rsslMsg ) == false )
-				{
-					return;
-				}
+
+			ServiceIdConversionError encodingError = 
+					_serviceIdConverter.encodeServiceId(updateMsgImpl, UpdateMsgFlags.HAS_MSG_KEY);
+			if(encodingError != ServiceIdConversionError.NONE){
+				handleServiceIdConversionError(encodingError, updateMsgImpl);
+				return;
 			}
 			
 			if(_activeConfig.refreshFirstRequired && !itemInfo.isSentRefresh())
@@ -771,23 +751,11 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 		else if ( statusMsgImpl.domainType() == EmaRdm.MMT_DICTIONARY )
 		{
-			if ( statusMsgImpl.hasServiceName() )
-			{
-				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
-				{
-					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
-				}
-				else
-				{
-					return;
-				}
-			}
-			else if ( statusMsgImpl.hasServiceId() )
-			{
-				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
-				{
-					return;
-				}
+			ServiceIdConversionError encodingError =
+					_serviceIdConverter.encodeServiceId(statusMsgImpl, StatusMsgFlags.HAS_MSG_KEY);
+			if(encodingError != ServiceIdConversionError.NONE){
+				handleServiceIdConversionError(encodingError, statusMsgImpl);
+				return;
 			}
 			
 			if( handle == 0 )
@@ -831,24 +799,12 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
-			
-			if ( statusMsgImpl.hasServiceName() )
-			{
-				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
-				{
-					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
-				}
-				else
-				{
-					return;
-				}
-			}
-			else if ( statusMsgImpl.hasServiceId() )
-			{
-				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
-				{
-					return;
-				}
+
+			ServiceIdConversionError encodingError =
+					_serviceIdConverter.encodeServiceId(statusMsgImpl, StatusMsgFlags.HAS_MSG_KEY);
+			if(encodingError != ServiceIdConversionError.NONE){
+				handleServiceIdConversionError(encodingError, statusMsgImpl);
+				return;
 			}
 			
 			clientSession = itemInfo.clientSession();
@@ -1172,36 +1128,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			addItemGroup(itemInfo, groupId);
 		}
 	}
-	
-	boolean encodeServiceIdFromName(String serviceName, com.thomsonreuters.upa.codec.Msg rsslMsg)
-	{	
-		ServiceIdInteger serviceId = _ommIProviderDirectoryStore.serviceId(serviceName);
-		
-		if ( serviceId == null )
-		{
-			userLock().unlock();
-			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
-			append(" with service name of ").append(serviceName).append(" that was not included in the SourceDirectory. Dropping this ").
-			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
-			return false;
-		}
-		else if ( serviceId.value() > 65535)
-		{
-			userLock().unlock();
-			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
-			append(" with service name of ").append(serviceName).append(" whose matching service id of ").append(serviceId.value()).
-			append(" is out of range. Dropping this ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
-			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
-			return false;
-		}
-		
-		rsslMsg.msgKey().serviceId(serviceId.value());
-		rsslMsg.msgKey().applyHasServiceId();
-				
-		return true;
-	}
-	
+
 	boolean validateServiceId(int serviceId, com.thomsonreuters.upa.codec.Msg rsslMsg)
 	{	
 		String serviceName = _ommIProviderDirectoryStore.serviceName(serviceId);
@@ -1231,7 +1158,56 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	@Override
 	public void submit(AckMsg ackMsg, long handle)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.submit(AckMsg ackMsg, long handle) method is not support in this release.");	
+		userLock().lock();
+		AckMsgImpl ackMsgImpl = (AckMsgImpl) ackMsg;
+
+		ItemInfo itemInfo = getItemInfo(handle);
+
+		if (itemInfo == null)
+		{
+			userLock().unlock();
+			handleInvalidUsage(strBuilder()
+				.append("Attempt to submit AckMsg with non existent Handle = ")
+				.append(handle).append(".").toString(),
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+			return;
+		}
+		if (_activeConfig.enforceAckIDValidation && !removePostId(ackMsg, itemInfo))
+		{
+			return;
+		}
+		
+		ServiceIdConversionError encodingResult =
+				_serviceIdConverter.encodeServiceId(ackMsgImpl, AckMsgFlags.HAS_MSG_KEY);
+		if (encodingResult != ServiceIdConversionError.NONE)
+		{
+			logServiceIdConversionError(encodingResult, ackMsgImpl);
+		}
+
+		ackMsgImpl.streamId((int) itemInfo.streamId()._value);
+		if (!submit(ackMsgImpl, itemInfo.clientSession()))
+		{
+			return;
+		}
+		userLock().unlock();
+	}
+
+	private boolean removePostId(AckMsg ackMsg, ItemInfo itemInfo)
+	{
+		long ackId = ackMsg.ackId();
+		boolean removedPostId = itemInfo.removePostId(ackId);
+		
+		if(!removedPostId){
+			userLock().unlock();
+			handleInvalidUsage(
+					strBuilder().append("Attempt to submit AckMsg with non existent AckId = ")
+					.append(ackId)
+					.append(". Handle = ")
+					.append(itemInfo.handle().value()).toString(),
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -1588,5 +1564,77 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 		
 		userLock().unlock();
+	}
+
+
+	private void handleServiceIdConversionError(ServiceIdConversionError encodingResult, MsgImpl msg)
+	{
+		Msg rsslMsg = msg._rsslMsg;
+		userLock().unlock();
+		String errorMessage;
+		if (encodingResult == ServiceIdConversionError.ID_IS_MISSING_FOR_NAME)
+		{
+			errorMessage = strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+					append(" with service name of ").append(msg.serviceName()).append(" that was not included in the SourceDirectory. Dropping this ").
+					append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".").toString();
+		}else if (encodingResult == ServiceIdConversionError.ID_IS_INVALID_FOR_NAME)
+		{
+			errorMessage = strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+					append(" with service name of ").append(msg.serviceName()).append(" whose matching service id of ").append(_ommIProviderDirectoryStore.serviceId(msg.serviceName())).
+					append(" is out of range. Dropping this ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".").toString();
+		}else if (encodingResult == ServiceIdConversionError.NAME_IS_MISSING_FOR_ID)
+		{
+			errorMessage = strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+					append(" with service Id of ").append(msg.serviceId()).append(" that was not included in the SourceDirectory. Dropping this ").
+					append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".").toString();
+		}
+		else if (encodingResult == ServiceIdConversionError.USER_DEFINED_ID_INVALID)
+		{
+			errorMessage = strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+					append(" with service Id of ").append(msg.serviceId()).append(" is out of range. Dropping this ").
+					append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".").toString();
+		} else {
+			errorMessage = strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+					append(" with service Id of ").append(msg.serviceId()).append(" caused unknown error.").toString();
+		}
+
+		handleInvalidUsage(errorMessage, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+	}
+
+	private void logServiceIdConversionError(ServiceIdConversionError encodingResult, MsgImpl msg)
+	{
+		if(loggerClient().isErrorEnabled())
+		{
+			Msg rsslMsg = msg._rsslMsg;
+			String errorMessage;
+			if (encodingResult == ServiceIdConversionError.ID_IS_MISSING_FOR_NAME)
+			{
+				errorMessage = strBuilder().append("Submitting ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+						append(" with service name of ").append(msg.serviceName()).append(" that was not included in the SourceDirectory.").toString();
+			}
+			else if (encodingResult == ServiceIdConversionError.ID_IS_INVALID_FOR_NAME)
+			{
+				errorMessage = strBuilder().append("Submitting ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+						append(" with service name of ").append(msg.serviceName()).append(" whose matching service id of ")
+						.append(_ommIProviderDirectoryStore.serviceId(msg.serviceName())).
+						append(" is out of range.").toString();
+			}
+			else if (encodingResult == ServiceIdConversionError.NAME_IS_MISSING_FOR_ID)
+			{
+				errorMessage = strBuilder().append("Submitting ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+						append(" with service Id of ").append(msg.serviceId()).append(" that was not included in the SourceDirectory.").toString();
+			}
+			else if (encodingResult == ServiceIdConversionError.USER_DEFINED_ID_INVALID)
+			{
+				errorMessage = strBuilder().append("Submitting ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+						append(" with service Id of ").append(msg.serviceId()).append(" is out of range.").toString();
+			}
+			else
+			{
+				errorMessage = strBuilder().append("Submitting ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+						append(" with service Id of ").append(msg.serviceId()).append(" caused unknown error.").toString();
+			}
+			loggerClient().error(errorMessage);
+		}
 	}
 }

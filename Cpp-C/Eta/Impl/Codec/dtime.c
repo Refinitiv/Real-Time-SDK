@@ -1237,7 +1237,7 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 	while ((*tmp == ':') || isspace(*tmp))
 		tmp++;
 
-	if (tmp == end || *tmp == '\0')
+	if (tmp == end || *tmp == '\0' || !isdigit(*tmp))
 		return RSSL_RET_INVALID_DATA;
 
 	for (u8 = 0; isdigit(*tmp); tmp++)

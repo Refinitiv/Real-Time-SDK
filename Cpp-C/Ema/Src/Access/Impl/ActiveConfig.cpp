@@ -147,6 +147,7 @@ BaseConfig::BaseConfig() :
 	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
 	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
 	maxDispatchCountUserThread(DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD),
+	maxEventsInPool(DEFAULT_MAX_EVENT_IN_POOL),
 	requestTimeout(DEFAULT_REQUEST_TIMEOUT),
 	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
 	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
@@ -158,6 +159,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
 	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
+	enableRtt(DEFAULT_ENABLE_RTT),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -187,6 +189,7 @@ void BaseConfig::clear()
 	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+	maxEventsInPool = DEFAULT_MAX_EVENT_IN_POOL;
 	requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
 	xmlTraceToFile = DEFAULT_XML_TRACE_TO_FILE;
@@ -198,6 +201,7 @@ void BaseConfig::clear()
 	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
 	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
+	enableRtt = DEFAULT_ENABLE_RTT;
 	loggerConfig.clear();
 	libSslName.clear();
 	libCryptoName.clear();
@@ -222,6 +226,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t dispatchTimeoutApiThread: ").append(dispatchTimeoutApiThread)
 		.append("\n\t maxDispatchCountApiThread: ").append(maxDispatchCountApiThread)
 		.append("\n\t maxDispatchCountUserThread : ").append(maxDispatchCountUserThread)
+		.append("\n\t maxEventsInPool : ").append(maxEventsInPool)
 		.append("\n\t requestTimeout : ").append(requestTimeout)
 		.append("\n\t xmlTraceMaxFileSize : ").append(xmlTraceMaxFileSize)
 		.append("\n\t xmlTraceToFile : ").append(xmlTraceToFile)
@@ -233,6 +238,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
 		.append("\n\t xmlTraceDump : ").append(xmlTraceDump)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)
+		.append("\n\t enableRtt : ").append(enableRtt)
 		.append("\n\t libSslName : ").append(libSslName)
 		.append("\n\t libCryptoName : ").append(libCryptoName)
 		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio)
@@ -297,6 +303,15 @@ void BaseConfig::setMaxDispatchCountUserThread(UInt64 value)
 		maxDispatchCountUserThread = 0xFFFFFFFF;
 	else
 		maxDispatchCountUserThread = (UInt32)value;
+}
+
+void BaseConfig::setMaxEventsInPool(Int64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0x7FFFFFFF)
+		maxEventsInPool = 0x7FFFFFFF;
+	else
+		maxEventsInPool = (Int32)value;
 }
 
 ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
@@ -629,7 +644,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
-	pChannel( 0 )
+	pChannel( 0 ),
+	compressionThresholdSet(false)
 {
 }
 
@@ -647,6 +663,7 @@ void ChannelConfig::clear()
 	sysRecvBufSize = DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 	pChannel = 0;
+	compressionThresholdSet = false;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -684,7 +701,8 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
 	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),
 	sysRecvBufSize(DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE),
-	highWaterMark(DEFAULT_HIGH_WATER_MARK)
+	highWaterMark(DEFAULT_HIGH_WATER_MARK),
+	compressionThresholdSet(false)
 {
 
 }
@@ -709,6 +727,7 @@ void ServerConfig::clear()
 	sysRecvBufSize = DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE;
 	sysSendBufSize = DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
+	compressionThresholdSet = false;
 }
 
 void ServerConfig::setGuaranteedOutputBuffers(UInt64 value)
@@ -773,6 +792,7 @@ SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
 ServerConfig(RSSL_CONN_TYPE_SOCKET),
 serviceName(defaultServiceName),
 tcpNodelay(DEFAULT_TCP_NODELAY),
+serverSharedSocket(DEFAULT_SERVER_SHAREDSOCKET),
 maxFragmentSize(DEFAULT_MAX_FRAGMENT_SIZE),
 wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
@@ -785,6 +805,7 @@ SocketServerConfig::~SocketServerConfig()
 void SocketServerConfig::clear()
 {
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	serverSharedSocket = DEFAULT_SERVER_SHAREDSOCKET;
 	libSslName.clear();
 	libCryptoName.clear();
 	libCurlName.clear();

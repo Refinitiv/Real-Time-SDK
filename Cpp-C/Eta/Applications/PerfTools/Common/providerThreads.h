@@ -91,9 +91,9 @@ typedef enum
 
 typedef struct
 {
-	TimeValue			inactiveTime;
-	TimeValue			firstGenMsgSentTime;		/* Time at which first generic message sent. */
-	TimeValue			firstGenMsgRecvTime;		/* Time at which first generic message received. */
+	RsslTimeValue			inactiveTime;
+	RsslTimeValue			firstGenMsgSentTime;		/* Time at which first generic message sent. */
+	RsslTimeValue			firstGenMsgRecvTime;		/* Time at which first generic message received. */
 	ValueStatistics		genMsgLatencyStats;			/* Gen Msg latency statistics. */
 	ValueStatistics		intervalGenMsgLatencyStats;	/* Gen Msg latency statistics (recorded by stats thread). */
 	CountStat			genMsgSentCount;			/* Counts generic messages sent. */
@@ -176,7 +176,7 @@ typedef struct {
 	ProviderThread	*pProviderThread;
 	RsslBuffer		*pWritingBuffer;		/* Current buffer in use by this channel. */
 	RsslInt32		packedBufferCount;		/* Total number of buffers currently packed in pWritingBuffer */
-	TimeValue		timeActivated;			/* Time at which this channel was fully setup. */
+	RsslTimeValue		timeActivated;			/* Time at which this channel was fully setup. */
 	RsslRet			lastWriteRet;			/* Last return from an rsslWrite call. */
 
 	RsslBuffer		*preEncMarketPriceMsgs;		/* Buffer of a pre-encoded market price message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */

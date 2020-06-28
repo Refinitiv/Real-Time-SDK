@@ -50,7 +50,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 
 - Open Source value added helpers:
 
-   - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content.
+   - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content. Reactor also provides opportunity in-box support of RTT monitoring for consumer applications.
 
    - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Enterprise Platform for Real-time), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules.  Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models.  When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
 
@@ -110,6 +110,7 @@ Users can use Transport API to write non-interactive applications that start up 
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
 - Reactor applications can use the watchlist functionality for item recovery, like-request aggregation, fan out, and group status handling.
 - Reactor applications can leverage the tunnel streams capability, allowing for a private stream with end-to-end flow control, reliability, authentication, and (when communicating with a Queue Provider) persistent queue messaging.
+- Reactor allows for consumer based applications to measure and monitor Round Trip Latency during message exchanging.
 
 # ETA Java Library and Version Information
 
@@ -117,22 +118,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.5.0.0.jar               eta3.5.0.L1       The ETA - Java Edition library.  Includes
+    upa-3.5.0.1.jar               eta3.5.0.G1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.5.0.0.jar       eta3.5.0.L1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.5.0.1.jar       eta3.5.0.G1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.5.0.0.jar  eta3.5.0.L1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.5.0.1.jar  eta3.5.0.G1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.5.0.0.jar          eta3.5.0.L1       The ANSI decoders and encoders.
+    ansipage-3.5.0.1.jar          eta3.5.0.G1       The ANSI decoders and encoders.
                   
 
-    ETAC/UPA/RSSL JNI Libs        eta3.5.0.L1       The JNI libraries for Reliable Multicast
+    ETAC/UPA/RSSL JNI Libs        eta3.5.0.G1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -171,7 +172,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
 
 # Security
 

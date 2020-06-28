@@ -8,17 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.shared.DirectoryRejectReason;
 import com.thomsonreuters.upa.shared.LoginRejectReason;
 import com.thomsonreuters.upa.shared.DictionaryRejectReason;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;
@@ -34,28 +30,9 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ProviderCallback;
-import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDirectoryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.Reactor;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorAcceptOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamListenerCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
+import com.thomsonreuters.upa.valueadd.reactor.*;
 
 /**
  * <p>
@@ -126,6 +103,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
  * <li>-x provides an XML trace of messages
  * <li>-cache application supports apply/retrieve data to/from cache
  * <li>-runtime application runtime in seconds (default is 1200)
+ * <li>-rtt application (provider) supports calculation of Round Trip Latency
  * </ul>
  */
 public class Provider implements ProviderCallback, TunnelStreamListenerCallback
@@ -151,6 +129,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
     private LoginHandler loginHandler;
     private ItemHandler itemHandler;
     private HashMap<ReactorChannel, TunnelStreamHandler> _tunnelStreamHandlerHashMap = new HashMap<ReactorChannel, TunnelStreamHandler>();
+    private final HashMap<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
     
     private int clientSessionCount = 0;
 	ArrayList<ReactorChannel> reactorChannelList = new ArrayList<ReactorChannel>();
@@ -175,7 +154,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
     /* default service id */
     private static final int defaultServiceId = 1;
     
-	boolean _finalStatusEvent; 
+	boolean _finalStatusEvent;
 
     public Provider()
     {
@@ -240,6 +219,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
         System.out.println("interfaceName: " + providerCmdLineParser.interfaceName());
         System.out.println("serviceName: " + serviceName);
         System.out.println("serviceId: " + serviceId);
+        System.out.println("enableRTT: " + providerCmdLineParser.enableRtt());
 
         // load dictionary
         if (!dictionaryHandler.loadDictionary(error))
@@ -322,6 +302,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 
         // initialize handlers
         loginHandler.init();
+        loginHandler.enableRtt(providerCmdLineParser.enableRtt());
         directoryHandler.init();
         directoryHandler.serviceName(serviceName);
         itemHandler.init(cacheInfo);
@@ -339,7 +320,6 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 	private void run()
 	{
         int ret = 0;
-        
         // main loop
         while (true)
         {
@@ -366,6 +346,10 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
                 {
                     if (reactorChnl != null && reactorChnl.state() == ReactorChannel.State.READY)
                     {
+                        /*try to send rtt message*/
+                        loginHandler.sendRTT(reactorChnl, errorInfo);
+
+                        /*process market price updates*/
                         ret = itemHandler.sendItemUpdates(reactorChnl, errorInfo);
                         if (ret != CodecReturnCodes.SUCCESS)
                         {
@@ -497,6 +481,11 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 				 * and is now ready for general use. For an RDM Provider, this normally immediately
 				 * follows the CHANNEL_UP event. */
 				reactorChannelList.add(reactorChannel);
+
+                //define new socket fd value
+                int fdSocketId =
+                        ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
+                socketFdValueMap.put(reactorChannel, fdSocketId);
 				break;
 			case ReactorChannelEventTypes.FD_CHANGE:
 				/* The notifier representing the ReactorChannel has been changed.
@@ -504,6 +493,10 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 		        System.out.println("Channel Change - Old Channel: "
 		                + reactorChannel.oldSelectableChannel() + " New Channel: "
 		                + reactorChannel.selectableChannel());
+
+		        //define new FDValue
+                fdSocketId = ChannelHelper.defineFdValueOfSelectableChannel(reactorChannel.channel().selectableChannel());
+                socketFdValueMap.put(reactorChannel, fdSocketId);
 		        
     	        // cancel old reactorChannel select
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
@@ -670,6 +663,18 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 				/* close login stream */
 				loginHandler.closeStream(loginMsg.streamId());
 				break;
+            case RTT:
+                LoginRTT loginRTT = (LoginRTT) loginMsg;
+                System.out.printf("Received login RTT message from Consumer %d.\n", socketFdValueMap.get(event.reactorChannel()));
+                System.out.printf("\tRTT Tick value is %dus.\n", TimeUnit.NANOSECONDS.toMicros(loginRTT.ticks()));
+                if (loginRTT.checkHasTCPRetrans()) {
+                    System.out.printf("\tConsumer side TCP retransmissions: %d\n", loginRTT.tcpRetrans());
+                }
+                long calculatedRtt = loginRTT.calculateRTTLatency(TimeUnit.MICROSECONDS);
+                LoginRTT storedLoginRtt = loginHandler.getLoginRtt(reactorChannel).loginRtt();
+                loginRTT.copy(storedLoginRtt);
+                System.out.printf("\tLast RTT message latency is %dus.\n\n", calculatedRtt);
+                break;
 			default:
 				System.out.println("\nReceived unhandled login msg type: " + loginMsg.rdmMsgType());
 				break;
@@ -892,6 +897,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
         loginHandler.closeStream(reactorChannel);
         itemHandler.closeStream(reactorChannel);
         reactorChannel.close(errorInfo);
+        socketFdValueMap.remove(reactorChannel);
         clientSessionCount--;
     }
     

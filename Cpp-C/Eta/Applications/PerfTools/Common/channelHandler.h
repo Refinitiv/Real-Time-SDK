@@ -12,7 +12,7 @@
 #ifndef _CHANNEL_HANDLER_H
 #define _CHANNEL_HANDLER_H
 
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 
 #include "rtr/rsslQueue.h"
 
@@ -43,8 +43,8 @@ typedef struct {
 	RsslBool			needFlush;				/* Whether this channel needs to have data flushed. */
 	RsslBool			receivedMsg;			/* Whether a ping or messages have been received since the last ping check. */
 	RsslBool			checkPings;				/* Whether ping handling is done for this channel. */
-	TimeValue			nextReceivePingTime;	/* Time before which this channel should receive a ping. */
-	TimeValue			nextSendPingTime;		/* Time before which a ping should be sent for this channel. */
+	RsslTimeValue			nextReceivePingTime;	/* Time before which this channel should receive a ping. */
+	RsslTimeValue			nextSendPingTime;		/* Time before which a ping should be sent for this channel. */
 	RsslQueue			*parentQueue;			/* Pointer back to the list this channel is an element of. */
 } ChannelInfo;
 
@@ -106,9 +106,9 @@ ChannelInfo *channelHandlerAddChannel(ChannelHandler *pHandler, RsslChannel *pCh
 /* Closes and removes a channel from the channelHandler. */
 void channelHandlerCloseChannel(ChannelHandler *pHandler, ChannelInfo *pChannelInfo, RsslError *pError);
 
-/* Tries to read data from channels until stopTimeNsec is reached(stopTimeNsec should be based on getTimeNano()). 
+/* Tries to read data from channels until stopTimeNsec is reached(stopTimeNsec should be based on rsslGetTimeNano()). 
  * Also initializes any new channels. */
-void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec);
+void channelHandlerReadChannels(ChannelHandler *pHandler, RsslTimeValue stopTimeNsec);
 
 /* Try to initialize a single channel. */
 RsslRet channelHandlerInitializeChannel(ChannelHandler *pHandler, ChannelInfo *pChannelInfo);

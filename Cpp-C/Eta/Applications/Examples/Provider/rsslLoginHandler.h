@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-void initLoginHandler();
+void initLoginHandler(RsslBool rttSupport);
 static RsslLoginRequestInfo* getLoginReqInfo(RsslChannel* chnl, RsslMsg* msg);
 RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter);
 static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo);
@@ -18,6 +18,7 @@ static RsslRet sendLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, Rss
 void closeLoginChnlStream(RsslChannel* chnl);
 static void closeLoginStream(RsslInt32 streamId);
 RsslLoginRequestInfo* findLoginReqInfo(RsslChannel* chnl);
+RsslRet sendRTTLoginMsg(RsslChannel* chnl);
 
 #ifdef __cplusplus
 };

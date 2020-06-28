@@ -321,6 +321,9 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 						pLogin->pStream->flags &= ~WL_LSF_ESTABLISHED;
 				}
 				break;
+			case RDM_LG_MT_RTT:
+				/* Do nothing, as this does not change the state of the channel's login stream */
+				break;
 			default:
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
@@ -519,6 +522,12 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 
 				/* Everything that needed to match does, so change the message
 				 * to represent the reissue. */
+
+				/* Make sure the old RTT flag state propogates to the new message */
+				if (pOrigLoginReqMsg->flags & RDM_LG_RQF_RTT_SUPPORT)
+					pLoginReqMsg->flags |= RDM_LG_RQF_RTT_SUPPORT;
+				else
+					pLoginReqMsg->flags &= ~RDM_LG_RQF_RTT_SUPPORT;
 
 				if (newUserToken)
 				{
@@ -725,6 +734,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 			return RSSL_RET_SUCCESS;
 		}
 		case RDM_LG_MT_CONSUMER_CONNECTION_STATUS:
+		case RDM_LG_MT_RTT:
 		{
 			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
 			if (!pLoginRequest || !pLogin->pStream)

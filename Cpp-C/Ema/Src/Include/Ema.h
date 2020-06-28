@@ -110,6 +110,7 @@
 
 #include "Access/Include/TunnelStreamRequest.h"
 #include "Access/Include/ChannelInformation.h"
+#include "Access/Include/ChannelStatistics.h"
 
 #include "Domain/Login/Include/Login.h"
 
@@ -131,5 +132,7 @@
 #include "Access/Include/SessionInfo.h"
 #include "Access/Include/ConsumerSessionInfo.h"
 #include "Access/Include/ProviderSessionInfo.h"
+
+#include "Access/Include/GetTime.h"
 
 #endif // __thomsonreuters_ema_Ema_h

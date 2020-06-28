@@ -1308,4 +1308,45 @@ public class DataDictionaryJunitTest extends TestCase {
 		}
 	}
 
+	@Test
+	public void testDataDictionary_entryShouldRaiseExceptionForNonExistingId()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryShouldRaiseExceptionForNonexistingId()","Test to check and get DictionaryEntry by non-existing field ID from DataDictionary.");
+
+		TestUtilities.checkResult(globalDataDictionary.hasEntry(-555) == false, "Check for non existing DictionaryEntry -555");
+
+		try
+		{
+			DictionaryEntry entry = EmaFactory.createDictionaryEntry();
+			globalDataDictionary.entry(-555, entry);
+			TestUtilities.checkResult(false, "Calling DictionaryUtility.entry(fid, entryDst) for non existing DictionaryEntry - exception expected");
+		}
+		catch (OmmException excp)
+		{
+			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field ID -555 does not exist in the field dictionary', Error Code='-22'"),
+					"DictionaryUtility.entry(fid) for non existing  DictionaryEntry - exception expected");
+		}
+	}
+
+	@Test
+	public void testDataDictionary_entryShouldRaiseExceptionForNonExistingName()
+	{
+		TestUtilities.printTestHead("testDataDictionary_entryShouldRaiseExceptionForNonExistingId()","Test to check and get DictionaryEntry by non-existing field name from DataDictionary.");
+
+		TestUtilities.checkResult(globalDataDictionary.hasEntry("UNKNOWN_FID") == false, "Check for non existing UNKNOWN_FID DictionaryEntry");
+
+		try
+		{
+			DictionaryEntry entry = EmaFactory.createDictionaryEntry();
+			globalDataDictionary.entry("UNKNOWN_FID", entry);
+			TestUtilities.checkResult(false, "Calling DictionaryUtility.entry(name) from non existing DictionaryEntry - exception expected");
+		}
+		catch (OmmException excp)
+		{
+			TestUtilities.checkResult(excp.exceptionType() == OmmException.ExceptionType.OmmInvalidUsageException, "OmmException.exceptionType()");
+			TestUtilities.checkResult(excp.toString().equals("Exception Type='OmmInvalidUsageException', Text='The Field name UNKNOWN_FID does not exist in the field dictionary', Error Code='-22'"),
+					"DictionaryUtility.entry(name) for non existing UNKNOWN_FID DictionaryEntry - exception expected");
+		}
+	}
 }

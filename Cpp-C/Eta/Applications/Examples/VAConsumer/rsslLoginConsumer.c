@@ -52,7 +52,6 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 		closeConnection(pReactor, pChannel, pCommand);
 		return RSSL_RC_CRET_SUCCESS;
 	}
-	
 	switch(pLoginMsg->rdmMsgBase.rdmMsgType)
 	{
 	case RDM_LG_MT_REFRESH:
@@ -138,6 +137,16 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 			printf("	Authn Error Text: %.*s\n", pLoginMsg->status.authenticationErrorText.length, pLoginMsg->status.authenticationErrorText.data);
 		break;
 
+	case RDM_LG_MT_RTT:
+		printf("Received login RTT message from Provider "SOCKET_PRINT_TYPE".\n", pChannel->socketId);
+		printf("\tTicks: %llu\n", pLoginMsg->RTT.ticks);
+		if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_LATENCY)
+			printf("\tLast Latency: %llu\n", pLoginMsg->RTT.lastLatency);
+		if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+			printf("\tProvider side TCP Retransmissions: %llu\n", pLoginMsg->RTT.tcpRetrans);
+		if (pLoginMsgEvent->flags & RSSL_RDM_LG_LME_RTT_RESPONSE_SENT)
+			printf("RTT Response sent to provider by reactor.\n");
+		break;
 	default:
 		printf("\nReceived Unhandled Login Msg Class: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);
     	break;

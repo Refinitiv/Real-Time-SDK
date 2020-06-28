@@ -10,6 +10,7 @@
 #include "ItemCallbackClient.h"
 #include "ActiveConfig.h"
 #include "ChannelInfoImpl.h"
+#include "ChannelStatsImpl.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -45,4 +46,11 @@ const ChannelInformation& OmmConsumerEvent::getChannelInformation() const
 	RsslReactorChannel* rsslReactorChannel = reinterpret_cast<RsslReactorChannel*>( _channel );
 	getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::ConsumerEnum, const_cast<ChannelInformation&>( _channelInfo ) );
 	return _channelInfo;
+}
+
+const ChannelStatistics& OmmConsumerEvent::getChannelStatistics() const
+{
+	RsslReactorChannel* rsslReactorChannel = reinterpret_cast<RsslReactorChannel*>( _channel );
+	getChannelStats( rsslReactorChannel, const_cast<ChannelStatistics&>( _channelStats ) );
+	return _channelStats;
 }

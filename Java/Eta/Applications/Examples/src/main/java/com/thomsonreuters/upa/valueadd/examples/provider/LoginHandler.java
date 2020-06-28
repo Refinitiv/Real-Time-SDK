@@ -6,22 +6,21 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.shared.LoginRejectReason;
-import com.thomsonreuters.upa.shared.LoginRequestInfo;
-import com.thomsonreuters.upa.shared.LoginRequestInfoList;
+import com.thomsonreuters.upa.shared.*;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
+import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
+import com.thomsonreuters.upa.valueadd.reactor.*;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /*
  * This is the implementation of processing of login requests and login status
@@ -34,11 +33,16 @@ class LoginHandler
     private static final int REJECT_MSG_SIZE = 512;
     private static final int REFRESH_MSG_SIZE = 512;
     private static final int STATUS_MSG_SIZE = 512;
+    private static final int RTT_MSG_SIZE = 1024;
+
+    private static final int RTT_NOTIFICATION_INTERVAL = 5;
 
     private LoginStatus _loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
     private LoginRefresh _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
     private LoginRequest _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
+    private LoginRTT loginRTT = (LoginRTT)LoginMsgFactory.createMsg();
     private EncodeIterator _encodeIter = CodecFactory.createEncodeIterator();
+    private boolean enableRtt;
 
     // application id 
     private static String applicationId = "256";
@@ -48,6 +52,8 @@ class LoginHandler
 
     private LoginRequestInfoList _loginRequestInfoList;
 
+    private LoginRttInfoList loginRttInfoList;
+
     private ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
 
     LoginHandler()
@@ -55,7 +61,9 @@ class LoginHandler
         _loginStatus.rdmMsgType(LoginMsgType.STATUS);
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+        loginRTT.rdmMsgType(LoginMsgType.RTT);
         _loginRequestInfoList = new LoginRequestInfoList();
+        loginRttInfoList = new LoginRttInfoList();
     }
 
     /*
@@ -64,6 +72,7 @@ class LoginHandler
     void init()
     {
         _loginRequestInfoList.init();
+        loginRttInfoList.init();
     }
 
     /*
@@ -72,8 +81,7 @@ class LoginHandler
     void closeStream(int streamId)
     {
         /* find original request information associated with streamId */
-        for (LoginRequestInfo loginReqInfo : _loginRequestInfoList)
-        {
+        for (LoginRequestInfo loginReqInfo : _loginRequestInfoList) {
             if (loginReqInfo.loginRequest().streamId() == streamId && loginReqInfo.isInUse())
             {
                 /* clear original request information */
@@ -82,6 +90,7 @@ class LoginHandler
                 break;
             }
         }
+        loginRttInfoList.clearForStream(streamId);
     }
 
     /*
@@ -95,6 +104,16 @@ class LoginHandler
         {
             System.out.println("Closing login stream id '" + loginReqInfo.loginRequest().streamId() + "' with user name: " + loginReqInfo.loginRequest().userName());
             loginReqInfo.clear();
+        }
+        clearRttInfo(channel);
+    }
+
+    private void clearRttInfo(ReactorChannel reactorChannel) {
+        if (enableRtt) {
+            LoginRttInfo loginRttInfo = loginRttInfoList.get(reactorChannel.channel());
+            if (!Objects.isNull(loginRttInfo)) {
+                loginRttInfo.clear();
+            }
         }
     }
     
@@ -115,6 +134,47 @@ class LoginHandler
             return ret;
         }
         return chnl.submit(msgBuf, _submitOptions, errorInfo);
+    }
+
+    /**
+     * Send RTT message to a consumer connected via {@param reactorChannel}
+     *
+     * @param reactorChannel - channel instance onto which consumer has been connected
+     * @param errorInfo      - error buffer for returning Reactor errors and warnings to user.
+     * @return {@link ReactorReturnCodes#SUCCESS} when rtt message was sent successfully or rtt feature is not supported.
+     * @see ReactorChannel#submit(TransportBuffer, ReactorSubmitOptions, ReactorErrorInfo)
+     */
+    int sendRTT(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo) {
+        if (enableRtt) {
+            LoginRttInfo loginRttInfo = createOrGetRttInfo(reactorChannel);
+            if (Objects.nonNull(loginRttInfo) && isRttReadyToSend(loginRttInfo)) {
+                loginRTT = loginRttInfo.loginRtt();
+                _encodeIter.clear();
+                TransportBuffer msgBuf = reactorChannel.getBuffer(RTT_MSG_SIZE, false, errorInfo);
+                if (msgBuf == null) {
+                    return CodecReturnCodes.FAILURE;
+                }
+                _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
+
+                loginRTT.updateRTTActualTicks();
+                int ret = loginRTT.encode(_encodeIter);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
+                _submitOptions.clear();
+                return reactorChannel.submit(msgBuf, _submitOptions, errorInfo);
+            }
+        }
+        return ReactorReturnCodes.SUCCESS;
+    }
+
+    private boolean isRttReadyToSend(LoginRttInfo loginRttInfo) {
+        final long rttSendTime = System.nanoTime();
+        if (SECONDS.convert(rttSendTime - loginRttInfo.rttLastSendNanoTime(), TimeUnit.NANOSECONDS) > RTT_NOTIFICATION_INTERVAL) {
+            loginRttInfo.rttLastSendNanoTime(rttSendTime);
+            return true;
+        }
+        return false;
     }
 
     /*
@@ -252,6 +312,10 @@ class LoginHandler
             _loginRefresh.attrib().position().data(loginRequest.attrib().position().data(), loginRequest.attrib().position().position(), loginRequest.attrib().position().length());
         }
 
+        if (enableRtt && loginRequest.checkHasAttrib() && loginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring()) {
+            _loginRefresh.attrib().applyHasSupportRoundTripLatencyMonitoring();
+        }
+
         // this provider does not support
         // singleOpen behavior
         _loginRefresh.attrib().applyHasSingleOpen();
@@ -301,4 +365,31 @@ class LoginHandler
 	{
 		return _loginRequestInfoList.get(reactorChannel.channel(), loginRequest);
 	}
+
+    public LoginRttInfo createOrGetRttInfo(ReactorChannel reactorChannel) {
+        return Optional
+                .ofNullable(getLoginRtt(reactorChannel))
+                .orElseGet(() -> createLoginRtt(reactorChannel));
+    }
+
+    public LoginRttInfo createLoginRtt(ReactorChannel reactorChannel) {
+        LoginRequestInfo loginRequestInfo = findLoginRequestInfo(reactorChannel.channel());
+        if (Objects.nonNull(loginRequestInfo) && loginRequestInfo.isInUse()) {
+            LoginRttInfo loginRttInfo = loginRttInfoList
+                    .createFromRequest(reactorChannel.channel(), loginRequestInfo.loginRequest());
+
+            //could be added or deleted also another flags for demonstration different behaviour
+            loginRttInfo.loginRtt().applyHasRTLatency();
+            return loginRttInfo;
+        }
+        return null;
+    }
+
+    public LoginRttInfo getLoginRtt(ReactorChannel reactorChannel) {
+	    return loginRttInfoList.get(reactorChannel.channel());
+    }
+
+	void enableRtt(boolean enableRtt) {
+	    this.enableRtt = enableRtt;
+    }
 }

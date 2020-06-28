@@ -75,7 +75,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.5.0.0.jar         ema3.5.0.L1
+    ema-3.5.0.1.jar         ema3.5.0.G1
 
 # EMA Java Issues and Workarounds
  
@@ -100,7 +100,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
 
 # Security
 

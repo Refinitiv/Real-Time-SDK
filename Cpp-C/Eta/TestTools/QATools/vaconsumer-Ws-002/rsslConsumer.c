@@ -62,6 +62,7 @@ static time_t statisticInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
+static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 //API QA
 static RsslBool testCompressionZlib = RSSL_FALSE;
 static RsslBool jsonExpandEnum = RSSL_FALSE;
@@ -137,6 +138,7 @@ void printUsageAndExit(char *appName)
 			"\n -clientId specifies the Client ID for ERT in cloud (mandatory). You can generate and manage client Ids at the following URL:\n"
 			"\n  https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login to access this page)\n"
 			"\n -sessionMgnt Enables session management in the Reactor for ERT in cloud.\n"
+			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
 			"\n -aid Specifies the Application ID.\n"
@@ -1144,7 +1146,7 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++; // Do nothing as the parameter is already handled
 			}
-                        //API QA
+            //API QA
 			else if (strcmp("-testCompressionZlib", argv[i]) == 0)
 			{
 				i++; // Do nothing as the parameter is already handled
@@ -1154,6 +1156,19 @@ void parseCommandLine(int argc, char **argv)
 				i++; // Do nothing as the parameter is already handled
 			}
 			//END API QA
+						else if (strcmp("-takeExclusiveSignOnControl", argv[i]) == 0)
+			{
+				i += 2;
+				if (RTR_STRNICMP(argv[i - 1], "true", 4) == 0)
+				{
+					takeExclusiveSignOnControl = RSSL_TRUE;
+				}
+				else if (RTR_STRNICMP(argv[i - 1], "false", 5) == 0)
+				{
+					takeExclusiveSignOnControl = RSSL_FALSE;
+				}
+			}
+
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -1652,6 +1667,7 @@ int main(int argc, char **argv)
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
+        oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */

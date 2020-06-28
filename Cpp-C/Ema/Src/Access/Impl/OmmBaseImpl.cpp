@@ -324,6 +324,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	_activeConfig.instanceName.append("_").append(id);
 
 	const UInt32 maxUInt32(0xFFFFFFFF);
+	const Int32 maxInt32(0x7FFFFFFF);
 	UInt64 tmp;
 	EmaString instanceNodeName(pConfigImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeConfig.configuredName).append("|");
@@ -355,6 +356,13 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+	
+	Int64 tmp1;
+	
+	if (pConfigImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
+	{
+		_activeConfig.maxEventsInPool = static_cast<Int32>(tmp1 > maxInt32 ? maxInt32 : tmp1 < -1 ? -1 : tmp1);
+	}
 
 	if (pConfigImpl->getUserSpecifiedLibSslName().length() > 0)
 	{
@@ -367,7 +375,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.libcurlName = pConfigImpl->getUserSpecifiedLibcurlName();
 	}
 
-	Int64 tmp1;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectAttemptLimit", tmp1))
 	{
 		_activeConfig.setReconnectAttemptLimit(tmp1);
@@ -463,6 +470,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
 	{
 		_activeConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
+	{
+		_activeConfig.enableRtt = tmp > 0 ? true : false;
 	}
 
 	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
@@ -742,6 +754,12 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 		pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "EncryptedProtocolType", socketChannelCfg->encryptedConnectionType);
 
+		if (RSSL_CONN_TYPE_WEBSOCKET == socketChannelCfg->encryptedConnectionType)
+		{
+			pConfigImpl->get<UInt64>(channelNodeName + "WsMaxMsgSize", socketChannelCfg->wsMaxMsgSize);
+			pConfigImpl->get<EmaString>(channelNodeName + "WsProtocols", socketChannelCfg->wsProtocols);
+		}
+
 		if (pConfigImpl->getUserSpecifiedSslCAStore().length() > 0)
 		{
 			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();
@@ -899,6 +917,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if ( pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
 		{
 			newChannelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+			newChannelConfig->compressionThresholdSet = true;
 			setCompressionThresholdFromConfigFile = true;
 		}
 
@@ -1262,6 +1281,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		if (_activeConfig.restRequestTimeOut != DEFAULT_REST_REQUEST_TIMEOUT)
 			reactorOpts.restRequestTimeOut = _activeConfig.restRequestTimeOut;
+
+        if (_activeConfig.maxEventsInPool != DEFAULT_MAX_EVENT_IN_POOL)
+            reactorOpts.maxEventsInPool = _activeConfig.maxEventsInPool;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 

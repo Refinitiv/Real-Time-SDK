@@ -578,7 +578,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				{
 					RsslReactorEventImpl *pEvent;
 					/* Message in event queue */
-					if ((pEvent = rsslReactorEventQueueGet(pEventQueue, &ret)))
+					if ((pEvent = rsslReactorEventQueueGet(pEventQueue, pReactorImpl->maxEventsInPool, &ret)))
 					{
 						switch(pEvent->base.eventType)
 						{
@@ -861,6 +861,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->clientId) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
 												&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, // Specified by users as needed.
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->tokenScope) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope),
+												pTokenSessionImpl ? (pTokenSessionImpl->pOAuthCredential->takeExclusiveSignOnControl) : (pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.takeExclusiveSignOnControl),
 												pTokenSessionImpl ? &pTokenSessionImpl->rsslPostDataBodyBuf : &pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf,
 												pUserSpec, pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr : &pReactorWorker->workerCerr);
 
@@ -1231,7 +1232,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							/* Flush */
 							ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-
 							/* Checks whether the users wants the Reactor to always a ping message for the JSON protocol by not updating the lastPingSentMs field */
 							if (pReactorChannel->sendWSPingMessage == RSSL_FALSE)
 							{
@@ -1500,6 +1500,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								&pTokenSessionImpl->pOAuthCredential->clientId,
 								&pTokenSessionImpl->pOAuthCredential->clientSecret,
 								&pTokenSessionImpl->pOAuthCredential->tokenScope,
+								pTokenSessionImpl->pOAuthCredential->takeExclusiveSignOnControl,
 								&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
 
 							if (pRestRequestArgs)
@@ -1849,6 +1850,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								&pTokenSession->pOAuthCredential->clientId,
 								&pTokenSession->pOAuthCredential->clientSecret,
 								&pTokenSession->pOAuthCredential->tokenScope,
+								pTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 								&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
 
 							if (pRestRequestArgs)
@@ -1995,7 +1997,7 @@ void _reactorWorkerShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pError
 	{
 		RsslRet ret;
 
-		pEvent = (RsslReactorStateEvent*)rsslReactorEventQueueGet(&pReactorImpl->reactorWorker.workerQueue, &ret);
+		pEvent = (RsslReactorStateEvent*)rsslReactorEventQueueGet(&pReactorImpl->reactorWorker.workerQueue, pReactorImpl->maxEventsInPool, &ret);
 		if (!RSSL_ERROR_INFO_CHECK(ret >= RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
 			return;
 
@@ -3156,6 +3158,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						&pReactorTokenSession->pOAuthCredential->clientId,
 						&pReactorTokenSession->pOAuthCredential->clientSecret,
 						&pReactorTokenSession->pOAuthCredential->tokenScope,
+						pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 						&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 
 					if (pRestRequestArgs)
@@ -3254,6 +3257,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						&pReactorTokenSession->pOAuthCredential->clientId,
 						&pReactorTokenSession->pOAuthCredential->clientSecret,
 						&pReactorTokenSession->pOAuthCredential->tokenScope,
+						pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
 						&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 
 					if (pRestRequestArgs)

@@ -24,7 +24,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 
-import com.thomsonreuters.ema.access.ChannelInformation;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
@@ -193,6 +192,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
 					"Print out active configuration detail." + activeConfig.configTrace().toString(), Severity.TRACE));
 			}
+			
+			ReactorFactory.setReactorMsgEventPoolLimit(activeConfig.globalConfig.reactorMsgEventPoolLimit);
+			ReactorFactory.setReactorChannelEventPoolLimit(activeConfig.globalConfig.reactorChannelEventPoolLimit);
+			ReactorFactory.setWorkerEventPoolLimit(activeConfig.globalConfig.workerEventPoolLimit);
+			ReactorFactory.setTunnelStreamMsgEventPoolLimit(activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit);
+			ReactorFactory.setTunnelStreamStatusEventPoolLimit(activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit);
 			
 			try
 			{
@@ -680,13 +685,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	void pipeWrite() throws IOException
 	{
-		if (_pipeWriteCount.incrementAndGet() == 1)
+		if (_pipe.sink().isOpen() && _pipeWriteCount.incrementAndGet() == 1)
 			_pipe.sink().write(ByteBuffer.wrap(_pipeWriteByte));
 	}
 	
 	void pipeRead() throws IOException
 	{
-		if (_pipeWriteCount.decrementAndGet() == 0)
+		if (_pipe.source().isOpen() && _pipeWriteCount.decrementAndGet() == 0)
 		{
 			_pipeReadByte.clear();
 			_pipe.source().read(_pipeReadByte);
@@ -702,7 +707,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		ConfigAttributes attributes = getAttributes(config);
 
 		ConfigElement ce = null;
-		int maxInt = Integer.MAX_VALUE;
 		int value = 0;
 		
 		if (attributes != null)
@@ -711,56 +715,56 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.itemCountHint = value > maxInt ? maxInt : value;
+					_activeConfig.itemCountHint = value;
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ServiceCountHint)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.serviceCountHint = value > maxInt ? maxInt : value;
+					_activeConfig.serviceCountHint = value;
 			}
 				
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.RequestTimeout)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.requestTimeout = value > maxInt ? maxInt : value;
+					_activeConfig.requestTimeout = value;
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.LoginRequestTimeOut)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.loginRequestTimeOut = value > maxInt ? maxInt : value;
+					_activeConfig.loginRequestTimeOut = value;
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRequestTimeOut)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.dictionaryRequestTimeOut = value > maxInt ? maxInt : value;
+					_activeConfig.dictionaryRequestTimeOut = value;
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DispatchTimeoutApiThread)) != null)
 			{
 				value = ce.intValue();
 				if (value >= 0)
-					_activeConfig.dispatchTimeoutApiThread = value > maxInt ? maxInt : value;
+					_activeConfig.dispatchTimeoutApiThread = value;
 			}
 			
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountApiThread)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.maxDispatchCountApiThread = value > maxInt ? maxInt : value;
+					_activeConfig.maxDispatchCountApiThread = value;
 			}
 			
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountUserThread)) != null)
 			{
 				value = ce.intLongValue();
 				if (value >= 0)
-					_activeConfig.maxDispatchCountUserThread = value > maxInt ? maxInt : value;
+					_activeConfig.maxDispatchCountUserThread = value;
 			}
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
@@ -810,6 +814,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if(doubleValue > 0)
 					_activeConfig.tokenReissueRatio = doubleValue;
 			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.EnableRtt)) != null)
+			{
+				long rttVal = ce.intLongValue();
+				if (rttVal > 0) {
+					config.loginReq().attrib().applyHasSupportRoundTripLatencyMonitoring();
+				}
+			}
 		}
 
 		// .........................................................................
@@ -851,11 +862,46 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			socketChannelConfig.name = "Channel";
 			_activeConfig.channelConfigSet.add( socketChannelConfig);
 		}
+
+		ConfigAttributes globalConfigAttributes = config.xmlConfig().getGlobalConfig();
+
+		if(globalConfigAttributes != null){
+			_activeConfig.globalConfig = new GlobalConfig();
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.WorkerEventPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.workerEventPoolLimit = ce.intValue();
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ReactorChannelEventPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.reactorChannelEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.reactorMsgEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamMsgEventPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit = ce.intValue();
+			}
+
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit)) != null)
+			{
+				_activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit = ce.intValue();
+			}
+		}
 		
 		ProgrammaticConfigure pc = config.programmaticConfigure();
 		if ( pc != null)
 		{
 			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
+
+			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
+			if(globalConfig != null){
+				_activeConfig.globalConfig = globalConfig;
+			}
+			
 			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
 			if (channelOrChannelSet == null)
 				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
@@ -1067,6 +1113,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			boolean setCompressionThresholdFromConfigFile = false;
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
 			{
+				currentChannelConfig.compressionThresholdSet = true;
 				setCompressionThresholdFromConfigFile = true;
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.compressionThreshold = maxInt;

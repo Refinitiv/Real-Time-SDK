@@ -7,7 +7,7 @@
  */
 
 #include "rsslTestFramework.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "gtest/gtest.h"
 
 #include <stdio.h>

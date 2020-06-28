@@ -409,6 +409,14 @@ void xmlDumpMsgBegin(FILE * file, const RsslMsg * msg, const char* tagName)
 					firstFlag = RSSL_FALSE;
 				fprintf(file, "RSSL_GNMF_HAS_PART_NUM");
 			}
+			if (msg->genericMsg.flags & RSSL_GNMF_PROVIDER_DRIVEN)
+			{
+				if (!firstFlag)
+					fputc('|', file);
+				else
+					firstFlag = RSSL_FALSE;
+				fprintf(file, "RSSL_GNMF_PROVIDER_DRIVEN");
+			}
 			if (msg->genericMsg.flags != 0)
 				fputc(')', file);
 			fputc('"', file);

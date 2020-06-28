@@ -34,6 +34,7 @@ typedef struct LoginRequestInfo
 	RsslRDMLoginRequest loginRequest;
 	char memory[LOGIN_REQ_MEM_BUF_SIZE];
 	RsslBuffer memoryBuffer;
+	RsslUInt lastLatency;
 } LoginRequestInfo;
 void initLoginHandler();
 static RsslRet sendLoginRefresh(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslRDMLoginRequest* pLoginRequest);
@@ -42,6 +43,9 @@ void closeLoginStreamForChannel(RsslReactorChannel* pReactorChannel);
 static void closeLoginStream(RsslInt32 streamId);
 LoginRequestInfo* findLoginRequestInfo(RsslReactorChannel* pReactorChannel);
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent);
+RsslRet sendLoginRTT(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel);
+
+void setRTTSupport(RsslBool rtt);
 
 #ifdef __cplusplus
 };

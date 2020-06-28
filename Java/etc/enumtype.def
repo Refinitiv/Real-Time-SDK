@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.41
-!tag Build_RDMD  4.20.41
-!tag DT_Version  20.41
-!tag Date        20-Apr-2020
+!tag RT_Version  4.20.42
+!tag Build_RDMD  4.20.42
+!tag DT_Version  20.51
+!tag Date        1-Jun-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -48,7 +48,7 @@ RDN_EXCHID     4
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
      17        "PAO"   NYSE Arca Options
-     18        "WCB"   Chicago Board Options Exchange
+     18        "WCB"   CBOE Options Exchange when reported by OPRA
      19        "ASQ"   Consolidated issues listed on NYSE American
      20        "CME"   CME:Chicago Mercantile Commodities
      21        "IMM"   CME:International Monetary Market
@@ -79,7 +79,7 @@ RDN_EXCHID     4
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   TRC (THOMSON REUTERS CONTRIBUTED DATA) 
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -88,7 +88,7 @@ RDN_EXCHID     4
      55        "JSF"   Japan Securities Finance
      56        "TCE"   Tokyo Commodity Exchange
      57        "TFF"   Tokyo Financial Futures Exchange
-     58        "RPS"   REUTERS PRICING SERVICE
+     58        "RPS"   Refinitiv Evaluated Pricing Service
      59        "HOM"   Helsinki Options and Futures Exchange
      60        "FOM"   Finland Options Market (Suomen Optiomeklait)
      61        "FIR"   Florence Stock Exchange
@@ -211,7 +211,7 @@ RDN_EXCHID     4
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Thomson Reuters
+    181        "REU"   Refinitiv
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -989,6 +989,8 @@ BIDXID      3298
     230        "CXD"   Nasdaq CXD
     231        "NED"   AEQUITAS NEO-D
     232        "LTE"   Long-Term Stock Exchange (LTSE)
+    233        "MPE"   MIAX Pearl Exchange
+    234        "MMX"   Members Exchange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5528,7 +5530,7 @@ YIELD_TP     969
       7        "FLT"   flat yield in RT_YIELD_n and SEC_YLD_n.
       8        "CNS"   consortium yield in RT_YIELD_n and SEC_YLD_n.
       9        "F/C"   flat yield in RT_YIELD_n, consortium yield in SEC_YLD_n.
-     10        "REQ"   Reuters equivalent yield in RT_YIELD_n and SEC_YLD_n.
+     10        "REQ"   Refinitiv equivalent yield in RT_YIELD_n and SEC_YLD_n.
      11        "DIS"   discount yield in RT_YIELD_n and SEC_YLD_n.
      12        "BEY"   bond equivalent yield in RT_YIELD_n and SEC_YLD_n.
      13        "NA "   native ask in RT_YIELD_n, SEC_YLD_n not allocated.
@@ -6662,7 +6664,7 @@ ERROR_DESC  1389
       1   "        "   no error.
       2   "Prob Inv"   problem under investigation.
       3   "Stopped "   problem at exchange or data source.
-      4   "Tech Dif"   problem due to technical difficulty at Reuters.
+      4   "Tech Dif"   problem due to technical difficulty at Refinitiv.
       5   "Logd Off"   logged off by Exchange.
 !
 ! ACRONYM    FID
@@ -7089,6 +7091,7 @@ BLK_EXID   13552
 LEG3_EXCH  13572
 LEG4_EXCH  13574
 ORDER_EXID 13603
+DRK_EXID   13610
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -7110,7 +7113,7 @@ ORDER_EXID 13603
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
      17        "PAO"   NYSE Arca Options
-     18        "WCB"   Chicago Board Options Exchange
+     18        "WCB"   CBOE Options Exchange when reported by OPRA
      19        "ASQ"   Consolidated issues listed on NYSE American
      20        "CME"   CME:Chicago Mercantile Commodities
      21        "IMM"   CME:International Monetary Market
@@ -7141,7 +7144,7 @@ ORDER_EXID 13603
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   TRC (THOMSON REUTERS CONTRIBUTED DATA) 
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -7150,7 +7153,7 @@ ORDER_EXID 13603
      55        "JSF"   Japan Securities Finance
      56        "TCE"   Tokyo Commodity Exchange
      57        "TFF"   Tokyo Financial Futures Exchange
-     58        "RPS"   REUTERS PRICING SERVICE
+     58        "RPS"   Refinitiv Evaluated Pricing Service
      59        "HOM"   Helsinki Options and Futures Exchange
      60        "FOM"   Finland Options Market (Suomen Optiomeklait)
      61        "FIR"   Florence Stock Exchange
@@ -7273,7 +7276,7 @@ ORDER_EXID 13603
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Thomson Reuters
+    181        "REU"   Refinitiv
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -7717,7 +7720,7 @@ ORDER_EXID 13603
     622        "HNX"   Hanoi Stock Exchange
     623        "KRB"    Korea Interbank Offered Rate
     624        "LOP"    London Metal Exchange - Plastic 
-    625        "RCU"   Source is a Reuters FI Contributor
+    625        "RCU"   Source is a Refinitiv FI Contributor
     626        "RCV"   Source is a London Broker 
     627        "FTY"   FTSE Xinhua - China
     628        "PLU"   Plus Markets Group PLC
@@ -8000,7 +8003,7 @@ ORDER_EXID 13603
     905        "SDN"   SECURITISED DERIVATIVES NETWORK
     906        "NEI"   NEW ENGLAND ISO
     907        "IDS"   Indore soyabean, soymeal & soyoil prices
-    908        "RFI"   Thomson Reuters Contributed Fixed Income Indices
+    908        "RFI"   Refinitiv Contributed Fixed Income Indices
     909        "NPC"   Newcastle Port Corporation
     910        "GCA"   Green Coffee Association
     911        "JNA"   TOKYO PRO-BOND Market
@@ -8040,7 +8043,7 @@ ORDER_EXID 13603
     945        "CCD"   Consolidated Currency Future Level 1
     946        "BS2"   BSE Ltd
     947        "BAE"   Baku Stock Exchange
-    948        "TRX"   THOMSON REUTERS INDICES 
+    948        "TRX"   REFINITIV INDICES
     949        "PRV"   PSEUDO PACIFIC STOCK EXCHANGE
     950        "BKL"   BAIKAL
     951        "CHA"   AUSTRALIA - CHI-X
@@ -8055,7 +8058,7 @@ ORDER_EXID 13603
     960        "MUI"   Musashi
     961        "JDA"   Japan Securities Dealers Association (JSDA)
     962        "JSR"   JS Price
-    963        "RML"   Reuters Market Light Indian Commodity Prices 
+    963        "RML"   Deprecated. DO NOT USE.
     964        "SAM"   BOLSA DE VALORES DE SAO PAULO - AFTER-MARKET 
     965        "MLK"   EuroMTS Linkers Market
     966        "MSL"   MTS Slovenia
@@ -8079,8 +8082,8 @@ ORDER_EXID 13603
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
     986        "SBB"   Steel Business Briefing
-    987        "TRE"   Thomson Reuters Indices (Not Exchg)
-    988        "TRZ"   Thomson Reuters Indices (TR indices)
+    987        "TRE"   Refinitiv Indices (Not Exch)
+    988        "TRZ"   Refinitiv Indices (RFV indices)
     989        "CIF"   CONSOLIDATED INDIAN INTEREST RATE FUTURES
     990        "XI2"   XETRA INTERNATIONAL MARKET LEVEL 2
     991        "NZE"   NEW ZEALAND STOCK EXCHANGE (DO NOT USE)
@@ -8158,7 +8161,7 @@ ORDER_EXID 13603
    1063        "AST"   ASEAN Exchanges
    1064        "GCL"   GLOBALCOAL
    1065        "TFC"   TOKYO FINANCIAL EXCHANGE (CFD)
-   1066        "MBI"   Metal Bulletin
+   1066        "MBI"   FASTMARKETS
    1067        "LDN"   Euronext London
    1068        "FCE"    FTSE CSE MOROCCO ICW
    1069        "AAM"   Argentina Agriculture Ministry
@@ -8700,6 +8703,23 @@ ORDER_EXID 13603
    1605        "NQT"   NYSE BQT Best Quotes and Trades
    1606        "SRA"   SRA - Sugar Regulatory Administration
    1607        "MRR"   Mercaris Inc
+   1608        "TFL"   Thurlestone Financial Ltd.
+   1609        "CIL"   Complete Intelligence
+   1610        "PRM"   PRIMA MARKETS
+   1611        "NBC"   NASDAQ Basic Canada
+   1612        "MPG"   MIAX Pearl for NASDAQ Global Markets (MPG)
+   1613        "MPS"   MIAX Pearl NASDAQ Global Select (MPS)
+   1614        "MPM"   MIAX Pearl for NASDAQ Capital Markets (MPM)
+   1615        "MPE"   MIAX Pearl for NYSE/Cboe BZX (MPE)
+   1616        "XMG"   MEMX for NASDAQ Global Markets (XMG)
+   1617        "XMS"   MEMX for NASDAQ Global Select (XMS)
+   1618        "XMC"   MEMX for NASDAQ Capital Markets (XMC)
+   1619        "MMX"   MEMX for NYSE/Cboe BZX (MMX)
+   1620        "DCM"   DCA Markets B.V. - DCA-Markets-PRA Price Reporting Agent
+   1621        "BRB"   Barbados Stock Exchange
+   1622        "SRB"   SCB Group - StarCB Brokers SA
+   1623        "IBJ"   India Bullion and Jewellers Association Ltd
+   1624        "CBO"   Chicago Board Options Exchange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10460,7 +10480,7 @@ BID_YLD_TP 12888
       6        "SIM"   simple yield in RT_YIELD_n
       7        "FLT"   flat yield in RT_YIELD_n
       8        "CNS"   consortium yield in RT_YIELD_n
-      9        "REQ"   Reuters equivalent yield in RT_YIELD_n
+      9        "REQ"   Refinitiv equivalent yield in RT_YIELD_n
      10        "DIS"   discount yield in RT_YIELD_n
      11        "BEY"   bond equivalent yield in RT_YIELD_n
      12        "NA "   native ask in RT_YIELD_n
@@ -10493,7 +10513,7 @@ SEC_YLD_TP  3137
       6        "SIM"   Simple yield in SEC_YLD_n
       7        "FLT"   Flat yield in SEC_YLD_n
       8        "CNS"   Consortium yield in SEC_YLD_n
-      9        "REQ"   Reuters equivalent yield in SEC_YLD_n
+      9        "REQ"   Refinitiv equivalent yield in SEC_YLD_n
      10        "DIS"   Discount yield in SEC_YLD_n
      11        "BEY"   Bond equivalent yield in SEC_YLD_n
      12        "NA "   Native ask in SEC_YLD_n
@@ -11030,6 +11050,7 @@ PRC_QL3     3264
     401        "CGN"   Gross Cash Price, capitalised
     402        "VIE"   Volatility interruption extended
     403        "TAL"   Trading at Last
+    404        "UDQ"   Underlying Not Quoted
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12716,6 +12737,7 @@ OFFBK_H_RN 14142
      76         "IS"   Instrument suspension by exchange
      77         "CL"   Clearing problem
      78         "PL"   Instrument past last trading day
+     79         "UQ"   Underlying Not Quoted
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12774,7 +12796,7 @@ SRC_HB_TSO  8922
 ! -----      -------   -------
       0   "        "   Undefined
       1   "3rd Prty"   Heart-Beat Time-Stamp -- Source Supplied (3rd Party Feed)
-      2   "TR      "   Heart-Beat Time-Stamp -- Derived by Thomson Reuters
+      2   "TR      "   Heart-Beat Time-Stamp -- Derived by Refinitiv
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13115,7 +13137,7 @@ IND_L2_IND  8944
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "TRBC    "   Thomson Reuters Business Classification
+      1   "TRBC    "   The Refinitiv Business Classification Schema
       2   "FTICB   "   FTSE Industry Classification Benchmark (ICB)
       3   "GICS    "   Global Industry Classification Standard
       4   "NAICS   "   North American Industry Classification System
@@ -13241,6 +13263,10 @@ REFPRC_TP4 13491
      38   "Block   "   Block Deal Reference Price
      39   "INT_REF "   Intraday reference price
      40   "  EEP   "   Early Evaluation Price
+     41   "TASREF  "   Trading at last (TAS) reference price
+     42   "Avd_Cost"   Avoidable Cost
+     43   "Prlm_Val"   Preliminary Value
+     44   "Pred_Val"   Predictable Value
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15660,7 +15686,7 @@ SRC_MYLD5  13066
 ! -----      -------   -------
       0   "        "   Undefined
       1   "CTB     "   Data contributed by source
-      2   "TRC     "   Data contributed by Thomson Reuters
+      2   "TRC     "   Data contributed by Refinitiv
       3   "RFVC    "   Data contributed by Refinitiv
       4   "ETP     "   Data contributed by Electronic Trading Platform
       5   "PD      "   Data contributed by Primary Dealers
@@ -17686,6 +17712,8 @@ EXCP_CIRCM 13037
       2   "N       "   Exceptional Circumstances not in effect
       3   "MW      "   Market Wide Exceptional Circumstances
       4   "MM      "   Market Maker Exceptional Circumstances
+      5   "UDQ     "   Underlying Not Quoted
+      6   "MME UDQ "   Market Maker Exceptional Circumstance and Underlying Not Quoted
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19645,7 +19673,7 @@ LMT_STS_2  13591
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
-      0     "      "   Undefined
+      0     "      "   Ineligible for VCM, POS and CAS
       1     "U1    "   Upper Price Limit Level 1 in Effect
       2     "L1    "   Lower Price Limit Level 1 in Effect
       3     "U1L1  "   Upper Price Limit Level 1 & Lower Limit Price Level 1 in Effect
@@ -19661,9 +19689,9 @@ LMT_STS_2  13591
      13     "U3L1  "   Upper Price Limit Level 3 & Lower Limit Price Level 1 in Effect
      14     "U3L2  "   Upper Price Limit Level 3 & Lower Limit Price Level 2 in Effect
      15     "U3L3  "   Upper Price Limit Level 3 & Lower Limit Price Level 3 in Effect
-     16     "CT    "   Continuous Trading Price Limits in Effect
-     17     "CA    "   Closing Auction Price Limits in Effect
-     18     "CT+CA "   Continuous Trading and Closing Auction Price Limits in Effect
+     16     "CT    "   Eligible for Volatility Control Mechanism (VCM) only
+     17     "CA    "   Eligible for Closing Auction Session (CAS) only
+     18     "CT+CA "   Eligible for both VCM and CAS
      19     "N     "   Price Limit(s) Not In Effect
      20     "NOR   "   Normal price limit in effect
      21     "WIDE  "   Wide price limit in effect
@@ -19674,6 +19702,10 @@ LMT_STS_2  13591
      26     "PDPL_N"   Dynamic Price Limits not in effect - Preliminary
      27     "PDPL  "   Dynamic Price Limits in effect - Preliminary
      28     "PDPL_E"   Dynamic Price Limits expansion - Preliminary
+     29     "PO    "   Eligible for Pre-Opening Session (POS) only
+     30     "CT+POA"   Eligible for both VCM and Pre-Opening Session (POS)
+     31     "POA+CA"   Eligible for both Pre-Opening Session (POS) and Closing Auction Session (CAS)
+     32     "CT+OCA"   Eligible for VCM, POS and CAS
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20899,6 +20931,9 @@ ORGN_PORT  13579
     513   "JP SAG  "   Saganoseki
     514   "JP HIB  "   Hibi
     515   "NA WVB  "   Walvis Bay
+    516   "PE MRI  "   Matarani
+    517   "CL ANF  "   Antofagasta
+    518   "US BAL  "   Baltimore
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21812,7 +21847,6 @@ UNIT_STAT  13609
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET289 13610
 PRE_2ET290 13611
 PRE_2ET291 13612
 PRE_2ET292 13613

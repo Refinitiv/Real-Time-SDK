@@ -124,6 +124,7 @@ typedef struct {
 	RsslUInt32		sendBufSize;			/* send buffer size for accepted connections */
 	RsslUInt32		recvBufSize;			/* receive buffer size to use for accepted connections */
 	RsslComponentInfo	connOptsCompVer;	/* the component version string passed in by the user through the connectOpts*/
+	RsslBool		serverSharedSocket;		/* will be allowed to share socket */
 } rsslServerImpl;
 
 typedef struct {
@@ -239,6 +240,8 @@ typedef struct RsslTransChannelFuncs {
 	RsslRet  (RTR_FASTCALL *channelPing)( rsslChannelImpl *rsslChnlImpl, RsslError *error );
 	/* Gets Channel Information */
 	RsslRet  (RTR_FASTCALL *channelGetInfo)( rsslChannelImpl *rsslChnlImpl, RsslChannelInfo *info, RsslError *error );
+	/* Gets Channel Information */
+	RsslRet(RTR_FASTCALL *channelGetStats)(rsslChannelImpl *rsslChnlImpl, RsslChannelStats *info, RsslError *error);
 	/* Allows for changing channel options */
 	RsslRet  (RTR_FASTCALL *channelIoctl)( rsslChannelImpl *rsslChnlImpl, RsslIoctlCodes code, void *value, RsslError *error );
 } RsslTransportChannelFuncs;

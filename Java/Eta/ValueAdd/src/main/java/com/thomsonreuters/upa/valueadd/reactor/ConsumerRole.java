@@ -14,6 +14,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRTT;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
 /**
@@ -25,6 +26,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 public class ConsumerRole extends ReactorRole
 {
     LoginRequest _loginRequest = null;
+    LoginRTT loginRTT = null;
     DirectoryRequest _directoryRequest = null;
     DictionaryRequest _fieldDictionaryRequest = null;
     DictionaryClose _fieldDictionaryClose = null;
@@ -40,6 +42,7 @@ public class ConsumerRole extends ReactorRole
 	Buffer _enumTypeDictionaryName = CodecFactory.createBuffer();
 	boolean _receivedFieldDictionaryResp = false;
 	boolean _receivedEnumDictionaryResp = false;
+	boolean rttEnabled = false;
 	Buffer _clientId = CodecFactory.createBuffer();
 
     static final int LOGIN_STREAM_ID = 1;
@@ -123,6 +126,21 @@ public class ConsumerRole extends ReactorRole
         _loginRequest.role(Login.RoleTypes.CONS);
 
         return;
+    }
+
+    public void initDefaultLoginRTT() {
+        int streamId;
+
+        if (loginRTT == null) {
+            streamId = LOGIN_STREAM_ID;
+            loginRTT = (LoginRTT) LoginMsgFactory.createMsg();
+        } else {
+            streamId = (loginRTT.streamId() == 0 ? LOGIN_STREAM_ID : loginRTT.streamId());
+            loginRTT.clear();
+        }
+
+        loginRTT.rdmMsgType(LoginMsgType.RTT);
+        loginRTT.initRTT(streamId);
     }
     
     /**
@@ -451,7 +469,15 @@ public class ConsumerRole extends ReactorRole
     boolean receivedEnumDictionaryResp()
     {
     	return _receivedEnumDictionaryResp;
-    }  
+    }
+
+    void rttEnabled(boolean rttEnabled) {
+        this.rttEnabled = rttEnabled;
+    }
+
+    boolean rttEnabled() {
+        return this.rttEnabled;
+    }
     
     /**
      *  A callback function for processing RDMLoginMsgEvents received. If not present,
@@ -563,6 +589,8 @@ public class ConsumerRole extends ReactorRole
                 _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
             }
             loginRequest.copy(_loginRequest);
+            rttEnabled(loginRequest.checkHasAttrib()
+                    && loginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
         }
     }
     

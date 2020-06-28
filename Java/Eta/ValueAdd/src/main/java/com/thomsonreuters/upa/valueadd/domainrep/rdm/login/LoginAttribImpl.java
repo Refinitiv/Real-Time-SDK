@@ -18,7 +18,8 @@ class LoginAttribImpl implements LoginAttrib
     private long providePermissionExpressions;
     private long providePermissionProfile;
     private long supportProviderDictionaryDownload;
-    
+    private long supportConsumerRTTMonitoring;
+
     private final static String eol = System.getProperty("line.separator");
     private final static String tab = "\t";
     private StringBuilder stringBuf = new StringBuilder();
@@ -71,6 +72,7 @@ class LoginAttribImpl implements LoginAttrib
         singleOpen = 1;
         allowSuspectData = 1;
         supportProviderDictionaryDownload = 0;
+        supportConsumerRTTMonitoring = 2;
     }
     
     public int copy(LoginAttrib destAttrib)
@@ -126,6 +128,11 @@ class LoginAttribImpl implements LoginAttrib
         {
             destAttrib.applyHasProviderSupportDictionaryDownload();
             destAttrib.supportProviderDictionaryDownload(supportProviderDictionaryDownload);
+        }
+
+        if (checkHasSupportRoundTripLatencyMonitoring()) {
+            destAttrib.applyHasSupportRoundTripLatencyMonitoring();
+            destAttrib.supportRTTMonitoring(supportConsumerRTTMonitoring);
         }
 
         return CodecReturnCodes.SUCCESS;
@@ -189,6 +196,12 @@ class LoginAttribImpl implements LoginAttrib
             stringBuf.append(tab);
             stringBuf.append("providerSupportDictionaryDownload: ");
             stringBuf.append(supportProviderDictionaryDownload());
+            stringBuf.append(eol);
+        }
+        if (checkHasSupportRoundTripLatencyMonitoring()) {
+            stringBuf.append(tab);
+            stringBuf.append("RoundTripLatency: ");
+            stringBuf.append(supportRTTMonitoring());
             stringBuf.append(eol);
         }
 
@@ -356,7 +369,28 @@ class LoginAttribImpl implements LoginAttrib
  	{
  		return supportProviderDictionaryDownload;
  	}
- 	
+
+    @Override
+    public boolean checkHasSupportRoundTripLatencyMonitoring() {
+        return (flags & LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT) != 0;
+    }
+
+    @Override
+    public void applyHasSupportRoundTripLatencyMonitoring() {
+        flags |= LoginAttribFlags.HAS_CONSUMER_SUPPORT_RTT;
+    }
+
+    @Override
+    public long supportRTTMonitoring() {
+        return supportConsumerRTTMonitoring;
+    }
+
+    @Override
+    public void supportRTTMonitoring(long supportConsumerRTTMonitoring) {
+        assert(checkHasSupportRoundTripLatencyMonitoring());
+        this.supportConsumerRTTMonitoring = supportConsumerRTTMonitoring;
+    }
+
  	void copyReferences(LoginAttrib srcLoginAttrib)
     {
         assert(srcLoginAttrib != null) : "srcLoginAttrib can not be null";
@@ -402,6 +436,10 @@ class LoginAttribImpl implements LoginAttrib
         {
             applyHasProviderSupportDictionaryDownload();
             supportProviderDictionaryDownload(srcLoginAttrib.supportProviderDictionaryDownload());
+        }
+        if (srcLoginAttrib.checkHasSupportRoundTripLatencyMonitoring()) {
+            applyHasSupportRoundTripLatencyMonitoring();
+            supportRTTMonitoring(srcLoginAttrib.supportRTTMonitoring());
         }
     }
 

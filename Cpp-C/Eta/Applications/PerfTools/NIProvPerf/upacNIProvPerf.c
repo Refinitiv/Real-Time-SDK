@@ -9,7 +9,7 @@
 #include "upacNIProvPerf.h"
 #include "directoryProvider.h"
 #include "channelHandler.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "statistics.h"
 #include "testUtils.h"
 #include "rtr/rsslRDMLoginMsg.h"
@@ -29,7 +29,7 @@ extern "C" {
 
 static RsslBool signal_shutdown = RSSL_FALSE;
 static RsslBool testFailed = RSSL_FALSE;
-static TimeValue rsslProviderRuntime = 0;
+static RsslTimeValue rsslProviderRuntime = 0;
 
 static RsslBuffer applicationName = { 14, (char*)"upacNIProvPerf" };
 
@@ -117,7 +117,7 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 	ProviderThread *pProviderThread = (ProviderThread*)pArg;
 	RsslError error;
 
-	TimeValue nextTickTime;
+	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 	RsslConnectOptions copts;
 
@@ -218,7 +218,7 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 
 
 
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 
 	/* this is the main loop */
 	while(rtrLikely(!signal_shutdown))
@@ -336,7 +336,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			pProvSession->pChannelInfo->pReactorChannel = pReactorChannel;
 			pProvSession->pChannelInfo->pReactor = pReactor;
 			rsslQueueAddLinkToBack(&pProviderThread->channelHandler.activeChannelList, &pProvSession->pChannelInfo->queueLink);
-			pProvSession->timeActivated = getTimeNano();
+			pProvSession->timeActivated = rsslGetTimeNano();
 			RSSL_MUTEX_LOCK(&pProviderThread->newClientSessionsLock);
 
 			return RSSL_RC_CRET_SUCCESS;
@@ -555,7 +555,7 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	ProviderThread *pProviderThread = (ProviderThread*)pArg;
 	ProviderSession *pProvSession;
 
-	TimeValue nextTickTime;
+	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 	RsslCreateReactorOptions reactorOpts;
 	RsslReactorConnectOptions cOpts;
@@ -694,14 +694,14 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 		exit(-1);
     }		
 
-	nextTickTime = getTimeNano() + nsecPerTick;
+	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 
 	rsslClearReactorDispatchOptions(&dispatchOptions);
 
 	/* this is the main loop */
 	while(rtrLikely(!signal_shutdown))
 	{
-		TimeValue currentTime;
+		RsslTimeValue currentTime;
 
 		for (currentTicks = 0; currentTicks < providerThreadConfig.ticksPerSec; ++currentTicks)
 		{
@@ -717,7 +717,7 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 				/* Windows does not allow select() to be called with empty file descriptor sets. */
 				if (pProviderThread->readfds.fd_count == 0)
 				{
-					currentTime = getTimeNano();
+					currentTime = rsslGetTimeNano();
 					selRet = 0;
 					Sleep((DWORD)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000000 : 0));
 				}
@@ -728,7 +728,7 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 					useWrt = pProviderThread->wrtfds;
 					useExcept = pProviderThread->exceptfds;
 
-					currentTime = getTimeNano();
+					currentTime = rsslGetTimeNano();
 					time_interval.tv_usec = (long)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000 : 0);
 					time_interval.tv_sec = 0;
 
@@ -813,7 +813,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize runtime timer */
-	rsslProviderRuntime = getTimeNano() + ((RsslInt64)niProvPerfConfig.runTime * 1000000000LL);
+	rsslProviderRuntime = rsslGetTimeNano() + ((RsslInt64)niProvPerfConfig.runTime * 1000000000LL);
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
@@ -840,7 +840,7 @@ int main(int argc, char **argv)
 		}
 		
 		/* Handle runtime. */
-		if (getTimeNano() >= rsslProviderRuntime)
+		if (rsslGetTimeNano() >= rsslProviderRuntime)
 		{
 			printf("\nRun time of %u seconds has expired.\n\n", niProvPerfConfig.runTime);
 			signal_shutdown = RSSL_TRUE; /* Tell other threads to shutdown. */
@@ -1097,7 +1097,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 	if (ret = (printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	pProvSession->timeActivated = getTimeNano();
+	pProvSession->timeActivated = rsslGetTimeNano();
 
 	/* Send Login Request */
 	ret = sendLoginRequest(pChanHandler, pChannelInfo, 1, &error);

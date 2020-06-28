@@ -49,10 +49,10 @@ protected:
 	ResourceUsageStats	resourceStats;
 	ValueStatistics cpuUsageStats;
 	ValueStatistics memUsageStats;
-	TimeValue	currentTime;
-	TimeValue	startTime;
-	TimeValue	endTime;
-	TimeValue	nextTime;
+	PerfTimeValue	currentTime;
+	PerfTimeValue	startTime;
+	PerfTimeValue	endTime;
+	PerfTimeValue	nextTime;
 
 	perftool::common::AppVector<ConsumerThread*>	consumerThreads;
 

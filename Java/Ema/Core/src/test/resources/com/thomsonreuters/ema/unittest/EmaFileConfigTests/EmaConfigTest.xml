@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmaConfig>
 
+	<GlobalConfig>
+		<ReactorMsgEventPoolLimit value="2000"/>
+		<ReactorChannelEventPoolLimit value="1500"/>
+		<WorkerEventPoolLimit value="1000"/>
+		<TunnelStreamMsgEventPoolLimit value="2500"/>
+		<TunnelStreamStatusEventPoolLimit value="3000"/>
+	</GlobalConfig>
+	
 <!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->
 <!-- if application does not specify it through OmmConsumerConfig::consumerName()				-->
 <!-- first consumer on the consumerList is a default consumer if this parameter is not specified	-->
@@ -19,6 +27,7 @@
 			
 			<XmlTraceFileName value="EmaMyTrace"/>
 			<XmlTraceToFile value="1"/>
+			<EnableRtt value="0" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_2"/>
@@ -45,6 +54,7 @@
 			<ReissueTokenAttemptLimit value="5"/>
 			<ReissueTokenAttemptInterval value="7000"/>
 			<TokenReissueRatio value="0.5"/>
+			<EnableRtt value="1" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -205,7 +215,6 @@
 			<PipePort value="9009" />
 			
 			<RefreshFirstRequired value="1" />
-		
         </IProvider>
 		<IProvider>
             <!-- Name is mandatory                                                                       -->
@@ -229,7 +238,6 @@
 			<MaxDispatchCountUserThread value="5"/>
 			<PipePort value="7001"/>
 			<XmlTraceToStdout value="0" />
-		
         </IProvider>
     </IProviderList>
 </IProviderGroup>

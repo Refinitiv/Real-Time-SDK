@@ -42,6 +42,7 @@ else()
             # Impl/C....
             Impl/ChannelCallbackClient.cpp Impl/ChannelCallbackClient.h
             Impl/ChannelInformation.cpp
+            Impl/ChannelStatistics.cpp
             Impl/ClientSession.cpp Impl/ClientSession.h
             Impl/ComplexType.cpp Impl/ConfigErrorHandling.h
 	    Impl/ConumerSessionInfo.cpp
@@ -83,7 +84,7 @@ else()
             Impl/FilterListEncoder.cpp Impl/FilterListEncoder.h
             Impl/GenericMsg.cpp Impl/GenericMsgDecoder.cpp Impl/GenericMsgDecoder.h
             Impl/GenericMsgEncoder.cpp Impl/GenericMsgEncoder.h
-            Impl/GetTime.cpp Impl/GetTime.h
+            Impl/GetTime.cpp
             Impl/GlobalPool.h
             # Impl/H,I,K,L
             Impl/HashTable.cpp Impl/HashTable.h
@@ -222,6 +223,7 @@ else()
             Include/AckMsg.h
             Include/Attrib.h
             Include/ChannelInformation.h
+            Include/ChannelStatistics.h
             Include/Common.h
             Include/ComplexType.h
             Include/ConsumerSessionInfo.h
@@ -239,6 +241,7 @@ else()
             Include/FilterEntry.h
             Include/FilterList.h
             Include/GenericMsg.h
+            Include/GetTime.h
 	    Include/IOCtlCode.h
             Include/Key.h
             Include/Map.h

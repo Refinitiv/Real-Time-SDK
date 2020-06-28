@@ -15,6 +15,13 @@ Series100Consumer100-ConsFunc-001
 Series100Consumer100-ConsFunc-003
 	Alters consumer to be slow consumer when dispatch refreshMsg and updateMsg.
 
+Series100Consumer100-InitAuthFail-001
+    Alters consumer to use OMMErrorClient. AppErrorClient callback onInvalidUsage
+    should be triggered with error text 'RDMLogin stream was closed with status message'
+
+Series100Consumer100-LoginStatusMessage-001
+    Alters consumer to run forever till interrupt. Dictionary is loaded from the file
+
 Module:  Series100Consumer110 
 -----------------
 
@@ -480,6 +487,8 @@ Series400Consumer421-PConfig-003
     In programmatic Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName
     In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
 
+Series400Consumer421-PConfig-002
+    Alters consumer to add new GlobalConfig parameters EventPoolLimits for 5 types of EventPool.
 
 Module:  Series400Consumer430
 -----------------------------
@@ -621,12 +630,19 @@ Series100Provider100-ProvFunc-007
 Series100Provider100-ProvFunc-008
     Alters Interactive Provider to to repeat multiple iterations of the following: initialize provider, publish item, sleep 1 sec, uninitializing provider
 	
-Series100IProvider100-ProvFunc-009
+Series100Provider100-ProvFunc-009
 	Alters Interactive Provider to submit huge updateMsg and resubmit it again after adjust guaranteedOutputBuffers to 10000 using method modifyCtrlIO()(since v. 1.4.0).
 	
-Series100IProvider100-ProvFunc-010
+Series100Provider100-ProvFunc-010
 	Alters Interactive Provider to register appClientError (since v. 1.4.0) and submit huge updateMsg.
-	
+
+Series100Provider100-InitAuthFail-001
+    Alters Interactive provide to reject login request
+
+Series100Provider100-LoginStatusMessage-001
+    Alters Interactive Provider to reject logon message with Status message,
+    state 'Closed, Recoverable/Suspect/Usage error'
+
 Module:	 Series100IProvider170
 ---------------------------
 Series100IProvider170-ProvFunc-001
@@ -714,6 +730,9 @@ Series400Provider421-PConfig-003:
         -Added programmatic config for only Dictionary_1 where RdmFieldDictionaryItemName is RWFFld3
          and EnumTypeDefItemName RWFEnum3
         -Removed code for programmatic configure Provider_1 and Server_1
+
+Series400Provider421-PConfig-004:		
+	 Alters consumer to add new GlobalConfig parameters EventPoolLimits for 5 types of EventPool.
 
 Module:  Series100NiProvider100
 ---------------------------

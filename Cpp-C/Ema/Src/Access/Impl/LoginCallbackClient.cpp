@@ -66,6 +66,7 @@ Login::Login() :
 	_supportBatchRequest( 0 ),
 	_supportEnhancedSymbolList( 0 ),
 	_supportPost( 0 ),
+	_supportRtt( 0 ),
 	_singleOpen( 1 ),
 	_allowSuspect( 1 ),
 	_pauseResume( 0 ),
@@ -130,6 +131,7 @@ const EmaString& Login::toString()
 			.append("supportBatchRequest ").append(_supportBatchRequest).append(CR)
 			.append("supportEnhancedSymbolList ").append(_supportEnhancedSymbolList).append(CR)
 			.append("supportPost ").append(_supportPost).append(CR)
+			.append("supportRtt ").append(_supportRtt).append(CR)
 			.append("supportViewRequest ").append(_supportViewRequest).append(CR)
 			.append("role ").append(_role);
 
@@ -198,6 +200,11 @@ Login& Login::set( RsslRDMLoginRefresh* pRefresh )
 		_userNameType = pRefresh->userNameType;
 	else
 		_userNameType = 1;
+
+	if (pRefresh->flags & RDM_LG_RFF_RTT_SUPPORT)
+		_supportRtt = SUPPORT_RTT;
+	else
+		_supportRtt = 0;
 
 	if ( ( pRefresh->flags & RDM_LG_RFF_HAS_USERNAME ) && pRefresh->userName.length )
 	{
@@ -304,6 +311,8 @@ Login& Login::set( RsslRDMLoginRequest* pRequest )
 		_singleOpen = 1;
 
 	_supportPost = 0;
+
+	_supportRtt = 0;
 
 	_supportEnhancedSymbolList = 0;
 
@@ -1203,6 +1212,17 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
 			_ommBaseImpl.closeChannel(pRsslReactorChannel);
 		}
+
+		break;
+	}
+	case RDM_LG_MT_RTT:
+	{
+		_loginItemLock.lock();
+
+		if (_loginItems.size())
+			processGenericMsg(pEvent->baseMsgEvent.pRsslMsg, pRsslReactorChannel, pEvent);
+
+		_loginItemLock.unlock();
 
 		break;
 	}

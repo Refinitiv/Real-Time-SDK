@@ -254,6 +254,13 @@ static const thomsonreuters::ema::access::UInt32 SYMBOL_LIST_DATA_STREAMS	   = 0
 static const thomsonreuters::ema::access::UInt32 SYMBOL_LIST_DATA_SNAPSHOTS    = 0x002;	/*!< Requesting for snapshot behavior of datastreams. */
 //@}
 
+///@name Support Round Trip Time Type
+//@{
+/** Support Round Trip Time type describes that Round Trip Time is supported.
+	A provider specifies it does support Round Trip Time.
+*/
+static const thomsonreuters::ema::access::UInt32 SUPPORT_RTT = 2;	/*!< Support Round Trip Time */
+
 ///@name Login Attribute Names
 //@{
 /** Well known login attribute names.
@@ -292,6 +299,14 @@ static const  thomsonreuters::ema::access::EmaString ENAME_STATE("State", 5);
 static const  thomsonreuters::ema::access::EmaString ENAME_SOLICITED("Solicited", 9);
 static const  thomsonreuters::ema::access::EmaString ENAME_CLEARCACHE("ClearCache", 10);
 //@}
+
+///@name Round Trip Time Names
+//@{
+/** Round Trip Time - well known element names.
+*/
+static const  thomsonreuters::ema::access::EmaString ENAME_RTT("RoundTripLatency", 16);
+static const  thomsonreuters::ema::access::EmaString ENAME_RTT_TICKS("Ticks", 5);
+static const  thomsonreuters::ema::access::EmaString ENAME_RTT_TCP_RETRANS("TcpRetrans", 10);
 
 ///@name Source Directory Names
 //@{

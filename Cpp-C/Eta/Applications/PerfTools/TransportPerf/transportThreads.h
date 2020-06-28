@@ -73,7 +73,7 @@ typedef struct {
 	RsslUInt64		recvSequenceNumber;		/* Next sequence number that should be received. */
 	RsslBool 
 		receivedFirstSequenceNumber;		/* Indicates whether a sequence number has been received yet. */
-	TimeValue		timeActivated;			/* Time at which this channel was fully setup. */
+	RsslTimeValue		timeActivated;			/* Time at which this channel was fully setup. */
 } TransportSession;
 
 /* Handles one transport thread. */
@@ -83,8 +83,8 @@ typedef struct
 	RsslInt32				currentTicks;		/* Current position in ticks per second. */
 	RsslInt32				threadIndex;
 	LatencyRandomArrayIter	randArrayIter;		/* Iterator for latency random array. */
-	TimeValue				connectTime;		/* Time of first connection. */
-	TimeValue				disconnectTime; 	/* Time of last disconnection. */
+	RsslTimeValue				connectTime;		/* Time of first connection. */
+	RsslTimeValue				disconnectTime; 	/* Time of last disconnection. */
 	CountStat				msgsSent;			/* Total messages sent. */
 	CountStat				bytesSent;			/* Total bytes sent(counting any compression) */
 	CountStat				msgsReceived;		/* Total messages received. */

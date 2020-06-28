@@ -1893,7 +1893,7 @@ abstract class DirectoryServiceStore
 
     }
      
-    class ServiceIdInteger extends VaNode
+    static class ServiceIdInteger extends VaNode
     {
         int _value;
         

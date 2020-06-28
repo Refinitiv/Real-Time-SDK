@@ -242,6 +242,19 @@ RTR_C_INLINE rtrUInt64 rtr_atoull_size(char *str, char *endstr)
 	return result;
 }
 
+RTR_C_INLINE char * rtr_atoull_size_check(char *str, char *endstr, rtrUInt64* result)
+{
+	*result = 0;
+
+	__rtr_removewhitespace_end(str, endstr);
+
+	if (*str == '+')
+		str++;
+
+	__rtr_atonumber_end(str, endstr, (*result));
+
+	return str;
+}
 
 #ifdef __cplusplus
 };

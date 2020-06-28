@@ -1627,6 +1627,14 @@ class DecodersToXML
                         firstFlag = false;
                     xmlString.append("MESSAGE_COMPLETE");
                 }
+                if (genericMsg.checkIsProviderDriven())
+                {
+                    if (!firstFlag)
+                        xmlString.append("|");
+                    else
+                        firstFlag = false;
+                    xmlString.append("PROVIDER_DRIVEN");
+                }
                 if (genericMsg.checkHasSecondarySeqNum())
                 {
                     if (!firstFlag)

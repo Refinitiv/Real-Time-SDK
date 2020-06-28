@@ -2326,7 +2326,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 	RsslRDMLoginRequest *pLoginRequest;
 	RsslRDMLoginRefresh loginRefresh, *pLoginRefresh;
 	WtfSetupConnectionOpts	csOpts;
-	TimeValue				startTimeUsec;
+	RsslTimeValue				startTimeUsec;
 	int i;
 	const RsslInt32 		reconnectMinDelay = 1000, reconnectMaxDelay = 3000;
 
@@ -2412,7 +2412,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 			ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
 		}
 
-		startTimeUsec = getTimeMicro();
+		startTimeUsec = rsslGetTimeMicro();
 
 		/* Provider receives channel-down event. */
 		wtfDispatch(WTF_TC_PROVIDER, 100);
@@ -2517,7 +2517,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
-	startTimeUsec = getTimeMicro();
+	startTimeUsec = rsslGetTimeMicro();
 
 	/* Provider receives channel-down event. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);
@@ -2625,7 +2625,7 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
-	startTimeUsec = getTimeMicro();
+	startTimeUsec = rsslGetTimeMicro();
 
 	/* Provider receives channel-down event. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);

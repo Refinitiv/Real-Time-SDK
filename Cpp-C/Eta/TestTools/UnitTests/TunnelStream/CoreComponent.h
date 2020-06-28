@@ -20,7 +20,7 @@ class TestReactorEvent;
 
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslTunnelStream.h"
-#include "TunnelStreamGetTime.h"
+#include "rtr/rsslGetTime.h"
 #include "ConsumerProviderSessionOptions.h"
 
 #ifdef __cplusplus

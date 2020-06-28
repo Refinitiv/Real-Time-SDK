@@ -10,13 +10,11 @@ set(rsslTunnelStreamTestSrcFiles
 	TunnelStreamCoreProvider.C
 	TunnelStreamProvider.C
 	TunnelStreamTest.C
-	TunnelStreamGetTime.c
 
 	#headers
 	Consumer.h
 	ConsumerProviderSessionOptions.h
 	CoreComponent.h
-	TunnelStreamGetTime.h
 	Provider.h
 	ReadEvent.h
 	TestReactor.h

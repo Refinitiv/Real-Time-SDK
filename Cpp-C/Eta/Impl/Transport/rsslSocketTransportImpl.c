@@ -35,6 +35,10 @@
 #include <signal.h>
 /* winInet tunneling */
 #include "rtr/ripcinetutils.h"
+#include <Ws2tcpip.h>
+#include <tcpmib.h>
+#include <Tcpestats.h>
+#include <iphlpapi.h>
 #endif
 
 
@@ -96,6 +100,9 @@ ripcSessInit ipcSessionInit(RsslSocketChannel *rsslSocketChannel, ripcSessInProg
 RsslRet ipcShutdownSockectChannel(RsslSocketChannel* rsslSocketChannel, RsslError *error);
 RsslRet ipcSessDropRef(RsslSocketChannel *rsslSocketChannel, RsslError *error);
 RsslRet rsslSocketGetSockOpts(RsslSocketChannel *rsslSocketChannel, RsslInt32 code, RsslInt32* value, RsslError *error);
+
+/* Retrieves and sets the socket row from the Windows TCP table.  No-op for Linux */
+static RsslRet ipcGetSocketRow(RsslSocketChannel *rsslSocketChannel, RsslError *error);
 
 RsslRet ripcInitZlibComp();
 RsslRet ripcInitLz4Comp();
@@ -3707,6 +3714,110 @@ static ripcSessInit ipcInitClientTransport(RsslSocketChannel *rsslSocketChannel,
 	return(RIPC_CONN_IN_PROGRESS);
 }
 
+
+static RsslRet ipcGetSocketRow(RsslSocketChannel *rsslSocketChannel, RsslError *error)
+{
+#if (defined(_WINDOWS) || defined(_WIN32))
+	PMIB_TCPTABLE tcpTable = NULL;
+	PMIB_TCPROW tmpRow = NULL;
+	DWORD size = 0;
+	DWORD status = 0;
+	DWORD i = 0;
+	char *chnlInfo;						// Need to set this as a larger buffer because getsockopt SO_BSP_STATE requires more memory than the CSADDR_INFO structure
+	struct sockaddr_in *localInfo;
+	struct sockaddr_in *remoteInfo;
+	TCP_ESTATS_PATH_RW_v0 collectionFlags;
+	int len;
+	ULONG tmp;
+
+	/* If this is a winInet or Extended Line connection, do not set the row, and just exit.  If this is an HTTP Java connection, we can continue */
+	if (rsslSocketChannel->usingWinInet || rsslSocketChannel->connType == RSSL_CONN_TYPE_EXT_LINE_SOCKET || (rsslSocketChannel->httpHeaders == 1 && rsslSocketChannel->isJavaTunnel == 0))
+	{
+		rsslSocketChannel->socketRowSet = RSSL_FALSE;
+		return RSSL_RET_SUCCESS;
+	}
+
+	len = (int)sizeof(CSADDR_INFO)+128;
+
+	chnlInfo = malloc(len+128);
+	if (chnlInfo == NULL) {
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1001 Could not allocate memory for the Channel Info.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+	
+	if(getsockopt(rsslSocketChannel->stream, SOL_SOCKET, SO_BSP_STATE, chnlInfo, &len) < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1002 getsockopt() SO_BSP_STATE failed.  System errno: (%d)", __FILE__, __LINE__, errno);
+		free((void*)chnlInfo);
+		return RSSL_RET_FAILURE;
+	}
+
+	localInfo = (struct sockaddr_in*)((CSADDR_INFO*)chnlInfo)->LocalAddr.lpSockaddr;
+	remoteInfo = (struct sockaddr_in*)((CSADDR_INFO*)chnlInfo)->RemoteAddr.lpSockaddr;
+	
+	status = GetTcpTable(tcpTable, &size, TRUE);
+	if (status != ERROR_INSUFFICIENT_BUFFER) {
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1002 GetTcpTable() failed.  Error from function: (%d)", __FILE__, __LINE__, status);
+		free((void*)chnlInfo);
+		return RSSL_RET_FAILURE;
+	}
+
+	tcpTable = (PMIB_TCPTABLE)malloc(size);
+	if(tcpTable == NULL){
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1001 Could not allocate memory for the TCP Table.\n", __FILE__, __LINE__);
+		free((void*)chnlInfo);
+		return RSSL_RET_FAILURE;
+	}
+
+	status = GetTcpTable(tcpTable, &size, TRUE);
+	if (status != ERROR_SUCCESS) {
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1002 GetTcpTable() failed.  Error from function: (%d)", __FILE__, __LINE__, status);
+		free((void*)tcpTable);
+		free((void*)chnlInfo);
+		return RSSL_RET_FAILURE;
+	}
+
+	for (i = 0; i < tcpTable->dwNumEntries; i++)
+	{
+		tmpRow = &(tcpTable->table[i]);
+
+		/* If this is an accepted server connection, the socket was not bound to a specific interface, so the dwLocalAddr will be 0 */
+		if (tmpRow->dwLocalPort == localInfo->sin_port && (rsslSocketChannel->server != NULL || tmpRow->dwLocalAddr == localInfo->sin_addr.s_addr) &&
+			tmpRow->dwRemotePort == remoteInfo->sin_port && tmpRow->dwRemoteAddr == remoteInfo->sin_addr.s_addr)
+		{
+			rsslSocketChannel->socketRow = *(tmpRow);
+			free((void*)tcpTable);
+			collectionFlags.EnableCollection = TRUE;
+
+			/* Attempt to set collection stats on the channel.  If this fails, it is not catastrophic, so we should not error out here. */
+			if ((tmp = SetPerTcpConnectionEStats(&(rsslSocketChannel->socketRow), TcpConnectionEstatsPath, (PUCHAR)&collectionFlags, 0, sizeof(collectionFlags), 0)) != NO_ERROR)
+			{
+				rsslSocketChannel->socketRowSet = RSSL_FALSE;
+			}
+
+			free((void*)chnlInfo);
+			return RSSL_RET_SUCCESS;
+		}
+	}
+
+	free((void*)tcpTable);
+	_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+	snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> ipcGetSocketRow() Error: 1002 Unable to find the table entry for the current connection", __FILE__, __LINE__);
+	free((void*)chnlInfo);
+	return RSSL_RET_FAILURE;
+#else
+	/* For Linux, this is a no-op */
+	return RSSL_RET_SUCCESS;
+#endif
+
+}
+
+
 static ripcSessInit ipcReadHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *inProg, RsslError *error)
 {
 	RsslInt32 cc;
@@ -5549,6 +5660,12 @@ static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSess
 	}
 	else
 	{
+
+		if (ipcGetSocketRow(rsslSocketChannel, error) == RSSL_RET_FAILURE)
+		{
+			return(RIPC_CONN_ERROR);
+		}
+
 		/* All older versions are active at this point */
 		rsslSocketChannel->state = RSSL_CH_STATE_ACTIVE;
 		rsslSocketChannel->intState = RIPC_INT_ST_ACTIVE;
@@ -5690,8 +5807,15 @@ static ripcSessInit ipcSendClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 			return(RIPC_CONN_ERROR);
 		}
 
+		if (ipcGetSocketRow(rsslSocketChannel, error) == RSSL_RET_FAILURE)
+		{
+			return(RIPC_CONN_ERROR);
+		}
+
 		rsslSocketChannel->state = RSSL_CH_STATE_ACTIVE;
 		rsslSocketChannel->intState = RIPC_INT_ST_ACTIVE;
+
+
 
 		return(RIPC_CONN_ACTIVE);
 	}
@@ -5820,9 +5944,15 @@ static ripcSessInit ipcWaitClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 		rsslSocketChannel->inputBufCursor = 0;
 	}
 
+	if (ipcGetSocketRow(rsslSocketChannel, error) == RSSL_RET_FAILURE)
+	{
+		return(RIPC_CONN_ERROR);
+	}
 
 	rsslSocketChannel->state = RSSL_CH_STATE_ACTIVE;
 	rsslSocketChannel->intState = RIPC_INT_ST_ACTIVE;
+
+
 
 	if (rsslSocketChannel->lowerCompressionThreshold == 0)
 	{
@@ -7151,6 +7281,11 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 	}
 	else
 	{
+		if (ipcGetSocketRow(rsslSocketChannel, error) == RSSL_RET_FAILURE)
+		{
+			return(RIPC_CONN_ERROR);
+		}
+
 		rsslSocketChannel->state = RSSL_CH_STATE_ACTIVE;
 		rsslSocketChannel->intState = RIPC_INT_ST_ACTIVE;
 
@@ -7488,6 +7623,8 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	}
 
 	rsslServerSocketChannel->connType = connType;
+	
+	rsslSrvrImpl->serverSharedSocket = opts->serverSharedSocket;
 
 	if ((retCode = (transFuncs[connType].bindSrvr(rsslSrvrImpl, error))) < 0)
 	{
@@ -9868,9 +10005,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketFlush(rsslChannelImpl *rsslChnlImp
 		return RSSL_RET_FAILURE;
 
 	IPC_MUTEX_LOCK(rsslSocketChannel);
-
 	retVal = ipcFlushSession(rsslSocketChannel, error);
-
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
 	if (retVal < RSSL_RET_SUCCESS)
@@ -10047,6 +10182,94 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelInfo(rsslChannelImpl *rs
 	info->multicastStats.unicastSent = 0;
 	info->multicastStats.gapsDetected = 0;
 
+	return RSSL_RET_SUCCESS;
+}
+
+/* rssl Socket GetChannelStats */
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelStats(rsslChannelImpl *rsslChnlImpl, RsslChannelStats *stats, RsslError *error)
+{
+	RsslInt32		i = 0;
+	RsslInt32 		size = 0;
+
+#ifdef Linux
+	socklen_t len = 0;
+	struct tcp_info value;
+#else
+	TCP_ESTATS_PATH_ROD_v0 value;
+	ULONG err;
+#endif
+
+	RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
+
+	memset((void*)stats, 0x00, sizeof(RsslChannelStats));
+
+	IPC_MUTEX_LOCK(rsslSocketChannel);
+
+	if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
+	{
+		_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1003 rsslSocketGetChannelStats() failed due to channel shutting down.\n",
+			__FILE__, __LINE__);
+
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+	else if (rsslSocketChannel->intState != RIPC_INT_ST_ACTIVE)
+	{
+		_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1003 rsslSocketGetChannelStats() failed because the channel is not active.\n",
+			__FILE__, __LINE__);
+
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+
+	if (rsslSocketChannel->usingWinInet == 1 || (rsslSocketChannel->httpHeaders == 1 && rsslSocketChannel->isJavaTunnel == 0))
+	{
+		_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1006 rsslSocketGetChannelStats() does not work with WinInet connections, or non-Java HTTP server connections.\n",
+			__FILE__, __LINE__);
+
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+
+#ifdef Linux
+	len = sizeof(struct tcp_info);
+	if (getsockopt(rsslSocketChannel->stream, IPPROTO_TCP, TCP_INFO, (char*)&value, &len) != 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSocketGetChannelStats() Error: 1002 getsockopt() IPPROTO_TCP failed.  System errno: (%d)", __FILE__, __LINE__, errno);
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+
+	stats->tcpStats.tcpRetransmitCount = value.tcpi_total_retrans;
+#else
+
+	if (rsslSocketChannel->socketRowSet == RSSL_FALSE)
+	{
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_SUCCESS;
+	}
+
+	memset((void*)&value, 0, sizeof(TCP_ESTATS_PATH_ROD_v0));
+	err = GetPerTcpConnectionEStats(&(rsslSocketChannel->socketRow), TcpConnectionEstatsPath, NULL, 0, 0, NULL, 0, 0, (PUCHAR)&value, 0, sizeof(TCP_ESTATS_PATH_ROD_v0));
+	if (err != NO_ERROR)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSocketGetChannelStats() Error: 1002 GetPerTcpConnectionEStats() failed.  Error from function (%d)", __FILE__, __LINE__, err);
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+	stats->tcpStats.flags |= RSSL_TCP_STATS_RETRANSMIT;
+	stats->tcpStats.tcpRetransmitCount = value.PktsRetrans;
+#endif 
+
+	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 	return RSSL_RET_SUCCESS;
 }
 

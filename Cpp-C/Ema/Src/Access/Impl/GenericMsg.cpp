@@ -415,3 +415,11 @@ GenericMsg& GenericMsg::extendedHeader( const EmaBuffer& Buffer )
 	return *this;
 }
 
+GenericMsg& GenericMsg::providerDriven( bool providerDriven )
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool._genericMsgEncoderPool.getItem();
+
+	static_cast<GenericMsgEncoder*>(_pEncoder)->providerDriven( providerDriven );
+	return *this;
+}

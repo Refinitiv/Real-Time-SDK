@@ -8,8 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -111,8 +110,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private static final int LATENCY_RANDOM_ARRAY_SET_COUNT = 20;
     
     public static final int MAX_MSG_SIZE = 1024;
-    public static int TRANSPORT_BUFFER_SIZE_REQUEST = MAX_MSG_SIZE;
-    public static int TRANSPORT_BUFFER_SIZE_CLOSE = MAX_MSG_SIZE;
 
     private ConsumerThreadInfo _consThreadInfo; /* thread information */
     private ConsPerfConfig _consPerfConfig; /* configuration information */
@@ -426,8 +423,10 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 		System.exit(-1);
                 	}
                 }
-                if (handshake == TransportReturnCodes.SUCCESS)
-                	break;
+
+                if (handshake == TransportReturnCodes.SUCCESS) {
+                    break;
+                }
                 
                 System.out.println("Connection failure: " + _error.text() + ". Will retry shortly.");
                 try
@@ -559,7 +558,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 _loginHandler.applicationName("upajConsPerf");
                 _loginHandler.userName(_consPerfConfig.username());
                 _loginHandler.role(Login.RoleTypes.CONS);
-        
+
                 // Send login request message
                 TransportBuffer msg = _loginHandler.getRequestMsg(_channel, _error, _eIter);
                 if (msg != null)
@@ -1888,7 +1887,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 {
                     closeChannelAndShutDown("Channel.info() failed");
                     return ReactorCallbackReturnCodes.FAILURE;
-                } 
+                }
+
                 System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
 
                 break;

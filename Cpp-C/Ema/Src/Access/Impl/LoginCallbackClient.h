@@ -72,6 +72,7 @@ private :
 	UInt64			_supportBatchRequest;
 	UInt64			_supportEnhancedSymbolList;
 	UInt64			_supportPost;
+	UInt64			_supportRtt;
 	UInt64			_singleOpen;
 	UInt64			_allowSuspect;
 	UInt64			_pauseResume;

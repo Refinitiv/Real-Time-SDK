@@ -77,6 +77,7 @@
 #define DEFAULT_OBJECT_NAME							   EmaString( "" )
 #define DEFAULT_SSL_CA_STORE						   EmaString( "" )
 #define DEFAULT_TCP_NODELAY							   RSSL_TRUE
+#define DEFAULT_SERVER_SHAREDSOCKET					   RSSL_FALSE
 #define DEFAULT_CONS_MCAST_CFGSTRING				   EmaString( "" )
 #define DEFAULT_PACKET_TTL							  5
 #define DEFAULT_NDATA								  7
@@ -84,6 +85,7 @@
 #define DEFAULT_NREQ								  3
 #define DEFAULT_PKT_POOLLIMIT_HIGH					  190000
 #define DEFAULT_PKT_POOLLIMIT_LOW					  180000
+#define DEFAULT_MAX_EVENT_IN_POOL					  -1
 #define DEFAULT_TDATA								  1
 #define DEFAULT_TOKEN_REISSUE_RATIO					  0.8
 #define DEFAULT_TRREQ								  4
@@ -110,6 +112,7 @@
 #define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  65535
+#define DEFAULT_ENABLE_RTT							  false
 
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
@@ -154,6 +157,7 @@ public :
 	EmaString				interfaceName;
 	RsslCompTypes			compressionType;
 	UInt32					compressionThreshold;
+	bool					compressionThresholdSet;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					initializationTimeout;
@@ -192,6 +196,7 @@ public:
 	EmaString				name;
 	EmaString				interfaceName;
 	RsslCompTypes			compressionType;
+	bool					compressionThresholdSet;
 	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
@@ -301,6 +306,7 @@ public:
 
 	EmaString		serviceName;
 	RsslBool		tcpNodelay;
+	RsslBool		serverSharedSocket;
 
 	EmaString				libSslName;
 	EmaString				libCryptoName;
@@ -412,6 +418,7 @@ public:
 	void setCatchUnhandledException(UInt64 value);
 	void setMaxDispatchCountApiThread(UInt64 value);
 	void setMaxDispatchCountUserThread(UInt64 value);
+	void setMaxEventsInPool(Int64 value);
 	void setRequestTimeout(UInt64 value);
 	virtual EmaString configTrace();
 
@@ -423,6 +430,7 @@ public:
 	Int64					dispatchTimeoutApiThread;
 	UInt32					maxDispatchCountApiThread;
 	UInt32					maxDispatchCountUserThread;
+	Int32					maxEventsInPool;
 	Int64					xmlTraceMaxFileSize;
 	bool					xmlTraceToFile;
 	bool					xmlTraceToStdout;
@@ -432,6 +440,7 @@ public:
 	bool					xmlTracePing;
 	bool					xmlTraceHex;
 	bool					xmlTraceDump;
+	bool					enableRtt;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.

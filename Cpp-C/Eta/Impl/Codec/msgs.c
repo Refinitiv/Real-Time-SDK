@@ -658,7 +658,7 @@ RSSL_API RsslRet rsslAckFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags)
 
 RSSL_API RsslRet rsslGenericFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags)
 {
-	const char *flagStrings[8 /* The max possible number of flags */];
+	const char *flagStrings[9 /* The max possible number of flags */];
 	int flagCount = 0;
 
 	if (flags & RSSL_GNMF_HAS_EXTENDED_HEADER) flagStrings[flagCount++] = RSSL_OMMSTR_GNMF_HAS_EXTENDED_HEADER.data;
@@ -669,6 +669,7 @@ RSSL_API RsslRet rsslGenericFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 fla
 	if (flags & RSSL_GNMF_HAS_SECONDARY_SEQ_NUM) flagStrings[flagCount++] = RSSL_OMMSTR_GNMF_HAS_SECONDARY_SEQ_NUM.data;
 	if (flags & RSSL_GNMF_HAS_PART_NUM) flagStrings[flagCount++] = RSSL_OMMSTR_GNMF_HAS_PART_NUM.data;
 	if (flags & RSSL_GNMF_HAS_REQ_MSG_KEY) flagStrings[flagCount++] = RSSL_OMMSTR_GNMF_HAS_REQ_MSG_KEY.data;
+	if (flags & RSSL_GNMF_PROVIDER_DRIVEN) flagStrings[flagCount++] = RSSL_OMMSTR_GNMF_PROVIDER_DRIVEN.data;
 
 	return _rsslFlagsToOmmString(oBuffer, flagStrings, flagCount);
 }

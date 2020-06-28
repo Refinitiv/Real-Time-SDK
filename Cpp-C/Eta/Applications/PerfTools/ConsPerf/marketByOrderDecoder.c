@@ -6,7 +6,7 @@
 */
 
 #include "marketByOrderDecoder.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "testUtils.h"
 
 #define TIM_TRK_1_FID 3902
@@ -32,12 +32,12 @@ RTR_C_INLINE RsslBool checkPostUserInfo(RsslMsg *pMsg)
 	}
 }
 
-RTR_C_INLINE void updateLatencyStats(ConsumerThread *pConsumerThread, TimeValue timeTracker, RsslMsgClasses msgClass)
+RTR_C_INLINE void updateLatencyStats(ConsumerThread *pConsumerThread, RsslTimeValue timeTracker, RsslMsgClasses msgClass)
 {
-	TimeValue currentTime;
-	TimeValue unitsPerMicro;
+	RsslTimeValue currentTime;
+	RsslTimeValue unitsPerMicro;
 
-	currentTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
+	currentTime = consPerfConfig.nanoTime ? rsslGetTimeNano() : rsslGetTimeMicro();
 	unitsPerMicro = consPerfConfig.nanoTime ? 1000 : 1;
 
 	switch(msgClass)

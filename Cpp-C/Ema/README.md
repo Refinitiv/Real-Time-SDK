@@ -10,7 +10,6 @@ Copyright (C) 2019-2020 Refinitiv. All rights reserved.
   
 # EMA C++ Documentation
 
-- ElektronMessageAPI Overview
 - Installation Guide
 - DevGuide
 - RDMUsageGuide
@@ -100,14 +99,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.5.0.L1
+    libema.lib                ema3.5.0.G1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.5.0.L1
-    libema.dll                ema3.5.0.L1
+    libema.lib                ema3.5.0.G1
+    libema.dll                ema3.5.0.G1
 
 #### Linux
     
@@ -127,13 +126,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.5.0.L1
+    libema.a                    ema3.5.0.G1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.5.0.0           libema.so.9          ema3.5.0.L1
+    libema.so.3.5.0.1           libema.so.10          ema3.5.0.G1
     
   
 # EMA C++ Issues and Workarounds
@@ -167,7 +166,7 @@ This will create all necessary soft links for example makefiles to link. It is s
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.41_TREP_20.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
 
 # Security
 

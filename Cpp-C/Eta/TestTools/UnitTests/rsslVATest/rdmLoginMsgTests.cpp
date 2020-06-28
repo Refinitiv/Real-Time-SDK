@@ -23,6 +23,7 @@ void loginRefreshBlankTests();
 void loginStatusMsgTests();
 void loginStatusBlankTests();
 void loginPostAndAckTests();
+void loginRTTMsgTests();
 
 TEST(LoginMsgTest, RequestMsgTests)
 {
@@ -67,6 +68,11 @@ TEST(LoginMsgTest, StatusBlankTests)
 TEST(LoginMsgTest, PostAndAckTests)
 {
 	loginPostAndAckTests();
+}
+
+TEST(LoginMsgTest, RTTMsgTests)
+{
+	loginRTTMsgTests();
 }
 
 void loginRequestMsgTests()
@@ -1867,3 +1873,105 @@ void loginStatusBlankTests()
 	ASSERT_TRUE(decRDMMsg.loginMsg.status.flags |= RDM_LG_STF_HAS_AUTHN_ERROR_TEXT && decRDMMsg.loginMsg.status.authenticationErrorText.length == 0);
 
 }
+
+void loginRTTMsgTests()
+{
+	RsslRDMLoginRTT encRDMMsg;
+
+	RsslRDMMsg decRDMMsg;
+	RsslMsg rsslMsg;
+	RsslRDMLoginRTT *pDecRDMMsg;
+	RsslUInt32 i;
+
+	RsslUInt32 flagsBase[] =
+	{
+		RDM_LG_RTT_NONE,
+		RDM_LG_RTT_HAS_TCP_RETRANS,
+		RDM_LG_RTT_HAS_LATENCY
+	};
+
+	RsslUInt32 *flagsList, flagsListCount;
+
+	/* Parameters to test with */
+	RsslInt32 streamId = -5;
+	RsslUInt ticks = 135000000012;
+	RsslUInt tcpRetrans = 150;
+	RsslUInt latency = 1400006;
+
+
+	clearTypedMessageStats(&stats);
+
+	/* Request */
+	flagsListCount = _createFlagCombinations(&flagsList, flagsBase, sizeof(flagsBase) / sizeof(RsslUInt32), RSSL_FALSE);
+
+	for (i = 0; i < flagsListCount; ++i)
+	{
+		RsslUInt32 j;
+
+		for (j = 0; j < testWriteActionsCount; ++j)
+		{
+			RsslRet ret;
+
+			testWriteAction = testWriteActions[j];
+
+			/*** Encode ***/
+			rsslClearRDMLoginRTT(&encRDMMsg);
+			ASSERT_TRUE(encRDMMsg.rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+			ASSERT_TRUE(encRDMMsg.rdmMsgBase.rdmMsgType == RDM_LG_MT_RTT);
+
+			encRDMMsg.flags = flagsList[i];
+
+			encRDMMsg.rdmMsgBase.streamId = streamId;
+
+			encRDMMsg.ticks = ticks;
+
+			/* Set parameters based on flags */
+			if (encRDMMsg.flags & RDM_LG_RTT_HAS_LATENCY)
+			{
+				encRDMMsg.lastLatency = latency;
+			}
+
+			if (encRDMMsg.flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+			{
+				encRDMMsg.tcpRetrans = tcpRetrans;
+			}
+
+			if (testWriteAction != TEST_EACTION_CREATE_COPY)
+			{
+				writeRDMMsg((RsslRDMMsg*)&encRDMMsg, testWriteAction,
+					&rsslMsg, &decRDMMsg,
+					&stats);
+				pDecRDMMsg = &decRDMMsg.loginMsg.RTT;
+			}
+			else
+				ASSERT_TRUE((pDecRDMMsg = (RsslRDMLoginRTT*)rsslCreateRDMMsgCopy((RsslRDMMsg*)&encRDMMsg, 1, &ret)) != NULL);
+
+			ASSERT_TRUE(pDecRDMMsg->rdmMsgBase.streamId == streamId);
+			ASSERT_TRUE(pDecRDMMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
+			ASSERT_TRUE(pDecRDMMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_RTT);
+
+			ASSERT_EQ(pDecRDMMsg->flags, encRDMMsg.flags);
+
+			/* Check parameters */
+			ASSERT_EQ(pDecRDMMsg->ticks, ticks);
+			
+			if (pDecRDMMsg->flags & RDM_LG_RTT_HAS_LATENCY)
+			{
+				ASSERT_EQ(pDecRDMMsg->lastLatency, latency);
+			}
+
+			if (pDecRDMMsg->flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+			{
+				ASSERT_EQ(pDecRDMMsg->tcpRetrans, tcpRetrans);
+			}
+
+			if (testWriteAction == TEST_EACTION_CREATE_COPY)
+				free(pDecRDMMsg);
+		}
+	}
+
+	free(flagsList);
+
+	////printTypedMessageStats(&stats);
+}
+

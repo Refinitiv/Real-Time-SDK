@@ -7,17 +7,53 @@ There are three types of ESDK releases that append a letter directly followed by
 "E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.5.0.L1 aka EMA 3.5.0.L1 and ETA 3.5.0.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.5.0.G1 aka EMA 3.5.0.G1 and ETA 3.5.0.G1
 ----------------------------------------------------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, and, openJDK 1.11. 
+
 
 Customer Issues Resolved
 ------------------
-[Case Number: 07645599] - [ESDK-3614] - EMAJ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary'
-[GitHub # 113] - [ESDK-3615] - Add port info into OmmConsumerEvent::getChannelInformation
+- [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion  function doesn't work as expected
+- [Case Number: 07697024 and GitHub # 141] [ESDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
+- [Case Number: 08453636] [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra
+- [GitHub #117] [ESDK-3854] Support Posting in EMAJ
+- [GitHub #137] [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB
+- [Case Number: 08600487] [ESDK-3909] EMA Java indexOutOfBoundsException
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+ESDK Java Release 1.5.0.G1 (Jun 30, 2020)
+--------------------------------------------
+
+EMA Java 3.5.0.G1 Issues Resolved
+---------------------------------
+- [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra [Case Number: 08453636]
+- [ESDK-3854] Support Posting in EMAJ [GitHub #117]
+- [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB [GitHub #137]
+- [ESDK-3909] EMA Java indexOutOfBoundsException [Case Number: 08600487]
+- [ESDK-3948] Support Round Trip Latency Monitoring
+- [ESDK-3988] Change EMA EDP example to take RIC as an input
+
+ETA Java 3.5.0.G1 Issues Resolved
+---------------------------------
+- [ESDK-773] ETAJ Training Provider Module 5 fails to connect to infra
+- [ESDK-1650] rsslDoubleToReal conversion  function doesn't work as expected [Case Number: 06708565]
+- [ESDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024 and GitHub # 141]
+- [ESDK-3823] Support release of memory used by reactor events by adding maxEventsInPool
+- [ESDK-3847] ETA Build warnings using JDK1.11
+- [ESDK-3918] ETAJ+Reactor: Suppport Round Trip Latency Monitoring
+
+Both ETA Java and EMA Java 3.5.0.G1 Issues Resolved
+---------------------------------------------------
+- [ESDK-3696] OpenJDK 1.11 qualification
+- [ESDK-4084] EMA should not set compression threshold unless explicitly configured by application 
 
 --------------------------------------------
 ESDK Java Release 1.5.0.L1 (Mar 31, 2020)
@@ -25,17 +61,17 @@ ESDK Java Release 1.5.0.L1 (Mar 31, 2020)
 
 EMA Java 3.5.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3614] - EMAJ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary' - [Case Number: 07645599]
-[ESDK-3615] - Add port info into OmmConsumerEvent::getChannelInformation - [GitHub # 113]
-[ESDK-3677] - Update the example in the EMA Java config guide to set a default for NumInputBuffers
+- [ESDK-3614] EMAJ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary' [Case Number: 07645599]
+- [ESDK-3615] Add port info into OmmConsumerEvent::getChannelInformation [GitHub # 113]
+- [ESDK-3677] Update the example in the EMA Java config guide to set a default for NumInputBuffers
 
 ETA Java 3.5.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-45] - Watchlist example issue: With service down, posting is still attempted
+- [ESDK-45] Watchlist example issue: With service down, posting is still attempted
 
 Both ETA Java and EMA Java 3.5.0.L1 Issues Resolved
 ---------------------------------------------------
-[ESDK-3834] - Update default token service URL to use verison v1
+- [ESDK-3834] Update default token service URL to use verison v1
 
 --------------------------------------------
 ESDK Java Release 1.4.0.G1 (Jan 10, 2020)
@@ -43,11 +79,11 @@ ESDK Java Release 1.4.0.G1 (Jan 10, 2020)
 
 EMA Java 3.4.0.G1 Issues Resolved
 ---------------------------------
-[ESDK-3472] - Added support for NoWait dispatch timeout in Consumer and NiProvider [GitHub # 110] 
+- [ESDK-3472] Added support for NoWait dispatch timeout in Consumer and NiProvider [GitHub # 110] 
 
 Both ETA Java and EMA Java 3.4.0.L1 Issues Resolved
 ---------------------------------------------------
-[ESDK-3594] - Documentation changes with addtional rebranding changes
+- [ESDK-3594] Documentation changes with addtional rebranding changes
 
 --------------------------------------------
 ESDK Java Release 1.4.0.L1 (Nov 15, 2019)
@@ -55,20 +91,20 @@ ESDK Java Release 1.4.0.L1 (Nov 15, 2019)
 
 EMA Java 3.4.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3294] - Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error [Case Number: 07652023]
-[ESDK-3535] - Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub #120]
+- [ESDK-3294] Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error [Case Number: 07652023]
+- [ESDK-3535] Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub #120]
 
 ETA Java 3.4.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3204] - ESDK Documentation: Fix copyright link after removal of classic portal from esdk repository
-[ESDK-3504] - Add option for maxOutputBuffer on ProvPerf
-[ESDK-3506] - ETAJ VAConsumer with enable sessionMgnt fails to failover to backup connection on different location
+- [ESDK-3204] ESDK Documentation: Fix copyright link after removal of classic portal from esdk repository
+- [ESDK-3504] Add option for maxOutputBuffer on ProvPerf
+- [ESDK-3506] ETAJ VAConsumer with enable sessionMgnt fails to failover to backup connection on different location
 
 Both ETA Java and EMA Java 3.4.0.L1 Issues Resolved
 ---------------------------------------------------
-[ESDK-3340] - Rebrand ESDK documentation
-[ESDK-3476] - Upgrade httpcomponents-core dependency [GitHub # 114]
-[ESDK-3500] - Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
+- [ESDK-3340] Rebrand ESDK documentation
+- [ESDK-3476] Upgrade httpcomponents-core dependency [GitHub # 114]
+- [ESDK-3500] Enhancement Request: Add ability to retrieve number of tunnel stream buffers in use
 
 --------------------------------------------
 ESDK Java Release 1.3.1.G2 (Oct 18, 2019)
@@ -82,19 +118,19 @@ ESDK Java Release 1.3.1.G1 (Sept 25, 2019)
 
 EMA Java 3.3.1.G1 Issues Resolved
 ---------------------------------
-[ESDK-3440] - Provider fails to accept client connections with dispatch timeOut=NoWaitEnum [GitHub #110] 
+- [ESDK-3440] Provider fails to accept client connections with dispatch timeOut=NoWaitEnum [GitHub #110] 
 
 ETA Java 3.3.1.G1 Issues Resolved
 ---------------------------------
-[ESDK-3488] - WlLoginHandler does not clear the state of login request for EDP connection
-[ESDK-3423] - ETAJ fails to renew token when user specifies non-default token service URL
+- [ESDK-3488] WlLoginHandler does not clear the state of login request for EDP connection
+- [ESDK-3423] ETAJ fails to renew token when user specifies non-default token service URL
 
 Both ETA Java and EMA Java 3.3.1.G1 Issues Resolved
 ---------------------------------------------------
-[ESDK-3430] - Add error messages when EDP token request/renewal fails  
-[ESDK-3431] - Add TokenReissueRatio, ReissueTokenAttemptLimit and ReissueTokenAttemptLimit into ESDK Java 
-[ESDK-3433] - Support configuring RestRequestTimeOut, ReissueTokenAttemptLimit, ReissueTokenAttemptInterval, TokenReissueRatio 
-[ESDK-3468] - Add EDP Auth proactive token renewal with password grant prior to refresh token expiration
+- [ESDK-3430] Add error messages when EDP token request/renewal fails  
+- [ESDK-3431] Add TokenReissueRatio, ReissueTokenAttemptLimit and ReissueTokenAttemptLimit into ESDK Java 
+- [ESDK-3433] Support configuring RestRequestTimeOut, ReissueTokenAttemptLimit, ReissueTokenAttemptInterval, TokenReissueRatio 
+- [ESDK-3468] Add EDP Auth proactive token renewal with password grant prior to refresh token expiration
 
 --------------------------------------------
 ESDK Java Release 1.3.1.L1 (July 31, 2019)
@@ -106,27 +142,27 @@ This release adds ability in EMA to clone and copy messages in order to decode p
 
 EMA Java 3.3.1.L1 Issues Resolved
 ---------------------------------
-[ESDK-1750] - Clone/copy facility for message payload to decode it outside of onUpdateMsg() [Case Number: 06854285, 5201994]
+- [ESDK-1750] Clone/copy facility for message payload to decode it outside of onUpdateMsg() [Case Number: 06854285, 5201994]
 
 ETA Java 3.3.1.L1 Issues Resolved
 ---------------------------------
-[ESDK-509] - Add InitializationTimeout to EMA Config at Channel Level
-[ESDK-900] - Change documentation to reflect user-defined Config filename
-[ESDK-1332] - Update Consumer340 to increment postId
-[ESDK-2625] - Remove Mockito compile dependency from ETAJ [GitHub #94]
-[ESDK-3182] - Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
-[ESDK-3183] - ETAJ EDP should not perform service discovery lookup when address and port is set by user
-[ESDK-3202] - ESDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
-[ESDK-3268] - Expose ping stats and rsslReadEx in reactor
-[ESDK-3338] - Require clientId parameter in ETAJ Reactor
+- [ESDK-509] Add InitializationTimeout to EMA Config at Channel Level
+- [ESDK-900] Change documentation to reflect user-defined Config filename
+- [ESDK-1332] Update Consumer340 to increment postId
+- [ESDK-2625] Remove Mockito compile dependency from ETAJ [GitHub #94]
+- [ESDK-3182] Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
+- [ESDK-3183] ETAJ EDP should not perform service discovery lookup when address and port is set by user
+- [ESDK-3202] ESDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
+- [ESDK-3268] Expose ping stats and rsslReadEx in reactor
+- [ESDK-3338] Require clientId parameter in ETAJ Reactor
 
 Both ETA Java and EMA Java 3.3.1.L1 Issues Resolved
 ---------------------------------------------------
-[ESDK-2631] - Support JDK 1.11 & Upgrade to Gradle version 5.4.1
-[ESDK-2651] - Support OpenJDK 1.8
-[ESDK-3248] - With new gradle version, 5.4.1, update documentation to include the -PcommandLineArgs with --args
-[ESDK-3321] - Update httpclient and other ESDK jars from 4.X.X to recent version
-[ESDK-3410] - Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
+- [ESDK-2631] Support JDK 1.11 & Upgrade to Gradle version 5.4.1
+- [ESDK-2651] Support OpenJDK 1.8
+- [ESDK-3248] With new gradle version, 5.4.1, update documentation to include the -PcommandLineArgs with --args
+- [ESDK-3321] Update httpclient and other ESDK jars from 4.X.X to recent version
+- [ESDK-3410] Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
 
 --------------------------------------------
 ESDK Java Release 1.3.0.G1 (April 16, 2019)
@@ -134,12 +170,12 @@ ESDK Java Release 1.3.0.G1 (April 16, 2019)
 
 EMA Java 3.3.0.G1 Issues Resolved
 ---------------------------------
-[ESDK-3194] - Documentation improvements for EDP examples [GitHub #98]
+- [ESDK-3194] Documentation improvements for EDP examples [GitHub #98]
 
 ETA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3198] - Unsolicited Refresh is not fanned out to first stream when two streams are aggregated by Reactor Watchlist when second stream is a full view. 
-[ESDK-3196] - Fix to Watchlist consumer for -tunnel 
+- [ESDK-3198] Unsolicited Refresh is not fanned out to first stream when two streams are aggregated by Reactor Watchlist when second stream is a full view. 
+- [ESDK-3196] Fix to Watchlist consumer for -tunnel 
 
 --------------------------------------------
 ESDK Java Release 1.3.0.L1 (March 26, 2019)
@@ -151,24 +187,24 @@ This ESDK release provides support for EDP Session management (token renewal) an
 
 EMA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-484] - EMA Consumer application that requests a streaming source directory does not receive source directory updates. [Case Number: 05257390]
-[ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called [Case Number: 05533464] 
-[ESDK-1713] - Provides interface design and implementation for EMAJ to support session managment from the Reactor
-[ESDK-1766] - EMA returns messages to incorrect appClient when OmmConsumer is shared between multiple threads [Case Number: 06902288]
-[ESDK-2597] - EMA Consumer application running in User_Dispatch mode sometimes hangs when the upstream source disconnects 
-[ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output [Case Number: 07023993]
-[ESDK-2609] - Support JDK1.9
-[ESDK-2633] - EMA batch requests consume way more memory than the individual requests. [Case Number: 07244571]
-[ESDK-2652] - EMAJ Lack of item recovery if service was brought up after consumer was up
-[ESDK-2678] - Expose initializationTimeout configuration and make default to higher value for Encrypted
+- [ESDK-484] EMA Consumer application that requests a streaming source directory does not receive source directory updates. [Case Number: 05257390]
+- [ESDK-619] RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called [Case Number: 05533464] 
+- [ESDK-1713] Provides interface design and implementation for EMAJ to support session managment from the Reactor
+- [ESDK-1766] EMA returns messages to incorrect appClient when OmmConsumer is shared between multiple threads [Case Number: 06902288]
+- [ESDK-2597] EMA Consumer application running in User_Dispatch mode sometimes hangs when the upstream source disconnects 
+- [ESDK-2599] Require a new utility or interface similar to asHexString that shows raw hex output [Case Number: 07023993]
+- [ESDK-2609] Support JDK1.9
+- [ESDK-2633] EMA batch requests consume way more memory than the individual requests. [Case Number: 07244571]
+- [ESDK-2652] EMAJ Lack of item recovery if service was brought up after consumer was up
+- [ESDK-2678] Expose initializationTimeout configuration and make default to higher value for Encrypted
 
 ETA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
-[ESDK-1709] - Provides HTTP requests for blocking and non-blocking call for ETAJ
-[ESDK-1715] - Implements EDP service discovery and token management for ETAJ reactor
-[ESDK-2609] - Support JDK1.9
-[ESDK-2624] - DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
+- [ESDK-627] Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
+- [ESDK-1709] Provides HTTP requests for blocking and non-blocking call for ETAJ
+- [ESDK-1715] Implements EDP service discovery and token management for ETAJ reactor
+- [ESDK-2609] Support JDK1.9
+- [ESDK-2624] DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
 
 --------------------------------------------
 ESDK Java Release 1.2.2.L1 (November 15, 2018)
@@ -180,24 +216,23 @@ Provides the functionality for Non-interactive, Interactive, and Consumer applic
 
 EMA Java 3.2.2.L1 Issues Resolved
 ---------------------------------
-[ESDK-800] - EMA returns info of all services instead of the requested service [Case Number: 06453247]
-[ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request [Case Number: 05958811]
-[ESDK-1601] - Provide channel information in EMA's callback methods [Case Number: 06611113]
-[ESDK-1723] - IProvider application with UserDispatch has 100% cpu 
-[ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. [GitHub #76] 
-[ESDK-1753] - Add support for WindowsServer2016 
-[ESDK-2528] - Fix headings syntax in readme [GitHub Pull Request #89]
-[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
+- [ESDK-800] EMA returns info of all services instead of the requested service [Case Number: 06453247]
+- [ESDK-1125] EMA ConsPerf applications do not use specified username in Login Request [Case Number: 05958811]
+- [ESDK-1601] Provide channel information in EMA's callback methods [Case Number: 06611113]
+- [ESDK-1723] IProvider application with UserDispatch has 100% cpu 
+- [ESDK-1724] Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. [GitHub #76] 
+- [ESDK-1753] Add support for WindowsServer2016 
+- [ESDK-2528] Fix headings syntax in readme [GitHub Pull Request #89]
+- [ESDK-2555] Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
 
 ETA Java 3.2.2.L1 Issues Resolved
 ---------------------------------
-[ESDK-647] - EMAJ or ETAJ consumer sends duplicate FIDs in a snapshot view request
-[ESDK-1651] - UPAJConsPerf throws IllegalArgumentException while connecting when numerous threads 
-    attempt to initialize the channel at the same time
-[ESDK-1745] - File Descriptor leak - open a SocketChannel but never closed [GitHub #78]
-[ESDK-1753] - Add support for WindowsServer2016 
-[ESDK-2550] - ETA RDM Usage guide section 6.2.4 shows market price update instead of status
-[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
+- [ESDK-647] EMAJ or ETAJ consumer sends duplicate FIDs in a snapshot view request
+- [ESDK-1651] UPAJConsPerf throws IllegalArgumentException while connecting when numerous threads attempt to initialize the channel at the same time
+- [ESDK-1745] File Descriptor leak open a SocketChannel but never closed [GitHub #78]
+- [ESDK-1753] Add support for WindowsServer2016 
+- [ESDK-2550] ETA RDM Usage guide section 6.2.4 shows market price update instead of status
+- [ESDK-2555] Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
 
 --------------------------------------------
 ESDK Java Release 1.2.1.L1 (August 15, 2018)
@@ -209,30 +244,30 @@ Programmatic configuration for EMA Consumer, IProvider and NIProvider.
 
 EMA Java 3.2.1.L1 Issues Resolved
 ---------------------------------
-[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
-[ESDK-415] Clarify parent handle usage in EMA interface [Case Number: 05109877]
-[ESDK-677] Improve reference manual documentation for OmmArray.fixedwidth [Case Number: 05630733]
-[ESDK-705] Programmatic configuration for EMA Java [Case Number: 06558057]
-[ESDK-1513] Eliminate ESDK Java Warnings
-[ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up [Case Number: 06538048]
-[ESDK-1587] Deprecate unused StatusCodes [GitHub #65]
-[ESDK-1556] Update JavaDoc for OmmDateTime, OmmDate and OmmTime [GitHub #55]
-[ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
-[ESDK-1596] Data from two different services are mixed up when an item is requested from different services using the same OmmConsumer [Case Number: 06604413]
-[ESDK-1602] Fix EMA/ETA Java Gradle warnings
-[ESDK-1603] toString on a newly created ElementList throws NullPointerException [Case Number: 06589180]
-[ESDK-1640, ESDK-1646] Handle leak in OmmBaseImpl that results in issues while reconnecting [Case Number: 06669026, GitHub #72]
-[ESDK-1644] Fix README content Github to have change log (without duplicating information)
+- [ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+- [ESDK-415] Clarify parent handle usage in EMA interface [Case Number: 05109877]
+- [ESDK-677] Improve reference manual documentation for OmmArray.fixedwidth [Case Number: 05630733]
+- [ESDK-705] Programmatic configuration for EMA Java [Case Number: 06558057]
+- [ESDK-1513] Eliminate ESDK Java Warnings
+- [ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up [Case Number: 06538048]
+- [ESDK-1587] Deprecate unused StatusCodes [GitHub #65]
+- [ESDK-1556] Update JavaDoc for OmmDateTime, OmmDate and OmmTime [GitHub #55]
+- [ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
+- [ESDK-1596] Data from two different services are mixed up when an item is requested from different services using the same OmmConsumer [Case Number: 06604413]
+- [ESDK-1602] Fix EMA/ETA Java Gradle warnings
+- [ESDK-1603] toString on a newly created ElementList throws NullPointerException [Case Number: 06589180]
+- [ESDK-1640, ESDK-1646] Handle leak in OmmBaseImpl that results in issues while reconnecting [Case Number: 06669026 and GitHub #72]
+- [ESDK-1644] Fix README content Github to have change log (without duplicating information)
 
 ETA Java 3.2.1.L1 Issues Resolved
 ---------------------------------
-[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
-[ESDK-1513] Eliminate ESDK Java Warnings
-[ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
-[ESDK-1602] Fix EMA/ETA Java Gradle warnings
-[ESDK-1635] ETA should not have EDF/Queue examples
-[ESDK-1636] Consumer Module_2_Login training example does not properly fall through
-[ESDK-1644] Fix README content Github to have change log (without duplicating information)
+- [ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+- [ESDK-1513] Eliminate ESDK Java Warnings
+- [ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
+- [ESDK-1602] Fix EMA/ETA Java Gradle warnings
+- [ESDK-1635] ETA should not have EDF/Queue examples
+- [ESDK-1636] Consumer Module_2_Login training example does not properly fall through
+- [ESDK-1644] Fix README content Github to have change log (without duplicating information)
 
 -----------------------------------------
 ESDK Java Release 1.2.0.G1 (May 31, 2018)
@@ -240,17 +275,17 @@ ESDK Java Release 1.2.0.G1 (May 31, 2018)
 
 EMA Java 3.2.0.G1 Issues Resolved
 ---------------------------------
-[ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs [Case Number: 06037235]
-[ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function [Case Number: 06453670]
-[ESDK-1481, ESDK-1538] EMA hangs when uninitializing the OmmConsumer [Case Numbers: 06469347, 06466793]
-[[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
-[ESDK-1488] EMA Java does not decode the Buffer in a MapEntry key correctly [Case Number: 06486004]
+- [ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs [Case Number: 06037235]
+- [ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function [Case Number: 06453670]
+- [ESDK-1481, ESDK-1538] EMA hangs when uninitializing the OmmConsumer [Case Numbers: 06469347, 06466793]
+- [[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
+- [ESDK-1488] EMA Java does not decode the Buffer in a MapEntry key correctly [Case Number: 06486004]
 
 ETA Java 3.2.0.G1 Issues Resolved
 ---------------------------------
-[ESDK-1415] Incorrect usage of NaN in RealImpl.java [GitHub #51]
-[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
-[ESDK-1545] Patterns created for each instance rather than once [GitHub Pull Request #53]
+- [ESDK-1415] Incorrect usage of NaN in RealImpl.java [GitHub #51]
+- [ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
+- [ESDK-1545] Patterns created for each instance rather than once [GitHub Pull Request #53]
 
 -------------------------------------------
 ESDK Java Release 1.2.0.L1 (April 27, 2018)
@@ -264,32 +299,32 @@ EMA now supports encrypted connection type.
 
 EMA Java 3.2.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-487] EMA throws OmmInvalidUsageException if an empty Map is encoded [Case No. 05338640 and GitHub #28]
-[ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case No 05896732, 06042281 and 06443659]
-[ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case No 06436262 and GitHub #37]
-[ESDK-943] Update EMAJ OmmBuffer documentation
-[ESDK-417] Expose encrypted connection support through EMA Java
-[ESDK-813] Date/Time/DateTime to string and from string conversions should support ISO 8601 format.
-[ESDK-1120] ConcurrentModificationException in EMA [GitHub #34]
-[ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case No 06393015 and GitHub #41]
-[ESDK-1220] ConcurrentModificationException while invoking dispatch() [Case No 06107164]
-[ESDK-1307] ETAJ connected component could not set for HTTP and HTTPS type connections
-[ESDK-1360] EMA Java Tunnel Stream sub-stream with stream id gets NullPointerException
-[ESDK-1364] AckMsgImpl toString() method typo
-[ESDK-1365] ItemCallbackClient NullPointerException when rsslMsg state is null
-[ESDK-1388] Mavenize the build [GitHub #21]
-[ESDK-1431] EMA Java cannot handle negative FIDs in View request [Case No 06444345]
+- [ESDK-487] EMA throws OmmInvalidUsageException if an empty Map is encoded [Case Number: 05338640 and GitHub #28]
+- [ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case Number: 05896732, 06042281 and 06443659]
+- [ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case  Number: 06436262 and GitHub #37]
+- [ESDK-943] Update EMAJ OmmBuffer documentation
+- [ESDK-417] Expose encrypted connection support through EMA Java
+- [ESDK-813] Date/Time/DateTime to string and from string conversions should support ISO 8601 format.
+- [ESDK-1120] ConcurrentModificationException in EMA [GitHub #34]
+- [ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case  Number: 06393015 and GitHub #41]
+- [ESDK-1220] ConcurrentModificationException while invoking dispatch() [Case Number: 06107164]
+- [ESDK-1307] ETAJ connected component could not set for HTTP and HTTPS type connections
+- [ESDK-1360] EMA Java Tunnel Stream sub-stream with stream id gets NullPointerException
+- [ESDK-1364] AckMsgImpl toString() method typo
+- [ESDK-1365] ItemCallbackClient NullPointerException when rsslMsg state is null
+- [ESDK-1388] Mavenize the build [GitHub #21]
+- [ESDK-1431] EMA Java cannot handle negative FIDs in View request [Case Number: 06444345]
 
 ETA Java 3.2.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-676] EMA Java batch consumer encounters "Reactor is shutdown, submit aborted" error status [Case No 05633341]
-[ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case No 05896732, 06042281 and 06443659]
-[ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case No 06436262 and GitHub #37]
-[ESDK-1062] EMA Java encountered java.lang.NullPointerException [Case No 06107469 and 05958461]
-[ESDK-1064] Exception when set http with proxy using Consumer
-[ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case No 06393015 and GitHub #41]
-[ESDK-1227] Exception reactor.ReactorChannel.releaseBuffer(ReactorChannel.java:658)
-[ESDK-1300] Review/refactor ETAJ Watchlist Recovery & Cleanup Code
-[ESDK-1385] Watchlist consumer returns a ‘NullPointerException” when same item is used with private, private view & snapshot
-[ESDK-1388] Mavenize the build [GitHub #21]
-[ESDK-1489] ETA Java adds payload when container type is set to NO_DATA [Case No 06475782]
+- [ESDK-676] EMA Java batch consumer encounters "Reactor is shutdown, submit aborted" error status [Case Number: 05633341]
+- [ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case Number: 05896732, 06042281 and 06443659]
+- [ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case Number: 06436262 and GitHub #37]
+- [ESDK-1062] EMA Java encountered java.lang.NullPointerException [Case Number: 06107469 and 05958461]
+- [ESDK-1064] Exception when set http with proxy using Consumer
+- [ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case Number: 06393015 and GitHub #41]
+- [ESDK-1227] Exception reactor.ReactorChannel.releaseBuffer(ReactorChannel.java:658)
+- [ESDK-1300] Review/refactor ETAJ Watchlist Recovery & Cleanup Code
+- [ESDK-1385] Watchlist consumer returns a ‘NullPointerException” when same item is used with private, private view & snapshot
+- [ESDK-1388] Mavenize the build [GitHub #21]
+- [ESDK-1489] ETA Java adds payload when container type is set to NO_DATA [Case Number: 06475782]

@@ -33,7 +33,7 @@
 #define PerfLargeInteger  thomsonreuters::ema::access::Int64
 #endif
 
-typedef thomsonreuters::ema::access::UInt64 TimeValue;
+typedef thomsonreuters::ema::access::UInt64 PerfTimeValue;
 typedef thomsonreuters::ema::access::UInt64 TICKS;
 
 namespace perftool {
@@ -44,11 +44,11 @@ class GetTime
 {
 public:
 
-	static TimeValue getTimeSeconds();
-	static TimeValue  getTimeMilli();
-	static TimeValue  getTimeMicro();
-	static TimeValue   getTimeNano();
-	static TimeValue   getTicks();
+	static PerfTimeValue getTimeSeconds();
+	static PerfTimeValue  getTimeMilli();
+	static PerfTimeValue  getTimeMicro();
+	static PerfTimeValue   getTimeNano();
+	static PerfTimeValue   getTicks();
 
 	static double ticksPerSecond();
 	static double ticksPerMilli();

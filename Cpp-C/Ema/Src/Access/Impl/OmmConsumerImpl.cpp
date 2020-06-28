@@ -15,6 +15,7 @@
 #include "DirectoryCallbackClient.h"
 #include "LoginCallbackClient.h"
 #include "ChannelInfoImpl.h"
+#include "ChannelStatsImpl.h"
 #include "OmmInvalidUsageException.h"
 
 using namespace thomsonreuters::ema::access;
@@ -258,6 +259,11 @@ void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, R
 	consumerRole.watchlistOptions.postAckTimeout = getActiveConfig().postAckTimeout;
 	consumerRole.watchlistOptions.requestTimeout = getActiveConfig().requestTimeout;
 	consumerRole.watchlistOptions.maxOutstandingPosts = getActiveConfig().maxOutstandingPosts;
+
+	if (getActiveConfig().enableRtt)
+	{
+		consumerRole.pLoginRequest->flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
 }
 
 void OmmConsumerImpl::addSocket( RsslSocket fd )
@@ -360,6 +366,45 @@ void OmmConsumerImpl::getChannelInformation(ChannelInformation& ci) {
 	return;
   }
   return getChannelInformationImpl(pChannel->getRsslChannel(), OmmCommonImpl::ConsumerEnum, ci);
+}
+
+void OmmConsumerImpl::getChannelStatistics(ChannelStatistics& cs) {
+	Channel* pChannel;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorChannelStats rsslReactorChannelStats;
+
+	cs.clear();
+
+	_userLock.lock();
+
+	if (_state == NotInitializedEnum ||
+		(pChannel = getLoginCallbackClient().getActiveChannel()) == 0) {
+		_userLock.unlock();
+		EmaString temp("No active channel to getChannelStatistics.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	// if channel is closed, rsslReactorGetChannelStats does not succeed
+	if (rsslReactorGetChannelStats(const_cast<RsslReactorChannel*>(pChannel->getRsslChannel()),
+		&rsslReactorChannelStats, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Call to rsslReactorGetChannelStats() failed. Internal sysError='");
+		temp.append(rsslErrorInfo.rsslError.sysError)
+			.append("' Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append("' ")
+			.append("' Error Location='").append(rsslErrorInfo.errorLocation).append("' ")
+			.append("' Error text='").append(rsslErrorInfo.rsslError.text).append("'. ");
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+		return;
+	}
+
+	if (rsslReactorChannelStats.rsslChannelStats.tcpStats.flags & RSSL_TCP_STATS_RETRANSMIT)
+	{
+		cs.tcpRetransmitCount(rsslReactorChannelStats.rsslChannelStats.tcpStats.tcpRetransmitCount);
+	}
+
+	_userLock.unlock();
 }
 
 void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)

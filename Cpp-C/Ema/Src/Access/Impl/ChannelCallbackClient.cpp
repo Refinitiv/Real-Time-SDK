@@ -435,6 +435,14 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("SecurityProtocol ").append(pTempChannelCfg->securityProtocol).append(CR)
 			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR)
 			.append("Location ").append(pTempChannelCfg->location).append(CR);
+
+		if (pTempChannelCfg->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			cfgParameters
+				.append("WsMaxMsgSize ").append(pTempChannelCfg->wsMaxMsgSize).append(CR)
+				.append("WsProtocols ").append(pTempChannelCfg->wsProtocols).append(CR);
+		}
+
 		break;
 	}
 	case RSSL_CONN_TYPE_RELIABLE_MCAST:
@@ -579,6 +587,12 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			{
 				if (static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType != RSSL_CONN_TYPE_INIT)
 					reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType;
+
+				if (RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol)
+				{
+					reactorConnectInfo[i].rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsMaxMsgSize;
+					reactorConnectInfo[i].rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsProtocols.c_str());
+				}
 
 				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
 				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.openSSLCAStore = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->sslCAStore.c_str());
@@ -844,26 +858,30 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			return RSSL_RC_CRET_SUCCESS;
 		}
 #endif
-		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &pChannelConfig->compressionThreshold, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+		/* Set the compression threshold parameter if it is specified explicitly by users */
+		if (pChannelConfig->compressionThresholdSet)
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &pChannelConfig->compressionThreshold, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
-				EmaString temp( "Failed to set compression threshold on channel " );
-				temp.append( pChannel->getName() ).append( CR )
-				.append( "Consumer Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
-				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
-				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-				.append( "Error text " ).append( rsslErrorInfo.rsslError.text );
+				if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Failed to set compression threshold on channel ");
+					temp.append(pChannel->getName()).append(CR)
+						.append("Consumer Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
+						.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error text ").append(rsslErrorInfo.rsslError.text);
 
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+					_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+				}
+
+				_ommBaseImpl.closeChannel(pRsslReactorChannel);
+
+				return RSSL_RC_CRET_SUCCESS;
 			}
-
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
-			return RSSL_RC_CRET_SUCCESS;
 		}
 
 		pChannel->setRsslChannel( pRsslReactorChannel )
