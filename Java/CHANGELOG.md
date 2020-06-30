@@ -20,7 +20,7 @@ Customer Issues Resolved
 - [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion  function doesn't work as expected
 - [Case Number: 07697024 and GitHub # 141] [ESDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
 - [Case Number: 08453636] [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra
-- [GitHub #117] [ESDK-3854] Support Posting in EMAJ
+- [GitHub #117] [ESDK-3854] Support Posting in EMAJ Providers
 - [GitHub #137] [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB
 - [Case Number: 08600487] [ESDK-3909] EMA Java indexOutOfBoundsException
 
@@ -35,7 +35,7 @@ ESDK Java Release 1.5.0.G1 (Jun 30, 2020)
 EMA Java 3.5.0.G1 Issues Resolved
 ---------------------------------
 - [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra [Case Number: 08453636]
-- [ESDK-3854] Support Posting in EMAJ [GitHub #117]
+- [ESDK-3854] Support Posting in EMAJ Providers [GitHub #117]
 - [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB [GitHub #137]
 - [ESDK-3909] EMA Java indexOutOfBoundsException [Case Number: 08600487]
 - [ESDK-3948] Support Round Trip Latency Monitoring

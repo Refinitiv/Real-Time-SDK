@@ -16,7 +16,7 @@ This is a maintenance GitHub push which resolves customer issus, bugs and adds s
 
 Customer Issues Resolved
 ------------------
-- [GitHub # 117] [ESDK-504] Support Posting in EMA
+- [GitHub # 117] [ESDK-504] Support Posting in EMA Providers
 - [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion function doesn't work as expected 
 - [Case Number: 07697024] [GitHub # 141] [ESDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
 - [Case Number: 07823520] [ESDK-3441] ETA Reactor API persistently retains memory not released until shutdown (reactor events)
@@ -31,7 +31,7 @@ ESDK C++/C Release 1.5.0.G1 (Jun 30, 2020)
 
 EMA C++ 3.5.0.G1 Issues Resolved
 --------------------------------
-- [ESDK-504] Support Posting in EMA [GitHub # 117]
+- [ESDK-504] Support Posting in EMA Providers [GitHub # 117]
 - [ESDK-1440] Rename EMAC++ Unit Test input files to be more descriptive
 - [ESDK-2587] Cons170 memory leak reported from valgrind
 - [ESDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024] [GitHub # 141]
