@@ -1827,6 +1827,14 @@ public class Reactor
             return ReactorReturnCodes.FAILURE;
         }
 
+        if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+        {
+            if (reactorChannel.role().type() == ReactorRoleTypes.CONSUMER) {
+                ((ConsumerRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
+                ((ConsumerRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
+            }
+        }
+
         if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN || eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 		{
         	if (reactorChannel.watchlist() == null)
