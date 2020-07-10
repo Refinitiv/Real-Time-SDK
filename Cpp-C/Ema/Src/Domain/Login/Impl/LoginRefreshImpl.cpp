@@ -17,6 +17,10 @@ using namespace thomsonreuters::ema::access;
 LoginRefreshImpl::LoginRefreshImpl() :
 	_pElementList(0),
 	_rsslState(new RsslState())
+#ifdef __EMA_COPY_ON_SET__
+	, _statusText()
+#endif
+
 {
 	clear();
 }
@@ -24,6 +28,9 @@ LoginRefreshImpl::LoginRefreshImpl() :
 LoginRefreshImpl::LoginRefreshImpl(const LoginRefreshImpl& other) :
 	_pElementList(0),
 	_rsslState(new RsslState())
+#ifdef __EMA_COPY_ON_SET__
+	, _statusText()
+#endif
 {
 	*this = other;
 }
@@ -31,6 +38,9 @@ LoginRefreshImpl::LoginRefreshImpl(const LoginRefreshImpl& other) :
 LoginRefreshImpl::LoginRefreshImpl(const RefreshMsg& refreshMsg) :
 	_pElementList(0),
 	_rsslState(new RsslState())
+#ifdef __EMA_COPY_ON_SET__
+	, _statusText()
+#endif
 {
 	clear();
 
@@ -94,6 +104,10 @@ LoginRefreshImpl& LoginRefreshImpl::clear()
 	_nameType = USER_NAME;
 	_domainType = MMT_LOGIN;
 
+#ifdef __EMA_COPY_ON_SET__
+	_statusText.clear();
+#endif
+
 	return *this;
 }
 
@@ -152,8 +166,14 @@ LoginRefreshImpl& LoginRefreshImpl::operator=(const LoginRefreshImpl& other)
 	_rsslState->streamState = other._state.getStreamState();
 	_rsslState->dataState = other._state.getDataState();
 	_rsslState->code = other._state.getCode();
+#ifdef __EMA_COPY_ON_SET__
+	_statusText = other._statusText;
+	_rsslState->text.data = (char*)_statusText.c_str();
+	_rsslState->text.length = _statusText.length();
+#else
 	_rsslState->text.data = (char*)other._state.getStatusText().c_str();
 	_rsslState->text.length = other._state.getStatusText().length();
+#endif
 	_stateText = other._stateText;
 	_seqNum = other._seqNum;
 	_domainType = other._domainType;
@@ -388,8 +408,14 @@ LoginRefreshImpl& LoginRefreshImpl::state(const OmmState::StreamState& streamSta
 	_rsslState->streamState = streamState;
 	_rsslState->dataState = dataState;
 	_rsslState->code = statusCode;
+#ifdef __EMA_COPY_ON_SET__
+	_statusText = statusText;
+	_rsslState->text.data = (char*)_statusText.c_str();
+	_rsslState->text.length = _statusText.length();
+#else
 	_rsslState->text.data = (char*)statusText.c_str();
 	_rsslState->text.length = statusText.length();
+#endif
 	_stateText.setInt(_rsslState->text.data, _rsslState->text.length, false);
 
 	return *this;
@@ -403,8 +429,14 @@ LoginRefreshImpl& LoginRefreshImpl::state(const OmmState& state)
 	_rsslState->streamState = state.getStreamState();
 	_rsslState->dataState = state.getDataState();
 	_rsslState->code = (UInt8)state.getStatusCode();
+#ifdef __EMA_COPY_ON_SET__
+	_statusText = state.getStatusText();
+	_rsslState->text.data = (char*)_statusText.c_str();
+	_rsslState->text.length = _statusText.length();
+#else
 	_rsslState->text.data = (char*)state.getStatusText().c_str();
 	_rsslState->text.length = state.getStatusText().length();
+#endif
 	_stateText.setInt(_rsslState->text.data, _rsslState->text.length, false);
 
 	return *this;
