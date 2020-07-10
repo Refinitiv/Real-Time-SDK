@@ -15,6 +15,8 @@
 #include "OmmIProviderConfig.h"
 
 #include "rtr/rsslTransport.h"
+#include "rtr/rwfNet.h"
+
 
 #define DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS      false
 #define DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM      false
@@ -44,8 +46,8 @@
 #define DEFAULT_NUM_INPUT_BUFFERS					    10
 #define DEFAULT_SYS_SEND_BUFFER_SIZE				    0
 #define DEFAULT_SYS_RECEIVE_BUFFER_SIZE				    0
-#define DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE	        65535	
-#define DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE        65535	
+#define DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE	        (RWF_MAX_16)	
+#define DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE        (RWF_MAX_16)	
 #define DEFAULT_HIGH_WATER_MARK						    0
 #define DEFAULT_HANDLE_EXCEPTION					    true
 #define DEFAULT_HOST_NAME							    EmaString( "localhost" )
@@ -92,7 +94,8 @@
 #define DEFAULT_TWAIT								  3
 #define DEFAULT_TBCHOLD								  3
 #define DEFAULT_TPPHOLD								  3
-#define DEFAULT_USER_QLIMIT							  65535
+#define DEFAULT_USER_QLIMIT							  (RWF_MAX_16)
+#define LOWLIMIT_USER_QLIMIT						  4096
 #define DEFAULT_XML_TRACE_DUMP						  false
 #define DEFAULT_XML_TRACE_FILE_NAME					  EmaString( "EmaTrace" )
 #define DEFAULT_XML_TRACE_HEX						  false
@@ -111,7 +114,7 @@
 #define DEFAULT_CLOSE_CHANNEL_FROM_FAILURE			  true
 #define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
-#define DEFAULT_OUTPUT_BUFFER_SIZE					  65535
+#define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
 #define DEFAULT_ENABLE_RTT							  false
 
 

@@ -5,6 +5,7 @@ set(_UnitTestSrcFiles
         DataUnitTest.cpp DataUnitTest.h
         DateTimeTests.cpp DomainTypeTest.cpp
         ElementListTests.cpp
+        EmaActiveConfigTest.cpp
         EmaAppClient.cpp EmaAppClient.h
         EmaBufferTest.cpp EmaConfigTest.cpp
         EmaStringTests.cpp EmaVectorTest.cpp

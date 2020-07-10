@@ -469,7 +469,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
 	{
-		_activeConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
+		_activeConfig.outputBufferSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
