@@ -1606,6 +1606,17 @@ static void populateJavaVersionInfo(JNIEnv *env, RsslLibraryVersionInfo *verInfo
 	/* set productDate field */
 	jtext = (*env)->NewStringUTF(env, verInfo->productDate);
 	(*env)->SetObjectField(env, *jverinfo, fid, jtext);
+
+	/* get interfaceVersion field id */
+	fid = (*env)->GetFieldID(env, rsslLibraryVersionInfoClass, "interfaceVersion", "Ljava/lang/String;");
+	if (fid == NULL)
+	{
+		return;
+	}
+
+	/* set interfaceVersion field */
+	jtext = (*env)->NewStringUTF(env, verInfo->interfaceVersion);
+	(*env)->SetObjectField(env, *jverinfo, fid, jtext);
 }
 
 /* copies a C RetVal and RsslReadOutArgs variable to a Java ReadArgs class */

@@ -37,6 +37,7 @@ RSSL_API void rsslQueryMessagesLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
 	pVerInfo->productDate = rsslDeltaDate;
 	pVerInfo->internalVersion = rsslVersion;
 	pVerInfo->productVersion = rsslPackage;
+	pVerInfo->interfaceVersion = rsslInterfaceVersion;
 }
 
 

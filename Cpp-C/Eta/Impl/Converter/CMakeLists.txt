@@ -1,5 +1,10 @@
 
-project(rwfJsonConverter VERSION 1.2.0.0  )
+project(rwfJsonConverter 
+			VERSION ${esdk_VERSION_MAJOR}.${librsslJsonConverter_VERSION_MINOR}.${librsslJsonConverter_VERSION_PATCH}.${librsslJsonConverter_VERSION_TWEAK}
+        )
+
+DEBUG_PRINT(Eta_VERSION)
+DEBUG_PRINT(rwfJsonConverter_VERSION)
 
 if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 
@@ -44,6 +49,7 @@ set(rsslJCSrcFiles  rsslJsonConverter.C
 					Include/rtr/rwfToJsonConverter.h
 					Include/rtr/rjcstring.h
 					Include/rtr/EnumTableDefinition.h
+					${Eta_BINARY_DIR}/Include/jsonVersion.h
 					)
 
 set(rsslJCIncFiles 
@@ -125,7 +131,7 @@ else()
 								PREFIX "" 
 								OUTPUT_NAME librsslJsonConverter
 								VERSION
-									${Eta_VERSION}
+									${rwfJsonConverter_VERSION}
 								SOVERSION 
 									${librsslJsonConverter_SO_VERSION} 
 						)

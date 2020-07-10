@@ -38,6 +38,7 @@
 #define RSSL_ReleaseType		"@esdk_RELEASE_TYPE@"
 #define RSSL_ProdName			"Elektron Transport API (ETA) C Edition"
 #define RSSL_Package			" PACKAGE " RSSL_ExternalName " " RSSL_ReleaseType
+#define RSSL_InterfaceVersion	"@librssl_SO_VERSION@"
 
 static char rsslOrigin[]    = RSSL_LegalCopyRight;
 static char rsslVersion[]   = " VERSION " RSSL_InternalName;
@@ -47,6 +48,7 @@ static char rsslPackage[]   = RSSL_Package;
 static char rsslDeltaDate[] = " @esdk_timestamp@ " RSSL_Year;
 static char rsslComponentVersionStart[] = RSSL_ExternalName ".";
 static char rsslComponentVersionEnd[] = "." RSSL_ReleaseType;
+static char rsslInterfaceVersion[] = RSSL_InterfaceVersion;
 
 #define RSSL_ComponentVersionStart_Len strlen(rsslComponentVersionStart)
 #define RSSL_ComponentVersionEnd_Len strlen(rsslComponentVersionEnd)

@@ -8,6 +8,7 @@ DEBUG_PRINT(Eta_VERSION)
 #Setup version file generation.
 configure_file(Include/rsslVersion.h.in Include/rsslVersion.h @ONLY)
 configure_file(Impl/Ansi/ansiVersion.h.in Impl/Ansi/ansiVersion.h @ONLY)
+configure_file(Impl/Converter/Include/rtr/jsonVersion.h.in Include/jsonVersion.h @ONLY)
 
 if (NOT RCDEV_REL_${PROJECT_NAME}_LIB_DIR)
     set(RCDEV_REL_${PROJECT_NAME}_LIB_DIR ${PROJECT_NAME}/Libs)
