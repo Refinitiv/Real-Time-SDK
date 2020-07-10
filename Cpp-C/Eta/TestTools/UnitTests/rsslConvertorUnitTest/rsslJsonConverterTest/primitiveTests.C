@@ -791,7 +791,7 @@ TEST_P(InvalidUintStringTestFixture, InvalidUintStringTests)
 {
 	const char* uintString = GetParam();
 
-	std::ostringstream jsonStringStream("", ios_base::app);
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
 	std::string jsonString;
 
 	/* Build message containing the invalid UINT64 value. */
