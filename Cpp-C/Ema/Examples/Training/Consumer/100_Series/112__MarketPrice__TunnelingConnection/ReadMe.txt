@@ -21,8 +21,6 @@ Detailed Description
 including:
 -ph Proxy host name
 -pp Proxy port number
--spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections
--spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections
 -spTLSv1.2 enable use of cryptopgrahic protocol TLSv1.2 used with linux encrypted connections
 -libsslName name of the libssl.so shared library
 -libcryptoName name of the libcrypto.so shared library

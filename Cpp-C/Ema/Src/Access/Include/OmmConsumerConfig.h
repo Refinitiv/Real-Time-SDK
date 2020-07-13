@@ -54,8 +54,6 @@ public :
 	enum EncryptionProtocolTypes 
 	{
 		ENC_NONE = 0x00,			/*!< @brief (0x00) No encryption. */
-		ENC_TLSV1 = 0x01,			/*!< @brief (0x02) Encryption using TLSv1 protocol */
-		ENC_TLSV1_1 = 0x02,			/*!< @brief (0x04) Encryption using TLSv1.1 protocol */
 		ENC_TLSV1_2 = 0x04			/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
 	};
 
