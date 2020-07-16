@@ -349,83 +349,76 @@ class ServiceImpl implements Service
 
     private int decodeFilter(DecodeIterator dIter)
     {
+        int returnCode = CodecReturnCodes.SUCCESS;
         switch (filterEntry.id())
         {
             case Directory.ServiceFilterIds.INFO:
                 ServiceInfo infoFilter = info();
-                infoFilter.action(filterEntry.action());
                 applyHasInfo();
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return infoFilter.decode(dIter);
+                    returnCode =  infoFilter.decode(dIter);
                 }
-
+                infoFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.STATE:
                 ServiceState stateFilter = state();
-                stateFilter.action(filterEntry.action());
                 applyHasState();
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return stateFilter.decode(dIter);
+                    returnCode = stateFilter.decode(dIter);
                 }
-
+                stateFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.GROUP:
                 Service.ServiceGroup groupFilter = new Service.ServiceGroup();
                 groupStateList().add(groupFilter);
-                groupFilter.action(filterEntry.action());
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return groupFilter.decode(dIter);
+                    returnCode = groupFilter.decode(dIter);
                 }
-
+                groupFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.LOAD:
                 ServiceLoad loadFilter = load();
-                loadFilter.action(filterEntry.action());
                 applyHasLoad();
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return loadFilter.decode(dIter);
+                    returnCode = loadFilter.decode(dIter);
                 }
-
+                loadFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.DATA:
                 ServiceData dataFilter = data();
-                dataFilter.action(filterEntry.action());
                 applyHasData();
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return dataFilter.decode(dIter);
+                    returnCode = dataFilter.decode(dIter);
                 }
-
+                dataFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.LINK:
                 ServiceLinkInfo linkFilter = link();
-                linkFilter.action(filterEntry.action());
                 applyHasLink();
-                if (filterEntry.action() != FilterEntryActions.CLEAR)
-                {
-                    return linkFilter.decode(dIter);
+                if (filterEntry.action() != FilterEntryActions.CLEAR) {
+                    returnCode = linkFilter.decode(dIter);
                 }
-
+                linkFilter.action(filterEntry.action());
                 break;
             case Directory.ServiceFilterIds.SEQ_MCAST:
                 //ServiceSeqMcastInfo SeqMcastFilter = seqMcastInfo();
-                seqMcast.action(filterEntry.action());
                 applyHasLink();
                 if (filterEntry.action() != FilterEntryActions.CLEAR)
                 {
-                    return seqMcast.decode(dIter);
+                    returnCode = seqMcast.decode(dIter);
                 }
-
+                seqMcast.action(filterEntry.action());
                 break;
             default:
                 return CodecReturnCodes.FAILURE;
         }
 
-        return CodecReturnCodes.SUCCESS;
+        return returnCode;
     }
 
     public int serviceId()

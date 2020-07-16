@@ -666,6 +666,7 @@ public class DirectoryJunit
     private void verifyServiceState(Service.ServiceState rdmServiceState, Service.ServiceState rdmServiceState2)
     {
         assertEquals(rdmServiceState.flags(), rdmServiceState2.flags());
+        assertEquals(rdmServiceState.action(), rdmServiceState2.action());
         if (rdmServiceState2.checkHasAcceptingRequests())
             assertEquals(rdmServiceState.acceptingRequests(), rdmServiceState2.acceptingRequests());
         assertEquals(rdmServiceState.serviceState(), rdmServiceState2.serviceState());
@@ -685,6 +686,7 @@ public class DirectoryJunit
     private void verifyServiceGroupState(Service.ServiceGroup rdmServiceGroupState, Service.ServiceGroup rdmServiceGroupState2)
     {
         assertEquals(rdmServiceGroupState.flags(), rdmServiceGroupState2.flags());
+        assertEquals(rdmServiceGroupState.action(), rdmServiceGroupState2.action());
         if (rdmServiceGroupState2.checkHasMergedToGroup())
             assertEquals(rdmServiceGroupState.mergedToGroup().toString(), rdmServiceGroupState2.mergedToGroup().toString());
         assertEquals(rdmServiceGroupState.group().toString(), rdmServiceGroupState2.group().toString());
@@ -705,6 +707,7 @@ public class DirectoryJunit
     {
         assertEquals(rdmServiceData.flags(), rdmServiceData2.flags());
         assertEquals(rdmServiceData.type(), rdmServiceData2.type());
+        assertEquals(rdmServiceData.action(), rdmServiceData2.action());
         if (rdmServiceData.checkHasData())
         {
             assertEquals(rdmServiceData.dataType(), rdmServiceData2.dataType());
@@ -1320,7 +1323,7 @@ public class DirectoryJunit
     private void verifyServiceInfo(Service.ServiceInfo rdmServiceInfo, Service.ServiceInfo rdmServiceInfoDec)
     {
         assertEquals(rdmServiceInfo.flags(), rdmServiceInfoDec.flags());
-
+        assertEquals(rdmServiceInfo.action(), rdmServiceInfoDec.action());
         if (rdmServiceInfo.checkHasAcceptingConsumerStatus())
         {
             assertEquals(rdmServiceInfo.acceptingConsumerStatus(), rdmServiceInfoDec.acceptingConsumerStatus());
@@ -1590,6 +1593,7 @@ public class DirectoryJunit
     private void verifyServiceLinkList(Service.ServiceLinkInfo linkList, Service.ServiceLinkInfo linkListDec)
     {
         assertEquals(linkList.linkList().size(), linkListDec.linkList().size());
+        assertEquals(linkList.action(), linkList.action());
         Service.ServiceLink rdmServiceLink = linkList.linkList().get(0);
         Service.ServiceLink rdmServiceLinkDec = linkListDec.linkList().get(0);
         assertEquals(rdmServiceLink.flags(), rdmServiceLinkDec.flags());
@@ -1675,6 +1679,7 @@ public class DirectoryJunit
 
     private void verifyServiceLoad(Service.ServiceLoad rdmServiceLoad, Service.ServiceLoad rdmServiceLoadDec)
     {
+        assertEquals(rdmServiceLoad.action(), rdmServiceLoadDec.action());
         if (rdmServiceLoadDec.checkHasLoadFactor())
             assertEquals(rdmServiceLoad.loadFactor(), rdmServiceLoadDec.loadFactor());
 
