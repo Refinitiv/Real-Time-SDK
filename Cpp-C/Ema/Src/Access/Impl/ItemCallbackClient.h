@@ -312,7 +312,7 @@ private :
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslRequestMsg* );
 	bool submit( RsslCloseMsg* );
-	bool submit( RsslPostMsg* );
+	bool submit( RsslPostMsg*, RsslBuffer* pServiceName );
 
 	static const EmaString		_clientName;
 

@@ -1724,7 +1724,18 @@ bool LoginItem::submit( const PostMsg& postMsg )
 	/* if the PostMsg has the Service Name */
 	if ( postMsgEncoder.hasServiceName() )
 	{
-		EmaString serviceName = postMsgEncoder.getServiceName();
+		const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory(postMsgEncoder.getServiceName());
+		if (!pDirectory)
+		{
+			EmaString temp("Failed to submit PostMsg on item stream. Reason: Service name of '");
+			temp.append(postMsgEncoder.getServiceName()).append("' is not found.");
+
+			_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+
+			return false;
+		}
+
+		const EmaString& serviceName = postMsgEncoder.getServiceName();
 		RsslBuffer serviceNameBuffer;
 		serviceNameBuffer.data = (char*) serviceName.c_str();
 		serviceNameBuffer.length = serviceName.length();

@@ -504,7 +504,31 @@ bool SingleItem::close()
 
 bool SingleItem::submit( const PostMsg& postMsg )
 {
-	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg() );
+	const PostMsgEncoder& postMsgEncoder = static_cast<const PostMsgEncoder&>( postMsg.getEncoder() );
+
+	if ( postMsgEncoder.hasServiceName() )
+	{
+		const Directory* pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( postMsgEncoder.getServiceName() );
+		if ( !pDirectory )
+		{
+			EmaString temp("Failed to submit PostMsg on item stream. Reason: Service name of '");
+			temp.append(postMsgEncoder.getServiceName()).append("' is not found.");
+
+			_ommBaseImpl.handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+
+			return false;
+		}
+
+		const EmaString& serviceName = pDirectory->getName();
+
+		RsslBuffer serviceNameBuffer = RSSL_INIT_BUFFER;
+		serviceNameBuffer.data = (char*)serviceName.c_str();
+		serviceNameBuffer.length = serviceName.length();
+
+		return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), &serviceNameBuffer );
+	}
+
+	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), NULL );
 }
 
 bool SingleItem::submit( const GenericMsg& genMsg )
@@ -748,7 +772,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	return true;
 }
 
-bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
+bool SingleItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName )
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
@@ -759,6 +783,8 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 	submitMsgOpts.minorVersion = _pDirectory->getChannel()->getRsslChannel()->minorVersion;
 	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
 	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+
+	submitMsgOpts.pServiceName = pServiceName;
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
