@@ -34,20 +34,24 @@ public class EncryptedSocketHelper extends SocketHelper
     }
 
     @Override
-    public boolean connect(SocketAddress remote) throws IOException
+    public boolean connect(SocketAddress remote, boolean proxy) throws IOException
     {
         checkCrypto();
-        boolean result = super.connect(remote);
-        _crypto.initializeEngine(_socket);
-        _completedHandshake = false;
+        boolean result = super.connect(remote, proxy);
+        if(proxy == false) {
+	        _crypto.initializeEngine(_socket);
+	        _completedHandshake = false;
+	        _completedProxy = true;
+        }
         return result;
     }
-
+    
     @Override
     public void initialize(ConnectOptions options) throws IOException
     {
         _crypto = new CryptoHelper(options);
         super.initialize(options);
+        _completedHandshake = false;
     }
 
     @Override
@@ -62,13 +66,21 @@ public class EncryptedSocketHelper extends SocketHelper
     public boolean finishConnect() throws IOException
     {
         boolean connected = super.finishConnect();
-        if (connected && !_completedHandshake)
+        if (connected && _completedProxy == true && !_completedHandshake)
         {
             checkCrypto();
             _crypto.doHandshake();
             _completedHandshake = true;
         }
         return connected;
+    }
+    
+    public boolean postProxyInit() throws IOException
+    {
+    	_completedProxy = true;
+    	_crypto.initializeEngine(_socket);
+        _completedHandshake = false;
+    	return true;
     }
 
     private void checkCrypto() throws IOException

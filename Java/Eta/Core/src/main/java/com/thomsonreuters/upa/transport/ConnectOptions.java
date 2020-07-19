@@ -80,6 +80,14 @@ public interface ConnectOptions
      * 
      */
     public CredentialsInfo credentialsInfo();
+    
+    /**
+     * Encryption connection options
+     * 
+     * @return the EncryptionOptions
+     * 
+     */
+    public EncryptionOptions encryptionOptions();
 
     /**
      * The type of compression the client would like performed for this

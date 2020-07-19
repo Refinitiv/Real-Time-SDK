@@ -80,6 +80,7 @@ class CryptoHelper
 {
 
     public static final String[] CLIENT_PROTOCOLS = {"TLSv1.2"};
+    
 
     /**
      * "HTTPS" algorithm performs endpoint verification as described in 
@@ -99,13 +100,41 @@ class CryptoHelper
         javax.net.ssl.KeyManagerFactory clientKMF;
         javax.net.ssl.TrustManagerFactory clientTMF;
 
-        // keystore password
-        String keystorePassword = options.tunnelingInfo().KeystorePasswd();
-        String keystoreFile = options.tunnelingInfo().KeystoreFile();
+        String keystorePassword;
+        String keystoreFile;
+        String keystoreType;
+        String securityProvider;
+        String trustManagerAlgorithm;
+        String securityProtocol;
+        String keyManagerAlgorithm;
+
+                
+    	if(options.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
+    	{
+    		keystorePassword = options.encryptionOptions().KeystorePasswd();
+    		keystoreFile = options.encryptionOptions().KeystoreFile();
+    		keystoreType = options.encryptionOptions().KeystoreType();
+    		securityProvider = options.encryptionOptions().SecurityProvider();
+    		trustManagerAlgorithm = options.encryptionOptions().TrustManagerAlgorithm();
+    		securityProtocol = options.encryptionOptions().SecurityProtocol();
+    		keyManagerAlgorithm = options.encryptionOptions().KeyManagerAlgorithm();
+    	}
+    	else
+    	{
+    		keystorePassword = options.tunnelingInfo().KeystorePasswd();
+            keystoreFile = options.tunnelingInfo().KeystoreFile();
+            keystoreType = options.tunnelingInfo().KeystoreType();
+            securityProvider = options.tunnelingInfo().SecurityProvider();
+            trustManagerAlgorithm = options.tunnelingInfo().TrustManagerAlgorithm();
+            securityProtocol = options.tunnelingInfo().SecurityProtocol();
+            keyManagerAlgorithm = options.tunnelingInfo().KeyManagerAlgorithm();
+    	}
+        
         char[] keystorePasswordChars = keystorePassword != null ? keystorePassword.toCharArray() : null;
         if (keystoreFile != null && !keystoreFile.isEmpty())
         {
-            clientKS = initializeClientKeystore(keystorePasswordChars, keystoreFile, options.tunnelingInfo().KeystoreType());
+
+        		clientKS = initializeClientKeystore(keystorePasswordChars, keystoreFile, keystoreType);
         }
         else
         {
@@ -116,16 +145,16 @@ class CryptoHelper
         // create a TrustManagerFactory
         try
         {
-            if (options.tunnelingInfo().TrustManagerAlgorithm().equals(""))
+            if (trustManagerAlgorithm.equals(""))
             {
                 // get default trust management algorithm for security provider
                 // (default: PKIX for security provider SunJSSE)
                 clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm(),
-                        options.tunnelingInfo().SecurityProvider());
+                        securityProvider);
             }
             else
-                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(options.tunnelingInfo().TrustManagerAlgorithm(),
-                        options.tunnelingInfo().SecurityProvider());
+                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(trustManagerAlgorithm,
+                		securityProvider);
         }
         catch (NoSuchAlgorithmException | NoSuchProviderException e)
         {
@@ -145,18 +174,18 @@ class CryptoHelper
         // create a Java SSLContext object
         try
         {
-            cntx = SSLContext.getInstance(options.tunnelingInfo().SecurityProtocol());
-            if (options.tunnelingInfo().KeyManagerAlgorithm().equals(""))
+            cntx = SSLContext.getInstance(securityProtocol);
+            if (keyManagerAlgorithm.equals(""))
             {
                 // get default key management algorithm for security provider
                 // (default: SunX509 for security provider SunJSSE)
                 clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm(),
-                        options.tunnelingInfo().SecurityProvider());
+                		securityProvider);
             }
             else
             {
                 clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(options.tunnelingInfo().KeyManagerAlgorithm(),
-                        options.tunnelingInfo().SecurityProvider());
+                		securityProvider);
             }
             clientKMF.init(clientKS, keystorePasswordChars);
 
@@ -174,24 +203,33 @@ class CryptoHelper
             throw new IOException("KeyManagementException when initializing SSLContext:  " + e.getMessage());
         }
         
-        _connectionKeyManagerAlgorigthm = options.tunnelingInfo().KeyManagerAlgorithm();
+        _connectionKeyManagerAlgorigthm = keyManagerAlgorithm;
+        _hostName = options.unifiedNetworkInfo().address();
+        try
+        {
+            // the service is specified as a port number
+            _hostPort = Integer.parseInt(options.unifiedNetworkInfo().serviceName());
+        }
+        catch (Exception e)
+        {
+            // the service is a name
+            _hostPort = GetServiceByName.getServiceByName(options.unifiedNetworkInfo().serviceName());
+        }
+        
     }
 
     public void initializeEngine(SocketChannel socketChannel) throws IOException
     {
         _socketChannel = socketChannel;
-        InetSocketAddress remoteAddress = (InetSocketAddress) socketChannel.getRemoteAddress();
-        String hostName = remoteAddress.getHostName();
-        int port = remoteAddress.getPort();
 
         // setup Java SSLEngine to be used
-        _engine = cntx.createSSLEngine(hostName, port);
+        _engine = cntx.createSSLEngine(_hostName, _hostPort);
         _engine.setUseClientMode(true);
 
         SSLParameters sslParameters = new SSLParameters();
         sslParameters.setProtocols(CLIENT_PROTOCOLS);
         sslParameters.setEndpointIdentificationAlgorithm(ENDPOINT_IDENTIFICATION_ALGORITHM);
-        sslParameters.setServerNames(Collections.singletonList(new SNIHostName(hostName)));
+        sslParameters.setServerNames(Collections.singletonList(new SNIHostName(_hostName)));
         _engine.setSSLParameters(sslParameters);
 
         // get the largest possible buffer size for the application data buffers that are used for Java SSLEngine
@@ -575,6 +613,8 @@ class CryptoHelper
 
     private String _connectionKeyManagerAlgorigthm;
     private SocketChannel _socketChannel;
+    private String _hostName;
+    private int _hostPort;
 
     public SSLEngine _engine;
 

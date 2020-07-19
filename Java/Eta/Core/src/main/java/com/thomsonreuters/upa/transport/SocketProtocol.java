@@ -12,6 +12,7 @@ import com.thomsonreuters.upa.test.network.replay.NetworkReplayFactory;
 class SocketProtocol implements ProtocolInt 
 {
     private int _connectionType;
+    private int _subProtocol;
 
     class TrackingPool extends Pool
     {
@@ -72,6 +73,18 @@ class SocketProtocol implements ProtocolInt
         // The global lock is locked by Transport
 
         _connectionType = options.connectionType();
+        if(_connectionType == ConnectionTypes.ENCRYPTED)
+        {
+        	if(options.tunnelingInfo().tunnelingType().equals("None"))
+        	{
+        		_subProtocol = options.encryptionOptions().connectionType();
+        	}
+        	else
+        	{
+        		_subProtocol = ConnectionTypes.HTTP;
+        	}
+        }
+        
         // create pools used by this transport
         // 1. add channels to channel pool
         for (int i = 0; i < NUMBER_SOCKET_CHANNELS; i++)
@@ -92,12 +105,12 @@ class SocketProtocol implements ProtocolInt
 
     boolean isHTTP()
     {
-        return _connectionType == ConnectionTypes.HTTP || _connectionType == ConnectionTypes.ENCRYPTED;
+        return _connectionType == ConnectionTypes.HTTP || _subProtocol == ConnectionTypes.HTTP;
     }
 
     boolean isEncrypted()
     {
-        return _connectionType == ConnectionTypes.ENCRYPTED || _connectionType == ConnectionTypes.ENCRYPTED_SOCKET;
+        return _connectionType == ConnectionTypes.ENCRYPTED;
     }
 
     @Override
@@ -146,11 +159,14 @@ class SocketProtocol implements ProtocolInt
     private RsslSocketChannel createChannel()
     {
         if (_connectionType == ConnectionTypes.ENCRYPTED)
-            return new RsslEncryptedSocketChannel(this, _channelPool);
+        	if(_subProtocol == ConnectionTypes.SOCKET)
+        		return new RsslSocketChannel(this, _channelPool, true);
+        	else
+        		return new RsslHttpSocketChannel(this, _channelPool, true);
         else if (_connectionType == ConnectionTypes.HTTP)
-            return new RsslHttpSocketChannel(this, _channelPool);
-        else if (_connectionType == ConnectionTypes.SOCKET || _connectionType == ConnectionTypes.ENCRYPTED_SOCKET)
-            return new RsslSocketChannel(this, _channelPool, isEncrypted());
+            return new RsslHttpSocketChannel(this, _channelPool, false);
+        else if (_connectionType == ConnectionTypes.SOCKET)
+            return new RsslSocketChannel(this, _channelPool, false);
         else
             throw new IllegalArgumentException("Connection type " + _connectionType + " not implemented");
     }

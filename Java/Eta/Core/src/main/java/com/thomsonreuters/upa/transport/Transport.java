@@ -57,6 +57,7 @@ public class Transport
     // _transports[4] - mcast,
     // _transports[6] - sequenced mcast
     static Protocol[] _transports = new Protocol[ConnectionTypes.MAX_DEFINED + 1];  // should be private, but is not for junit
+    static Protocol[] _encryptedTransports = new Protocol[ConnectionTypes.MAX_DEFINED + 1];
 
     private static final int HIDDEN_TCP_JNI = 111; // JNI TCP implementation (used only for testing)
     private static Protocol _hiddenTcpJni;         // JNI TCP implementation (used only for testing)
@@ -137,6 +138,15 @@ public class Transport
                 {
                     _transports[i].uninitialize();
                     _transports[i] = null;
+                }
+            }
+            
+            for (int i = 0; i < _encryptedTransports.length; i++)
+            {
+                if (_encryptedTransports[i] != null)
+                {
+                	_encryptedTransports[i].uninitialize();
+                	_encryptedTransports[i] = null;
                 }
             }
             if (_hiddenTcpJni != null)
@@ -238,14 +248,41 @@ public class Transport
                     Protocol transport = null;
                     if (opts.connectionType() != HIDDEN_TCP_JNI)
                     {
-                        transport = _transports[opts.connectionType()];
+                    	if(opts.connectionType() == ConnectionTypes.ENCRYPTED)
+                    	{
+                    		if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("none"))
+                    			transport = _encryptedTransports[opts.encryptionOptions().connectionType()];
+                    		else
+                    			transport = _encryptedTransports[ConnectionTypes.HTTP];
+                    	}
+                    	else
+                    	{
+                    		transport = _transports[opts.connectionType()];
+                    	}
                     }
                     switch (opts.connectionType())
                     {
+                    	case ConnectionTypes.ENCRYPTED:
+                    		// Verify that the encryption type has been set correctly.  Error out if this is not the case.
+                    		if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
+                    		{
+                    			if(opts.encryptionOptions().connectionType() != ConnectionTypes.SOCKET && opts.encryptionOptions().connectionType() != ConnectionTypes.HTTP )
+                    			{
+                    				 error.channel(null);
+                                     error.errorId(TransportReturnCodes.FAILURE);
+                                     error.sysError(0);
+                                     error.text("Unsupported sub-protocol type configured in opts.encryptionOptions().connectionType()");
+                    			}
+                    		}
+                    		if (transport == null) // not initialized yet - first connection for this transport
+                            {
+                                transport = new SocketProtocol(opts);
+                                _encryptedTransports[opts.connectionType()] = transport;
+                            }
+                            channel = transport.channel(opts, error);
+                            break;
                         case ConnectionTypes.SOCKET:
-                        case ConnectionTypes.ENCRYPTED_SOCKET:
                         case ConnectionTypes.HTTP:
-                        case ConnectionTypes.ENCRYPTED:
                             if (transport == null) // not initialized yet - first connection for this transport
                             {
                                 transport = new SocketProtocol(opts);

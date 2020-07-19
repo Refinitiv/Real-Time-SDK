@@ -800,7 +800,7 @@ public class ChannelSession
      */
     public void tunnelingConnectOptions(ConnectOptions connectOptions)
     {
-        copts.tunnelingInfo().tunnelingType(connectOptions.tunnelingInfo().tunnelingType());
+        copts.encryptionOptions().connectionType(connectOptions.encryptionOptions().connectionType());
         copts.tunnelingInfo().HTTPproxy(connectOptions.tunnelingInfo().HTTPproxy());
         if (connectOptions.tunnelingInfo().HTTPproxyHostName() != null)
         {
@@ -808,19 +808,19 @@ public class ChannelSession
         }
         copts.tunnelingInfo().HTTPproxyPort(connectOptions.tunnelingInfo().HTTPproxyPort());
         copts.tunnelingInfo().objectName(connectOptions.tunnelingInfo().objectName());
-        copts.tunnelingInfo().KeystoreType(connectOptions.tunnelingInfo().KeystoreType());
+        copts.encryptionOptions().KeystoreType(connectOptions.encryptionOptions().KeystoreType());
         if (connectOptions.tunnelingInfo().KeystoreFile() != null)
         {
-            copts.tunnelingInfo().KeystoreFile(connectOptions.tunnelingInfo().KeystoreFile());
+            copts.encryptionOptions().KeystoreFile(connectOptions.encryptionOptions().KeystoreFile());
         }
-        if (connectOptions.tunnelingInfo().KeystorePasswd() != null)
+        if (connectOptions.encryptionOptions().KeystorePasswd() != null)
         {
-            copts.tunnelingInfo().KeystorePasswd(connectOptions.tunnelingInfo().KeystorePasswd());
+            copts.encryptionOptions().KeystorePasswd(connectOptions.encryptionOptions().KeystorePasswd());
         }
-        copts.tunnelingInfo().SecurityProtocol(connectOptions.tunnelingInfo().SecurityProtocol());
-        copts.tunnelingInfo().SecurityProvider(connectOptions.tunnelingInfo().SecurityProvider());
-        copts.tunnelingInfo().KeyManagerAlgorithm(connectOptions.tunnelingInfo().KeyManagerAlgorithm());
-        copts.tunnelingInfo().TrustManagerAlgorithm(connectOptions.tunnelingInfo().TrustManagerAlgorithm());
+        copts.encryptionOptions().SecurityProtocol(connectOptions.encryptionOptions().SecurityProtocol());
+        copts.encryptionOptions().SecurityProvider(connectOptions.encryptionOptions().SecurityProvider());
+        copts.encryptionOptions().KeyManagerAlgorithm(connectOptions.encryptionOptions().KeyManagerAlgorithm());
+        copts.encryptionOptions().TrustManagerAlgorithm(connectOptions.encryptionOptions().TrustManagerAlgorithm());
     }
     
     /**

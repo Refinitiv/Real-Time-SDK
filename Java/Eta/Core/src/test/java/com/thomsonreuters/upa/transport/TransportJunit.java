@@ -1022,6 +1022,14 @@ public class TransportJunit
             assertEquals(0, testOpts.sysRecvBufSize());
             assertEquals(3000, testOpts.seqMCastOpts().maxMsgSize());
             assertEquals(0, testOpts.seqMCastOpts().instanceId());
+            assertEquals(ConnectionTypes.SOCKET, testOpts.encryptionOptions().connectionType());
+            assertTrue(testOpts.encryptionOptions().KeystoreType().equals("JKS"));
+            assertNull(testOpts.encryptionOptions().KeystoreFile());
+            assertNull(testOpts.encryptionOptions().KeystorePasswd());
+            assertTrue(testOpts.encryptionOptions().SecurityProtocol().equals("TLS"));
+            assertTrue(testOpts.encryptionOptions().SecurityProvider().equals("SunJSSE"));
+            assertTrue(testOpts.encryptionOptions().KeyManagerAlgorithm().equals("SunX509"));
+            assertTrue(testOpts.encryptionOptions().TrustManagerAlgorithm().equals("PKIX"));
         }
         
         /* Now test copying all options. */
@@ -1077,6 +1085,14 @@ public class TransportJunit
         srcOpts.sysRecvBufSize(33333);
         srcOpts.seqMCastOpts().maxMsgSize(44444);
         srcOpts.seqMCastOpts().instanceId(55555);
+        srcOpts.encryptionOptions().connectionType(ConnectionTypes.HTTP);
+        srcOpts.encryptionOptions().KeystoreType("BOB");
+        srcOpts.encryptionOptions().KeystoreFile("ALICE");
+        srcOpts.encryptionOptions().KeystorePasswd("CLAIRE");
+        srcOpts.encryptionOptions().SecurityProtocol("DAN");
+        srcOpts.encryptionOptions().SecurityProvider("ED");
+        srcOpts.encryptionOptions().KeyManagerAlgorithm("FAITH");
+        srcOpts.encryptionOptions().TrustManagerAlgorithm("HEIDI");
 
         /* Copy options */
         srcOpts.copy(destOpts);
@@ -1138,6 +1154,14 @@ public class TransportJunit
             assertEquals(33333, testOpts.sysRecvBufSize());
             assertEquals(44444, testOpts.seqMCastOpts().maxMsgSize());
             assertEquals(55555, testOpts.seqMCastOpts().instanceId());
+            assertEquals(ConnectionTypes.HTTP, testOpts.encryptionOptions().connectionType());
+            assertTrue(testOpts.encryptionOptions().KeystoreType().equals("BOB"));
+            assertTrue(testOpts.encryptionOptions().KeystoreFile().equals("ALICE"));
+            assertTrue(testOpts.encryptionOptions().KeystorePasswd().equals("CLAIRE"));
+            assertTrue(testOpts.encryptionOptions().SecurityProtocol().equals("DAN"));
+            assertTrue(testOpts.encryptionOptions().SecurityProvider().equals("ED"));
+            assertTrue(testOpts.encryptionOptions().KeyManagerAlgorithm().equals("FAITH"));
+            assertTrue(testOpts.encryptionOptions().TrustManagerAlgorithm().equals("HEIDI"));
         }
 
     }

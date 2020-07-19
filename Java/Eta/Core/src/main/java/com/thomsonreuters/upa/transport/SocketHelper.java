@@ -16,6 +16,7 @@ import java.util.Set;
 public class SocketHelper
 {
     protected SocketChannel _socket;
+    protected boolean _completedProxy = false;
 
     public SocketHelper()
     {
@@ -58,7 +59,7 @@ public class SocketHelper
         return _socket.isConnectionPending();
     }
 
-    public boolean connect(SocketAddress remote) throws IOException
+    public boolean connect(SocketAddress remote, boolean proxy) throws IOException
     {
         return _socket.connect(remote);
     }
@@ -153,7 +154,17 @@ public class SocketHelper
     {
         _socket.close();
     }
+    
+    public void completedProxyConnection()
+    {
+    	_completedProxy = true;
+    }
 
+    public boolean postProxyInit() throws IOException
+    {
+    	/* No-op here, used in encrypted case. */
+    	return true;
+    }
 
     public long read(ByteBuffer[] dsts) throws IOException
     {
@@ -187,5 +198,6 @@ public class SocketHelper
     
     public void initialize(ConnectOptions options) throws IOException
     {
+    	_completedProxy = false;
     }
 }
