@@ -58,14 +58,15 @@ import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 class RestReactor
 {
 	static final String AUTH_GRANT_TYPE = "grant_type";
 	static final String AUTH_USER_NAME = "username";
 	static final String AUTH_PASSWORD = "password";
+	static final String AUTH_NEWPASSWORD = "newPassword";
 	static final String AUTH_CLIENT_ID = "client_id";
+	static final String AUTH_CLIENT_SECRET = "client_secret";
 	static final String AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL = "takeExclusiveSignOnControl";
 	static final String AUTH_SCOPE = "scope";
 	static final String AUTH_BEARER = "Bearer ";
@@ -84,10 +85,7 @@ class RestReactor
 	private IOEventDispatch _ioEventDispatch;
     private ConnectingIOReactor _ioReactor;
     private BasicNIOConnPool _pool;
-    
-    // Separate instance of handling blocking and non-blocking for proxy authentication
     private RestProxyAuthHandler _restProxyAuthHandler;
-    private RestProxyAuthHandler _restProxyAuthHandlerForNonBlocking;
         
     public RestReactor(RestReactorOptions options, ReactorErrorInfo errorInfo)
     {
@@ -113,7 +111,6 @@ class RestReactor
     		 _sslconSocketFactory = new SSLConnectionSocketFactory(sslContext);
     		 
     		 _restProxyAuthHandler = new RestProxyAuthHandler(this, _sslconSocketFactory);
-    		 _restProxyAuthHandlerForNonBlocking = new RestProxyAuthHandler(this, _sslconSocketFactory);
     		
     		 final ConnectionConfig connectionConfig = ConnectionConfig.custom()
     				 .setBufferSize(options.bufferSize())
@@ -161,7 +158,7 @@ class RestReactor
          _reactorActive = true;
     }
 
-    RestReactorOptions reactorOptions()
+    RestReactorOptions restReactorOptions()
     {
     	return _restReactorOptions;
     }
@@ -177,7 +174,8 @@ class RestReactor
         return reactorReturnCode;
     }
     
-    public int submitAuthRequest(ReactorChannel reactorChannel, final RestAuthOptions options, final RestConnectOptions restConnectOptions, final ReactorErrorInfo errorInfo)
+    public int submitAuthRequest(RestAuthOptions authOptions, final RestConnectOptions restConnectOptions, 
+    		 ReactorAuthTokenInfo authTokenInfo, final ReactorErrorInfo errorInfo)
    	{
     	if (!_reactorActive)
     	{
@@ -186,45 +184,51 @@ class RestReactor
                      "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
     	}
 
-		final List<NameValuePair> params = new ArrayList<>(6);
-		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, options.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));		
+		final List<NameValuePair> params = new ArrayList<>(7);
+		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, authOptions.grantType()));
+		params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));		
+		params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
 		
-		if  (options.clientId() == null || options.clientId().length() == 0)
-		{	  
-			return populateErrorInfo(errorInfo,
-                    ReactorReturnCodes.PARAMETER_INVALID,
-                    "RestReactor.submitAuthRequest", "Required parameter clientId is not set");
-		}
-		else
-			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  options.clientId().toString()));
-		
-		if (options.hasRefreshToken() && options.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
+		if (authOptions.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
 		{
-			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, reactorChannel._reactorAuthTokenInfo.refreshToken()));			
+			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));			
 			//must set for the first access_token, otherwise receive status code: 403 forbidden.
 			//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
 		}
 		else 
 		{
-			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true"));
-			params.add(new BasicNameValuePair(AUTH_SCOPE, options.tokenScope())); 
-			params.add(new BasicNameValuePair(AUTH_PASSWORD, reactorChannel._loginRequestForEDP.password().toString()));
-		   	reactorChannel.originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
+			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
+			params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
+			
+			if(authOptions.hasNewPassword())
+			{
+				params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
+			}
+			
+			if(authOptions.hasClientSecret())
+			{
+				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
+			}
+			
+			if (authOptions.tokenSession() != null)
+			{
+				authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+			}
 		}
 
 		final String url = restConnectOptions.tokenServiceURL();
 
-		final RestHandler restHandler = new RestHandler(this, reactorChannel);
+		final RestHandler restHandler = new RestHandler(this, restConnectOptions.restResultClosure());
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
 		    final BasicHttpEntityEnclosingRequest httpRequest = new BasicHttpEntityEnclosingRequest(AUTH_POST, url);
 		    
 		    httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8));
-		    if ( options.hasHeaderAttribute() )	
+		    if ( authOptions.hasHeaderAttribute() )	
 		    {
-		    	Map<String,String> headerAttribs = options.headerAttribute();
+		    	Map<String,String> headerAttribs = authOptions.headerAttribute();
 		    	for (Map.Entry<String,String> entry : headerAttribs.entrySet())
 		    		httpRequest.addHeader(entry.getKey(), entry.getValue());
 		    }
@@ -244,14 +248,16 @@ class RestReactor
 		}
 		else
 		{
+			final RestProxyAuthHandler proxyAuthHandler = new RestProxyAuthHandler(this, _sslconSocketFactory);
+			
 			new Thread() {
 				public void run() {
 					
 					final HttpPost httppost = new HttpPost(url);
 					
-				    if ( options.hasHeaderAttribute() )
+				    if ( authOptions.hasHeaderAttribute() )
 				    {
-				    	Map<String,String> headerAttribs = options.headerAttribute();
+				    	Map<String,String> headerAttribs = authOptions.headerAttribute();
 				    	for (Map.Entry<String,String> entry : headerAttribs.entrySet())
 				    		httppost.addHeader(entry.getKey(), entry.getValue());
 				    }
@@ -265,7 +271,7 @@ class RestReactor
 		   			httppost.setConfig(config);
 		   			
 		   			try {
-						_restProxyAuthHandlerForNonBlocking.execute(httppost, restConnectOptions, errorInfo, restHandler);
+		   				proxyAuthHandler.executeAsync(httppost, restConnectOptions, restHandler, errorInfo);
 					} catch (IOException e) {
 						restHandler.failed(e);
 					}
@@ -278,7 +284,8 @@ class RestReactor
         return ReactorReturnCodes.SUCCESS;
    	}
     
-    public int submitRequestForServiceDiscovery(RestRequest request, ReactorChannel reactorChannel, final ReactorErrorInfo errorInfo) 
+    public int submitRequestForServiceDiscovery(RestRequest request, RestConnectOptions restConnectOptions, ReactorAuthTokenInfo authTokenInfo,
+    		List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList, final ReactorErrorInfo errorInfo) 
     {
     	if (!_reactorActive)
     	{
@@ -286,8 +293,6 @@ class RestReactor
                      ReactorReturnCodes.FAILURE,
                      "RestReactor.submitRequest", "RestReactor is not active, aborting");
     	}
-    	
-    	final RestConnectOptions restConnectOptions = reactorChannel.restConnectOptions();
     	 		
     	URIBuilder uriBuilder = null;
     	
@@ -328,11 +333,11 @@ class RestReactor
 				httpRequest.addHeader(entry.getKey(), entry.getValue());
 		}
 		
-		String token = reactorChannel._reactorAuthTokenInfo.accessToken();
+		String token = authTokenInfo.accessToken();
 		
 		httpRequest.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 		
-		final RestHandler restHandler = new RestHandler(this, reactorChannel);
+		final RestHandler restHandler = new RestHandler(this, restConnectOptions.restResultClosure());
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
@@ -351,6 +356,7 @@ class RestReactor
 		}
 		else
 		{
+			final RestProxyAuthHandler proxyAuthHandler = new RestProxyAuthHandler(this, _sslconSocketFactory);
 			new Thread() {
 				public void run() {
 				    
@@ -361,7 +367,7 @@ class RestReactor
 		   			httpRequest.setConfig(config);
 		   			
 		   			try {
-						_restProxyAuthHandlerForNonBlocking.execute(httpRequest, restConnectOptions, errorInfo, restHandler);
+		   				proxyAuthHandler.executeAsync(httpRequest, restConnectOptions, restHandler, errorInfo);
 					} catch (IOException e) {
 					
 						restHandler.failed(e);
@@ -434,8 +440,8 @@ class RestReactor
         return ReactorReturnCodes.SUCCESS;
     }
     
-    public int submitAuthRequestBlocking(RestAuthOptions options, 
-    		RestConnectOptions restConnectOptions, ReactorErrorInfo errorInfo) throws IOException
+    public int submitAuthRequestBlocking(RestAuthOptions authOptions, 
+    		RestConnectOptions restConnectOptions, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo) throws IOException
    	{
     	if (!_reactorActive)
     	{
@@ -449,25 +455,45 @@ class RestReactor
                     ReactorReturnCodes.FAILURE,
                     "RestReactor.submitAuthRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
     	
-    	final List<NameValuePair> params = new ArrayList<>(6);
-		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE,options.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, options.username()));
-		params.add(new BasicNameValuePair(AUTH_PASSWORD, options.password()));
-		params.add(new BasicNameValuePair(AUTH_CLIENT_ID, options.clientId()));
-		params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true")); //must set true here
-		if (options.hasRefreshToken()) //for new refresh token
-			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, options.refreshToken()));
+    	final List<NameValuePair> params = new ArrayList<>(7);
+		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE,authOptions.grantType()));
+		params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));
+		params.add(new BasicNameValuePair(AUTH_CLIENT_ID, authOptions.clientId()));
+		
+		if (authOptions.grantType().equals("refresh_token")) //for new refresh token
+		{
+			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));
 		//must set for the first access_token, otherwise receive status code: 403 forbidden.
 		//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
-		else 
-			params.add(new BasicNameValuePair(AUTH_SCOPE, options.tokenScope())); 
+		}
+		else
+		{
+			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope()));
+			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
+			params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
+			
+			if(authOptions.hasNewPassword())
+			{
+				params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
+			}
+			
+			if(authOptions.hasClientSecret())
+			{
+				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
+			}
+			
+			if (authOptions.tokenSession() != null)
+			{
+				authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+			}
+		}
 	
    		try
    		{
    			final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);
-   			if (options.hasHeaderAttribute())
+   			if (authOptions.hasHeaderAttribute())
    			{
-   				Map<String,String>  headers = options.headerAttribute();
+   				Map<String,String>  headers = authOptions.headerAttribute();
    				if (headers.containsKey(HttpHeaders.TRANSFER_ENCODING) && headers.get(HttpHeaders.TRANSFER_ENCODING).contentEquals(HTTP.CHUNK_CODING))
    					entity.setChunked(true);
    				if (headers.containsKey(HttpHeaders.CONTENT_ENCODING))
@@ -477,6 +503,7 @@ class RestReactor
    			}
    			
    			String url = restConnectOptions.tokenServiceURL();
+   			RestResponse restResponse = new RestResponse();
 
    			final HttpPost httppost = new HttpPost(url);
 
@@ -490,7 +517,14 @@ class RestReactor
 	                    	.build();
 	   			httppost.setConfig(config);
 	   			
-   				return _restProxyAuthHandler.execute(httppost, restConnectOptions, errorInfo, null);
+   				int ret = _restProxyAuthHandler.executeSync(httppost, restConnectOptions, restResponse, errorInfo);
+   				
+   				if( ret == ReactorReturnCodes.SUCCESS)
+   				{
+   					ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
+   				}
+   				
+   				return ret;
    			}
    			else
    			{
@@ -502,21 +536,16 @@ class RestReactor
 		   			final HttpResponse response = httpClient.execute(httppost);
 		   			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 		   			{
-		   				populateErrorInfo(errorInfo,   				
+		   				return populateErrorInfo(errorInfo,   				
 		                            ReactorReturnCodes.FAILURE,
 		                            "RestReactor.submitAuthRequestBlocking", 
 		                            "Failed to request authentication token information. Text: " 
 		                            + EntityUtils.toString(response.getEntity()));
-		   				
-		   				return ReactorReturnCodes.SUCCESS;
 		   			}
 		   			else
 		   			{
-		   				RestEvent event = new RestEvent(RestEventTypes.COMPLETED, restConnectOptions.userSpecObject());
-		   				RestResponse resp = new RestResponse();
-		   				
-		   				convertResponse(this, response, resp, event);
-		   				processResponse(this, resp, event);
+			   			convertResponse(this, response, restResponse, errorInfo);
+		   				ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
 		   			}
    				}
    				finally
@@ -536,7 +565,8 @@ class RestReactor
    	}
     
     public int submitServiceDiscoveryRequestBlocking(RestRequest request, 
-    		RestConnectOptions restConnectOptions, ReactorErrorInfo errorInfo) throws IOException
+    		RestConnectOptions restConnectOptions, ReactorAuthTokenInfo authTokenInfo, List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList,
+    		ReactorErrorInfo errorInfo) throws IOException
    	{
     	if (!_reactorActive)
     	{
@@ -584,7 +614,8 @@ class RestReactor
    					httpget.addHeader(entry.getKey(), entry.getValue());
    			}
 
-			String token = restConnectOptions.tokenInformation().accessToken();
+			String token = authTokenInfo.accessToken();
+			RestResponse restResponse = new RestResponse();
 			
 			httpget.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 		
@@ -596,7 +627,14 @@ class RestReactor
 	                    .build();
 	   			httpget.setConfig(config);
 	   			
-   				return _restProxyAuthHandler.execute(httpget, restConnectOptions, errorInfo, null);
+   				int ret = _restProxyAuthHandler.executeSync(httpget, restConnectOptions, restResponse, errorInfo);
+   				
+   				if(ret == ReactorReturnCodes.SUCCESS)
+   				{
+   					RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
+   				}
+   				
+   				return ret;
    			}
    			else
    			{
@@ -619,11 +657,8 @@ class RestReactor
 					}
 					else
 					{
-						final RestEvent event = new RestEvent(RestEventTypes.COMPLETED, restConnectOptions.userSpecObject());
-		   				final RestResponse resp = new RestResponse();
-		   				
-		   				convertResponse(this, response, resp, event);
-		   				processResponse(this, resp, event);
+		   				convertResponse(this, response, restResponse, errorInfo);
+		   				RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
 					}
    				}
    				finally
@@ -655,7 +690,7 @@ class RestReactor
    		return ReactorReturnCodes.SUCCESS;
    	}
     
-    static int convertResponse(RestReactor RestReactor, HttpResponse response, RestResponse clientResponse, RestEvent event)
+    static int convertResponse(RestReactor RestReactor, HttpResponse response, RestResponse clientResponse, ReactorErrorInfo errorInfo)
     {
     	HttpEntity entity = response.getEntity();
     	String entityString = null;
@@ -664,7 +699,7 @@ class RestReactor
 			entityString =  EntityUtils.toString(entity);
 		} catch (ParseException | IOException e)
     	{
-			return populateErrorInfo(event.errorInfo(),
+			return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
                     "RestHandler.handleResponse", "failed to convert entity to json object, exception = " + getExceptionCause(e));
     	}
@@ -691,7 +726,7 @@ class RestReactor
 				clientResponse.contentType(entity.getContentType().getValue());
 			}
 			
-			clientResponse.body(entityString, event.errorInfo());
+			clientResponse.body(entityString, errorInfo);
 		}
 		
 		return ReactorReturnCodes.SUCCESS;
@@ -699,34 +734,9 @@ class RestReactor
     
     static int processResponse(RestReactor restReactor, RestResponse response, RestEvent event)
     {
-		if (response.statusCode() == HttpStatus.SC_OK && response.jsonObject() != null && response.jsonObject().has(AUTH_ACCESS_TOKEN))
-		{
-			JSONObject body =  response.jsonObject();
-			ReactorAuthTokenInfo tokenInfo = new ReactorAuthTokenInfo();
-			tokenInfo.clear();
-			tokenInfo.accessToken(body.getString(AUTH_ACCESS_TOKEN));
-			tokenInfo.refreshToken(body.getString(AUTH_REFRESH_TOKEN));
-			tokenInfo.expiresIn(body.getInt(AUTH_EXPIRES_IN));
-			tokenInfo.scope(body.getString(AUTH_SCOPE));
-			tokenInfo.tokenType(body.getString(AUTH_TOKEN_TYPE));
-			
-			event._reactorAuthTokenInfo = tokenInfo;
-			
-			if (restReactor._restReactorOptions.authorizationCallback() != null)
-			{
-				restReactor._restReactorOptions.authorizationCallback().RestResponseCallback(response, event);
-			}
-			else if (restReactor._restReactorOptions.defaultRespCallback() != null)
-			{
-				restReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
-			}
-			return ReactorReturnCodes.SUCCESS;
-		}
-		
-		if (restReactor._restReactorOptions.defaultRespCallback() != null)
-		{
-			restReactor._restReactorOptions.defaultRespCallback().RestResponseCallback(response, event);
-		}
+    	RestResultClosure resultClosure = event.resultClosure();
+    	
+    	resultClosure.restCallback().RestResponseCallback(response, event);
 		
 		return ReactorReturnCodes.SUCCESS;
     }

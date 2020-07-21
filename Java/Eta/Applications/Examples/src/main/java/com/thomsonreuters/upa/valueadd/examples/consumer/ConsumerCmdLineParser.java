@@ -44,6 +44,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String authenticationExtended;
 	private String applicationId;
 	private boolean enableRtt;
+	private boolean takeExclusiveSignOnControl = true;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -256,7 +257,18 @@ class ConsumerCmdLineParser implements CommandLineParser
     			} else if ("-rtt".equals(args[argsCount])) {
     				enableRtt = true;
     				++argsCount;
-				}
+			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControlStr = args[++argsCount];
+    				
+    				if(takeExclusiveSignOnControlStr.equalsIgnoreCase("true"))
+						takeExclusiveSignOnControl = true;
+					else if (takeExclusiveSignOnControlStr.equalsIgnoreCase("false"))
+						takeExclusiveSignOnControl = false;
+    				
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -437,6 +449,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return enableRtt;
 	}
 	
+	boolean takeExclusiveSignOnControl()
+	{
+		return takeExclusiveSignOnControl;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -462,6 +479,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -passwd changes the password used when logging into the provider\n" +
 		        "\n -clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.\n" +
 				"\n -sessionMgnt enables the session management in the Reactor\n" +
+				"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n" + 
 				"\n -view specifies each request using a basic dynamic view\n" +
 				"\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
 				"\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +

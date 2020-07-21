@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 
-public class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOption
+class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOption
 {
 	Buffer _userName = CodecFactory.createBuffer();
 	Buffer _password = CodecFactory.createBuffer();
@@ -26,6 +26,7 @@ public class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscov
 	String _proxyDomain;
 	private String _proxyLocalHostName;
 	String _proxyKrb5ConfigFile;
+	boolean	_takeExclusiveSignOnControl;
 	
 	ServiceEndpointDiscoveryOptionImpl()
 	{
@@ -47,6 +48,7 @@ public class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscov
 		_proxyDomain = null;
 		_proxyLocalHostName = null;
 		_proxyKrb5ConfigFile = null;
+		_takeExclusiveSignOnControl = true;
 		
 		return this;
 	}
@@ -155,6 +157,13 @@ public class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscov
 	public ServiceEndpointDiscoveryOption proxyKRB5ConfigFile(String proxyKrb5ConfigFile)
 	{
 		_proxyKrb5ConfigFile = proxyKrb5ConfigFile;
+		return this;
+	}
+
+	@Override
+	public ServiceEndpointDiscoveryOption takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl)
+	{
+		_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 		return this;
 	}
 }

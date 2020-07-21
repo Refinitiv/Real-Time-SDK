@@ -59,6 +59,7 @@ public class Consumer {
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
 	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
@@ -146,6 +147,20 @@ public class Consumer {
     			else if ("-krbfile".equals(args[argsCount]))
     			{
     				config.tunnelingCredentialKRB5ConfigFile(argsCount < (args.length-1) ? args[++argsCount] : null);
+    				++argsCount;				
+    			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControl = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				
+    				if(takeExclusiveSignOnControl != null)
+    				{
+    					if(takeExclusiveSignOnControl.equalsIgnoreCase("true"))
+    						config.takeExclusiveSignOnControl(true);
+    					else if (takeExclusiveSignOnControl.equalsIgnoreCase("false"))
+    						config.takeExclusiveSignOnControl(false);
+    				}
+    				
     				++argsCount;				
     			}
     			else // unrecognized command line argument

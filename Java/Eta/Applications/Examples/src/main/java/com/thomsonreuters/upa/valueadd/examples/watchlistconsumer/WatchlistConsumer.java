@@ -63,6 +63,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceDiscoveryOptions;
@@ -218,6 +219,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
     ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = 
     		ReactorFactory.createReactorServiceDiscoveryOptions();
+    ReactorOAuthCredential reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
     
 	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
@@ -1306,24 +1308,24 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     @Override
     public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event)
     {
-    if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
-    {
-            List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
-
-            for (int i = 0; i < serviceEndpointInfoList.size(); i++)
-            {
-                    ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
-                    if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
-                    {
-                            if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
-                                    {
-                                            watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
-                                            watchlistConsumerConfig.connectionList().get(0).port(info.port());
-                                            break;
-                                    }
-                    }
-            }
-    }
+	    if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
+	    {
+	            List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
+	
+	            for (int i = 0; i < serviceEndpointInfoList.size(); i++)
+	            {
+	                    ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
+	                    if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
+	                    {
+	                            if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
+	                                    {
+	                                            watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
+	                                            watchlistConsumerConfig.connectionList().get(0).port(info.port());
+	                                            break;
+	                                    }
+	                    }
+	            }
+	    }
         else
         {
             System.out.println("Error requesting Service Discovery Endpoint Information: " + event.errorInfo().toString());
@@ -1497,7 +1499,9 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         
         if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
         {
-        	chnlInfo.consumerRole.clientId().data(watchlistConsumerConfig.clientId());
+        	reactorOAuthCredential.clientId().data(watchlistConsumerConfig.clientId());
+        	reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
+        	chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
         	reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
         }
         
@@ -1665,22 +1669,21 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         	if (reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
         	{
         		System.out.println("Error: " + errorInfo.code());
+        		return;
         	}
         }
-        else
-        {
-        	if(chnlInfo.connectionArg.port() != null)
-        	{
-        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-        	}
-        	
-        	if(chnlInfo.connectionArg.hostname() != null)
-        	{
-        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
-        	}
-        		
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
-        }
+        
+    	if(chnlInfo.connectionArg.port() != null)
+    	{
+    		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
+    	}
+    	
+    	if(chnlInfo.connectionArg.hostname() != null)
+    	{
+    		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+    	}
+    		
+    	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
         
     	if (watchlistConsumerConfig.location() != null)
     		chnlInfo.connectOptions.connectionList().get(0).location(watchlistConsumerConfig.location());

@@ -18,6 +18,12 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String passwd;
 	private String userName2;
 	private String passwd2;
+	private String userName3;
+	private String passwd3;
+	private String userName4;
+	private String passwd4;
+	private String userName5;
+	private String passwd5;
 	private String clientId;
 	private boolean enableView;
 	private boolean enablePost;
@@ -123,6 +129,36 @@ class ConsumerCmdLineParser implements CommandLineParser
     			else if ("-passwd2".equals(args[argsCount]))
     			{
     				passwd2 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-uname3".equals(args[argsCount]))
+    			{
+    				userName3 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-passwd3".equals(args[argsCount]))
+    			{
+    				passwd3 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-uname4".equals(args[argsCount]))
+    			{
+    				userName4 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-passwd4".equals(args[argsCount]))
+    			{
+    				passwd4 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-uname5".equals(args[argsCount]))
+    			{
+    				userName5 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-passwd5".equals(args[argsCount]))
+    			{
+    				passwd5 = args[++argsCount];
     				++argsCount;
     			}
     			else if ("-sessionMgnt".equals(args[argsCount]))
@@ -364,7 +400,20 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return userName2;
 	}
-
+	
+	String userName3()
+	{
+		return userName3;
+	}
+	
+	String userName4()
+	{
+		return userName4;
+	}
+	String userName5()
+	{
+		return userName5;
+	}
 	boolean enableView()
 	{
 		return enableView;
@@ -379,7 +428,18 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return passwd2;
 	}
-	
+	String passwd3()
+	{
+		return passwd3;
+	}
+	String passwd4()
+	{
+		return passwd4;
+	}
+	String passwd5()
+	{
+		return passwd5;
+	}
 	String clientId()
 	{
 		return clientId;
@@ -569,6 +629,12 @@ class ConsumerCmdLineParser implements CommandLineParser
 				//APIQA
 				"\n -uname2 changes the username used when logging into the provider\n" +
 				"\n -passwd2 changes the password used when logging into the provider\n" +
+				"\n -uname3 changes the username used when logging into the provider\n" +
+				"\n -passwd3 changes the password used when logging into the provider\n" +
+				"\n -uname4 changes the username used when logging into the provider\n" +
+				"\n -passwd4 changes the password used when logging into the provider\n" +
+				"\n -uname5 changes the username used when logging into the provider\n" +
+				"\n -passwd5 changes the password used when logging into the provider\n" +
 				//END APIQA
 		        "\n -clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.\n" +
 				"\n -sessionMgnt enables the session management in the Reactor\n" +

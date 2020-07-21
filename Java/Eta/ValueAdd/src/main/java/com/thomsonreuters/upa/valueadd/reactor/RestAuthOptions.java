@@ -21,20 +21,36 @@ class RestAuthOptions {
     public static final int HAS_HEADER_ATTRIB = 0x0020;
     
     public static final int HAS_REFRESH_TOKEN = 0x0040;
+    
+    public static final int HAS_NEW_PASSWORD = 0x0080;
+    
+    public static final int HAS_CLIENT_SECRET = 0x0100;
 
     private int _flags;
     private String _username;
     private String _password;
-    private boolean _takeExclusiveSignOnControl = false;
+    private String _newPassword;
+    private boolean _takeExclusiveSignOnControl;
     private String _clientId;
     private String _tokenScope = "trapi";
-    private String _grantType = "password";
-    private String _refreshToken;
+    private String _clientSecret;
+    private String _grantType = RestReactor.AUTH_PASSWORD;
     private HashMap<String,String> _headerAttribute;
+    private ReactorTokenSession _tokenSession;
 	
-	public RestAuthOptions()
+	public RestAuthOptions(boolean takeExclusiveSignOnControl)
 	{
 		clear();
+		
+		_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+	}
+	
+	public RestAuthOptions(ReactorTokenSession tokenSession)
+	{
+		clear();
+		
+		_tokenSession = tokenSession;
+		_takeExclusiveSignOnControl = tokenSession.oAuthCredential().takeExclusiveSignOnControl();
 	}
 	
 	public RestAuthOptions clear() {
@@ -42,18 +58,39 @@ class RestAuthOptions {
 		_flags = 0;
 		_username = "";
 		_password = "";
-		_takeExclusiveSignOnControl = false;
+		_newPassword = "";
+		_takeExclusiveSignOnControl = true;
 		_clientId = "";
 		_tokenScope = "trapi";
-		_grantType = "password";
+		_clientSecret = "";
+		_grantType = RestReactor.AUTH_PASSWORD;
 		_headerAttribute = null;
+		_tokenSession = null;
+		return this;
+	}
+	
+	public RestAuthOptions clearSensitiveInfo()
+	{
+		_password = "";
+		_flags &= ~HAS_PASSWORD;
+		
+		_newPassword = "";
+		_flags &= ~HAS_NEW_PASSWORD;
+		
+		_clientSecret = "";
+		_flags &= ~HAS_CLIENT_SECRET;
+		
 		return this;
 	}
 
 	public RestAuthOptions username(String username)
 	{
-		_username = username;
-		_flags |= RestAuthOptions.HAS_USERNAME;
+		if ( (username != null) && (!username.isEmpty()) )
+		{
+			_username = username;
+			_flags |= RestAuthOptions.HAS_USERNAME;
+		}
+		
 		return this;
 	}
 	
@@ -62,16 +99,12 @@ class RestAuthOptions {
 		return _username;
 	}
 	
-	public RestAuthOptions password(String password) {
-
-		
-		_password = password;
-		_flags |= RestAuthOptions.HAS_PASSWORD;
-		
-		if (password.equals(""))
+	public RestAuthOptions password(String password)
+	{
+		if ( (password != null) && (!password.isEmpty()))
 		{
-			_password = null;
-			_flags &= ~RestAuthOptions.HAS_PASSWORD;
+			_password = password;
+			_flags |= RestAuthOptions.HAS_PASSWORD;
 		}
 		
 		return this;
@@ -80,6 +113,22 @@ class RestAuthOptions {
 	public String password()
 	{
 		return _password;
+	}
+	
+	public RestAuthOptions newPassword(String newPassword) 
+	{
+		if( (newPassword != null) && (!newPassword.isEmpty()))
+		{
+			_newPassword = newPassword;		
+			_flags |= RestAuthOptions.HAS_PASSWORD;
+		}
+		
+		return this;
+	}
+	
+	public String newPassword()
+	{
+		return _newPassword;
 	}
 
 	public RestAuthOptions grantType(String grantType) {
@@ -93,26 +142,29 @@ class RestAuthOptions {
 		return _grantType;
 	}
 	
-	public RestAuthOptions refreshToken(String refreshToken) {
-		_refreshToken = refreshToken;
-		_flags |= RestAuthOptions.HAS_REFRESH_TOKEN;
-		_grantType = "refresh_token";
-		return this;
-	}
-	
-	public String refreshToken()
-	{
-		return _refreshToken;
-	}
-
 	public boolean takeExclusiveSignOnControl()
 	{
-		return _takeExclusiveSignOnControl;
+	    return _takeExclusiveSignOnControl;
+	}
+	
+	public void takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl)
+	{
+	    _takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 
-	public RestAuthOptions clientId(String clientId) {
-		_clientId = clientId;
-		_flags |= RestAuthOptions.HAS_CLIENT_ID;
+	public String takeExclusiveSignOnControlAsString()
+	{
+		return _takeExclusiveSignOnControl == true ? "true" : "false";
+	}
+
+	public RestAuthOptions clientId(String clientId)
+	{
+		if ( (clientId != null) && (!clientId.isEmpty()))
+		{
+			_clientId = clientId;
+			_flags |= RestAuthOptions.HAS_CLIENT_ID;
+		}
+		
 		return this;
 	}
 
@@ -121,9 +173,14 @@ class RestAuthOptions {
 		return _clientId;
 	}
 	
-	public RestAuthOptions tokenScope(String tokenScope) {
-		_tokenScope = tokenScope;
-		_flags |= RestAuthOptions.HAS_TOKEN_SCOPE;
+	public RestAuthOptions tokenScope(String tokenScope)
+	{
+		if ( (tokenScope != null) && (!tokenScope.isEmpty()))
+		{
+			_tokenScope = tokenScope;
+			_flags |= RestAuthOptions.HAS_TOKEN_SCOPE;
+		}
+		
 		return this;
 	}
 	
@@ -132,10 +189,31 @@ class RestAuthOptions {
 		return _tokenScope;
 	}
 	
+	public RestAuthOptions clientSecret(String clientSecret)
+	{
+		if ( (clientSecret != null) && (!clientSecret.isEmpty()))
+		{
+			_clientSecret = clientSecret;
+			_flags |= RestAuthOptions.HAS_CLIENT_SECRET;
+		}
+		
+		return this;
+	}
+	
+	public String clientSecret()
+	{
+		return _clientSecret;
+	}
+	
 	public RestAuthOptions headerAttribute(Map<String, String> attributes) {
 		_headerAttribute = (HashMap<String, String>) attributes;
 		_flags |= RestAuthOptions.HAS_HEADER_ATTRIB;
 		return this;
+	}
+	
+	public ReactorTokenSession tokenSession()
+	{
+		return _tokenSession;
 	}
 	
 	public Map<String, String> headerAttribute() {
@@ -150,6 +228,11 @@ class RestAuthOptions {
 	public boolean hasPassword()
 	{
 		return (_flags & RestAuthOptions.HAS_PASSWORD) != 0;
+	}
+	
+	public boolean hasNewPassword()
+	{
+		return (_flags & RestAuthOptions.HAS_NEW_PASSWORD) != 0;
 	}
 
 	public boolean hasGrantType()
@@ -167,6 +250,11 @@ class RestAuthOptions {
 		return (_flags & RestAuthOptions.HAS_CLIENT_ID) != 0;
 	}
 	
+	public boolean hasClientSecret()
+	{
+		return (_flags & RestAuthOptions.HAS_CLIENT_SECRET) != 0;
+	}
+	
 	public boolean hasTokenScope()
 	{
 		return (_flags & RestAuthOptions.HAS_TOKEN_SCOPE) != 0;
@@ -182,13 +270,14 @@ class RestAuthOptions {
 		 return "RestAuthOptions" + "\n" + 
 				 	"\tgrantType: " + _grantType + "\n" +
 	               "\tusername: " + _username + "\n" +
-	               "\tpassword: " + _password + "\n" + 
+	               "\tpassword: " + _password + "\n" +
+	               "\tnewPassword: " + _newPassword + "\n" +
+	               "\tclientSecret: " + _clientSecret + "\n" + 
 	               "\ttakeExclusiveSignOnControl: " + _takeExclusiveSignOnControl + "\n" + 
 	               "\tclientId: " + _clientId + "\n" + 
 	               "\ttokenScope: " + _tokenScope + "\n" +
 	               "\theaderAttribute: " + _headerAttribute == null ? "" : _headerAttribute.toString() + "\n";
 	}
-
 }
 
 

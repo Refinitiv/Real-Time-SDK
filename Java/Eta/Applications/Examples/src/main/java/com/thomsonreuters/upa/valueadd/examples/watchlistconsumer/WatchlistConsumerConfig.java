@@ -469,7 +469,12 @@ public class WatchlistConsumerConfig
 	String clientId()
 	{
 		return CommandLine.value("clientId");
-	}	
+	}
+	
+	boolean takeExclusiveSignOnControl()
+	{
+		return CommandLine.booleanValue("takeExclusiveSignOnControl");
+	}
 	
 	String location()
 	{
@@ -639,6 +644,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
         CommandLine.addOption("clientId", "Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.");
         CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");
+        CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true"); 
     }
 }
 

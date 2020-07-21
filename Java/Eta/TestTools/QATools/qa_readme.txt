@@ -69,6 +69,11 @@ vaconsumer-ChnlStats-004: Alters VAConsumer to create 2 connections with 1 react
 in order to test ReactorChannelStatistic and sessionMgnt for 2 connections. And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
 The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
 
+vaconsumer-ChnlStats-005: Alters VAConsumer to create 5 connections with 1 reactor, each connection requests login using either different or same uname and passwd, 
+in order to test ReactorChannelStatistic and sessionMgnt for 5 connections same username and password share AccessToken, this behavior introduced in Java version 1.5.1.
+And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
+The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
+
 Module:  Watchlist Consumer 
 ---------------------------
 

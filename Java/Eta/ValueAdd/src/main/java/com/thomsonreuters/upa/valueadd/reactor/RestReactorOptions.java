@@ -45,8 +45,6 @@ class RestReactorOptions {
     private boolean _tcpNoDelay;
     private int _bufferSize;
     private int _fragmentSizeHint;
-    private RestCallback _authorizationCallback;
-    private RestCallback _defaultCallback;
 	
     public RestReactorOptions()
     {
@@ -194,50 +192,8 @@ class RestReactorOptions {
         destOpts._rcvBufSize = _rcvBufSize;
         destOpts._defaultMaxPerRoute = _defaultMaxPerRoute;
         destOpts._maxConnectTotal = _maxConnectTotal;
-        destOpts._authorizationCallback = _authorizationCallback;
-        destOpts._defaultCallback = _defaultCallback;
         
         return TransportReturnCodes.SUCCESS;
-    }
-    
-    /**
-     *  A callback function for processing authorization response received. If not present,
-     * the received message will be passed to the defaultRespCallback.
-     *
-     * @param callback the callback
-     */
-    public void authorizationCallback(RestCallback callback)
-    {
-    	_authorizationCallback = callback;
-    }
-
-    /** A callback function for processing authorization response received. If not present,
-     * the received message will be passed to the defaultRespCallback.
-     * 
-     * @return the RestCallback
-     */
-    public RestCallback authorizationCallback()
-    {
-        return _authorizationCallback;
-    }
-    
-    /**
-     *  A callback function for processing any response received.
-     *
-     * @param callback the callback
-     */
-    public void defaultRespCallback(RestCallback callback)
-    {
-    	_defaultCallback = callback;
-    }
-
-    /** A callback function for processing any response received.
-     * 
-     * @return the RestCallback
-     */
-    public RestCallback defaultRespCallback()
-    {
-        return _defaultCallback;
     }
     
 	public void bufferSize(int bufferSize)

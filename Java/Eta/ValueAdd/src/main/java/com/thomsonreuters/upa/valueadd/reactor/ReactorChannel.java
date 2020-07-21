@@ -1,7 +1,9 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.nio.channels.SelectableChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -15,6 +17,7 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
+import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.IoctlCodes;
 import com.thomsonreuters.upa.transport.Server;
@@ -60,10 +63,6 @@ public class ReactorChannel extends VaNode
     private int _reconnectAttempts;
     private int _reconnectDelay;
     private long _nextRecoveryTime;
-    private long _nextAuthTokenRequestTime;
-    private long _authTokenExpiresIn;
-    private int _tokenReissueAttempts;
-    private int _originalExpiresIn; /* Keeps the original expires in seconds from the password grant type. */
     private int _listIndex;
 
     // tunnel stream support
@@ -109,9 +108,9 @@ public class ReactorChannel extends VaNode
 	
     private ReactorErrorInfo _errorInfoEDP;    
     LoginRequest _loginRequestForEDP;
-    ReactorAuthTokenInfo _reactorAuthTokenInfo;
-    private String _clientId;
     private RestConnectOptions _restConnectOptions;
+    private ReactorTokenSession _tokenSession;
+    private List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = new ArrayList<ReactorServiceEndpointInfo>();
     
     static class ReactorChannelLink implements Link<ReactorChannel>
     {
@@ -160,18 +159,36 @@ public class ReactorChannel extends VaNode
 	public void sessionMgntState(SessionMgntState sessionMgntState) {
 		_sessionMgntState = sessionMgntState;
 	}
+	
+	void tokenSession(ReactorTokenSession tokenSession)
+	{
+		_tokenSession = tokenSession;
+		
+		_tokenSession.addReactorChannel(this);
+	}
+	
+	ReactorTokenSession tokenSession()
+	{
+		return _tokenSession;
+	}
 
     void setEDPErrorInfo(ReactorErrorInfo errorInfo)
     {
     	_errorInfoEDP = errorInfo;
     }
     
+    ReactorErrorInfo getEDPErrorInfo()
+    {
+    	return _errorInfoEDP;
+    }
+    
     RestConnectOptions restConnectOptions()
     {
     	if (_restConnectOptions == null)
+    	{
     		_restConnectOptions = new RestConnectOptions(_reactor._reactorOptions);
-    	
-    	_restConnectOptions.userSpecObject(this);
+    		_restConnectOptions.restResultClosure(new RestResultClosure(_reactor._restClient, this));
+    	}
     	
     	ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
     	_restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
@@ -183,6 +200,11 @@ public class ReactorChannel extends VaNode
     	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());    	
     	
     	return _restConnectOptions;
+    }
+    
+    List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList()
+    {
+    	return _reactorServiceEndpointInfoList;
     }
     
     /**
@@ -230,6 +252,7 @@ public class ReactorChannel extends VaNode
     {
         _state = State.UNKNOWN;
         _sessionMgntState = SessionMgntState.UNKNOWN;
+        _tokenSession = null;
         _reactor = null;
         _selectableChannel = null;
         _channel = null;
@@ -254,30 +277,13 @@ public class ReactorChannel extends VaNode
 		_reconnectAttempts = 0;
 		_reconnectDelay = 0;
 		_nextRecoveryTime = 0;
-		_nextAuthTokenRequestTime = 0;
-		_tokenReissueAttempts = 0;
-		_originalExpiresIn = 0;
 		
 		_reactorConnectOptions = null;
 		_listIndex = 0;
 		
 	    _errorInfoEDP = null;    
-	    _loginRequestForEDP = null;
-	    _reactorAuthTokenInfo = null;
-	    _clientId = null;		
-    }
-
-    String clientId()
-    {
-    	if (_clientId == null)
-    	{
-    		if (_role.type() == ReactorRoleTypes.CONSUMER)
-    		{
-    			if(((ConsumerRole)_role)._clientId != null)
-    				_clientId = ((ConsumerRole)_role)._clientId.toString();
-    		}
-    	}
-    	return _clientId;
+	    _loginRequestForEDP = null;		
+	    _reactorServiceEndpointInfoList.clear();
     }
     
     /* Check if the tunnel manager needs a dispatch, timer event, or channel flush. */
@@ -735,6 +741,8 @@ public class ReactorChannel extends VaNode
 	        {
 	            _watchlist.close();
 	        }
+	        
+	        _reactor.removeReactorChannel(this);
 	        
 	        return retVal;
     	}
@@ -1295,7 +1303,6 @@ public class ReactorChannel extends VaNode
 		reactorConnectOptions.copy(_reactorConnectOptions);
 		_reconnectDelay = 0;
 		_nextRecoveryTime = 0;
-		_nextAuthTokenRequestTime = 0;
     }
 
 	/* Determines the time at which reconnection should be attempted for this channel. */
@@ -1319,13 +1326,6 @@ public class ReactorChannel extends VaNode
 		}
 		_nextRecoveryTime = System.currentTimeMillis() + _reconnectDelay;
 	}
-
-	void calculateNextAuthTokenRequestTime(int expiresIn)
-	{
-		if (expiresIn > 0)
-			_authTokenExpiresIn = (long)(((double)expiresIn * _reactor._reactorOptions.tokenReissueRatio()) * 1000000000);
-		_nextAuthTokenRequestTime = System.nanoTime() + _authTokenExpiresIn;
-	}	
 	
     /* Resets info related to reconnection such as timers. Used when a channel is up. */
     void resetReconnectTimers()
@@ -1374,38 +1374,24 @@ public class ReactorChannel extends VaNode
 		// if done getting the auth token and service discovery
     	if (_state == State.EDP_RT_DONE)
     	{
-		copyTokenAndPassword(_loginRequestForEDP);
+    		applyAccessToken();
 
     		if(Reactor.requestServiceDiscovery(reactorConnectInfo))
     		{
-	    		if (_watchlist != null)
-	    		{
-	    			if (verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-	    			{
-	    				error.text(errorInfo.error().text());
-	        			return null;
-	    			}
-	    		}
-	    		else if (_watchlist == null && verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-	    		{
-	    			error.text(errorInfo.error().text());
-	    			return null;	
-	    		}
+    			if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+    			{
+    				error.text(errorInfo.error().text());
+        			return null;
+    			}
     		}
 
 			return reconnect(reactorConnectInfo, error);	
     	}
-    	else if (_state == State.EDP_RT_FAILED)
+    	else if(_state == State.EDP_RT_FAILED)
     	{
-    		if(sessionMgntState() != SessionMgntState.QUERYING_SERVICE_DISCOVERY)
-    		{
-    			_reactor.sendAuthTokenEventCallback(this, _reactorAuthTokenInfo, _errorInfoEDP);
-    		}   		
-    	
     		return reconnect(reactorConnectInfo, error);
-   
-    	}	
-		
+    	}
+    		
     	return null;
     }
     
@@ -1428,15 +1414,12 @@ public class ReactorChannel extends VaNode
     	{
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
             
-    		if (_reactor.sessionManagementConfigValidationAndStartup(reactorConnectInfo, _role, this, errorInfo) != ReactorReturnCodes.SUCCESS)
+            /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
+    		if (_reactor.sessionManagementStartup(_tokenSession, reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
     		{
     			error.text(errorInfo.error().text());
-    			return null;
     		}
     		
-    		/* Get access token from the token service */
-    		_state = State.EDP_RT;
-    
     		return null;
     	}
 
@@ -1447,60 +1430,6 @@ public class ReactorChannel extends VaNode
     long nextRecoveryTime()
     {
         return _nextRecoveryTime;
-    }
-
-    long nextAuthTokenRequestTime()
-    {
-        return _nextAuthTokenRequestTime;
-    }
-    
-    long nextTokenReissueAttemptReqTime()
-    {
-    	long nextReqTime = ((long)_reactor._reactorOptions.reissueTokenAttemptInterval() * 1000000);
-    	
-    	return (System.nanoTime() + nextReqTime);
-    }
-    
-    /* This function is used to check whether to perform token reissue attempts. Returns true to send another token reissue otherwise false.*/
-    boolean handlesTokenReissueFailed()
-    {	/* Don't retry to send token reissue */
-    	if (_reactor._reactorOptions.reissueTokenAttemptLimit() == 0)
-    	{
-    		return false;
-    	} /* There is no retry limit */
-    	else if (_reactor._reactorOptions.reissueTokenAttemptLimit() == -1)
-    	{
-    		return true;
-    	}
-    	else
-    	{
-    		++_tokenReissueAttempts;
-    		
-    		/* Retry until reach the number of attempt limit */
-    		if(_tokenReissueAttempts > _reactor._reactorOptions.reissueTokenAttemptLimit())
-    		{
-    			return false;
-    		}
-    		else
-    		{
-    			return true;
-    		}
-    	}
-    }
-    
-    void resetTokenReissueAttempts()
-    {
-    	_tokenReissueAttempts = 0;
-    }
-    
-    void originalExpiresIn(int expiresIn)
-    {
-    	_originalExpiresIn = expiresIn;
-    }
-    
-    int originalExpiresIn()
-    {
-    	return _originalExpiresIn;
     }
     
     /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
@@ -1531,31 +1460,57 @@ public class ReactorChannel extends VaNode
 		return _reactorConnectOptions.connectionList().get(_listIndex).reactorAuthTokenEventCallback();
 	}
 	
-    int verifyAndCopyServiceDiscoveryData (LoginRequest rdmLoginRequest, ReactorErrorInfo errorInfo)
+    int applyServiceDiscoveryEndpoint (ReactorErrorInfo errorInfo)
     {
-    	if (_reactor._restClient.endpoint() == null || _reactor._restClient.port() == null)
+    	ReactorServiceEndpointInfo endpointInfo = null;
+    	ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+    	String transportType = "";
+    	boolean foundLocation = false;
+    	
+    	for(int index = 0; index < _reactorServiceEndpointInfoList.size(); index++)
     	{
-        	_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.verifyAndCopyServiceDiscoveryData", 
-        			"Reactor.verifyAndCopyServiceDiscoveryData(): Could not find matching location: " + _reactor._restConnectOptions.location() + 
+    		endpointInfo = _reactorServiceEndpointInfoList.get(index);
+    		
+    		if ( reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
+    		{
+    			transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_TCP;
+    		}
+    		    		
+    		if(endpointInfo.locationList().size() > 1 && endpointInfo.transport().equals(transportType))
+    		{
+    			if ( endpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
+    			{
+    				foundLocation = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	if(foundLocation)
+    	{
+    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(endpointInfo.endPoint());
+    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(endpointInfo.port());  
+    		return ReactorReturnCodes.SUCCESS;
+    	}
+    	else
+    	{
+    		_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "ReactorChannel.applyServiceDiscoveryEndpoint", 
+        			"ReactorChannel.applyServiceDiscoveryEndpoint(): Could not find matching location: " + reactorConnectInfo.location() + 
         			" for requesting EDP-RT service discovery.");                	
         	return ReactorReturnCodes.PARAMETER_INVALID;
     	}
-    	// copy EDP-RT connection information
-    	else
-    	{
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(_reactor._restClient.endpoint());
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(_reactor._restClient.port());     
-    	}
-    	
-    	return ReactorReturnCodes.SUCCESS;
-    }	
-	
-    int copyTokenAndPassword (LoginRequest rdmLoginRequest)
+    }
+    
+    int applyAccessToken()
     {
-     	rdmLoginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-    	rdmLoginRequest.userName().data(_reactorAuthTokenInfo.accessToken());
-    	// Do not send the password
-    	rdmLoginRequest.flags(rdmLoginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+    	/* Checks to ensure that the application specifies the Login request in the ConsumerRole as well */
+    	if(_loginRequestForEDP != null)
+    	{
+    		_loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+    		_loginRequestForEDP.userName().data(_tokenSession.authTokenInfo().accessToken());
+    		// Do not send the password
+    		_loginRequestForEDP.flags(_loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+    	}
     	
     	return ReactorReturnCodes.SUCCESS;
     }    

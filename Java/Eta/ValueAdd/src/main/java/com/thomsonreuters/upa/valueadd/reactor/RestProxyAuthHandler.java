@@ -69,8 +69,20 @@ class RestProxyAuthHandler
 		authSchemeFlag = 0;
 	}
 	
-	int execute(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
-			RestHandler restHandler) 
+	int executeSync(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestResponse restResponse, ReactorErrorInfo errorInfo) 
+			throws ClientProtocolException, IOException
+	{
+		return execute(httpRequest, connOptions, errorInfo, null, restResponse);
+	}
+	
+	int executeAsync(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestHandler restHandler, ReactorErrorInfo errorInfo) 
+			throws ClientProtocolException, IOException
+	{
+		return execute(httpRequest, connOptions, errorInfo, restHandler, null);
+	}
+	
+	private int execute(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
+			RestHandler restHandler, RestResponse restResponse) 
 			throws ClientProtocolException, IOException
 	{	
 		final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
@@ -87,26 +99,26 @@ class RestProxyAuthHandler
 					
 					if( (authSchemeFlag & NEGOTIATE) != 0 )
 					{
-						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler);
+						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
 					}
 					else if ( (authSchemeFlag & KERBEROS) != 0 )
 					{
-						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler);
+						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
 					}
 					else if ( (authSchemeFlag & NTLM) != 0 )
 					{
-						return sendNTLMRequest(httpRequest, connOptions, errorInfo, restHandler);
+						return sendNTLMRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
 					}
 					else if ( (authSchemeFlag & BASIC) != 0 )
 					{
-						return sendBasicAuthRequest(httpRequest, connOptions, errorInfo, restHandler);
+						return sendBasicAuthRequest(httpRequest, connOptions, errorInfo, restHandler, restResponse);
 					}
 				}
 				else
 				{
 					if(restHandler == null)
 					{
-						RestReactor.populateErrorInfo(errorInfo,   				
+						return RestReactor.populateErrorInfo(errorInfo,   				
 			                    ReactorReturnCodes.FAILURE,
 			                    "RestProxyAuthHandler.execute", 
 			                    "Failed to send HTTP request. Text: " 
@@ -122,11 +134,7 @@ class RestProxyAuthHandler
 			{
 				if (restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
-					RestResponse resp = new RestResponse();
-					
-					RestReactor.convertResponse(_restReactor, response, resp, event);
-					RestReactor.processResponse(_restReactor, resp, event);
+					RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo);
 				}
 				else
 				{
@@ -174,7 +182,7 @@ class RestProxyAuthHandler
 	}
 	
 	private int sendBasicAuthRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo,
-			RestHandler restHandler) throws ClientProtocolException, IOException
+			RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
 	{
 		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
 		            .register(AuthSchemes.BASIC, new BasicSchemeFactory()).build();
@@ -205,7 +213,7 @@ class RestProxyAuthHandler
 			{
 		    	if ( restHandler == null)
 		    	{
-					RestReactor.populateErrorInfo(errorInfo,   				
+					return RestReactor.populateErrorInfo(errorInfo,   				
 		                    ReactorReturnCodes.FAILURE,
 		                    "RestProxyAuthHandler.sendBasicAuthRequest", 
 		                    "Failed to send HTTP Request. Text: " 
@@ -222,11 +230,7 @@ class RestProxyAuthHandler
 			{
 				if( restHandler == null )
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
-					RestResponse resp = new RestResponse();
-					
-					RestReactor.convertResponse(_restReactor, response, resp, event);
-					RestReactor.processResponse(_restReactor, resp, event);
+					RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo);
 				}
 				else
 				{
@@ -243,7 +247,7 @@ class RestProxyAuthHandler
 	}
 	
 	private int sendNTLMRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
-			RestHandler restHandler) throws ClientProtocolException, IOException
+			RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
 	{
 		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
 	            .register(AuthSchemes.NTLM, new NTLMSchemeFactory())
@@ -279,7 +283,7 @@ class RestProxyAuthHandler
 			{
 		    	if(restHandler == null)
 		    	{
-					RestReactor.populateErrorInfo(errorInfo,   				
+					return RestReactor.populateErrorInfo(errorInfo,   				
 			                ReactorReturnCodes.FAILURE,
 			                "RestProxyAuthHandler.sendNTLMRequest", 
 			                "Failed to send HTTP Request. Text: " 
@@ -296,11 +300,7 @@ class RestProxyAuthHandler
 			{
 				if(restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
-					RestResponse resp = new RestResponse();
-					
-					RestReactor.convertResponse(_restReactor, response, resp, event);
-					RestReactor.processResponse(_restReactor, resp, event);
+					RestReactor.convertResponse(_restReactor, response, restResponse, errorInfo);
 				}
 				else
 				{
@@ -317,7 +317,7 @@ class RestProxyAuthHandler
 	}
 	
 	private int sendKerborosRequest(final HttpRequestBase httpRequest, RestConnectOptions connOptions, final ReactorErrorInfo errorInfo, 
-			final RestHandler restHandler) throws ClientProtocolException, IOException
+			final RestHandler restHandler, RestResponse restResponse) throws ClientProtocolException, IOException
 	{
 		System.setProperty("java.security.krb5.conf", connOptions.proxyKRB5ConfigFile());
 		
@@ -333,7 +333,7 @@ class RestProxyAuthHandler
 			
 			if(restHandler == null)
 			{
-				RestReactor.populateErrorInfo(errorInfo,   				
+				return RestReactor.populateErrorInfo(errorInfo,   				
 		                ReactorReturnCodes.FAILURE,
 		                "RestProxyAuthHandler.sendKerborosRequest", 
 		                "Failed to send HTTP Request. Text: " 
@@ -418,7 +418,7 @@ class RestProxyAuthHandler
 			{
 	        	if(restHandler == null)
 	        	{
-					RestReactor.populateErrorInfo(errorInfo,   				
+					return RestReactor.populateErrorInfo(errorInfo,   				
 			                ReactorReturnCodes.FAILURE,
 			                "RestProxyAuthHandler.sendKerborosRequest", 
 			                "Failed to send HTTP Request. Text: " 
@@ -433,17 +433,19 @@ class RestProxyAuthHandler
 			{
 				if(restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
 					RestResponse resp = new RestResponse();
 					
-					RestReactor.convertResponse(_restReactor, response, resp, event);
-					RestReactor.processResponse(_restReactor, resp, event);
+					RestReactor.convertResponse(_restReactor, response, resp, errorInfo);
 				}
 				else
 				{
 					restHandler.completed(response);
 				}
 			}
+        }
+        else
+        {
+        	 return ReactorReturnCodes.FAILURE;
         }
         
         try {

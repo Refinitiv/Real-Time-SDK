@@ -367,7 +367,38 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         statisticInterval = consumerCmdLineParser.statisticInterval();
         statisticTime = System.currentTimeMillis() + statisticInterval*1000;
         
-        //APIQA
+        //APIQA    
+		
+       if (consumerCmdLineParser.tokenServiceUrl() != null)
+        {
+			Buffer tokenUrl = CodecFactory.createBuffer();                  
+   		    tokenUrl.data(consumerCmdLineParser.tokenServiceUrl());      
+   		    reactorOptions.tokenServiceURL(tokenUrl);  
+        }
+        // if identify serviceDiscoveryUrl
+        if (consumerCmdLineParser.serviceDiscoveryUrl() != null)
+        {
+			Buffer discoveryUrl = CodecFactory.createBuffer();                  
+   		    discoveryUrl.data(consumerCmdLineParser.serviceDiscoveryUrl());                  
+   		    reactorOptions.serviceDiscoveryURL(discoveryUrl);
+        }
+        if (consumerCmdLineParser.tokenReissueRatio() > 0)
+        {
+        	reactorOptions.tokenReissueRatio(consumerCmdLineParser.tokenReissueRatio());
+        }
+        if (consumerCmdLineParser.restRequestTimeout() > 0)
+        {
+        	reactorOptions.restRequestTimeout(consumerCmdLineParser.restRequestTimeout());
+        }
+        if (consumerCmdLineParser.reissueTokenAttemptLimit() > 0)
+        {
+        	reactorOptions.reissueTokenAttemptLimit(consumerCmdLineParser.reissueTokenAttemptLimit());
+        }
+        if (consumerCmdLineParser.reissueTokenAttemptInterval() > 0)
+        {
+        	reactorOptions.reissueTokenAttemptInterval(consumerCmdLineParser.reissueTokenAttemptInterval());
+        }
+        
     	statisticFilter = consumerCmdLineParser.statisticFilter();
     	//END APIQA
         
@@ -413,26 +444,115 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         
         /* create channel info, initialize channel info, and connect channels
          * for each connection specified */
-        
+        //API QA
+        int index = 0;
         for (ConnectionArg connectionArg : consumerCmdLineParser.connectionList())
         {
         	// create channel info
         	ChannelInfo chnlInfo = new ChannelInfo();
         	chnlInfo.connectionArg = connectionArg;
         	
+        	//APIQA
+        	chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        	if (index==0)
+        	{
+        		// use command line login user name if specified
+        		
+                if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
+                {
+                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                    loginRequest.userName().data(consumerCmdLineParser.userName());
+                }
+                if (consumerCmdLineParser.passwd() != null)
+                {
+                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                    loginRequest.password().data(consumerCmdLineParser.passwd());
+                    loginRequest.applyHasPassword();
+                    oAuthCredential.password().data(consumerCmdLineParser.passwd());
+                }
+        	}
+        	else if (index==1)
+        	{       		 
+        		 if (consumerCmdLineParser.userName2() != null && !consumerCmdLineParser.userName2().equals(""))
+                 {
+        			 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.userName().data(consumerCmdLineParser.userName2());
+                 }
+                 if (consumerCmdLineParser.passwd2() != null)
+                 {
+                	 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.password().data(consumerCmdLineParser.passwd2());
+                     loginRequest.applyHasPassword();  
+                     oAuthCredential.password().data(consumerCmdLineParser.passwd2());
+                  }
+        	}
+        	else if (index==2)
+        	{       		 
+        		 if (consumerCmdLineParser.userName3() != null && !consumerCmdLineParser.userName3().equals(""))
+                 {
+        			 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.userName().data(consumerCmdLineParser.userName3());
+                 }
+                 if (consumerCmdLineParser.passwd3() != null)
+                 {
+                	 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.password().data(consumerCmdLineParser.passwd3());
+                     loginRequest.applyHasPassword();  
+                     oAuthCredential.password().data(consumerCmdLineParser.passwd3());
+                  }
+        	}
+        	else if (index==3)
+        	{       		 
+        		 if (consumerCmdLineParser.userName4() != null && !consumerCmdLineParser.userName4().equals(""))
+                 {
+        			 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.userName().data(consumerCmdLineParser.userName4());
+                 }
+                 if (consumerCmdLineParser.passwd4() != null)
+                 {
+                	 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.password().data(consumerCmdLineParser.passwd4());
+                     oAuthCredential.password().data(consumerCmdLineParser.passwd4());
+                  }
+        	}
+        	else if (index==4)
+        	{       		 
+        		 if (consumerCmdLineParser.userName5() != null && !consumerCmdLineParser.userName5().equals(""))
+                 {
+        			 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.userName().data(consumerCmdLineParser.userName5());
+                 }
+                 if (consumerCmdLineParser.passwd5() != null)
+                 {
+                	 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.password().data(consumerCmdLineParser.passwd5());
+                     loginRequest.applyHasPassword();  
+					 oAuthCredential.password().data(consumerCmdLineParser.passwd5());
+                  }
+        	}
+        	
+			//Commented out callback because otherwise, it will not check password for second connection.
+        	//oAuthCredential.reactorOAuthCredentialEventCallback(this);
+        	//END APIQA
         	// initialize channel info
         	initChannelInfo(chnlInfo);   
 	
 	        // connect channel
 	        int ret;
-	        if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+	         if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
 	        {
+	        	System.out.println("QA reactor.connect FAIL for index:" + index);
 	        	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
-	        	System.exit(ReactorReturnCodes.FAILURE);
+	        	//System.exit(ReactorReturnCodes.FAILURE); // Commented out for continue
+	        } else {
+	        	 System.out.println("QA reactor.connect SUCCESS for index:" + index);
 	        }
-	        
+	        //APIQA
+	        chnlInfo.consumerRole.watchlistOptions().enableWatchlist(true);
+	        //END APIQA
 	        // add to ChannelInfo list
 	        chnlInfoList.add(chnlInfo);
+			index ++;
         }
     }
 
@@ -475,12 +595,15 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	        {
 	        	statisticTime = System.currentTimeMillis() + statisticInterval*1000;
 	        	
-	        	ChannelInfo chnlInfo = chnlInfoList.get(0);
-
-	        	if(reactorOptions.statistics() != 0 && chnlInfo.reactorChannel != null)
-        			displayReactorChannelStats(chnlInfo);
-	        	
-	        	
+	        	//APIQA
+	        	for(int i = 0; i < chnlInfoList.size();i++)
+	        	{
+	        		ChannelInfo chnlInfo = chnlInfoList.get(i);
+	        		
+	        		if(reactorOptions.statistics() != 0 && chnlInfo.reactorChannel != null)
+	        			displayReactorChannelStats(chnlInfo);
+	        	}
+	        	//END APIQA
 	        	statisticTime = currentTime + statisticInterval*1000;
 	        }
 	        
@@ -792,7 +915,8 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
                 break;
             }
             case ReactorChannelEventTypes.WARNING:
-                System.out.println("Received ReactorChannel WARNING event.");
+                //System.out.println("Received ReactorChannel WARNING event\n");
+				System.out.println("Received ReactorChannel WARNING event.");
                 if (event.errorInfo() != null && event.errorInfo().error().text() != null)
                 	System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
                 
@@ -1441,9 +1565,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         }
 
         // initialize consumer role to default
-        chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        //APIQA commented out
+        //chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        //END APIQA
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
-
+        
+        /*APIQA commented out
 		// use command line login user name if specified
         if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
         {
@@ -1458,9 +1585,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             
             oAuthCredential.password().data(consumerCmdLineParser.passwd());
             
-            /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+            /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. 
             oAuthCredential.reactorOAuthCredentialEventCallback(this);
         }
+        //END APIQA */
         if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
         {
         	oAuthCredential.clientId().data(consumerCmdLineParser.clientId());
@@ -1858,10 +1986,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		//System.out.println("Message Details:");
                 //APIQA
 		Calendar cal = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-    	        System.out.println("Statistic Time: "+ sdf.format(cal.getTime()));
-    	        //END APIQA
-                System.out.println("Reactor channel statistic: Channel fd=" + chnlInfo.reactorChannel.channel().hashCode());
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    	System.out.println("Statistic Time: "+ sdf.format(cal.getTime()));
+    	//END APIQA
+        System.out.println("Reactor channel statistic: Channel fd=" + chnlInfo.reactorChannel.channel().hashCode());
 		System.out.printf("Bytes read=%d\n", reactorChannelStats.bytesRead());
 		System.out.printf("Uncompressed bytes read=%d\n\n", reactorChannelStats.uncompressedBytesRead());
 		System.out.printf("Bytes written=%d\n", reactorChannelStats.bytesWritten());

@@ -1326,7 +1326,7 @@ class WlDirectoryHandler implements WlHandler
             {                
             	// clear service cache
                 _serviceCache.clearCache(false);
-                
+
                 closeDirectoryStream();
             }
         }

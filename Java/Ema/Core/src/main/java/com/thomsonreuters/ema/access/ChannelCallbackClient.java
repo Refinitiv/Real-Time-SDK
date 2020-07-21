@@ -17,7 +17,6 @@ import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
@@ -40,6 +39,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectInfo;
@@ -870,7 +870,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
-	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, Buffer clientId)
+	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, EmaConfigImpl configImpl)
 	{
         ConsumerRole consumerRole = ReactorFactory.createConsumerRole();
 		
@@ -885,8 +885,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
 		
-		if(clientId.length() != 0)
-			consumerRole.clientId(clientId);
+		/* The Client ID is required parameter to enable the session management */
+		if(configImpl.clientId().length() != 0 )
+		{
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			oAuthCredential.clientId(configImpl.clientId());
+			oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+		}
 		
 		ConsumerWatchlistOptions watchlistOptions = consumerRole.watchlistOptions();
 		watchlistOptions.channelOpenCallback(this);

@@ -114,6 +114,7 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			_reactorServiceDiscoveryOptions.clientId(serviceEndpointDiscoveryOptionImpl._clientId);
 			_reactorServiceDiscoveryOptions.transport(serviceEndpointDiscoveryOptionImpl._transport);
 			_reactorServiceDiscoveryOptions.dataFormat(serviceEndpointDiscoveryOptionImpl._dataFormat);
+			_reactorServiceDiscoveryOptions.takeExclusiveSignOnControl(serviceEndpointDiscoveryOptionImpl._takeExclusiveSignOnControl);
 			
 			if(serviceEndpointDiscoveryOptionImpl._proxyHostName != null && !serviceEndpointDiscoveryOptionImpl._proxyHostName.isEmpty())
 			{

@@ -19,6 +19,7 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.common.SelectableBiDirectionalQueue;
 import com.thomsonreuters.upa.valueadd.common.VaIteratableQueue;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorTokenSession.SessionState;
 
 /* Internal Worker thread class. */
 class Worker implements Runnable
@@ -40,6 +41,8 @@ class Worker implements Runnable
     volatile boolean _running = true;
 
     VaIteratableQueue _timerEventQueue = new VaIteratableQueue();
+    
+    Reactor _reactor;
 
     Worker(ReactorChannel reactorChannel, SelectableBiDirectionalQueue queue)
     {
@@ -50,6 +53,7 @@ class Worker implements Runnable
 
         _reactorReactorChannel = reactorChannel;
         _queue = queue;
+        _reactor = reactorChannel.reactor();
     }
 
     @Override
@@ -129,26 +133,8 @@ class Worker implements Runnable
                     {
                     	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
                     	{
-                    		ReactorChannel reactorChannel = event.reactorChannel();
-                    		if (    reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
-                            		&& reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
-                            		&& reactorChannel.state() != ReactorChannel.State.DOWN
-                            		&& reactorChannel.state() != ReactorChannel.State.CLOSED
-                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT )   
-                    		{
-                    			if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE ||
-                    			   reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.AUTHENTICATE_USING_PASSWD_GRANT	)
-                    			{
-                    				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD);
-                    				event._restClient.requestNewAuthTokenWithUserNameAndPassword(reactorChannel);
-                    			}
-                    			else
-                    			{
-                    				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN);
-                    				event._restClient.requestRefreshAuthToken( reactorChannel , event.errorInfo() );
-                    			}
-                    		}
-
+                    		event._tokenSession.handleTokenReissue();
+                    		
                     		_timerEventQueue.remove(event);
 							event.returnToPool();
 	                    } 
@@ -242,7 +228,7 @@ class Worker implements Runnable
                         	channel = reactorChannel.reconnectEDP(_error);
                         }
                         
-                    	if (channel == null && reactorChannel.state() != State.EDP_RT)
+                        if (channel == null && reactorChannel.state() != State.EDP_RT)
                         {
                             // Reconnect attempt failed -- send channel down event.
                             _reconnectingChannelQueue.remove(reactorChannel);
@@ -317,18 +303,20 @@ class Worker implements Runnable
                 break;
             case TOKEN_MGNT:
             	// Setup a timer for token management 
-            	if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
+            	ReactorTokenSession tokenSession = event._tokenSession;
+            	
+            	if(tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE)
             	{
-            		event.timeout(reactorChannel.nextTokenReissueAttemptReqTime());
+            		event.timeout(tokenSession.nextTokenReissueAttemptReqTime());
             	}
-            	else if (reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.AUTHENTICATE_USING_PASSWD_GRANT)
+            	else if (tokenSession.sessionMgntState() == SessionState.AUTHENTICATE_USING_PASSWD_GRANT)
             	{
             		event.timeout(System.nanoTime()); /* Sends a request to get an access token now */
             	}
             	else
             	{
-            		reactorChannel.calculateNextAuthTokenRequestTime(((ReactorAuthTokenEvent) event)._reactorAuthTokenInfo.expiresIn());          	
-            		event.timeout(reactorChannel.nextAuthTokenRequestTime());	
+            		tokenSession.calculateNextAuthTokenRequestTime(tokenSession.authTokenInfo().expiresIn());          	
+            		event.timeout(tokenSession.nextAuthTokenRequestTime());	
             	}
             	
             	_timerEventQueue.add(event);
@@ -371,22 +359,6 @@ class Worker implements Runnable
                                     + e.getLocalizedMessage());
         }
     }
-
-	private void cancelAuthTokenTimer(ReactorChannel reactorChannel)
-	{
-        // cancel the AUTH TOKEN timer
-        _timerEventQueue.rewind();
-        while (_timerEventQueue.hasNext())
-        {    	
-        	WorkerEvent event = (WorkerEvent)_timerEventQueue.next();
-        	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT && 
-        		event.reactorChannel() == reactorChannel)
-        	{      		
-        		_timerEventQueue.remove(event);
-        		event.returnToPool();
-        	}
-        }
-	}
 	
     private void processChannelClose(ReactorChannel reactorChannel)
     {
@@ -399,8 +371,6 @@ class Worker implements Runnable
             reactorChannel.selectableChannelFromChannel(null);
             reactorChannel.flushRequested(false);
         }
-        
-        cancelAuthTokenTimer(reactorChannel);  
 
         if (_activeChannelQueue.remove(reactorChannel) == false)
             if (_initChannelQueue.remove(reactorChannel) == false)
@@ -788,6 +758,8 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
+                    
+                    reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
             }
@@ -801,6 +773,8 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
+                    
+                    reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
             }
@@ -814,8 +788,15 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
+                    
+                    reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
+            }
+            
+            if(_reactor.numberOfTokenSession() != 0)
+            {
+            	_reactor.removeAllTokenSession();
             }
         }
 

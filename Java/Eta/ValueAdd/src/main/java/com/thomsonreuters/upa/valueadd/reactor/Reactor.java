@@ -2,8 +2,10 @@ package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -65,9 +68,18 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.queue.QueueMsg;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorTokenSession.SessionState;
 
 /**
  * The Reactor. Applications create Reactor objects by calling {@link ReactorFactory#createReactor(ReactorOptions, ReactorErrorInfo)},
@@ -124,13 +136,17 @@ public class Reactor
 	private StringBuilder _xmlString = new StringBuilder(1500);
     private HashMap<Msg, TransportBuffer> _submitMsgMap = new HashMap<Msg, TransportBuffer>();
     private HashMap<MsgBase, TransportBuffer> _submitRdmMsgMap = new HashMap<MsgBase, TransportBuffer>();
+    private HashMap<String, ReactorTokenSession> _tokenManagementMap = new HashMap<String, ReactorTokenSession>(5);
+    private Lock _tokenManagementLock = new ReentrantLock();
     
     // REST client support
     RestClient _restClient;
+    ReactorTokenSession _tokenSessionForCredentialRenewalCallback;
     
-	RestReactorOptions _restReactorOptions;
-	RestConnectOptions _restConnectOptions;
-	RestAuthOptions _restAuthOptions;
+    // This is used by the queryServiceDiscovery() method.
+    private List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = new ArrayList<ReactorServiceEndpointInfo>(50);
+    RestReactorOptions _restReactorOptions;
+
 	// tunnel stream support
     private TunnelStreamStateInfo _tunnelStreamStateInfo;
     private TunnelStreamAuthInfo _authInfo = ReactorFactory.createTunnelStreamAuthInfo();
@@ -505,6 +521,7 @@ public class Reactor
         _reactorLock.lock();
         
         boolean sendAuthTokenEvent = false;
+        ReactorTokenSession tokenSession = null;
         
         try
         {
@@ -585,7 +602,13 @@ public class Reactor
                                          "role must be Consumer or NIProvider Role, aborting.");
             }
 
-            if (reactorConnectOptions.connectionList().get(0).initTimeout() < 1)
+            if (reactorConnectOptions.connectionList().size() == 0)
+            {
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                         "Reactor.connect",
+                                         "ReactorConnectOptions.connectionList() must have at least one ReactorConnectInfo, aborting.");
+            }
+            else if (reactorConnectOptions.connectionList().get(0).initTimeout() < 1)
             {
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                                          "Reactor.connect",
@@ -597,102 +620,88 @@ public class Reactor
                                          "Reactor.connect",
                                          "ReactorConnectOptions.connectOptions.blocking must be false, aborting.");
             }
-
-            // setup a rest client if any connections are requiring the session management 
-            if(_restClient == null)
-            {
-            	for (int i = 0; i < reactorConnectOptions.connectionList().size(); i++)
-            	{
-            		if (reactorConnectOptions.connectionList().get(i).enableSessionManagement())
-            		{
-            		    try
-            	        {
-            		    	setupRestClient();
-
-            		    	createRestClient(errorInfo);
-            	        }
-            	        catch(Exception e)
-            	        {
-            	            return populateErrorInfo(errorInfo,
-            	                    ReactorReturnCodes.FAILURE,
-            	                    "Reactor.initRestClient",
-            	                    "failed to initialize the RESTClient, exception="
-            	                            + e.getLocalizedMessage());
-            	        }
-
-            		    break;
-            		}
-            	}
-            }            
-
-            if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
-            {
-            	if (sessionManagementConfigValidationAndStartup(reactorConnectOptions.connectionList().get(0), role, null, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                	return errorInfo.code();
-                }
-
-            	sendAuthTokenEvent = true;
-	        }              
-    
-            // create a ReactorChannel and add it to the initChannelQueue.
-            ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
             
-            reactorChannel.reactor(this);            
-            reactorChannel.state(State.INITIALIZING);
+            // create a ReactorChannel
+            ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+            reactorChannel.reactor(this);
             reactorChannel.userSpecObj(reactorConnectOptions.connectionList().get(0).connectOptions().userSpecObject());
             reactorChannel.initializationTimeout(reactorConnectOptions.connectionList().get(0).initTimeout());
             reactorChannel.reactorConnectOptions(reactorConnectOptions);
-
-            if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
+            
+            if(enableSessionManagement(reactorConnectOptions))
             {
-            	LoginRequest loginRequest = null;
-
-        		if (role.type() == ReactorRoleTypes.CONSUMER)
-        		{
-        			loginRequest = ((ConsumerRole)role).rdmLoginRequest();  		
-        		}
-        		else if(role.type() == ReactorRoleTypes.NIPROVIDER)
-        		{
-        			loginRequest = ((NIProviderRole)role).rdmLoginRequest();
-        		}            	
-
-            	reactorChannel._loginRequestForEDP = (LoginRequest)LoginMsgFactory.createMsg();
-            	reactorChannel._loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
-            		
-            	loginRequest.copy(reactorChannel._loginRequestForEDP);
-
-            	reactorChannel._reactorAuthTokenInfo = new ReactorAuthTokenInfo();
-            	_restClient.reactorAuthTokenInfo().copy(reactorChannel._reactorAuthTokenInfo);
+            	ReactorOAuthCredential oAuthCredential;
             	
-            	/* Set original expires in when sending request using password grant type*/
-            	reactorChannel.originalExpiresIn(reactorChannel._reactorAuthTokenInfo.expiresIn());
-
-            	if (requestServiceDiscovery(reactorConnectOptions.connectionList().get(0)))
+            	// setup a rest client if any connections are requiring the session management
+            	try
+     	        {
+     		    	setupRestClient(errorInfo);
+     	        }
+     	        catch(Exception e)
+     	        {
+     	        	reactorChannel.returnToPool();
+     	            return populateErrorInfo(errorInfo,
+     	                    ReactorReturnCodes.FAILURE,
+     	                    "Reactor.setupRestClient",
+     	                    "failed to initialize the RESTClient, exception="
+     	                            + e.getLocalizedMessage());
+     	        }
+            	
+            	if ( (oAuthCredential = retriveOAuthCredentialFromConsumerRole(role, errorInfo)) != null)
             	{
-            		reactorChannel.copyTokenAndPassword(reactorChannel._loginRequestForEDP);
+            		tokenSession = getTokenSession(oAuthCredential, errorInfo);
             		
-		            if (reactorChannel.verifyAndCopyServiceDiscoveryData(reactorChannel._loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-		            {
-		            	return errorInfo.code();
-		            }
+            		if(tokenSession == null)
+                	{
+            			reactorChannel.returnToPool();
+                		return errorInfo.code();
+                	}
+            		
+            		reactorChannel.tokenSession(tokenSession);
             	}
             	else
             	{
-            		reactorChannel.copyTokenAndPassword(reactorChannel._loginRequestForEDP);
+            		reactorChannel.returnToPool();
+            		return errorInfo.code();
+            	}           	
+            }  
+
+            if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
+            {            	
+            	if (sessionManagementStartup(tokenSession, reactorConnectOptions.connectionList().get(0), role, 
+            			reactorChannel, true, errorInfo) != ReactorReturnCodes.SUCCESS)
+                {
+            		removeReactorChannel(reactorChannel);
+                	reactorChannel.returnToPool();
+                	return errorInfo.code();
+                }
+            	
+         		reactorChannel.applyAccessToken();
+            	
+            	/* Set original expires in when sending request using password grant type*/
+            	tokenSession.originalExpiresIn(tokenSession.authTokenInfo().expiresIn());
+            	
+            	sendAuthTokenEvent = true;
+            	
+            	/* Clears OAuth sensitive information if the callback is specified */
+            	if(tokenSession.oAuthCredential().reactorOAuthCredentialEventCallback() != null)
+            	{
+            		tokenSession.oAuthCredential().password().clear();
+            		tokenSession.oAuthCredential().clientSecret().clear();
             	}
-            		
             }
+            
+            reactorChannel.state(State.INITIALIZING);
             reactorChannel.role(role);
 
+            // Add it to the initChannelQueue.
             _reactorChannelQueue.pushBack(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
             
             // enable channel read/write locking for reactor since it's multi-threaded with worker thread
             ConnectOptions connectOptions = reactorChannel.getReactorConnectInfo().connectOptions();
             connectOptions.channelReadLocking(true);
             connectOptions.channelWriteLocking(true);
-            
-
+           
             // create watchlist if enabled
             if (role.type() == ReactorRoleTypes.CONSUMER &&
                 ((ConsumerRole)role).watchlistOptions().enableWatchlist())
@@ -715,10 +724,13 @@ public class Reactor
             
             if (sendAuthTokenEvent)
             {
-				sendAuthTokenEventCallback(reactorChannel, reactorChannel._reactorAuthTokenInfo, errorInfo);
+				sendAuthTokenEventCallback(reactorChannel, tokenSession.authTokenInfo(), errorInfo);
 				reactorChannel.sessionMgntState(ReactorChannel.SessionMgntState.RECEIVED_AUTH_TOKEN);
-				if (!sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo))
+				if (!tokenSession.isInitialized() && !sendAuthTokenWorkerEvent(tokenSession))
 				{
+					removeReactorChannel(reactorChannel);
+					reactorChannel.returnToPool();
+					_reactorChannelQueue.remove(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
 	                return populateErrorInfo(errorInfo,
                             ReactorReturnCodes.FAILURE,
                             "Reactor.connect",
@@ -755,6 +767,10 @@ public class Reactor
                 sendAndHandleChannelEventCallback("Reactor.connect",
                                                       ReactorChannelEventTypes.CHANNEL_DOWN,
                                                       reactorChannel, errorInfo);
+                
+                removeReactorChannel(reactorChannel);
+                reactorChannel.returnToPool();
+                _reactorChannelQueue.remove(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
                 return populateErrorInfo(errorInfo,
                                   ReactorReturnCodes.FAILURE,
                                   "Reactor.connect",
@@ -769,7 +785,260 @@ public class Reactor
         return ReactorReturnCodes.SUCCESS;
     }
     
-    int sessionManagementConfigValidationAndStartup(ReactorConnectInfo reactorConnectInfo, ReactorRole role, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
+    final static boolean compareOAuthCredential(Reactor reactor, ReactorOAuthCredential current, ReactorOAuthCredential other, ReactorErrorInfo errorInfo)
+    {
+    	if(current.reactorOAuthCredentialEventCallback() != other.reactorOAuthCredentialEventCallback())
+		{
+			reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+                	"The ReactorOAuthCredentialEventCallback of ReactorOAuthCredential is not equal for the existing token session.");                	
+			return false;
+		}
+    	
+    	if(current.reactorOAuthCredentialEventCallback() == null)
+    	{
+	    	if(current.clientSecret().equals(other.clientSecret()) == false)
+	    	{
+	    		reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+	                	"The Client secret of ReactorOAuthCredential is not equal for the existing token session.");                	
+				return false;
+	    	}
+	    	
+	    	if(current.password().equals(other.password()) == false)
+	    	{
+	    		reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+	                	"The password of ReactorOAuthCredential is not equal for the existing token session.");                	
+				return false;
+	    	}
+    	}
+    	
+    	if(current.clientId().equals(other.clientId()) == false)
+    	{
+    		reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+                	"The Client ID of ReactorOAuthCredential is not equal for the existing token session.");                	
+			return false;
+    	}
+    	
+    	if(current.tokenScope().equals(other.tokenScope()) == false)
+    	{
+    		reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+                	"The token scope of ReactorOAuthCredential is not equal for the existing token session.");                	
+			return false;
+    	}
+    	
+    	if(current.takeExclusiveSignOnControl() != other.takeExclusiveSignOnControl())
+    	{
+    		reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.compareOAuthCredential", 
+                	"The takeExclusiveSignOnControl of ReactorOAuthCredential is not equal for the existing token session.");                	
+			return false;
+    	}
+    	
+    	return true;
+    }
+    
+    ReactorTokenSession getTokenSession(ReactorOAuthCredential oAuthCredential, ReactorErrorInfo errorInfo)
+    {
+    	ReactorTokenSession tokenSession;
+    	
+    	_tokenManagementLock.lock();
+    	
+    	try
+    	{
+    		String userName = oAuthCredential.userName().toString();
+	    	tokenSession = _tokenManagementMap.get(oAuthCredential.userName().toString());
+	    	
+	    	if(tokenSession == null)
+	    	{
+	    		tokenSession = new ReactorTokenSession(this, oAuthCredential );
+	    		_tokenManagementMap.put(userName, tokenSession);
+	    	}
+	    	else
+	    	{
+	    		/* Checks whether there is sufficient time to reissue the access token for this channel. */
+	    		if ( tokenSession.checkMiniumTimeForReissue(errorInfo) == false )
+	    		{
+	    			return null;
+	    		}
+	    		
+	    		/* Validates the credential with the existing token session for the same user name */
+	    		if ( compareOAuthCredential(this, tokenSession.oAuthCredential(), oAuthCredential, errorInfo) == false)
+	    		{
+	    			return null;
+	    		}
+	    	}
+    	}
+    	finally
+    	{
+    		_tokenManagementLock.unlock();
+    	}
+    	
+    	return tokenSession;
+    }
+    
+    void removeTokenSession(ReactorTokenSession tokenSession)
+    {
+		if(tokenSession == null)
+			return;
+    	
+    	_tokenManagementLock.lock();
+    	
+    	try
+    	{	    		
+	    	_tokenManagementMap.remove(tokenSession.oAuthCredential().userName().toString());
+    	}
+    	finally
+    	{
+    		_tokenManagementLock.unlock();
+    	}
+    }
+    
+    void removeAllTokenSession()
+    {
+    	_tokenManagementLock.lock();
+    	
+    	try
+    	{	  
+    		Iterator<ReactorTokenSession> iter = _tokenManagementMap.values().iterator();
+        	
+        	ReactorTokenSession tokenSession;
+        	
+        	while(iter.hasNext())
+        	{
+        		tokenSession = iter.next();
+        		
+        		tokenSession.removeAllReactorChannel();
+        	}
+    		
+        	_tokenManagementMap.clear();
+    	}
+    	finally
+    	{
+    		_tokenManagementLock.unlock();
+    	}
+    }
+    
+    int numberOfTokenSession()
+    {
+    	_tokenManagementLock.lock();
+    	
+    	try
+    	{
+    		return _tokenManagementMap.size();
+    	}
+    	finally
+    	{
+    		_tokenManagementLock.unlock();
+    	}
+    }
+    
+    void removeReactorChannel(ReactorChannel reactorChannel)
+    {
+    	ReactorTokenSession tokenSession = reactorChannel.tokenSession();
+    	
+    	if( tokenSession != null)
+    	{
+    		if ( tokenSession.removeReactorChannel(reactorChannel) == 0 )
+    		{
+    			removeTokenSession(tokenSession);
+    		}
+    	}
+    }
+    
+    
+    /* Checks whether the session management is enabled */
+    final static boolean enableSessionManagement(ReactorConnectOptions reactorConnectOptions)
+    {
+    	for (int i = 0; i < reactorConnectOptions.connectionList().size(); i++)
+    	{
+    		if (reactorConnectOptions.connectionList().get(i).enableSessionManagement())
+    		{
+    		    return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    @SuppressWarnings("deprecation")
+	ReactorOAuthCredential retriveOAuthCredentialFromConsumerRole(ReactorRole role, ReactorErrorInfo errorInfo)
+    {
+    	LoginRequest loginRequest = null;
+    	ReactorOAuthCredential oauthCredential = null;
+    	ReactorOAuthCredential oauthCredentialOut = null;
+
+		if (role.type() == ReactorRoleTypes.CONSUMER)
+		{
+			oauthCredential = ((ConsumerRole)role).reactorOAuthCredential();
+			loginRequest = ((ConsumerRole)role).rdmLoginRequest();  		
+		}
+		else if(role.type() == ReactorRoleTypes.NIPROVIDER)
+		{
+			populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.copyOAuthCredentialForSessionManagement", 
+                	"The session management supports only on the ReactorRoleTypes.CONSUMER type.");                	
+			return null;
+		}
+	
+		if (loginRequest == null && oauthCredential == null)
+		{    			
+            populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.copyOAuthCredentialForSessionManagement", 
+                	"There is no user credential available for enabling session management.");                	
+			return null;
+		}
+		
+		Buffer userName = (oauthCredential != null && oauthCredential.userName().length() != 0) ? oauthCredential.userName() :
+			(loginRequest != null && loginRequest.userName().length() != 0) ? loginRequest.userName() :  null;
+		Buffer password = (oauthCredential != null && oauthCredential.password().length() != 0) ? oauthCredential.password() :
+				(loginRequest != null && loginRequest.password().length() != 0) ? loginRequest.password() :  null;
+		
+		Buffer clientId = (oauthCredential != null && oauthCredential.clientId().length() != 0) ? oauthCredential.clientId() : ((ConsumerRole)role).clientId();
+		
+		if(userName == null || userName.length() == 0)
+		{
+			populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.copyOAuthCredentialForSessionManagement", 
+                	"Failed to copy OAuth credential for enabling the session management; OAuth user name does not exist."); 
+			return null;
+		}
+		
+		if(clientId == null || clientId.length() == 0)
+		{
+			populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.copyOAuthCredentialForSessionManagement", 
+                	"Failed to copy OAuth credential for enabling the session management; OAuth client ID does not exist."); 
+			return null;
+		}
+		
+		if(password == null || password.length() == 0)
+		{
+			populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.copyOAuthCredentialForSessionManagement", 
+                	"Failed to copy OAuth credential for enabling the session management; OAuth password does not exist."); 
+			return null;
+		}
+		
+		oauthCredentialOut = ReactorFactory.createReactorOAuthCredential();
+		
+		oauthCredentialOut.userName().data(userName.toString());
+		oauthCredentialOut.password().data(password.toString());
+		oauthCredentialOut.clientId().data(clientId.toString());
+		
+		if(oauthCredential != null)
+		{
+			if(oauthCredential.clientSecret().length() != 0)
+			{
+				oauthCredentialOut.clientSecret().data(oauthCredential.clientSecret().toString());
+			}
+			
+			if(oauthCredential.tokenScope().length() != 0)
+			{
+				oauthCredentialOut.tokenScope().data(oauthCredential.tokenScope().toString());
+			}
+			
+			oauthCredentialOut.takeExclusiveSignOnControl(oauthCredential.takeExclusiveSignOnControl());
+			oauthCredentialOut.reactorOAuthCredentialEventCallback(oauthCredential.reactorOAuthCredentialEventCallback());
+			oauthCredentialOut.userSpecObj(oauthCredential.userSpecObj());
+		}
+    	
+    	return oauthCredentialOut;
+    }
+    
+    int sessionManagementStartup(ReactorTokenSession tokenSession, ReactorConnectInfo reactorConnectInfo, ReactorRole role, ReactorChannel reactorChannel, boolean isBlocking, ReactorErrorInfo errorInfo)
     {
     	// save login information
     	LoginRequest loginRequest = null;
@@ -777,36 +1046,25 @@ public class Reactor
 		if (role.type() == ReactorRoleTypes.CONSUMER)
 		{
 			loginRequest = ((ConsumerRole)role).rdmLoginRequest();  		
-		}
-		else if(role.type() == ReactorRoleTypes.NIPROVIDER)
-		{
-			loginRequest = ((NIProviderRole)role).rdmLoginRequest();
-		}
-	
-		if (loginRequest == null)
-		{    			
-            populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.connect", 
-                	"Reactor.connect(): RDMLoginRequest not set, need user name and password for : " + 
-                	"for session managment.");                	
-			return ReactorReturnCodes.INVALID_USAGE;
-		}    	
+		}   	
     	
-    	if (reactorChannel != null)
-    	{
-    		if (reactorChannel._loginRequestForEDP == null)
-    		{
-    			reactorChannel._loginRequestForEDP = (LoginRequest)LoginMsgFactory.createMsg();
-    			reactorChannel._loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
-    			
-        		loginRequest.copy(reactorChannel._loginRequestForEDP);
-        		reactorChannel._loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-        		reactorChannel._loginRequestForEDP.flags(reactorChannel._loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
-    		}
-    	}
+		if ( (loginRequest != null) && (reactorChannel._loginRequestForEDP == null) )
+		{
+			reactorChannel._loginRequestForEDP = (LoginRequest)LoginMsgFactory.createMsg();
+			reactorChannel._loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
+			
+    		loginRequest.copy(reactorChannel._loginRequestForEDP);
+    		reactorChannel._loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+    		// Do not send the password
+    		reactorChannel._loginRequestForEDP.flags(reactorChannel._loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+		}
     	
     	switch (reactorConnectInfo.connectOptions().connectionType())
     	{
     		case ConnectionTypes.ENCRYPTED:
+    			
+    			reactorChannel.restConnectOptions().transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
+    			
     			break;
     		default:
                 populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.connect", 
@@ -815,21 +1073,62 @@ public class Reactor
                 	" for requesting EDP-RT service discovery.");                	
             return ReactorReturnCodes.PARAMETER_INVALID;
     	}
-
-    	if (reactorChannel != null && reactorChannel._loginRequestForEDP != null)
-    		populateRestConnectOptions(reactorChannel._loginRequestForEDP, reactorConnectInfo, role);
+    	
+    	tokenSession.lock();
+    	
+    	reactorChannel.state(State.EDP_RT);
+    	tokenSession.setProxyInfo(reactorConnectInfo);
+    	
+      	try
+    	{
+      		if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE )
+      		{
+      			return ReactorReturnCodes.SUCCESS;
+      		}
+      		
+    		if( !tokenSession.hasAccessToken() )
+    		{
+    			if ( _restClient.getAuthAccessTokenInfo(tokenSession.authOptoins(), tokenSession.restConnectOptions(),
+    					tokenSession.authTokenInfo(), isBlocking, errorInfo) != ReactorReturnCodes.SUCCESS)
+    			{
+    				return errorInfo.code();
+    			}
+    			
+    			/* The service discovery will be requested in the callback of the token request if needed.*/
+    			if(!isBlocking)
+    			{
+    				return ReactorReturnCodes.SUCCESS;
+    			}
+    		}
+    	}
+    	finally
+    	{
+    		tokenSession.unlock();
+    	}
+    	
+    	if (requestServiceDiscovery(reactorConnectInfo))
+    	{    		
+    		if ( _restClient.getServiceDiscovery(reactorChannel.restConnectOptions(), tokenSession.authTokenInfo(), isBlocking,
+    				reactorChannel.reactorServiceEndpointInfoList(), errorInfo) != ReactorReturnCodes.SUCCESS)
+			{
+				return errorInfo.code();
+			}
+    	
+            if (isBlocking && reactorChannel.applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+            	return errorInfo.code();
+            }
+            else
+            {
+            	reactorChannel.state(State.EDP_RT_DONE);
+            }
+    	}
     	else
-    		populateRestConnectOptions(loginRequest, reactorConnectInfo, role);        		
-
-    	_restConnectOptions.userSpecObject(reactorChannel);
-
-    	// if reactor channel is null, it means that this is the first time and we call blocking
-    	if (reactorChannel == null)
-    		_restClient.connectBlocking(null, requestServiceDiscovery(reactorConnectInfo), errorInfo);
-    	else
-    		_restClient.connect(errorInfo);
-    
-        return errorInfo.error().errorId();
+    	{
+    		reactorChannel.state(State.EDP_RT_DONE);
+    	}
+    	
+    	return ReactorReturnCodes.SUCCESS;
     }
 
 	static boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
@@ -845,25 +1144,38 @@ public class Reactor
     		return true;
     	}
     	return false;
-	}    
+	}
+	
+	ReactorOptions reactorOptions()
+	{
+		return _reactorOptions;
+	}
 
-    
-    private int sendQueryServiceDiscoveryEvent(ReactorServiceEndpointEventCallback callback, ReactorErrorInfo errorInfo)
+    private static final int sendQueryServiceDiscoveryEvent(ReactorServiceDiscoveryOptions options, List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList,
+    		ReactorErrorInfo errorInfo)
     {
-		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
+    	ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
+    	
+    	ReactorErrorInfo errorInfoTemp = reactorServiceEndpointEvent._errorInfo;
+
+    	if(reactorServiceEndpointInfoList != null)
+    	{
+    		reactorServiceEndpointEvent._reactorServiceEndpointInfoList = reactorServiceEndpointInfoList;
+    	}
+    	else
+    	{
+    		reactorServiceEndpointEvent._errorInfo = errorInfo;
+    	}
+    	
+    	reactorServiceEndpointEvent._userSpecObject = options.userSpecObject();
+
+		options.reactorServiceEndpointEventCallback().reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
 		
-		if (_restClient != null && _restConnectOptions != null)
-		{
-			reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
-			reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
-		}
-		reactorServiceEndpointEvent._errorInfo = errorInfo;
+		reactorServiceEndpointEvent._errorInfo = errorInfoTemp;
 		
-		if (callback != null)
-			callback.reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
+		reactorServiceEndpointEvent.returnToPool();
 		
-        reactorServiceEndpointEvent.returnToPool();
-        return errorInfo.code();
+		return errorInfo.code();
     }
     
     /**
@@ -880,25 +1192,56 @@ public class Reactor
     	_reactorLock.lock();
 
     	try {
-
-    		if (options == null)
-    		{		
-    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
-    					"Reactor.queryServiceDiscovery(): options cannot be null, aborting.");
-    			return sendQueryServiceDiscoveryEvent(null, errorInfo);
-    		}
-
+    		
+    		ReactorAuthTokenInfo authTokenInfo;
+        	RestConnectOptions connOptions;
+    		
     		if (errorInfo == null)
     		{  		
     			return ReactorReturnCodes.PARAMETER_INVALID;
     		}
+    		
+    		 if (!_reactorActive)
+             {
+                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                          "Reactor.queryServiceDiscovery", "Reactor is not active, aborting.");
+             }
+
+    		if (options == null)
+    		{		
+    			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): options cannot be null, aborting.");
+    		}
 
     		if (options.reactorServiceEndpointEventCallback() == null)
     		{
-    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
-    					"Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");       	
-    			return sendQueryServiceDiscoveryEvent(options.reactorServiceEndpointEventCallback(), errorInfo);        	
+    			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");       	      	
     		}
+    		
+    		if (options.userName() == null || options.userName().length() == 0)
+        	{
+        		return populateErrorInfo(errorInfo,
+   	                    ReactorReturnCodes.PARAMETER_INVALID,
+   	                    "Reactor.queryServiceDiscovery",
+   	                    "Required parameter username is not set");
+        	}
+    		
+    		if (options.password() == null || options.password().length() == 0)
+        	{
+        		return populateErrorInfo(errorInfo,
+   	                    ReactorReturnCodes.PARAMETER_INVALID,
+   	                    "Reactor.queryServiceDiscovery",
+   	                    "Required parameter password is not set");
+        	}
+    		
+    		if (options.clientId() == null || options.clientId().length() == 0)
+        	{
+        		return populateErrorInfo(errorInfo,
+   	                    ReactorReturnCodes.PARAMETER_INVALID,
+   	                    "Reactor.queryServiceDiscovery",
+   	                    "Required parameter clientId is not set");
+        	}
 
     		switch (options.transport())
     		{
@@ -925,181 +1268,274 @@ public class Reactor
     					"Reactor.queryServiceDiscovery(): Invalid dataformat protocol type " + options.dataFormat());         	
     			return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
     		}
-
-    		if (_restClient == null)
-    			initRestClientForQueryServiceDiscovery(options, errorInfo);
-    		else
-    			_restClient.connectBlocking(options, true, errorInfo);
     		
-    		if (errorInfo.code() == ReactorReturnCodes.PARAMETER_INVALID)
-    			return errorInfo.code();
-
-    		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
-
-    		reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
-    		reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
-
-    		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
-    			reactorServiceEndpointEvent._errorInfo = errorInfo;
-
-    		options.reactorServiceEndpointEventCallback().reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
-    		reactorServiceEndpointEvent.returnToPool();				
+    		try
+ 	        {
+ 		    	setupRestClient(errorInfo);
+ 	        }
+ 	        catch(Exception e)
+ 	        {
+ 	            return populateErrorInfo(errorInfo,
+ 	                    ReactorReturnCodes.FAILURE,
+ 	                    "Reactor.setupRestClient",
+ 	                    "failed to initialize the RESTClient, exception="
+ 	                            + e.getLocalizedMessage());
+ 	        }
+    		
+    		_tokenManagementLock.lock();
+    		ReactorTokenSession tokenSession = null;
+    		
+    		try
+        	{
+    	    	tokenSession = _tokenManagementMap.get(options.userName().toString());
+        	}
+        	finally
+        	{
+        		_tokenManagementLock.unlock();
+        	}
+    		
+    		if (tokenSession == null)
+    		{
+    			RestAuthOptions authOptions = new RestAuthOptions(options.takeExclusiveSignOnControl());
+    			authTokenInfo = new ReactorAuthTokenInfo();
+    	    	connOptions = new RestConnectOptions(reactorOptions());
+    	    	
+    	    	authOptions.username(options.userName().toString());
+    	    	authOptions.password(options.password().toString());
+    	    	authOptions.clientId(options.clientId().toString());
+    	    	
+    	    	connOptions.applyServiceDiscoveryOptions(options);
+    			
+    			if (_restClient.getAuthAccessTokenInfo(authOptions, connOptions, authTokenInfo, true, errorInfo) != ReactorReturnCodes.SUCCESS)
+    			{
+    				Reactor.sendQueryServiceDiscoveryEvent(options, null, errorInfo);
+    				return ReactorReturnCodes.SUCCESS;
+    			}
+    		}
+    		else
+    		{
+    			authTokenInfo = tokenSession.authTokenInfo();
+    			connOptions = tokenSession.restConnectOptions();
+    		}
+    		
+    		_reactorServiceEndpointInfoList.clear();
+    		
+    		if ( _restClient.getServiceDiscovery(connOptions, authTokenInfo, true, _reactorServiceEndpointInfoList, errorInfo) != ReactorReturnCodes.SUCCESS)
+    		{
+    			Reactor.sendQueryServiceDiscoveryEvent(options, null, errorInfo);
+    		}
+    		else
+    		{
+    			Reactor.sendQueryServiceDiscoveryEvent(options, _reactorServiceEndpointInfoList, errorInfo);
+    		}
     	}
     	finally
     	{
     		_reactorLock.unlock();        
     	}
+    	
     	return ReactorReturnCodes.SUCCESS;
     }
-
-    private void setupRestClient()
-    {
-    	_restReactorOptions = new RestReactorOptions();
-    	_restConnectOptions = new RestConnectOptions(_reactorOptions);  	
-    	_restAuthOptions = new RestAuthOptions();    	
-
-
-    	_restReactorOptions.connectTimeout(0);
-    	_restReactorOptions.soTimeout(_reactorOptions.restRequestTimeout());
-    }
     
-    private void createRestClient(ReactorErrorInfo errorInfo)
+    /**
+     * Submit OAuth credential renewal with password or password change.
+     * 
+     * @param renewalOptions The {@link ReactorOAuthCredentialRenewalOptions} to configure OAuth credential renewal options.
+     * @param oAuthCredentialRenewal The {@ReactorOAuthCredentialRenewal} to configure credential renewal information.
+     * @param errorInfo error structure to be populated in the event of failure
+     * @return {@link ReactorReturnCodes} indicating success or failure
+     */
+    public int submitOAuthCredentialRenewal(ReactorOAuthCredentialRenewalOptions renewalOptions, ReactorOAuthCredentialRenewal oAuthCredentialRenewal, ReactorErrorInfo errorInfo)
     {
-    	_restClient = new RestClient(_restReactorOptions, _restConnectOptions, _restAuthOptions, errorInfo)
-    	{
-   			public void onNewAuthToken(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo)
-   			{
-   	        	if (reactorChannel != null && (reactorChannel.state() == State.UP || reactorChannel.state() == State.READY || reactorChannel.state() == State.EDP_RT))
-            	{
-   	        		// only send reissue if watchlist enabled
-   	        		if (reactorChannel.watchlist() != null)
-   	        			loginReissue(reactorChannel, authTokenInfo.accessToken(), errorInfo);
+     	_reactorLock.lock();
 
-            		sendAuthTokenEventCallback(reactorChannel, authTokenInfo, errorInfo);
-   	        	}
-    		}
-   			public void onError(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
-   			{
-   				if(reactorChannel != null)
-   				{
-   					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, errorInfo);
-   					
-   					if(reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN ||
-						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_AUTH_TOKEN_USING_PASSWORD ||
-						reactorChannel.sessionMgntState() == ReactorChannel.SessionMgntState.REQ_FAILURE_FOR_TOKEN_SERVICE)
-   					{
-   						if (reactorChannel.handlesTokenReissueFailed() )
-   						{
-   							reactorChannel.reactor().sendAuthTokenWorkerEvent(reactorChannel, reactorChannel._reactorAuthTokenInfo);
-   						}
-   					}
-   				}
-   			}
-    	};    	
-    }
-    
-    private int initRestClientForQueryServiceDiscovery(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
-    {
-	    try
+    	try {
+    	
+    	ReactorTokenSession tokenSession = null;
+    	ReactorOAuthCredentialRenewal oAuthCredentialRenewalCopy;
+    		
+		if (errorInfo == null)
+		{  		
+			return ReactorReturnCodes.PARAMETER_INVALID;
+		}
+		
+		if (!_reactorActive)
+		{
+		    return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+		                              "Reactor.submitOAuthCredentialRenewal", "Reactor is not active, aborting.");
+		}
+
+		if (renewalOptions == null)
+		{		
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+					"renewalOptions cannot be null, aborting.");
+		}
+		
+		if (oAuthCredentialRenewal == null)
+		{		
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+					"oAuthCredentialRenewal cannot be null, aborting.");
+		}
+		
+		
+		/* Checks whether the token session is available from calling with in the callback method */
+		tokenSession = _tokenSessionForCredentialRenewalCallback;
+		
+		if( tokenSession == null )
+		{
+			if ( oAuthCredentialRenewal.userName() == null ||oAuthCredentialRenewal.userName().isBlank() )
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+						"ReactorOAuthCredentialRenewal.userName() not provided, aborting.");
+			}
+			
+			
+			
+			if ( renewalOptions.reactorAuthTokenEventCallback() == null )
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+						"ReactorOAuthCredentialRenewalOptions.reactorAuthTokenEventCallback() not provided, aborting.");
+			}
+		}
+		
+		if (oAuthCredentialRenewal.password() == null || oAuthCredentialRenewal.password().isBlank())
+		{
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+					"ReactorOAuthCredentialRenewal.password() not provided, aborting.");
+		}
+		
+	try
         {
-	    	setupRestClient();
-	    	
-        	_restConnectOptions.userName(options.userName());
-        	_restConnectOptions.password(options.password());
-        	_restConnectOptions.dataFormat(options.dataFormat());
-        	_restConnectOptions.transport(options.transport());
-        		
-        	if (options.clientId() == null || options.clientId().length() == 0)
-        	{
-        		return populateErrorInfo(errorInfo,
-   	                    ReactorReturnCodes.PARAMETER_INVALID,
-   	                    "Reactor.initRestClient",
-   	                    "Required parameter clientId is not set");
-        	}
-        	else
-        		_restConnectOptions.clientId(options.clientId());
-        	
-	    	_restConnectOptions.userSpecObject(options.userSpecObject());
-	    	
-        	if(options.proxyHostName().length() > 0)
-        		_restConnectOptions.proxyHost(options.proxyHostName().toString());
-        	
-        	if(options.proxyPort().length() > 0)
-        	{
-        		int port = -1;
-        		try
-        		{
-        			port = Integer.parseInt(options.proxyPort().toString());
-        			_restConnectOptions.proxyPort(port);
-        		}
-        		catch(NumberFormatException e){}
-        	}
-        	
-        	if(options.proxyUserName().length() > 0)
-        		_restConnectOptions.proxyUserName(options.proxyUserName().toString());
-        	
-        	if(options.proxyPassword().length() > 0)
-        		_restConnectOptions.proxyPassword(options.proxyPassword().toString());
-        	
-        	if(options.proxyDomain().length() > 0)
-        		_restConnectOptions.proxyDomain(options.proxyDomain().toString());
-        	
-        	if(options.proxyLocalHostName().length() > 0)
-        		_restConnectOptions.proxyLocalHostName(options.proxyLocalHostName().toString());
-        	
-        	if(options.proxyKRB5ConfigFile().length() > 0)
-        		_restConnectOptions.proxyKRB5ConfigFile(options.proxyKRB5ConfigFile().toString());
-	    	   	
-	    	createRestClient(errorInfo);
-	    	
-	    	_restClient.connectBlocking(options, true, errorInfo);
-        	
-        	// check if connected 
-        	if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
-        	{
-        		return errorInfo.code();
-        	}
+	    	setupRestClient(errorInfo);
         }
         catch(Exception e)
         {
             return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "Reactor.initRestClient",
+                    "Reactor.setupRestClient",
                     "failed to initialize the RESTClient, exception="
                             + e.getLocalizedMessage());
-        }  
-	    
-	    return ReactorReturnCodes.SUCCESS; 	
-    }
-    
-    private int populateRestConnectOptions(LoginRequest loginRequest, ReactorConnectInfo reactorConnectInfo, ReactorRole role)
-    {
-    	_restConnectOptions.clear();
-    	
-    	if (role.type() == ReactorRoleTypes.CONSUMER)
-    	{
-    		_restConnectOptions.userName(loginRequest.userName());
-    		_restConnectOptions.password(loginRequest.password());
-    		_restConnectOptions.clientId().data((((ConsumerRole)role).clientId().toString()));
+        }
+		
+		switch(renewalOptions.renewalModes())
+		{
+		case ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD:
+			break;
+		case ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD_CHANGE:
+		{
+			if(tokenSession != null)
+			{
+				if(tokenSession.oAuthCredential().reactorOAuthCredentialEventCallback() == null)
+				{
+					return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+							"Support changing password of the token session when ReactorOAuthCredential.reactorOAuthCredentialEventCallback() is specified only., aborting.");
+				}
+			}
+			
+			if (oAuthCredentialRenewal.newPassword() == null || oAuthCredentialRenewal.newPassword().isBlank())
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+						"ReactorOAuthCredentialRenewal.newPassword() not provided, aborting.");
+			}
+			
+			break;
+		}
+		default:
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal", 
+					"Invalid ReactorOAuthCredentialRenewalOptions.RenewalModes(" + renewalOptions.renewalModes()  +"), aborting.");
+		}
+		
+		oAuthCredentialRenewalCopy = copyReactorOAuthCredentialRenewal(tokenSession, renewalOptions, oAuthCredentialRenewal);
+		
+		if(tokenSession != null)
+		{
+			tokenSession.sendAuthRequestWithSensitiveInfo(oAuthCredentialRenewalCopy.password().toString(), oAuthCredentialRenewalCopy.newPassword().toString(),
+					oAuthCredentialRenewalCopy.clientSecret().toString());
+		}
+		else
+		{
+			RestAuthOptions restAuthOptions = new RestAuthOptions(oAuthCredentialRenewal.takeExclusiveSignOnControl());
+			RestConnectOptions restConnectOptions = new RestConnectOptions(_reactorOptions);
+			ReactorAuthTokenInfo authTokenInfo = new ReactorAuthTokenInfo();
+			
+			restAuthOptions.username(oAuthCredentialRenewalCopy.userName().toString());
+			restAuthOptions.clientId(oAuthCredentialRenewalCopy.clientId().toString());
+			restAuthOptions.password(oAuthCredentialRenewalCopy.password().toString());
+			restAuthOptions.newPassword(oAuthCredentialRenewalCopy.newPassword().toString());
+			restAuthOptions.clientSecret(oAuthCredentialRenewalCopy.clientSecret().toString());
+			
+			
+			if ( _restClient.getAuthAccessTokenInfo(restAuthOptions, restConnectOptions, authTokenInfo, true, errorInfo) != ReactorReturnCodes.SUCCESS)
+			{
+				return errorInfo.code();
+			}
+			else
+			{
+				ReactorErrorInfo errorInfoTemp;
+				ReactorAuthTokenEventCallback callback = renewalOptions.reactorAuthTokenEventCallback();
+
+	    		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
+	    		reactorAuthTokenEvent.reactorChannel(null);
+	    		reactorAuthTokenEvent.reactorAuthTokenInfo(authTokenInfo);
+	    		errorInfoTemp = reactorAuthTokenEvent._errorInfo ;
+	    		reactorAuthTokenEvent._errorInfo = errorInfo;
+	    	
+	            callback.reactorAuthTokenEventCallback(reactorAuthTokenEvent);
+	            reactorAuthTokenEvent._errorInfo = errorInfoTemp;
+	            
+	            reactorAuthTokenEvent.returnToPool();            
+			}
+		}
+		
+		oAuthCredentialRenewalCopy.clear();
+		
     	}
-    	else if(role.type() == ReactorRoleTypes.NIPROVIDER)
+    	finally
     	{
-    		_restConnectOptions.userName(loginRequest.userName());
-    		_restConnectOptions.password(loginRequest.password());                		
-    	}      	
-    	
-    	if (!reactorConnectInfo.location().equals(""))
-    		_restConnectOptions.location(reactorConnectInfo.location());
-    	
-    	_restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
-    	_restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
-    	_restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
-    	_restConnectOptions.proxyPassword(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyPasswd());
-    	_restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
-    	_restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
-    	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());
+    		_reactorLock.unlock();
+    	}
     	
     	return ReactorReturnCodes.SUCCESS;
+    }
+    
+    private static ReactorOAuthCredentialRenewal copyReactorOAuthCredentialRenewal(ReactorTokenSession tokenSession, ReactorOAuthCredentialRenewalOptions renewalOptions, 
+    		ReactorOAuthCredentialRenewal oAuthCredentialRenewal)
+    {
+    	ReactorOAuthCredentialRenewal oAuthCredentialRenewalOut = new ReactorOAuthCredentialRenewal();
+    	
+    	/* This is the case to submit credential renewal without the token session*/
+    	if(tokenSession == null)
+    	{
+    		oAuthCredentialRenewalOut.userName().data(oAuthCredentialRenewal.userName().toString());
+    		oAuthCredentialRenewalOut.clientId().data(oAuthCredentialRenewal.clientId().toString());
+    		oAuthCredentialRenewalOut.tokenScope().data(oAuthCredentialRenewal.tokenScope().toString());
+    	}
+    	
+    	oAuthCredentialRenewalOut.password().data(oAuthCredentialRenewal.password().toString());
+    	
+    	if(oAuthCredentialRenewal.clientSecret().length() != 0)
+    	{
+    		oAuthCredentialRenewalOut.clientSecret().data(oAuthCredentialRenewal.clientSecret().toString());
+    	}
+		
+		if(renewalOptions.renewalModes() == ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD_CHANGE)
+		{
+			oAuthCredentialRenewalOut.newPassword().data(oAuthCredentialRenewal.newPassword().toString());
+		}
+    	
+    	return oAuthCredentialRenewalOut;
+    }
+
+    private void setupRestClient(ReactorErrorInfo errorInfo)
+    {
+    	if(_restClient != null)
+    		return;
+    	
+    	_restReactorOptions = new RestReactorOptions();
+    	_restReactorOptions.connectTimeout(0);
+    	_restReactorOptions.soTimeout(_reactorOptions.restRequestTimeout());
+    	
+    	_restClient = new RestClient(_restReactorOptions, errorInfo);
     }
     
     void loginReissue(ReactorChannel reactorChannel, String authToken, ReactorErrorInfo errorInfo)
@@ -1111,8 +1547,11 @@ public class Reactor
 		
 		if (reactorChannel.enableSessionManagement())
 		{
-			loginRequest = reactorChannel._loginRequestForEDP;
-			loginRequest.userName().data(authToken);
+			if(reactorChannel._loginRequestForEDP != null)
+			{
+				loginRequest = reactorChannel._loginRequestForEDP;
+				loginRequest.userName().data(authToken);
+			}
 		}
 		else
 		{		
@@ -1130,7 +1569,7 @@ public class Reactor
 		}
        
         if (loginRequest != null)
-        {   
+        {    	
         	_reactorLock.lock();
         	
         	try
@@ -1144,19 +1583,49 @@ public class Reactor
         }
     }
     
-    boolean sendAuthTokenWorkerEvent(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo)
+    boolean sendAuthTokenWorkerEvent(ReactorTokenSession tokenSession)
     {
     	boolean retVal = true;
     	
-        ReactorAuthTokenEvent event = ReactorFactory.createReactorAuthTokenEvent();
+    	tokenSession.isInitialized(true);
+    	
+    	WorkerEvent event = ReactorFactory.createWorkerEvent();
         event.eventType(WorkerEventTypes.TOKEN_MGNT);
-        event.reactorChannel(reactorChannel);
-        event._reactorAuthTokenInfo = authTokenInfo;
         event._restClient = _restClient;
+        event._tokenSession = tokenSession;
         retVal = _workerQueue.write(event);
         
         return retVal;
-    }    
+    }
+    
+    boolean sendAuthTokenEvent(ReactorChannel reactorChannel, ReactorTokenSession tokenSession, ReactorErrorInfo reactorErrorInfo)
+    {
+    	boolean retVal = true;
+    	
+    	WorkerEvent event = ReactorFactory.createWorkerEvent();
+        event.eventType(WorkerEventTypes.TOKEN_MGNT);
+        event._restClient = _restClient;
+        event._tokenSession = tokenSession;
+        event._reactorChannel = reactorChannel;
+        populateErrorInfo(event.errorInfo(), reactorErrorInfo.code(), reactorErrorInfo.location(), reactorErrorInfo.error().text());
+        retVal = _workerQueue.remote().write(event);
+        
+        return retVal;
+    }
+    
+    boolean sendCredentialRenewalEvent(ReactorTokenSession tokenSession, ReactorErrorInfo reactorErrorInfo)
+    {
+    	boolean retVal = true;
+    	
+    	WorkerEvent event = ReactorFactory.createWorkerEvent();
+        event.eventType(WorkerEventTypes.TOKEN_CREDENTIAL_RENEWAL);
+        event._restClient = _restClient;
+        event._tokenSession = tokenSession;
+        populateErrorInfo(event.errorInfo(), reactorErrorInfo.code(), reactorErrorInfo.location(), reactorErrorInfo.error().text());
+        retVal = _workerQueue.remote().write(event);
+        
+        return retVal;
+    }
     
     boolean sendWorkerEvent(WorkerEventTypes eventType, ReactorChannel reactorChannel)
     {
@@ -1253,20 +1722,20 @@ public class Reactor
 	int sendAuthTokenEventCallback(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo)
 	{
         int retval;
+        ReactorErrorInfo errorInfoTemp;
         ReactorAuthTokenEventCallback callback = reactorChannel.reactorAuthTokenEventCallback();
 
         if (callback != null)
         {
     		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
-    		reactorAuthTokenEvent.eventType(WorkerEventTypes.TOKEN_MGNT);
     		reactorAuthTokenEvent.reactorChannel(reactorChannel);
     		reactorAuthTokenEvent.reactorAuthTokenInfo(authTokenInfo);
-    		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
-    		{
-    			reactorAuthTokenEvent._errorInfo = errorInfo;
-    		}
-    		
+    		errorInfoTemp = reactorAuthTokenEvent._errorInfo ;
+    		reactorAuthTokenEvent._errorInfo = errorInfo;
+    	
             retval = callback.reactorAuthTokenEventCallback(reactorAuthTokenEvent);
+            reactorAuthTokenEvent._errorInfo = errorInfoTemp;
+            
             reactorAuthTokenEvent.returnToPool();            
     		
             if (retval != ReactorCallbackReturnCodes.SUCCESS)
@@ -1282,6 +1751,43 @@ public class Reactor
         {
             // callback is undefined, raise it to defaultMsgCallback.
             retval = ReactorCallbackReturnCodes.RAISE;
+        }
+
+        return retval;
+	}
+	
+	int sendOAuthCredentialEventCallback(ReactorTokenSession tokenSession, ReactorErrorInfo errorInfo)
+	{
+        int retval = ReactorReturnCodes.SUCCESS;
+        ReactorErrorInfo errorInfoTemp;
+        ReactorOAuthCredential oAuthCredential = tokenSession.oAuthCredential();
+        ReactorOAuthCredentialEventCallback callback = oAuthCredential.reactorOAuthCredentialEventCallback();
+
+        if (callback != null)
+        {
+    		ReactorOAuthCredentialEvent reactorOAuthCredentialEvent = ReactorFactory.createReactorOAuthCredentialEvent();
+    		
+    		reactorOAuthCredentialEvent.reactorOAuthCredentialRenewal(tokenSession.oAuthCredentialRenewal());
+    		reactorOAuthCredentialEvent.reactorChannel(null);
+    		reactorOAuthCredentialEvent._reactor = this;
+    		reactorOAuthCredentialEvent._userSpecObj = tokenSession.oAuthCredential().userSpecObj();
+    		
+    		errorInfoTemp = reactorOAuthCredentialEvent._errorInfo ;
+    		reactorOAuthCredentialEvent._errorInfo = errorInfo;
+    	
+            retval = callback.reactorOAuthCredentialEventCallback(reactorOAuthCredentialEvent);
+            reactorOAuthCredentialEvent._errorInfo = errorInfoTemp;
+            
+            reactorOAuthCredentialEvent.returnToPool();            
+    		
+            if (retval != ReactorCallbackReturnCodes.SUCCESS)
+            {
+                // retval is not a valid ReactorReturnCodes.
+                populateErrorInfo(errorInfo, retval, "Reactor.sendOAuthCredentialEventCallback", "retval of "
+                        + retval + " is not a valid ReactorCallbackReturnCodes. This caused the Reactor to shutdown.");
+                shutdown(errorInfo);
+                return ReactorReturnCodes.FAILURE;
+            }        	
         }
 
         return retval;
@@ -2257,6 +2763,8 @@ public class Reactor
         return ret;
     }
     
+ 
+    
     /* Disconnects a channel and notifies application that the channel is down. */
     int disconnect(ReactorChannel reactorChannel, String location, ReactorErrorInfo errorInfo)
     {
@@ -2625,6 +3133,32 @@ public class Reactor
                         errorInfo.error().text()); 
             	
             	sendChannelEventCallback(ReactorChannelEventTypes.WARNING, event.reactorChannel(), errorInfo);
+            	break;
+            case TOKEN_MGNT:
+ 
+            	populateErrorInfo(errorInfo, errorInfo.code(),
+                        "Reactor.processWorkerEvent",
+                        errorInfo.error().text()); 	
+            	
+            	sendAuthTokenEventCallback(reactorChannel, event._tokenSession.authTokenInfo(), errorInfo);
+            	
+            	/* Override the error code as this is not a failure */
+            	errorInfo.code(ReactorReturnCodes.SUCCESS);
+            	
+            	break;
+            	
+            case TOKEN_CREDENTIAL_RENEWAL:
+            	 
+            	/* Override the error code as this is not a failure */
+            	populateErrorInfo(errorInfo, ReactorReturnCodes.SUCCESS,
+                        "Reactor.processWorkerEvent",
+                        errorInfo.error().text()); 
+            
+            	/* This is used to check whether the submitOAuthCredentialRenewal() is called in the callback */
+            	_tokenSessionForCredentialRenewalCallback = event._tokenSession;
+            	sendOAuthCredentialEventCallback(event._tokenSession, errorInfo);
+            	_tokenSessionForCredentialRenewalCallback = null;
+            	
             	break;
 
             case SHUTDOWN:

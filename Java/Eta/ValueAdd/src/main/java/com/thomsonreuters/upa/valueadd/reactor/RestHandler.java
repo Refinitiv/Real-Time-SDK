@@ -8,16 +8,16 @@ import org.apache.http.concurrent.FutureCallback;
 
 class RestHandler implements FutureCallback<HttpResponse> {
 	
-    private ReactorChannel _userSpecObj;
+    private RestResultClosure _resultClosure;
     private RestReactor _restReactor;
     private RestEvent _event;
     private RestResponse _response;
     
-    RestHandler(RestReactor restReactor, ReactorChannel userSpecObj)
+    RestHandler(RestReactor restReactor, RestResultClosure resultClosure)
 	{
-         _userSpecObj = userSpecObj;
+         _resultClosure = resultClosure;
          _restReactor = restReactor;
-         _event = new RestEvent(RestEventTypes.COMPLETED, userSpecObj);
+         _event = new RestEvent(RestEventTypes.COMPLETED, resultClosure);
 	}
 
 	@Override
@@ -25,16 +25,16 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	{
 		_event.clear();
 		_event.eventType(RestEventTypes.COMPLETED);
-		_event.userSpecObj(_userSpecObj);
+		_event.resultClosure(_resultClosure);
 		_response = new RestResponse();
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 		{			
-			RestReactor.convertResponse(_restReactor, response, _response, _event);
+			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo());
 			_event.eventType(RestEventTypes.FAILED);
 		}
 		else
 		{
-			RestReactor.convertResponse(_restReactor, response, _response, _event);
+			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo());
 		}
 			
 		RestReactor.processResponse(_restReactor, _response, _event);
@@ -46,25 +46,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	{
 		_event.clear();
 		_event.eventType(RestEventTypes.FAILED);
-		_event.userSpecObj(_userSpecObj);
-		
-		if(_userSpecObj.sessionMgntState() == ReactorChannel.SessionMgntState.QUERYING_SERVICE_DISCOVERY)
-		{
-			RestReactor.populateErrorInfo(_event.errorInfo(),
-	                ReactorReturnCodes.FAILURE,
-	                "RestHandler.failed", "Failed REST request for the service discovery. Text: " + ex.getLocalizedMessage());
-		}
-		else
-		{
-			RestReactor.populateErrorInfo(_event.errorInfo(),
-	                ReactorReturnCodes.FAILURE,
-	                "RestHandler.failed", "Failed REST request for the token service. Text: " + ex.getLocalizedMessage());
-		}
-		
-		if (_restReactor.reactorOptions().defaultRespCallback() != null)
-		{
-			_restReactor.reactorOptions().defaultRespCallback().RestErrorCallback(_event);
-		}
+		_resultClosure.restCallback().RestErrorCallback(_event, ex.getLocalizedMessage());
 	}
 
 	@Override
@@ -72,15 +54,12 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	{
 		_event.clear();
 		_event.eventType(RestEventTypes.CANCELLED);
-		_event.userSpecObj(_userSpecObj);
+		_event.resultClosure(_resultClosure);
 		RestReactor.populateErrorInfo(_event.errorInfo(),
                 ReactorReturnCodes.FAILURE,
                 "RestHandler.cancelled", "Cancelled REST request.");
 		
-		if (_restReactor.reactorOptions().defaultRespCallback() != null)
-		{
-			_restReactor.reactorOptions().defaultRespCallback().RestErrorCallback(_event);
-		}
+		_resultClosure.restCallback().RestErrorCallback(_event,  _event.errorInfo().error().text());
 	}
 	
     /**
@@ -92,7 +71,7 @@ class RestHandler implements FutureCallback<HttpResponse> {
     {
         return (_restReactor == null ? "_RestReactor null" : _restReactor)
                 + ", "
-                + (_userSpecObj == null ? "_userSpecObj null" : _userSpecObj)
+                + (_resultClosure == null ? "_resultClosure null" : _resultClosure)
                 + ", "
                 + (_event == null ? "_event null" : _event.toString())
                 + ", "

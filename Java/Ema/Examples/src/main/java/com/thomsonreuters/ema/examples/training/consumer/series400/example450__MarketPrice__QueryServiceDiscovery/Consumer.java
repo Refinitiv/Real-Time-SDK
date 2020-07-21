@@ -89,6 +89,7 @@ public class Consumer
 	static String proxyPassword;
 	static String proxyDomain;
 	static String proxyKrb5Configfile;
+	static boolean takeExclusiveSignOnControl = true;
 	public static String host;
 	public static String port;
 	public static String location = "us-east";
@@ -107,6 +108,7 @@ public class Consumer
 	    		+ "  -clientId client ID for application making the request to \r\n" 
 	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
+	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -itemName Request item name (optional).\n"
@@ -199,6 +201,20 @@ public class Consumer
     				proxyKrb5Configfile = argsCount < (args.length-1) ? args[++argsCount] : null;
     				++argsCount;				
     			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControlStr = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				
+    				if(takeExclusiveSignOnControlStr != null)
+    				{
+    					if(takeExclusiveSignOnControlStr.equalsIgnoreCase("true"))
+    						takeExclusiveSignOnControl = true;
+    					else if (takeExclusiveSignOnControlStr.equalsIgnoreCase("false"))
+    						takeExclusiveSignOnControl = false;
+    				}
+    				
+    				++argsCount;				
+    			}
     			else // unrecognized command line argument
     			{
     				printHelp();
@@ -268,6 +284,7 @@ public class Consumer
 			
 			serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
 					.password(password).clientId(clientId).transport(ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+					.takeExclusiveSignOnControl(takeExclusiveSignOnControl)
 					.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
 					.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
 			
@@ -282,12 +299,13 @@ public class Consumer
 			if ( (proxyHostName == null) && (proxyPort == "-1") )
 			{
 				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
-					.clientId(clientId).config(configDb));
+					.clientId(clientId).takeExclusiveSignOnControl(takeExclusiveSignOnControl).config(configDb));
 			}
 			else
 			{
 				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
-					.clientId(clientId).config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+					.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
+					.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
 					.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
 					.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
 			}

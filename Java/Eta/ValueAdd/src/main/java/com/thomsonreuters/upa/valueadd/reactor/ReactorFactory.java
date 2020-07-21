@@ -16,7 +16,7 @@ public class ReactorFactory
     static LimitedVaPool _reactorChannelEventPool = new LimitedVaPool(true);
     static VaPool _reactorAuthTokenEventPool = new VaPool(true);
     static VaPool _reactorServiceEndpointEventPool = new VaPool(true);
-    static VaPool _reactorServiceDiscoveryOptionsPool = new VaPool(true);
+    static VaPool _reactorOAuthCredentialEventPool = new VaPool(true);
     static VaPool _queueMsgEventPool = new VaPool(true);
     static LimitedVaPool _tunnelStreamMsgEventPool = new LimitedVaPool(true);
     static LimitedVaPool _tunnelStreamStatusEventPool = new LimitedVaPool(true);
@@ -324,7 +324,7 @@ public class ReactorFactory
     {
         return new ReactorServiceDiscoveryOptions();
     }
-
+    
     /**
      * Creates {@link TunnelStreamInfo}
      *
@@ -334,6 +334,42 @@ public class ReactorFactory
     public static TunnelStreamInfo createTunnelStreamInfo()
     {
         return new TunnelStreamInfoImpl();
+    }
+
+    /**
+     * Creates {@link ReactorOAuthCredential}.
+     * 
+     * @return {@link ReactorOAuthCredential} object
+     * 
+     * @see ReactorOAuthCredential
+     */
+    public static ReactorOAuthCredential createReactorOAuthCredential()
+    {
+    	return new ReactorOAuthCredential();
+    }
+    
+    /**
+     * Creates {@link ReactorOAuthCredentialRenewal}.
+     * 
+     * @return {@link ReactorOAuthCredentialRenewal} object
+     * 
+     * @see ReactorOAuthCredentialRenewal
+     */
+    public static ReactorOAuthCredentialRenewal createReactorOAuthCredentialRenewal()
+    {
+    	return new ReactorOAuthCredentialRenewal();
+    }
+    
+    /**
+     * Creates {@link ReactorOAuthCredentialRenewalOptions}.
+     * 
+     * @return {@link ReactorOAuthCredentialRenewalOptions} object
+     * 
+     * @see ReactorOAuthCredentialRenewalOptions
+     */
+    public static ReactorOAuthCredentialRenewalOptions createReactorOAuthCredentialRenewalOptions()
+    {
+    	return new ReactorOAuthCredentialRenewalOptions();
     }
 
     /**
@@ -467,9 +503,9 @@ public class ReactorFactory
     }
     
     /**
-     * Creates a new Reactor object.
+     * Creates a new ReactorAuthTokenEvent object.
     *
-    * @return the reactor channel event
+    * @return the reactor Auth token event
     */
     static ReactorAuthTokenEvent createReactorAuthTokenEvent()
     {
@@ -487,9 +523,9 @@ public class ReactorFactory
     }
 
     /**
-     * Creates a new Reactor object.
+     * Creates a new ReactorServiceEndpointEvent object.
     *
-    * @return the reactor channel event
+    * @return the reactor service endpoint event
     */
     static ReactorServiceEndpointEvent createReactorServiceEndpointEvent()
     {
@@ -506,7 +542,26 @@ public class ReactorFactory
         return reactorServiceEndpointEvent;
     }    
     
-    
+    /**
+     * Creates a new ReactorOAuthCredentialEvent object.
+    *
+    * @return the reactor OAuth credential event
+    */
+    static ReactorOAuthCredentialEvent createReactorOAuthCredentialEvent()
+    {
+    	ReactorOAuthCredentialEvent reactorOAuthCredentialEvent = (ReactorOAuthCredentialEvent)_reactorOAuthCredentialEventPool.poll();
+        if(reactorOAuthCredentialEvent == null)
+        {
+        	reactorOAuthCredentialEvent = new ReactorOAuthCredentialEvent();
+        	_reactorOAuthCredentialEventPool.updatePool(reactorOAuthCredentialEvent);
+        }
+        else
+        {
+        	reactorOAuthCredentialEvent.clear();
+        }
+        
+        return reactorOAuthCredentialEvent;
+    }    
     
     /**
      * Creates a new Reactor object.

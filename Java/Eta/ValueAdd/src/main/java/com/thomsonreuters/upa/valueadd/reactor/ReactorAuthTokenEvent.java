@@ -6,7 +6,7 @@ package com.thomsonreuters.upa.valueadd.reactor;
  * 
  * @see ReactorAuthTokenInfo
  */
-public class ReactorAuthTokenEvent extends WorkerEvent
+public class ReactorAuthTokenEvent extends ReactorEvent
 {
 	ReactorAuthTokenInfo _reactorAuthTokenInfo;
 	

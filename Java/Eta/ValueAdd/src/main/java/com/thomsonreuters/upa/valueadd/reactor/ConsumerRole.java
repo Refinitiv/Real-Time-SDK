@@ -44,6 +44,7 @@ public class ConsumerRole extends ReactorRole
 	boolean _receivedEnumDictionaryResp = false;
 	boolean rttEnabled = false;
 	Buffer _clientId = CodecFactory.createBuffer();
+	ReactorOAuthCredential _reactorOAuthCredential = null;
 
     static final int LOGIN_STREAM_ID = 1;
     static final int DIRECTORY_STREAM_ID = 2;
@@ -195,6 +196,27 @@ public class ConsumerRole extends ReactorRole
         _directoryRequest.applyStreaming();
         
         return;
+    }
+    
+    /**
+     * Sets {@link ReactorOAuthCredential} to specify OAuth credential for authentication with the token service.
+     * <p>This OAuth credential has higher precedence for authorization than the user credential specified with {@link #rdmLoginRequest(LoginRequest)}.</p>
+     * 
+     * @param reactorOAuthCredential the OAuth credential
+     */
+    public void reactorOAuthCredential(ReactorOAuthCredential reactorOAuthCredential)
+    {
+        copyReactorOAuthCredential(reactorOAuthCredential);
+    }
+    
+    /**
+     * The OAuth credential to be sent to authorize with the token service.
+     * 
+     * @return the ReactorOAuthCredential
+     */
+    public ReactorOAuthCredential reactorOAuthCredential()
+    {
+    	return _reactorOAuthCredential;
     }
     
     /**
@@ -379,6 +401,7 @@ public class ConsumerRole extends ReactorRole
     }
 
     /**
+     * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
      * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @param clientId the clientId
@@ -387,7 +410,8 @@ public class ConsumerRole extends ReactorRole
      *         or if position or length is outside of the data's capacity.
      *         {@link ReactorReturnCodes#PARAMETER_INVALID}.
      * 
-     */    
+     */
+    @Deprecated
     public int clientId(Buffer clientId)
     {
 	return _clientId.data(clientId.data(), clientId.position(),
@@ -395,11 +419,13 @@ public class ConsumerRole extends ReactorRole
     }
     
     /**
+     * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
      * Specifies an unique ID defined for an application making a request to the EDP token service.
      * 
      * @return clientId the clientId
      * 
-     */    
+     */
+    @Deprecated
     public Buffer clientId()
     {
     	return _clientId;
@@ -574,6 +600,7 @@ public class ConsumerRole extends ReactorRole
         	_clientId.data(role.clientId().toString());
         copyLoginRequest(role.rdmLoginRequest());
         copyDirectoryRequest(role.rdmDirectoryRequest());
+        copyReactorOAuthCredential(role.reactorOAuthCredential());
     }
     
     /*
@@ -607,6 +634,21 @@ public class ConsumerRole extends ReactorRole
                 _directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
             }
             directoryRequest.copy(_directoryRequest);
+        }
+    }
+    
+    /*
+     * Performs a deep copy from a specified ReactorOAuthCredential into the ReactorOAuthCredential associated with this ConsumerRole.
+     */
+    void copyReactorOAuthCredential(ReactorOAuthCredential reactorOAuthCredential)
+    {
+        if (reactorOAuthCredential != null)
+        {
+            if (_reactorOAuthCredential == null)
+            {
+            	_reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
+            }
+            reactorOAuthCredential.copy(_reactorOAuthCredential);
         }
     }
 }

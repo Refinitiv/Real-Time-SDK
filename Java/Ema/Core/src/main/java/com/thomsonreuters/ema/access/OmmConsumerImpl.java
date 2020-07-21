@@ -441,7 +441,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		}
 
 		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
-		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest(), config.clientId());
+		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest(), config);
 
 		handleLoginReqTimeout();
 		loadDirectory();

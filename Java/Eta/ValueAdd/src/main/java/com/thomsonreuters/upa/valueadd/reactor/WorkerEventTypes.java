@@ -40,9 +40,10 @@ enum WorkerEventTypes
     START_WATCHLIST_TIMER,
     // sent from Worker to Reactor
     WATCHLIST_TIMEOUT,
-    // sent from Worker to Reactor
-    TOKEN_MGNT;
-    
+    // sent from Reactor to Worker
+    TOKEN_MGNT,
+    // sent from Reactor to itself for dispatching to the application
+	TOKEN_CREDENTIAL_RENEWAL;
     
     
     /* Returns a String representation of the specified WorkerEventTypes type. */

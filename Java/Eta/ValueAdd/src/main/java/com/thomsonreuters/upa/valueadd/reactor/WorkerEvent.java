@@ -7,6 +7,7 @@ class WorkerEvent extends ReactorEvent
 	long _timeout;
 	TunnelStream _tunnelStream;
 	RestClient _restClient;
+	ReactorTokenSession _tokenSession;
 
 	WorkerEventTypes eventType()
     {
@@ -44,6 +45,8 @@ class WorkerEvent extends ReactorEvent
         _eventType = WorkerEventTypes.INIT;
         _timeout = 0;
         _tunnelStream = null;
+        _restClient = null;
+        _tokenSession = null;
     }
     
     /**
