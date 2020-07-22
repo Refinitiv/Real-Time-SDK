@@ -15,7 +15,7 @@ import com.thomsonreuters.upa.transport.ByteRoutines;
 /**
  * Parses network replay data records 
  */
-final class NetworkReplayParser
+public final class NetworkReplayParser
 {
     /**
      * This class is not instantiated

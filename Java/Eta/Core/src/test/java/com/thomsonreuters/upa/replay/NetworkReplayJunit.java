@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.upa.test.network.replay;
+package com.thomsonreuters.upa.replay;
 
 import static org.junit.Assert.*;
 
@@ -14,6 +14,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
 import java.util.Arrays;
 
+import com.thomsonreuters.upa.test.network.replay.NetworkReplay;
+import com.thomsonreuters.upa.test.network.replay.NetworkReplayFactory;
+import com.thomsonreuters.upa.test.network.replay.NetworkReplayParser;
 import org.junit.Test;
 
 
