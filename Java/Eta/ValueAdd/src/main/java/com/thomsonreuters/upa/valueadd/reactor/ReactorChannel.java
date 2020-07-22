@@ -983,6 +983,15 @@ public class ReactorChannel extends VaNode
                                                   "Cannot open TunnelStreams while channel is down.");
             }
             
+            // If recvWindowSize was -1, set it to reflect actual default value. 
+            if (options.classOfService().flowControl().recvWindowSize() == -1) {
+                options.classOfService().flowControl().recvWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
+            }
+            // If recvWindowSize was less than maxFragmentSize, set it to received maxFragmentSize.
+            if (options.classOfService().flowControl().recvWindowSize() < options.classOfService().common().maxFragmentSize()) {
+                options.classOfService().flowControl().recvWindowSize(options.classOfService().common().maxFragmentSize());
+            }
+            
             // open tunnel stream
             TunnelStream tunnelStream = _tunnelStreamManager.createTunnelStream(options);
             wlInteger.value(tunnelStream.streamId());
