@@ -164,7 +164,10 @@ public class ReactorChannel extends VaNode
 	{
 		_tokenSession = tokenSession;
 		
-		_tokenSession.addReactorChannel(this);
+		if(tokenSession != null)
+		{
+			_tokenSession.addReactorChannel(this);
+		}
 	}
 	
 	ReactorTokenSession tokenSession()
