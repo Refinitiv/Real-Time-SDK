@@ -96,7 +96,7 @@ class ReactorTokenSession implements RestCallback
 	{
 		long remainingTimeForReissueNs = _nextAuthTokenRequestTime - System.nanoTime();
 		
-		if ( remainingTimeForReissueNs < (long)(((double) _reactor._reactorOptions.tokenReissueRatio()) * 1000000000))
+		if ( remainingTimeForReissueNs < (long)((_reactor._reactorOptions.tokenReissueRatio()) * 1000000000))
 		{
 			_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, 
 					"ReactorTokenSession.checkMiniumTimeForReissue()", 
