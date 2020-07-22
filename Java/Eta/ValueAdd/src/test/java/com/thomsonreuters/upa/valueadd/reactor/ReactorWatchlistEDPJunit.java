@@ -960,7 +960,6 @@ public class ReactorWatchlistEDPJunit
 			}
 
 			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, false);
-			long runtime = System.currentTimeMillis() + ((sleep - 5) * 1000);	        
 
 			for (int j = 0; j < 6; j++)
 			{
@@ -1343,7 +1342,6 @@ public class ReactorWatchlistEDPJunit
 
 
 			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, false);
-			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);
 
 			try {
 				Thread.sleep(2 * 1000);

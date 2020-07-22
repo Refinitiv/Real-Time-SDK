@@ -610,7 +610,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		switch (channelCfg.rsslConnectionType)
 		{
 		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET: 
-		case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET:
 			{
 				SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
 				strConnectionType = "SOCKET";
@@ -698,8 +697,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			
 			if (connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET  ||
 				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP ||
-				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED ||
-				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET)
+				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
 			{
 				ChannelInfo channelInfo = channelInfo(channelConfig.name, _rsslReactor);
 				channelInfo._channelConfig = channelConfig;
@@ -739,8 +737,58 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	
 				switch (connectOptions.connectionType())
 				{
+				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+				{
+					if(channelConfig.encryptedProtocolType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP)
+					{
+						_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
+						_rsslReactorConnOptions.connectionList().get(i).location(((EncryptedChannelConfig)channelConfig).location);
+
+						connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig) channelConfig).hostName);
+						try
+						{
+						connectOptions.unifiedNetworkInfo().serviceName(((HttpChannelConfig) channelConfig).serviceName);
+						}
+						catch(Exception e) 
+						{
+			        	   if (_baseImpl.loggerClient().isErrorEnabled())
+			        	   {
+			        		   StringBuilder tempErr = _baseImpl.strBuilder();
+								tempErr.append("Failed to set service name on channel options, received exception: '")
+			        				     .append(e.getLocalizedMessage())
+			        				     .append( "'. ");
+					        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			        	   }
+						}
+						connectOptions.tcpOpts().tcpNoDelay(((HttpChannelConfig) channelConfig).tcpNodelay);
+						connectOptions.tunnelingInfo().objectName(((HttpChannelConfig) channelConfig).objectName);
+						tunnelingConfiguration(connectOptions, (HttpChannelConfig)channelConfig);
+						break;
+					}
+					else /* Multiple checks prior to this point, so we don't need additional verification */
+					{
+						connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
+						try
+						{
+							connectOptions.unifiedNetworkInfo().serviceName(((SocketChannelConfig) channelConfig).serviceName);
+						}
+						catch (Exception e)
+						{
+							if (_baseImpl.loggerClient().isErrorEnabled())
+							{
+								StringBuilder tempErr = _baseImpl.strBuilder();
+								tempErr.append("Failed to set service name on channel options, received exception: '")
+										.append(e.getLocalizedMessage())
+										.append("'. ");
+								_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+							}
+						}
+						connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
+						socketProxyConfiguration(connectOptions, (SocketChannelConfig)channelConfig);
+						break;
+					}
+				}
 				case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
-				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED_SOCKET:
 				{
 					connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
 					try
@@ -759,21 +807,12 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						}
 					}
 					connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
-					if (connectOptions.connectionType() == ConnectionTypes.ENCRYPTED_SOCKET)
-					{
-						readEncryptedChannelConfig(connectOptions, ((EncryptedSocketChannelConfig) channelConfig).encryptionConfig);
-					}
+					socketProxyConfiguration(connectOptions, (SocketChannelConfig)channelConfig);
 					break;
 				}
-				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+				
 				case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
 					{
-						if(connectOptions.connectionType() == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
-						{
-							_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
-							_rsslReactorConnOptions.connectionList().get(i).location(((EncryptedChannelConfig)channelConfig).location);
-						}
-
 						connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig) channelConfig).hostName);
 						try
 						{
@@ -1004,6 +1043,109 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
         else
         	rsslOptions.tunnelingInfo().tunnelingType("http"); 
+        
+        if (_baseImpl.loggerClient().isTraceEnabled())
+		{
+			StringBuilder tempTrace = _baseImpl.strBuilder();
+			tempTrace.append("Successfully set a tunneling ")
+            	.append(OmmLoggerClient.CR)
+			    .append(" Channel name ").append( channelConfig.name ).append(OmmLoggerClient.CR)
+				.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+				.append("with the following tunneling configurations:")
+				.append( OmmLoggerClient.CR ).append(rsslOptions.tunnelingInfo().toString()).append( OmmLoggerClient.CR )
+				.append(rsslOptions.credentialsInfo().toString()).append( OmmLoggerClient.CR );
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, tempTrace.toString(), Severity.TRACE));
+		}	
+	}
+	
+	private void socketProxyConfiguration(com.thomsonreuters.upa.transport.ConnectOptions rsslOptions, SocketChannelConfig channelConfig)
+    {    	
+        if (channelConfig.httpProxy)
+        {
+            if (channelConfig.httpProxyHostName == null)
+            {
+            	if (_baseImpl.loggerClient().isErrorEnabled())
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy hostname not provided", Severity.ERROR));
+
+            	throw _baseImpl.ommIUExcept().message( "Proxy hostname not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
+            }           
+            if (channelConfig.httpProxyPort == null)
+            {
+            	if (_baseImpl.loggerClient().isErrorEnabled())
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy port number not provided", Severity.ERROR));
+
+            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
+            }                             	
+            
+            rsslOptions.tunnelingInfo().HTTPproxy(true);
+            rsslOptions.tunnelingInfo().HTTPproxyHostName(channelConfig.httpProxyHostName);
+            try
+            {
+            	rsslOptions.tunnelingInfo().HTTPproxyPort(Integer.parseInt(channelConfig.httpProxyPort));
+            }
+            catch(Exception e)
+            {
+            	if (_baseImpl.loggerClient().isErrorEnabled())
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, "Proxy port number not provided", Severity.ERROR));
+
+            	throw _baseImpl.ommIUExcept().message( "Proxy port number not provided", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT );
+            }
+            
+            // set credentials
+            if ( channelConfig.httpProxyUserName != null)
+            {
+            	 rsslOptions.credentialsInfo().HTTPproxyUsername(channelConfig.httpProxyUserName);
+            }         	
+            if ( channelConfig.httpproxyPasswd != null)
+            {
+            	 rsslOptions.credentialsInfo().HTTPproxyPasswd(channelConfig.httpproxyPasswd);
+            }     
+            if ( channelConfig.httpProxyDomain != null)
+            {
+            	rsslOptions.credentialsInfo().HTTPproxyDomain(channelConfig.httpProxyDomain);		        		        		
+            }   
+          
+            if (channelConfig.httpProxyLocalHostName == null)
+            {
+            	 String localIPaddress = null;
+                 String localHostName = null;
+            	   try
+                   {
+                       localIPaddress = InetAddress.getLocalHost().getHostAddress();
+                       localHostName = InetAddress.getLocalHost().getHostName();
+                   }
+                   catch (UnknownHostException e)
+                   {
+                	   localHostName = localIPaddress;
+                   }
+            	 rsslOptions.credentialsInfo().HTTPproxyLocalHostname(localHostName);     		        		        		
+            }
+            else
+            {
+            	rsslOptions.credentialsInfo().HTTPproxyLocalHostname(channelConfig.httpProxyLocalHostName);
+            }
+        	    	
+            if (channelConfig.httpProxyKRB5ConfigFile != null)
+            {
+            	 rsslOptions.credentialsInfo().HTTPproxyKRB5configFile(channelConfig.httpProxyKRB5ConfigFile);      		        		        		
+            }                       
+        }
+        
+        if (channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+        {
+        	rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.encryptionConfig.KeyStoreFile);
+    		rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.encryptionConfig.KeyStorePasswd);
+    		if (channelConfig.encryptionConfig.KeyStoreType != null)
+    			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
+    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
+    			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
+    		if (channelConfig.encryptionConfig.SecurityProvider != null)
+    			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
+    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
+    			 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.encryptionConfig.TrustManagerAlgorithm);
+    		if (channelConfig.encryptionConfig.KeyManagerAlgorithm != null)
+    			 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.encryptionConfig.KeyManagerAlgorithm);
+		}
         
         if (_baseImpl.loggerClient().isTraceEnabled())
 		{

@@ -5,15 +5,10 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import com.thomsonreuters.proxy.authentication.CredentialName;
-import com.thomsonreuters.proxy.authentication.CredentialsFactory;
-import com.thomsonreuters.proxy.authentication.ICredentials;
-import com.thomsonreuters.proxy.authentication.IProxyAuthenticator;
 import com.thomsonreuters.proxy.authentication.IProxyAuthenticatorResponse;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticationException;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticatorFactory;
 import com.thomsonreuters.proxy.authentication.ResponseCodeException;
-import com.thomsonreuters.upa.transport.RsslSocketChannel.InitChnlState;
 
 // Init state transitions for consumer with http (or encrypted) connection going through a proxy server:
 //

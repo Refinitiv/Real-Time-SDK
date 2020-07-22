@@ -95,6 +95,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_COMPRESSION_THRESHOLD_LZ4          = 300;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
+	final static int DEFAULT_ENCRYPTED_PROTOCOL_TYPE			= ConnectionTypes.HTTP;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
 	final static int DEFAULT_INITIALIZATION_TIMEOUT				= 5;
 	final static int DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		= 60;
@@ -401,6 +402,7 @@ class ChannelConfig
 	int					compressionType;
 	int					compressionThreshold;
 	int					rsslConnectionType;
+	int 	 			encryptedProtocolType;
 	int					connectionPingTimeout;
 	int					guaranteedOutputBuffers;
 	int					numInputBuffers;
@@ -427,6 +429,7 @@ class ChannelConfig
 		sysRecvBufSize = ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
+		encryptedProtocolType = ActiveConfig.DEFAULT_ENCRYPTED_PROTOCOL_TYPE;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT;
 	}
 	
@@ -498,6 +501,17 @@ class SocketChannelConfig extends ChannelConfig
 	String				serviceName;
 	boolean				tcpNodelay;
 	boolean				directWrite;
+	EncryptionConfig 	encryptionConfig = new EncryptionConfig();
+	Boolean 			httpProxy;
+	String 				httpProxyHostName;
+	String 				httpProxyPort;
+	
+	/* Credential configuration parameters */
+	String				httpProxyUserName;
+	String				httpproxyPasswd;
+	String				httpProxyDomain;
+	String 				httpProxyLocalHostName;
+	String				httpProxyKRB5ConfigFile;
 	
 	SocketChannelConfig() 
 	{
@@ -514,30 +528,9 @@ class SocketChannelConfig extends ChannelConfig
 		serviceName = ActiveConfig.defaultServiceName;
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
+		httpProxy = ActiveConfig.DEFAULT_HTTP_PROXY;
 	}
 }
-
-class EncryptedSocketChannelConfig extends SocketChannelConfig
-{
-	EncryptionConfig encryptionConfig = new EncryptionConfig();
-
-	EncryptedSocketChannelConfig()
-	{
-		clear();
-	}
-
-	@Override
-	void clear()
-	{
-		super.clear();
-		if(encryptionConfig != null)
-		{
-			encryptionConfig.clear();
-		}
-		rsslConnectionType = ConnectionTypes.ENCRYPTED_SOCKET;
-	}
-}
-
 
 class SocketServerConfig extends ServerConfig
 {
@@ -635,6 +628,7 @@ class HttpChannelConfig extends ChannelConfig
 	Boolean 			httpProxy;
 	String 				httpProxyHostName;
 	String 				httpProxyPort;
+	EncryptionConfig encryptionConfig = new EncryptionConfig();
 	
 	/* Credential configuration parameters */
 	String				httpProxyUserName;
@@ -694,6 +688,7 @@ class EncryptedChannelConfig extends HttpChannelConfig
 
 class EncryptionConfig
 {
+	int					ConnectionType;
 	String				KeyStoreType;
 	String				KeyStoreFile;
 	String				KeyStorePasswd;
@@ -701,6 +696,8 @@ class EncryptionConfig
 	String 				SecurityProtocol;
 	String				KeyManagerAlgorithm;
 	String				TrustManagerAlgorithm;
+	String				location;
+	boolean				enableSessionMgnt;
 
 	EncryptionConfig()
 	{
@@ -709,6 +706,7 @@ class EncryptionConfig
 
 	void clear()
 	{
+		ConnectionType = ConnectionTypes.HTTP;
 		KeyStoreType = null;
 		KeyStoreFile = null;
 		KeyStorePasswd = null;
@@ -716,10 +714,13 @@ class EncryptionConfig
 		SecurityProtocol = null;
 		KeyManagerAlgorithm = null;
 		TrustManagerAlgorithm = null;
+		location = ActiveConfig.DEFAULT_REGION_LOCATION;
+		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
 	}
 
 	void copy(EncryptionConfig source)
 	{
+		ConnectionType = source.ConnectionType;
 		KeyStoreType = source.KeyStoreType;
 		KeyStoreFile = source.KeyStoreFile;
 		KeyStorePasswd = source.KeyStorePasswd;
@@ -727,6 +728,8 @@ class EncryptionConfig
 		SecurityProtocol = source.SecurityProtocol;
 		KeyManagerAlgorithm = source.KeyManagerAlgorithm;
 		TrustManagerAlgorithm = source.TrustManagerAlgorithm;
+		location = source.location;
+		enableSessionMgnt = source.enableSessionMgnt;
 	}
 }
 

@@ -13,7 +13,6 @@ import com.thomsonreuters.proxy.authentication.IProxyAuthenticatorResponse;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticationException;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticatorFactory;
 import com.thomsonreuters.proxy.authentication.ResponseCodeException;
-import com.thomsonreuters.upa.transport.RsslSocketChannel.InitChnlState;
 
 // Init state transitions for consumer with socket connection:
 //

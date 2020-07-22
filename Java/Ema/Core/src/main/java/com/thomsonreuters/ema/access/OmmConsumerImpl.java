@@ -341,7 +341,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED_SOCKET)
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
@@ -380,7 +380,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED_SOCKET)
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)

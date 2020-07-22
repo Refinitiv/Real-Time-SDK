@@ -127,6 +127,7 @@ class ConfigManager
 	public static final int ChannelProxyPort = 208;
 	public static final int ChannelEnableSessionMgnt = 209;
 	public static final int ChannelLocation = 210;
+	public static final int EncryptedProtocolType = 211;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap = 300;
@@ -335,6 +336,7 @@ class ConfigManager
 		ChannelTagDict.add( "ProxyPort",ChannelProxyPort );
 		ChannelTagDict.add( "EnableSessionManagement",ChannelEnableSessionMgnt );
 		ChannelTagDict.add( "Location",ChannelLocation );
+		ChannelTagDict.add( "EncryptedProtocolType", EncryptedProtocolType);
 		
 		// ConnectionTypes.MCAST
 		ChannelTagDict.add( "DisconnectOnGap",ChannelDisconnectOnGap );
@@ -614,6 +616,7 @@ class ConfigManager
 	public static String EnumeratedValues[] = {
 		"ChannelType",
 		"CompressionType",
+		"EncryptedProtocolType",
 		"DataState",
 		"DictionaryType",
 		"ServerType",

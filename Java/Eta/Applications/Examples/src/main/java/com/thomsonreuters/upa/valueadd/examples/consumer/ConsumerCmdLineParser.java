@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.valueadd.examples.consumer;
 
+import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.examples.common.CommandLineParser;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArgsParser;
@@ -29,6 +30,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean enableHttp;
 	private boolean enableProxy;
 	private boolean enableSessionMgnt;
+	private int encryptedConnectionType;
 	private String proxyHostname;
 	private String proxyPort;
 	private String proxyUsername = "";
@@ -176,6 +178,20 @@ class ConsumerCmdLineParser implements CommandLineParser
     				else if (connectionType.equals("http"))
     				{
     					enableHttp = true;
+    				}
+    			}
+    			else if ("-encryptedConnectionType".equals(args[argsCount]))
+    			{
+    				// will overwrite connectionArgsParser's connectionList's connectionType based on the flag
+    				String connectionType = args[++argsCount];
+    				++argsCount;
+    				if (connectionType.equals("socket"))
+    				{
+    					encryptedConnectionType = ConnectionTypes.SOCKET;
+    				}
+    				else if (connectionType.equals("http"))
+    				{
+    					encryptedConnectionType = ConnectionTypes.HTTP;
     				}
     			}
     			else if ("-keyfile".equals(args[argsCount]))
@@ -429,6 +445,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return applicationId;
 	}
 	
+	int encryptedConnectionType()
+	{
+		return encryptedConnectionType;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -459,7 +480,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +
 		        "\n -publisherInfo specifies that the application should add user provided publisher Id and publisher ipaddress when posting\n" +       				
 				"\n -snapshot specifies each request using non-streaming\n"  +
-		        "\n -connectionType specifies the connection type that the connection should use (possible values are: 'socket', 'http', 'encrypted')\n" +		        
+		        "\n -connectionType specifies the connection type that the connection should use (possible values are: 'socket', 'http', 'encrypted')\n" +
+		        "\n -encryptedConnectionType specifies the encrypted connection type that the connection should use (possible values are: 'socket', 'http')\n" +		        
                 "\n -proxy specifies that proxy is used for connectionType of http or encrypted\n" + 
 		        "\n -ph specifies proxy server host name\n" + 
 		        "\n -pp specifies roxy port number\n" +          

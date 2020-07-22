@@ -8,6 +8,7 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 public class ConnectionArg
 {
 	int connectionType; /* type of the connection */
+	int encryptedConnectionType; /* Encrypted protocol for this connection */
 	String service; /* name of service to request items from on this connection */
 	
 	/* non-segmented connection */
@@ -76,6 +77,27 @@ public class ConnectionArg
 	public void connectionType(int connectionType)
 	{
 		this.connectionType = connectionType;
+	}
+	
+	/**
+	 * Encrypted Connection type.
+	 *
+	 * @param connectionType the encrypted connection type
+	 */
+	public void encryptedConnectionType(int connectionType)
+	{
+		this.encryptedConnectionType = connectionType;
+	}
+	
+
+	/**
+	 * encryptedConnection type.
+	 *
+	 * @return the int
+	 */
+	public int encryptedConnectionType()
+	{
+		return encryptedConnectionType;
 	}
 
 	/**

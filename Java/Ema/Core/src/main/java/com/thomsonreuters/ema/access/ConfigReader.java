@@ -401,10 +401,27 @@ class ConfigReader
 					channelType = ConnectionTypes.HTTP;
 				else if(enumValue.equals("RSSL_ENCRYPTED"))
 					channelType = ConnectionTypes.ENCRYPTED;
-				else if(enumValue.equals("RSSL_ENCRYPTED_SOCKET"))
-					channelType = ConnectionTypes.ENCRYPTED_SOCKET;
 				else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 					channelType = ConnectionTypes.RELIABLE_MCAST;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( channelType != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,channelType);
+			}
+			else if ( enumType.equals("EncryptedProtocolType" ) )
+			{
+				int channelType = -1;
+
+				if(enumValue.equals("RSSL_SOCKET"))
+					channelType = ConnectionTypes.SOCKET;
+				else if(enumValue.equals("RSSL_HTTP"))
+					channelType = ConnectionTypes.HTTP;
 				else
 				{
 					errorTracker().append( "no implementation in convertEnum for enumType [" )

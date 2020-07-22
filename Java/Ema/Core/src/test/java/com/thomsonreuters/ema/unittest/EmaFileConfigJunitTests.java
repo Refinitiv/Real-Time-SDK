@@ -816,6 +816,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			elementList.clear();
 
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_ENCRYPTED"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EncryptedProtocolType", "EncryptedProtocolType::RSSL_SOCKET"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::ZLib"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 8000));
@@ -913,6 +914,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			ConsChannelVal = "Channel_1";
 			System.out.println("\nRetrieving Channel_1 configuration values "); 
 			int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
+			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
+			int encryptedChannelType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EncryptedProtocolType, 0);
 			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
 		
 			String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);

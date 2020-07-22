@@ -895,7 +895,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		EncryptedChannelConfig encryptedChannelConfig;
 		for(int i = 0; i < _activeConfig.channelConfigSet.size(); i++)
 		{
-			if(_activeConfig.channelConfigSet.get(i).rsslConnectionType ==  ConnectionTypes.ENCRYPTED)
+			if(_activeConfig.channelConfigSet.get(i).rsslConnectionType ==  ConnectionTypes.ENCRYPTED && _activeConfig.channelConfigSet.get(i).encryptedProtocolType == ConnectionTypes.HTTP )
 			{
 				encryptedChannelConfig = (EncryptedChannelConfig)_activeConfig.channelConfigSet.get(i);
 				
@@ -921,11 +921,17 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 		ConfigAttributes attributes = null;
 		ConfigElement ce = null;
+		ConfigElement ep = null;
 		int connectionType = -1;
+		int encrypedProtocol = -1;
 
 		attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
 		if (attributes != null) 
+		{
 			ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
+			ep = attributes.getPrimitiveValue(ConfigManager.EncryptedProtocolType);
+		}
+		
 
 		if (configImpl.getUserSpecifiedHostname() != null)
 			connectionType = ConnectionTypes.SOCKET;
@@ -937,46 +943,177 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		
 			if (connectionType < 0)
 				connectionType = (ce == null) ? ConnectionTypes.SOCKET : ce.intValue();
+			
+			if(connectionType == ConnectionTypes.ENCRYPTED)
+			{
+				if(pc != null)
+					encrypedProtocol = pc.retrieveEncryptedProtocolConfig(channelName);
+				
+				if(encrypedProtocol < 0)
+					encrypedProtocol = (ep == null) ? ConnectionTypes.HTTP : ep.intValue();
+			}
 		}
+		
+		
 		
 		switch (connectionType)
 		{
-		case ConnectionTypes.SOCKET:
-		{
-			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-
-			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
-
-			currentChannelConfig = socketChannelConfig;
-			
-			break;
-		}
-		case ConnectionTypes.ENCRYPTED_SOCKET:
-		{
-			EncryptedSocketChannelConfig socketChannelConfig = new EncryptedSocketChannelConfig();
-
-			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
-			socketChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
-			currentChannelConfig = socketChannelConfig;
-
-			break;
-		}
-		case ConnectionTypes.HTTP:
 		case ConnectionTypes.ENCRYPTED:
 		{
-			HttpChannelConfig tunnelingChannelCfg;
-			if (connectionType == ConnectionTypes.ENCRYPTED)
+			if(encrypedProtocol == ConnectionTypes.HTTP)
 			{
-				tunnelingChannelCfg = new EncryptedChannelConfig();
+				HttpChannelConfig tunnelingChannelCfg = new EncryptedChannelConfig();
+				tunnelingChannelCfg.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+				tunnelingChannelCfg.encryptedProtocolType = ConnectionTypes.HTTP;
 				
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
 					((EncryptedChannelConfig)tunnelingChannelCfg).enableSessionMgnt = ce.intLongValue() == 0 ? false : true;
 				
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelLocation)) != null)
 					((EncryptedChannelConfig)tunnelingChannelCfg).location = ce.asciiValue();
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+					tunnelingChannelCfg.hostName = ce.asciiValue();
+
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+					tunnelingChannelCfg.serviceName = ce.asciiValue();
+
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+					tunnelingChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+
+				HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
+				tunnelingChannelCfg.objectName = programTunnelingChannelCfg.objectName;
+				if (tunnelingChannelCfg.objectName == null || tunnelingChannelCfg.objectName.length() == 0)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+						tunnelingChannelCfg.objectName = ce.asciiValue();
+				}
+				
+				tunnelingChannelCfg.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
+				if ( tunnelingChannelCfg.httpProxyHostName == null || tunnelingChannelCfg.httpProxyHostName.length() == 0)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyHost)) != null)
+						tunnelingChannelCfg.httpProxyHostName = ce.asciiValue();
+				}
+				
+				tunnelingChannelCfg.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
+				if (tunnelingChannelCfg.httpProxyPort == null || tunnelingChannelCfg.httpProxyPort.length() == 0)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyPort)) != null)
+						tunnelingChannelCfg.httpProxyPort = ce.asciiValue();
+				}
+				
+				if ( (tunnelingChannelCfg.httpProxyPort != null && tunnelingChannelCfg.httpProxyPort.length()  > 0) ||
+				     (tunnelingChannelCfg.httpProxyHostName != null && tunnelingChannelCfg.httpProxyHostName.length() > 0))
+					tunnelingChannelCfg.httpProxy = true;
+				
+				if (tunnelingChannelCfg.httpProxy)
+				{
+					tunnelingChannelCfg.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
+					tunnelingChannelCfg.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
+					tunnelingChannelCfg.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
+					tunnelingChannelCfg.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
+					tunnelingChannelCfg.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
+				}
+				
+				((EncryptedChannelConfig) tunnelingChannelCfg).encryptionConfig.copy(configImpl.encryptionCfg());
+				
+				currentChannelConfig =  tunnelingChannelCfg;
 			}
-			else				
-				tunnelingChannelCfg = new HttpChannelConfig();
+			else if(encrypedProtocol == ConnectionTypes.SOCKET)
+			{
+				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+				socketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+				socketChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
+
+				readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
+				
+				socketChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
+
+				HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
+				
+				socketChannelConfig.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
+				if ( socketChannelConfig.httpProxyHostName == null || socketChannelConfig.httpProxyHostName.length() == 0)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyHost)) != null)
+						socketChannelConfig.httpProxyHostName = ce.asciiValue();
+				}
+				
+				socketChannelConfig.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
+				if (socketChannelConfig.httpProxyPort == null || socketChannelConfig.httpProxyPort.length() == 0)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyPort)) != null)
+						socketChannelConfig.httpProxyPort = ce.asciiValue();
+				}
+				
+				if ( (socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length()  > 0) ||
+				     (socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
+					socketChannelConfig.httpProxy = true;
+				
+				if (socketChannelConfig.httpProxy)
+				{
+					socketChannelConfig.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
+					socketChannelConfig.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
+					socketChannelConfig.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
+					socketChannelConfig.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
+					socketChannelConfig.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
+				}
+				
+				currentChannelConfig = socketChannelConfig;
+			}
+			else
+			{
+				configImpl.errorTracker().append("Not supported channel type. Type = ")
+						.append(ConnectionTypes.toString(configImpl.encryptionCfg().ConnectionType));
+				throw ommIUExcept().message(configImpl.errorTracker().text(), OmmInvalidUsageException.ErrorCode.UNSUPPORTED_CHANNEL_TYPE);
+			}
+			
+			break;
+		}
+		case ConnectionTypes.SOCKET:
+		{
+			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+
+			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
+			
+			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
+			
+			socketChannelConfig.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
+			if ( socketChannelConfig.httpProxyHostName == null || socketChannelConfig.httpProxyHostName.length() == 0)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyHost)) != null)
+					socketChannelConfig.httpProxyHostName = ce.asciiValue();
+			}
+			
+			socketChannelConfig.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
+			if (socketChannelConfig.httpProxyPort == null || socketChannelConfig.httpProxyPort.length() == 0)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyPort)) != null)
+					socketChannelConfig.httpProxyPort = ce.asciiValue();
+			}
+			
+			if ( (socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length()  > 0) ||
+			     (socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
+				socketChannelConfig.httpProxy = true;
+			
+			if (socketChannelConfig.httpProxy == true)
+			{
+				socketChannelConfig.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
+				socketChannelConfig.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
+				socketChannelConfig.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
+				socketChannelConfig.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
+				socketChannelConfig.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
+			}
+			
+			currentChannelConfig = socketChannelConfig;
+			
+			break;
+		}
+		case ConnectionTypes.HTTP:
+		{
+			HttpChannelConfig tunnelingChannelCfg;
+			tunnelingChannelCfg = new HttpChannelConfig();
 			
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
 				tunnelingChannelCfg.hostName = ce.asciiValue();
@@ -1020,11 +1157,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				tunnelingChannelCfg.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
 				tunnelingChannelCfg.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
 				tunnelingChannelCfg.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
-			}
-			
-			if (connectionType == ConnectionTypes.ENCRYPTED)
-			{
-				((EncryptedChannelConfig) tunnelingChannelCfg).encryptionConfig.copy(configImpl.encryptionCfg());
 			}
 			
 			currentChannelConfig =  tunnelingChannelCfg;
@@ -1178,14 +1310,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
 				strBuilder().append("login failed (timed out after waiting ")
 						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET ||
-						currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED_SOCKET)
+				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET || (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED && currentConfig.encryptedProtocolType == ConnectionTypes.SOCKET))
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP || 
-						currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+						 (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED && currentConfig.encryptedProtocolType == ConnectionTypes.HTTP))
 				{
 					HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
