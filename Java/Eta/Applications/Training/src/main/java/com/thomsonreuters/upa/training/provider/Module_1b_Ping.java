@@ -22,7 +22,7 @@
  * An OMM Interactive Provider application opens a listening socket on a well-known 
  * port allowing OMM consumer applications to connect. Once connected, consumers 
  * can request data from the Interactive Provider.
- * 
+ *
  * In this module, the OMM Interactive Provider application opens a listening socket 
  * on a well-known port allowing OMM consumer applications to connect.
  *
@@ -33,34 +33,58 @@
  * and listen for incoming connection attempts.
  * Whenever an OMM consumer application attempts to connect, the provider uses 
  * the Server.accept() method to begin the connection initialization process.
- * 
- * For this simple training app, the interactive provider only supports a single client. 
- * 
+ *
+ * For this simple training app, the interactive provider only supports a single client.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 ))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  *****************************************************************************************
  * Summary:
- * In this module, after establishing a connection, ping messages might 
- * need to be exchanged. The negotiated ping timeout is available via 
- * the Channel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
- * recommends sending ping messages at intervals one-third the 
+ * In this module, after establishing a connection, ping messages might
+ * need to be exchanged. The negotiated ping timeout is available via
+ * the Channel. If ping heartbeats are not sent or received within
+ * the expected time frame, the connection can be terminated. Refinitiv
+ * recommends sending ping messages at intervals one-third the
  * size of the ping timeout.
  *
  * Detailed Descriptions:
- * Once the connection is active, the consumer and provider applications 
- * might need to exchange ping messages. A negotiated ping timeout is available 
+ * Once the connection is active, the consumer and provider applications
+ * might need to exchange ping messages. A negotiated ping timeout is available
  * via Channel corresponding to each connection (this value might differ on
- * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Refinitiv 
+ * a per-connection basis). A connection can be terminated if ping heartbeats
+ * are not sent or received within the expected time frame. Refinitiv
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information is 
- * being exchanged. Because the provider application is likely sending more frequent 
- * information, providing updates on any streams the consumer has requested, 
- * it may not need to send heartbeats as the other data is sufficient to announce 
- * its continued presence. It is the responsibility of each connection to manage 
+ * Ping or heartbeat messages are used to indicate the continued presence of
+ * an application. These are typically only required when no other information is
+ * being exchanged. Because the provider application is likely sending more frequent
+ * information, providing updates on any streams the consumer has requested,
+ * it may not need to send heartbeats as the other data is sufficient to announce
+ * its continued presence. It is the responsibility of each connection to manage
  * the sending and receiving of heartbeat messages.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1b
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1b -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *****************************************************************************************/
 
 package com.thomsonreuters.upa.training.provider;

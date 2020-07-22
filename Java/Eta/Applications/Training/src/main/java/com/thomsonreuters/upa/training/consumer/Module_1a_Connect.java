@@ -36,7 +36,19 @@
  * 
  * For this simple training app, only a single channel/connection is used for 
  * the entire life of this app.
- *********************************************************************************/
+ *******************************************************************************
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ * **/
 
 package com.thomsonreuters.upa.training.consumer;
 

@@ -34,7 +34,19 @@
  * Whenever an OMM consumer application attempts to connect, the provider uses 
  * the Server.accept() method to begin the connection initialization process.
  * 
- * For this simple training app, the interactive provider only supports a single client. 
+ * For this simple training app, the interactive provider only supports a single client.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1a
+ * (runs with a default set of parameters (-p 14002))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1a -PcommandLineArgs="[-p <SrvrPortNo>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *****************************************************************************************/
 
 package com.thomsonreuters.upa.training.provider;
