@@ -32,12 +32,12 @@ import java.nio.charset.Charset;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Locale;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Consts;
 import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.EncodingUtils;
@@ -820,7 +820,7 @@ final class NTLMEngineImpl {
 
         /** Constructor to use when message contents are known */
         NTLMMessage(final String messageBody, final int expectedType) throws NTLMEngineException {
-            messageContents = Base64.decodeBase64(messageBody.getBytes(DEFAULT_CHARSET));
+            messageContents = Base64.getDecoder().decode(messageBody.getBytes(DEFAULT_CHARSET));
             // Look for NTLM message
             if (messageContents.length < SIGNATURE.length) {
                 throw new NTLMEngineException("NTLM message decoding error - packet too short");
@@ -959,7 +959,7 @@ final class NTLMEngineImpl {
             } else {
                 resp = messageContents;
             }
-            return EncodingUtils.getAsciiString(Base64.encodeBase64(resp));
+            return EncodingUtils.getAsciiString(Base64.getEncoder().encode(resp));
         }
 
     }

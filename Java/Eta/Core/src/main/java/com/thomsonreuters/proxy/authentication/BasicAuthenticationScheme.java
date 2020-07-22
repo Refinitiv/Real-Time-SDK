@@ -1,7 +1,8 @@
 package com.thomsonreuters.proxy.authentication;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.util.EncodingUtils;
+
+import java.util.Base64;
 
 public class BasicAuthenticationScheme implements IAuthenticationScheme
 {
@@ -58,7 +59,7 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
                                            _proxyAuthenticator.getCredentials().get(CredentialName.USERNAME),
                                            _proxyAuthenticator.getCredentials().get(CredentialName.PASSWORD));
 
-        credentails = EncodingUtils.getAsciiString(Base64.encodeBase64(EncodingUtils.getBytes(credentails, DEFAULT_CHARSET)));
+        credentails = EncodingUtils.getAsciiString(Base64.getEncoder().encode(EncodingUtils.getBytes(credentails, DEFAULT_CHARSET)));
 
         validateCredentials(); // throws an exception if invalid
 

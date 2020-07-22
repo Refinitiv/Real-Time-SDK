@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedActionException;
+import java.util.Base64;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
@@ -15,7 +16,6 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.util.EncodingUtils;
 
 public class KerberosAuthenticationScheme implements IAuthenticationScheme
@@ -96,7 +96,7 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         // System.out.println("KERBEROS  KerberosAuthenticationScheme::processResponse(int httpResponseCode, String proxyServerResponse)   start");
         StringBuilder proxyAuthorizationValue = new StringBuilder();
 
-        String credentials = EncodingUtils.getAsciiString(Base64.encodeBase64(serviceTicket));
+        String credentials = EncodingUtils.getAsciiString(Base64.getEncoder().encode(serviceTicket));
 
         if (httpResponseCode == 407)
             proxyAuthorizationValue.append(PROXY_AUTHORIZATION_PREFIX);

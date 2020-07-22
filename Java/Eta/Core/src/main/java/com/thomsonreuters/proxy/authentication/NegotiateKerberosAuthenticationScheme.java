@@ -4,8 +4,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import java.security.PrivilegedActionException;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.util.EncodingUtils;
 
 public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticationScheme
@@ -56,7 +56,7 @@ public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticatio
             throws ProxyAuthenticationException
     {
         StringBuilder proxyAuthorizationValue = new StringBuilder();
-        String credentials = EncodingUtils.getAsciiString(Base64.encodeBase64(serviceTicket));
+        String credentials = EncodingUtils.getAsciiString(Base64.getEncoder().encode(serviceTicket));
 
         if (httpResponseCode == 407)
             proxyAuthorizationValue.append(PROXY_AUTHORIZATION_PREFIX);
