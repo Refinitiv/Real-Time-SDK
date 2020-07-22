@@ -7,6 +7,8 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -904,7 +906,9 @@ class ConfigReader
 		 *
 		 * if parameter path is empty, attempt to read and parse file EmaConfig.xml in the current working directory.
 		 *
-		 * if parameter path is not empty, read the configuration from path if it is a file or file path/EmaConfig.xml if path is a directory.
+		 * if parameter path is not empty, attempt to read configuration from a classpath resource located at the specified path.
+		 * if no classpath resource exists at the path, attempt to read the configuration from path if it is a file or file path/EmaConfig.xml if path is a directory.
+		 *
 		 * If a configuration cannot be constructed from the given path, throw an OmmInvalidConfigurationException exception
 		 */
 		protected void loadFile(String path)
@@ -912,9 +916,12 @@ class ConfigReader
 			String fileName;	// eventual location of configuration file
 			final String defaultFileName = "EmaConfig.xml";
 
-			if (path == null || path.isEmpty())
+			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;
-			else {
+			} else if (isClasspathResource(path)) {
+				fileName = path;
+				errorTracker().append( "detected configuration file [" ).append( fileName ).append( "] in classpath").create(Severity.TRACE);
+			} else {
 				File tmp = new File(path);
 				if(!tmp.exists()) {
 					String errorMsg = String.format("configuration path [%s] does not exist; working directory was [%s]", path,
@@ -951,12 +958,12 @@ class ConfigReader
 							path, System.getProperty("user.dir"));
 					throw _parent.oommICExcept().message(errorMsg);
 				}
+
+				// at this point, we have a fileName, a path with that name exists, and that path is a file
+				errorTracker().append( "reading configuration file [" ).append( fileName ).append( "]; working directory is [" )
+						.append( System.getProperty("user.dir") ).append( "]" ).create(Severity.TRACE);
 			}
 
-			// at this point, we have a fileName, a path with that name exists, and that path is a file
-			errorTracker().append( "reading configuration file [" ).append( fileName ).append( "]; working directory is [" )
-			.append( System.getProperty("user.dir") ).append( "]" ).create(Severity.TRACE);
-			
 			XMLConfiguration config = null;
 			try 
 			{
@@ -1006,6 +1013,15 @@ class ConfigReader
 
 			// debugging
 			// xmlRoot.dump(0);
+		}
+
+		boolean isClasspathResource(String resourceName)
+		{
+			try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+				return in != null;
+			} catch (IOException e) {
+				return false;
+			}
 		}
 
 		void verifyAndGetDefaultConsumer()
