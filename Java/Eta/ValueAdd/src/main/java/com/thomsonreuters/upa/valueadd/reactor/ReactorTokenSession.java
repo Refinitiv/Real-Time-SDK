@@ -94,15 +94,18 @@ class ReactorTokenSession implements RestCallback
 	
 	boolean checkMiniumTimeForReissue(ReactorErrorInfo errorInfo)
 	{
-		long remainingTimeForReissueNs = _nextAuthTokenRequestTime - System.nanoTime();
-		
-		if ( remainingTimeForReissueNs < (long)((_reactor._reactorOptions.tokenReissueRatio()) * 1000000000))
+		if(_nextAuthTokenRequestTime != 0)
 		{
-			_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, 
+			long remainingTimeForReissueNs = _nextAuthTokenRequestTime - System.nanoTime();
+		
+			if ( remainingTimeForReissueNs < (long)((_reactor._reactorOptions.tokenReissueRatio()) * 1000000000))
+			{
+				_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, 
 					"ReactorTokenSession.checkMiniumTimeForReissue()", 
 					"Couldn't add the channel to the token session as the token reissue interval is too small for this channel.");
 			
-			return false;
+				return false;
+			}
 		}
 		
 		return true;
