@@ -1639,14 +1639,14 @@ class ProgrammaticConfigure
 							((EncryptedChannelConfig)encryptedChannelConfig).enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
 						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
-							((EncryptedChannelConfig)encryptedChannelConfig).enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
+							encryptedChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
 						}
 						
 						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
 							((EncryptedChannelConfig)encryptedChannelConfig).location = location;
 						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
-							((EncryptedChannelConfig)encryptedChannelConfig).location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
+							encryptedChannelConfig.location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
 						}
 					}
 
@@ -1680,7 +1680,7 @@ class ProgrammaticConfigure
 						
 						if (fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 						{
-							((EncryptedChannelConfig) encryptedChannelConfig).encryptionConfig.copy(((EncryptedChannelConfig) fileCfgEncrypt).encryptionConfig);
+							encryptedChannelConfig.encryptionConfig.copy(fileCfgEncrypt.encryptionConfig);
 						}
 					}
 					break;
