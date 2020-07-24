@@ -1636,14 +1636,14 @@ class ProgrammaticConfigure
 					if (channelType == ConnectionTypes.ENCRYPTED)
 					{
 						if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
-							((EncryptedChannelConfig)encryptedChannelConfig).enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+							encryptedChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
 						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
 							encryptedChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
 						}
 						
 						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
-							((EncryptedChannelConfig)encryptedChannelConfig).location = location;
+							encryptedChannelConfig.location = location;
 						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
 							encryptedChannelConfig.location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
