@@ -20,7 +20,6 @@ public class WatchlistConsumerConfig
 	private String publisherAddress;
 	private boolean enableEncrypted;
 	private boolean enableHttp;
-	private int encryptedConnectionType;
 	private boolean cacheOption;
 	private int cacheInterval;
 
