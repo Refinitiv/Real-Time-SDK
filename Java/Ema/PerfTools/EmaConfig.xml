@@ -22,6 +22,8 @@
 			<MaxDispatchCountApiThread value="6500"/>
 
 			<MaxDispatchCountUserThread value="6500"/>
+
+			<MsgKeyInUpdates value="0"/>
 		</Consumer>
 		
 		<Consumer>
@@ -34,6 +36,8 @@
 			<MaxDispatchCountApiThread value="6500"/>
 
 			<MaxDispatchCountUserThread value="6500"/>
+
+			<MsgKeyInUpdates value="0"/>
 		</Consumer>
 		
 	</ConsumerList>

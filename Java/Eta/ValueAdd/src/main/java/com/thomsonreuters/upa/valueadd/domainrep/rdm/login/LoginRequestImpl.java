@@ -375,6 +375,17 @@ class LoginRequestImpl extends MsgBaseImpl
                 applyHasAttrib();
                 attrib.applyHasProviderSupportDictionaryDownload();
                 attrib.supportProviderDictionaryDownload(tmpUInt.toLong());
+            } else if (elementEntry.name().equals(ElementNames.ROUND_TRIP_LATENCY)) {
+                if (elementEntry.dataType() != DataTypes.UINT) {
+                    return CodecReturnCodes.FAILURE;
+                }
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
+                applyHasAttrib();
+                attrib.applyHasSupportRoundTripLatencyMonitoring();
+                attrib.supportRTTMonitoring(tmpUInt.toLong());
             }
         }
         return CodecReturnCodes.SUCCESS;
@@ -559,6 +570,16 @@ class LoginRequestImpl extends MsgBaseImpl
             if (ret != CodecReturnCodes.SUCCESS)
                 return ret;
   
+        }
+
+        if (checkHasAttrib() && attrib.checkHasSupportRoundTripLatencyMonitoring()) {
+            elementEntry.dataType(DataTypes.UINT);
+            elementEntry.name(ElementNames.ROUND_TRIP_LATENCY);
+            tmpUInt.value(attrib.supportRTTMonitoring());
+            ret = elementEntry.encode(encodeIter, tmpUInt);
+            if (ret != CodecReturnCodes.SUCCESS) {
+                return ret;
+            }
         }
 
         if ((ret = elementList.encodeComplete(encodeIter, true)) != CodecReturnCodes.SUCCESS)

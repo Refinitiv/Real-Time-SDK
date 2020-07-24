@@ -264,6 +264,10 @@ private:
 	mutable thomsonreuters::ema::access::ElementList*	_pElementList;
 
 	mutable thomsonreuters::ema::access::EmaString       _toString;
+
+#ifdef __EMA_COPY_ON_SET__
+	thomsonreuters::ema::access::EmaString				_statusText;
+#endif
 };
 
 }

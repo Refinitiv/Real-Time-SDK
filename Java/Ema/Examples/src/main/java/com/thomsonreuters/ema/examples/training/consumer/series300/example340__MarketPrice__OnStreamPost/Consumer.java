@@ -57,7 +57,7 @@ class AppClient implements OmmConsumerClient
 			
 			nestedUpdateMsg.payload(nestedFieldList );
 				
-			((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ ).serviceId( 1701 )
+			((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ ).serviceId( 1 ) 
 														.name( "IBM.N" ).solicitAck( true ).complete(true)
 														.payload(nestedUpdateMsg), event.handle() );
 		}

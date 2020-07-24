@@ -147,6 +147,7 @@ BaseConfig::BaseConfig() :
 	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
 	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
 	maxDispatchCountUserThread(DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD),
+	maxEventsInPool(DEFAULT_MAX_EVENT_IN_POOL),
 	requestTimeout(DEFAULT_REQUEST_TIMEOUT),
 	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
 	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
@@ -158,6 +159,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
 	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
+	enableRtt(DEFAULT_ENABLE_RTT),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -187,6 +189,7 @@ void BaseConfig::clear()
 	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+	maxEventsInPool = DEFAULT_MAX_EVENT_IN_POOL;
 	requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
 	xmlTraceToFile = DEFAULT_XML_TRACE_TO_FILE;
@@ -198,7 +201,10 @@ void BaseConfig::clear()
 	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
 	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
+	enableRtt = DEFAULT_ENABLE_RTT;
 	loggerConfig.clear();
+	catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
+	parameterConfigGroup = 1;
 	libSslName.clear();
 	libCryptoName.clear();
 	traceStr.clear();
@@ -222,6 +228,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t dispatchTimeoutApiThread: ").append(dispatchTimeoutApiThread)
 		.append("\n\t maxDispatchCountApiThread: ").append(maxDispatchCountApiThread)
 		.append("\n\t maxDispatchCountUserThread : ").append(maxDispatchCountUserThread)
+		.append("\n\t maxEventsInPool : ").append(maxEventsInPool)
 		.append("\n\t requestTimeout : ").append(requestTimeout)
 		.append("\n\t xmlTraceMaxFileSize : ").append(xmlTraceMaxFileSize)
 		.append("\n\t xmlTraceToFile : ").append(xmlTraceToFile)
@@ -233,6 +240,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
 		.append("\n\t xmlTraceDump : ").append(xmlTraceDump)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)
+		.append("\n\t enableRtt : ").append(enableRtt)
 		.append("\n\t libSslName : ").append(libSslName)
 		.append("\n\t libCryptoName : ").append(libCryptoName)
 		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio)
@@ -249,8 +257,8 @@ EmaString BaseConfig::configTrace()
 void BaseConfig::setItemCountHint(UInt64 value)
 {
 	if (value <= 0) {}
-	else if (value > 0xFFFFFFFF)
-		itemCountHint = 0xFFFFFFFF;
+	else if (value > RWF_MAX_32)
+		itemCountHint = RWF_MAX_32;
 	else
 		itemCountHint = (UInt32)value;
 }
@@ -258,8 +266,8 @@ void BaseConfig::setItemCountHint(UInt64 value)
 void BaseConfig::setServiceCountHint(UInt64 value)
 {
 	if (value <= 0) {}
-	else if (value > 0xFFFFFFFF)
-		serviceCountHint = 0xFFFFFFFF;
+	else if (value > RWF_MAX_32)
+		serviceCountHint = RWF_MAX_32;
 	else
 		serviceCountHint = (UInt32)value;
 }
@@ -267,8 +275,8 @@ void BaseConfig::setServiceCountHint(UInt64 value)
 void BaseConfig::setRequestTimeout(UInt64 value)
 {
 	if (value <= 0) {}
-	else if (value > 0xFFFFFFFF)
-		requestTimeout = 0xFFFFFFFF;
+	else if (value > RWF_MAX_32)
+		requestTimeout = RWF_MAX_32;
 	else
 		requestTimeout = (UInt32)value;
 }
@@ -284,8 +292,8 @@ void BaseConfig::setCatchUnhandledException(UInt64 value)
 void BaseConfig::setMaxDispatchCountApiThread(UInt64 value)
 {
 	if (value <= 0) {}
-	else if (value > 0xFFFFFFFF)
-		maxDispatchCountApiThread = 0xFFFFFFFF;
+	else if (value > RWF_MAX_32)
+		maxDispatchCountApiThread = RWF_MAX_32;
 	else
 		maxDispatchCountApiThread = (UInt32)value;
 }
@@ -293,10 +301,19 @@ void BaseConfig::setMaxDispatchCountApiThread(UInt64 value)
 void BaseConfig::setMaxDispatchCountUserThread(UInt64 value)
 {
 	if (value <= 0) {}
-	else if (value > 0xFFFFFFFF)
-		maxDispatchCountUserThread = 0xFFFFFFFF;
+	else if (value > RWF_MAX_32)
+		maxDispatchCountUserThread = RWF_MAX_32;
 	else
 		maxDispatchCountUserThread = (UInt32)value;
+}
+
+void BaseConfig::setMaxEventsInPool(Int64 value)
+{
+	if (value <= 0) {}
+	else if (value > RWF_MAX_U31)
+		maxEventsInPool = RWF_MAX_U31;
+	else
+		maxEventsInPool = (Int32)value;
 }
 
 ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
@@ -406,32 +423,32 @@ void ActiveConfig::setObeyOpenWindow( UInt64 value )
 void ActiveConfig::setPostAckTimeout( UInt64 value )
 {
 	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		postAckTimeout = 0xFFFFFFFF;
+	else if ( value > RWF_MAX_32 )
+		postAckTimeout = RWF_MAX_32;
 	else
 		postAckTimeout = ( UInt32 )value;
 }
 
 void ActiveConfig::setLoginRequestTimeOut( UInt64 value )
 {
-	if ( value > 0xFFFFFFFF )
-		loginRequestTimeOut = 0xFFFFFFFF;
+	if ( value > RWF_MAX_32 )
+		loginRequestTimeOut = RWF_MAX_32;
 	else
 		loginRequestTimeOut = ( UInt32 ) value;
 }
 
 void ActiveConfig::setDirectoryRequestTimeOut( UInt64 value )
 {
-	if ( value > 0xFFFFFFFF )
-		directoryRequestTimeOut = 0xFFFFFFFF;
+	if ( value > RWF_MAX_32 )
+		directoryRequestTimeOut = RWF_MAX_32;
 	else
 		directoryRequestTimeOut = ( UInt32 ) value;
 }
 
 void ActiveConfig::setDictionaryRequestTimeOut( UInt64 value )
 {
-	if ( value > 0xFFFFFFFF )
-		dictionaryRequestTimeOut = 0xFFFFFFFF;
+	if ( value > RWF_MAX_32 )
+		dictionaryRequestTimeOut = RWF_MAX_32;
 	else
 		dictionaryRequestTimeOut = ( UInt32 ) value;
 }
@@ -439,8 +456,8 @@ void ActiveConfig::setDictionaryRequestTimeOut( UInt64 value )
 void ActiveConfig::setMaxOutstandingPosts( UInt64 value )
 {
 	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		maxOutstandingPosts = 0xFFFFFFFF;
+	else if ( value > RWF_MAX_32 )
+		maxOutstandingPosts = RWF_MAX_32;
 	else
 		maxOutstandingPosts = ( UInt32 )value;
 }
@@ -449,14 +466,14 @@ void ActiveConfig::setReconnectAttemptLimit(Int64 value)
 {
 	if (value >= 0)
 	{
-		reconnectAttemptLimit = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+		reconnectAttemptLimit = value > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)value;
 	}
 }
 void ActiveConfig::setReconnectMinDelay(Int64 value)
 {
 	if (value > 0)
 	{
-		reconnectMinDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+		reconnectMinDelay = value > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)value;
 	}
 }
 
@@ -464,14 +481,14 @@ void ActiveConfig::setReconnectMaxDelay(Int64 value)
 {
 	if (value > 0)
 	{
-		reconnectMaxDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+		reconnectMaxDelay = value > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)value;
 	}
 }
 
 void ActiveConfig::setRestRequestTimeOut(UInt64 value)
 {
-	if (value > 0xFFFFFFFF)
-		restRequestTimeOut = 0xFFFFFFFF;
+	if (value > RWF_MAX_32)
+		restRequestTimeOut = RWF_MAX_32;
 	else
 		restRequestTimeOut = (UInt32)value;
 }
@@ -629,7 +646,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
-	pChannel( 0 )
+	pChannel( 0 ),
+	compressionThresholdSet(false)
 {
 }
 
@@ -647,6 +665,7 @@ void ChannelConfig::clear()
 	sysRecvBufSize = DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
 	pChannel = 0;
+	compressionThresholdSet = false;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -656,8 +675,8 @@ ChannelConfig::~ChannelConfig()
 void ChannelConfig::setGuaranteedOutputBuffers( UInt64 value )
 {
 	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		guaranteedOutputBuffers = 0xFFFFFFFF;
+	else if ( value > RWF_MAX_32 )
+		guaranteedOutputBuffers = RWF_MAX_32;
 	else
 		guaranteedOutputBuffers = ( UInt32 )value;
 }
@@ -667,7 +686,7 @@ void ChannelConfig::setNumInputBuffers( UInt64 value )
 	if ( value == 0 ) {}
 	else
 	{
-		numInputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : ( UInt32 )value;
+		numInputBuffers = value > RWF_MAX_32 ? RWF_MAX_32 : ( UInt32 )value;
 	}
 }
 
@@ -684,7 +703,8 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
 	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),
 	sysRecvBufSize(DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE),
-	highWaterMark(DEFAULT_HIGH_WATER_MARK)
+	highWaterMark(DEFAULT_HIGH_WATER_MARK),
+	compressionThresholdSet(false)
 {
 
 }
@@ -709,13 +729,14 @@ void ServerConfig::clear()
 	sysRecvBufSize = DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE;
 	sysSendBufSize = DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
+	compressionThresholdSet = false;
 }
 
 void ServerConfig::setGuaranteedOutputBuffers(UInt64 value)
 {
 	if (value != 0)
 	{
-		guaranteedOutputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)value;
+		guaranteedOutputBuffers = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
 	}
 }
 
@@ -723,7 +744,7 @@ void ServerConfig::setNumInputBuffers(UInt64 value)
 {
 	if (value != 0)
 	{
-		numInputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)value;
+		numInputBuffers = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
 	}
 }
 
@@ -757,6 +778,7 @@ void SocketChannelConfig::clear()
 	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
+	sslCAStore = DEFAULT_SSL_CA_STORE;
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_EDP_RT_LOCATION;
@@ -772,7 +794,9 @@ ChannelConfig::ChannelType SocketChannelConfig::getType() const
 SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
 ServerConfig(RSSL_CONN_TYPE_SOCKET),
 serviceName(defaultServiceName),
+defaultServiceName(defaultServiceName),
 tcpNodelay(DEFAULT_TCP_NODELAY),
+serverSharedSocket(DEFAULT_SERVER_SHAREDSOCKET),
 maxFragmentSize(DEFAULT_MAX_FRAGMENT_SIZE),
 wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
@@ -784,7 +808,11 @@ SocketServerConfig::~SocketServerConfig()
 
 void SocketServerConfig::clear()
 {
+	ServerConfig::clear();
+
+	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	serverSharedSocket = DEFAULT_SERVER_SHAREDSOCKET;
 	libSslName.clear();
 	libCryptoName.clear();
 	libCurlName.clear();
@@ -837,8 +865,8 @@ ReliableMcastChannelConfig::~ReliableMcastChannelConfig()
 
 void ReliableMcastChannelConfig::setPacketTTL( UInt64 value )
 {
-	if ( value > 255 )
-		packetTTL = 255;
+	if ( value > RWF_MAX_8 )
+		packetTTL = RWF_MAX_8;
 	else if ( value < DEFAULT_PACKET_TTL )
 		packetTTL = DEFAULT_PACKET_TTL;
 	else
@@ -848,13 +876,13 @@ void ReliableMcastChannelConfig::setPacketTTL( UInt64 value )
 void ReliableMcastChannelConfig::setHsmInterval( UInt64 value )
 {
 	if ( value > 0 )
-		hsmInterval = value > 0xFFFF ? 0xFFFF : ( UInt16 )value;
+		hsmInterval = value > RWF_MAX_16 ? RWF_MAX_16 : ( UInt16 )value;
 }
 
 void ReliableMcastChannelConfig::setNdata( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		ndata = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		ndata = RWF_MAX_32;
 	else if ( value < DEFAULT_NDATA )
 		ndata = DEFAULT_NDATA;
 	else
@@ -863,8 +891,8 @@ void ReliableMcastChannelConfig::setNdata( UInt64 value )
 
 void ReliableMcastChannelConfig::setNmissing( UInt64 value )
 {
-	if ( value > 0xFFFF )
-		nmissing = 0xFFFF;
+	if ( value > RWF_MAX_16)
+		nmissing = RWF_MAX_16;
 	else if ( value < DEFAULT_NMISSING )
 		nmissing = DEFAULT_NMISSING;
 	else
@@ -873,8 +901,8 @@ void ReliableMcastChannelConfig::setNmissing( UInt64 value )
 
 void ReliableMcastChannelConfig::setNrreq( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		nrreq = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		nrreq = RWF_MAX_32;
 	else if ( value < DEFAULT_NREQ )
 		nrreq = DEFAULT_NREQ;
 	else
@@ -883,8 +911,8 @@ void ReliableMcastChannelConfig::setNrreq( UInt64 value )
 
 void ReliableMcastChannelConfig::setTdata( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		tdata = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		tdata = RWF_MAX_32;
 	else if ( value < DEFAULT_TDATA )
 		tdata = DEFAULT_TDATA;
 	else
@@ -893,8 +921,8 @@ void ReliableMcastChannelConfig::setTdata( UInt64 value )
 
 void ReliableMcastChannelConfig::setTrreq( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		trreq = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		trreq = RWF_MAX_32;
 	else if ( value < DEFAULT_TRREQ )
 		trreq = DEFAULT_TRREQ;
 	else
@@ -903,8 +931,8 @@ void ReliableMcastChannelConfig::setTrreq( UInt64 value )
 
 void ReliableMcastChannelConfig::setPktPoolLimitHigh( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		pktPoolLimitHigh = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		pktPoolLimitHigh = RWF_MAX_32;
 	else if ( value < DEFAULT_PKT_POOLLIMIT_HIGH )
 		pktPoolLimitHigh = DEFAULT_PKT_POOLLIMIT_HIGH;
 	else
@@ -913,8 +941,8 @@ void ReliableMcastChannelConfig::setPktPoolLimitHigh( UInt64 value )
 
 void ReliableMcastChannelConfig::setPktPoolLimitLow( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		pktPoolLimitLow = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		pktPoolLimitLow = RWF_MAX_32;
 	else if ( value < DEFAULT_PKT_POOLLIMIT_LOW )
 		pktPoolLimitLow = DEFAULT_PKT_POOLLIMIT_LOW;
 	else
@@ -923,8 +951,8 @@ void ReliableMcastChannelConfig::setPktPoolLimitLow( UInt64 value )
 
 void ReliableMcastChannelConfig::setTwait( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		twait = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		twait = RWF_MAX_32;
 	else if ( value < DEFAULT_TWAIT )
 		twait = DEFAULT_TWAIT;
 	else
@@ -933,8 +961,8 @@ void ReliableMcastChannelConfig::setTwait( UInt64 value )
 
 void ReliableMcastChannelConfig::setTbchold( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		tbchold = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		tbchold = RWF_MAX_32;
 	else if ( value < DEFAULT_TBCHOLD )
 		tbchold = DEFAULT_TBCHOLD;
 	else
@@ -943,8 +971,8 @@ void ReliableMcastChannelConfig::setTbchold( UInt64 value )
 
 void ReliableMcastChannelConfig::setTpphold( UInt64 value )
 {
-	if ( value > 0xFFFFF )
-		tpphold = 0xFFFFF;
+	if ( value > RWF_MAX_32 )
+		tpphold = RWF_MAX_32;
 	else if ( value < DEFAULT_TPPHOLD )
 		tpphold = DEFAULT_TPPHOLD;
 	else
@@ -953,10 +981,10 @@ void ReliableMcastChannelConfig::setTpphold( UInt64 value )
 
 void ReliableMcastChannelConfig::setUserQLimit( UInt64 value )
 {
-	if ( value > 0xFFFF )
-		userQLimit = 0xFFFF;
-	else if ( value < DEFAULT_USER_QLIMIT )
-		userQLimit = DEFAULT_USER_QLIMIT;
+	if ( value > RWF_MAX_16)
+		userQLimit = RWF_MAX_16;
+	else if ( value < LOWLIMIT_USER_QLIMIT)
+		userQLimit = LOWLIMIT_USER_QLIMIT;
 	else
 		userQLimit = ( RsslUInt32 ) value;
 }

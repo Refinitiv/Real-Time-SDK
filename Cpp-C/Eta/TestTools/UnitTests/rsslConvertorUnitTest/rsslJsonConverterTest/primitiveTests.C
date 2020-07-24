@@ -609,7 +609,7 @@ TEST_P(InvalidFloatDoubleStringTestFixture, InvalidFloatDoubleStringTests)
 {
 	const char* floatString = GetParam();
 
-	std::ostringstream jsonStringStream("", ios_base::app);
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
 	std::string jsonString;
 	   
 	/* Build message containing the invalid float string. */
@@ -692,7 +692,7 @@ TEST_P(HugeFloatDoubleTestFixture, HugeFloatDoubleTest)
 	RsslFieldList fieldList;
 	RsslFieldEntry fieldEntry;
 	HugeFloatDoubleTestParams const &params = GetParam();
-	std::ostringstream jsonStringStream("", ios_base::app);
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
 	std::string jsonString;
 
 	/* Confirm that the number in JSON is large enough that strtof will actually indicate overflow */
@@ -779,4 +779,75 @@ TEST_P(HugeFloatDoubleTestFixture, HugeFloatDoubleTest)
 INSTANTIATE_TEST_CASE_P(PrimitiveTests, HugeFloatDoubleTestFixture, ::testing::Values(
 	HugeFloatDoubleTestParams("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", (float)INFINITY),
 	HugeFloatDoubleTestParams("-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", (float)(-INFINITY))
+));
+
+
+class InvalidUintStringTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<const char*>
+{
+};
+
+/* Test invalid values for UINTs. */
+TEST_P(InvalidUintStringTestFixture, InvalidUintStringTests)
+{
+	const char* uintString = GetParam();
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+	/* Build message containing the invalid UINT64 value. */
+
+	/* ESDK-3860 */
+	jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"EUROCLR_NO\":");
+	jsonStringStream << uintString << "}}";
+
+	jsonString = jsonStringStream.str();
+	setJsonBufferToString(jsonString.c_str());
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
+
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Unexpected Value."));
+}
+
+/* negative values correct for numbers but incorrect for UINTs */
+INSTANTIATE_TEST_CASE_P(PrimitiveTests, InvalidUintStringTestFixture, ::testing::Values(
+	"-1",
+	"-2",
+	"-3",
+	"-42",
+	"-100500"
+));
+
+class InvalidUintParserTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<const char*>
+{
+};
+
+/* Test invalid JSON Parser values $, #, A for UINTs. */
+TEST_P(InvalidUintParserTestFixture, InvalidUintParserTests)
+{
+	RsslJsonConverterError converterError;
+
+	const char* uintString = GetParam();
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+	/* Build message containing the invalid UINT64 value. */
+
+	jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"EUROCLR_NO\":");
+	jsonStringStream << uintString << "}}";
+
+	jsonString = jsonStringStream.str();
+	setJsonBufferToString(jsonString.c_str());
+	EXPECT_NO_FATAL_FAILURE(getJsonToRsslParserError(&converterError));
+
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON parser error:"));
+}
+
+/* ESDK-3860 : Should add additional test inputs for others invalid UInt type such as $, #, A as well. */
+INSTANTIATE_TEST_CASE_P(PrimitiveTests, InvalidUintParserTestFixture, ::testing::Values(
+	"$",
+	"#",
+	"A"
 ));

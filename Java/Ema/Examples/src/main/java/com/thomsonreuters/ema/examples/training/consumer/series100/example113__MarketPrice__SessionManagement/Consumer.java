@@ -47,7 +47,9 @@ public class Consumer {
 	static String userName;
 	static String password;
 	static String clientId;
-	
+
+	static String itemName = "IBM.N";
+
 	static void printHelp()
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
@@ -57,9 +59,11 @@ public class Consumer {
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
 	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
+	    		+ "  -itemName Request item name (optional).\n"
 	    		+ "  -ph Proxy host name (optional).\n"
 	    		+ "  -pp Proxy port number (optional).\n"
 	    		+ "  -plogin User name on proxy server (optional).\n"
@@ -110,6 +114,11 @@ public class Consumer {
     				config.tunnelingKeyStorePasswd(argsCount < (args.length-1) ? args[++argsCount] : null);
     				++argsCount;				
     			}
+    			else if ("-itemName".equals(args[argsCount]))
+    			{
+    				itemName = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;
+    			}
     			else if ("-ph".equals(args[argsCount]))
     			{
     				config.tunnelingProxyHostName(argsCount < (args.length-1) ? args[++argsCount] : null);
@@ -138,6 +147,20 @@ public class Consumer {
     			else if ("-krbfile".equals(args[argsCount]))
     			{
     				config.tunnelingCredentialKRB5ConfigFile(argsCount < (args.length-1) ? args[++argsCount] : null);
+    				++argsCount;				
+    			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControl = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				
+    				if(takeExclusiveSignOnControl != null)
+    				{
+    					if(takeExclusiveSignOnControl.equalsIgnoreCase("true"))
+    						config.takeExclusiveSignOnControl(true);
+    					else if (takeExclusiveSignOnControl.equalsIgnoreCase("false"))
+    						config.takeExclusiveSignOnControl(false);
+    				}
+    				
     				++argsCount;				
     			}
     			else // unrecognized command line argument
@@ -177,7 +200,7 @@ public class Consumer {
 			
 			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_3").username(userName).password(password));
 			
-			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("IBM.N"), appClient);
+			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name(itemName), appClient);
 			
 			Thread.sleep(900000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

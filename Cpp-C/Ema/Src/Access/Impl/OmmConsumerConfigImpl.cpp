@@ -170,6 +170,8 @@ RsslReactorOAuthCredential* OmmConsumerConfigImpl::getReactorOAuthCredential()
 	{
 		_reactorOAuthCredential.clientId.length = _clientId.length();
 		_reactorOAuthCredential.clientId.data = const_cast<char*>(_clientId.c_str());
+		
+		_reactorOAuthCredential.takeExclusiveSignOnControl = (RsslBool)_takeExclusiveSignOnControl;
 		pRsslReactorOAuthCredential = &_reactorOAuthCredential;
 	}
 

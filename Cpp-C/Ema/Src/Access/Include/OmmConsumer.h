@@ -115,6 +115,7 @@
 
 #include "Access/Include/Common.h"
 #include "Access/Include/ChannelInformation.h"
+#include "Access/Include/ChannelStatistics.h"
 
 namespace thomsonreuters {
 
@@ -288,6 +289,15 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void getChannelInformation(ChannelInformation&);
+
+		/** Provides channel statistics about the active channel.
+		@param[in] caller provider ChannelStatistics&; parameter will be cleared and then
+				   current channel statistics will be provided
+		@throw OmmInvalidUsageException if it cannot get the channel statistics
+		@return void
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void getChannelStatistics(ChannelStatistics&);
 
 	/** Allows modifying some I/O values programmatically for a channel to override the default values.
 		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.

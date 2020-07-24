@@ -67,6 +67,32 @@ RTR_C_INLINE RsslRet rsslReactorGetChannelInfo(RsslReactorChannel *pReactorChann
 	return ret;
 }
 
+/**
+ * @brief Statistics returned by the rsslReactorGetChannelStats() call.
+ * @see RsslChannelInfo, rsslReactorGetChannelInfo
+ */
+typedef struct
+{
+	RsslChannelStats rsslChannelStats;	/*!< RsslChannel statistics. */
+} RsslReactorChannelStats;
+
+/**
+ * @brief Returns statisitcal information about the RsslReactorChannel
+ * @param pReactorChannel The channel to get information from.
+ * @param pInfo RsslReactorChannelStats structure to be populated with information.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return RSSL_RET_SUCCESS, if successful.
+ * @return RsslRet failure codes, if an error occurred.
+ * @see RsslReactor, RsslReactorChannel, RsslReactorChannelInfo, RsslErrorInfo
+ */
+RTR_C_INLINE RsslRet rsslReactorGetChannelStats(RsslReactorChannel *pReactorChannel, RsslReactorChannelStats *pInfo, RsslErrorInfo *pError)
+{
+	RsslRet ret = rsslGetChannelStats(pReactorChannel->pRsslChannel, &pInfo->rsslChannelStats, &pError->rsslError);
+	if (ret != RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	return ret;
+}
+
 
 
 /**

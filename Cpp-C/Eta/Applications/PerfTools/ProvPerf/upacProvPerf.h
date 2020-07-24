@@ -16,7 +16,7 @@
 #include "loginProvider.h"
 #include "directoryProvider.h"
 #include "channelHandler.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslThread.h"

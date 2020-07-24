@@ -61,7 +61,7 @@ import com.thomsonreuters.upa.codec.UInt;
 import junit.framework.TestCase;
 
 
-final class TestUtilities extends TestCase
+public final class TestUtilities extends TestCase
 {
 	
 	private static String fieldDictionaryFileName = "./src/test/resources/com/thomsonreuters/ema/unittest/DataDictionaryTest/RDMTestDictionary";
@@ -122,14 +122,14 @@ final class TestUtilities extends TestCase
 		return dictionary;
 	}
 	
-	static void printTestHead(String title, String detail)
+	public static void printTestHead(String title, String detail)
 	{
 		_strBuilder.setLength(0);
 		_strBuilder.append("\n\n" + "******************************************************************************" + "\n" + "Title: " + title + "\n" + "Detail: " + detail + "\n");
 		System.out.println(_strBuilder.toString());
 	}
 
-	static void upa_EncodeErrorFieldList( Buffer rsslBuf )
+	public static void upa_EncodeErrorFieldList( Buffer rsslBuf )
 	{
 		com.thomsonreuters.upa.codec.FieldList rsslFL= CodecFactory.createFieldList();
 		com.thomsonreuters.upa.codec.EncodeIterator iter = CodecFactory.createEncodeIterator();
@@ -183,7 +183,7 @@ final class TestUtilities extends TestCase
 		rsslFL.encodeComplete(iter, true);
 	}
 
-	static void upa_EncodeErrorElementList( Buffer rsslBuf )
+	public static void upa_EncodeErrorElementList( Buffer rsslBuf )
 	{
 		com.thomsonreuters.upa.codec.ElementList rsslFL= CodecFactory.createElementList();
 		com.thomsonreuters.upa.codec.EncodeIterator iter = CodecFactory.createEncodeIterator();
@@ -242,7 +242,7 @@ final class TestUtilities extends TestCase
 	
 	// Encode (with UPA) a basic field list with several primitives embedded in it
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeFieldListAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int encodeOption)
+	public static int upa_EncodeFieldListAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int encodeOption)
 	{
 		// used to store and check return values
 		int retVal;
@@ -1160,7 +1160,7 @@ final class TestUtilities extends TestCase
 	
 	// Encode (with UPA) a basic array with several primitives embedded in it
     // We pass in the buffer to this method with the total length available.
-    static int upa_EncodeArrayAll(com.thomsonreuters.upa.codec.Buffer upaBuf)
+    public static int upa_EncodeArrayAll(com.thomsonreuters.upa.codec.Buffer upaBuf)
     {
         // used to store and check return values
         int retVal;
@@ -1278,7 +1278,7 @@ final class TestUtilities extends TestCase
 
     // Encode (with UPA) a basic element list with several primitives embedded in it
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeElementListAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int encodingFlag)
+	public static int upa_EncodeElementListAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int encodingFlag)
 	{
         // used to store and check return values
         int retVal;
@@ -1308,7 +1308,7 @@ final class TestUtilities extends TestCase
         return CodecReturnCodes.SUCCESS;
 	}
 
-	static int upa_EncodeElementListAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int encodeFlag)
+	public static int upa_EncodeElementListAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int encodeFlag)
 	{
 		int retVal;
 		boolean success = true;
@@ -1834,7 +1834,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is UInt) with field lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyUIntAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int containerType)
+	public static int upa_EncodeMapKeyUIntAll(com.thomsonreuters.upa.codec.Buffer upaBuf, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -1866,7 +1866,7 @@ final class TestUtilities extends TestCase
 		return CodecReturnCodes.SUCCESS;
 	}
 		
-	static int upa_EncodeMapKeyUIntAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeMapKeyUIntAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -2637,7 +2637,7 @@ final class TestUtilities extends TestCase
 	
 		// Encode (with UPA) a map (key is Int) with field lists
 		// We pass in the buffer to this method with the total length available.
-		static int upa_EncodeMapKeyIntWithEmptyFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+		public static int upa_EncodeMapKeyIntWithEmptyFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 		{
 			// use this to store and check return codes
 			int retVal;
@@ -2775,7 +2775,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is Int) with field lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyIntWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyIntWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -2989,7 +2989,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is AsciiString) with field lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyAsciiStringWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyAsciiStringWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3203,7 +3203,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is Buffer) with field lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyBufferWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyBufferWithFLs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3417,7 +3417,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is UInt) with element lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyUIntWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyUIntWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3632,7 +3632,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is Int) with element lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyIntWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyIntWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3847,7 +3847,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is Buffer) with element lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyBufferWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyBufferWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -4059,7 +4059,7 @@ final class TestUtilities extends TestCase
 
 	// Encode (with UPA) a map (key is AsciiString) with element lists
 	// We pass in the buffer to this method with the total length available.
-	static int upa_EncodeMapKeyAsciiStringWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
+	public static int upa_EncodeMapKeyAsciiStringWithELs(com.thomsonreuters.upa.codec.Buffer upaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -4269,7 +4269,7 @@ final class TestUtilities extends TestCase
         return CodecReturnCodes.SUCCESS;
 	}
 	
-	static int upa_EncodeRequestMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeRequestMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal = 0;
@@ -4696,7 +4696,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeRefreshMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeRefreshMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -5138,7 +5138,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeUpdateMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeUpdateMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -5571,7 +5571,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeGenericMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeGenericMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -5999,7 +5999,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodePostMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodePostMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -6448,7 +6448,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeAckMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeAckMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -6874,7 +6874,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeStatusMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
+	public static int upa_EncodeStatusMsgAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -7303,7 +7303,7 @@ final class TestUtilities extends TestCase
 		return retVal;
 	}
 	
-	static int upa_EncodeFilterListAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int encodeOption)
+	public static int upa_EncodeFilterListAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int encodeOption)
 	{
 		int retVal;
 		boolean success;
@@ -7857,7 +7857,7 @@ final class TestUtilities extends TestCase
 		return 0;
 	}
 	
-	static int upa_EncodeSeriesAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType )
+	public static int upa_EncodeSeriesAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType )
 	{
 		int retVal;
 		boolean success;
@@ -8299,7 +8299,7 @@ final class TestUtilities extends TestCase
 		return 0;
 	}
 
-	static int upa_EncodeVectorAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType )
+	public static int upa_EncodeVectorAll(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int containerType )
 	{
 		int retVal;
 		boolean success;
@@ -8769,7 +8769,7 @@ final class TestUtilities extends TestCase
 		return 0;
 	}
 
-    static void upa_encodeDictionaryMsg(com.thomsonreuters.upa.codec.DataDictionary dictionary)
+    public static void upa_encodeDictionaryMsg(com.thomsonreuters.upa.codec.DataDictionary dictionary)
     {
     	com.thomsonreuters.upa.codec.Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(12300));
@@ -8997,7 +8997,7 @@ final class TestUtilities extends TestCase
 
 	
 	
-	static void EmaDecode_UPAFieldListAll(com.thomsonreuters.ema.access.FieldList fl, int encodeOption)
+	public static void EmaDecode_UPAFieldListAll(com.thomsonreuters.ema.access.FieldList fl, int encodeOption)
 	{
         checkResult(fl.hasInfo());
         checkResult(fl.infoDictionaryId(), dictionary.infoDictionaryId());
@@ -9467,7 +9467,7 @@ final class TestUtilities extends TestCase
        	}
 	}
 	
-    static void EmaDecode_UPAArrayAll(OmmArray array)
+    public static void EmaDecode_UPAArrayAll(OmmArray array)
     {
         checkResult(array.dataType(), com.thomsonreuters.ema.access.DataType.DataTypes.ARRAY);
         checkResult(array.hasFixedWidth());
@@ -9533,7 +9533,7 @@ final class TestUtilities extends TestCase
         checkResult(byteArray4String.equals("BUFFER 4"));
     }
 	
-	static void EmaDecode_UPAElementListAll(com.thomsonreuters.ema.access.ElementList el, int encodeOption)
+	public static void EmaDecode_UPAElementListAll(com.thomsonreuters.ema.access.ElementList el, int encodeOption)
 	{
         checkResult(el.hasInfo());
         checkResult(el.infoElementListNum(), 7);
@@ -9718,7 +9718,7 @@ final class TestUtilities extends TestCase
        	}
 	}
 	
-	static void EmaDecode_UPAFilterListAll(com.thomsonreuters.ema.access.FilterList filterList, int encodeOption)
+	public static void EmaDecode_UPAFilterListAll(com.thomsonreuters.ema.access.FilterList filterList, int encodeOption)
 	{
 		checkResult(filterList.hasTotalCountHint());
 		
@@ -9890,7 +9890,7 @@ final class TestUtilities extends TestCase
     	}
 	}
 	
-	static void EmaDecode_UPASeriesAll(com.thomsonreuters.ema.access.Series series, int containerType)
+	public static void EmaDecode_UPASeriesAll(com.thomsonreuters.ema.access.Series series, int containerType)
 	{
 		checkResult(series.hasTotalCountHint());
 		
@@ -10062,7 +10062,7 @@ final class TestUtilities extends TestCase
 		}
 	}
 	
-	static void EmaDecode_UPAVectorAll(com.thomsonreuters.ema.access.Vector vector, int containerType)
+	public static void EmaDecode_UPAVectorAll(com.thomsonreuters.ema.access.Vector vector, int containerType)
 	{
 		checkResult(vector.hasTotalCountHint());
 		
@@ -10290,7 +10290,7 @@ final class TestUtilities extends TestCase
 		}
 	}
 	
-	static void EmaDecode_UPAMapKeyUIntAll(com.thomsonreuters.ema.access.Map map, int containerType)
+	public static void EmaDecode_UPAMapKeyUIntAll(com.thomsonreuters.ema.access.Map map, int containerType)
 	{
 		checkResult(map.hasTotalCountHint());
 		
@@ -10504,7 +10504,7 @@ final class TestUtilities extends TestCase
 		checkResult(!mapIter.hasNext());
 	}
 	
-	static void EmaEncodeFieldListAll( FieldList fl )
+	public static void EmaEncodeFieldListAll( FieldList fl )
 	{
 		// encoding order:  UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING,
 
@@ -10530,7 +10530,7 @@ final class TestUtilities extends TestCase
 		fl.add(EmaFactory.createFieldEntry().ascii( 235, "ABCDEF"));
 	}
 	
-	static void EmaEncodeElementListAll( ElementList el)
+	public static void EmaEncodeElementListAll( ElementList el)
 	{
 		// encoding order:  UINT, REAL, INT, DATE, TIME, DATETIME, QOS, STATE, ASCII_STRING, RMTES_STRING, ENUM, FLOAT, DOUBLE, REALBLANK, BUFFER, UTF8
 		
@@ -10586,7 +10586,7 @@ final class TestUtilities extends TestCase
 		//sixteenth entry
 		el.add(EmaFactory.createElementEntry().utf8("Element - Utf8String" , "ABCDEFGH"));
 	}
-	static void EmaEncodeMapAllWithFieldList( Map map)
+	public static void EmaEncodeMapAllWithFieldList( Map map)
 	{
 		// encoding order:  SummaryData(with FieldList),
 		//                  Buffer, FieldList-Delete,
@@ -10624,7 +10624,7 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, flEnc, permission));
 	}
 	
-	static void EmaEncodeFilterListAllWithFieldListElementList( FilterList filterList)
+	public static void EmaEncodeFilterListAllWithFieldListElementList( FilterList filterList)
 	{
 		//                  FieldList-Clear,
 		//                  FieldList-Set,
@@ -10650,7 +10650,7 @@ final class TestUtilities extends TestCase
 		filterList.add(EmaFactory.createFilterEntry().elementList(3, FilterEntry.FilterAction.UPDATE, elEnc, permission));
 	}
 	
-	static void EmaEncodeVectorAllWithFieldList( Vector vector)
+	public static void EmaEncodeVectorAllWithFieldList( Vector vector)
 	{
 		// encoding order:  SummaryData(with FieldList),
 		//                  FieldList-Delete,
@@ -10683,7 +10683,7 @@ final class TestUtilities extends TestCase
 		vector.add(EmaFactory.createVectorEntry ().fieldList(3, VectorEntry .VectorAction.UPDATE, flEnc, permission));
 	}
 	
-	static void EmaEncodeMapAllWithFieldListWithUtf8Key( Map map)
+	public static void EmaEncodeMapAllWithFieldListWithUtf8Key( Map map)
 	{
 		// encoding order:  SummaryData(with FieldList),
 		//                  UTF8, FieldList-Delete,
@@ -10721,7 +10721,7 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyUtf8(orderBuf, MapEntry.MapAction.UPDATE, flEnc, permission));
 	}
 
-	static void EmaEncodeMapAllWithElementList( Map map)
+	public static void EmaEncodeMapAllWithElementList( Map map)
 	{
 		// encoding order:  SummaryData(with ElementList),
 		//                  Buffer, ElementList-Delete,
@@ -10758,7 +10758,7 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, elEnc, permission));
 	}
 	
-	static void EmaEncodeSeriesAllWithElementList( Series series)
+	public static void EmaEncodeSeriesAllWithElementList( Series series)
 	{
 		// encoding order:  SummaryData(with ElementList),
 		//                  ElementList,
@@ -10785,7 +10785,7 @@ final class TestUtilities extends TestCase
 		series.add(EmaFactory.createSeriesEntry().elementList(elEnc));
 	}
 	
-	static void EmaEncodeMapAllWithMap( Map map)
+	public static void EmaEncodeMapAllWithMap( Map map)
 	{
 		// encoding order:  SummaryData(with FieldList),
 		//                  Buffer, Map-Delete,
@@ -10823,7 +10823,7 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, mapEncS, permission));
 	}
 	
-	static void EmaDecodeFieldListAll(FieldList fl)
+	public static void EmaDecodeFieldListAll(FieldList fl)
 	{
 		checkResult( fl.hasInfo(), "Decode FieldList - hasInfo()" );
 		checkResult( fl.infoDictionaryId() == 1, "Decode FieldList - getInfoDictionaryId()" );
@@ -10926,7 +10926,7 @@ final class TestUtilities extends TestCase
 
 
 	//corresponds to TestUtilities::EmaEncodeElementListAll(ElementList el)
-	static void EmaDecodeElementListAll(ElementList el)
+	public static void EmaDecodeElementListAll(ElementList el)
 	{
 		checkResult( el.hasInfo(), "Decode ElementList - hasInfo()" );
 		checkResult( el.infoElementListNum() == 5, "MapEntry ElementList within map- getInfoElementListNum()" );
@@ -11078,7 +11078,7 @@ final class TestUtilities extends TestCase
 	}
 
 	//corresponds to TestUtilities::EmaEncodeMapAllWithFieldList(Map map)
-	static void EmaDecodeMapAllWithFieldList(Map map)
+	public static void EmaDecodeMapAllWithFieldList(Map map)
 	{
 		checkResult( map.hasKeyFieldId(), "Decode Map contains FieldList - hasKeyFieldId()" );
 		checkResult( map.keyFieldId() == 3426, "Decode Map contains FieldList - getKeyFieldId()" );
@@ -11160,7 +11160,7 @@ final class TestUtilities extends TestCase
 		checkResult( true, "Map contains FieldList - exception not expected" );
 	}
 	
-	static void EmaDecode_UPARequestMsgAll(ReqMsg reqMsg, int containerType)
+	public static void EmaDecode_UPARequestMsgAll(ReqMsg reqMsg, int containerType)
 	{
 		System.out.println("Begin EMA ReqMsg Decoding");
 		System.out.println(reqMsg);
@@ -11342,7 +11342,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPARefreshMsgAll(RefreshMsg refreshMsg, int containerType)
+	public static void EmaDecode_UPARefreshMsgAll(RefreshMsg refreshMsg, int containerType)
 	{
 		System.out.println("Begin EMA RefreshMsg Decoding");
 		System.out.println(refreshMsg);
@@ -11543,7 +11543,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPAUpdateMsgAll(UpdateMsg updateMsg, int containerType)
+	public static void EmaDecode_UPAUpdateMsgAll(UpdateMsg updateMsg, int containerType)
 	{
 		System.out.println("Begin EMA UpdateMsg Decoding");
 		System.out.println();
@@ -11732,7 +11732,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPAStatusMsgAll(StatusMsg statusMsg, int containerType)
+	public static void EmaDecode_UPAStatusMsgAll(StatusMsg statusMsg, int containerType)
 	{
 		System.out.println("Begin EMA StatusMsg Decoding");
 		System.out.println();
@@ -11922,7 +11922,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPAGenericMsgAll(GenericMsg genericMsg, int containerType)
+	public static void EmaDecode_UPAGenericMsgAll(GenericMsg genericMsg, int containerType)
 	{
 		System.out.println("Begin EMA GenericMsg Decoding");
 		System.out.println();
@@ -12101,7 +12101,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPAPostMsgAll(PostMsg postMsg, int containerType)
+	public static void EmaDecode_UPAPostMsgAll(PostMsg postMsg, int containerType)
 	{
 		System.out.println("Begin EMA PostMsg Decoding");
 		System.out.println();
@@ -12288,7 +12288,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	static void EmaDecode_UPAAckMsgAll(AckMsg ackMsg, int containerType)
+	public static void EmaDecode_UPAAckMsgAll(AckMsg ackMsg, int containerType)
 	{
 		System.out.println("Begin EMA AckMsg Decoding");
 		System.out.println();
@@ -12464,7 +12464,7 @@ final class TestUtilities extends TestCase
 		System.out.println();
 	}
 
-	static void checkResult(boolean result, String description) 
+	public static void checkResult(boolean result, String description) 
 	{
 		System.out.println((result ? "passed" : "FAILED") + " - " + description);
 		if ( result )
@@ -12478,12 +12478,12 @@ final class TestUtilities extends TestCase
 		}
 	}
 
-	static void checkResult(String description, boolean result)
+	public static void checkResult(String description, boolean result)
 	{
 		checkResult(result, description);
 	}
 	
-	static void checkResult(boolean result)
+	public static void checkResult(boolean result)
 	{
 		if ( result )
 			++_passNum;
@@ -12494,7 +12494,7 @@ final class TestUtilities extends TestCase
 		}
 	}
 	
-	static void checkResult(long expected, long actual)
+	public static void checkResult(long expected, long actual)
 	{
 		if (expected == actual)
 			++_passNum;
@@ -12505,7 +12505,7 @@ final class TestUtilities extends TestCase
 		}
 	}
 	
-	static void checkResult(double expected, double actual)
+	public static void checkResult(double expected, double actual)
 	{
 		if (expected == actual)
 			++_passNum;
@@ -12516,7 +12516,7 @@ final class TestUtilities extends TestCase
 		}
 	}
 	
-	static void checkResult(String expect, String actual)
+	public static void checkResult(String expect, String actual)
 	{
 		if (expect.equals(actual))
 			++_passNum;

@@ -8,7 +8,6 @@
 package com.thomsonreuters.ema.rdm;
 
 import com.thomsonreuters.ema.access.OmmInvalidUsageException;
-import com.thomsonreuters.ema.rdm.EnumType;
 
 /**
  * A data dictionary entry, containing field information and an enumeration table reference if present.

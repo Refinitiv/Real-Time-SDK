@@ -106,6 +106,7 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <li>-x Provides XML tracing of messages.
  * <li>-runtime run time. Default is 1200 seconds. Controls the time the
  * application will run before exiting, in seconds.
+ * <li>-rtt application (provider) supports calculation of Round Trip Latency
  * </ul>
  * 
  * @see ProviderSession
@@ -188,6 +189,7 @@ public class Provider implements ReceivedMsgCallback
         System.out.println("interfaceName: " + CommandLine.value("i"));
         System.out.println("serviceName: " + CommandLine.value("s"));
         System.out.println("serviceId: " + CommandLine.value("id"));
+        System.out.println("enableRTT: " + CommandLine.value("rtt"));
 
         if ( ! _dictionaryHandler.loadDictionary(_error) )
         {
@@ -222,6 +224,7 @@ public class Provider implements ReceivedMsgCallback
         _itemHandler.init();
         try
         {
+            _loginHandler.enableRtt(CommandLine.booleanValue("rtt"));
             _directoryHandler.serviceId(CommandLine.intValue("id"));
         	_itemHandler.serviceId(CommandLine.intValue("id"));
         	_runtime = System.currentTimeMillis() + CommandLine.intValue("runtime") * 1000;
@@ -243,6 +246,7 @@ public class Provider implements ReceivedMsgCallback
         CommandLine.addOption("runtime", defaultRuntime, "Program runtime in seconds");
         CommandLine.addOption("id", "1", "Service id");
         CommandLine.addOption("x", "Provides XML tracing of messages.");
+        CommandLine.addOption("rtt", false, "Provider supports calculation of Round Trip Latency");
     }
 
     /*
@@ -345,7 +349,8 @@ public class Provider implements ReceivedMsgCallback
                     		(clientSessionInfo.clientChannel() != null && 
                     				clientSessionInfo.clientChannel().selectableChannel() != null && 
                     				clientSessionInfo.clientChannel().state() != ChannelState.INACTIVE))
-                    {                        	
+                    {
+                        _loginHandler.proceedLoginRttMessage(clientSessionInfo.clientChannel(), _error);
                     	ret = _itemHandler.sendItemUpdates(clientSessionInfo.clientChannel(), _error);
                         if (ret != CodecReturnCodes.SUCCESS)
                         {
@@ -579,6 +584,6 @@ public class Provider implements ReceivedMsgCallback
 		_itemHandler.closeRequests(channel);
 		_dictionaryHandler.closeRequests(channel);
 		_directoryHandler.closeRequest(channel);
-		_loginHandler.closeRequest(channel);
+		_loginHandler.closeRequestAndRtt(channel);
 	}
 }

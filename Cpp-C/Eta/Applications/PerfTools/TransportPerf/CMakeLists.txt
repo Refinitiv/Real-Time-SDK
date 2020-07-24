@@ -2,7 +2,6 @@
 set( SOURCE_FILES
     transportPerfConfig.c       transportThreads.c   upacTransportPerf.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
-    ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
   )

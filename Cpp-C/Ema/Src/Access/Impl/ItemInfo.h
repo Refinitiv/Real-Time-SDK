@@ -15,6 +15,8 @@
 #include "Rdm/Include/EmaRdm.h"
 #include "rtr/rsslMsg.h"
 
+#include "HashTable.h"
+
 namespace thomsonreuters {
 
 namespace ema {
@@ -99,6 +101,9 @@ public:
 
 	bool operator==(const ItemInfo&) const;
 
+	void addPostId(UInt32 postId);
+	bool removePostId(UInt32 postId);
+
 private:
 
 	ItemInfo(OmmServerBaseImpl& ommServerBaseimpl);
@@ -114,6 +119,21 @@ private:
 	RsslMsgKey _rsslMsgKey;
 	ClientSession* _pClientSession;
 	OmmServerBaseImpl& _ommServerBaseimpl;
+
+	class UInt32rHasher
+	{
+	public:
+		size_t operator()(const UInt32&) const;
+	};
+
+	class UInt32Equal_To
+	{
+	public:
+		bool operator()(const UInt32&, const UInt32&) const;
+	};
+
+	typedef HashTable< UInt32, UInt32, UInt32rHasher, UInt32Equal_To > PostIdHash;
+	PostIdHash* _pPostIdHash;
 };
 
 }

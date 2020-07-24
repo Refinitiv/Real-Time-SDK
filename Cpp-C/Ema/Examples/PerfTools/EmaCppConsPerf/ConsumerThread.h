@@ -62,11 +62,11 @@ class ConsumerStats
 public:
 	ConsumerStats();
 	~ConsumerStats();
-	TimeValue	imageRetrievalStartTime;		// Time at which first item request was made. 
-	TimeValue	imageRetrievalEndTime;			// Time at which last item refresh was received. 
-	TimeValue	firstUpdateTime;				// Time at which first item update was received. 
-	TimeValue	firstGenMsgSentTime;			// Time at which first generic message was sent 
-	TimeValue	firstGenMsgRecvTime;			// Time at which first generic message was received 
+	PerfTimeValue	imageRetrievalStartTime;		// Time at which first item request was made. 
+	PerfTimeValue	imageRetrievalEndTime;			// Time at which last item refresh was received. 
+	PerfTimeValue	firstUpdateTime;				// Time at which first item update was received. 
+	PerfTimeValue	firstGenMsgSentTime;			// Time at which first generic message was sent 
+	PerfTimeValue	firstGenMsgRecvTime;			// Time at which first generic message was received 
 
 
 	CountStat		refreshCount;				// Number of item refreshes received. 
@@ -252,7 +252,7 @@ public:
 
 	bool sendGenMsgBurst(UInt32 genMsgItemBurstCount);
 
-	void updateLatencyStats( TimeValue timeTracker, LatencyRecords* pLrec );
+	void updateLatencyStats( PerfTimeValue timeTracker, LatencyRecords* pLrec );
 
 	void getLatencyTimeRecords(LatencyRecords **pUpdateList, LatencyRecords *pPostList = NULL );
 

@@ -1,4 +1,4 @@
-///*|-----------------------------------------------------------------------------
+
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
@@ -10,13 +10,11 @@ package com.thomsonreuters.ema.access;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.ema.access.OmmConsumer;
 
 //This class is created as a connect bridge between JUNIT test and EMA external/internal interface/classes.
 
@@ -65,6 +63,7 @@ public class JUnitTestConnect
 	public static final int DirectWrite  = ConfigManager.ChannelDirectSocketWrite;
 	public static final int EnableSessionMgnt = ConfigManager.ChannelEnableSessionMgnt;
 	public static final int Location = ConfigManager.ChannelLocation;
+	public static final int EnableRtt = ConfigManager.EnableRtt;
 	
 	// Consumer Parameters:
 	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
@@ -177,6 +176,7 @@ public class JUnitTestConnect
 	public static final int IProviderAcceptMessageSameKeyButDiffStream = ConfigManager.IProviderAcceptMessageSameKeyButDiffStream;
 	public static final int IProviderAcceptMessageThatChangesService = ConfigManager.IProviderAcceptMessageThatChangesService;
 	public static final int IProviderAcceptMessageWithoutQosInRange = ConfigManager.IProviderAcceptMessageWithoutQosInRange;
+	public static final int IProviderEnforceAckIDValidation = ConfigManager.IProviderEnforceAckIDValidation;
 	
 	// Server: Global
 	public static final int Server = ConfigManager.Server;
@@ -198,7 +198,7 @@ public class JUnitTestConnect
 	static {
 		_objManager.initialize();
 	}
-	
+
 	// used only for JUNIT tests
 	public static FieldListImpl createFieldList()
 	{
@@ -753,110 +753,53 @@ public class JUnitTestConnect
 	// used only for JUNIT tests
 	public static int configGetIntLongValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
-		ConfigAttributes attributes = null;
-		if(type == ConfigGroupTypeConsumer)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
-		else if (type == ConfigGroupTypeChannel)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
-		else if (type == ConfigGroupTypeDictionary)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
-	
-		ConfigElement ce = null;
-		int maxInt = Integer.MAX_VALUE;
-		if (attributes != null)
-		{
-			if ((ce = attributes.getPrimitiveValue(configParam)) != null)
-				return (ce.intLongValue() > maxInt ? maxInt : ce.intLongValue());
+		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
+		return ce != null ? ce.intLongValue() : 0;
 		}
-	
-		return 0;
-	}	
-	
+
 	// used only for JUNIT tests
 	public static int configGetIntValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
-		ConfigAttributes attributes = null;
-		if(type == ConfigGroupTypeConsumer)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
-		else if (type == ConfigGroupTypeChannel)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
-		else if (type == ConfigGroupTypeDictionary)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
-	
-		ConfigElement ce = null;
-		if (attributes != null)
-		{
-			if ((ce = attributes.getPrimitiveValue(configParam)) != null)
-				return (ce.intValue());
+		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
+		return ce != null ? ce.intValue() : 0;
 		}
-	
-		return 0;
-	}
 	
 	public static double configDoubleIntValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
-		ConfigAttributes attributes = null;
-		if(type == ConfigGroupTypeConsumer)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
-		else if (type == ConfigGroupTypeChannel)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
-		else if (type == ConfigGroupTypeDictionary)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
-	
-		ConfigElement ce = null;
-		if (attributes != null)
-		{
-			if ((ce = attributes.getPrimitiveValue(configParam)) != null)
-				return (ce.doubleValue());
+		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
+		return ce != null ? ce.doubleValue() : 0;
 		}
-	
-		return 0;
-	}
 
 	// used only for JUNIT tests
 	public static String configGetStringValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
-		ConfigAttributes attributes = null;
-		if(type == ConfigGroupTypeConsumer)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
-		else if (type == ConfigGroupTypeChannel)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
-		else if (type == ConfigGroupTypeDictionary)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
-	
-		ConfigElement ce = null;
-		String configParamValue =  null;
-		if (attributes != null )
-		{
-			ce = attributes.getPrimitiveValue(configParam);
-			if(ce != null)
-				configParamValue = ce.asciiValue();
-		}
-		return configParamValue;
+		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
+		return ce != null ? ce.asciiValue() : null;
 	}	
 
 	// used only for JUNIT tests
 	public static Boolean configGetBooleanValue(OmmConsumerConfig consConfig, String name, int type, int configParam)
 	{
-		ConfigAttributes attributes = null;
-		if(type == ConfigGroupTypeConsumer)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getConsumerAttributes(name);
-		else if (type == ConfigGroupTypeChannel)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getChannelAttributes(name);
-		else if (type == ConfigGroupTypeDictionary)
-			attributes = ((OmmConsumerConfigImpl) consConfig).xmlConfig().getDictionaryAttributes(name);
+		ConfigElement ce = getConfigElement((OmmConsumerConfigImpl) consConfig, name, type, configParam);
+		return  (ce != null) ? ce.booleanValue() : false;
+	}
 	
-		ConfigElement ce = null;
-		Boolean configParamValue = false;
-		if (attributes != null) 
-		{
-			ce = attributes.getPrimitiveValue(configParam);
+	private static ConfigElement getConfigElement(OmmConsumerConfigImpl consConfig, String name, int type, int configParam) {
+		ConfigAttributes attributes = null;
+		if (type == ConfigGroupTypeConsumer)
+			attributes = consConfig.xmlConfig().getConsumerAttributes(name);
+		else if (type == ConfigGroupTypeChannel)
+			attributes = consConfig.xmlConfig().getChannelAttributes(name);
+		else if (type == ConfigGroupTypeDictionary)
+			attributes = consConfig.xmlConfig().getDictionaryAttributes(name);
+		else if (type == ConfigGroupTypeProvider)
+			attributes = consConfig.xmlConfig().getIProviderAttributes(name);
 
-			if (ce != null)
-				configParamValue = ce.booleanValue();
+		if (attributes != null) {
+			return attributes.getPrimitiveValue(configParam);
 		}
-		return configParamValue;
-	}	
+		return null;
+	}
 	
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig consConfig)
 	{
@@ -895,22 +838,8 @@ public class JUnitTestConnect
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);   
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == TcpNodelay)
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
@@ -978,27 +907,11 @@ public class JUnitTestConnect
 				return activeConfig.reissueTokenAttemptLimit;
 			else if (configParam == ReissueTokenAttemptInterval)
 				return activeConfig.reissueTokenAttemptInterval;
-		
-			
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);  
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == ChannelType)
 				return chanConfig.rsslConnectionType;
 			else if (configParam == EncryptedProtocolType)
@@ -1037,7 +950,7 @@ public class JUnitTestConnect
 		
 		throw new IllegalArgumentException("Invalid Input");  
 	}
-	
+
 	public static double activeConfigGetDoubleValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
 	{
 		ChannelConfig chanConfig = null;
@@ -1058,22 +971,8 @@ public class JUnitTestConnect
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);  
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
 				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-		}
 		else if (type == ConfigGroupTypeDictionary)
 		{
 			DictionaryConfig dictConfig = activeConfig.dictionaryConfig;
@@ -1104,25 +1003,14 @@ public class JUnitTestConnect
 		{
 			if (configParam == ConsumerDefaultConsumerName)
 				return activeConfig.configuredName;
+			if (configParam == EnableRtt) {
+				return String.valueOf(activeConfig.rsslRDMLoginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
+			}
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);  
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == InterfaceName)
 				return chanConfig.interfaceName;
 			else if (configParam == ChannelName)
@@ -1208,22 +1096,8 @@ public class JUnitTestConnect
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);    
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == TcpNodelay)
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
@@ -1277,22 +1151,8 @@ public class JUnitTestConnect
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);  
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == ChannelType)
 				return chanConfig.rsslConnectionType;
 			else if (configParam == CompressionType)
@@ -1338,22 +1198,8 @@ public class JUnitTestConnect
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
-			if (channelIndex >= 0)
-			{
-				if (channelIndex >= activeConfig.channelConfigSet.size())
-				{
-					_lastErrorText = "ChannelIndex is out of range ";
-					throw new IllegalArgumentException(_lastErrorText);    
-				}
-				
-				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
-				if (chanConfig == null)
-				{
-					_lastErrorText = "Unable to find the active channel config object ";
-					throw new NullPointerException(_lastErrorText);  
-				}
-			}
-			
+			chanConfig = getChannelConfig(channelIndex, chanConfig, activeConfig);
+
 			if (configParam == InterfaceName)
 				return chanConfig.interfaceName;
 			else if (configParam == ChannelName)
@@ -1421,6 +1267,8 @@ public class JUnitTestConnect
 				return activeConfig.acceptMessageWithoutBeingLogin;
 			else if (configParam == IProviderAcceptMessageWithoutQosInRange)
 				return activeConfig.acceptMessageWithoutQosInRange;
+			else if (configParam == IProviderEnforceAckIDValidation)
+				return activeConfig.enforceAckIDValidation;
 		}
 		else if (type == ConfigGroupTypeServer)
 		{
@@ -1597,5 +1445,21 @@ public class JUnitTestConnect
 			return (dictConfig.get(dictIndex).isLocalDictionary ? new String("FileDictionary") : new String("ChannelDictionary"));
 		
 		throw new IllegalArgumentException("Invalid Input");  
+	}
+
+	private static ChannelConfig getChannelConfig(int channelIndex, ChannelConfig chanConfig, ActiveConfig activeConfig) {
+		if (channelIndex >= 0) {
+			if (channelIndex >= activeConfig.channelConfigSet.size()) {
+				_lastErrorText = "ChannelIndex is out of range ";
+				throw new IllegalArgumentException(_lastErrorText);
+			}
+
+			chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+			if (chanConfig == null) {
+				_lastErrorText = "Unable to find the active channel config object ";
+				throw new NullPointerException(_lastErrorText);
+			}
+		}
+		return chanConfig;
 	}
 }

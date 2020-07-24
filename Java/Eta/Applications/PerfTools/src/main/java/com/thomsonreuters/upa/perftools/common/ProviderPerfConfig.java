@@ -52,7 +52,7 @@ public class ProviderPerfConfig
     private static boolean             _displayStats;                // Controls whether stats appear on the screen
     private static boolean             _directWrite;                 // direct write enabled
     private static boolean             _useReactor;                  // Use the VA Reactor instead of the UPA Channel for sending and receiving.
-    
+
     static
     {
         CommandLine.programName("upajProvPerf");

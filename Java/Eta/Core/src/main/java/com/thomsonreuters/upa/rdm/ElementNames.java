@@ -228,6 +228,12 @@ public class ElementNames
     public static final Buffer MULTICAST_GROUP = CodecFactory.createBuffer();
     /** Channel ID */
     public static final Buffer CHANNEL_ID = CodecFactory.createBuffer();
+    /** RoundTripLatency */
+    public static final Buffer ROUND_TRIP_LATENCY = CodecFactory.createBuffer();
+    /** Ticks */
+    public static final Buffer TICKS = CodecFactory.createBuffer();
+    /** TCP Retransmissions */
+    public static final Buffer TCP_RETRANS = CodecFactory.createBuffer();
 
     // Request Message Payload - Well known Element Names
     // Because these span domains, they are namespaced
@@ -454,6 +460,12 @@ public class ElementNames
          MULTICAST_GROUP.data("MulticastGroup");
          /** Channel ID */
          CHANNEL_ID.data("ChannelId");
+        /** RoundTripLatency */
+        ROUND_TRIP_LATENCY.data("RoundTripLatency");
+        /** Ticks */
+        TICKS.data("Ticks");
+        /** TCP Retransmissions */
+        TCP_RETRANS.data("TcpRetrans");
 
         // Request Message Payload - Well known Element Names
         // Because these span domains, they are namespaced

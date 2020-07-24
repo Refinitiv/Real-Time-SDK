@@ -51,4 +51,7 @@ public class GenericMsgFlags
 
     /** (0x040) Indicates the presence of the partNum */
     public static final int HAS_PART_NUM = 0x040;
+
+    /** (0x4000) Indicates that the message is sent from a provider and is not in response to a specific request */
+    public static final int PROVIDER_DRIVEN = 0x4000;
 }

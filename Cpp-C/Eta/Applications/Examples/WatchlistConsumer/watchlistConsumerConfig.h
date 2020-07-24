@@ -12,6 +12,7 @@
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslRDM.h"
 #include "rtr/rsslMsgKey.h"
+#include "rtr/rsslDataUtils.h"
 #include "tunnelStreamHandler.h"
 
 #ifdef __cplusplus
@@ -91,6 +92,7 @@ typedef struct
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
 	RsslBuffer			appId;					/* Application ID */
+	RsslBool			RTTSupport;						/* Enable the RTT feature on this reactor channel */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with
@@ -112,7 +114,8 @@ typedef struct
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
 	RsslBuffer			clientId;						/* Unique ID defined for application making request to EDP token service */  
 	RsslBuffer			location;						/* Location to get an endpoint from EDP Service discovery */
-	RsslBool			queryEndpoint;					/* Queries the EDP service discovery in application for the specified connection type and location. */	
+	RsslBool			queryEndpoint;					/* Queries the EDP service discovery in application for the specified connection type and location. */
+	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];
@@ -128,9 +131,6 @@ extern WatchlistConsumerConfig watchlistConsumerConfig;
 
 /* Initializes the configuration, parsing command-line options. */
 void watchlistConsumerConfigInit(int argc, char **argv);
-
-/* Cleans up resources associated with the configuration. */
-void watchlistConsumerConfigCleanup();
 
 /* Gets item information based on the stream ID. */
 ItemInfo *getItemInfo(RsslInt32 streamId);

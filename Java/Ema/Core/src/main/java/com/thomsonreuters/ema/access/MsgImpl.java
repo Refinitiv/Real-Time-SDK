@@ -1036,4 +1036,9 @@ class MsgImpl extends DataImpl implements Msg
 			attribData().decode(destMsgKey.encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
 		}
 	}
+
+	com.thomsonreuters.upa.codec.Msg rsslMsg()
+	{
+		return _rsslMsg;
+	}
 }

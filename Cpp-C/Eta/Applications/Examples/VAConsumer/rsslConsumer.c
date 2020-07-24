@@ -54,6 +54,7 @@
 #include "rtr/rsslReactor.h"
 
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslConsumerRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static time_t cacheTime = 0;
@@ -62,6 +63,8 @@ static time_t statisticInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
+static RsslBool RTTSupport = RSSL_FALSE;
+static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -113,7 +116,7 @@ static char _bufferArray[6144];
 void printUsageAndExit(char *appName)
 {
 	
-	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedWebSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
+	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedWebSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime] [-rtt]\n"
 			"\n -tcp specifies a socket connection while -encrypted specifies a encrypted connection to open and a list of items to request:\n"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
@@ -133,6 +136,7 @@ void printUsageAndExit(char *appName)
 			"\n -clientId specifies the Client ID for ERT in cloud (mandatory). You can generate and manage client Ids at the following URL:\n"
 			"\n  https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login to access this page)\n"
 			"\n -sessionMgnt Enables session management in the Reactor for ERT in cloud.\n"
+			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
 			"\n -aid Specifies the Application ID.\n"
@@ -147,6 +151,7 @@ void printUsageAndExit(char *appName)
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
 			"\n -x provides an XML trace of messages\n"
+			"\n -rtt all connections support the RTT feature in login\n"
 			"\n"
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
@@ -155,6 +160,7 @@ void printUsageAndExit(char *appName)
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
 			"\n -runtime adjusts the running time of the application.\n"
+			"\n -maxEventsInPool size of event pool.\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -329,6 +335,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-rtt", argv[i]) == 0)
+			{
+				i++;
+				RTTSupport = RSSL_TRUE;
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || 
 					(strcmp("-webSocket", argv[i]) == 0) || 
@@ -1067,6 +1078,11 @@ void parseCommandLine(int argc, char **argv)
 				if (timeToRun == 0)
 					timeToRun = 5;
 			}
+			else if (strcmp("-maxEventsInPool", argv[i]) == 0)
+			{
+				i += 2;
+				maxEventsInPool = atoi(argv[i - 1]);
+			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
 			{
 				if (pCommand == NULL)
@@ -1119,6 +1135,18 @@ void parseCommandLine(int argc, char **argv)
 			else if (strcmp("-sessionMgnt", argv[i]) == 0)
 			{
 				i++; // Do nothing as the parameter is already handled
+			}
+			else if (strcmp("-takeExclusiveSignOnControl", argv[i]) == 0)
+			{
+				i += 2;
+				if (RTR_STRNICMP(argv[i - 1], "true", 4) == 0)
+				{
+					takeExclusiveSignOnControl = RSSL_TRUE;
+				}
+				else if (RTR_STRNICMP(argv[i - 1], "false", 5) == 0)
+				{
+					takeExclusiveSignOnControl = RSSL_FALSE;
+				}
 			}
 			else
 			{
@@ -1213,7 +1241,7 @@ void parseCommandLine(int argc, char **argv)
 		}
 	}
 
-	/* Set proxy info for every channel. */
+	/* Set proxy and RTT info for every channel. */
 	for (i = 0; i < channelCommandCount; i++)
 	{
 		ChannelCommand *pCommand = &chanCommands[i];
@@ -1618,6 +1646,7 @@ int main(int argc, char **argv)
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
+		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
@@ -1639,7 +1668,11 @@ int main(int argc, char **argv)
 		loginRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
 		loginRequest.applicationId = appId;
 	}
-		
+
+	if (RTTSupport == RSSL_TRUE)
+	{
+		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
 
 	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */
 	if (rsslInitDefaultRDMDirectoryRequest(&dirRequest, 2) != RSSL_RET_SUCCESS)
@@ -1774,6 +1807,8 @@ int main(int argc, char **argv)
 	/* Create an RsslReactor which will manage our channels. */
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	reactorOpts.maxEventsInPool = maxEventsInPool;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{

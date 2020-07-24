@@ -171,4 +171,13 @@ public interface ServiceEndpointDiscoveryOption
 	 * @return reference to this object
 	 */
 	ServiceEndpointDiscoveryOption proxyKRB5ConfigFile(String krb5ConfigFile);
+	
+	/**
+     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * <p>Defaults to true</p>
+     *
+     * @param takeExclusiveSignOnControl the exclusive sign on control.
+     * @return reference to this object
+     */
+	ServiceEndpointDiscoveryOption takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
 }

@@ -738,7 +738,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketPing(rsslChannelImpl *rsslChnlI
 	return retVal;
 }
 
-RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
+RsslRet rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
 {
 	RsslSocketChannel *rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
 

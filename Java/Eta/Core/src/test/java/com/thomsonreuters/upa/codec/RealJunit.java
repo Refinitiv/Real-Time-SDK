@@ -7,12 +7,11 @@
 
 package com.thomsonreuters.upa.codec;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.nio.ByteBuffer;
 
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class RealJunit 
 {
@@ -423,6 +422,142 @@ public class RealJunit
 		testDoubleToRealDecimal(1.2, RealHints.EXPONENT_9);				
 		
 		testRealField();
+
+		testDoubleToRealOutOfRange(1000000000., RealHints.EXPONENT_14);
+		testDoubleToRealOutOfRange(-1000000000., RealHints.EXPONENT_14);
+		testDoubleToRealOutOfRange(1000000000., RealHints.EXPONENT_13);
+		testDoubleToRealOutOfRange(-1000000000., RealHints.EXPONENT_13);
+		testDoubleToRealOutOfRange(1000000000., RealHints.EXPONENT_12);
+		testDoubleToRealOutOfRange(-1000000000., RealHints.EXPONENT_12);
+		testDoubleToRealOutOfRange(1000000000., RealHints.EXPONENT_11);
+		testDoubleToRealOutOfRange(-1000000000., RealHints.EXPONENT_11);
+		testDoubleToRealOutOfRange(1000000000., RealHints.EXPONENT_10);
+		testDoubleToRealOutOfRange(-1000000000., RealHints.EXPONENT_10);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_9);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_9);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_8);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_8);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_7);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_7);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_6);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_6);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_5);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_5);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_4);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_4);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_3);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_3);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_2);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_2);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT_1);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT_1);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT0);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT0);
+		testDoubleToRealOutOfRange(1e20, RealHints.EXPONENT1);
+		testDoubleToRealOutOfRange(-1e20, RealHints.EXPONENT1);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT2);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT2);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT3);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT3);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT4);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT4);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT5);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT5);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT6);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT6);
+		testDoubleToRealOutOfRange(1e30, RealHints.EXPONENT7);
+		testDoubleToRealOutOfRange(-1e30, RealHints.EXPONENT7);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_1);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_1);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_2);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_2);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_4);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_4);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_8);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_8);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_16);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_16);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_32);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_32);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_64);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_64);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_128);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_128);
+		testDoubleToRealOutOfRange(1e20, RealHints.FRACTION_256);
+		testDoubleToRealOutOfRange(-1e20, RealHints.FRACTION_256);
+
+		testFloatToRealOutOfRange(1e20f, RealHints.EXPONENT0);
+		testFloatToRealOutOfRange(-1e20f, RealHints.EXPONENT0);
+		testFloatToRealOutOfRange(1000000.f, RealHints.EXPONENT_14);
+		testFloatToRealOutOfRange(-1000000.f, RealHints.EXPONENT_14);
+		testFloatToRealOutOfRange(1e30f, RealHints.EXPONENT7);
+		testFloatToRealOutOfRange(-1e30f, RealHints.EXPONENT7);
+		testFloatToRealOutOfRange(1e20f, RealHints.FRACTION_256);
+		testFloatToRealOutOfRange(-1e20f, RealHints.FRACTION_256);
+
+		testDoubleToRealMaximumMinimumValue(1e14, RealHints.EXPONENT_14);
+		testDoubleToRealMaximumMinimumValue(1e13, RealHints.EXPONENT_13);
+		testDoubleToRealMaximumMinimumValue(1e12, RealHints.EXPONENT_12);
+		testDoubleToRealMaximumMinimumValue(1e11, RealHints.EXPONENT_11);
+		testDoubleToRealMaximumMinimumValue(1e10, RealHints.EXPONENT_10);
+		testDoubleToRealMaximumMinimumValue(1e9, RealHints.EXPONENT_9);
+		testDoubleToRealMaximumMinimumValue(1e8, RealHints.EXPONENT_8);
+		testDoubleToRealMaximumMinimumValue(1e7, RealHints.EXPONENT_7);
+		testDoubleToRealMaximumMinimumValue(1e6, RealHints.EXPONENT_6);
+		testDoubleToRealMaximumMinimumValue(1e5, RealHints.EXPONENT_5);
+		testDoubleToRealMaximumMinimumValue(1e4, RealHints.EXPONENT_4);
+		testDoubleToRealMaximumMinimumValue(1e3, RealHints.EXPONENT_3);
+		testDoubleToRealMaximumMinimumValue(100., RealHints.EXPONENT_2);
+		testDoubleToRealMaximumMinimumValue(10., RealHints.EXPONENT_1);
+		testDoubleToRealMaximumMinimumValue(1., RealHints.EXPONENT0);
+		testDoubleToRealMaximumMinimumValue(.1, RealHints.EXPONENT1);
+		testDoubleToRealMaximumMinimumValue(.01, RealHints.EXPONENT2);
+		testDoubleToRealMaximumMinimumValue(1e-3, RealHints.EXPONENT3);
+		testDoubleToRealMaximumMinimumValue(1e-4, RealHints.EXPONENT4);
+		testDoubleToRealMaximumMinimumValue(1e-5, RealHints.EXPONENT5);
+		testDoubleToRealMaximumMinimumValue(1e-6, RealHints.EXPONENT6);
+		testDoubleToRealMaximumMinimumValue(1e-7, RealHints.EXPONENT7);
+		testDoubleToRealMaximumMinimumValue(1., RealHints.FRACTION_1);
+		testDoubleToRealMaximumMinimumValue(2., RealHints.FRACTION_2);
+		testDoubleToRealMaximumMinimumValue(4., RealHints.FRACTION_4);
+		testDoubleToRealMaximumMinimumValue(8., RealHints.FRACTION_8);
+		testDoubleToRealMaximumMinimumValue(16., RealHints.FRACTION_16);
+		testDoubleToRealMaximumMinimumValue(32., RealHints.FRACTION_32);
+		testDoubleToRealMaximumMinimumValue(64., RealHints.FRACTION_64);
+		testDoubleToRealMaximumMinimumValue(128., RealHints.FRACTION_128);
+		testDoubleToRealMaximumMinimumValue(256., RealHints.FRACTION_256);
+
+		testFloatToRealMaximumMinimumValue(1e14f, RealHints.EXPONENT_14);
+		testFloatToRealMaximumMinimumValue(1e13f, RealHints.EXPONENT_13);
+		testFloatToRealMaximumMinimumValue(1e12f, RealHints.EXPONENT_12);
+		testFloatToRealMaximumMinimumValue(1e11f, RealHints.EXPONENT_11);
+		testFloatToRealMaximumMinimumValue(1e10f, RealHints.EXPONENT_10);
+		testFloatToRealMaximumMinimumValue(1e9f, RealHints.EXPONENT_9);
+		testFloatToRealMaximumMinimumValue(1e8f, RealHints.EXPONENT_8);
+		testFloatToRealMaximumMinimumValue(1e7f, RealHints.EXPONENT_7);
+		testFloatToRealMaximumMinimumValue(1e6f, RealHints.EXPONENT_6);
+		testFloatToRealMaximumMinimumValue(1e5f, RealHints.EXPONENT_5);
+		testFloatToRealMaximumMinimumValue(1e4f, RealHints.EXPONENT_4);
+		testFloatToRealMaximumMinimumValue(1e3f, RealHints.EXPONENT_3);
+		testFloatToRealMaximumMinimumValue(100.f, RealHints.EXPONENT_2);
+		testFloatToRealMaximumMinimumValue(10.f, RealHints.EXPONENT_1);
+		testFloatToRealMaximumMinimumValue(1.f, RealHints.EXPONENT0);
+		testFloatToRealMaximumMinimumValue(.1f, RealHints.EXPONENT1);
+		testFloatToRealMaximumMinimumValue(.01f, RealHints.EXPONENT2);
+		testFloatToRealMaximumMinimumValue(1e-3f, RealHints.EXPONENT3);
+		testFloatToRealMaximumMinimumValue(1e-4f, RealHints.EXPONENT4);
+		testFloatToRealMaximumMinimumValue(1e-5f, RealHints.EXPONENT5);
+		testFloatToRealMaximumMinimumValue(1e-6f, RealHints.EXPONENT6);
+		testFloatToRealMaximumMinimumValue(1e-7f, RealHints.EXPONENT7);
+		testFloatToRealMaximumMinimumValue(1.f, RealHints.FRACTION_1);
+		testFloatToRealMaximumMinimumValue(2.f, RealHints.FRACTION_2);
+		testFloatToRealMaximumMinimumValue(4.f, RealHints.FRACTION_4);
+		testFloatToRealMaximumMinimumValue(8.f, RealHints.FRACTION_8);
+		testFloatToRealMaximumMinimumValue(16.f, RealHints.FRACTION_16);
+		testFloatToRealMaximumMinimumValue(32.f, RealHints.FRACTION_32);
+		testFloatToRealMaximumMinimumValue(64.f, RealHints.FRACTION_64);
+		testFloatToRealMaximumMinimumValue(128.f, RealHints.FRACTION_128);
+		testFloatToRealMaximumMinimumValue(256.f, RealHints.FRACTION_256);
 	}
 	
 	@Test
@@ -439,5 +574,115 @@ public class RealJunit
 		testReal.value(java.lang.Float.NaN, 0);
 		assertTrue(java.lang.Float.isNaN((float)testReal.toDouble()));
 		assertTrue(testReal.hint() == RealHints.NOT_A_NUMBER);
+	}
+
+	private void testDoubleToRealOutOfRange(double val, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
+	}
+
+	private void testFloatToRealOutOfRange(float val, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
+	}
+
+	private void testDoubleToRealMaximumMinimumValue(double factor, int hint)
+	{
+		testDoubleToRealMaximumValue(factor, hint);
+		testDoubleToRealMinimumValue(factor, hint);
+	}
+
+	private void testDoubleToRealMaximumValue(double factor, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		double val = Long.MAX_VALUE / factor;
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.SUCCESS);
+		assertEquals(testReal.hint(), hint);
+
+		// difference between MAX_VALUE and real value 0 .. 2048 = 2^11 - precision difference between long(64bit) and double(53bit)
+		long diff = Long.MAX_VALUE - testReal.toLong();
+		if (diff == 0) {
+			assertEquals(testReal.toLong(), Long.MAX_VALUE);
+		}
+		else {
+			assertTrue(diff <= 2048);
+		}
+		Real testNextReal = CodecFactory.createReal();
+		val = java.lang.Math.nextAfter(val, 1e30);
+		val = java.lang.Math.nextAfter(val, 1e30);
+		assertEquals(testNextReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
+	}
+
+	private void testDoubleToRealMinimumValue(double factor, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		double val = Long.MIN_VALUE / factor;
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.SUCCESS);
+		assertEquals(testReal.hint(), hint);
+
+		// difference between MIN_VALUE and real value 0 .. 2048 = 2^11 - precision difference between long(64bit) and double(53bit)
+		long diff = testReal.toLong() - Long.MIN_VALUE;
+		if (diff == 0) {
+			assertEquals(testReal.toLong(), Long.MIN_VALUE);
+		}
+		else {
+			assertTrue(diff <= 2048);
+		}
+		Real testNextReal = CodecFactory.createReal();
+		val = java.lang.Math.nextAfter(val, -1e30);
+		val = java.lang.Math.nextAfter(val, -1e30);
+		assertEquals(testNextReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
+	}
+
+	private void testFloatToRealMaximumMinimumValue(float factor, int hint)
+	{
+		testFloatToRealMaximumValue(factor, hint);
+		testFloatToRealMinimumValue(factor, hint);
+	}
+
+	private void testFloatToRealMaximumValue(float factor, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		float val = Long.MAX_VALUE / factor;
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.SUCCESS);
+		assertEquals(testReal.hint(), hint);
+
+		// difference between MAX_VALUE and real value 0 .. 2^40 - precision difference between long(64bit) and float(24bit)
+		long diff = Long.MAX_VALUE - testReal.toLong();
+		if (diff == 0) {
+			assertEquals(testReal.toLong(), Long.MAX_VALUE);
+		}
+		else {
+			assertTrue(diff <= 1099511627776L);
+		}
+
+		Real testNextReal = CodecFactory.createReal();
+		val = java.lang.Math.nextAfter(val, 1e30);
+		val = java.lang.Math.nextAfter(val, 1e30);
+		assertEquals(testNextReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
+	}
+
+	private void testFloatToRealMinimumValue(float factor, int hint)
+	{
+		Real testReal = CodecFactory.createReal();
+		float val = Long.MIN_VALUE / factor;
+		assertEquals(testReal.value(val, hint), CodecReturnCodes.SUCCESS);
+		assertEquals(testReal.hint(), hint);
+
+		// difference between MIN_VALUE and real value 0 .. 2^40 - precision difference between long(64bit) and float(24bit)
+		long diff = testReal.toLong() - Long.MIN_VALUE;
+		if (diff == 0) {
+			assertEquals(testReal.toLong(), Long.MIN_VALUE);
+		}
+		else {
+			assertTrue(diff <= 1099511627776L);
+		}
+
+		Real testNextReal = CodecFactory.createReal();
+		val = java.lang.Math.nextAfter(val, -1e30);
+		val = java.lang.Math.nextAfter(val, -1e30);
+		assertEquals(testNextReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
 	}
 }

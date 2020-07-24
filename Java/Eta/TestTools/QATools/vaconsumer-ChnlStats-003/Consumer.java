@@ -74,6 +74,11 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialEventCallback;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialRenewal;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialRenewalOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
@@ -219,7 +224,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * 
  * </ul>
  */
-public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
+public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback, ReactorOAuthCredentialEventCallback
 {
     private final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
     private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
@@ -228,6 +233,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
     private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
     private ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+    private ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
     private ConsumerCmdLineParser consumerCmdLineParser = new ConsumerCmdLineParser();
     private Selector selector;
     
@@ -574,7 +580,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         	    		continue;
         	    	}
 	        		
-	        		if (chnlInfo.canSendLoginReissue &&
+	        		if (chnlInfo.canSendLoginReissue && (consumerCmdLineParser.enableSessionMgnt() == false) &&
 	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
 	        		{
 						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
@@ -609,7 +615,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     	{
     		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 
-    		if (chnlInfo.reactorChannel != null)
+    		if (chnlInfo.reactorChannel != null && 
+			(chnlInfo.reactorChannel.state() == ReactorChannel.State.UP ||
+		         chnlInfo.reactorChannel.state() == ReactorChannel.State.READY))
     		{
     			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
     			loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
@@ -631,7 +639,22 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     		}
     	}
     	return ReactorCallbackReturnCodes.SUCCESS;
-	}  	
+	}
+    
+	@Override
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) 
+	{
+		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+		ReactorOAuthCredential reactorOAuthCredential = (ReactorOAuthCredential)reactorOAuthCredentialEvent.userSpecObj();
+		
+		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+		oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
+		
+		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+		
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 	
     @Override
 	public int reactorChannelEventCallback(ReactorChannelEvent event)
@@ -1463,11 +1486,20 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.password().data(consumerCmdLineParser.passwd());
             loginRequest.applyHasPassword();
+            
+            oAuthCredential.password().data(consumerCmdLineParser.passwd());
+            
+            /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+            oAuthCredential.reactorOAuthCredentialEventCallback(this);
         }
         if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
         {
-        	chnlInfo.consumerRole.clientId().data(consumerCmdLineParser.clientId());
+        	oAuthCredential.clientId().data(consumerCmdLineParser.clientId());
+        	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
         }
+        
+        oAuthCredential.userSpecObj(oAuthCredential);
+        chnlInfo.consumerRole.reactorOAuthCredential(oAuthCredential);
         
         // use command line authentication token and extended authentication information if specified
         if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))

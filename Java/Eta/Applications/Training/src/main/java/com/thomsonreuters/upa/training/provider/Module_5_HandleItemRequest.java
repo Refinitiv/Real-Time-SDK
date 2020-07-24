@@ -912,18 +912,7 @@ public class Module_5_HandleItemRequest
         marketPriceItemRequestInfo_ItemData = marketPriceItem;
 
         /*trach for simulating price update*/
-        long publishTime = 0;
-        /* Here were are using a new Main loop #3. An alternative design would be to combine this Main loop #3 (message processing)
-         * with the other 2 earlier Main loops, namely, Main Loop #1 (detecting incoming client connections), and
-         * Main Loop #2 (getting connection active and successful completion of the initialization process) as a single provider Main Loop.
-         * Some bookkeeping would be required for that approach.
-         */
-
-        /* Main Loop #3 for message processing (reading data, writing data, and ping management, etc.)
-         * The loop calls select() to wait for notification
-         * Currently, the only way to exit this Main loop is when an error condition is triggered or after
-         * a predetermined run-time has elapsed.
-         */
+        long publishTime = 0L;
         /****************************************************
          * Loop 3) Check ping operations until runtime ends *
          ****************************************************/
@@ -959,7 +948,7 @@ public class Module_5_HandleItemRequest
             int selret = selector.select(1000);
             selectedKeys = selector.selectedKeys();
             keyIter = selectedKeys.iterator();
-            if (publishTime < System.currentTimeMillis())
+            if (publishTime < System.currentTimeMillis() && marketPriceItemRequestInfo_IsRefreshComplete)
             {
                 if (selret == 0)
                 {
@@ -2547,6 +2536,7 @@ public class Module_5_HandleItemRequest
         /* (0x0040) Indicates that this is the final part of a refresh. This flag should be set on both single-part response messages, as well as the final message in a multi-part response message sequence. */
         /* (0x0100) Indicates that any cached header or payload information associated with the RefreshMsg's item stream should be cleared. */
         refreshFlags |= RefreshMsgFlags.HAS_MSG_KEY;
+        refreshFlags |= RefreshMsgFlags.SOLICITED;
         refreshFlags |= RefreshMsgFlags.REFRESH_COMPLETE;
         refreshFlags |= RefreshMsgFlags.CLEAR_CACHE;
         /* set filter flags */

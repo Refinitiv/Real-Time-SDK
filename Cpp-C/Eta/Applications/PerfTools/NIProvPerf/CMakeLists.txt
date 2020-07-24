@@ -4,7 +4,6 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c
-  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/getTime.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.c

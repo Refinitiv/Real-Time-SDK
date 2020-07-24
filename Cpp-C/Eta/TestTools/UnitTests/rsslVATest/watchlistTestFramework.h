@@ -10,7 +10,7 @@
 #define VA_WATCHLIST_TEST_FRAMEWORK_H 
 #include "testFramework.h"
 #include "rtr/rsslReactor.h" 
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "gtest/gtest.h"
 #include <assert.h>
 
@@ -76,7 +76,7 @@ typedef struct
 {
 	WtfComponent		component;	/* Type of component (provider or consumer) */
 	WtfEventType		type;		/* The type of event (e.g. msg event, channel event) */
-	TimeValue			timeUsec;	/* Time (in microseconds) at which the event occurred. */
+	RsslTimeValue			timeUsec;	/* Time (in microseconds) at which the event occurred. */
 } WtfEventBase;
 
 RTR_C_INLINE void wtfClearTestEventBase(WtfEventBase *pBase, WtfComponent component,
@@ -101,7 +101,7 @@ RTR_C_INLINE void wtfRsslMsgEventInit(WtfRsslMsgEvent *pEvent, WtfComponent comp
 {
 	pEvent->base.type = WTF_DE_RSSL_MSG;
 	pEvent->base.component = component;
-	pEvent->base.timeUsec = getTimeMicro();
+	pEvent->base.timeUsec = rsslGetTimeMicro();
 	pEvent->pRsslMsg = rsslCopyMsg(pRsslMsg, RSSL_CMF_ALL_FLAGS, 0, NULL);
 	pEvent->pUserSpec = NULL;
 	pEvent->pServiceName = NULL;
@@ -155,7 +155,7 @@ RTR_C_INLINE void wtfClearChannelEvent(WtfChannelEvent *pEvent, WtfComponent com
 	memset(pEvent, 0, sizeof(WtfChannelEvent));
 	pEvent->base.type = WTF_DE_CHNL;
 	pEvent->base.component = component;
-	pEvent->base.timeUsec = getTimeMicro();
+	pEvent->base.timeUsec = rsslGetTimeMicro();
 	pEvent->rsslErrorId = RSSL_RET_SUCCESS;
 }
 

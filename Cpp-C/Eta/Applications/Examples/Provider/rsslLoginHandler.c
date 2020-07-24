@@ -25,10 +25,12 @@ static const char *applicationId = "256";
 /* application name */
 static const char *applicationName = "rsslProvider";
 
+static RsslBool supportRTT = RSSL_FALSE;
+
 /*
  * Initializes login information fields.
  */
-void initLoginHandler()
+void initLoginHandler(RsslBool rttSupport)
 {
 	int i;
 
@@ -36,6 +38,8 @@ void initLoginHandler()
 	{
 		clearLoginReqInfo(&loginRequestInfoList[i]);
 	}
+
+	supportRTT = rttSupport;
 }
 
 /*
@@ -149,6 +153,17 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 
 		printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
 
+		/* Check to see if RTT is supported.  If it is not, make sure it's turned off in the response */
+		if (supportRTT == RSSL_FALSE)
+		{
+			loginRequestInfo->RTT = RSSL_FALSE;
+		}
+
+		if (loginRequestInfo->RTT == RSSL_TRUE)
+		{
+			printf("Round Trip Time Latency messages requested by the client\n");
+		}
+
 		/* send login response */
 		if (sendLoginResponse(chnl, loginRequestInfo) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
@@ -160,6 +175,23 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 		/* close login stream */
 		closeLoginStream(msg->msgBase.streamId);
 
+		break;
+	case RSSL_MC_GENERIC:
+		if (supportRTT == RSSL_FALSE)
+		{
+			printf("RTT messages are not supported for this run.  Turn it on with -rtt.\n");
+			return RSSL_RET_SUCCESS;
+		}
+		printf("\nReceived RTT response from client.\n");
+		loginRequestInfo = getLoginReqInfo(chnl, msg);
+
+		if (!loginRequestInfo)
+		{
+			printf("Received an RTT response on a closed login stream\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		decodeLoginRTTForServer(chnl, msg, dIter, &(loginRequestInfo->RTTLatency));
 		break;
 
 	default:
@@ -228,6 +260,48 @@ static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginR
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+RsslRet sendRTTLoginMsg(RsslChannel* chnl)
+{
+	RsslLoginRequestInfo *info = NULL;
+	RsslError error;
+	RsslBuffer* msgBuf = 0;
+
+	if ((info = findLoginReqInfo(chnl)) == NULL)
+	{
+		printf("Cannot send RTT message on a closed Login stream\n");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (info->RTT == RSSL_FALSE)
+		return RSSL_RET_SUCCESS;
+
+	/* get a buffer for the RTT message */
+	msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
+
+	if (msgBuf != NULL)
+	{
+		/* encode login RTT */
+		if (encodeLoginRTTServer(chnl, msgBuf, info->StreamId, info->RTTLatency) != RSSL_RET_SUCCESS)
+		{
+			rsslReleaseBuffer(msgBuf, &error);
+			printf("\nencodeLoginRTTServer() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		/* send login response */
+		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+
 }
 
 /*
@@ -312,3 +386,4 @@ static void closeLoginStream(RsslInt32 streamId)
 		}
 	}
 }
+

@@ -132,6 +132,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     private Buffer								_clientId = CodecFactory.createBuffer();
     private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
     private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
+    private boolean								_takeExclusiveSignOnControl = true;
 
 	EmaConfigImpl()
 	{
@@ -194,6 +195,8 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		
 		if (_programmaticConfigure != null)
 			_programmaticConfigure.clear();
+		
+		_takeExclusiveSignOnControl = true;
 	}
 	
 	protected void usernameInt(String username)
@@ -240,6 +243,11 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	protected void serviceDiscoveryUrlInt(String serviceDiscoveryUrl)
 	{
 		_serviceDiscoveryUrl.data(serviceDiscoveryUrl);
+	}
+	
+	protected void takeExclusiveSignOnControlInt(boolean takeExclusiveSignOnControl)
+	{
+		_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 	}
 	
 	protected void applicationNameInt(String applicationName)
@@ -856,6 +864,11 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	Buffer serviceDiscoveryUrl()
 	{
 		return _serviceDiscoveryUrl;
+	}
+	
+	boolean takeExclusiveSignOnControl()
+	{
+		return _takeExclusiveSignOnControl;
 	}
 }
 

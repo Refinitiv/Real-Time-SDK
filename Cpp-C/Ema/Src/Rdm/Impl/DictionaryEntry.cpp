@@ -19,7 +19,19 @@ DictionaryEntry::DictionaryEntry()
 {
 	try
 	{
-		_pImpl = new DictionaryEntryImpl();
+		_pImpl = new DictionaryEntryImpl(true);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory in DictionaryEntry::DictionaryEntry()");
+	}
+}
+
+DictionaryEntry::DictionaryEntry(bool isManagedByUser)
+{
+	try
+	{
+		_pImpl = new DictionaryEntryImpl(isManagedByUser);
 	}
 	catch (std::bad_alloc&)
 	{

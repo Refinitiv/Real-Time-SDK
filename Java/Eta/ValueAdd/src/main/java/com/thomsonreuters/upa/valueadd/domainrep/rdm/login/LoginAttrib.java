@@ -323,4 +323,36 @@ public interface LoginAttrib {
 	 * This flag can also be bulk-set by {@link #flags(int)}
 	 */
 	public void applyHasProviderSupportDictionaryDownload();
+
+	/**
+	 * Returns supportRttMonitoring for the login request and refresh messages.
+	 * Value of 2 indicates that application (provider or consumer) supports RTT monitoring.
+	 * Value of 1 indicates that application supports legacy RTT monitoring.
+	 * Another value indicates that application doesn't support RTT monitoring.
+	 * @return identifier value of supporting the RTT feature.
+	 */
+	long supportRTTMonitoring();
+
+	/**
+	 * Returns supportRttMonitoring for the login request and refresh messages.
+	 * Value of 2 indicates that application (provider or consumer) supports RTT monitoring.
+	 * Another value indicates that application doesn't support RTT monitoring.
+	 *
+	 * @param supportConsumerRTTMonitoring identifier value of supporting the RTT feature.
+	 */
+	void supportRTTMonitoring(long supportConsumerRTTMonitoring);
+
+	/**
+	 * Checks for availability of supporting the RTT feature by an application (Provider or Consumer).
+	 * @return true if RTT feature is supported. False if this feature is not supported.
+	 */
+	boolean checkHasSupportRoundTripLatencyMonitoring();
+
+	/**
+	 * Applies an application to support RTT Monitoring feature.
+	 *
+	 * This flag can also be bulk-set by {@link #flags(int)}
+	 */
+	void applyHasSupportRoundTripLatencyMonitoring();
+
 }

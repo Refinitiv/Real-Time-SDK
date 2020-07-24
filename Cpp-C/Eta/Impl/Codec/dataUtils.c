@@ -26,6 +26,7 @@ RSSL_API void rsslQueryDataLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
 	pVerInfo->productDate = rsslDeltaDate;
 	pVerInfo->internalVersion = rsslVersion;
 	pVerInfo->productVersion = rsslPackage;
+	pVerInfo->interfaceVersion = rsslInterfaceVersion;
 }
 
 RSSL_API RsslRet rsslFinishDecodeEntries(RsslDecodeIterator *pIter)

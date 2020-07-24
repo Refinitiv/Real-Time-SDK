@@ -15,14 +15,9 @@ import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
 import com.thomsonreuters.upa.perftools.common.PerfToolsReturnCodes;
 import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.Channel;
+import com.thomsonreuters.upa.transport.*;
 import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.WritePriorities;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
@@ -42,10 +37,10 @@ public class LoginProvider
     private String                _applicationId;
     private String                _applicationName;
     private String                _position;
-    
+
     private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
-    
+
     /**
      * Instantiates a new login provider.
      */
@@ -56,7 +51,7 @@ public class LoginProvider
         _encodeIter = CodecFactory.createEncodeIterator();
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
-        
+
         _errorInfo = ReactorFactory.createReactorErrorInfo();
         _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
         _reactorSubmitOptions.clear();
@@ -80,7 +75,7 @@ public class LoginProvider
         switch (msg.msgClass())
         {
             case MsgClasses.REQUEST:
-                
+
                 // decode login request
                 _loginRequest.clear();
                 int ret = _loginRequest.decode(dIter, msg);
@@ -90,7 +85,6 @@ public class LoginProvider
                     error.errorId(ret);
                     return PerfToolsReturnCodes.FAILURE;
                 }
-
                 //send login response
                 return sendRefresh(channelHandler, clientChannelInfo, error);
             case MsgClasses.CLOSE:
@@ -115,7 +109,7 @@ public class LoginProvider
         _loginRefresh.clear();
 
         Channel channel = clientChannelInfo.channel;
-        
+
         // get a buffer for the login response
         TransportBuffer msgBuf = channel.getBuffer(REFRESH_MSG_SIZE, false, error);
 
@@ -143,9 +137,9 @@ public class LoginProvider
 
         _loginRefresh.applySolicited();
 
-       
+
         _loginRefresh.applyHasAttrib();
-        
+
         // ApplicationId
         _loginRefresh.attrib().applyHasApplicationId();
         _loginRefresh.attrib().applicationId().data(_applicationId);
@@ -166,14 +160,15 @@ public class LoginProvider
         _loginRefresh.attrib().singleOpen(0);
 
 
+
         //
         // this provider supports
         // batch requests
         //
         _loginRefresh.applyHasFeatures();
         _loginRefresh.features().applyHasSupportBatchRequests();
-        _loginRefresh.features().supportBatchRequests(1); 
-        
+        _loginRefresh.features().supportBatchRequests(1);
+
         _loginRefresh.features().applyHasSupportPost();
         _loginRefresh.features().supportOMMPost(1);
 
@@ -211,7 +206,7 @@ public class LoginProvider
         _loginRefresh.clear();
 
         ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
-        
+
         // get a buffer for the login response
         TransportBuffer msgBuf = reactorChannel.getBuffer(REFRESH_MSG_SIZE, false, _errorInfo);
 
@@ -239,9 +234,9 @@ public class LoginProvider
 
         _loginRefresh.applySolicited();
 
-       
+
         _loginRefresh.applyHasAttrib();
-        
+
         // ApplicationId
         _loginRefresh.attrib().applyHasApplicationId();
         _loginRefresh.attrib().applicationId().data(_applicationId);
@@ -268,8 +263,8 @@ public class LoginProvider
         //
         _loginRefresh.applyHasFeatures();
         _loginRefresh.features().applyHasSupportBatchRequests();
-        _loginRefresh.features().supportBatchRequests(1); 
-        
+        _loginRefresh.features().supportBatchRequests(1);
+
         _loginRefresh.features().applyHasSupportPost();
         _loginRefresh.features().supportOMMPost(1);
 
@@ -300,7 +295,7 @@ public class LoginProvider
 
     /**
      * Returns DACS application id for the login message.
-     * 
+     *
      * @return  DACS application id for the login message.
      */
     public String applicationId()
@@ -319,8 +314,8 @@ public class LoginProvider
     }
 
     /**
-     * Returns applicationName for the login message. 
-     * 
+     * Returns applicationName for the login message.
+     *
      * @return applicationName.
      */
     public String applicationName()
@@ -329,7 +324,7 @@ public class LoginProvider
     }
 
     /**
-     * Sets applicationName for the login message. 
+     * Sets applicationName for the login message.
      *
      * @param applicationName the application name
      */
@@ -340,7 +335,7 @@ public class LoginProvider
 
     /**
      * Returns DACS position for login message.
-     * 
+     *
      * @return DACS position for login message.
      */
     public String position()

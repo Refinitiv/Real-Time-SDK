@@ -14,6 +14,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRTT;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
 /**
@@ -25,6 +26,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 public class ConsumerRole extends ReactorRole
 {
     LoginRequest _loginRequest = null;
+    LoginRTT loginRTT = null;
     DirectoryRequest _directoryRequest = null;
     DictionaryRequest _fieldDictionaryRequest = null;
     DictionaryClose _fieldDictionaryClose = null;
@@ -40,7 +42,9 @@ public class ConsumerRole extends ReactorRole
 	Buffer _enumTypeDictionaryName = CodecFactory.createBuffer();
 	boolean _receivedFieldDictionaryResp = false;
 	boolean _receivedEnumDictionaryResp = false;
+	boolean rttEnabled = false;
 	Buffer _clientId = CodecFactory.createBuffer();
+	ReactorOAuthCredential _reactorOAuthCredential = null;
 
     static final int LOGIN_STREAM_ID = 1;
     static final int DIRECTORY_STREAM_ID = 2;
@@ -124,6 +128,21 @@ public class ConsumerRole extends ReactorRole
 
         return;
     }
+
+    public void initDefaultLoginRTT() {
+        int streamId;
+
+        if (loginRTT == null) {
+            streamId = LOGIN_STREAM_ID;
+            loginRTT = (LoginRTT) LoginMsgFactory.createMsg();
+        } else {
+            streamId = (loginRTT.streamId() == 0 ? LOGIN_STREAM_ID : loginRTT.streamId());
+            loginRTT.clear();
+        }
+
+        loginRTT.rdmMsgType(LoginMsgType.RTT);
+        loginRTT.initRTT(streamId);
+    }
     
     /**
      *  A Directory Request to be sent during the setup of a Consumer-Provider
@@ -177,6 +196,27 @@ public class ConsumerRole extends ReactorRole
         _directoryRequest.applyStreaming();
         
         return;
+    }
+    
+    /**
+     * Sets {@link ReactorOAuthCredential} to specify OAuth credential for authentication with the token service.
+     * <p>This OAuth credential has higher precedence for authorization than the user credential specified with {@link #rdmLoginRequest(LoginRequest)}.</p>
+     * 
+     * @param reactorOAuthCredential the OAuth credential
+     */
+    public void reactorOAuthCredential(ReactorOAuthCredential reactorOAuthCredential)
+    {
+        copyReactorOAuthCredential(reactorOAuthCredential);
+    }
+    
+    /**
+     * The OAuth credential to be sent to authorize with the token service.
+     * 
+     * @return the ReactorOAuthCredential
+     */
+    public ReactorOAuthCredential reactorOAuthCredential()
+    {
+    	return _reactorOAuthCredential;
     }
     
     /**
@@ -361,6 +401,7 @@ public class ConsumerRole extends ReactorRole
     }
 
     /**
+     * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
      * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @param clientId the clientId
@@ -369,7 +410,8 @@ public class ConsumerRole extends ReactorRole
      *         or if position or length is outside of the data's capacity.
      *         {@link ReactorReturnCodes#PARAMETER_INVALID}.
      * 
-     */    
+     */
+    @Deprecated
     public int clientId(Buffer clientId)
     {
 	return _clientId.data(clientId.data(), clientId.position(),
@@ -377,11 +419,13 @@ public class ConsumerRole extends ReactorRole
     }
     
     /**
+     * This is used only for backward compatibility. All OAuth credentials should be specified in {@link ReactorOAuthCredential}
      * Specifies an unique ID defined for an application making a request to the EDP token service.
      * 
      * @return clientId the clientId
      * 
-     */    
+     */
+    @Deprecated
     public Buffer clientId()
     {
     	return _clientId;
@@ -451,7 +495,15 @@ public class ConsumerRole extends ReactorRole
     boolean receivedEnumDictionaryResp()
     {
     	return _receivedEnumDictionaryResp;
-    }  
+    }
+
+    void rttEnabled(boolean rttEnabled) {
+        this.rttEnabled = rttEnabled;
+    }
+
+    boolean rttEnabled() {
+        return this.rttEnabled;
+    }
     
     /**
      *  A callback function for processing RDMLoginMsgEvents received. If not present,
@@ -548,6 +600,7 @@ public class ConsumerRole extends ReactorRole
         	_clientId.data(role.clientId().toString());
         copyLoginRequest(role.rdmLoginRequest());
         copyDirectoryRequest(role.rdmDirectoryRequest());
+        copyReactorOAuthCredential(role.reactorOAuthCredential());
     }
     
     /*
@@ -563,6 +616,8 @@ public class ConsumerRole extends ReactorRole
                 _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
             }
             loginRequest.copy(_loginRequest);
+            rttEnabled(loginRequest.checkHasAttrib()
+                    && loginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
         }
     }
     
@@ -579,6 +634,21 @@ public class ConsumerRole extends ReactorRole
                 _directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
             }
             directoryRequest.copy(_directoryRequest);
+        }
+    }
+    
+    /*
+     * Performs a deep copy from a specified ReactorOAuthCredential into the ReactorOAuthCredential associated with this ConsumerRole.
+     */
+    void copyReactorOAuthCredential(ReactorOAuthCredential reactorOAuthCredential)
+    {
+        if (reactorOAuthCredential != null)
+        {
+            if (_reactorOAuthCredential == null)
+            {
+            	_reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
+            }
+            reactorOAuthCredential.copy(_reactorOAuthCredential);
         }
     }
 }

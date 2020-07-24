@@ -1,5 +1,7 @@
 package com.thomsonreuters.ema.access;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.MsgKey;
@@ -15,6 +17,7 @@ class ItemInfo extends VaNode
     private	LongObject _streamId;
     private MsgKey _msgKey;
     private boolean _sentRefresh;
+    private java.util.Map<Long, Integer> _postIdsCount;
     
     class ItemInfoFlags
     {
@@ -165,6 +168,39 @@ class ItemInfo extends VaNode
     	_sentRefresh = true;
     }
     
+    public void addPostId(long postId){
+        if(_postIdsCount == null){
+            _postIdsCount = new ConcurrentHashMap<>();
+        }
+        Integer oldCount = _postIdsCount.get(postId);
+        if(oldCount == null){
+            _postIdsCount.put(postId, 1);
+        }
+        else{
+            _postIdsCount.put(postId, oldCount + 1);
+        }
+
+    }
+    
+    public boolean removePostId(long id){
+        if(_postIdsCount == null){
+            return false;
+        }
+        Integer count = _postIdsCount.get(id);
+        if(count == null)
+        {
+            return false;
+        }
+        else if(count > 1){
+            _postIdsCount.put(id, count-1);
+        }
+        else
+        {
+            _postIdsCount.remove(id);
+        }
+        return true;
+    }
+    
     @Override
     public int hashCode()
     {
@@ -219,5 +255,17 @@ class ItemInfo extends VaNode
         _streamId.clear();
         _domainType = 0;
         _msgKey.clear();
+        if(_postIdsCount != null) {
+            _postIdsCount.clear();
+        }
+    }
+
+    @Override
+    public void returnToPool() {
+        if(_postIdsCount != null) {
+            _postIdsCount.clear();
+        }
+        
+        super.returnToPool();
     }
 }

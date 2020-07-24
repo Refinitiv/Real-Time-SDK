@@ -216,6 +216,8 @@ protected:
 
     void getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>&);
 
+	void getConnectedClientChannelStatsImpl(UInt64 clientHandle, ChannelStatistics& cs);
+
 #ifdef USING_SELECT
 	fd_set			_readFds;
 	fd_set			_exceptFds;

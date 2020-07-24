@@ -19,6 +19,7 @@
 #include <math.h>
 #include <float.h>
 #include <ctype.h>
+#include <limits.h>
 
 /* Suppress warning C4756: overflow in constant arithmetic that occurs only on VS2013 */
 #if defined(WIN32) &&  _MSC_VER == 1800
@@ -52,10 +53,20 @@ static RsslDouble powHints[] = {0.00000000000001, 0.0000000000001, 0.00000000000
 
 RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUInt8 iHint)
 {
+	double res;
+
 	RSSL_ASSERT(oReal, Invalid parameters or parameters passed in as NULL);
 
 	if (iHint > RSSL_RH_NOT_A_NUMBER || iHint == 31)
 		return RSSL_RET_FAILURE;
+
+	if (!iValue)
+	{
+		/* blank value */
+		oReal->isBlank = RSSL_TRUE;
+		oReal->value = 0;
+		return RSSL_RET_SUCCESS;
+	}
 
 	if (*iValue == INFINITY)
 	{
@@ -79,24 +90,32 @@ RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUIn
 	{
 		oReal->hint = iHint;
 
-		if (!iValue)
-		{
-			/* blank value */
-			oReal->isBlank = RSSL_TRUE;
-			oReal->value = 0;
-			return RSSL_RET_SUCCESS;
-		}
-
 #if defined (WIN32) || defined (_WIN32)
 		if (iHint < RSSL_RH_FRACTION_1)
 		{
-			oReal->value = (RsslInt)(floor(((*iValue) / (pow((double)10, (double)(iHint - RSSL_RH_EXPONENT0)))) + 0.5));
+			res = floor(((*iValue) / (pow((double)10, (double)(iHint - RSSL_RH_EXPONENT0)))) + 0.5);
 		}
 		else
-			oReal->value = (RsslInt)((*iValue)*(pow((double)2, (double)(iHint - RSSL_RH_FRACTION_1))));	
+		{
+			res = (*iValue)*(pow((double)2, (double)(iHint - RSSL_RH_FRACTION_1)));
+		}
 #else
-			oReal->value = floor((*iValue) * powHintsEx[iHint] + 0.5);
+		{
+			res = floor((*iValue) * powHintsEx[iHint] + 0.5);
+		}
 #endif
+		if (res < LLONG_MIN || LLONG_MAX < res) {
+			return RSSL_RET_FAILURE;
+		}
+
+		// Checks the corner cases.
+		// Uses direct assignment value LLONG_MAX (64 bits) and prohibits the conversation from double value (53 bits).
+		if ((double)LLONG_MAX == res)
+			oReal->value = LLONG_MAX;
+		else if ((double)LLONG_MIN == res)
+			oReal->value = LLONG_MIN;
+		else
+			oReal->value = (RsslInt)(res);
 
 		oReal->isBlank = RSSL_FALSE;
 	}
@@ -105,10 +124,20 @@ RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUIn
 	
 RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8 iHint)
 {
+	float res;
+
 	RSSL_ASSERT(oReal, Invalid parameters or parameters passed in as NULL);
 	
 	if (iHint > RSSL_RH_NOT_A_NUMBER || iHint == 31)
 		return RSSL_RET_FAILURE;
+
+	if (!iValue)
+	{
+		/* blank value */
+		oReal->isBlank = RSSL_TRUE;
+		oReal->value = 0;
+		return RSSL_RET_SUCCESS;
+	}
 
 	if ((double)(*iValue) == INFINITY)
 	{
@@ -128,29 +157,39 @@ RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8
 		oReal->isBlank = RSSL_FALSE;
 		oReal->value = 0;		
 	}
-
-	oReal->hint = iHint;
-
-	if (!iValue)
+	else
 	{
-		/* blank value */
-		oReal->isBlank = RSSL_TRUE;
-		oReal->value = 0;
-		return RSSL_RET_SUCCESS;
-	}
+		oReal->hint = iHint;
 
 #if defined (WIN32) || defined (_WIN32)
-	if (iHint < RSSL_RH_FRACTION_1)
-	{
-		oReal->value = (RsslInt)(floor(((*iValue)/(pow((float)10, (float)(iHint - RSSL_RH_EXPONENT0)))) + 0.5));
-	}
-	else
-		oReal->value = (RsslInt)((*iValue)*(pow((float)2, (float)(iHint - RSSL_RH_FRACTION_1))));	
+		if (iHint < RSSL_RH_FRACTION_1)
+		{
+			res = floorf(((*iValue) / (powf(10.f, (float)(iHint - RSSL_RH_EXPONENT0)))) + 0.5f);
+		}
+		else
+		{
+			res = (*iValue)*(powf(2.f, (float)(iHint - RSSL_RH_FRACTION_1)));
+		}
 #else
-		oReal->value = floor((*iValue) * powHintsEx[iHint] + 0.5);
+		{
+			res = floorf((*iValue) * powHintsEx[iHint] + 0.5f);
+		}
 #endif
-	
-	oReal->isBlank = RSSL_FALSE;
+		if (res < LLONG_MIN || LLONG_MAX < res) {
+			return RSSL_RET_FAILURE;
+		}
+
+		// Checks the corner cases.
+		// Uses direct assignment value LLONG_MAX (64 bits) and prohibits the conversation from float value (24 bits).
+		if ((float)LLONG_MAX == res)
+			oReal->value = LLONG_MAX;
+		else if ((float)LLONG_MIN == res)
+			oReal->value = LLONG_MIN;
+		else
+			oReal->value = (RsslInt)(res);
+
+		oReal->isBlank = RSSL_FALSE;
+	}
 	return RSSL_RET_SUCCESS;
 }
 

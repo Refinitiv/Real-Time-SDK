@@ -88,6 +88,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"ReissueTokenAttemptLimit",
 	"ReissueTokenAttemptInterval",
 	"XmlTraceMaxFileSize",
+	"MaxEventsInPool",
 };
 
 thomsonreuters::ema::access::EmaString UInt64Values[] = {
@@ -111,6 +112,8 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"DirectoryRequestTimeOut",
 	"DisconnectOnGap",
 	"EnableSessionManagement",
+	"EnforceAckIDValidation",
+	"EnableRtt",
 	"EnumTypeFragmentSize",
 	"FieldDictionaryFragmentSize",
 	"GuaranteedOutputBuffers",
@@ -137,6 +140,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"RemoveItemsOnDisconnect",
 	"RequestTimeout",
 	"RestRequestTimeOut",
+	"ServerSharedSocket",
 	"ServiceCountHint",
 	"ServiceId",
 	"ServiceState",

@@ -618,6 +618,17 @@ class LoginRefreshImpl extends MsgBaseImpl
                                                authenticationErrorText.position(),
                                                authenticationErrorText.length());
 
+            } else if (element.name().equals(ElementNames.ROUND_TRIP_LATENCY)) {
+                if (element.dataType() != DataTypes.UINT) {
+                    return CodecReturnCodes.FAILURE;
+                }
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
+                applyHasAttrib();
+                attrib.applyHasSupportRoundTripLatencyMonitoring();
+                attrib.supportRTTMonitoring(tmpUInt.toLong());
             }
         }
 
@@ -956,6 +967,16 @@ class LoginRefreshImpl extends MsgBaseImpl
                 tmpUInt.value(attrib.allowSuspectData());
                 if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
                     return ret;
+            }
+
+            if (attrib().checkHasSupportRoundTripLatencyMonitoring()) {
+                element.dataType(DataTypes.UINT);
+                element.name(ElementNames.ROUND_TRIP_LATENCY);
+                tmpUInt.value(attrib.supportRTTMonitoring());
+                ret = element.encode(encodeIter, tmpUInt);
+                if (ret != CodecReturnCodes.SUCCESS) {
+                    return ret;
+                }
             }
         }
 

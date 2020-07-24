@@ -8,10 +8,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.thomsonreuters.upa.codec.AckMsg;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -36,6 +33,7 @@ import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
@@ -48,10 +46,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
 import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
@@ -68,6 +63,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceDiscoveryOptions;
@@ -76,6 +72,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointInfo;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * <p>
@@ -200,6 +198,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointInfo;
  * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.
  * <li>-query (optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.
  * <li>-clientId Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
+ * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
  * </ul>
  */ 
 public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpointEventCallback
@@ -220,6 +219,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
     ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = 
     		ReactorFactory.createReactorServiceDiscoveryOptions();
+    ReactorOAuthCredential reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
     
 	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
@@ -255,6 +255,8 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     private CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
     private ItemRequest itemRequest;
     Buffer payload;
+
+    private Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
         
     public WatchlistConsumer()
     {
@@ -614,6 +616,11 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
                 else
                     System.out.println("Channel Up Event");
     	        // register selector with channel event's reactorChannel
+
+                // define socket fd value
+                final int fdSocketId =
+                        ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+                socketFdValueMap.put(event.reactorChannel(), fdSocketId);
     	        try
     	        {
     				event.reactorChannel().selectableChannel().register(selector,
@@ -638,7 +645,12 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
                 if (key != null)
                     key.cancel();
-    
+
+                // define new socket fd value
+                final int fdSocketId =
+                        ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+                socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+
     	        // register selector with channel event's new reactorChannel
     	        try
     	        {
@@ -958,6 +970,18 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 				if (loginStatus.checkHasUserName()) 
 					System.out.println(" UserName: " + loginStatus.userName().toString());
 
+				break;
+			case RTT:
+				LoginRTT loginRTT = (LoginRTT) event.rdmLoginMsg();
+				System.out.printf("\nReceived login RTT message from Provider %d.\n", socketFdValueMap.get(event.reactorChannel()));
+				System.out.printf("\tTicks: %du\n", NANOSECONDS.toMicros(loginRTT.ticks()));
+				if (loginRTT.checkHasRTLatency()) {
+					System.out.printf("\tLast Latency: %du\n", NANOSECONDS.toMicros(loginRTT.rtLatency()));
+				}
+				if (loginRTT.checkHasTCPRetrans()) {
+					System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
+				}
+				System.out.printf("RTT Response sent to provider by watchlist.\n\n");
 				break;
 			default:
 				System.out.println("Received Unhandled Login Msg Type: " + msgType);
@@ -1284,24 +1308,24 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     @Override
     public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event)
     {
-    if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
-    {
-            List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
-
-            for (int i = 0; i < serviceEndpointInfoList.size(); i++)
-            {
-                    ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
-                    if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
-                    {
-                            if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
-                                    {
-                                            watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
-                                            watchlistConsumerConfig.connectionList().get(0).port(info.port());
-                                            break;
-                                    }
-                    }
-            }
-    }
+	    if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
+	    {
+	            List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
+	
+	            for (int i = 0; i < serviceEndpointInfoList.size(); i++)
+	            {
+	                    ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
+	                    if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
+	                    {
+	                            if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
+	                                    {
+	                                            watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
+	                                            watchlistConsumerConfig.connectionList().get(0).port(info.port());
+	                                            break;
+	                                    }
+	                    }
+	            }
+	    }
         else
         {
             System.out.println("Error requesting Service Discovery Endpoint Information: " + event.errorInfo().toString());
@@ -1475,7 +1499,9 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         
         if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
         {
-        	chnlInfo.consumerRole.clientId().data(watchlistConsumerConfig.clientId());
+        	reactorOAuthCredential.clientId().data(watchlistConsumerConfig.clientId());
+        	reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
+        	chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
         	reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
         }
         
@@ -1546,6 +1572,10 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         chnlInfo.consumerRole.rdmLoginRequest().attrib().singleOpen(1);
         chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
         chnlInfo.consumerRole.rdmLoginRequest().attrib().allowSuspectData(1);
+
+        if (watchlistConsumerConfig.enableRTT()) {
+            chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasSupportRoundTripLatencyMonitoring();
+        }
                 
         if (itemDecoder.fieldDictionaryLoadedFromFile == true &&
         	itemDecoder.enumTypeDictionaryLoadedFromFile == true)
@@ -1676,22 +1706,21 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         	if (reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
         	{
         		System.out.println("Error: " + errorInfo.code());
+        		return;
         	}
         }
-        else
-        {
-        	if(chnlInfo.connectionArg.port() != null)
-        	{
-        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-        	}
-        	
-        	if(chnlInfo.connectionArg.hostname() != null)
-        	{
-        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
-        	}
-        		
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
-        }
+        
+    	if(chnlInfo.connectionArg.port() != null)
+    	{
+    		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
+    	}
+    	
+    	if(chnlInfo.connectionArg.hostname() != null)
+    	{
+    		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+    	}
+    		
+    	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
         
     	if (watchlistConsumerConfig.location() != null)
     		chnlInfo.connectOptions.connectionList().get(0).location(watchlistConsumerConfig.location());

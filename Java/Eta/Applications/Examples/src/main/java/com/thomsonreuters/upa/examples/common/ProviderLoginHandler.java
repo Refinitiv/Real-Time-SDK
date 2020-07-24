@@ -1,28 +1,29 @@
 package com.thomsonreuters.upa.examples.common;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.shared.*;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.shared.LoginRejectReason;
-import com.thomsonreuters.upa.shared.LoginRequestInfo;
-import com.thomsonreuters.upa.shared.LoginRequestInfoList;
-import com.thomsonreuters.upa.shared.ProviderSession;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+
+import java.util.Objects;
+import java.util.Optional;
+import com.thomsonreuters.upa.shared.LoginRejectReason;
+import com.thomsonreuters.upa.shared.LoginRequestInfo;
+import com.thomsonreuters.upa.shared.LoginRequestInfoList;
+import com.thomsonreuters.upa.shared.ProviderSession;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
+
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This is the implementation of processing of login requests and login status
@@ -33,13 +34,17 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
  */
 public class ProviderLoginHandler
 {
+    private static final int RTT_NOTIFICATION_INTERVAL = 5;
+
     private static final int REJECT_MSG_SIZE = 512;
     private static final int REFRESH_MSG_SIZE = 512;
     private static final int STATUS_MSG_SIZE = 512;
+    private static final int RTT_MSG_SIZE = 1024;
 
     private LoginStatus _loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
     private LoginRefresh _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
     private LoginRequest _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
+    private LoginRTT loginRtt = (LoginRTT) LoginMsgFactory.createMsg();
     private EncodeIterator _encodeIter = CodecFactory.createEncodeIterator();
 
     // application id 
@@ -48,7 +53,10 @@ public class ProviderLoginHandler
     // application name
     private static String applicationName = "UPA Provider";
 
+    private boolean enableRtt;
+
     private LoginRequestInfoList _loginRequestInfoList;
+    private LoginRttInfoList loginRttInfoList;
     private ProviderSession _providerSession;
 
     public ProviderLoginHandler(ProviderSession providerSession)
@@ -56,8 +64,10 @@ public class ProviderLoginHandler
         _loginStatus.rdmMsgType(LoginMsgType.STATUS);
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+        loginRtt.rdmMsgType(LoginMsgType.RTT);
         _providerSession = providerSession;
         _loginRequestInfoList = new LoginRequestInfoList();
+        loginRttInfoList = new LoginRttInfoList();
     }
 
     /**
@@ -66,6 +76,15 @@ public class ProviderLoginHandler
     public void init()
     {
         _loginRequestInfoList.init();
+        loginRttInfoList.init();
+    }
+
+    /**
+     * Set flag for defining supporting of the RTT feature by current provider.
+     * @param enableRtt - value for setting.
+     */
+    public void enableRtt(boolean enableRtt) {
+        this.enableRtt = enableRtt;
     }
 
     /**
@@ -120,6 +139,26 @@ public class ProviderLoginHandler
 
                 /* send login response */
                 return sendRefresh(chnl, loginRequestInfo, error);
+            case MsgClasses.GENERIC:
+                if (Objects.equals(DataTypes.ELEMENT_LIST, msg.containerType())) {
+                    loginRtt.clear();
+                    ret = loginRtt.decode(dIter, msg);
+                    if (ret != CodecReturnCodes.SUCCESS) {
+                        error.text("LoginRTT.decode() failed with return code: " + CodecReturnCodes.toString(ret));
+                        return ret;
+                    }
+                    System.out.printf("Received login RTT message from Consumer %d.\n",
+                            _providerSession.getClientSessionForChannel(chnl).socketFdValue());
+                    System.out.printf("\tRTT Tick value is %dus.\n", TimeUnit.NANOSECONDS.toMicros(loginRtt.ticks()));
+                    if (loginRtt.checkHasTCPRetrans()) {
+                        System.out.printf("\tConsumer side TCP retransmissions: %d\n", loginRtt.tcpRetrans());
+                    }
+                    long calculatedRtt = loginRtt.calculateRTTLatency(TimeUnit.MICROSECONDS);
+                    LoginRTT storedLoginRtt = getLoginRttInfo(chnl).loginRtt();
+                    loginRtt.copy(storedLoginRtt);
+                    System.out.printf("\tLast RTT message latency is %dus.\n\n", calculatedRtt);
+                }
+                break;
             case MsgClasses.CLOSE:
                 error.text("Received Login Close for StreamId " + msg.streamId());
                 closeStream(msg.streamId());
@@ -148,7 +187,7 @@ public class ProviderLoginHandler
         }
     }
 
-    public void closeRequest(Channel channel)
+    public void closeRequestAndRtt(Channel channel)
     {
         //find original request information associated with channel
         LoginRequestInfo loginReqInfo = findLoginRequestInfo(channel);
@@ -157,8 +196,67 @@ public class ProviderLoginHandler
             System.out.println("Closing login stream id '" + loginReqInfo.loginRequest.streamId() + "' with user name: " + loginReqInfo.loginRequest.userName());
             loginReqInfo.clear();
         }
+
+        //find RTT information associated with channel
+        clearRttInfo(channel);
     }
-    
+
+
+    private void clearRttInfo(Channel channel) {
+        if (enableRtt) {
+            LoginRttInfo loginRttInfo = loginRttInfoList.get(channel);
+            if (Objects.nonNull(loginRttInfo)) {
+                loginRttInfo.clear();
+            }
+        }
+    }
+
+    /**
+     * Sends RTT message if this feature has been enabled.
+     *
+     * @param channel - The channel for sending Login RTT message to.
+     * @param error - error buffer for storing errors and warnings.
+     *
+     * @return {@link CodecReturnCodes#FAILURE} if encoding or transport buffer creation was failed.
+     * In another cases returns any of {@link TransportReturnCodes}
+     *
+     * @see ProviderSession#write(Channel, TransportBuffer, Error)
+     */
+    public int proceedLoginRttMessage(Channel channel, Error error) {
+        if (enableRtt) {
+            LoginRttInfo loginRttInfo = createOrGetRttInfo(channel);
+            if (Objects.nonNull(loginRttInfo) && isRttReadyToSend(loginRttInfo)) {
+                TransportBuffer transportBuffer = channel.getBuffer(RTT_MSG_SIZE, false, error);
+                if (Objects.isNull(transportBuffer)) {
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                _encodeIter.clear();
+                _encodeIter.setBufferAndRWFVersion(transportBuffer, channel.majorVersion(), channel.minorVersion());
+
+                loginRtt = loginRttInfo.loginRtt();
+                loginRtt.updateRTTActualTicks();
+                int ret = loginRtt.encode(_encodeIter);
+                if (!Objects.equals(CodecReturnCodes.SUCCESS, ret)) {
+                    error.text("Encoding of login RTT failed: <" + CodecReturnCodes.toString(ret) + ">");
+                    return ret;
+                }
+                return _providerSession.write(channel, transportBuffer, error);
+            }
+        }
+        return TransportReturnCodes.SUCCESS;
+    }
+
+    private boolean isRttReadyToSend(LoginRttInfo loginRttInfo) {
+        final long rttLastSendTime = loginRttInfo.rttLastSendNanoTime();
+        final long rttSendTime = System.nanoTime();
+        if (SECONDS.convert(rttSendTime - rttLastSendTime, TimeUnit.NANOSECONDS) > RTT_NOTIFICATION_INTERVAL) {
+            loginRttInfo.rttLastSendNanoTime(rttSendTime);
+            return true;
+        }
+        return false;
+    }
+
     private int sendRequestReject(Channel chnl, int streamId, LoginRejectReason reason, Error error)
     {
         // get a buffer for the login request reject status */
@@ -310,8 +408,11 @@ public class ProviderLoginHandler
         // this provider does not support
         // singleOpen behavior
         _loginRefresh.attrib().applyHasSingleOpen();
-        _loginRefresh.attrib().singleOpen(0); 
-        
+        _loginRefresh.attrib().singleOpen(0);
+
+        if (enableRtt) {
+            _loginRefresh.attrib().applyHasSupportRoundTripLatencyMonitoring();
+        }
 
         // this provider supports batch requests
         _loginRefresh.applyHasFeatures();
@@ -351,5 +452,31 @@ public class ProviderLoginHandler
     public LoginRequestInfo findLoginRequestInfo(Channel chnl)
     {
         return _loginRequestInfoList.get(chnl);
+    }
+
+    /**
+     * Try to get a login rtt information for the specified channel.
+     * @param channel - The channel to get the login RTT information for.
+     * @return {@link LoginRttInfo} for the channel
+     */
+    public LoginRttInfo createOrGetRttInfo(Channel channel) {
+        return Optional
+                .ofNullable(loginRttInfoList.get(channel))
+                .orElseGet(() -> createLoginRtt(channel));
+    }
+
+    public LoginRttInfo createLoginRtt(Channel channel) {
+        LoginRequestInfo loginRequestInfo = findLoginRequestInfo(channel);
+        if (Objects.nonNull(loginRequestInfo) && loginRequestInfo.isInUse()) {
+            LoginRttInfo loginRttInfo = loginRttInfoList.createFromRequest(channel, loginRequestInfo.loginRequest());
+            loginRttInfo.loginRtt().applyHasRTLatency();
+            return loginRttInfo;
+        }
+        return null;
+    }
+
+
+    public LoginRttInfo getLoginRttInfo(Channel channel) {
+        return loginRttInfoList.get(channel);
     }
 }

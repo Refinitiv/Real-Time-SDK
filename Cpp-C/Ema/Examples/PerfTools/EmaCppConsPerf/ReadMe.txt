@@ -92,8 +92,6 @@ AppUtil.cpp - Utility for use by applications and/or common classes.
 
 CtrlBreakHandler.cpp  - Provides Contol-C handling
  
-GetTime.cpp - Provides functions for retrieving time information for use in  measurements.
-
 Statistics.cpp - Provides methods for collecting and calculating statistical  information.
 
 PerfConfig.cpp  - Common configurable options across PerfTool applications.

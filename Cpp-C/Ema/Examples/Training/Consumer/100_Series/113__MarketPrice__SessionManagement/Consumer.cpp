@@ -11,6 +11,8 @@
 using namespace thomsonreuters::ema::access;
 using namespace std;
 
+bool connectWebSocket = false;
+
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
 	cout << refreshMsg << endl;		// defaults to refreshMsg.toString()
@@ -32,6 +34,9 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
+		<< " -itemName Request item name (optional)." << endl
+		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -48,6 +53,8 @@ int main( int argc, char* argv[] )
 		UInt8 userNameSet = 0;
 		UInt8 passwordSet = 0;
 		UInt8 clientIdSet = 0;
+
+		EmaString itemName = "IBM.N";
 
 		for ( int i = 1; i < argc; i++ )
 		{
@@ -80,6 +87,30 @@ int main( int argc, char* argv[] )
 					config.clientId( argv[++i] );
 				}
 			}
+			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					EmaString takeExclusiveSignOnControlStr = argv[++i];
+
+					if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("true"))
+					{
+						config.takeExclusiveSignOnControl( true );
+					}
+					else if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("false"))
+					{
+						config.takeExclusiveSignOnControl( false );
+					}
+				}
+			}
+			else if (strcmp(argv[i], "-itemName") == 0)
+			{
+				itemName.set(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-websocket") == 0)
+			{
+				connectWebSocket = true;
+			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
 				config.tunnelingProxyHostName( i < ( argc - 1 ) ? argv[++i] : NULL );
@@ -109,8 +140,17 @@ int main( int argc, char* argv[] )
 			return -1;
 		}
 
-		OmmConsumer consumer( config.consumerName( "Consumer_3" ) );
-		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );
+		// use the "Consumer_3" to select EncryptedProtocolType::RSSL_SOCKET predefined in EmaConfig.xml
+		EmaString consumerName = "Consumer_3";
+
+		if (connectWebSocket)
+		{
+			// use the "Consumer_4" to select EncryptedProtocolType::RSSL_WEBSOCKET predefined in EmaConfig.xml
+			consumerName.set( "Consumer_4" );
+		}
+
+		OmmConsumer consumer( config.consumerName( consumerName ) );
+		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
 		sleep( 900000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;

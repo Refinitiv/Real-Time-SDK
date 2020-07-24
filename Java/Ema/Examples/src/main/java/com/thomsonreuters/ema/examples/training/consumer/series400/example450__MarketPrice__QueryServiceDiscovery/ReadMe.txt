@@ -30,11 +30,15 @@ also known as AppKey generated using an AppGenerator (mandatory). You can
 generate and manage client IDs at the following URL:
 https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
 to access this page).
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
 -location location to get an endpoint from EDP-RT service discovery. Now, it is either
  "us-east" by default or "eu-west" (optional).
 -keyfile keystore file for creating an encrypted connection (mandatory).
 -keypasswd keystore password for creating an encrypted connection (mandatory).
 Note: please refer to README.md of ESDK Java for generating a keystore file.
+
+Optional RIC item name parameters.
+-itemName Request item name (optional). The default item name is IBM.N.
 
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet.
@@ -47,10 +51,10 @@ use of a proxy to get to the Internet.
 
 Example command to run the example from the command line from Java folder:
 On Unix:
-./gradlew runConsumer450 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -keyfile <full path to the file> -keypasswd <keyfile password>'
+./gradlew runConsumer450 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -takeExclusiveSignOnControl <true/false> -keyfile <full path to the file> -keypasswd <keyfile password>'
 
 On Windows:
-gradlew.bat runConsumer450 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -keyfile <full path to the file> -keypasswd <keyfile password>'
+gradlew.bat runConsumer450 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -takeExclusiveSignOnControl <true/false> -keyfile <full path to the file> -keypasswd <keyfile password>'
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods
@@ -64,7 +68,7 @@ gradlew.bat runConsumer450 -PcommandLineArgs='-username <username> -password <pa
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.
 + Opens a streaming item interest
-  - MarketPrice IBM.N item from the ELEKTRON_DD service
+  - MarketPrice IBM.N (or optional itemName) item from the ELEKTRON_DD service
 + Processes data received from the API for 60 seconds
   - All received messages are processed on the API's thread of control
 + Exits

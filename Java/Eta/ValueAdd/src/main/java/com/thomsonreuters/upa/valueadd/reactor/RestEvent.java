@@ -4,11 +4,11 @@ package com.thomsonreuters.upa.valueadd.reactor;
 class RestEvent {
 
 	int _eventType = RestEventTypes.CANCELLED;
-	Object _closure = null;
+	RestResultClosure _closure = null;
 	ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 	ReactorAuthTokenInfo _reactorAuthTokenInfo;
 	
-	RestEvent(int eventType, Object closure)
+	RestEvent(int eventType, RestResultClosure closure)
 	{
 		_closure = closure;
 		_eventType = eventType;
@@ -24,7 +24,7 @@ class RestEvent {
         _eventType = eventType;
     }
     
-    public Object userSpecObj()
+    public RestResultClosure resultClosure()
     {
         return _closure;
     }
@@ -34,15 +34,15 @@ class RestEvent {
     	return _errorInfo;
     }
     
-    void userSpecObj(Object userSpecObj)
+    void resultClosure(RestResultClosure closure)
     {
-        _closure = userSpecObj;
+        _closure = closure;
     }
     
     void clear()
     {
         _eventType = RestEventTypes.CANCELLED;
-        _closure = 0;
+        _closure = null;
         _errorInfo.clear();
     }
     

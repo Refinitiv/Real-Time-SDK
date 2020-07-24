@@ -22,6 +22,8 @@ EmaString proxyPort;
 EmaString proxyUserName;
 EmaString proxyPasswd;
 EmaString proxyDomain;
+bool takeExclusiveSignOnControl = true;
+bool connectWebSocket = false;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -68,8 +70,17 @@ void createProgramaticConfig( Map& configDb )
 	Map elementMap;
 	ElementList elementList;
 
-	elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
-		ElementList().addAscii( "Channel", "Channel_1" ).complete() ).complete();
+	if (connectWebSocket)
+	{
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
+			ElementList().addAscii( "Channel", "Channel_1" ).addAscii( "Dictionary", "Dictionary_1" ).complete() ).complete();
+	}
+	else
+	{
+		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
+			ElementList().addAscii( "Channel", "Channel_1" ).complete() ).complete();
+	}
 
 	elementList.addMap( "ConsumerList", elementMap );
 
@@ -79,21 +90,50 @@ void createProgramaticConfig( Map& configDb )
 	configDb.addKeyAscii( "ConsumerGroup", MapEntry::AddEnum, elementList );
 	elementList.clear();
 
-	elementMap.addKeyAscii( "Channel_1", MapEntry::AddEnum,
-		ElementList()
-		.addEnum( "ChannelType", 1 ) // Use the RSSL_CONN_TYPE_ENCRYPTED connection
-		.addAscii( "Host", host )
-		.addAscii( "Port", port )
-		.addUInt( "EnableSessionManagement", 1 )
-		.addEnum( "EncryptedProtocolType", 0 ) // Use the standard TCP transport protocol and OpenSSL for encryption on Windows
-		.complete() ).complete();
+	ElementList channelElementList;
+
+	channelElementList
+		.addEnum("ChannelType", 1) // Use the RSSL_CONN_TYPE_ENCRYPTED connection
+		.addAscii("Host", host)
+		.addAscii("Port", port)
+		.addUInt("EnableSessionManagement", 1);
+
+	if (connectWebSocket)
+	{
+		channelElementList.addEnum("EncryptedProtocolType", 7); // Use the WebSocket transport protocol and OpenSSL for encryption on Windows
+		channelElementList.addAscii("WsProtocols", "tr_json2");
+	}
+	else
+	{
+		channelElementList.addEnum("EncryptedProtocolType", 0); // Use the standard TCP transport protocol and OpenSSL for encryption on Windows
+	}
+
+	channelElementList.complete();
+
+	elementMap.addKeyAscii("Channel_1", MapEntry::AddEnum, channelElementList);
+	elementMap.complete();
 
 	elementList.addMap( "ChannelList", elementMap );
 
 	elementList.complete();
-	elementMap.clear();
 
 	configDb.addKeyAscii( "ChannelGroup", MapEntry::AddEnum, elementList );
+
+	if (connectWebSocket)
+	{
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		configDb.addKeyAscii("DictionaryGroup", MapEntry::AddEnum,
+			ElementList().addMap("DictionaryList",
+				Map().addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+					ElementList().
+					addEnum("DictionaryType", 0). // Use FileDictionaryEnum
+					addAscii("RdmFieldDictionaryFileName", "RDMFieldDictionary").
+					addAscii("EnumTypeDefFileName", "enumtype.def").
+					complete()).
+				complete()).
+			complete());
+	}
+
 	configDb.complete();
 }
 
@@ -104,6 +144,9 @@ void printHelp()
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
 		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
+		<< " -itemName Request item name (optional)." << endl
+		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -119,6 +162,8 @@ int main( int argc, char* argv[] )
 		Map configDb;
 		OmmConsumerConfig config;
 		ServiceEndpointDiscovery serviceDiscovery;
+
+		EmaString itemName = "IBM.N";
 
 		for ( int i = 1; i < argc; i++ )
 		{
@@ -142,6 +187,30 @@ int main( int argc, char* argv[] )
 			else if ( strcmp( argv[i], "-clientId" ) == 0 )
 			{
 				if ( i < ( argc - 1 ) ) clientId.set( argv[++i] );
+			}
+			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					EmaString takeExclusiveSignOnControlStr = argv[++i];
+
+					if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("true"))
+					{
+						takeExclusiveSignOnControl = true;
+					}
+					else if (takeExclusiveSignOnControlStr.caseInsensitiveCompare("false"))
+					{
+						takeExclusiveSignOnControl = false;
+					}
+				}
+			}
+			else if (strcmp(argv[i], "-itemName") == 0)
+			{
+				itemName.set(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-websocket") == 0)
+			{
+				connectWebSocket = true;
 			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
@@ -172,9 +241,15 @@ int main( int argc, char* argv[] )
 			return -1;
 		}
 
+		ServiceEndpointDiscoveryOption::TransportProtocol transportProtocol = ServiceEndpointDiscoveryOption::TcpEnum;
+		if (connectWebSocket)
+		{
+			transportProtocol = ServiceEndpointDiscoveryOption::WebsocketEnum;
+		}
+
 		// Query endpoints from EDP-RT service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transport( ServiceEndpointDiscoveryOption::TcpEnum )
+			.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
 			.proxyDomain( proxyDomain ), client );
 
@@ -187,10 +262,11 @@ int main( int argc, char* argv[] )
 		createProgramaticConfig( configDb );
 
 		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_1" ).username( userName ).password( password )
-			.clientId( clientId ).config( configDb ).tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
+			.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
+			.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
 			.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain ) );
 
-		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );
+		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
 		sleep( 900000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;

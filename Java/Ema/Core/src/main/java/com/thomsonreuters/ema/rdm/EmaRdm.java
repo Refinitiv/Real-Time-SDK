@@ -625,6 +625,9 @@ public class EmaRdm
 	  public static final String ENAME_DATA = "Data";
 	  public static final String ENAME_LINK_STATE = "LinkState";
 	  public static final String ENAME_LINK_CODE = "LinkCode";
+	  public static final String ENAME_TICKS = "Ticks";
+	  public static final String ENAME_LATENCY = "RoundTripLatency";
+	  public static final String ENAME_TCP_RETRANS = "TcpRetrans";
 
 	  
 	//Well known server configuration names.
@@ -677,4 +680,6 @@ public class EmaRdm
 	  public static final String ENAME_VIEW_DATA = ":ViewData";
 	  public static final String ENAME_SYMBOL_LIST_BEHAVIORS = ":SymbolListBehaviors";
 	  public static final String ENAME_DATA_STREAMS = ":DataStreams";
+
+	  public static final long LOGIN_RTT_ELEMENT = 2;
 }

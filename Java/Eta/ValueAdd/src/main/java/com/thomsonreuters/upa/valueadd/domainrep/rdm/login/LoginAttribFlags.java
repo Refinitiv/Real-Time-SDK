@@ -37,6 +37,11 @@ public class LoginAttribFlags
      * supportProviderDictionaryDownload member of the {@link LoginAttrib}
      */
     public static final int HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD = 0x0100;
+
+    /**
+     * (0x4000) Inform a Provider that consumer support handling of RTT messages.
+     */
+    public static final int HAS_CONSUMER_SUPPORT_RTT = 0x4000;
     
     private LoginAttribFlags()
     {

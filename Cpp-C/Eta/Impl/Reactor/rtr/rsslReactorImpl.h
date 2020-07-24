@@ -541,6 +541,8 @@ struct _RsslReactorImpl
 
 	RsslInt32 channelCount;			/* Total number of channels in use. */
 
+	RsslInt32 maxEventsInPool; /* To control size of memory */
+
 	/* Used on each interface in the reactor to ensure thread-safety and that calling interfaces in callbacks is prevented. */
 	RsslMutex interfaceLock; /* Ensures function calls are thread-safe */
 	RsslBool inReactorFunction; /* Ensures functions are not called inside callbacks */
@@ -595,7 +597,7 @@ RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
-	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
+	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBool takeExclusiveSignOnContorl, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,

@@ -395,12 +395,14 @@ public class ChannelHandler
         switch (channel.init(_inProgInfo, error))
         {
             case TransportReturnCodes.CHAN_INIT_IN_PROGRESS:
-                if (_inProgInfo.flags() == InProgFlags.SCKT_CHNL_CHANGE)
+                if (_inProgInfo.flags() == InProgFlags.SCKT_CHNL_CHANGE) {
                     requestFlush(clientChannelInfo);
+                }
                 break;
             case TransportReturnCodes.SUCCESS:
-            	if (clientChannelInfo.channel.state() == ChannelState.ACTIVE)
-            		processActiveChannel(clientChannelInfo);
+            	if (clientChannelInfo.channel.state() == ChannelState.ACTIVE) {
+                    processActiveChannel(clientChannelInfo);
+                }
                 break;
             default:
                 closeChannel(clientChannelInfo, error);

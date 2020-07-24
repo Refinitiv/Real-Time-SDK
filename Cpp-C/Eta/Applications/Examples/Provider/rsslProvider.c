@@ -52,6 +52,7 @@ static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslBool jsonEnumExpand = RSSL_FALSE;
+static RsslBool supportRTT = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
@@ -82,7 +83,7 @@ void clearClientSessionInfo(RsslClientSessionInfo* clientSessionInfo)
 
 void exitWithUsage()
 {
-	printf("Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf("Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache] [-rtt]\n");
 	printf("\tAdditional encyrption options:\n");
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
@@ -90,6 +91,7 @@ void exitWithUsage()
 	printf("\tWebSocket connection arguments:\n");
 	printf("\t   -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols );
 	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
+	printf(" -rtt if specified, support the round trip latency measurement\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -211,6 +213,10 @@ int main(int argc, char **argv)
 		{
 			jsonEnumExpand = RSSL_TRUE;
 		}
+		else if (strcmp("-rtt", argv[iargs]) == 0)
+		{
+			supportRTT = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -229,7 +235,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize login handler */
-	initLoginHandler();
+	initLoginHandler(supportRTT);
 
 	/* Initialize source directory handler */
 	initDirectoryHandler();
@@ -315,6 +321,11 @@ int main(int argc, char **argv)
 					if (sendItemUpdates(clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
 					{
 						removeClientSessionForChannel(clientSessions[i].clientChannel);
+					}
+
+					if (supportRTT == RSSL_TRUE)
+					{
+						sendRTTLoginMsg(clientSessions[i].clientChannel);
 					}
 				}
 			}

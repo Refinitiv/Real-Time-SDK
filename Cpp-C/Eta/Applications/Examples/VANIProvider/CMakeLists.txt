@@ -4,6 +4,12 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
   rsslNIItemHandler.c      rsslVANIMarketByOrderItems.c rsslVANIMarketPriceItems.c 
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVACacheHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVASendMessage.c
+
+  rsslNIProvider.h			rsslNILoginProvider.h        rsslNIDirectoryProvider.h
+  rsslNIItemHandler.h		rsslVANIMarketByOrderItems.h rsslVANIMarketPriceItems.h 
+  rsslNIChannelCommand.h	rsslNIItemInfo.h			 rsslVAItemEncode.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVACacheHandler.h
+  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVASendMessage.h
   )
 
 	add_executable( VANIProvider_shared ${SOURCE_FILES} )

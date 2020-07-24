@@ -402,7 +402,7 @@ public class GenericProv implements ReceivedMsgCallback
     @Override
     public void processChannelClose(Channel channel)
     {
-        _loginHandler.closeRequest(channel);
+        _loginHandler.closeRequestAndRtt(channel);
         _directoryHandler.closeRequest(channel);
     }
 

@@ -25,6 +25,7 @@
 
 #include "Access/Include/Common.h"
 #include "Access/Include/ChannelInformation.h"
+#include "Access/Include/ChannelStatistics.h"
 
 namespace thomsonreuters {
 
@@ -67,6 +68,12 @@ public :
 		@return the channel information for this event
 	*/
 	const ChannelInformation& getChannelInformation() const;
+
+	/** Returns the Channel Statistics for this event
+		@throw OmmInvalidUsageException if it cannot get the channel statistics
+		@return the channel Statistics for this event
+	*/
+	const ChannelStatistics& getChannelStatistics() const;
 	//@}
 
 private :
@@ -80,6 +87,7 @@ private :
 	void*			_closure;
 	void*           _channel;
 	ChannelInformation _channelInfo;
+	ChannelStatistics _channelStats;
 
 	OmmConsumerEvent();
 	virtual ~OmmConsumerEvent();

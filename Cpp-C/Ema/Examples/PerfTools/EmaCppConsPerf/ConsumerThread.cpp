@@ -251,7 +251,7 @@ void ConsumerThread::run()
 {
 	// Calculations
 	Int64 microSecPerTick = 0;
-	TimeValue currentTime = 0, nextTickTime = 0;
+	PerfTimeValue currentTime = 0, nextTickTime = 0;
 	Int32 postsPerTick = 0, postsPerTickRemainder = 0;
 	Int32 genMsgsPerTick = 0, genMsgsPerTickRemainder = 0;
 	Int32 currentTicks = 0;
@@ -348,7 +348,7 @@ void ConsumerThread::run()
 		AppUtil::sleep( 10 );
 	}
 
-	currentTime = GetTime::getTimeMicro();
+	currentTime = perftool::common::GetTime::getTimeMicro();
 	nextTickTime = currentTime + microSecPerTick;
 	itemsRequestedCount = 0;
 
@@ -360,7 +360,7 @@ void ConsumerThread::run()
 			{
 				break;
 			}
-			currentTime = GetTime::getTimeMicro();
+			currentTime = perftool::common::GetTime::getTimeMicro();
 			// read until no more to read and then write leftover from previous burst
 			if( currentTime >= nextTickTime)
 			{
@@ -395,7 +395,7 @@ void ConsumerThread::run()
 				failureLocation = "ConsumerThread::run() - sendBursts failed at UserDispatch";
 				break;
 			}
-			currentTime = GetTime::getTimeMicro();
+			currentTime = perftool::common::GetTime::getTimeMicro();
 			if( currentTime < nextTickTime )			
 				pEmaOmmConsumer->dispatch( (nextTickTime - currentTime) ); // Dispatch either sleeps or works (dispatching msgs) till next tick time;
 			else
@@ -422,7 +422,7 @@ bool ConsumerThread::sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 
 		if (currentTicks > pConsPerfCfg->_requestsPerTickRemainder)
 				++requestBurstCount;
 		if( !stats.imageRetrievalStartTime )
-			stats.imageRetrievalStartTime = GetTime::getTimeNano();
+			stats.imageRetrievalStartTime = perftool::common::GetTime::getTimeNano();
 			
 			if(sendItemRequestBurst(requestBurstCount) == false)
 			{
@@ -501,12 +501,12 @@ bool ConsumerThread::sendGenMsgBurst(UInt32 genMsgItemBurstCount)
 	return true;
 }
 
-void ConsumerThread::updateLatencyStats( TimeValue timeTracker, LatencyRecords* pLrec )
+void ConsumerThread::updateLatencyStats( PerfTimeValue timeTracker, LatencyRecords* pLrec )
 {
 	TimeRecord ldata;
 
 	ldata.startTime = timeTracker;
-	ldata.endTime = GetTime::getTimeMicro();
+	ldata.endTime = perftool::common::GetTime::getTimeMicro();
 	ldata.ticks = 1;
 
 	statsMutex.lock();
@@ -715,7 +715,7 @@ void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::Refresh
 			}
 
 			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
-				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getTimeNano();
+				pConsumerThread->stats.imageRetrievalEndTime = perftool::common::GetTime::getTimeNano();
 		}
 	}
 }
@@ -724,7 +724,7 @@ void MarketPriceClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMs
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
-		pConsumerThread->stats.firstUpdateTime = GetTime::getTimeNano();
+		pConsumerThread->stats.firstUpdateTime = perftool::common::GetTime::getTimeNano();
 
 	if( !decodeMPUpdate(update.getPayload().getFieldList(),  DataType::UpdateMsgEnum) )
 	{
@@ -982,7 +982,7 @@ void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::Refre
 			}
 		
 			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
-				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getTimeNano();
+				pConsumerThread->stats.imageRetrievalEndTime = perftool::common::GetTime::getTimeNano();
 		}
 	}
 }
@@ -991,7 +991,7 @@ void MarketByOrderClient::onUpdateMsg( const thomsonreuters::ema::access::Update
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
-		pConsumerThread->stats.firstUpdateTime = GetTime::getTimeNano();
+		pConsumerThread->stats.firstUpdateTime = perftool::common::GetTime::getTimeNano();
 
 	if( !decodeMBOUpdate(update.getPayload().getMap(),  DataType::UpdateMsgEnum) )
 	{

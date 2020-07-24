@@ -3,6 +3,7 @@ package com.thomsonreuters.upa.shared;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.Objects;
 
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -10,6 +11,7 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.AcceptOptions;
 import com.thomsonreuters.upa.transport.BindOptions;
 import com.thomsonreuters.upa.transport.Channel;
@@ -215,20 +217,22 @@ public class ProviderSession
                 {            		
                     removeChannel(clientSessionInfo.clientChannel, error);
                 	clientSessionInfo.clientChannel = clientChannel;
-                	clientSessionInfo.start_time = System.currentTimeMillis();  
+                	clientSessionInfo.start_time = System.currentTimeMillis();
                     clientSessionFound = true;
                     break;
                 } 
             }
         }
-        	
-     // close channel if no more client sessions        	
+
+        // close channel if no more client sessions
         if (clientSessionFound == false) 
         {       	
             _clientSessionCount--;
             System.out.println("Rejected client:" + clientChannel.selectableChannel() + " " + _clientSessionCount);
             removeChannel(clientChannel, error);
             return TransportReturnCodes.SUCCESS;          
+        } else {
+            clientSessionInfo.socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(clientChannel.selectableChannel());
         }
                 
         System.out.println("New client: " + clientChannel.selectableChannel());
@@ -383,13 +387,16 @@ public class ProviderSession
                     }
                     else
                     {
+                        final ClientSessionInfo clientSessionInfo = getClientSessionForChannel(channel);
+                        if (Objects.nonNull(clientSessionInfo)) {
+                            clientSessionInfo.socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(channel.selectableChannel());
+                        }
                         System.out.println("Channel connection in progress");
                     }
                 }
                 break;
             case TransportReturnCodes.SUCCESS:
                 System.out.println("Client channel is now ACTIVE");
-                
                 if (channel.info(_channelInfo, _error) == TransportReturnCodes.SUCCESS)
                 {
                     System.out.printf( "Channel Info:\n" +
@@ -588,10 +595,10 @@ public class ProviderSession
     }
 
     /*
-     * Removes a client session for a channel. chnl - The channel to remove the
+     * Returns a client session for a channel. chnl - The channel to remove the
      * client session for
      */
-    private ClientSessionInfo getClientSessionForChannel(Channel chnl)
+    public ClientSessionInfo getClientSessionForChannel(Channel chnl)
     {
         for (ClientSessionInfo clientSessionInfo : clientSessions)
         {

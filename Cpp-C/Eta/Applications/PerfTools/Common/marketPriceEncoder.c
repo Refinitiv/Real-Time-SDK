@@ -7,7 +7,7 @@
 
 #include "marketPriceEncoder.h"
 #include "itemEncoder.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "xmlMsgDataParser.h"
 
 #include <assert.h>

@@ -14,7 +14,7 @@
 
 #include "transportThreads.h"
 #include "channelHandler.h"
-#include "getTime.h"
+#include "rtr/rsslGetTime.h"
 #include "rtr/rsslThread.h"
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslIterators.h"

@@ -8,11 +8,8 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -32,6 +29,7 @@ import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
@@ -45,11 +43,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
@@ -73,9 +67,16 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialEventCallback;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialRenewal;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredentialRenewalOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * <p>
@@ -215,10 +216,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-ax Specifies the Authentication Extended information.
  * 
  * <li>-aid Specifies the Application ID.
+ *
+ * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
  * 
  * </ul>
  */
-public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
+public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback, ReactorOAuthCredentialEventCallback
 {
     private final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
     private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
@@ -227,6 +230,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
     private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
     private ReactorDispatchOptions dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+    private ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
     private ConsumerCmdLineParser consumerCmdLineParser = new ConsumerCmdLineParser();
     private Selector selector;
     
@@ -274,7 +278,8 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	boolean closeHandled;
 
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-	
+    private Map<ReactorChannel, Integer> socketFdValueMap = new HashMap<>();
+
     public Consumer()
     {
         dictionary = CodecFactory.createDataDictionary();
@@ -579,7 +584,22 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     		}
     	}
     	return ReactorCallbackReturnCodes.SUCCESS;
-	}  	
+	}
+    
+	@Override
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) 
+	{
+		ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+		ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+		ReactorOAuthCredential reactorOAuthCredential = (ReactorOAuthCredential)reactorOAuthCredentialEvent.userSpecObj();
+		
+		renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+		oAuthCredentialRenewal.password().data(reactorOAuthCredential.password().toString());
+		
+		reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+		
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 	
     @Override
 	public int reactorChannelEventCallback(ReactorChannelEvent event)
@@ -594,6 +614,13 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
                     System.out.println("Channel Up Event: " + event.reactorChannel().selectableChannel());
                 else
                     System.out.println("Channel Up Event");
+
+                //define socket id of consumer's channel
+				//define new socket fd value
+				final int fdSocketId =
+						ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+				socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+
     	        // register selector with channel event's reactorChannel
     	        try
     	        {
@@ -613,6 +640,11 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     	        System.out.println("Channel Change - Old Channel: "
     	                + event.reactorChannel().oldSelectableChannel() + " New Channel: "
     	                + event.reactorChannel().selectableChannel());
+
+				//define new socket id of consumer's channel
+				final int fdSocketId =
+						ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+				socketFdValueMap.put(event.reactorChannel(), fdSocketId);
     	        
     	        // cancel old reactorChannel select
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
@@ -844,6 +876,18 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		    	{
 					System.out.println("	" + loginStatus.state());
 		    	}
+				break;
+			case RTT:
+				LoginRTT loginRTT = (LoginRTT) event.rdmLoginMsg();
+				System.out.printf("\nReceived login RTT message from Provider %d.\n", socketFdValueMap.get(event.reactorChannel()));
+				System.out.printf("\tTicks: %du\n", NANOSECONDS.toMicros(loginRTT.ticks()));
+				if (loginRTT.checkHasRTLatency()) {
+					System.out.printf("\tLast Latency: %du\n", NANOSECONDS.toMicros(loginRTT.rtLatency()));
+				}
+				if (loginRTT.checkHasTCPRetrans()) {
+					System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
+				}
+				System.out.println("RTT Response sent to provider by reactor.\n");
 				break;
 			default:
 				System.out.println("Received Unhandled Login Msg Type: " + msgType);
@@ -1411,11 +1455,20 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.password().data(consumerCmdLineParser.passwd());
             loginRequest.applyHasPassword();
+            
+            oAuthCredential.password().data(consumerCmdLineParser.passwd());
+            
+            /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+            oAuthCredential.reactorOAuthCredentialEventCallback(this);
         }
         if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
         {
-        	chnlInfo.consumerRole.clientId().data(consumerCmdLineParser.clientId());
+        	oAuthCredential.clientId().data(consumerCmdLineParser.clientId());
+        	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
         }
+        
+        oAuthCredential.userSpecObj(oAuthCredential);
+        chnlInfo.consumerRole.reactorOAuthCredential(oAuthCredential);
         
         // use command line authentication token and extended authentication information if specified
         if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
@@ -1437,7 +1490,11 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.attrib().applicationId().data(consumerCmdLineParser.applicationId());
         }
-        
+
+        if (consumerCmdLineParser.enableRtt()) {
+            chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasSupportRoundTripLatencyMonitoring();
+        }
+
         // if unable to load from file, enable consumer to download dictionary
         if (fieldDictionaryLoadedFromFile == false ||
             enumTypeDictionaryLoadedFromFile == false)

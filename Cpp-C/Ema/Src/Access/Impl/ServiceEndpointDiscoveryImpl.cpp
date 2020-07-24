@@ -68,6 +68,7 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 	_serviceDiscoveryOpts.userName.length = params._username.length();
 	_serviceDiscoveryOpts.password.data = const_cast<char*>(params._password.c_str());
 	_serviceDiscoveryOpts.password.length = params._password.length();
+	_serviceDiscoveryOpts.takeExclusiveSignOnControl = (RsslBool)params._takeExclusiveSignOnControl;
 
 	if (!params._proxyHostName.empty())
 	{

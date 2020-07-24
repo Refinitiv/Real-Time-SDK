@@ -13,7 +13,7 @@
 #include "rtr/jsonToRwfConverter.h"
 #include "rtr/rwfToJsonConverter.h"
 #include "rtr/jsonToRsslMsgDecoder.h"
-
+#include "jsonVersion.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -414,4 +414,15 @@ RSSL_RJC_API RsslRet rsslJsonGetErrorMessage(RsslJsonConverter pConverter, RsslG
 	return RSSL_RET_FAILURE;
 
 
+}
+
+RSSL_RJC_API void rsslQueryJsonConverterLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
+{
+	if (pVerInfo)
+	{
+		pVerInfo->productDate = jsonDeltaDate;
+		pVerInfo->internalVersion = jsonVersion;
+		pVerInfo->productVersion = jsonPackage;
+		pVerInfo->interfaceVersion = jsonInterfaceVersion;
+	}
 }

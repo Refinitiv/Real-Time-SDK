@@ -89,6 +89,12 @@ OmmConsumerConfig& OmmConsumerConfig::tokenScope( const EmaString& tokenScope )
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::takeExclusiveSignOnControl( bool takeExclusiveSignOnControl )
+{
+	_pImpl->takeExclusiveSignOnControl( takeExclusiveSignOnControl );
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrl(const EmaString& tokenServiceUrl)
 {
 	_pImpl->tokenServiceUrl( tokenServiceUrl );

@@ -54,8 +54,6 @@ public :
 	enum EncryptionProtocolTypes 
 	{
 		ENC_NONE = 0x00,			/*!< @brief (0x00) No encryption. */
-		ENC_TLSV1 = 0x01,			/*!< @brief (0x02) Encryption using TLSv1 protocol */
-		ENC_TLSV1_1 = 0x02,			/*!< @brief (0x04) Encryption using TLSv1.1 protocol */
 		ENC_TLSV1_2 = 0x04			/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
 	};
 
@@ -130,8 +128,14 @@ public :
 	/** Specifies optionally token scope to limit the scope of generated token from the token service.
 		@param[in] tokenScope specifies a token scope
 		@return reference to this object
-*/
+	*/
 	OmmConsumerConfig& tokenScope( const EmaString& tokenScope = "trapi.streaming.pricing.read" );
+
+	/** Specifies optionally the exclusive sign on control to force sign-out of other applications using the same credentials.
+		@param[in] takeExclusiveSignOnControl the exclusive sign on control.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& takeExclusiveSignOnControl( bool takeExclusiveSignOnControl = true );
 
 	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.

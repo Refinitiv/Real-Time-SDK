@@ -9,7 +9,6 @@ package com.thomsonreuters.upa.valueadd.reactor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -44,6 +43,17 @@ public class ReactorWatchlistEDPJunit
 		public int _count = 0;
 		public ReactorServiceEndpointInfo _endpointInfo = null;  
 	}
+	
+	abstract class ReactorOAuthCredentialEventCallbackTest implements ReactorOAuthCredentialEventCallback
+	{
+		ReactorOAuthCredential _oauthCredentail = null;
+		
+		ReactorOAuthCredentialEventCallbackTest(ReactorOAuthCredential oAuthCredential)
+		{
+			_oauthCredentail = oAuthCredential;
+		}
+	}
+	
 	/*
 	 * Inner class to handle default callbacks. It simply stores the event to be
 	 * retrieved later.
@@ -353,7 +363,25 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(0).connectOptions().pingTimeout(255);
 		rcOpts.connectionList().get(0).initTimeout(10);		
 		return rcOpts;
-	}	
+	}
+	
+	TestReactorEvent getTestEvent(TestReactor testReactor, int loopCount)
+	{
+		TestReactorEvent event = null;
+		while((loopCount > 0) && ((event = testReactor.pollEvent()) == null))
+		{
+			try {
+				Thread.sleep(1000);
+				testReactor.dispatch(-1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			loopCount--;
+		}
+		
+		return event;
+	}
 
 	@Test
 	public void EDPConnectSpecificLocationTest()
@@ -410,7 +438,7 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
 
-			verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 		}
 		finally
@@ -440,7 +468,6 @@ public class ReactorWatchlistEDPJunit
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			count++;
@@ -487,7 +514,7 @@ public class ReactorWatchlistEDPJunit
 					assertNotNull("Did not receive CHANNEL_EVENT", event);
 					assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 					chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-					assertEquals("Expected ReactorChannelEventTypes.WARNING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.WARNING, chnlEvent.eventType());				
+					assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());				
 				}
 				else if(event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
 				{
@@ -552,12 +579,12 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
-
-			consumerReactor.close();		}
+		}
 		finally
 		{
 			consumerReactor.close();
-		}	}
+		}	
+	}
 
 	@Test
 	public void EDPConnectErrorInvalidLocationTest()
@@ -734,6 +761,7 @@ public class ReactorWatchlistEDPJunit
 		}
 	}	
 
+	@SuppressWarnings("deprecation")
 	private void setupConsumer(Consumer consumer, boolean defaultRDMLogin)
 	{
 
@@ -756,7 +784,7 @@ public class ReactorWatchlistEDPJunit
 		consumerRole.defaultMsgCallback(consumer);
 		consumerRole.watchlistOptions().enableWatchlist(true);
 		consumerRole.watchlistOptions().channelOpenCallback(consumer);
-		consumerRole.watchlistOptions().requestTimeout(3000);
+		consumerRole.watchlistOptions().requestTimeout(15000);
 		consumerRole.clientId().data(System.getProperty("edpUserName"));
 		
 		if (defaultRDMLogin)
@@ -820,7 +848,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
 			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);		
 
 			consumer.testReactor().dispatch(4, 8000);
@@ -914,15 +942,12 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);				
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
-
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
 			
 			for (int j = 0; j < 5; j++)
 			{
 				try {
 					Thread.sleep(800);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				consumer.testReactor().dispatch(-1);
@@ -953,20 +978,18 @@ public class ReactorWatchlistEDPJunit
 				try {
 					Thread.sleep(800);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				consumer.testReactor().dispatch(-1);
 			}
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, false);
+			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, true);
 
 			for (int j = 0; j < 6; j++)
 			{
 				try {
 					Thread.sleep(800);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				consumer.testReactor().dispatch(-1);
@@ -984,7 +1007,6 @@ public class ReactorWatchlistEDPJunit
 				try {
 					Thread.sleep(800);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				consumer.testReactor().dispatch(-1);
@@ -1010,7 +1032,7 @@ public class ReactorWatchlistEDPJunit
 
 			verifyAuthTokenEvent(consumerReactor, 240, true, true);
 			
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
+			assertTrue("Expected Service Discovery request going out", chnlEvent._reactorChannel.reactorServiceEndpointInfoList().size() > 0);			
 
 		}
 		finally
@@ -1081,7 +1103,6 @@ public class ReactorWatchlistEDPJunit
 				try {
 					Thread.sleep(800);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				consumer.testReactor().dispatch(-1);
@@ -1111,14 +1132,13 @@ public class ReactorWatchlistEDPJunit
 			for (int i = 0; i < 2; i++)
 			{
 				System.out.println(i);
-				verifyAuthTokenEvent(consumerReactor, 30, false, false);
+				verifyAuthTokenEvent(consumerReactor, 30, false, true);
 
 				for (int j = 0; j < 12; j++)
 				{
 					try {
-						Thread.sleep(800);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					consumer.testReactor().dispatch(-1);
@@ -1131,10 +1151,10 @@ public class ReactorWatchlistEDPJunit
 				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 				
 				// Consumer receives CHANNEL_DOWN_RECONNECTING event
-				event = consumerReactor.pollEvent();
-				assertNotNull("Did not receive CHANNEL_EVENT", event);
-				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+//				event = consumerReactor.pollEvent();
+//				assertNotNull("Did not receive CHANNEL_EVENT", event);
+//				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+//				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			}
 
 		}
@@ -1206,20 +1226,7 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
-
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
 			
-			for (int j = 0; j < 5; j++)
-			{
-				try {
-					Thread.sleep(800);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				consumer.testReactor().dispatch(-1);
-			}	        
-
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("localhost"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));			
@@ -1231,51 +1238,65 @@ public class ReactorWatchlistEDPJunit
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());				
-
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());
 
 			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = consumerReactor.pollEvent();
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());		
-
-			for (int i = 0; i < 2; i++)
-			{	
-				System.out.println("index " + i);
-				verifyAuthTokenEvent(consumerReactor, 10, false, false);
-
-				for (int j = 0; j < 5; j++)
-				{
-					try {
-						Thread.sleep(800);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					consumer.testReactor().dispatch(-1);
-				}			
-
-				// Consumer receives CHANNEL_DOWN_RECONNECTING event for 1st connection
-				event = consumerReactor.pollEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			
+			/* Authentication event for the second connection */
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+			ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
+			
+			event = getTestEvent(consumerReactor, 20);
 				assertNotNull("Did not receive CHANNEL_EVENT", event);
 				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());	
-
-				// Consumer receives CHANNEL_DOWN_RECONNECTING event for 2 connection
-				event = consumerReactor.pollEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			
+			event = getTestEvent(consumerReactor, 20);
 				assertNotNull("Did not receive CHANNEL_EVENT", event);
 				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());				
-
-			}
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
 			
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
 			
-
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
+			
+			event = getTestEvent(consumerReactor, 20);
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN, chnlEvent.eventType());
+			
+			consumerReactor.close();
 		}
 		finally
 		{
@@ -1283,7 +1304,6 @@ public class ReactorWatchlistEDPJunit
 			try {
 				Thread.sleep(20 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
 
@@ -1330,8 +1350,6 @@ public class ReactorWatchlistEDPJunit
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);		
-
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
 			
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
@@ -1341,7 +1359,7 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 			try {
 				Thread.sleep(2 * 1000);
@@ -1432,9 +1450,6 @@ public class ReactorWatchlistEDPJunit
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals(""));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals(""));	
-			
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);				
-
 		}
 		finally
 		{
@@ -1485,8 +1500,6 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("FAKE"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("FAKE"));
 			
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
-
 		}
 		finally
 		{
@@ -1512,7 +1525,6 @@ public class ReactorWatchlistEDPJunit
 			ReactorChannelEvent chnlEvent;			
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
 			consumerReactor = new TestReactor();
 
 			Consumer consumer = new Consumer(consumerReactor);
@@ -1535,20 +1547,17 @@ public class ReactorWatchlistEDPJunit
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);	
-			
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
 
 			try {
 				Thread.sleep(2 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, false);	
+			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);	
 			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);
 
-			consumer.testReactor().dispatch(4, 8000);		
+			consumer.testReactor().dispatch(-1, 8000);		
 
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -1639,8 +1648,6 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);				
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
-
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);			
 			
 			consumer.testReactor().dispatch(-1, 8000);			
 
@@ -1661,18 +1668,16 @@ public class ReactorWatchlistEDPJunit
 			try {
 				Thread.sleep(5 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
 			long runtime = System.currentTimeMillis() + ((sleep - 5) * 1000);		        
 
 
 			try {
 				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
 
@@ -1686,7 +1691,6 @@ public class ReactorWatchlistEDPJunit
 			try {
 				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
 
@@ -1710,9 +1714,6 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());
 
 			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 2, sleep, runtime, false, false);
-			
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);
-
 		}
 		finally
 		{
@@ -1753,10 +1754,7 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			// since no RDMLoginRequest there is no user name or password, authentication will fail
-			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.INVALID_USAGE);
-			
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);			
-
+			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.INVALID_USAGE);		
 		}
 		finally
 		{
@@ -1777,9 +1775,8 @@ public class ReactorWatchlistEDPJunit
 			for (int j = 0; j < sleep; j++)
 			{
 				try {
-					Thread.sleep(800);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -1794,7 +1791,7 @@ public class ReactorWatchlistEDPJunit
 
 			if (loginReissue)
 			{
-				verifyAuthTokenEvent(consumerReactor, 10, true, false);				
+				verifyAuthTokenEvent(consumerReactor, 10, true, true);				
 			}
 			else // no watchlist, so we need to send the login reissue on behalf of the consumer
 			{
@@ -1823,7 +1820,6 @@ public class ReactorWatchlistEDPJunit
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
@@ -1838,6 +1834,7 @@ public class ReactorWatchlistEDPJunit
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void EDPConnectUserSpecifiedClientIdExpectedServiceDiscoveryRequestTest()
 	{
@@ -1882,9 +1879,6 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
-			
-			
-			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);	
 
 			TestReactorEvent event = null;
 			ReactorChannelEvent chnlEvent;		
@@ -1894,7 +1888,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());
 
-			verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 		}
 		finally
@@ -1903,6 +1897,7 @@ public class ReactorWatchlistEDPJunit
 		}	
 	}		
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void EDPConnectUserSpecifiedClientIdTest()
 	{
@@ -1944,7 +1939,7 @@ public class ReactorWatchlistEDPJunit
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 			
-			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);
+			//assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);
 			
 
 			TestReactorEvent event = null;
@@ -1955,7 +1950,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());
 
-			verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 		}
 		finally
@@ -1964,6 +1959,7 @@ public class ReactorWatchlistEDPJunit
 		}	
 	}	
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void EDPConnectErrorInvalidClientIdTest()
 	{
@@ -2024,7 +2020,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
-			verifyAuthTokenEvent(consumerReactor, 10, true, false);
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 		}
 		finally
@@ -2033,6 +2029,7 @@ public class ReactorWatchlistEDPJunit
 		}
 	}		
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void EDPConnectErrorIncorrectCredentialsTest()
 	{
@@ -2078,7 +2075,6 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.FAILURE);
 			// unauthorized
 			assertTrue(errorInfo.toString().contains("{\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid Application Credential.\" }"));
-			System.out.println(errorInfo);
 
 			// run it again with correct credentials.
 			consumerRole.rdmLoginRequest().userName().data(System.getProperty("edpUserName"));
@@ -2099,7 +2095,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
-			verifyAuthTokenEvent(consumerReactor, 10, true, false);	
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);	
 
 		}
 		finally
@@ -3305,7 +3301,6 @@ public class ReactorWatchlistEDPJunit
 				try {
 					Thread.sleep(1000 * i);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -3397,7 +3392,1088 @@ public class ReactorWatchlistEDPJunit
 		finally
 		{
 			consumerReactor.close();
-		}		
+		}
+	}
+	
+	@Test
+	public void EDPNoOAuthCredentialForEnablingSessionMgnt()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPNoOAuthCredentialForEnablingSessionMgnt <<<<<<<<<<\n");	
+		
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
 
-	}	
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = ReactorFactory.createReactorConnectOptions();
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected PARAMETER_INVALID", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "There is no user credential available for enabling session management.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPNoUserNameForEnablingSessionMgnt()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPNoUserNameForEnablingSessionMgnt <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.password().data(System.getProperty("edpPassword"));
+			oAuthCredential.clientId().data(System.getProperty("edpUserName"));
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = ReactorFactory.createReactorConnectOptions();
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "Failed to copy OAuth credential for enabling the session management; OAuth user name does not exist.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPNoPasswordForEnablingSessionMgnt()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPNoPasswordForEnablingSessionMgnt <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.userName().data(System.getProperty("edpUserName"));
+			oAuthCredential.clientId().data(System.getProperty("edpUserName"));
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = ReactorFactory.createReactorConnectOptions();
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "Failed to copy OAuth credential for enabling the session management; OAuth password does not exist.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void EDPNoClientIDForEnablingSessionMgnt()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPNoClientIDForEnablingSessionMgnt <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			consumerRole.clientId().clear();
+			oAuthCredential.userName().data(System.getProperty("edpUserName"));
+			oAuthCredential.password().data(System.getProperty("edpPassword"));
+
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = ReactorFactory.createReactorConnectOptions();
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "Failed to copy OAuth credential for enabling the session management; OAuth client ID does not exist.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_CallbackTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_CallbackTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.reactorOAuthCredentialEventCallback(
+					new ReactorOAuthCredentialEventCallback()
+					{
+						@Override
+						public int reactorOAuthCredentialEventCallback(
+								ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+							return 0;
+						}
+					}
+			);
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			/* Register another ReactorOAuthCredentialEventCallback */
+			oAuthCredential.reactorOAuthCredentialEventCallback(
+					new ReactorOAuthCredentialEventCallback()
+					{
+						@Override
+						public int reactorOAuthCredentialEventCallback(
+								ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+							return 0;
+						}
+					}
+			);
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The ReactorOAuthCredentialEventCallback of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			/* Register null callback for the existing token session */
+			oAuthCredential.reactorOAuthCredentialEventCallback(null);
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			/* Register another ReactorOAuthCredentialEventCallback */
+			oAuthCredential.reactorOAuthCredentialEventCallback(
+					new ReactorOAuthCredentialEventCallback()
+					{
+						@Override
+						public int reactorOAuthCredentialEventCallback(
+								ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+							return 0;
+						}
+					}
+			);
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The ReactorOAuthCredentialEventCallback of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_ClientIDTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_ClientIDTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			/* Set a different Client ID */
+			oAuthCredential.clientId().data("AnotherClientID");
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The Client ID of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.clientSecret().data("ClientSecret1");
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			oAuthCredential.clientSecret().data("ClientSecret2");
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The Client secret of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_PasswordTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_PasswordTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			oAuthCredential.password().data("AnotherPassword");
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The password of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			oAuthCredential.tokenScope().data("refinitiv.api");
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The token scope of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest <<<<<<<<<<\n");	
+		
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.takeExclusiveSignOnControl(true);
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			*/
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+			
+			connectInfo.enableSessionManagement(true);
+			rcOpts.connectionList().add(connectInfo);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			oAuthCredential.takeExclusiveSignOnControl(false);
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			assertEquals("Expected error text", "The takeExclusiveSignOnControl of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPConnectionUsingReactorOAuthCredentialOnlyTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPConnectionUsingReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			consumerRole.watchlistOptions().enableWatchlist(false); /* Disable the watchlist */
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.userName().data(System.getProperty("edpUserName"));
+			oAuthCredential.password().data(System.getProperty("edpPassword"));
+			oAuthCredential.clientId().data(System.getProperty("edpUserName"));
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			for(int i = 1 ;i < 65; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			assertEquals("Checks the number of AuthTokenEvent", 3, consumerReactor._countAuthTokenEventCallbackCalls);
+			
+			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
+			
+			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected Zero token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 0);
+			
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+			
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			consumerRole.watchlistOptions().enableWatchlist(true);
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			
+			oAuthCredential.userName().data(System.getProperty("edpUserName"));
+			oAuthCredential.password().data(System.getProperty("edpPassword"));
+			oAuthCredential.clientId().data(System.getProperty("edpUserName"));
+			
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			for(int i = 1 ;i < 65; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			assertEquals("Checks the number of AuthTokenEvent", 3, consumerReactor._countAuthTokenEventCallbackCalls);
+			
+			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
+			
+			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected Zero token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 0);
+			
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultiConnectionsConnectAndCloseWithSameCredentialTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultiConnectionsConnectAndCloseWithSameCredentialTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+			
+			TestReactor.enableReactorXmlTracing();
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			Consumer consumer2 = new Consumer(consumerReactor);
+			setupConsumer(consumer2, true);  
+
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2);
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+			rcOpts2.connectionList().get(0).reactorAuthTokenEventCallback(consumer2);	
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts2, consumer2.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			for(int i = 1 ;i < 65; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			/* This test must receives 2 login request and 4 login reissues*/
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 6);
+			
+			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
+			
+			assertTrue("Expected SUCCESS", consumer2.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected zero token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 0);
+			
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try {
+			
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+			
+			TestReactor.enableReactorXmlTracing();
+			consumerReactor = new TestReactor(reactorOptions);
+
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, false);
+			
+			Consumer consumer2 = new Consumer(consumerReactor);
+			setupConsumer(consumer2, false);
+			
+			ReactorOAuthCredential reactorOAutchCredential = ReactorFactory.createReactorOAuthCredential();
+			Buffer username = CodecFactory.createBuffer();
+			username.data(System.getProperty("edpUserName"));
+			reactorOAutchCredential.userName(username);
+			Buffer password = CodecFactory.createBuffer();
+			password.data(System.getProperty("edpPassword"));
+			reactorOAutchCredential.password(password);
+			reactorOAutchCredential.clientId(username);
+			
+			ConsumerRole consumerRole1 = (ConsumerRole)consumer.reactorRole();
+			consumerRole1.reactorOAuthCredential(reactorOAutchCredential);
+			
+			ConsumerRole consumerRole2 = (ConsumerRole)consumer2.reactorRole();
+			consumerRole2.reactorOAuthCredential(reactorOAutchCredential);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2);
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+			rcOpts2.connectionList().get(0).reactorAuthTokenEventCallback(consumer2);	
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole1, errorInfo) == ReactorReturnCodes.SUCCESS);
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts2, consumerRole2, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			for(int i = 1 ;i < 65; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			/* This test must receives 2 login request and 4 login reissues*/
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 6);
+			
+			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
+			
+			assertTrue("Expected SUCCESS", consumer2.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected zero token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 0);
+			
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try
+		{
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+			consumerReactor = new TestReactor();
+			
+			ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+			ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+			
+			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+			
+			oAuthCredentialRenewal.userName().data(System.getProperty("edpUserName"));
+			oAuthCredentialRenewal.password().data(System.getProperty("edpPassword"));
+			oAuthCredentialRenewal.clientId().data(System.getProperty("edpUserName"));
+			
+			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+			
+			assertTrue("Expected PARAMETER_INVALID", ret == ReactorReturnCodes.PARAMETER_INVALID);
+			assertEquals("Checking error text", "ReactorOAuthCredentialRenewalOptions.reactorAuthTokenEventCallback() not provided, aborting.", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest <<<<<<<<<<\n");	
+		
+		TestReactor consumerReactor = null;
+		
+		try
+		{
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+			consumerReactor = new TestReactor();
+			
+			ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+			ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+			
+			ReactorAuthTokenEventCallback callback = new ReactorAuthTokenEventCallback()
+			{
+				@Override
+				public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event) {
+					return 0;
+				}
+			};
+			
+			renewalOptions.reactorAuthTokenEventCallback(callback);
+			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+			
+			oAuthCredentialRenewal.userName().data("Fake");
+			oAuthCredentialRenewal.password().data("Fake");
+			oAuthCredentialRenewal.clientId().data("Fake");
+			
+			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+			
+			assertTrue("Faield to send the token request", ret == ReactorReturnCodes.FAILURE);
+			assertEquals("Checking error text", "Failed to request authentication token information. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid Application Credential.\" } ", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest <<<<<<<<<<\n");
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try
+		{
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+			consumerReactor = new TestReactor();
+			
+			ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+			ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+			
+			ReactorAuthTokenEventCallback callback = new ReactorAuthTokenEventCallback()
+			{
+				@Override
+				public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event) {
+					return 0;
+				}
+			};
+			
+			renewalOptions.reactorAuthTokenEventCallback(callback);
+			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+			
+			oAuthCredentialRenewal.userName().data(System.getProperty("edpUserName"));
+			oAuthCredentialRenewal.password().data(System.getProperty("edpPassword"));
+			oAuthCredentialRenewal.clientId().data(System.getProperty("edpUserName"));
+			oAuthCredentialRenewal.takeExclusiveSignOnControl(false);
+			
+			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
+			
+			assertTrue("Faield to send the token request", ret == ReactorReturnCodes.FAILURE);
+			assertEquals("Checking error text", "Failed to request authentication token information. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Session quota is reached.\" } ", errorInfo.error().text());
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@Test
+	public void EDPSubmitTokenRenewalWithoutTokenSessionTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalWithoutTokenSessionTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try
+		{
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+			consumerReactor = new TestReactor();
+			
+			ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+			ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+			
+			ReactorAuthTokenEventCallback callback = new ReactorAuthTokenEventCallback()
+			{
+				@Override
+				public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event) {
+					
+					assertTrue("Expected NO error", event.errorInfo().code() == ReactorReturnCodes.SUCCESS);
+					assertTrue("Get an access token", event.reactorAuthTokenInfo().accessToken().length() > 0 );
+					assertTrue("Get a refresh token", event.reactorAuthTokenInfo().refreshToken().length() > 0 );
+					return 0;
+				}
+			};
+			
+			renewalOptions.reactorAuthTokenEventCallback(callback);
+			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+			
+			oAuthCredentialRenewal.userName().data(System.getProperty("edpUserName"));
+			oAuthCredentialRenewal.password().data(System.getProperty("edpPassword"));
+			oAuthCredentialRenewal.clientId().data(System.getProperty("edpUserName"));
+			
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo) == ReactorReturnCodes.SUCCESS);
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void EDPSubmitCredentialInCallbackTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPSubmitCredentialInCallbackTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		
+		try
+		{
+			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
+
+			/* Create reactor. */
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			
+			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
+	
+			TestReactor.enableReactorXmlTracing();
+			consumerReactor = new TestReactor(reactorOptions);
+	
+			Consumer consumer = new Consumer(consumerReactor);
+			setupConsumer(consumer, true);
+			
+			ConsumerRole consumerRole = ((ConsumerRole)consumer.reactorRole());
+			LoginRequest loginRequest = consumerRole.rdmLoginRequest();
+					
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			oAuthCredential.password().data(loginRequest.password().toString());
+			
+			ReactorOAuthCredentialEventCallbackTest oAuthCredentialEventCallbackTest = new ReactorOAuthCredentialEventCallbackTest(oAuthCredential)
+			{
+				@Override
+				public int reactorOAuthCredentialEventCallback( ReactorOAuthCredentialEvent reactorOAuthCredentialEvent) {
+					
+					ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+					ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
+					
+					renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
+					oAuthCredentialRenewal.password().data(this._oauthCredentail.password().toString());
+					
+					assertTrue("Expected SUCCESS", reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo) == ReactorReturnCodes.SUCCESS);
+					
+					return 0;
+				}
+			};
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+			oAuthCredential.reactorOAuthCredentialEventCallback(oAuthCredentialEventCallbackTest);
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			RestClient restClient = consumerReactor._reactor._restClient;
+			
+			for(int i = 1 ;i < 10; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			/* Sends the token request using the password type to invalid the existing refresh token */
+			{
+				RestAuthOptions authOptions = new RestAuthOptions(true);
+				RestConnectOptions restConnectOptions = new RestConnectOptions(consumerReactor._reactor.reactorOptions());
+				ReactorAuthTokenInfo authTokenInfo = new ReactorAuthTokenInfo();
+				
+				authOptions.username(loginRequest.userName().toString());
+				authOptions.clientId(consumerRole.clientId().toString());
+				authOptions.password(loginRequest.password().toString());
+				
+				assertTrue("Expected SUCCESS", restClient.getAuthAccessTokenInfo(authOptions, restConnectOptions, authTokenInfo, true, errorInfo) == ReactorReturnCodes.SUCCESS);
+			}
+			
+			for(int i = 1 ;i < 60; i++)
+			{
+				consumerReactor.dispatch(-1, 1000);
+			}
+			
+			/* 3 success and 1 fails */
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 4);
+
+		}
+		finally
+		{
+			consumerReactor.close();
+		}
+	}
 }

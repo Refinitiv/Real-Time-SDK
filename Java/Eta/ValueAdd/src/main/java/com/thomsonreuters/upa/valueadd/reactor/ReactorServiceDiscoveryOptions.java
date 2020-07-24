@@ -21,6 +21,7 @@ public class ReactorServiceDiscoveryOptions
 	private Buffer _proxyDomain; // Needed for NTLM and Kerberos authentication protocols
 	private Buffer _proxyLocalHostName;
 	private Buffer _proxyKrb5ConfigFile;
+	private boolean	_takeExclusiveSignOnControl;
 	
 	ReactorServiceDiscoveryOptions ()
 	{
@@ -38,6 +39,7 @@ public class ReactorServiceDiscoveryOptions
 		_proxyDomain = CodecFactory.createBuffer();
 		_proxyLocalHostName = CodecFactory.createBuffer();
 		_proxyKrb5ConfigFile = CodecFactory.createBuffer();
+		_takeExclusiveSignOnControl = true;
 	}
 	
 	public void clear()
@@ -56,6 +58,7 @@ public class ReactorServiceDiscoveryOptions
 		_proxyDomain.clear();
 		_proxyLocalHostName.clear();
 		_proxyKrb5ConfigFile.clear();
+		_takeExclusiveSignOnControl = true;
 	}
 	
 	public int copy(ReactorServiceDiscoveryOptions dest)
@@ -399,6 +402,25 @@ public class ReactorServiceDiscoveryOptions
     	return _userSpecObject;
     }
 	
+    /**
+     * The exclusive sign on control to force sign-out.
+     * 
+     * @return - true to force sign-out using the same credential otherwise false.
+     */
+    public boolean takeExclusiveSignOnControl()
+    {
+    	return _takeExclusiveSignOnControl;
+    }
+    
+    /**
+     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     *
+     * @param takeExclusiveSignOnControl the exclusive sign on control.
+     */
+    public void takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl)
+    {
+    	_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+    }
 }
 
 

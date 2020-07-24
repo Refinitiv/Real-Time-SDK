@@ -134,6 +134,7 @@ void rsslQueryTransportLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
 		pVerInfo->productDate = rsslDeltaDate;
 		pVerInfo->internalVersion = rsslVersion;
 		pVerInfo->productVersion = rsslPackage;
+		pVerInfo->interfaceVersion = rsslInterfaceVersion;
 	}
 }
 
@@ -2002,6 +2003,60 @@ RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
 	return ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, info, error));
+}
+
+RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslError *error)
+{
+	rsslChannelImpl *rsslChnlImpl = 0;
+	RsslChannelInfo info;
+	RsslRet ret;
+
+	if (!initialized)
+	{
+		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelInfo() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
+		return RSSL_RET_INIT_NOT_INITIALIZED;
+	}
+
+	if (RSSL_NULL_PTR(chnl, "rsslGetChannelInfo", "chnl", error))
+		return RSSL_RET_FAILURE;
+
+	if (RSSL_NULL_PTR(stats, "rsslGetChannelInfo", "stats", error))
+		return RSSL_RET_FAILURE;
+
+	if (chnl->state != RSSL_CH_STATE_ACTIVE)
+	{
+		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0007 Only Channels in RSSL_CH_STATE_ACTIVE can get channel information.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslChnlImpl = (rsslChannelImpl*)chnl;
+
+	if (chnl->connectionType == RSSL_CONN_TYPE_SOCKET || chnl->connectionType == RSSL_CONN_TYPE_ENCRYPTED || chnl->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		return rsslSocketGetChannelStats(rsslChnlImpl, stats, error);
+	}
+	if (chnl->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST)
+	{
+		memset((void*)&info, 0, sizeof(RsslChannelInfo));
+		ret = ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, &info, error));
+		if (ret == RSSL_RET_SUCCESS)
+		{
+			stats->multicastStats = info.multicastStats;
+			return RSSL_RET_SUCCESS;
+		}
+		else
+		{
+			return RSSL_RET_SUCCESS;
+		}
+	}
+	else
+	{
+		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
 }
 
 RsslRet rsslGetServerInfo( RsslServer *srvr, RsslServerInfo *info, RsslError *error)

@@ -254,20 +254,21 @@ typedef RwfBuffer RsslBuffer;
 
 /** 
  * @brief Library Version Information structure to be populated with library version info
- * @see rsslClearLibraryVersionInfo, RSSL_INIT_LIBRARY_VERSION_INFO, rsslQueryDataLibraryVersion, rsslQueryMessagesLibraryVersion, rsslQueryTransportLibraryVersion
+ * @see rsslClearLibraryVersionInfo, RSSL_INIT_LIBRARY_VERSION_INFO, rsslQueryDataLibraryVersion, rsslQueryMessagesLibraryVersion, rsslQueryTransportLibraryVersion, rsslQueryJsonConverterLibraryVersion
  */
 typedef struct
 {
 	char*		productVersion;			/*!< Product Release and Load information */
 	char*		internalVersion;		/*!< Internal Node information, useful for raising questions or reporting issues */
 	char*		productDate;			/*!< Date library was produced for product release */
+	char*		interfaceVersion;		/*!< Interface version information */
 } RsslLibraryVersionInfo;
 
 /**
  * @brief Static RsslLibraryVersionInfo initializer
  * @see RsslLibraryVersionInfo, rsslClearLibraryVersionInfo
  **/
-#define RSSL_INIT_LIBRARY_VERSION_INFO { 0, 0, 0 }
+#define RSSL_INIT_LIBRARY_VERSION_INFO { 0, 0, 0, 0 }
 
 /**
  * @brief Clears RsslLibraryVersionInfo 
@@ -278,7 +279,8 @@ RTR_C_INLINE void rsslClearLibraryVersionInfo(RsslLibraryVersionInfo *pLibInfo)
 {
 	pLibInfo->internalVersion = 0;
 	pLibInfo->productDate = 0;
-	pLibInfo->productVersion = 0;	
+	pLibInfo->productVersion = 0;
+	pLibInfo->interfaceVersion = 0;
 }
 
 /**

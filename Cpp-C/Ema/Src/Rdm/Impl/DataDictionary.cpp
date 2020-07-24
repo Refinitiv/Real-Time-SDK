@@ -143,6 +143,11 @@ bool DataDictionary::hasEntry(Int16 fieldId) const
 	return _pImpl->hasEntry(fieldId);
 }
 
+void DataDictionary::getEntry(Int16 fieldId, DictionaryEntry& entry) const
+{
+	_pImpl->getEntry(fieldId, entry);
+}
+
 const DictionaryEntry& DataDictionary::getEntry(Int16 fieldId) const
 {
 	return _pImpl->getEntry(fieldId);
@@ -151,6 +156,11 @@ const DictionaryEntry& DataDictionary::getEntry(Int16 fieldId) const
 bool DataDictionary::hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const
 {
 	return _pImpl->hasEntry(fieldName);
+}
+
+void DataDictionary::getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
+{
+	_pImpl->getEntry(fieldName, entry);
 }
 
 const DictionaryEntry& DataDictionary::getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const

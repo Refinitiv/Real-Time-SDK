@@ -276,6 +276,12 @@ public :
 	*/
 	GenericMsg& extendedHeader( const EmaBuffer& buffer );
 
+	/** Specifies ProviderDriven.
+		@param[in] providerDriven specifies ProviderDriven
+		@return reference to this object
+	*/
+	GenericMsg& providerDriven(bool providerDriven = true);
+
 	/** Specifies Complete.
 		\remark must be set to true for one part generic message
 		@param[in] complete specifies if this is the last part of the multi part generic message

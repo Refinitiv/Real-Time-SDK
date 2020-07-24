@@ -93,6 +93,13 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		serviceDiscoveryUrlInt(serviceDiscoveryUrl);
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl) 
+	{
+		takeExclusiveSignOnControlInt(takeExclusiveSignOnControl);
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig host(String host)
@@ -346,5 +353,4 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
-	
 }

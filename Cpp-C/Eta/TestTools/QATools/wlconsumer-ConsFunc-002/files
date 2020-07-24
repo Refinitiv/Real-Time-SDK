@@ -1,0 +1,6 @@
+# file,location
+rsslWatchlistConsumer.c,Applications/Examples/WatchlistConsumer
+watchlistConsumerConfig.c,Applications/Examples/WatchlistConsumer
+watchlistConsumerConfig.h,Applications/Examples/WatchlistConsumer
+,Applications/Examples/VACommon
+

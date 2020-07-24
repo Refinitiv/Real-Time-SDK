@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.41_TREP_20.31		03/19/2020
-!	* Modified 03/19/2020 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.41.
+!   Version	 4.20.42_TREP_20.51		06/02/2020
+!	* Modified 06/02/2020 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.42.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.41_TREP
+!   Version: 4.20.42_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.41
-!tag Build     6
-!tag Date      19-Mar-2020
+!tag Version   4.20.42
+!tag Build     1
+!tag Date      13-May-2020
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -8387,7 +8387,8 @@ NO_L2_ROWS "NUMBER LEVEL2 ROWS"  3424  NULL        INTEGER            10  UINT64
 !
 OR_RNK_RUL "ORDER RANK RULE"     3425  NULL        ENUMERATED    5 ( 4 )  ENUM             2
 !
-! Indicating the criterion available and algorithm required for order ranking
+! The criterion available and algorithm required to generate an orderbook or a similar 
+! visual display of the depth of market information as published by the venue.
 !
 ORDER_ID   "ORDER ID"            3426  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 ORDER_PRC  "ORDER PRICE"         3427  NULL        PRICE              17  REAL64           9
@@ -8637,7 +8638,7 @@ BID_SUPP10 "BID SUPPLIER 10"     3555  NULL        ALPHANUMERIC        4  RMTES_
 !
 ACCRD_INT  "ACCRD INT"           3557  NULL        PRICE              17  REAL64           9
 !
-! Accrued interest
+! Inflation-adjusted accrued interest.
 !
 ACVOL_TIM1 "ACVOL TIM1"          3558  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -17255,7 +17256,7 @@ PREV_RIC   "PREVIOUS RIC"        6375  NULL        ALPHANUMERIC       32  ASCII_
 !
 MBP_RIC    "MKT BY PRC RIC"      6376  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! RIC of the legacy market by price aggregate order book.
+! RIC of the limited market by price aggregate order book.
 !
 OFF_CL_TIM "OFFCL CLS TIME"      6377  NULL        TIME_SECONDS        8  TIME             8
 !
@@ -17748,7 +17749,7 @@ CON_ORD_ID "CONTRA ORDER ID"     6514  NULL        ALPHANUMERIC       24  RMTES_
 !
 MBO_RIC    "MKT BY ORD RIC"      6515  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! Traditional MBO RIC for MarketFeed IDN
+! RIC of the limited market by order book.
 !
 BOOK_STATE "ORDER BOOK STATE"    6516  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -30174,11 +30175,11 @@ TP_MP_AVPC "TOP MP ACVOL PCT"   10686  NULL        PRICE              17  REAL64
 !
 RFQ_BYLD   "RFQ BID YLD"        10687  NULL        PRICE              17  REAL64           9
 !
-! RFQ ASK Yield.
+! RFQ BID Yield.
 !
 RFQ_AYLD   "RFQ ASK YLD"        10688  NULL        PRICE              17  REAL64           9
 !
-! RFQ BID Yield.
+! RFQ ASK Yield.
 !
 ASIACL_MID "ASIA CLOSE MID"     10689  NULL        PRICE              17  REAL64           9
 !
@@ -30225,7 +30226,7 @@ RON        "RON"                10699  NULL        PRICE              17  REAL64
 !
 ! Research Octane Number. A measure of the detonative quality of gasoline.
 !
-LEG3_OP_DT "DELTA FOR OPTION3 " 10700  NULL        PRICE              17  REAL64           9
+LEG3_OP_DT "DELTA FOR OPTION3"  10700  NULL        PRICE              17  REAL64           9
 !
 ! Delta used to calculate the quantity of futures used to cover the 3rd option or 3rd 
 ! option in an option spread.
@@ -30573,45 +30574,162 @@ ZYLD_PCHG  "ZERO YLD PCT CHG"   10776  NULL        PRICE              17  REAL64
 !
 ! Zero Yield Percentage Change.
 !
-PRERL1786  "PRED REAL 1786"     10777  NULL        PRICE              17  REAL64           9
-PRERL1787  "PRED REAL 1787"     10778  NULL        PRICE              17  REAL64           9
-PRERL1788  "PRED REAL 1788"     10779  NULL        PRICE              17  REAL64           9
-PRERL1789  "PRED REAL 1789"     10780  NULL        PRICE              17  REAL64           9
-PRERL1790  "PRED REAL 1790"     10781  NULL        PRICE              17  REAL64           9
-PRERL1791  "PRED REAL 1791"     10782  NULL        PRICE              17  REAL64           9
-PRERL1792  "PRED REAL 1792"     10783  NULL        PRICE              17  REAL64           9
-PRERL1793  "PRED REAL 1793"     10784  NULL        PRICE              17  REAL64           9
-PRERL1794  "PRED REAL 1794"     10785  NULL        PRICE              17  REAL64           9
-PRERL1795  "PRED REAL 1795"     10786  NULL        PRICE              17  REAL64           9
-PRERL1796  "PRED REAL 1796"     10787  NULL        PRICE              17  REAL64           9
-PRERL1797  "PRED REAL 1797"     10788  NULL        PRICE              17  REAL64           9
-PRERL1798  "PRED REAL 1798"     10789  NULL        PRICE              17  REAL64           9
-PRERL1799  "PRED REAL 1799"     10790  NULL        PRICE              17  REAL64           9
-PRERL1800  "PRED REAL 1800"     10791  NULL        PRICE              17  REAL64           9
-PRERL1801  "PRED REAL 1801"     10792  NULL        PRICE              17  REAL64           9
-PRERL1802  "PRED REAL 1802"     10793  NULL        PRICE              17  REAL64           9
-PRERL1803  "PRED REAL 1803"     10794  NULL        PRICE              17  REAL64           9
-PRERL1804  "PRED REAL 1804"     10795  NULL        PRICE              17  REAL64           9
-PRERL1805  "PRED REAL 1805"     10796  NULL        PRICE              17  REAL64           9
-PRERL1806  "PRED REAL 1806"     10797  NULL        PRICE              17  REAL64           9
-PRERL1807  "PRED REAL 1807"     10798  NULL        PRICE              17  REAL64           9
-PRERL1808  "PRED REAL 1808"     10799  NULL        PRICE              17  REAL64           9
-PRERL1809  "PRED REAL 1809"     10800  NULL        PRICE              17  REAL64           9
-PRERL1810  "PRED REAL 1810"     10801  NULL        PRICE              17  REAL64           9
-PRERL1811  "PRED REAL 1811"     10802  NULL        PRICE              17  REAL64           9
-PRERL1812  "PRED REAL 1812"     10803  NULL        PRICE              17  REAL64           9
-PRERL1813  "PRED REAL 1813"     10804  NULL        PRICE              17  REAL64           9
-PRERL1814  "PRED REAL 1814"     10805  NULL        PRICE              17  REAL64           9
-PRERL1815  "PRED REAL 1815"     10806  NULL        PRICE              17  REAL64           9
-PRERL1816  "PRED REAL 1816"     10807  NULL        PRICE              17  REAL64           9
-PRERL1817  "PRED REAL 1817"     10808  NULL        PRICE              17  REAL64           9
-PRERL1818  "PRED REAL 1818"     10809  NULL        PRICE              17  REAL64           9
-PRERL1819  "PRED REAL 1819"     10810  NULL        PRICE              17  REAL64           9
-PRERL1820  "PRED REAL 1820"     10811  NULL        PRICE              17  REAL64           9
-PRERL1821  "PRED REAL 1821"     10812  NULL        PRICE              17  REAL64           9
-PRERL1822  "PRED REAL 1822"     10813  NULL        PRICE              17  REAL64           9
-PRERL1823  "PRED REAL 1823"     10814  NULL        PRICE              17  REAL64           9
-PRERL1824  "PRED REAL 1824"     10815  NULL        PRICE              17  REAL64           9
+STL_IV_SPD "STL IV SPRD"        10777  NULL        PRICE              17  REAL64           9
+!
+! Settlement Implied Volatility to ATM Settlement Implied Volatility Spread.
+!
+ADJ_G_ASK  "ADJ GROSS ASK"      10778  NULL        PRICE              17  REAL64           9
+!
+! Adjusted Gross Ask Price.
+!
+ADJ_G_BID  "ADJ GROSS BID"      10779  NULL        PRICE              17  REAL64           9
+!
+! Adjusted Gross Bid Price.
+!
+ADJ_G_MID  "ADJ GROSS MID"      10780  NULL        PRICE              17  REAL64           9
+!
+! Adjusted Gross Mid Price.
+!
+UADJ_G_ASK "UADJ GROSS ASK"     10781  NULL        PRICE              17  REAL64           9
+!
+! Unadjusted Gross Ask Price.
+!
+UADJ_G_BID "UADJ GROSS BID"     10782  NULL        PRICE              17  REAL64           9
+!
+! Unadjusted Gross Bid Price.
+!
+UADJ_G_MID "UADJ GROSS MID"     10783  NULL        PRICE              17  REAL64           9
+!
+! Unadjusted Gross Mid Price.
+!
+HOUR_VAL1  "HOUR VALUE 1"       10784  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 1st hour of the day.
+!
+HOUR_VAL2  "HOUR VALUE 2"       10785  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 2nd hour of the day.
+!
+HOUR_VAL3  "HOUR VALUE 3"       10786  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 3rd hour of the day.
+!
+HOUR_VAL4  "HOUR VALUE 4"       10787  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 4th hour of the day.
+!
+HOUR_VAL5  "HOUR VALUE 5"       10788  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 5th hour of the day.
+!
+HOUR_VAL6  "HOUR VALUE 6"       10789  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 6th hour of the day.
+!
+HOUR_VAL7  "HOUR VALUE 7"       10790  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 7h hour of the day.
+!
+HOUR_VAL8  "HOUR VALUE 8"       10791  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 8th hour of the day.
+!
+HOUR_VAL9  "HOUR VALUE 9"       10792  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 9th hour of the day.
+!
+HOUR_VAL10 "HOUR VALUE 10"      10793  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 10th hour of the day.
+!
+HOUR_VAL11 "HOUR VALUE 11"      10794  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 11th hour of the day.
+!
+HOUR_VAL12 "HOUR VALUE 12"      10795  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 12th hour of the day.
+!
+HOUR_VAL13 "HOUR VALUE 13"      10796  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 13th hour of the day.
+!
+HOUR_VAL14 "HOUR VALUE 14"      10797  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 14th hour of the day.
+!
+HOUR_VAL15 "HOUR VALUE 15"      10798  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 15th hour of the day.
+!
+HOUR_VAL16 "HOUR VALUE 16"      10799  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 16th hour of the day.
+!
+HOUR_VAL17 "HOUR VALUE 17"      10800  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 17th hour of the day.
+!
+HOUR_VAL18 "HOUR VALUE 18"      10801  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 18th hour of the day.
+!
+HOUR_VAL19 "HOUR VALUE 19"      10802  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 19th hour of the day.
+!
+HOUR_VAL20 "HOUR VALUE 20"      10803  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 20th hour of the day.
+!
+HOUR_VAL21 "HOUR VALUE 21"      10804  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 21st hour of the day.
+!
+HOUR_VAL22 "HOUR VALUE 22"      10805  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 22nd hour of the day.
+!
+HOUR_VAL23 "HOUR VALUE 23"      10806  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 23rd hour of the day.
+!
+HOUR_VAL24 "HOUR VALUE 24"      10807  NULL        PRICE              17  REAL64           9
+!
+! The hourly value for the 24th hour of the day.
+!
+DISC_MID1  "DISCOUNT MID1"      10808  NULL        PRICE              17  REAL64           9
+!
+! Mid Discount.
+!
+12M_ATM_IM "12 MTH ATM IM"      10809  NULL        PRICE              17  REAL64           9
+!
+! 12 Month ATM Volatility Index.
+!
+18M_ATM_IM "18 MTH ATM IM"      10810  NULL        PRICE              17  REAL64           9
+!
+! 18 Month ATM Volatility Index.
+!
+24M_ATM_IM "24 MTH ATM IM"      10811  NULL        PRICE              17  REAL64           9
+!
+! 24 Month ATM Volatility Index.
+!
+6M_ATM_IM  "6 MTH ATM IM"       10812  NULL        PRICE              17  REAL64           9
+!
+! 6 Month ATM Volatility Index.
+!
+9M_ATM_IM  "9 MTH ATM IM"       10813  NULL        PRICE              17  REAL64           9
+!
+! 9 Month ATM Volatility Index.
+!
+DELTA_EXCH "EXCHANGE DELTA"     10814  NULL        PRICE              17  REAL64           9
+!
+! Options delta provided by Exchange /Clearing house.
+!
+HST_PC_RTO "HST PUT CALL RTO"   10815  NULL        PRICE              17  REAL64           9
+!
+! Historical Put/Call ratio by volume.
+!
 PRERL1825  "PRED REAL 1825"     10816  NULL        PRICE              17  REAL64           9
 PRERL1826  "PRED REAL 1826"     10817  NULL        PRICE              17  REAL64           9
 PRERL1827  "PRED REAL 1827"     10818  NULL        PRICE              17  REAL64           9
@@ -32087,7 +32205,10 @@ CAL_CODE_N "CAL CODE NATIVE"    11879  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! Native Trading Calendar Code.
 !
-PRE_10T155 "PRED 10 TXT 155"    11880  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+MBS_PL_NUM "MBS POOL NUM"       11880  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! MBS Pool Number.
+!
 PRE_10T156 "PRED 10 TXT 156"    11881  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T157 "PRED 10 TXT 157"    11882  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T158 "PRED 10 TXT 158"    11883  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -35465,7 +35586,7 @@ UNIT_STAT  "UNIT STATUS"        13609  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! The status of the processing unit in the refinery
 !
-PRE_2ET289 "PRED 2 ET 289"      13610  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+DRK_EXID   "DARK TRD EXCH ID"   13610  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 PRE_2ET290 "PRED 2 ET 290"      13611  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET291 "PRED 2 ET 291"      13612  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET292 "PRED 2 ET 292"      13613  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -37620,7 +37741,10 @@ REF_BID_NS "REF BID TM NS"      14675  NULL        INTEGER            15  TIME  
 !
 ! Reference Bid Time.
 !
-PRE_246_NS "PRED TIME NS 246"   14676  NULL        INTEGER            15  TIME             8
+OB_TRD_NS  "ORD BOOK TRD TM NS" 14676  NULL        INTEGER            15  TIME             8
+!
+! Orderbook trade time.
+!
 PRE_247_NS "PRED TIME NS 247"   14677  NULL        INTEGER            15  TIME             8
 PRE_248_NS "PRED TIME NS 248"   14678  NULL        INTEGER            15  TIME             8
 PRE_249_NS "PRED TIME NS 249"   14679  NULL        INTEGER            15  TIME             8

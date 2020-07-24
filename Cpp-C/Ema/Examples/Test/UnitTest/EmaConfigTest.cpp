@@ -32,6 +32,11 @@ public:
 		SCOPED_TRACE("EmaConfigTest SetUp");
 		if (hasRun == true)
 			return;
+
+		// The default path uses when creating Config instance
+		// and was set an empty path to EmaConfigTest.xml or a directory
+		EmaConfigBaseImpl::setDefaultConfigFileName(emaConfigXMLFileNameTest);
+
 		EmaString workingDir;
 		ASSERT_EQ(getCurrentDir(workingDir), true)
 			<< "Error: failed to load config file from current working dir "
@@ -335,12 +340,27 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<EmaString>( "ConsumerGroup|ConsumerList|Consumer.Check_Multiple_Occurrences|ChannelSet", v );
 	EXPECT_TRUE( debugResult && v.size() == 1 && v[0] == "CS2" ) << "correctly extracted only last ChannelSet value (into vector) when both Channel and Channel_Sets configured";
 
+	// Checks all values from Server:ServerSharedSocket
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_1|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Server_1|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_2|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult == false && uintValue == 0) << "extracting Server_2|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_11|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult == false && uintValue == 0) << "extracting Server_11|ServerSharedSocket from EmaConfig.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|ServerSharedSocket", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_12|ServerSharedSocket from EmaConfig.xml";
+
+
 	config.configErrors().printErrors(OmmLoggerClient::WarningEnum);
 }
 
 // http connection supported on windows only
 #ifdef WIN32
-TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
+TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 {
 	Map outermostMap, innerMap;
 	ElementList elementList;
@@ -363,6 +383,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 			.addInt("DispatchTimeoutApiThread", 60)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 300)
+			.addInt("MaxEventsInPool", 100)
 			.addInt("ReconnectAttemptLimit", 1)
 			.addInt("ReconnectMinDelay", 500)
 			.addInt("ReconnectMaxDelay", 500)
@@ -459,6 +480,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE( activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 		EXPECT_TRUE( activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+		EXPECT_TRUE( activeConfig.maxEventsInPool == 100) << "maxEventsInPool , 100";
 		EXPECT_TRUE( activeConfig.reconnectAttemptLimit == 1) << "reconnectAttemptLimit , 1";
 		EXPECT_TRUE( activeConfig.reconnectMinDelay == 500) << "reconnectMinDelay , 500";
 		EXPECT_TRUE( activeConfig.reconnectMaxDelay == 500) << "reconnectMaxDelay , 500";
@@ -499,7 +521,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 }
 #endif
 
-TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigWS)
+TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 {
 	Map outermostMap, innerMap;
 	ElementList elementList;
@@ -676,7 +698,186 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigWS)
 	}
 }
 
-TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
+TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
+{
+	Map outermostMap, innerMap;
+	ElementList elementList;
+
+	try
+	{
+		elementList.addAscii("DefaultConsumer", "Consumer_1");
+
+		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
+			ElementList()
+			.addAscii("Channel", "Channel_1")
+			.addAscii("Logger", "Logger_1")
+			.addAscii("Dictionary", "Dictionary_1")
+			.addUInt("ItemCountHint", 5000)
+			.addUInt("ServiceCountHint", 2000)
+			.addUInt("ObeyOpenWindow", 1)
+			.addUInt("PostAckTimeout", 1200)
+			.addUInt("RequestTimeout", 2400)
+			.addUInt("MaxOutstandingPosts", 9999)
+			.addInt("DispatchTimeoutApiThread", 60)
+			.addUInt("CatchUnhandledException", 1)
+			.addUInt("MaxDispatchCountApiThread", 300)
+			.addInt("ReconnectAttemptLimit", 1)
+			.addInt("ReconnectMinDelay", 500)
+			.addInt("ReconnectMaxDelay", 500)
+			.addAscii("XmlTraceFileName", "MyXMLTrace")
+			.addInt("XmlTraceMaxFileSize", 50000000)
+			.addUInt("XmlTraceToFile", 0)
+			.addUInt("XmlTraceToStdout", 1)
+			.addUInt("XmlTraceToMultipleFiles", 1)
+			.addUInt("XmlTraceWrite", 1)
+			.addUInt("XmlTraceRead", 1)
+			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTraceHex", 1)
+			.addUInt("XmlTraceDump", 1)
+			.addUInt("CatchUnknownJsonFids", 0)
+			.addUInt("CatchUnknownJsonKeys", 1)
+			.addUInt("CloseChannelFromConverterFailure", 0)
+			.addUInt("DefaultServiceID", 1)
+			.addUInt("JsonExpandedEnumFields", 1)
+			.addUInt("OutputBufferSize", 4294967296)
+			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
+
+		elementList.addMap("ConsumerList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("ChannelType", RSSL_CONN_TYPE_ENCRYPTED)
+			.addEnum("EncryptedProtocolType", RSSL_CONN_TYPE_WEBSOCKET)
+			.addAscii("InterfaceName", "localhost")
+			.addEnum("CompressionType", 1)
+			.addUInt("GuaranteedOutputBuffers", 8000)
+			.addUInt("NumInputBuffers", 7777)
+			.addUInt("SysRecvBufSize", 150000)
+			.addUInt("SysSendBufSize", 200000)
+			.addUInt("ConnectionPingTimeout", 30000)
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "14002")
+			.addUInt("TcpNodelay", 0)
+			.addUInt("InitializationTimeout", 96)
+			.addAscii("ObjectName", "MyHttpObject")
+			.addUInt("WsMaxMsgSize", 100500)
+			.addAscii("WsProtocols", "rssl.json.v2, rssl.rwf, tr_json2")
+			.addUInt("MsgKeyInUpdates", 1).complete()).complete();
+
+		elementList.addMap("ChannelList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Logger_1", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("LoggerType", 0)
+			.addAscii("FileName", "logFile")
+			.addEnum("LoggerSeverity", 3).complete()).complete();
+
+		elementList.addMap("LoggerList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+		elementList.clear();
+
+		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("DictionaryType", 0)
+			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
+			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+
+		elementList.addMap("DictionaryList", innerMap);
+
+		elementList.complete();
+
+		outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+
+		outermostMap.complete();
+
+		SCOPED_TRACE("Must load data dictionary files from current working location\n");
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap), true);
+		//OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap));
+
+		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
+		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
+		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
+		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
+		EXPECT_TRUE(activeConfig.postAckTimeout == 1200) << "postAckTimeout , 1200";
+		EXPECT_TRUE(activeConfig.requestTimeout == 2400) << "requestTimeout , 2400";
+		EXPECT_TRUE(activeConfig.maxOutstandingPosts == 9999) << "maxOutstandingPosts , 9999";
+		EXPECT_TRUE(activeConfig.dispatchTimeoutApiThread == 60) << "dispatchTimeoutApiThread , 60";
+		EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
+		EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
+		EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+		EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 1) << "reconnectAttemptLimit , 1";
+		EXPECT_TRUE(activeConfig.reconnectMinDelay == 500) << "reconnectMinDelay , 500";
+		EXPECT_TRUE(activeConfig.reconnectMaxDelay == 500) << "reconnectMaxDelay , 500";
+		EXPECT_TRUE(activeConfig.xmlTraceFileName == "MyXMLTrace") << "xmlTraceFileName == \"MyXMLTrace\"";
+		EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 50000000) << "xmlTraceMaxFileSize , 50000000";
+		EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
+		EXPECT_TRUE(activeConfig.xmlTraceToStdout == 1) << "xmlTraceToStdout , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceToMultipleFiles == 1) << "xmlTraceToMultipleFiles , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceWrite == 1) << "xmlTraceWrite , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
+		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceDump == 1) << "xmlTraceDump , 1";
+		EXPECT_TRUE(activeConfig.catchUnknownJsonFids == 0) << "catchUnknownJsonFids , 0";
+		EXPECT_TRUE(activeConfig.catchUnknownJsonKeys == 1) << "catchUnknownJsonKeys , 1";
+		EXPECT_TRUE(activeConfig.closeChannelFromFailure == 0) << "closeChannelFromConverterFailure , 0";
+		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
+		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
+		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
+		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->sysRecvBufSize == 150000) << "sysRecvBufSize , 150000";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->sysSendBufSize == 200000) << "sysSendBufSize , 200000";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "connectionType , ChannelType::RSSL_CONN_TYPE_ENCRYPTED";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET) << "encryptedConnectionType , EncryptedProtocolType::RSSL_WEBSOCKET";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->hostName == "localhost") << "EncryptedChannelConfig::hostname , \"localhost\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "EncryptedChannelConfig::serviceName , \"14002\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->objectName == "MyHttpObject") << "EncryptedChannelConfig::ObjectName , \"MyHttpObject\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->initializationTimeout == 96) << "SocketChannelConfig::initializationTimeout , 96";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->wsMaxMsgSize == 100500) << "SocketChannelConfig::wsMaxMsgSize , 100500";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->wsProtocols == "rssl.json.v2, rssl.rwf, tr_json2") << "SocketChannelConfig::wsProtocols , \"rssl.json.v2, rssl.rwf, tr_json2\"";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
+		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
+	}
+	catch (const OmmException& excp)
+	{
+		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+		EXPECT_TRUE(false) << "Unexpected exception in testLoadingConfigurationFromProgrammaticConfigHttp()";
+	}
+}
+
+TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 {
 	Map outermostMap, innerMap;
 	ElementList elementList;
@@ -698,6 +899,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 300)
 			.addUInt("MaxDispatchCountUserThread", 700)
+			.addInt("MaxEventsInPool", 300)
 			.addAscii("XmlTraceFileName", "MyXMLTrace")
 			.addInt("XmlTraceMaxFileSize", 50000000)
 			.addUInt("XmlTraceToFile", 0)
@@ -806,6 +1008,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 		EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+		EXPECT_TRUE(activeConfig.maxEventsInPool == 300) << "maxEventsInPool , 300";
 		EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 10) << "reconnectAttemptLimit , 10";
 		EXPECT_TRUE(activeConfig.reconnectMinDelay == 4444) << "reconnectMinDelay , 4444";
 		EXPECT_TRUE(activeConfig.reconnectMaxDelay == 7777) << "reconnectMaxDelay , 7777";
@@ -1037,6 +1240,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 900)
 			.addUInt("MaxDispatchCountUserThread", 900)
+			.addInt("MaxEventsInPool", 900)
 			.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 			.addInt("XmlTraceMaxFileSize", 70000000)
 			.addUInt("XmlTraceToFile", 1)
@@ -1135,6 +1339,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 		EXPECT_TRUE( activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 		EXPECT_TRUE( activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+		EXPECT_TRUE( activeConfig.maxEventsInPool == 900) << "maxEventsInPool , 900";
 		EXPECT_TRUE( activeConfig.pipePort == 9696) << "pipePort , 9696";
 		EXPECT_TRUE( activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 		EXPECT_TRUE( activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
@@ -1926,11 +2131,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addUInt("FieldDictionaryFragmentSize", 2000)
 				.addUInt("EnumTypeFragmentSize", 1000)
 				.addUInt("RefreshFirstRequired", 0)
+				.addUInt("EnforceAckIDValidation", 0)
 				.addUInt("RequestTimeout", 2400)
 				.addInt("DispatchTimeoutApiThread", 60)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 300)
 				.addUInt("MaxDispatchCountUserThread", 700)
+				.addInt("MaxEventsInPool", 600)
 				.addAscii("XmlTraceFileName", "MyXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 50000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2172,6 +2379,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.acceptMessageSameKeyButDiffStream == true) << "acceptMessageSameKeyButDiffStream , true";
 			EXPECT_TRUE(activeConfig.acceptMessageThatChangesService == true) << "acceptMessageThatChangesService , true";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
+			EXPECT_TRUE(activeConfig.getEnforceAckIDValidation() == false) << "enforceAckIDValidation , false";
 			EXPECT_TRUE(activeConfig.getMaxFieldDictFragmentSize() == 2000) << "maxFieldDictFragmentSize , 2000";
 			EXPECT_TRUE(activeConfig.getMaxEnumTypeFragmentSize() == 1000) << "maxEnumTypeFragmentSize , 1000";
 
@@ -2183,6 +2391,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 600) << "maxEventsInPool , 600";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "MyXMLTrace") << "xmlTraceFileName , \"MyXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 50000000) << "xmlTraceMaxFileSize , 50000000";
 			EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
@@ -2216,6 +2425,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 66) << "SocketServerConfig::initializationTimeout , 66";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket == 0) << "SocketServerConfig::serverSharedSocket , 0";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -2423,6 +2633,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 300)
 				.addUInt("MaxDispatchCountUserThread", 700)
+				.addInt("MaxEventsInPool", 400)
 				.addAscii("XmlTraceFileName", "MyXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 50000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2629,6 +2840,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 300) << "maxDispatchCountApiThread , 300";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 700) << "maxDispatchCountUserThread , 700";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 400) << "MaxEventsInPool , 400";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "MyXMLTrace") << "xmlTraceFileName , \"MyXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 50000000) << "xmlTraceMaxFileSize , 50000000";
 			EXPECT_TRUE(activeConfig.xmlTraceToFile == 0) << "xmlTraceToFile , 0";
@@ -2800,6 +3012,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 900)
 				.addUInt("MaxDispatchCountUserThread", 900)
+				.addInt("MaxEventsInPool", 1000)
 				.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 70000000)
 				.addUInt("XmlTraceToFile", 0)
@@ -2811,6 +3024,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("XmlTraceHex", 1)
 				.addInt("PipePort", 9696)
 				.addUInt("RefreshFirstRequired", 0)
+				.addUInt("EnforceAckIDValidation", 0)
 				.addUInt("AcceptDirMessageWithoutMinFilters", 1)
 				.addUInt("AcceptMessageSameKeyButDiffStream", 1)
 				.addUInt("AcceptMessageThatChangesService", 1)
@@ -2972,6 +3186,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 1000) << "maxEventsInPool , 1000";
 			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.xmlTraceFileName == "ConfigDbXMLTrace") << "xmlTraceFileName , \"ConfigDbXMLTrace\"";
 			EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 70000000) << "xmlTraceMaxFileSize , 70000000";
@@ -2983,6 +3198,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 			EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 			EXPECT_TRUE(activeConfig.getRefreshFirstRequired() == false) << "refreshFirstRequired , false";
+			EXPECT_TRUE(activeConfig.getEnforceAckIDValidation() == false) << "enforceAckIDValidation , false";
 			EXPECT_TRUE(activeConfig.acceptDirMessageWithoutMinFilters == true) << "acceptDirMessageWithoutMinFilters , true";
 			EXPECT_TRUE(activeConfig.acceptMessageWithoutAcceptingRequests == true) << "acceptMessageWithoutAcceptingRequests , true";
 			EXPECT_TRUE(activeConfig.acceptMessageWithoutBeingLogin == true) << "acceptMessageWithoutBeingLogin , true";
@@ -3133,6 +3349,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				.addUInt("CatchUnhandledException", 1)
 				.addUInt("MaxDispatchCountApiThread", 900)
 				.addUInt("MaxDispatchCountUserThread", 900)
+				.addInt("MaxEventsInPool", 500)
 				.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
 				.addInt("XmlTraceMaxFileSize", 70000000)
 				.addUInt("XmlTraceToFile", 1)
@@ -3282,6 +3499,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 			EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
 			EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
 			EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+			EXPECT_TRUE(activeConfig.maxEventsInPool == 500) << "MaxEventsInPool , 500";
 			EXPECT_TRUE(activeConfig.pipePort == 9696) << "pipePort , 9696";
 			EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
 			EXPECT_TRUE(activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
@@ -3826,4 +4044,189 @@ TEST_F(EmaConfigTest, testReuseProgrammaticInterface)
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
 			EXPECT_TRUE(false) << "Unexpected exception in testLoadingIProvConfigurationFromProgrammaticConfig()";
 		}
+}
+
+TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
+{
+	//test case 0: section "ServerSharedSocket" is absent
+	//test case 1: section "ServerSharedSocket" is equal 0 (False)
+	//test case 2: section "ServerSharedSocket" is equal 1 (True)
+	for (int testCase = 0; testCase < 3; testCase++)
+	{
+		std::cout << std::endl << " #####Now it is running test case " << testCase << std::endl;
+
+		Map outermostMap, innerMap;
+		ElementList elementList;
+		try
+		{
+			elementList.addAscii("DefaultIProvider", "Provider_1");
+
+			innerMap.addKeyAscii("Provider_1", MapEntry::AddEnum, ElementList()
+				.addAscii("Server", "Server_1")
+				.addAscii("Logger", "Logger_1")
+				.addAscii("Directory", "Directory_1").complete())
+				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
+					.addAscii("Server", "Server_2")
+					.addAscii("Directory", "Directory_2")
+					.addAscii("Logger", "Logger_2").complete())
+				.complete();
+
+			elementList.addMap("IProviderList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("IProviderGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+			switch (testCase)
+			{
+			case 0:  // section "ServerSharedSocket" is absent
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+
+			case 1:  // section "ServerSharedSocket" is equal 0 (False)
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.addUInt("ServerSharedSocket", 0)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+
+			case 2:  // section "ServerSharedSocket" is equal 1 (True)
+				innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 0)
+					.addEnum("CompressionType", 1)
+					.addUInt("GuaranteedOutputBuffers", 8000)
+					.addUInt("NumInputBuffers", 7777)
+					.addUInt("SysRecvBufSize", 150000)
+					.addUInt("SysSendBufSize", 200000)
+					.addUInt("CompressionThreshold", 12856)
+					.addUInt("ConnectionPingTimeout", 30000)
+					.addUInt("ConnectionMinPingTimeout", 8000)
+					.addAscii("InterfaceName", "localhost")
+					.addAscii("Port", "14010")
+					.addUInt("TcpNodelay", 0)
+					.addUInt("InitializationTimeout", 66)
+					.addUInt("ServerSharedSocket", 1)
+					.complete())
+					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+						.addEnum("ServerType", 1)
+						.addAscii("Port", "14011").complete())
+					.complete();
+				break;
+			}
+
+			elementList.addMap("ServerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("ServerGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+			innerMap.addKeyAscii("Logger_2", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("LoggerType", 1)
+				.addAscii("FileName", "logFile")
+				.addEnum("LoggerSeverity", 3).complete())
+				.addKeyAscii("Logger_1", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("LoggerType", 0)
+					.addAscii("FileName", "logFile")
+					.addEnum("LoggerSeverity", 3).complete()).complete();
+
+			elementList.addMap("LoggerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+			innerMap.addKeyAscii("Dictionary_3", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("DictionaryType", 1)
+				.addAscii("RdmFieldDictionaryItemName", "RWFFld")
+				.addAscii("EnumTypeDefItemName", "RWFEnum")
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete())
+				.addKeyAscii("Dictionary_4", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("DictionaryType", 1)
+					.addAscii("RdmFieldDictionaryItemName", "RWFFld_ID4")
+					.addAscii("EnumTypeDefItemName", "RWFEnum_ID4")
+					.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary_ID4")
+					.addAscii("EnumTypeDefFileName", "./enumtype_ID4.def").complete()).complete();
+
+			elementList.addMap("DictionaryList", innerMap);
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+
+			EmaString localConfigPath;
+			OmmIProviderConfig iprovConfig(localConfigPath);
+			OmmIProviderImpl ommIProviderImpl(iprovConfig.config(outermostMap), appClient);
+
+			OmmIProviderActiveConfig& activeConfig = static_cast<OmmIProviderActiveConfig&>(ommIProviderImpl.getActiveConfig());
+			bool found = ommIProviderImpl.getInstanceName().find("Provider_1") >= 0 ? true : false;
+			EXPECT_TRUE(found) << "ommIProviderImpl.getIProviderName() , \"Provider_1_1\"";
+			EXPECT_TRUE(activeConfig.pServerConfig->name == "Server_1") << "Server name , \"Server_1\"";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->getType() == 0) << "SocketServerConfig::getType , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 66) << "SocketServerConfig::initializationTimeout , 66";
+			if (testCase < 2)
+			{
+				EXPECT_EQ(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 0";
+			}
+			else
+			{
+				EXPECT_NE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 1";
+			}
+		}
+		catch (const OmmException& excp)
+		{
+			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+			EXPECT_TRUE(false) << "Unexpected exception in testServerSharedSocketProgrammaticConfigForIProv()";
+		}
+	}
 }

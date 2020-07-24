@@ -30,6 +30,11 @@ including:
  to access this page).
 - location location to get an endpoint from EDP-RT service discovery. Now, it is either
 "us-east" by default or "eu-west" (optional).
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
+-websocket Use the WebSocket transport protocol (optional).
+
+Optional RIC item name parameters.
+-itemName Request item name (optional). The default item name is IBM.N.
 
 Optional proxy parameters. The proxy configuration is only required if your organization requires
 use of a proxy to get to the Internet.
@@ -40,7 +45,7 @@ use of a proxy to get to the Internet.
 -pdomain Proxy Domain (optional).
 
 Example command line: 
-Cons450 -username <machine ID> -password <machine ID password>
+Cons450 -username <machine ID> -password <machine ID password> -clientId <client ID>
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods
@@ -51,13 +56,13 @@ Cons450 -username <machine ID> -password <machine ID password>
   - Sets the consumer name to "Consumer_1"
   - sets OmmConsumer configuration with data from the programmatic configuration
   - The Consumer_1 uses the Channel_1 channel name for using the RSSL_ENCRYPTED
-	channel type and the RSSL_SOCKET encrypted protocol type for both
+	channel type and the RSSL_SOCKET/RSSL_WEBSOCKET encrypted protocol type for both
 	Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
 	are needed to run this example.
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.
 + Opens a streaming item interest
-  - MarketPrice IBM.N item from the ELEKTRON_DD service
+  - MarketPrice IBM.N (or optional itemName) item from the ELEKTRON_DD service
 + Processes data received from the API for 900 seconds
   - All received messages are processed on the API's thread of control
 + Exits

@@ -42,6 +42,16 @@
 #ifdef WIN32
 #define snprintf _snprintf
 #include <windows.h>
+
+#if defined(_MSC_VER) && (_MSC_VER == 1700 || _MSC_VER == 1800)
+#define nextafter _nextafter
+#if defined _M_X64
+#define nextafterf _nextafterf  /* x64 only */
+#else
+#define DO_NOT_TEST_FLOAT
+#endif
+#endif
+
 #endif
 
 #include "dictionaries.h"
@@ -9429,6 +9439,1655 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 			ASSERT_TRUE(rsslDateTimeIsEqual(&(iDateTime), &oDateTime));
 		}
 	}	
+}
+
+void testCompareDoubleToReal(const RsslReal testReal, const RsslInt testIntVal)
+{
+	RsslInt diff;
+	// maximum difference between MAX_VALUE/MIN_VALUE and real value 0 .. 2048 = 2^11
+	// it is the precision difference between long(64bit) and double(53bit)
+	if (testReal.value <= testIntVal)
+		diff = testIntVal - testReal.value;
+	else
+		diff = testReal.value - testIntVal;
+
+	if (diff == 0) {
+		ASSERT_EQ(testReal.value, testIntVal);
+	}
+	else {
+		ASSERT_TRUE(diff <= 2048);
+	}
+}
+
+void testDoubleToRealConvert(const RsslDouble dFactor, const RsslRealHints rhExponent)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i / dFactor;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 123. / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testDouble = -123. / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1e30;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1e30;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testDouble = nextafter(testDouble, 1e30);  // get the next double value
+	testDouble = nextafter(testDouble, 1e30);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testDouble = nextafter(testDouble, -1e30);  // get the next double value
+	testDouble = nextafter(testDouble, -1e30);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	testCompareDoubleToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+}
+
+TEST(realDoubleIntConvertTest, RealHintExponentAllTest)
+{
+	testDoubleToRealConvert(1e14, RSSL_RH_EXPONENT_14);
+	testDoubleToRealConvert(1e13, RSSL_RH_EXPONENT_13);
+	testDoubleToRealConvert(1e12, RSSL_RH_EXPONENT_12);
+	testDoubleToRealConvert(1e11, RSSL_RH_EXPONENT_11);
+	testDoubleToRealConvert(1e10, RSSL_RH_EXPONENT_10);
+	testDoubleToRealConvert(1e9, RSSL_RH_EXPONENT_9);
+	testDoubleToRealConvert(1e8, RSSL_RH_EXPONENT_8);
+	testDoubleToRealConvert(1e7, RSSL_RH_EXPONENT_7);
+	testDoubleToRealConvert(1e6, RSSL_RH_EXPONENT_6);
+	testDoubleToRealConvert(1e5, RSSL_RH_EXPONENT_5);
+	testDoubleToRealConvert(1e4, RSSL_RH_EXPONENT_4);
+	testDoubleToRealConvert(1e3, RSSL_RH_EXPONENT_3);
+	testDoubleToRealConvert(100., RSSL_RH_EXPONENT_2);
+	testDoubleToRealConvert(10., RSSL_RH_EXPONENT_1);
+
+	testDoubleToRealConvert(1., RSSL_RH_EXPONENT0);
+	testDoubleToRealConvert(.1, RSSL_RH_EXPONENT1);
+	testDoubleToRealConvert(.01, RSSL_RH_EXPONENT2);
+	testDoubleToRealConvert(1e-3, RSSL_RH_EXPONENT3);
+	testDoubleToRealConvert(1e-4, RSSL_RH_EXPONENT4);
+	testDoubleToRealConvert(1e-5, RSSL_RH_EXPONENT5);
+	testDoubleToRealConvert(1e-6, RSSL_RH_EXPONENT6);
+	testDoubleToRealConvert(1e-7, RSSL_RH_EXPONENT7);
+
+	testDoubleToRealConvert(1., RSSL_RH_FRACTION_1);
+	testDoubleToRealConvert(2., RSSL_RH_FRACTION_2);
+	testDoubleToRealConvert(4., RSSL_RH_FRACTION_4);
+	testDoubleToRealConvert(8., RSSL_RH_FRACTION_8);
+	testDoubleToRealConvert(16., RSSL_RH_FRACTION_16);
+	testDoubleToRealConvert(32., RSSL_RH_FRACTION_32);
+	testDoubleToRealConvert(64., RSSL_RH_FRACTION_64);
+	testDoubleToRealConvert(128., RSSL_RH_FRACTION_128);
+	testDoubleToRealConvert(256., RSSL_RH_FRACTION_256);
+}
+
+void testCompareFloatToReal(const RsslReal testReal, const RsslInt testIntVal)
+{
+	RsslInt diff;
+	// maximum difference between MAX_VALUE/MIN_VALUE and real value 0 .. 2^40
+	// it is the precision difference between long(64bit) and float(24bit)
+	if (testReal.value <= testIntVal)
+		diff = testIntVal - testReal.value;
+	else
+		diff = testReal.value - testIntVal;
+
+	if (diff == 0) {
+		ASSERT_EQ(testReal.value, testIntVal);
+	}
+	else {
+		ASSERT_TRUE(diff <= 1099511627776L);
+	}
+}
+
+#ifndef DO_NOT_TEST_FLOAT
+void testFloatToRealConvert(const RsslFloat dFactor, const RsslRealHints rhExponent)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i / dFactor;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 123.f / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testFloat = -123.f / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1e30f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1e30f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+
+	// tests maximum
+	// when conversion return success then verify result
+	// conversion may return a fail status due rounding errors
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+	}
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor);
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+	}
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testFloat = nextafterf(testFloat, 1e30f);  // get the next float value
+	testFloat = nextafterf(testFloat, 1e30f);  // get the next float value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::max)());
+	}
+
+	// tests minimum
+	// when conversion return success then verify result
+	// conversion may return a fail status due rounding errors
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+	}
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor);
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+	}
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testFloat = nextafterf(testFloat, -1e30f);  // get the next float value
+	testFloat = nextafterf(testFloat, -1e30f);  // get the next float value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	if (rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS)
+	{
+		ASSERT_EQ(testReal.hint, rhExponent);
+		testCompareFloatToReal(testReal, (std::numeric_limits<RsslInt>::min)());
+	}
+}
+#endif
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintExponentAllTest)
+{
+	testFloatToRealConvert(1e14f, RSSL_RH_EXPONENT_14);
+	testFloatToRealConvert(1e13f, RSSL_RH_EXPONENT_13);
+	testFloatToRealConvert(1e12f, RSSL_RH_EXPONENT_12);
+	testFloatToRealConvert(1e11f, RSSL_RH_EXPONENT_11);
+	testFloatToRealConvert(1e10f, RSSL_RH_EXPONENT_10);
+	testFloatToRealConvert(1e9f, RSSL_RH_EXPONENT_9);
+	testFloatToRealConvert(1e8f, RSSL_RH_EXPONENT_8);
+	testFloatToRealConvert(1e7f, RSSL_RH_EXPONENT_7);
+	testFloatToRealConvert(1e6f, RSSL_RH_EXPONENT_6);
+	testFloatToRealConvert(1e5f, RSSL_RH_EXPONENT_5);
+	testFloatToRealConvert(1e4f, RSSL_RH_EXPONENT_4);
+	testFloatToRealConvert(1e3f, RSSL_RH_EXPONENT_3);
+	testFloatToRealConvert(100.f, RSSL_RH_EXPONENT_2);
+	testFloatToRealConvert(10.f, RSSL_RH_EXPONENT_1);
+
+	testFloatToRealConvert(1.f, RSSL_RH_EXPONENT0);
+	testFloatToRealConvert(.1f, RSSL_RH_EXPONENT1);
+	testFloatToRealConvert(.01f, RSSL_RH_EXPONENT2);
+	testFloatToRealConvert(1e-3f, RSSL_RH_EXPONENT3);
+	testFloatToRealConvert(1e-4f, RSSL_RH_EXPONENT4);
+	testFloatToRealConvert(1e-5f, RSSL_RH_EXPONENT5);
+	testFloatToRealConvert(1e-6f, RSSL_RH_EXPONENT6);
+	testFloatToRealConvert(1e-7f, RSSL_RH_EXPONENT7);
+
+	testFloatToRealConvert(1.f, RSSL_RH_FRACTION_1);
+	testFloatToRealConvert(2.f, RSSL_RH_FRACTION_2);
+	testFloatToRealConvert(4.f, RSSL_RH_FRACTION_4);
+	testFloatToRealConvert(8.f, RSSL_RH_FRACTION_8);
+	testFloatToRealConvert(16.f, RSSL_RH_FRACTION_16);
+	testFloatToRealConvert(32.f, RSSL_RH_FRACTION_32);
+	testFloatToRealConvert(64.f, RSSL_RH_FRACTION_64);
+	testFloatToRealConvert(128.f, RSSL_RH_FRACTION_128);
+	testFloatToRealConvert(256.f, RSSL_RH_FRACTION_256);
+}
+#endif
+
+TEST(realDoubleIntConvertTest, RealHintExponent0Test)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT0;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests a special user case: conversion should be fail because out of range
+	rsslClearReal(&testReal);
+	testDouble = 1000000000.0;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, RSSL_RH_EXPONENT_10) == RSSL_RET_FAILURE);
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 1000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = -1000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = 1000000000000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = -1000000000000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = 12.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12);
+
+	rsslClearReal(&testReal);
+	testDouble = 123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678901.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678901);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789012.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789012);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890123);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678901234.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678901234);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789012345.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789012345);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890123456.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890123456);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678901234567.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 12345678901234567); // is not equal: precise of double is lower to int64
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789012345678.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 123456789012345678); // is not equal: precise of double is lower to int64
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890123456789.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 1234567890123456789); // is not equal: precise of double is lower to int64
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	testDouble += 1000.;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)()));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.));
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	testDouble = nextafter(testDouble, 1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)() - 1;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	testDouble -= 1000.;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)()));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.));
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	testDouble = nextafter(testDouble, -1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)() + 1;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+
+TEST(realDoubleIntConvertTest, RealHintExponent_14Test)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	const RsslInt iFactor = 100000000000000;
+	const RsslDouble dFactor = 100000000000000.;
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT_14;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i / dFactor;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123 * iFactor);
+
+	rsslClearReal(&testReal);
+	testDouble = -123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123 * iFactor);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testDouble = nextafter(testDouble, 1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testDouble = nextafter(testDouble, -1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+
+TEST(realDoubleIntConvertTest, RealHintExponent7Test)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	const RsslInt iFactor = 10000000;
+	const RsslDouble dFactor = 10000000.;
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT7;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i * dFactor;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 123. * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testDouble = -123. * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1e30;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1e30;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() + 1000.) * dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() * dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.) * dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() * dFactor;
+	testDouble = nextafter(testDouble, 1e30);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() - 1) * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() - 1000.) * dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() * dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.) * dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() * dFactor;
+	testDouble = nextafter(testDouble, -1e30);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() + 1) * dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+
+TEST(realDoubleIntConvertTest, RealHintFraction_1Test)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	const RsslRealHints rhExponent = RSSL_RH_FRACTION_1;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 1000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = -1000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = 1000000000000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = -1000000000000000000.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000000000000);
+
+	rsslClearReal(&testReal);
+	testDouble = 12.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12);
+
+	rsslClearReal(&testReal);
+	testDouble = 123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678901.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678901);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789012.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789012);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890123);
+
+	rsslClearReal(&testReal);
+	testDouble = 12345678901234.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678901234);
+
+	rsslClearReal(&testReal);
+	testDouble = 123456789012345.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456789012345);
+
+	rsslClearReal(&testReal);
+	testDouble = 1234567890123456.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567890123456);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	testDouble += 1000.;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)()));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.));
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)();
+	testDouble = nextafter(testDouble, 1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::max)() - 1;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	testDouble -= 1000.;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)()));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.));
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)();
+	testDouble = nextafter(testDouble, -1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = (RsslDouble)(std::numeric_limits<RsslInt>::min)() + 1;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+
+TEST(realDoubleIntConvertTest, RealHintFraction_256Test)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	const RsslInt iFactor = 256;
+	const RsslDouble dFactor = 256.;
+	const RsslRealHints rhExponent = RSSL_RH_FRACTION_256;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testDouble = i / dFactor;
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testDouble = 123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123 * iFactor);
+
+	rsslClearReal(&testReal);
+	testDouble = -123.;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123 * iFactor);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testDouble = 1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = -1e20;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::max)() + 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testDouble = nextafter(testDouble, 1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor;
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testDouble, ((std::numeric_limits<RsslInt>::min)() - 1000.) / dFactor);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testDouble = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testDouble = nextafter(testDouble, -1e20);  // get the next double value
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testDouble = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintExponent0Test)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT0;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 1000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000);
+
+	rsslClearReal(&testReal);
+	testFloat = -1000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000);
+
+	rsslClearReal(&testReal);
+	testFloat = 1000000000000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_TRUE(testReal.value > 0);
+	//ASSERT_EQ(testReal.value, 1000000000000000000); // it's not equal: precise of float is lower to int64
+
+	rsslClearReal(&testReal);
+	testFloat = -1000000000000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_TRUE(testReal.value < 0);
+	//ASSERT_EQ(testReal.value, -1000000000000000000); // it's not equal: precise of float is lower to int64
+
+	rsslClearReal(&testReal);
+	testFloat = 12.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12);
+
+	rsslClearReal(&testReal);
+	testFloat = 123.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testFloat = 1234.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234);
+
+	rsslClearReal(&testReal);
+	testFloat = 12345.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345);
+
+	rsslClearReal(&testReal);
+	testFloat = 123456.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456);
+
+	rsslClearReal(&testReal);
+	testFloat = 1234567.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567);
+
+	rsslClearReal(&testReal);
+	testFloat = 12345678.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678);
+
+	rsslClearReal(&testReal);
+	testFloat = 123456789.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 123456789); // it's not equal: precise of float is lower to int64
+
+	rsslClearReal(&testReal);
+	testFloat = 1234567890.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 1234567890); // it's not equal: precise of float is lower to int64
+
+	rsslClearReal(&testReal);
+	testFloat = 1234567890123456789.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 1234567890123456789); // is not equal: precise of double is lower to int64
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	testFloat += 1000.f;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)()));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f));
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	testFloat = nextafterf(testFloat, 1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)() - 1;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	testFloat -= 1000.f;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)()));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f));
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	testFloat = nextafterf(testFloat, -1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)() + 1;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+#endif
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintExponent_14Test)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+	//double d;
+
+	const RsslInt iFactor = 100000000000000;
+	const RsslFloat dFactor = 100000000000000.f;
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT_14;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i / dFactor;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 0.0000000123f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (RsslInt)(0.0000000123 * iFactor));
+
+	rsslClearReal(&testReal);
+	testFloat = -0.0000000123f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (RsslInt)(-0.0000000123 * iFactor));
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testFloat = nextafterf(testFloat, 1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testFloat = nextafterf(testFloat, -1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+#endif
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintExponent7Test)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+
+	const RsslInt iFactor = 10000000;
+	const RsslFloat dFactor = 10000000.f;
+	const RsslRealHints rhExponent = RSSL_RH_EXPONENT7;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i * dFactor;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 123.f * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testFloat = -123.f * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1e30f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1e30f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() + 1000.f) * dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() * dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f) * dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() * dFactor;
+	testFloat = nextafterf(testFloat, 1e30f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() - 1) * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() - 1000.f) * dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() * dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f) * dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() * dFactor;
+	testFloat = nextafterf(testFloat, -1e30f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() + 1) * dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+#endif
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintFraction_1Test)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+
+	const RsslRealHints rhExponent = RSSL_RH_FRACTION_1;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 1000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1000000000);
+
+	rsslClearReal(&testReal);
+	testFloat = -1000000000.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -1000000000);
+
+	rsslClearReal(&testReal);
+	testFloat = 12.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12);
+
+	rsslClearReal(&testReal);
+	testFloat = 123.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testFloat = 1234.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234);
+
+	rsslClearReal(&testReal);
+	testFloat = 12345.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345);
+
+	rsslClearReal(&testReal);
+	testFloat = 123456.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123456);
+
+	rsslClearReal(&testReal);
+	testFloat = 1234567.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 1234567);
+
+	rsslClearReal(&testReal);
+	testFloat = 12345678.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 12345678);
+
+	rsslClearReal(&testReal);
+	testFloat = 123456789.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 123456789); // it's not equal: precise of float is lower to int64
+
+	rsslClearReal(&testReal);
+	testFloat = 1234567890123456.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	//ASSERT_EQ(testReal.value, 1234567890123456); // it's not equal: precise of float is lower to int64
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	testFloat += 1000.f;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)()));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f));
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)();
+	testFloat = nextafterf(testFloat, 1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::max)() - 1;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	testFloat -= 1000.f;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)()));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f));
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)();
+	testFloat = nextafterf(testFloat, -1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = (RsslFloat)(std::numeric_limits<RsslInt>::min)() + 1;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+#endif
+
+#ifndef DO_NOT_TEST_FLOAT
+TEST(realFloatIntConvertTest, RealHintFraction_256Test)
+{
+	RsslFloat testFloat;
+	RsslReal testReal;
+	short i;
+
+	const RsslInt iFactor = 256;
+	const RsslFloat dFactor = 256.f;
+	const RsslRealHints rhExponent = RSSL_RH_FRACTION_256;
+
+	// tests digits -9 .. 0 .. 9
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testFloat = i / dFactor;
+		ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	// tests middle in range values
+	rsslClearReal(&testReal);
+	testFloat = 123.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123 * iFactor);
+
+	rsslClearReal(&testReal);
+	testFloat = -123.f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123 * iFactor);
+
+	// tests out of range values
+	rsslClearReal(&testReal);
+	testFloat = 1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = -1e20f;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	// tests maximum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::max)() + 1000.f) / dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::max)() / dFactor;
+	testFloat = nextafterf(testFloat, 1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::max)() - 1) / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::max)());
+
+	// tests minimum
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor;
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() / dFactor));
+	ASSERT_EQ(testFloat, ((std::numeric_limits<RsslInt>::min)() - 1000.f) / dFactor);
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+
+	rsslClearReal(&testReal);
+	testFloat = (std::numeric_limits<RsslInt>::min)() / dFactor;
+	testFloat = nextafterf(testFloat, -1e20f);  // get the next double value
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_FAILURE);
+
+	rsslClearReal(&testReal);
+	testFloat = ((std::numeric_limits<RsslInt>::min)() + 1) / dFactor;
+	ASSERT_TRUE(rsslFloatToReal(&testReal, &testFloat, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, (std::numeric_limits<RsslInt>::min)());
+}
+#endif
+
+TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
+{
+	RsslTime oTime;
+	RsslBuffer dateTimeStrBuf;
+
+	/* ESDK-3859 */
+	char* invalidTimeValue = const_cast<char*>("1.1:22:33:444");
+	dateTimeStrBuf.data = invalidTimeValue;
+	dateTimeStrBuf.length = (rtrUInt32)strlen(invalidTimeValue);
+
+	ASSERT_TRUE(rsslTimeStringToTime(&oTime, &dateTimeStrBuf) == RSSL_RET_INVALID_DATA);
 }
 
 TEST(partialUpdateTest, partialUpdateTest)

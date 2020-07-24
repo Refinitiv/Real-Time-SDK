@@ -52,6 +52,7 @@ static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslBool jsonEnumExpand = RSSL_FALSE;
+static RsslBool supportRTT = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 
 //API QA
@@ -99,6 +100,7 @@ void exitWithUsage()
 	printf(" -compressionLevel specifies Zlib compression level\n");
 	//END API QA
 	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
+	printf(" -rtt if specified, support the round trip latency measurement\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -220,6 +222,10 @@ int main(int argc, char **argv)
 		{
 			jsonEnumExpand = RSSL_TRUE;
 		}
+	    else if (strcmp("-rtt", argv[iargs]) == 0)
+		{
+			supportRTT = RSSL_TRUE;
+		}		
 		//API QA
 		else if (strcmp("-testCompressionZlib", argv[iargs]) == 0)
 		{
@@ -249,8 +255,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize login handler */
-	initLoginHandler();
-
+    initLoginHandler(supportRTT);
 	/* Initialize source directory handler */
 	initDirectoryHandler();
 
@@ -335,6 +340,11 @@ int main(int argc, char **argv)
 					if (sendItemUpdates(clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
 					{
 						removeClientSessionForChannel(clientSessions[i].clientChannel);
+					}
+
+					if (supportRTT == RSSL_TRUE)
+					{
+						sendRTTLoginMsg(clientSessions[i].clientChannel);
 					}
 				}
 			}

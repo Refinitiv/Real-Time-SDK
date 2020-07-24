@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -12,6 +14,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
 import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
@@ -78,7 +81,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     private Msg _tmpMsg;
     
     private int _connectionCount; //Number of client sessions currently connected.
-    
+
     private long _nsecPerTick; /* nanoseconds per tick */
     private long _millisPerTick; /* milliseconds per tick */
     private long _divisor = 1;
@@ -102,7 +105,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _channelInfo = TransportFactory.createChannelInfo();
         _itemRequestHandler = new ItemRequestHandler();
         _channelHandler = new ChannelHandler(this);
-        
+
         _nsecPerTick = 1000000000 / ProviderPerfConfig.ticksPerSec();
         _millisPerTick = 1000 / ProviderPerfConfig.ticksPerSec();
         if (ProviderPerfConfig.ticksPerSec() > 1000)
@@ -553,6 +556,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                }
            }
 
+
            // Use remaining time in the tick to send refreshes.
            while(ret >= TransportReturnCodes.SUCCESS &&  providerSession.refreshItemList().count() != 0 && currentTime() < stopTime)
                ret = sendRefreshBurst(providerSession, _error);
@@ -701,7 +705,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 System.out.println("Channel Change - Old Channel: "
                         + event.reactorChannel().oldSelectableChannel() + " New Channel: "
                         + event.reactorChannel().selectableChannel());
-                
+
                 // cancel old reactorChannel select
                 try
                 {
@@ -970,7 +974,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     
         return selectTime;
     }
-    
+
     Lock handlerLock()
     {
     	return _channelHandler.handlerLock();

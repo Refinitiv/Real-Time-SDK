@@ -125,6 +125,15 @@ void OmmConsumer::getChannelInformation(ChannelInformation& ci) {
 	ci.clear();
 }
 
+void OmmConsumer::getChannelStatistics(ChannelStatistics& cs) {
+  // this function can be called during the OmmConsumer constructor (usually from an event
+  // received during that process). If so, just have to return 0.
+  if (_pImpl)
+	_pImpl->getChannelStatistics(cs);
+  else
+	cs.clear();
+}
+
 void OmmConsumer::modifyIOCtl(Int32 code, Int32 value)
 {
 	_pImpl->modifyIOCtl(code, value);

@@ -2,17 +2,9 @@ package com.thomsonreuters.upa.examples.consumer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
 import com.thomsonreuters.upa.examples.common.DirectoryHandler;
@@ -149,6 +141,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
+ * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
  * </ul>
  * 
  * @see DictionaryHandler
@@ -179,7 +172,7 @@ public class Consumer implements ResponseCallback
     private YieldCurveHandler yieldCurveHandler;
  
     private boolean shouldOffStreamPost = false;
-    private boolean shouldOnStreamPost = false;  
+    private boolean shouldOnStreamPost = false;
     private Buffer postItemName;
     private StreamIdWatchList itemWatchList;
 
@@ -543,6 +536,7 @@ public class Consumer implements ResponseCallback
         loginHandler.authenticationToken(CommandLine.value("at"));
         loginHandler.authenticationExtended(CommandLine.value("ax"));
         loginHandler.applicationId(CommandLine.value("aid"));
+        loginHandler.enableRtt(CommandLine.booleanValue("rtt"));
 
         // set service name in directory handler
         srcDirHandler.serviceName(CommandLine.value("s"));
@@ -1164,6 +1158,12 @@ public class Consumer implements ResponseCallback
             System.exit(TransportReturnCodes.FAILURE);
         }
 
+        if (Objects.equals(responseMsg.msgClass(), MsgClasses.GENERIC)
+                && Objects.equals(responseMsg.containerType(), DataTypes.ELEMENT_LIST)) {
+            loginHandler.sendRttMessage(chnl, error);
+            return;
+        }
+
         // Handle login states
         ConsumerLoginState loginState = loginHandler.loginState();
         if (loginState == ConsumerLoginState.OK_SOLICITED)
@@ -1349,7 +1349,7 @@ public class Consumer implements ResponseCallback
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
-        CommandLine.addOption("aid", "", "Specifies the Application ID.");
+        CommandLine.addOption("rtt", false, "Enables RTT feature.");
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
     }
 

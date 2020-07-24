@@ -149,7 +149,49 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 	}
 
 	if (pWatchlistImpl->login.pStream)
-		wlLoginStreamDestroy(pWatchlistImpl->login.pStream);
+	{
+		WlLoginStream *pLoginStream = pWatchlistImpl->login.pStream;
+		wlLoginStreamClose(&pWatchlistImpl->base, &pWatchlistImpl->login, RSSL_FALSE);
+
+		wlLoginStreamDestroy(pLoginStream);
+	}
+
+	while (pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.streamsPendingRequest))
+	{
+		WlStream *pStream = RSSL_QUEUE_LINK_TO_OBJECT(WlStream,
+			base.qlStreamsPendingRequest, pLink);
+		if (pStream->base.isClosing)
+		{
+			if (!pStream->base.tempStream)
+			{
+				switch (pStream->base.domainType)
+				{
+					case RSSL_DMT_LOGIN:
+					{
+						WlLoginStream *pLoginStream = (WlLoginStream*)pStream;
+						wlLoginStreamDestroy(pLoginStream);
+						break;
+					}
+					case RSSL_DMT_SOURCE:
+					{
+						WlDirectoryStream *pDirectoryStream = (WlDirectoryStream*)pStream;
+						wlDirectoryStreamDestroy(pDirectoryStream);
+						break;
+					}
+					default:
+					{
+						WlItemStream *pItemStream = (WlItemStream*)pStream;
+						wlItemStreamDestroy(&pWatchlistImpl->base, pItemStream);
+						break;
+					}
+				}
+			}
+			else {
+				/* Stream was created only for closing, so only the base structure is allocated. */
+				free(pStream);
+			}
+		}
+	}
 
 	while(pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.requestedServices))
 	{
@@ -3206,10 +3248,10 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 
 					case WL_LGCA_NONE:
 
-						if (pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS)
+						if (pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS || pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_RTT)
 						{
 							if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, NULL,
-								(RsslRDMMsg*)pLoginMsg, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
+								(RsslRDMMsg*)pLoginMsg, RSSL_FALSE, NULL, pErrorInfo)) < RSSL_RET_SUCCESS)
 								return ret;
 						}
 

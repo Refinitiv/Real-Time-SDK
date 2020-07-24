@@ -633,7 +633,7 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 }
 void EmaCppConsPerf::printSummaryStatistics(FILE *file)
 {
-	TimeValue firstUpdateTime;
+	PerfTimeValue firstUpdateTime;
 	Int32 i;
 	UInt64 totalUpdateCount = totalStats.startupUpdateCount.countStatGetTotal()
 		+ totalStats.steadyStateUpdateCount.countStatGetTotal();
@@ -648,7 +648,7 @@ void EmaCppConsPerf::printSummaryStatistics(FILE *file)
 
 	for(i = 0; i < consPerfConfig.threadCount; ++i)
 	{
-		TimeValue imageRetrievalTime = consumerThreads[i]->stats.imageRetrievalEndTime ?
+		PerfTimeValue imageRetrievalTime = consumerThreads[i]->stats.imageRetrievalEndTime ?
 			(consumerThreads[i]->stats.imageRetrievalEndTime 
 			- consumerThreads[i]->stats.imageRetrievalStartTime) : 0;
 
@@ -1019,7 +1019,7 @@ void EmaCppConsPerf::printSummaryStatistics(FILE *file)
 
 	if (totalStats.imageRetrievalEndTime)
 	{
-		TimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
+		PerfTimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
 				totalStats.imageRetrievalStartTime);
 
 		fprintf(file,
@@ -1100,7 +1100,7 @@ void EmaCppConsPerf::consumerCleanupThreads()
 	else
 		collectStats(false, false, 0, 0);
 
-	currentTime = GetTime::getTimeNano();
+	currentTime = perftool::common::GetTime::getTimeNano();
 
 	printSummaryStatistics(stdout);
 	printSummaryStatistics(summaryFile);
@@ -1226,16 +1226,16 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	UInt32 currentRuntimeSec = 0;
 	UInt32 intervalSeconds = 0;
 
-	endTime = GetTime::getTimeMilli() + consPerfConfig.steadyStateTime * 1000;
+	endTime = perftool::common::GetTime::getTimeMilli() + consPerfConfig.steadyStateTime * 1000;
 	
 
-	startTime = GetTime::getTimeMilli();
+	startTime = perftool::common::GetTime::getTimeMilli();
 
 	// Sleep for one more second so some stats can be gathered before first printout.
 	AppUtil::sleep( 1000 );
 	while ( !shutdownThreads() )
 	{		
-		currentTime = GetTime::getTimeMilli();
+		currentTime = perftool::common::GetTime::getTimeMilli();
 		++currentRuntimeSec;
 		++intervalSeconds;
 
@@ -1467,7 +1467,7 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 		{
 			if (consumerThreads[i]->stats.imageRetrievalEndTime)
 			{
-				TimeValue imageRetrievalStartTime = consumerThreads[i]->stats.imageRetrievalStartTime,
+				PerfTimeValue imageRetrievalStartTime = consumerThreads[i]->stats.imageRetrievalStartTime,
 						  imageRetrievalEndTime = consumerThreads[i]->stats.imageRetrievalEndTime;
 
 				// To get the total time it took to retrieve all images, find the earliest start time
@@ -1495,7 +1495,7 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 
 			if (displayStats)
 			{
-				TimeValue imageRetrievalTime = consumerThreads[i]->stats.imageRetrievalEndTime - 
+				PerfTimeValue imageRetrievalTime = consumerThreads[i]->stats.imageRetrievalEndTime - 
 					consumerThreads[i]->stats.imageRetrievalStartTime;
 
 				printf("  - Image retrieval time for %d images: %.3fs (%.0f images/s)\n", 
@@ -1517,7 +1517,7 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 			if (displayStats)
 			{
 				/* Print overall image retrieval stats. */
-				TimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
+				PerfTimeValue totalRefreshRetrievalTime = (totalStats.imageRetrievalEndTime - 
 						totalStats.imageRetrievalStartTime);
 
 				printf("\nOverall image retrieval time for %d images: %.3fs (%.0f Images/s).\n\n", 

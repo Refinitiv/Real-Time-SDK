@@ -14,6 +14,7 @@ import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.shared.PingHandler;
+import com.thomsonreuters.upa.shared.network.ChannelHelper;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectOptions;
@@ -85,6 +86,8 @@ public class ChannelSession
 	public long loginReissueTime; // represented by epoch time in milliseconds
 	public boolean canSendLoginReissue;
 	public boolean isLoginReissue;
+
+	private int socketFdValue;
     
     /**
      * Instantiates a new channel session.
@@ -348,6 +351,9 @@ public class ChannelSession
             return TransportReturnCodes.FAILURE;
         }
 
+        //define new fd value
+        socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(channel.selectableChannel());
+
         return TransportReturnCodes.SUCCESS;
     }
 
@@ -388,6 +394,8 @@ public class ChannelSession
                 {
                     selectTime = channel.pingTimeout() / 3;
                 }
+                //define fd value of channel
+                socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(channel.selectableChannel());
                 shouldRecoverConnection = false;
                 break;
             default:
@@ -835,6 +843,10 @@ public class ChannelSession
         copts.credentialsInfo().HTTPproxyDomain(connectOptions.credentialsInfo().HTTPproxyDomain());
         copts.credentialsInfo().HTTPproxyLocalHostname(connectOptions.credentialsInfo().HTTPproxyLocalHostname());
         copts.credentialsInfo().HTTPproxyKRB5configFile(connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
+    }
+
+    public int socketFdValue() {
+        return socketFdValue;
     }
     
 }

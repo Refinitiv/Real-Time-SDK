@@ -45,6 +45,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String authenticationToken;
 	private String authenticationExtended;
 	private String applicationId;
+	private boolean enableRtt;
+	private boolean takeExclusiveSignOnControl = true;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -268,6 +270,20 @@ class ConsumerCmdLineParser implements CommandLineParser
     			{
     				applicationId = args[++argsCount];
     				++argsCount;
+    			} else if ("-rtt".equals(args[argsCount])) {
+    				enableRtt = true;
+    				++argsCount;
+			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControlStr = args[++argsCount];
+    				
+    				if(takeExclusiveSignOnControlStr.equalsIgnoreCase("true"))
+						takeExclusiveSignOnControl = true;
+					else if (takeExclusiveSignOnControlStr.equalsIgnoreCase("false"))
+						takeExclusiveSignOnControl = false;
+    				
+    				++argsCount;
     			}
     			else // unrecognized command line argument
     			{
@@ -444,6 +460,15 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return applicationId;
 	}
+
+	boolean enableRtt() {
+		return enableRtt;
+	}
+	
+	boolean takeExclusiveSignOnControl()
+	{
+		return takeExclusiveSignOnControl;
+	}
 	
 	int encryptedConnectionType()
 	{
@@ -475,6 +500,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -passwd changes the password used when logging into the provider\n" +
 		        "\n -clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.\n" +
 				"\n -sessionMgnt enables the session management in the Reactor\n" +
+				"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n" + 
 				"\n -view specifies each request using a basic dynamic view\n" +
 				"\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
 				"\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +
@@ -500,7 +526,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -runtime adjusts the running time of the application" +
 				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 				"\n -ax Specifies the Authentication Extended information" +
-				"\n -aid Specifies the Application ID");
+				"\n -aid Specifies the Application ID" +
+				"\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
 	}
 }
 

@@ -97,10 +97,25 @@ class RealImpl implements Real
         else
         {
             _hint = hint;
+
+            double res;
             if (value > 0)
-                _value = (long)(value * powHintsExp[hint] + 0.5);
+                res = value * powHintsExp[hint] + 0.5;
             else
-                _value = (long)(value * powHintsExp[hint] - 0.5);
+                res = value * powHintsExp[hint] - 0.5;
+
+            if (res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
+                return CodecReturnCodes.INVALID_ARGUMENT;
+            }
+
+            // Checks the corner cases.
+            // Uses direct assignment value Long.MAX_VALUE (64 bits) and prohibits the conversation from double value (53 bits).
+            if (Long.MAX_VALUE == res)
+                _value = Long.MAX_VALUE;
+            else if (Long.MIN_VALUE == res)
+                _value = Long.MIN_VALUE;
+            else
+                _value = (long)res;
         }
         _isBlank = false;
         _stringVal = null;
@@ -133,10 +148,25 @@ class RealImpl implements Real
         else
         {
             _hint = hint;
+
+            float res;
             if (value > 0)
-                _value = (long)(value * powHintsExp[hint] + 0.5);
+                res = (float)(value * powHintsExp[hint]) + 0.5f;
             else
-                _value = (long)(value * powHintsExp[hint] - 0.5);
+                res = (float)(value * powHintsExp[hint]) - 0.5f;
+
+            if (res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
+                return CodecReturnCodes.INVALID_ARGUMENT;
+            }
+
+            // Checks the corner cases.
+            // Uses direct assignment value Long.MAX_VALUE (64 bits) and prohibits the conversation from float value (24 bits).
+            if (Long.MAX_VALUE == res)
+                _value = Long.MAX_VALUE;
+            else if (Long.MIN_VALUE == res)
+                _value = Long.MIN_VALUE;
+            else
+                _value = (long)res;
         }
         _isBlank = false;
         _stringVal = null;

@@ -3647,7 +3647,7 @@ public class ReactorWatchlistJUnitNew
     public void batchRequestOutOfOrderTest()
     {
         /* Test a batch request/refresh exchange with the watchlist enabled, where two requests are sent
-         * before both are recieved. */
+         * before both are received. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
@@ -21354,4 +21354,738 @@ public class ReactorWatchlistJUnitNew
 		
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
     }
+    @Test
+    public void loginReissue_SunnyTest()
+    {
+        String test = "loginReissue_SunnyTest()";
+        System.out.println("\n" + test + " Running...");
+        System.out.println("/*   CONS                 WatchList                 PROV\n" +
+                "   1) |    Cons Request[0] -> |                       |\n" +
+                "   2) |                       |    Prov Request[0] -> |\n" +
+                "   3) |                       | <- Prov Refresh[0]    |\n" +
+                "   4) | <- Cons Refresh[0]    |                       |\n" +
+                "   5) |    User Request[1]    |                       |\n" +
+                "   6) |    Cons Request[1] -> |                       |\n" +
+                "   7) |                       |    Prov Request[1] -> |\n" +
+                "   8) |                       | <- Prov Refresh[1]    |\n" +
+                "   9) | <- Cons Refresh[1]    |                       |\n" +
+                "*/");
+
+        int loginStreamId;
+        TestReactorEvent event;
+        RDMLoginMsgEvent loginMsgEvent;
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+
+        LoginRequest[] consRequest = { null, null };
+        LoginRefresh[] consRefresh = { null, null };
+        LoginRequest[] provRequest = { null, null };
+        LoginRefresh[] provRefresh = { null, null };
+
+        // Data arrays - index [0] is used for the initial request and refresh, the other indices are for the subsequent reissue requests and refreshes.
+        String[] userNames = { "userName_0", "userName_1" };
+        String[] authenticationTokens = { "authenticationToken_0", "authenticationToken_1" };
+        String[] authenticationExts = { "authenticationExt_0", "authenticationExt_1" };
+        String[] authenticationExtResps = { "authenticationExtResp_0", "authenticationExtResp_1" };
+        long[] authenticationTTReissues = { 123123000, 123123001 };
+
+        int[] userNameTypes = { Login.UserIdTypes.NAME, Login.UserIdTypes.EMAIL_ADDRESS, Login.UserIdTypes.TOKEN, Login.UserIdTypes.COOKIE, Login.UserIdTypes.AUTHN_TOKEN };
+        for (int userNameType : userNameTypes)
+        {
+            System.out.println(test + " loop: userNameType = " + userNameType);
+
+            // Create reactors
+            TestReactor consumerReactor = new TestReactor();
+            TestReactor providerReactor = new TestReactor();
+            consumerReactor._reactor._reactorOptions.enableXmlTracing();
+            providerReactor._reactor._reactorOptions.enableXmlTracing();
+
+            // Create consumer and the initial login request message with data using index [0]
+            Consumer consumer = new Consumer(consumerReactor);
+            ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+            consumerRole.initDefaultRDMLoginRequest();
+            consumerRole.initDefaultRDMDirectoryRequest();
+
+            System.out.println(test + " 1) Consumer creating login request[0]");
+            consRequest[0] = consumerRole.rdmLoginRequest();
+            loginStreamId = consRequest[0].streamId();
+            consRequest[0].applyHasUserNameType();
+            consRequest[0].userNameType(userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[0].userName().data(authenticationTokens[0]);
+                consRequest[0].applyHasAuthenticationExtended();
+                consRequest[0].authenticationExtended().data(authenticationExts[0]);
+            }
+            else
+                consRequest[0].userName().data(userNames[0]);
+
+            consumerRole.channelEventCallback(consumer);
+            consumerRole.loginMsgCallback(consumer);
+            consumerRole.directoryMsgCallback(consumer);
+            consumerRole.dictionaryMsgCallback(consumer);
+            consumerRole.defaultMsgCallback(consumer);
+            consumerRole.watchlistOptions().enableWatchlist(true);
+            consumerRole.watchlistOptions().channelOpenCallback(consumer);
+
+            // Create provider.
+            Provider provider = new Provider(providerReactor);
+            ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+            providerRole.channelEventCallback(provider);
+            providerRole.loginMsgCallback(provider);
+            providerRole.directoryMsgCallback(provider);
+            providerRole.dictionaryMsgCallback(provider);
+            providerRole.defaultMsgCallback(provider);
+
+            // Connect the consumer and provider. Disable the automatic setup of login & directory streams.
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            opts.reconnectAttemptLimit(-1);
+            provider.bind(opts);
+            System.out.println(test + " 1) Consumer sending login request[0]");
+            TestReactor.openSession(consumer, provider, opts);
+            System.out.println(test + " 1) Consumer sent login request[0]");
+
+            provider.testReactor().dispatch(0);
+            System.out.println(test + " 2,3,4) Provider and consumer already dispatched request[0]");
+
+            System.out.println(test + " 5) Consumer creating login request[1]");
+            consumerRole.initDefaultRDMLoginRequest();
+            consRequest[1] = consumerRole.rdmLoginRequest();
+            assertNotNull(consRequest[1]);
+            consRequest[1].applyHasUserNameType();
+            consRequest[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[1].userName().data(authenticationTokens[1]);
+                consRequest[1].applyHasAuthenticationExtended();
+                consRequest[1].authenticationExtended().data(authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                consRequest[1].userName().data(userNames[1]);
+            else
+                consRequest[1].userName().data(userNames[0]);
+
+            System.out.println(test + " 6) Consumer sending login request[1]");
+            submitOptions.clear();
+            assertTrue(consumer.submitAndDispatch(consRequest[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 6) Consumer sent login request[1]");
+
+            System.out.println(test + " 7) Provider dispatching, expects login request[1]");
+            provider.testReactor().dispatch(1);
+            event = provider.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            provRequest[1] = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+            assertEquals(provRequest[1].streamId(), loginStreamId);
+            assertTrue(provRequest[1].checkHasUserNameType());
+            assertEquals(provRequest[1].userNameType(), userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertEquals(provRequest[1].userName().toString(), authenticationTokens[1]);
+                assertTrue(provRequest[1].checkHasAuthenticationExtended());
+                assertEquals(provRequest[1].authenticationExtended().toString(), authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(provRequest[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(provRequest[1].userName().toString(), userNames[0]);
+
+            System.out.println(test + " 7) Provider validated login request[1]");
+
+            System.out.println(test + " 8) Provider creating login refresh[1]");
+            provRefresh[1] = (LoginRefresh)LoginMsgFactory.createMsg();
+            provRefresh[1].clear();
+            provRefresh[1].rdmMsgType(LoginMsgType.REFRESH);
+            provRefresh[1].streamId(loginStreamId);
+            provRefresh[1].applySolicited();
+            provRefresh[1].applyHasUserNameType();
+            provRefresh[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                provRefresh[1].userName().data(userNames[1]);
+                provRefresh[1].applyHasAuthenticationTTReissue();
+                provRefresh[1].authenticationTTReissue(authenticationTTReissues[1]);
+                provRefresh[1].applyHasAuthenticationExtendedResp();
+                provRefresh[1].authenticationExtendedResp().data(authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[1]);
+            }
+            else
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[0]);
+            }
+            provRefresh[1].state().streamState(StreamStates.OPEN);
+            provRefresh[1].state().dataState(DataStates.OK);
+
+            System.out.println(test + " 8) Provider sending login refresh[1]");
+            submitOptions.clear();
+            assertTrue(provider.submitAndDispatch(provRefresh[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 8) Provider sent login refresh[1]");
+
+            System.out.println(test + " 9) Consumer dispatching, expects login refresh[1]");
+            consumer.testReactor().dispatch(1);
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REFRESH, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+            assertEquals(MsgClasses.REFRESH, loginMsgEvent.msg().msgClass());
+            System.out.println(test + " 9) Consumer received login refresh[1]");
+
+            consRefresh[1] = (LoginRefresh)loginMsgEvent.rdmLoginMsg();
+            assertEquals(consRefresh[1].streamId(), loginStreamId);
+            assertEquals(consRefresh[1].state().streamState(), StreamStates.OPEN);
+            assertEquals(consRefresh[1].state().dataState(), DataStates.OK);
+            assertTrue(consRefresh[1].checkHasUserName());
+            assertTrue(consRefresh[1].checkHasUserNameType());
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertTrue(consRefresh[1].userName().data().get() == 0x0);
+                assertTrue(consRefresh[1].checkHasAuthenticationTTReissue());
+                assertEquals(consRefresh[1].authenticationTTReissue(), authenticationTTReissues[1]);
+                assertTrue(consRefresh[1].checkHasAuthenticationExtendedResp());
+                assertEquals(consRefresh[1].authenticationExtendedResp().toString(), authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(consRefresh[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(consRefresh[1].userName().toString(), userNames[0]);
+            System.out.println(test + " 9) Consumer validated login refresh[0]");
+        }
+        System.out.println(test + " Done\n");
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_BeforeLoginSubmitTest()
+    {
+        String test = "loginReissueWithConnectionRecovery_BeforeLoginSubmitTest()";
+        System.out.println("\n" + test + " Running...");
+        System.out.println("/*   CONS                 WatchList                 PROV\n" +
+                "   1) |    Cons Request[0] -> |                       |\n" +
+                "   2) |                       |    Prov Request[0] -> |\n" +
+                "   3) |                       | <- Prov Refresh[0]    |\n" +
+                "   4) | <- Cons Refresh[0]    |                       |\n" +
+                "   X) |                       |     Disconnect        |\n" +
+                "   5) |    User Request[1]    |                       |\n" +
+                "   R) |    Recovery           |                       |\n" +
+                "   6) |    Cons Request[1] -> |                       |\n" +
+                "   7) |                       |    Prov Request[1] -> |\n" +
+                "   8) |                       | <- Prov Refresh[1]    |\n" +
+                "   9) | <- Cons Refresh[1]    |                       |\n" +
+                "*/");
+
+        int loginStreamId;
+        TestReactorEvent event;
+        RDMLoginMsgEvent loginMsgEvent;
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+
+        LoginRequest[] consRequest = { null, null };
+        LoginRefresh[] consRefresh = { null, null };
+        LoginRequest[] provRequest = { null, null };
+        LoginRefresh[] provRefresh = { null, null };
+
+        // Data arrays - index [0] is used for the initial request and refresh, the other indices are for the subsequent reissue requests and refreshes.
+        String[] userNames = { "userName_0", "userName_1" };
+        String[] authenticationTokens = { "authenticationToken_0", "authenticationToken_1" };
+        String[] authenticationExts = { "authenticationExt_0", "authenticationExt_1" };
+        String[] authenticationExtResps = { "authenticationExtResp_0", "authenticationExtResp_1" };
+        long[] authenticationTTReissues = { 123123000, 123123001 };
+
+        int[] userNameTypes = { Login.UserIdTypes.NAME, Login.UserIdTypes.EMAIL_ADDRESS, Login.UserIdTypes.TOKEN, Login.UserIdTypes.COOKIE, Login.UserIdTypes.AUTHN_TOKEN };
+        for (int userNameType : userNameTypes)
+        {
+            System.out.println(test + " loop: userNameType = " + userNameType);
+
+            // Create reactors
+            TestReactor consumerReactor = new TestReactor();
+            TestReactor providerReactor = new TestReactor();
+            consumerReactor._reactor._reactorOptions.enableXmlTracing();
+            providerReactor._reactor._reactorOptions.enableXmlTracing();
+
+            // Create consumer and the initial login request message with data using index [0]
+            Consumer consumer = new Consumer(consumerReactor);
+            ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+            consumerRole.initDefaultRDMLoginRequest();
+            consumerRole.initDefaultRDMDirectoryRequest();
+
+            System.out.println(test + " 1) Consumer creating login request[0]");
+            consRequest[0] = consumerRole.rdmLoginRequest();
+            loginStreamId = consRequest[0].streamId();
+            consRequest[0].applyHasUserNameType();
+            consRequest[0].userNameType(userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[0].userName().data(authenticationTokens[0]);
+                consRequest[0].applyHasAuthenticationExtended();
+                consRequest[0].authenticationExtended().data(authenticationExts[0]);
+            }
+            else
+                consRequest[0].userName().data(userNames[0]);
+
+            consumerRole.channelEventCallback(consumer);
+            consumerRole.loginMsgCallback(consumer);
+            consumerRole.directoryMsgCallback(consumer);
+            consumerRole.dictionaryMsgCallback(consumer);
+            consumerRole.defaultMsgCallback(consumer);
+            consumerRole.watchlistOptions().enableWatchlist(true);
+            consumerRole.watchlistOptions().channelOpenCallback(consumer);
+
+            // Create provider.
+            Provider provider = new Provider(providerReactor);
+            ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+            providerRole.channelEventCallback(provider);
+            providerRole.loginMsgCallback(provider);
+            providerRole.directoryMsgCallback(provider);
+            providerRole.dictionaryMsgCallback(provider);
+            providerRole.defaultMsgCallback(provider);
+
+            // Connect the consumer and provider. Disable the automatic setup of login & directory streams.
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            opts.reconnectAttemptLimit(-1);
+            provider.bind(opts);
+            System.out.println(test + " 1) Consumer sending login request[0]");
+            TestReactor.openSession(consumer, provider, opts);
+            System.out.println(test + " 1) Consumer sent login request[0]");
+
+            provider.testReactor().dispatch(0);
+            System.out.println(test + " 2,3,4) Provider and consumer already dispatched request[0]");
+
+            System.out.println(test + " X) Prov disconnect");
+            /* Disconnect provider. */
+            provider.closeChannel();
+
+            consumerReactor.dispatch(3);
+            System.out.println(test + " X.1) Consumer receives channel disconnect");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+            ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+            System.out.println(test + " X.2) Consumer receives status disconnect");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            System.out.println(test + " X.3) Consumer receives DIRECTORY_MSG");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+
+            System.out.println(test + " 5) User creating login request[1]");
+            consumerRole.initDefaultRDMLoginRequest();
+            consRequest[1] = consumerRole.rdmLoginRequest();
+            assertNotNull(consRequest[1]);
+            consRequest[1].applyHasUserNameType();
+            consRequest[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[1].userName().data(authenticationTokens[1]);
+                consRequest[1].applyHasAuthenticationExtended();
+                consRequest[1].authenticationExtended().data(authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                consRequest[1].userName().data(userNames[1]);
+            else
+                consRequest[1].userName().data(userNames[0]);
+
+            System.out.println(test + " 5) Consumer sending login request[1]");
+            submitOptions.clear();
+            assertTrue(consumer.submitAndDispatch(consRequest[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 5) Consumer sent login request[1]");
+
+
+            provider.testReactor().dispatch(0);
+            System.out.println(test + " N) provider should not receive anything before recovery");
+
+            System.out.println(test + "R) Consumer recovery");
+            TestReactor.openSession(consumer, provider, opts, true);
+
+            System.out.println(test + "R.0) Provider recovery - still nothing at provider side");
+            provider.testReactor().dispatch(0);
+
+            System.out.println(test + " 6) Provider recovery - consumer resending");
+            assertTrue(consumer.submitAndDispatch(consRequest[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 7) Provider dispatching, expects login request[1]");
+            provider.testReactor().dispatch(1);
+
+            event = provider.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            provRequest[1] = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+            assertEquals(provRequest[1].streamId(), loginStreamId);
+            assertTrue(provRequest[1].checkHasUserNameType());
+            assertEquals(provRequest[1].userNameType(), userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertEquals(provRequest[1].userName().toString(), authenticationTokens[1]);
+                assertTrue(provRequest[1].checkHasAuthenticationExtended());
+                assertEquals(provRequest[1].authenticationExtended().toString(), authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(provRequest[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(provRequest[1].userName().toString(), userNames[0]);
+
+            System.out.println(test + " 7) Provider validated login request[1]");
+
+            System.out.println(test + " 8) Provider creating login refresh[1]");
+            provRefresh[1] = (LoginRefresh)LoginMsgFactory.createMsg();
+            provRefresh[1].clear();
+            provRefresh[1].rdmMsgType(LoginMsgType.REFRESH);
+            provRefresh[1].streamId(loginStreamId);
+            provRefresh[1].applySolicited();
+            provRefresh[1].applyHasUserNameType();
+            provRefresh[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                provRefresh[1].userName().data(userNames[1]);
+                provRefresh[1].applyHasAuthenticationTTReissue();
+                provRefresh[1].authenticationTTReissue(authenticationTTReissues[1]);
+                provRefresh[1].applyHasAuthenticationExtendedResp();
+                provRefresh[1].authenticationExtendedResp().data(authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[1]);
+            }
+            else
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[0]);
+            }
+            provRefresh[1].state().streamState(StreamStates.OPEN);
+            provRefresh[1].state().dataState(DataStates.OK);
+
+            System.out.println(test + " 8) Provider sending login refresh[1]");
+            submitOptions.clear();
+            assertTrue(provider.submitAndDispatch(provRefresh[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 8) Provider sent login refresh[1]");
+
+            System.out.println(test + " 9) Consumer dispatching, expects login refresh[1]");
+            consumer.testReactor().dispatch(1);
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REFRESH, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+            assertEquals(MsgClasses.REFRESH, loginMsgEvent.msg().msgClass());
+            System.out.println(test + " 9) Consumer received login refresh[1]");
+
+            consRefresh[1] = (LoginRefresh)loginMsgEvent.rdmLoginMsg();
+            assertEquals(consRefresh[1].streamId(), loginStreamId);
+            assertEquals(consRefresh[1].state().streamState(), StreamStates.OPEN);
+            assertEquals(consRefresh[1].state().dataState(), DataStates.OK);
+            assertTrue(consRefresh[1].checkHasUserName());
+            assertTrue(consRefresh[1].checkHasUserNameType());
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertTrue(consRefresh[1].userName().data().get() == 0x0);
+                assertTrue(consRefresh[1].checkHasAuthenticationTTReissue());
+                assertEquals(consRefresh[1].authenticationTTReissue(), authenticationTTReissues[1]);
+                assertTrue(consRefresh[1].checkHasAuthenticationExtendedResp());
+                assertEquals(consRefresh[1].authenticationExtendedResp().toString(), authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(consRefresh[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(consRefresh[1].userName().toString(), userNames[0]);
+            System.out.println(test + " 9) Consumer validated login refresh[1]");
+        }
+        System.out.println(test + " Done\n");
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_AfterLoginSubmitTest()
+    {
+        String test = "loginReissueWithConnectionRecovery_AfterLoginSubmitTest()";
+        System.out.println("\n" + test + " Running...");
+        System.out.println("/*   CONS                 WatchList                 PROV\n" +
+                "   1) |    Cons Request[0] -> |                       |\n" +
+                "   2) |                       |    Prov Request[0] -> |\n" +
+                "   3) |                       | <- Prov Refresh[0]    |\n" +
+                "   4) | <- Cons Refresh[0]    |                       |\n" +
+                "   5) |    User Request[1]    |                       |\n" +
+                "   6) |    Cons Request[1] -> |                       |\n" +
+                "   7) |                       |    Prov Request[1] -> |\n" +
+                "   X) |                       |     Disconnect        |\n" +
+                "   R) |    Recovery           |                       |\n" +
+                "   8) |    Cons Request[1] -> |                       |\n" +
+                "   9) |                       |    Prov Request[1] -> |\n" +
+                "  10) |                       | <- Prov Refresh[1]    |\n" +
+                "  11) | <- Cons Refresh[1]    |                       |\n" +
+                "*/");
+
+        int loginStreamId;
+        TestReactorEvent event;
+        RDMLoginMsgEvent loginMsgEvent;
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+
+        LoginRequest[] consRequest = { null, null };
+        LoginRefresh[] consRefresh = { null, null };
+        LoginRequest[] provRequest = { null, null };
+        LoginRefresh[] provRefresh = { null, null };
+
+        // Data arrays - index [0] is used for the initial request and refresh, the other indices are for the subsequent reissue requests and refreshes.
+        String[] userNames = { "userName_0", "userName_1" };
+        String[] authenticationTokens = { "authenticationToken_0", "authenticationToken_1" };
+        String[] authenticationExts = { "authenticationExt_0", "authenticationExt_1" };
+        String[] authenticationExtResps = { "authenticationExtResp_0", "authenticationExtResp_1" };
+        long[] authenticationTTReissues = { 123123000, 123123001 };
+
+        int[] userNameTypes = { Login.UserIdTypes.NAME, Login.UserIdTypes.EMAIL_ADDRESS, Login.UserIdTypes.TOKEN, Login.UserIdTypes.COOKIE, Login.UserIdTypes.AUTHN_TOKEN };
+        for (int userNameType : userNameTypes)
+        {
+            System.out.println(test + " loop: userNameType = " + userNameType);
+
+            // Create reactors
+            TestReactor consumerReactor = new TestReactor();
+            TestReactor providerReactor = new TestReactor();
+            consumerReactor._reactor._reactorOptions.enableXmlTracing();
+            providerReactor._reactor._reactorOptions.enableXmlTracing();
+
+            // Create consumer and the initial login request message with data using index [0]
+            Consumer consumer = new Consumer(consumerReactor);
+            ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+            consumerRole.initDefaultRDMLoginRequest();
+            consumerRole.initDefaultRDMDirectoryRequest();
+
+            System.out.println(test + " 1) Consumer creating login request[0]");
+            consRequest[0] = consumerRole.rdmLoginRequest();
+            loginStreamId = consRequest[0].streamId();
+            consRequest[0].applyHasUserNameType();
+            consRequest[0].userNameType(userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[0].userName().data(authenticationTokens[0]);
+                consRequest[0].applyHasAuthenticationExtended();
+                consRequest[0].authenticationExtended().data(authenticationExts[0]);
+            }
+            else
+                consRequest[0].userName().data(userNames[0]);
+
+            consumerRole.channelEventCallback(consumer);
+            consumerRole.loginMsgCallback(consumer);
+            consumerRole.directoryMsgCallback(consumer);
+            consumerRole.dictionaryMsgCallback(consumer);
+            consumerRole.defaultMsgCallback(consumer);
+            consumerRole.watchlistOptions().enableWatchlist(true);
+            consumerRole.watchlistOptions().channelOpenCallback(consumer);
+
+            // Create provider.
+            Provider provider = new Provider(providerReactor);
+            ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+            providerRole.channelEventCallback(provider);
+            providerRole.loginMsgCallback(provider);
+            providerRole.directoryMsgCallback(provider);
+            providerRole.dictionaryMsgCallback(provider);
+            providerRole.defaultMsgCallback(provider);
+
+            // Connect the consumer and provider. Disable the automatic setup of login & directory streams.
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            opts.reconnectAttemptLimit(-1);
+            provider.bind(opts);
+            System.out.println(test + " 1) Consumer sending login request[0]");
+            TestReactor.openSession(consumer, provider, opts);
+            System.out.println(test + " 1) Consumer sent login request[0]");
+
+            provider.testReactor().dispatch(0);
+            System.out.println(test + " 2,3,4) Provider and consumer already dispatched request[0]");
+
+            System.out.println(test + " 5) User creating login request[1]");
+            consumerRole.initDefaultRDMLoginRequest();
+            consRequest[1] = consumerRole.rdmLoginRequest();
+            assertNotNull(consRequest[1]);
+            consRequest[1].applyHasUserNameType();
+            consRequest[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                consRequest[1].userName().data(authenticationTokens[1]);
+                consRequest[1].applyHasAuthenticationExtended();
+                consRequest[1].authenticationExtended().data(authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                consRequest[1].userName().data(userNames[1]);
+            else
+                consRequest[1].userName().data(userNames[0]);
+
+            System.out.println(test + " 6) Consumer sending login request[1]");
+            submitOptions.clear();
+            assertTrue(consumer.submitAndDispatch(consRequest[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 6) Consumer sent login request[1]");
+
+
+            System.out.println(test + " 7) Provider dispatching, expects login request[1]");
+            provider.testReactor().dispatch(1);
+
+            event = provider.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            provRequest[1] = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+            assertEquals(provRequest[1].streamId(), loginStreamId);
+            assertTrue(provRequest[1].checkHasUserNameType());
+            assertEquals(provRequest[1].userNameType(), userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertEquals(provRequest[1].userName().toString(), authenticationTokens[1]);
+                assertTrue(provRequest[1].checkHasAuthenticationExtended());
+                assertEquals(provRequest[1].authenticationExtended().toString(), authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(provRequest[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(provRequest[1].userName().toString(), userNames[0]);
+
+            System.out.println(test + " 7) Provider validated login request[1]");
+
+
+            System.out.println(test + " X) Prov disconnect");
+            /* Disconnect provider. */
+            provider.closeChannel();
+
+            consumerReactor.dispatch(3);
+            System.out.println(test + " X.1) Consumer receives channel disconnect");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+            ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+            System.out.println(test + " X.2) Consumer receives status disconnect");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            System.out.println(test + " X.3) Consumer receives DIRECTORY_MSG");
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+
+
+            provider.testReactor().dispatch(0);
+            System.out.println(test + " X) provider should not receive anything before recovery");
+
+            System.out.println(test + "R) Consumer recovery");
+            TestReactor.openSession(consumer, provider, opts, true);
+
+            System.out.println(test + "R.0) Provider recovery - still nothing at provider side");
+            provider.testReactor().dispatch(0);
+
+
+
+            System.out.println(test + " 8) Provider recovery - consumer resending");
+            assertTrue(consumer.submitAndDispatch(consRequest[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+
+            System.out.println(test + " 9) Provider dispatching, expects login request[1]");
+            provider.testReactor().dispatch(1);
+
+            event = provider.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+            provRequest[1] = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+            assertEquals(provRequest[1].streamId(), loginStreamId);
+            assertTrue(provRequest[1].checkHasUserNameType());
+            assertEquals(provRequest[1].userNameType(), userNameType);
+
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertEquals(provRequest[1].userName().toString(), authenticationTokens[1]);
+                assertTrue(provRequest[1].checkHasAuthenticationExtended());
+                assertEquals(provRequest[1].authenticationExtended().toString(), authenticationExts[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(provRequest[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(provRequest[1].userName().toString(), userNames[0]);
+
+            System.out.println(test + " 9) Provider validated login request[1]");
+
+            System.out.println(test + " 10) Provider creating login refresh[1]");
+            provRefresh[1] = (LoginRefresh)LoginMsgFactory.createMsg();
+            provRefresh[1].clear();
+            provRefresh[1].rdmMsgType(LoginMsgType.REFRESH);
+            provRefresh[1].streamId(loginStreamId);
+            provRefresh[1].applySolicited();
+            provRefresh[1].applyHasUserNameType();
+            provRefresh[1].userNameType(userNameType);
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                provRefresh[1].userName().data(userNames[1]);
+                provRefresh[1].applyHasAuthenticationTTReissue();
+                provRefresh[1].authenticationTTReissue(authenticationTTReissues[1]);
+                provRefresh[1].applyHasAuthenticationExtendedResp();
+                provRefresh[1].authenticationExtendedResp().data(authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[1]);
+            }
+            else
+            {
+                provRefresh[1].applyHasUserName();
+                provRefresh[1].userName().data(userNames[0]);
+            }
+            provRefresh[1].state().streamState(StreamStates.OPEN);
+            provRefresh[1].state().dataState(DataStates.OK);
+
+            System.out.println(test + " 10) Provider sending login refresh[1]");
+            submitOptions.clear();
+            assertTrue(provider.submitAndDispatch(provRefresh[1], submitOptions) >= ReactorReturnCodes.SUCCESS);
+            System.out.println(test + " 10) Provider sent login refresh[1]");
+
+            System.out.println(test + " 11) Consumer dispatching, expects login refresh[1]");
+            consumer.testReactor().dispatch(1);
+            event = consumer.testReactor().pollEvent();
+            assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+            assertEquals(LoginMsgType.REFRESH, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+            assertEquals(MsgClasses.REFRESH, loginMsgEvent.msg().msgClass());
+            System.out.println(test + " 11) Consumer received login refresh[1]");
+
+            consRefresh[1] = (LoginRefresh)loginMsgEvent.rdmLoginMsg();
+            assertEquals(consRefresh[1].streamId(), loginStreamId);
+            assertEquals(consRefresh[1].state().streamState(), StreamStates.OPEN);
+            assertEquals(consRefresh[1].state().dataState(), DataStates.OK);
+            assertTrue(consRefresh[1].checkHasUserName());
+            assertTrue(consRefresh[1].checkHasUserNameType());
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                assertTrue(consRefresh[1].userName().data().get() == 0x0);
+                assertTrue(consRefresh[1].checkHasAuthenticationTTReissue());
+                assertEquals(consRefresh[1].authenticationTTReissue(), authenticationTTReissues[1]);
+                assertTrue(consRefresh[1].checkHasAuthenticationExtendedResp());
+                assertEquals(consRefresh[1].authenticationExtendedResp().toString(), authenticationExtResps[1]);
+            }
+            else if (userNameType == Login.UserIdTypes.TOKEN)
+                assertEquals(consRefresh[1].userName().toString(), userNames[1]);
+            else
+                assertEquals(consRefresh[1].userName().toString(), userNames[0]);
+            System.out.println(test + " 11) Consumer validated login refresh[1]");
+        }
+        System.out.println(test + " Done\n");
+    }
+
+
 }

@@ -147,6 +147,21 @@ public:
 	operator const char* () const;
 	//@}
 
+	///@name Constructor
+	//@{
+	/** default constructor.
+	*/
+	DictionaryEntry();
+	//@}
+
+	///@name Destructor
+	//@{
+	/** destructor.
+	*
+	*/
+	virtual ~DictionaryEntry();
+	//@}
+
 private:
 
 	friend class DictionaryEntryImpl;
@@ -155,9 +170,8 @@ private:
 	template<class T>
 	friend class thomsonreuters::ema::access::EmaVector;
 
-	DictionaryEntry();
-
-	virtual ~DictionaryEntry();
+	// isManagedByUser true when the instance is created by user; false when the instance is created by API
+	DictionaryEntry(bool isManagedByUser);
 
 	DictionaryEntry(const DictionaryEntry&);
 

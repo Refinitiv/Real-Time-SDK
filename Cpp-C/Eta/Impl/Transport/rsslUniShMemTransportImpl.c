@@ -333,7 +333,6 @@ RsslRet rsslUniShMemInitChannel(rsslChannelImpl *rsslChnlImpl, RsslInProgInfo *i
 	else	/* client */
 	{
 		rsslChnlImpl->Channel.state = RSSL_CH_STATE_ACTIVE;
-		printf("rsslInitChannel() called from consumer\n");
 	}
 #endif
 #if SHM_PIPE

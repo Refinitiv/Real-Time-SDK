@@ -65,9 +65,13 @@ public:
 
 	bool hasEntry(thomsonreuters::ema::access::Int32 fieldId) const;
 
+	void getEntry(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+
 	const DictionaryEntry& getEntry(thomsonreuters::ema::access::Int32 fieldId) const;
 
 	bool hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+
+	void getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	const DictionaryEntry& getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
 
@@ -113,6 +117,10 @@ private:
 	FieldNameToIdHash* fieldNameToIdMap() const;
 
 	static void throwIueForQueryOnly();
+
+	void getEntryInt(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+
+	void getEntryInt(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	mutable FieldNameToIdHash* _pfieldNameToIdHash;
 

@@ -61,74 +61,74 @@ double GetTime::initTicksPerNano()
 	return 1.0;
 }
 
-TimeValue GetTime::getTimeSeconds()
+PerfTimeValue GetTime::getTimeSeconds()
 {
-	TimeValue	ret;
+	PerfTimeValue	ret;
 	struct timespec	ts;
 
 	if ( clock_gettime(CLOCK_MONOTONIC,&ts) == 0)
 	{
-		ret = (TimeValue)ts.tv_sec + (TimeValue)ts.tv_nsec / 1000000000ULL;
+		ret = (PerfTimeValue)ts.tv_sec + (PerfTimeValue)ts.tv_nsec / 1000000000ULL;
 	}
 	else
 	{
 		struct timeval tv;
 		gettimeofday(&tv,0);
-		ret = (TimeValue)tv.tv_sec + (TimeValue)tv.tv_usec / 1000000ULL;
+		ret = (PerfTimeValue)tv.tv_sec + (PerfTimeValue)tv.tv_usec / 1000000ULL;
 	}
 	return(ret);
 }
 
-TimeValue GetTime::getTimeMilli()
+PerfTimeValue GetTime::getTimeMilli()
 {
-	TimeValue	ret;
+	PerfTimeValue	ret;
 	struct timespec	ts;
 
 	if ( clock_gettime(CLOCK_MONOTONIC,&ts) == 0)
 	{
-		ret = (TimeValue)ts.tv_sec * 1000ULL + (TimeValue)ts.tv_nsec / 1000000ULL;
+		ret = (PerfTimeValue)ts.tv_sec * 1000ULL + (PerfTimeValue)ts.tv_nsec / 1000000ULL;
 	}
 	else
 	{
 		struct timeval tv;
 		gettimeofday(&tv,0);
-		ret = (TimeValue)tv.tv_sec * 1000ULL + (TimeValue)tv.tv_usec / 1000ULL;
+		ret = (PerfTimeValue)tv.tv_sec * 1000ULL + (PerfTimeValue)tv.tv_usec / 1000ULL;
 	}
 	return(ret);
 }
 
-TimeValue GetTime::getTimeMicro()
+PerfTimeValue GetTime::getTimeMicro()
 {
-	TimeValue	ret;
+	PerfTimeValue	ret;
 	struct timespec	ts;
 
 	if ( clock_gettime(CLOCK_MONOTONIC,&ts) == 0)
 	{
-		ret = (TimeValue)ts.tv_sec * 1000000ULL + (TimeValue)ts.tv_nsec / 1000ULL;
+		ret = (PerfTimeValue)ts.tv_sec * 1000000ULL + (PerfTimeValue)ts.tv_nsec / 1000ULL;
 	}
 	else
 	{
 		struct timeval tv;
 		gettimeofday(&tv,0);
-		ret = (TimeValue)tv.tv_sec * 1000000ULL + (TimeValue)tv.tv_usec;
+		ret = (PerfTimeValue)tv.tv_sec * 1000000ULL + (PerfTimeValue)tv.tv_usec;
 	}
 	return(ret);
 }
 
-TimeValue GetTime::getTimeNano()
+PerfTimeValue GetTime::getTimeNano()
 {
-	TimeValue	ret;
+	PerfTimeValue	ret;
 	struct timespec	ts;
 
 	if ( clock_gettime(CLOCK_MONOTONIC,&ts) == 0)
 	{
-		ret = (TimeValue)ts.tv_sec * 1000000000ULL + (TimeValue)ts.tv_nsec;
+		ret = (PerfTimeValue)ts.tv_sec * 1000000000ULL + (PerfTimeValue)ts.tv_nsec;
 	}
 	else
 	{
 		struct timeval tv;
 		gettimeofday(&tv,0);
-		ret = (TimeValue)tv.tv_sec * 1000000000ULL + (TimeValue)tv.tv_usec * 1000ULL;
+		ret = (PerfTimeValue)tv.tv_sec * 1000000000ULL + (PerfTimeValue)tv.tv_usec * 1000ULL;
 	}
 	return(ret);
 }
@@ -195,44 +195,44 @@ double GetTime::initTicksPerNano()
 	return (double) FREQ.QuadPart/1000000000.0;
 }
 
-TimeValue GetTime::getTimeSeconds()
+PerfTimeValue GetTime::getTimeSeconds()
 {
 	LARGE_INTEGER	m_Counter;
 	double			ret;
 	if ( !QueryPerformanceCounter(&m_Counter) )
-		return( (TimeValue)0 );
+		return( (PerfTimeValue)0 );
 	ret = (double)m_Counter.QuadPart / TICKS_PER_SECOND;
-	return( (TimeValue)ret );
+	return( (PerfTimeValue)ret );
 }
 
-TimeValue GetTime::getTimeMilli()
+PerfTimeValue GetTime::getTimeMilli()
 {
 	LARGE_INTEGER	m_Counter;
 	double			ret;
 	if ( !QueryPerformanceCounter(&m_Counter) )
-		return( (TimeValue)0 );
+		return( (PerfTimeValue)0 );
 	ret = (double)m_Counter.QuadPart / TICKS_PER_MILLI;
-	return( (TimeValue)ret );
+	return( (PerfTimeValue)ret );
 }
 
-TimeValue GetTime::getTimeMicro()
+PerfTimeValue GetTime::getTimeMicro()
 {
 	LARGE_INTEGER	m_Counter;
 	double			ret;
 	if ( !QueryPerformanceCounter(&m_Counter) )
-		return( (TimeValue)0 );
+		return( (PerfTimeValue)0 );
 	ret = (double)m_Counter.QuadPart / TICKS_PER_MICRO;
-	return( (TimeValue)ret );
+	return( (PerfTimeValue)ret );
 }
 
-TimeValue GetTime::getTimeNano()
+PerfTimeValue GetTime::getTimeNano()
 {
 	LARGE_INTEGER	m_Counter;
 	double			ret;
 	if ( !QueryPerformanceCounter(&m_Counter) )
-		return( (TimeValue)0 );
+		return( (PerfTimeValue)0 );
 	ret = (double)m_Counter.QuadPart / TICKS_PER_NANO;
-	return( (TimeValue)ret );
+	return( (PerfTimeValue)ret );
 }
 
 TICKS GetTime::getTicks()

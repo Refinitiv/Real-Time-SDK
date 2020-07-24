@@ -116,6 +116,15 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl);
+	
+	/**
+     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * <p>Defaults to true</p>
+     *
+     * @param takeExclusiveSignOnControl the exclusive sign on control.
+     * @return reference to this object
+     */
+	public OmmConsumerConfig takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
 
 	/**
 	 * Specifies a hostname and port. Overrides prior value.

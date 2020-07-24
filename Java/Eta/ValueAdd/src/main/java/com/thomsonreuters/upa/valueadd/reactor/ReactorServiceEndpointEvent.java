@@ -7,7 +7,7 @@ import java.util.List;
  * 
  * @see ReactorServiceEndpointEvent
  */
-public class ReactorServiceEndpointEvent extends WorkerEvent 
+public class ReactorServiceEndpointEvent extends ReactorEvent 
 {
 	List <ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList;
 	Object _userSpecObject = null;
@@ -22,6 +22,11 @@ public class ReactorServiceEndpointEvent extends WorkerEvent
 		_reactorServiceEndpointInfoList = endpointInfo;
 	}
 	
+	/**
+     * The list of service endpoint information associated with this event.
+     * 
+     * @return The list of ReactorServiceEndpointInfo
+     */
 	public List <ReactorServiceEndpointInfo> serviceEndpointInfo()
 	{
 		return _reactorServiceEndpointInfoList;

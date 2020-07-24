@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 */
 
 
@@ -49,10 +49,12 @@ static char libsslName[255];
 static char libcryptoName[255];
 static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
+static RsslBool rttSupport = RSSL_FALSE;
 
 static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
@@ -71,6 +73,7 @@ static const char *defaultPortNo = "14002";
 static const char *defaultServiceName = "DIRECT_FEED";
 /* default sub-protocol list */
 static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
+
 //API QA
 static RsslBool testCompressionZlib = RSSL_FALSE;
 static RsslBool jsonExpandEnum = RSSL_FALSE;
@@ -80,23 +83,24 @@ static RsslBool sendGenericMessage = RSSL_FALSE;
 
 void exitWithUsage()
 {
-	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache]\n");
+	printf(	"Usage: -c <connection type: socket or encrypted> -p <port number> -s <service name> -id <service ID> -runtime <seconds> [-cache] [-rtt]\n");
 	printf("Additional options:\n");
 	printf("  -outputBufs <count>   \tNumber of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxOutputBufs <count>\tMax number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxFragmentSize <size>\tMax size of buffers(configures maxFragmentSize in RsslBindOptions)\n");
+	printf(" -rtt turns on support of the round trip time measuring feature in the login\n");
 
 	printf("Additional encryption options:\n");
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
-	//API QA
+	printf(" -maxEventsInPool size of event pool\n")
+    //API QA
 	printf(" -testCompressionZlib turns on Zlib compression\n");
 	printf(" -compressionLevel specifies Zlib compression level\n");
 	printf(" -jsonExpandEnum changes jsonExpandEnumField from default (FALSE)to TRUE\n");
 	printf(" -sendGenericMessage sends generic message to consumer\n");
-	//END API QA
-
+	//END API QA;
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -365,6 +369,15 @@ int main(int argc, char **argv)
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-rtt", argv[iargs]))
+		{
+			rttSupport = RSSL_TRUE;
+		}
+		else if (strcmp("-maxEventsInPool", argv[iargs]) == 0)
+		{
+			++iargs;
+			maxEventsInPool = atoi(argv[iargs]);
+		}
 		//API QA
 		else if (0 == strcmp("-testCompressionZlib", argv[iargs]))
 		{
@@ -384,7 +397,6 @@ int main(int argc, char **argv)
 			sendGenericMessage = RSSL_TRUE;
 		}
 		//END API QA
-
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -394,6 +406,8 @@ int main(int argc, char **argv)
 	printf("portNo: %s\n", portNo);
 	printf("serviceName: %s\n", serviceName);
 	printf("serviceId: %llu\n", getServiceId());
+
+	setRTTSupport(rttSupport);
 
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
 	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
@@ -418,6 +432,8 @@ int main(int argc, char **argv)
 	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	reactorOpts.maxEventsInPool = maxEventsInPool;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
@@ -473,10 +489,7 @@ int main(int argc, char **argv)
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
-	//API QA
-	if (jsonExpandEnum)
-		jsonConverterOptions.jsonExpandedEnumFields = RSSL_TRUE;
-	//END API QA
+
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
 		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
@@ -626,6 +639,12 @@ int main(int argc, char **argv)
 				if (clientSessions[i].clientChannel != NULL)
 				{
 					if (sendItemUpdates(pReactor, clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
+					{
+						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
+					}
+
+					/* Send the RTT message whenever updates are sent */
+					if(sendLoginRTT(pReactor, clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
 					{
 						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
 					}

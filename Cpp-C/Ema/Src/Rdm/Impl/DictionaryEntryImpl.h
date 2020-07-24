@@ -26,7 +26,7 @@ class DictionaryEntryImpl
 {
 public:
 
-	DictionaryEntryImpl();
+	DictionaryEntryImpl(bool isManagedByUser);
 
 	DictionaryEntryImpl(RsslDictionaryEntry* rsslDictionaryEntry);
 
@@ -64,6 +64,11 @@ public:
 
 	const thomsonreuters::ema::access::EmaString& toString() const;
 
+	/** Detects that the instance was created by user or API.
+	* @return true when the instance was created by user; otherwise when the instance was created by API.
+	*/
+	bool isManagedByUser() const;
+
 	operator const char* () const;
 
 private:
@@ -76,6 +81,7 @@ private:
 	EnumType				_enumType;
 	mutable thomsonreuters::ema::access::EmaVector<EnumType>*    _pEnumEntryList;
 	EnumTypeTable			_enumTypeTable;
+	bool					_isManagedByUser;  // true when the instance is created by user, otherwise the instance is created by API
 };
 
 }

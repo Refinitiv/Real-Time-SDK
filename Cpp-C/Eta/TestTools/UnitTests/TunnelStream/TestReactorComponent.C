@@ -10,7 +10,6 @@
 #include "Consumer.h"
 #include "Provider.h"
 #include "TestUtil.h"
-#include "TunnelStreamGetTime.h"
 #include "gtest/gtest.h"
 
 using namespace testing;

@@ -57,6 +57,8 @@ public :
 
 	void permissionData( const EmaBuffer& );
 
+	void providerDriven( bool );
+
 	void complete( bool );
 
 	bool hasServiceId() const;

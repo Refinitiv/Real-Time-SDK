@@ -97,6 +97,16 @@ public interface GenericMsg extends Msg
      * @return true - if exists; false if does not exist.
      */
     public boolean checkHasSecondarySeqNum();
+    /**
+     * Checks the presence of the Provider Driven flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
+     *
+     * @see Msg#flags()
+     *
+     * @return true - if the message is provider driven; false if it is not.
+     */
+    public boolean checkIsProviderDriven();
 
     /**
      * Applies the Extended Header presence flag.
@@ -159,6 +169,15 @@ public interface GenericMsg extends Msg
      * @see Msg#flags(int)
      */
     public void applyHasSecondarySeqNum();
+
+    /**
+     * Applies the Provider Driven indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
+     *
+     * @see Msg#flags(int)
+     */
+    public void applyProviderDriven();
 
     /**
      * Specifies the part number of this generic message, typically used with

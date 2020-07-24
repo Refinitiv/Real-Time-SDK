@@ -11,18 +11,22 @@ unset(esdk_DEPENDS_LIST)
 # esdk Version information
 #[====================================================================]
 set(esdk_INTERNAL_API_VERSION_MAJOR 3)
-set(esdk_INTERNAL_RELEASE_TWEAK L1)
+set(esdk_INTERNAL_RELEASE_TWEAK G1)
 set(esdk_RELEASE_TYPE rrg)
 
-set( librssl_SO_VERSION 11 )
-set( librsslVA_SO_VERSION 14 )
-set( libema_SO_VERSION 9 )
+set( librssl_SO_VERSION 12 )
+set( librsslVA_SO_VERSION 15 )
+set( libema_SO_VERSION 10 )
 set( librsslJsonConverter_SO_VERSION 1 )
 
 set(Ansi_VERSION_MAJOR 1)
 set(Ansi_VERSION_MINOR 0)
 set(Ansi_VERSION_PATCH 0)
 set(Ansi_VERSION_TWEAK 44)
+
+set(librsslJsonConverter_VERSION_MINOR 2)
+set(librsslJsonConverter_VERSION_PATCH 0)
+set(librsslJsonConverter_VERSION_TWEAK 0)
 
 # This file is included by other development repos
 # and the set to cache is not neccessary

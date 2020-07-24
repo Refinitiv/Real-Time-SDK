@@ -129,8 +129,7 @@ public class ReactorConnectInfo
         return ReactorReturnCodes.SUCCESS;
     }
     
-    /** A callback function for processing AuthTokenEvents received. If not present,
-     * the received message will be passed to the defaultMsgCallback.
+    /** A callback function for processing AuthTokenEvents received.
      * 
      * @return the reactorAuthTokenEventCallback
      * @see ReactorAuthTokenEventCallback

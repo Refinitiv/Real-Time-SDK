@@ -1,24 +1,12 @@
 package com.thomsonreuters.upa.perftools.common;
 
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.shared.ConsumerLoginState;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
 
 /**
  * This is the Login handler for the UPA Consumer and NIProvider application. It

@@ -265,7 +265,7 @@ public class DictionaryHandler
      * Stream Id for dictionaries are then saved, which compared later to find
      * type of dictionary part received
      * 
-     * Updates dictionary download states after full dictionary is recieved.
+     * Updates dictionary download states after full dictionary is received.
      */
     private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
     {

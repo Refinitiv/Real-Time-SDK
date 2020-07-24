@@ -55,13 +55,14 @@ static void addItem(char *itemName, RsslUInt8 domainType, RsslBool symbolListDat
 void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
-		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
+		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -takeExclusiveSignOnControl <true/false> ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ] [-rtt]\n"
 			" -c           Specifies connection type. Valid arguments are socket, webSocket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, webSocket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
 			" -clientId    Specifies an unique ID for application making the request to EDP token service (mandatory).\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
 			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
+			" -takeExclusiveSignOnControl Specifies true or false to set the exclusive sign on control to force sign-out for the same credentials.\n"
 			" -query       Quries EDP service discovery to get an endpoint according the specified connection type and location.\n"
 			" -mp          For each occurance, requests item using Market Price domain.\n"
 			" -mbo         For each occurance, requests item on the Market By Order domain.\n"
@@ -98,6 +99,8 @@ void printUsageAndExit(int argc, char **argv)
 			"   -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"   -tsServiceName specifies the name of the service to use for tunnel stream messages (if not specified, the service specified by -s is used).\n"
 			"   -tsAuth  Causes the consumer to use authentication when opening tunnel streams.\n"
+			"\n"
+			" -rtt Turns on the Round Trip Time monitoring feature in the login stream"
 			, argv[0], argv[0]);
 	exit(-1);
 }
@@ -153,6 +156,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.runTime = 300;
 
 	watchlistConsumerConfig.enableHostStatMessages = RSSL_FALSE;
+	watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
 	snprintf(watchlistConsumerConfig.hsmAddress, 255, "");
 	snprintf(watchlistConsumerConfig.hsmPort, 255, "");
 	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
@@ -170,6 +174,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
 
 	snprintf(watchlistConsumerConfig.protocolList, 255, "rssl.rwf");
+
+	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
@@ -381,6 +387,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._appIdMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.appId.data = watchlistConsumerConfig._appIdMem;
 		}
+		else if (0 == strcmp(argv[i], "-rtt"))
+		{
+			watchlistConsumerConfig.RTTSupport = RSSL_TRUE;
+		}
 		else if (0 == strcmp(argv[i], "-mp"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -473,6 +483,18 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		else if (strcmp("-query", argv[i]) == 0)
 		{
 			watchlistConsumerConfig.queryEndpoint = RSSL_TRUE;
+		}
+		else if (0 == strcmp(argv[i], "-takeExclusiveSignOnControl"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			if (RTR_STRNICMP(argv[i], "true", 4) == 0)
+			{
+				watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
+			}
+			else if (RTR_STRNICMP(argv[i], "false", 5) == 0)
+			{
+				watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_FALSE;
+			}
 		}
 		else
 		{

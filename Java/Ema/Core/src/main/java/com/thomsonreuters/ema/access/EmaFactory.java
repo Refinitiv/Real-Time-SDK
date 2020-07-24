@@ -12,6 +12,7 @@ import com.thomsonreuters.ema.domain.login.Login.LoginRefresh;
 import com.thomsonreuters.ema.domain.login.Login.LoginReq;
 import com.thomsonreuters.ema.domain.login.Login.LoginStatus;
 import com.thomsonreuters.ema.rdm.DataDictionary;
+import com.thomsonreuters.ema.rdm.DictionaryEntry;
 import com.thomsonreuters.ema.rdm.DictionaryUtility;
 
 /**
@@ -825,5 +826,13 @@ public class EmaFactory
 	public static ChannelInformation createChannelInformation()
 	{
 		return new ChannelInformationImpl();
+	}
+
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.rdm.DictionaryEntry}.
+	 * @return {@link com.thomsonreuters.ema.rdm.DictionaryEntry}
+	 */
+	public static DictionaryEntry createDictionaryEntry() {
+		return new DictionaryEntryImpl(true);
 	}
 }

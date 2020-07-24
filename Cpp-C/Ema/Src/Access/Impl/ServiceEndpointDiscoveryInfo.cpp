@@ -17,15 +17,23 @@ using namespace thomsonreuters::ema::access;
 ServiceEndpointDiscoveryInfo::ServiceEndpointDiscoveryInfo() :
 _toString(0,256)
 {
+	_pDataFormatList = 0;
+	_pLocationList = 0;
 	try
 	{
 		_pDataFormatList = new EmaVector<EmaString>(2);
 		_pLocationList = new EmaVector<EmaString>(2);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc)
+	{
+		// it's safe to delete nullptr
+		delete _pDataFormatList;
+		_pDataFormatList = 0;
+		delete _pLocationList;
+		_pLocationList = 0;
 
-	if ( (!_pDataFormatList) || (!_pLocationList))
 		throwMeeException("Failed to allocate memory for EmaVector<EmaString> in ServiceEndpointDiscoveryInfo().");
+	}
 }
 
 ServiceEndpointDiscoveryInfo::~ServiceEndpointDiscoveryInfo()

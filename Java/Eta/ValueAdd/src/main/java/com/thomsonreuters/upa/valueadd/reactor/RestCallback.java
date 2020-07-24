@@ -7,5 +7,5 @@ package com.thomsonreuters.upa.valueadd.reactor;
 interface RestCallback
 {
     public int RestResponseCallback(RestResponse response, RestEvent event);
-    public int RestErrorCallback(RestEvent event);
+    public int RestErrorCallback(RestEvent event, String errorText);
 }

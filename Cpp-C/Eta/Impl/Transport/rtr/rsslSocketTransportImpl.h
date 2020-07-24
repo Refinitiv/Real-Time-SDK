@@ -34,6 +34,9 @@ extern "C" {
 #include "rtr/debugPrint.h"
 #include <stdio.h>
 #include "curl/curl.h"
+#if defined(_WIN32)
+#include <tcpmib.h>
+#endif
 
 #define RIPC_MAX_CONN_HDR_LEN  V10_MIN_CONN_HDR + MAX_RSSL_ERROR_TEXT 
 
@@ -528,6 +531,10 @@ typedef struct
 											*/
 	void				*newTransportInfo;
 	RsslUInt16			port;				/* port number that was used to connect to the server (for Consumer, NiProvider). */
+#if (defined(_WINDOWS) || defined(_WIN32))
+	RsslBool socketRowSet;
+	MIB_TCPROW socketRow;
+#endif
 } RsslSocketChannel;
 
 
@@ -664,6 +671,10 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 
 	rsslSocketChannel->rwsSession = 0;
 	rsslSocketChannel->rwsLargeMsgBufferList = 0;
+
+#if (defined(_WINDOWS) || defined(_WIN32))
+	rsslSocketChannel->socketRowSet = RSSL_FALSE;
+#endif
 }
 
 
@@ -734,7 +745,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvr
 
 /* Socket Channel functions for active WS connections using a non-RWF protocol */
 /* Contains code necessary to close a socket connection (client or server side) */
-RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error);
+RsslRet rsslWebSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error);
 
 /* Contains code necessary to read from a socket connection (client or server side) */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslChnlImpl, RsslReadOutArgs *readOutArgs, RsslRet *readRet, RsslError *error);
@@ -751,6 +762,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketPackBuffer(rsslChannelImpl 
 /* Contains code necessary to send a ping message (or flush queued data) on socket connection (client or server side) */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketPing(rsslChannelImpl *rsslChnlImpl, RsslError *error);
 
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelStats(rsslChannelImpl *rsslSocketChannel, RsslChannelStats* stats, RsslError *error);
 
 
 

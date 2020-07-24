@@ -58,7 +58,7 @@ public class ConsPerfConfig
 	private boolean _useReactor;            /* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 	private boolean _useWatchlist;          /* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
 	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
-	
+
     {
         CommandLine.programName("upajConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");

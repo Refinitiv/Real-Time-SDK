@@ -754,7 +754,7 @@ rtrShmNamedPipePtr rtrShmSegAttachNamedPipe( const char *key, unsigned short nam
 		return 0;
 	}
 	snprintf(namedPipeName, __MY_MAX_ADDR, RTR_NAMEDPIPE_NAME, key, namedPipeNumber );
-	printf("opening named pipe = %s\n", namedPipeName);
+
 	if ((fd = open(namedPipeName, RTR_NAMEDPIPE_ATTACH_FLAGS)) == -1)
 	{
 		snprintf(errBuff,__ERROR_LEN, "rtrShmSegCreateNamedPipe() open failed (errno = %d, name = %s)", errno, namedPipeName);

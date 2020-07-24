@@ -8,14 +8,14 @@
 
 #include "TestReactorEvent.h"
 #include "TestUtil.h"
-#include "TunnelStreamGetTime.h"
+#include "rtr/rsslGetTime.h"
 #include "gtest/gtest.h"
 
 using namespace testing;
 
 TestReactorEvent::TestReactorEvent(TestReactorEventTypes type, void* pEvent)
 {
-	_nanoTime = getTimeNano();
+	_nanoTime = rsslGetTimeNano();
 	_type = type;
 
 	_msgBuffer.data = _msgBufferMemory;

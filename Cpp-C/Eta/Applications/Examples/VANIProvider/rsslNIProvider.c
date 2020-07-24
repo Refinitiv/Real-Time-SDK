@@ -75,6 +75,7 @@ static const char *defaultItemName = "TRI";
 
 NIChannelCommand chnlCommand;
 RsslInt32 timeToRun = 300;
+RsslInt32 maxEventsInPool = 500;
 time_t rsslProviderRuntime;
 static RsslBool xmlTrace = RSSL_FALSE;
 static char traceOutputFile[128];
@@ -132,6 +133,7 @@ void printUsageAndExit(char *appName)
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
 			"\n -castore specifies the filename or directory of the OpenSSL CA store\n"
+			"\n -maxEventsInPool size of event pool\n"
 			, appName);
 	exit(-1);
 }
@@ -243,6 +245,11 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 			i++;
 			xmlTrace = RSSL_TRUE;
 			snprintf(traceOutputFile, 128, "RsslNIVAProvider\0");
+		}
+		else if(strcmp("-maxEventsInPool", argv[i]) == 0)
+		{
+			i += 2;
+			maxEventsInPool = atoi(argv[i-1]);
 		}
 		else if (strcmp("-tcp", argv[i]) == 0)
 		{
@@ -902,7 +909,8 @@ int main(int argc, char **argv)
 
 	rsslClearCreateReactorOptions(&reactorOpts);
 	reactorOpts.dispatchDecodeMemoryBufferSize = 1024;
-
+	reactorOpts.maxEventsInPool = maxEventsInPool;
+	
 	setupLoginRequest(&chnlCommand, 1);
 
 	setupDirectoryResponseMsg(&chnlCommand, -1);

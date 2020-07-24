@@ -37,6 +37,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
+			<MaxEventsInPool value="200"/>
 			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
@@ -78,6 +79,7 @@
 			<ReconnectAttemptLimit value="5"/>
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
+			<MaxEventsInPool value="300"/>
 			<XmlTraceFileName value="EmaMyTrace3"/>
 			<XmlTraceMaxFileSize value="66666666" />
 			<XmlTraceToFile value="1" />
@@ -217,6 +219,7 @@
 
 			<Directory value="Directory_3"/>
 			
+			<MaxEventsInPool value="200"/>
 			<ReconnectAttemptLimit value="5"/>
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
@@ -290,6 +293,7 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
+			<MaxEventsInPool value="300"/>
 			<PipePort value="7001"/>
 			<XmlTraceFileName value="EmaMyTrace2"/>
 			<XmlTraceMaxFileSize value="66666666" />
@@ -467,6 +471,7 @@
             <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
             <TcpNodelay value="1"/>
             <Port value="14002"/>
+            <ServerSharedSocket value="0"/>
         </Server>
 		<Server>
             <Name value="Server_2"/>
@@ -501,6 +506,21 @@
             <Port value="14011"/>
             <MaxFragmentSize value="100500"/>
             <WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+        </Server>
+        <Server>
+            <Name value="Server_12"/>
+            <ServerType value="ServerType::RSSL_SOCKET"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::None"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="30000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14002"/>
+            <ServerSharedSocket value="1"/>
         </Server>
     </ServerList>
 </ServerGroup>

@@ -17,7 +17,6 @@ import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectOptions;
@@ -41,6 +40,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOAuthCredential;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectInfo;
@@ -283,33 +283,35 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
                 
-                               
-                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, channelConfig.compressionThreshold, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+                if (channelConfig.compressionThresholdSet)
                 {
-                	if (_baseImpl.loggerClient().isErrorEnabled())
-    	        	{
-	    	        	StringBuilder temp = _baseImpl.strBuilder();
-						
-	    	        	temp.append("Failed to set compression threshold on channel ")
-							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
-		    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
-								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
-								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
-							else
-								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
-		    	        	
-							temp.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
-							.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
-							.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
-							.append("Error text ").append(rsslReactorErrorInfo.error().text());
-
-	    	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-    	        	}
-                	
-             	_baseImpl.closeRsslChannel(rsslReactorChannel);
-                	
-                    return ReactorCallbackReturnCodes.SUCCESS;
+	                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, channelConfig.compressionThreshold, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+	                {
+	                	if (_baseImpl.loggerClient().isErrorEnabled())
+	    	        	{
+		    	        	StringBuilder temp = _baseImpl.strBuilder();
+							
+		    	        	temp.append("Failed to set compression threshold on channel ")
+								.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+								.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR);
+			    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+									temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+									.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+								else
+									temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+			    	        	
+								temp.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
+								.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
+								.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
+								.append("Error text ").append(rsslReactorErrorInfo.error().text());
+	
+		    	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	    	        	}
+	                	
+	                	_baseImpl.closeRsslChannel(rsslReactorChannel);
+	                	
+	                    return ReactorCallbackReturnCodes.SUCCESS;
+	                }
                 }
 
 				if (_baseImpl.loggerClient().isInfoEnabled())
@@ -915,7 +917,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
-	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, Buffer clientId)
+	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, EmaConfigImpl configImpl)
 	{
         ConsumerRole consumerRole = ReactorFactory.createConsumerRole();
 		
@@ -930,8 +932,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
 		
-		if(clientId.length() != 0)
-			consumerRole.clientId(clientId);
+		/* The Client ID is required parameter to enable the session management */
+		if(configImpl.clientId().length() != 0 )
+		{
+			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+			oAuthCredential.clientId(configImpl.clientId());
+			oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
+			consumerRole.reactorOAuthCredential(oAuthCredential);
+		}
 		
 		ConsumerWatchlistOptions watchlistOptions = consumerRole.watchlistOptions();
 		watchlistOptions.channelOpenCallback(this);
