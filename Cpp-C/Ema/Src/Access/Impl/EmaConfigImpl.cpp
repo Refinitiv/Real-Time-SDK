@@ -58,11 +58,7 @@ EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 EmaConfigBaseImpl::~EmaConfigBaseImpl()
 {
 	delete _pEmaConfig;
-
-	xmlCleanupParser();
-
-	if (_pProgrammaticConfigure)
-		delete _pProgrammaticConfigure;
+	delete _pProgrammaticConfigure;
 }
 
 void EmaConfigBaseImpl::clear()
