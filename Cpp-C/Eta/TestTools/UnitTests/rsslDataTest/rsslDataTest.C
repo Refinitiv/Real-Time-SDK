@@ -9589,6 +9589,98 @@ TEST(realDoubleIntConvertTest, RealHintExponentAllTest)
 	testDoubleToRealConvert(256., RSSL_RH_FRACTION_256);
 }
 
+void testRealToDoubleConvert(const RsslDouble dFactor, const RsslRealHints rhExponent)
+{
+	RsslDouble testDouble;
+	RsslReal testReal;
+	int i;
+
+	/* tests digits -9 .. 0 .. 9 */
+	for (i = -9; i < 10; i++)
+	{
+		rsslClearReal(&testReal);
+		testReal.hint = rhExponent;
+		testReal.value = i;
+
+		ASSERT_TRUE(rsslRealToDouble(&testDouble, &testReal) == RSSL_RET_SUCCESS);
+
+		/* to avoid dealing with floating point precision issues just convert it back to real */
+		rsslClearReal(&testReal);
+		ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+		ASSERT_EQ(testReal.hint, rhExponent);
+		ASSERT_EQ(testReal.value, i);
+	}
+
+	/* tests middle in range values */
+	rsslClearReal(&testReal);
+	testReal.hint = rhExponent;
+	testReal.value = 123;
+
+	ASSERT_TRUE(rsslRealToDouble(&testDouble, &testReal) == RSSL_RET_SUCCESS);
+
+	rsslClearReal(&testReal);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, 123);
+
+	rsslClearReal(&testReal);
+	testReal.hint = rhExponent;
+	testReal.value = -123;
+
+	ASSERT_TRUE(rsslRealToDouble(&testDouble, &testReal) == RSSL_RET_SUCCESS);
+
+	rsslClearReal(&testReal);
+	ASSERT_TRUE(rsslDoubleToReal(&testReal, &testDouble, rhExponent) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testReal.hint, rhExponent);
+	ASSERT_EQ(testReal.value, -123);
+
+	/* tests out of range values */
+	/* cannot be applied to real as real is always fit in double */
+
+	/* tests maximum */
+	/* cannot be applied to real as real precision is higher than double */
+
+	/* tests minimum */
+	/* cannot be applied to real as real precision is higher than double */
+}
+
+TEST(realDoubleIntConvertTest, DoubleHintExponentAllTest)
+{
+	testRealToDoubleConvert(1e14, RSSL_RH_EXPONENT_14);
+	testRealToDoubleConvert(1e13, RSSL_RH_EXPONENT_13);
+	testRealToDoubleConvert(1e12, RSSL_RH_EXPONENT_12);
+	testRealToDoubleConvert(1e11, RSSL_RH_EXPONENT_11);
+	testRealToDoubleConvert(1e10, RSSL_RH_EXPONENT_10);
+	testRealToDoubleConvert(1e9, RSSL_RH_EXPONENT_9);
+	testRealToDoubleConvert(1e8, RSSL_RH_EXPONENT_8);
+	testRealToDoubleConvert(1e7, RSSL_RH_EXPONENT_7);
+	testRealToDoubleConvert(1e6, RSSL_RH_EXPONENT_6);
+	testRealToDoubleConvert(1e5, RSSL_RH_EXPONENT_5);
+	testRealToDoubleConvert(1e4, RSSL_RH_EXPONENT_4);
+	testRealToDoubleConvert(1e3, RSSL_RH_EXPONENT_3);
+	testRealToDoubleConvert(100., RSSL_RH_EXPONENT_2);
+	testRealToDoubleConvert(10., RSSL_RH_EXPONENT_1);
+
+	testRealToDoubleConvert(1., RSSL_RH_EXPONENT0);
+	testRealToDoubleConvert(.1, RSSL_RH_EXPONENT1);
+	testRealToDoubleConvert(.01, RSSL_RH_EXPONENT2);
+	testRealToDoubleConvert(1e-3, RSSL_RH_EXPONENT3);
+	testRealToDoubleConvert(1e-4, RSSL_RH_EXPONENT4);
+	testRealToDoubleConvert(1e-5, RSSL_RH_EXPONENT5);
+	testRealToDoubleConvert(1e-6, RSSL_RH_EXPONENT6);
+	testRealToDoubleConvert(1e-7, RSSL_RH_EXPONENT7);
+
+	testRealToDoubleConvert(1., RSSL_RH_FRACTION_1);
+	testRealToDoubleConvert(2., RSSL_RH_FRACTION_2);
+	testRealToDoubleConvert(4., RSSL_RH_FRACTION_4);
+	testRealToDoubleConvert(8., RSSL_RH_FRACTION_8);
+	testRealToDoubleConvert(16., RSSL_RH_FRACTION_16);
+	testRealToDoubleConvert(32., RSSL_RH_FRACTION_32);
+	testRealToDoubleConvert(64., RSSL_RH_FRACTION_64);
+	testRealToDoubleConvert(128., RSSL_RH_FRACTION_128);
+	testRealToDoubleConvert(256., RSSL_RH_FRACTION_256);
+}
+
 void testCompareFloatToReal(const RsslReal testReal, const RsslInt testIntVal)
 {
 	RsslInt diff;
