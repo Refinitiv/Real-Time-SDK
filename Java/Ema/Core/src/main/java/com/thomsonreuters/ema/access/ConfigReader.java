@@ -915,12 +915,11 @@ class ConfigReader
 		{
 			String fileName;	// eventual location of configuration file
 			final String defaultFileName = "EmaConfig.xml";
+			
+			String pathh = System.getProperty("java.class.path");
 
 			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;
-			} else if (isClasspathResource(path)) {
-				fileName = path;
-				errorTracker().append( "detected configuration file [" ).append( fileName ).append( "] in classpath").create(Severity.TRACE);
 			} else {
 				File tmp = new File(path);
 				if(!tmp.exists()) {
@@ -967,7 +966,17 @@ class ConfigReader
 			XMLConfiguration config = null;
 			try 
 			{
-				config = new XMLConfiguration(fileName);
+				if (path == null || path.isEmpty()) {
+					InputStream in = ClassLoader.class.getResourceAsStream("/".concat(defaultFileName));
+					if (in == null) {
+						config = new XMLConfiguration(defaultFileName);
+					} else {
+						config = new XMLConfiguration();
+						config.load(in);
+					}
+				} else {
+					config = new XMLConfiguration(fileName);
+				}
 			} 
 			catch (ConfigurationException e) 
 			{
@@ -1013,15 +1022,6 @@ class ConfigReader
 
 			// debugging
 			// xmlRoot.dump(0);
-		}
-
-		boolean isClasspathResource(String resourceName)
-		{
-			try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-				return in != null;
-			} catch (IOException e) {
-				return false;
-			}
 		}
 
 		void verifyAndGetDefaultConsumer()
