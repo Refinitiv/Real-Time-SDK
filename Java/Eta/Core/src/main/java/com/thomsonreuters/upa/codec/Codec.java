@@ -16,16 +16,10 @@ public class Codec
 
     static
     {
-		for (Package thisPackage : Package.getPackages())
-		{
-			if (thisPackage.getName().equals("com.thomsonreuters.upa.codec"))
-			{
-		        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
-		        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
-		        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());				
-				break;
-			}
-		}    	
+        Package thisPackage = Codec.class.getPackage();
+        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
+        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
+        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());
     }
 
     /**
