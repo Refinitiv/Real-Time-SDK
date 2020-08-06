@@ -17,18 +17,18 @@
 #define BLDTYPE " Debug"
 #endif
 
-#define JSON_Release_Major     @librsslJsonConverter_VERSION_MAJOR@ 	// Release major version number
-#define JSON_Release_Minor     @librsslJsonConverter_VERSION_MINOR@ 	// Release minor version number
-#define JSON_Product_Major     @librsslJsonConverter_VERSION_PATCH@ 	// Release patch number
-#define JSON_Product_Minor     @librsslJsonConverter_VERSION_TWEAK@ 	// Release tweak number
+#define JSON_Release_Major     @Eta_VERSION_MAJOR@	// Release major version number
+#define JSON_Release_Minor     @Eta_VERSION_MINOR@	// Release minor version number
+#define JSON_Product_Major     @Eta_VERSION_PATCH@	// Release patch number
+#define JSON_Product_Minor     @Eta_VERSION_TWEAK@	// Release tweak number
 
 #define JSON_Year				"@esdk_year@"
 #define JSON_CompanyName		" Refinitiv"
 #define JSON_Version			JSON_Release_Major,JSON_Release_Minor,JSON_Product_Major,JSON_Product_Minor
 #define JSON_VersionString		MKSTR(JSON_Release_Major) "." MKSTR(JSON_Release_Minor) "." MKSTR(JSON_Product_Major) "." MKSTR(JSON_Product_Minor) " (" BLDTYPE ")"
 #define JSON_LegalCopyRight		"Copyright (C) " JSON_Year JSON_CompanyName ", All Rights Reserved. "
-#define JSON_ExternalName		"json@librsslJsonConverter_VERSION_MAJOR@.@librsslJsonConverter_VERSION_MINOR@.@librsslJsonConverter_VERSION_PATCH@.@librsslJsonConverter_VERSION_TWEAK@"
-#define JSON_InternalName		"json@librsslJsonConverter_VERSION_MAJOR@.@librsslJsonConverter_VERSION_MINOR@.@librsslJsonConverter_VERSION_PATCH@.@librsslJsonConverter_VERSION_TWEAK@"
+#define JSON_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
+#define JSON_InternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
 #define JSON_ReleaseType		"@esdk_RELEASE_TYPE@"
 #define JSON_ProdName			"JSON Library C Edition"
 #define JSON_Package			" PACKAGE " JSON_ExternalName " " JSON_ReleaseType
