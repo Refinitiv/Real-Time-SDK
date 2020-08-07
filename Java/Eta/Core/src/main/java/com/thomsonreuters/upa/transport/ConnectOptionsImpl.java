@@ -118,7 +118,7 @@ class ConnectOptionsImpl implements ConnectOptions
         destOptsImpl._sysSendBufSize = _sysSendBufSize;
         destOptsImpl._sysRecvBufSize = _sysRecvBufSize;
         _seqMCastOpts.copy(destOptsImpl._seqMCastOpts);
-
+        _encryptionOpts.copy(destOptsImpl._encryptionOpts);
 
         return TransportReturnCodes.SUCCESS;
     }

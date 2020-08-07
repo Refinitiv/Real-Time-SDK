@@ -817,7 +817,7 @@ public class ChannelSession
         copts.tunnelingInfo().HTTPproxyPort(connectOptions.tunnelingInfo().HTTPproxyPort());
         copts.tunnelingInfo().objectName(connectOptions.tunnelingInfo().objectName());
         copts.encryptionOptions().KeystoreType(connectOptions.encryptionOptions().KeystoreType());
-        if (connectOptions.tunnelingInfo().KeystoreFile() != null)
+        if (connectOptions.encryptionOptions().KeystoreFile() != null)
         {
             copts.encryptionOptions().KeystoreFile(connectOptions.encryptionOptions().KeystoreFile());
         }

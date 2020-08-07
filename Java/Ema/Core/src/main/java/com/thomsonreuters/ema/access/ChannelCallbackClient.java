@@ -1141,18 +1141,39 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
         
         if (channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
         {
-        	rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.encryptionConfig.KeyStoreFile);
-    		rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.encryptionConfig.KeyStorePasswd);
-    		if (channelConfig.encryptionConfig.KeyStoreType != null)
-    			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
-    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
-    			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
-    		if (channelConfig.encryptionConfig.SecurityProvider != null)
-    			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
-    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
-    			 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.encryptionConfig.TrustManagerAlgorithm);
-    		if (channelConfig.encryptionConfig.KeyManagerAlgorithm != null)
-    			 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.encryptionConfig.KeyManagerAlgorithm);
+        	if(channelConfig.encryptedProtocolType == ConnectionTypes.HTTP)
+        	{
+        		rsslOptions.tunnelingInfo().tunnelingType("HTTP");
+	        	rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.encryptionConfig.KeyStoreFile);
+	    		rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.encryptionConfig.KeyStorePasswd);
+	    		if (channelConfig.encryptionConfig.KeyStoreType != null)
+	    			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
+	    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
+	    			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
+	    		if (channelConfig.encryptionConfig.SecurityProvider != null)
+	    			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
+	    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
+	    			 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.encryptionConfig.TrustManagerAlgorithm);
+	    		if (channelConfig.encryptionConfig.KeyManagerAlgorithm != null)
+	    			 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.encryptionConfig.KeyManagerAlgorithm);
+        	}
+        	else
+        	{
+        		rsslOptions.tunnelingInfo().tunnelingType("None");
+        		rsslOptions.encryptionOptions().connectionType(ConnectionTypes.SOCKET);
+        		rsslOptions.encryptionOptions().KeystoreFile(channelConfig.encryptionConfig.KeyStoreFile);
+	    		rsslOptions.encryptionOptions().KeystorePasswd(channelConfig.encryptionConfig.KeyStorePasswd);
+	    		if (channelConfig.encryptionConfig.KeyStoreType != null)
+	    			 rsslOptions.encryptionOptions().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
+	    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
+	    			 rsslOptions.encryptionOptions().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
+	    		if (channelConfig.encryptionConfig.SecurityProvider != null)
+	    			 rsslOptions.encryptionOptions().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
+	    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
+	    			 rsslOptions.encryptionOptions().TrustManagerAlgorithm(channelConfig.encryptionConfig.TrustManagerAlgorithm);
+	    		if (channelConfig.encryptionConfig.KeyManagerAlgorithm != null)
+	    			 rsslOptions.encryptionOptions().KeyManagerAlgorithm(channelConfig.encryptionConfig.KeyManagerAlgorithm);
+        	}
 		}
         
         if (_baseImpl.loggerClient().isTraceEnabled())
