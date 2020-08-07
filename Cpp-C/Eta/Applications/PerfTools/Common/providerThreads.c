@@ -224,6 +224,7 @@ void providerThreadInit(ProviderThread *pProvThread,
 	initCountStat(&pProvThread->stats.latencyGenMsgSentCount);
 	clearValueStatistics(&pProvThread->stats.genMsgLatencyStats);
 	clearValueStatistics(&pProvThread->stats.intervalGenMsgLatencyStats);
+	clearValueStatistics(&pProvThread->stats.tunnelStreamBufUsageStats);
 
 	pProvThread->stats.inactiveTime = 0;
 	pProvThread->stats.firstGenMsgSentTime = 0;
@@ -403,6 +404,8 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 		}
 		assert(mboItem.iMsg == 0); /* encode function increments iMsg. If we've done everything right this should be 0 */
 	}
+
+	perfTunnelMsgHandlerInit(&pSession->perfTunnelMsgHandler, NULL, 0, RSSL_FALSE, RSSL_TRUE, provPerfConfig.guaranteedOutputTunnelBuffers);
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
@@ -1049,10 +1052,15 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 	RsslUInt32 uncompOutBytes;
 	RsslRet ret;
 	RsslBool releaseBuffer = RSSL_FALSE;
+	RsslBool useTunnel = RSSL_FALSE;
 
 	assert(pSession->pWritingBuffer);
 
 	pSession->packedBufferCount = 0;
+	if (pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		useTunnel = RSSL_TRUE;
+	}
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
@@ -1124,6 +1132,53 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 												 providerThreadConfig.writeFlags, &outBytes, 
 												 &uncompOutBytes, pError);
 
+		/* call flush and write again */
+		while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
+		{
+			if (rtrUnlikely((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS))
+			{
+				printf("rsslFlush() failed with return code %d - <%s>\n", ret, pError->text);
+				return ret;
+			}
+			pSession->lastWriteRet = ret = rsslWrite(pChannel, 
+													pSession->pWritingBuffer, 
+													RSSL_HIGH_PRIORITY, 
+													providerThreadConfig.writeFlags, 
+													&outBytes, &uncompOutBytes, pError);
+		}
+	}
+	else if (useTunnel == RSSL_TRUE)
+	{
+		RsslErrorInfo tunnelErrorInfo;
+		RsslTunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions;
+		rsslClearTunnelStreamSubmitOptions(&rsslTunnelStreamSubmitOptions);
+		rsslTunnelStreamSubmitOptions.containerType = RSSL_DT_MSG;
+
+		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
+		pSession->lastWriteRet = ret =
+			rsslTunnelStreamSubmit(pTunnelStream, pSession->pWritingBuffer, &rsslTunnelStreamSubmitOptions, &tunnelErrorInfo);
+
+		/* call flush and write again */
+		while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
+		{
+			rsslClearTunnelStreamSubmitOptions(&rsslTunnelStreamSubmitOptions);
+			rsslTunnelStreamSubmitOptions.containerType = RSSL_DT_MSG;
+
+			pSession->lastWriteRet = ret =
+				rsslTunnelStreamSubmit(pTunnelStream, pSession->pWritingBuffer, &rsslTunnelStreamSubmitOptions, &tunnelErrorInfo);
+		}
+
+		if (rtrUnlikely(ret != RSSL_RET_SUCCESS))
+		{
+			printf("rsslTunnelStreamSubmit() failed with return code %d - <%s>\n", ret, tunnelErrorInfo.rsslError.text);
+
+			RsslRet retVal;
+			if (retVal = rsslTunnelStreamReleaseBuffer(pSession->pWritingBuffer, &tunnelErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslTunnelStreamReleaseBuffer() failed with return code %d - <%s>\n", retVal, tunnelErrorInfo.rsslError.text);
+			}
+		}
 	}
 	else // use UPA VA Reactor
 	{
@@ -1133,34 +1188,28 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 		submitOpts.priority = RSSL_HIGH_PRIORITY;
 		submitOpts.writeFlags = providerThreadConfig.writeFlags;
 
-		pSession->lastWriteRet = ret = rsslReactorSubmit(pProvThread->pReactor, pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &submitOpts, &errorInfo);
-	}
+		pSession->lastWriteRet = ret =
+			rsslReactorSubmit(pProvThread->pReactor, pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &submitOpts, &errorInfo);
 
-	/* call flush and write again */
-	while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
-	{
-		if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+		/* call flush and write again */
+		while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
 		{
-			if (rtrUnlikely((ret = rsslFlush(pChannel, pError)) < RSSL_RET_SUCCESS))
-			{
-				printf("rsslFlush() failed with return code %d - <%s>\n", ret, pError->text);
-				return ret;
-			}
-			pSession->lastWriteRet = ret = rsslWrite(pChannel, 
-													 pSession->pWritingBuffer, 
-													 RSSL_HIGH_PRIORITY, 
-													 providerThreadConfig.writeFlags, 
-													 &outBytes, &uncompOutBytes, pError);
-		}
-		else // use UPA VA Reactor
-		{
-			RsslErrorInfo errorInfo;
-			RsslReactorSubmitOptions submitOpts;
 			rsslClearReactorSubmitOptions(&submitOpts);
 			submitOpts.priority = RSSL_HIGH_PRIORITY;
 			submitOpts.writeFlags = providerThreadConfig.writeFlags;
 
-			pSession->lastWriteRet = ret = rsslReactorSubmit(pProvThread->pReactor, pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &submitOpts, &errorInfo);
+			pSession->lastWriteRet = ret =
+				rsslReactorSubmit(pProvThread->pReactor, pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &submitOpts, &errorInfo);
+		}
+
+		if (ret < RSSL_RET_SUCCESS)
+		{
+			/* rsslReactorSubmit failed, release buffer */
+			printf("rsslReactorSubmit() failed with return code %d - <%s>\n", ret, errorInfo.rsslError.text);
+
+			RsslRet retVal;
+			if ((retVal = rsslReactorReleaseBuffer(pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &errorInfo)) != RSSL_RET_SUCCESS)
+				printf("rsslReactorReleaseBuffer() failed with return code %d - <%s>\n", retVal, errorInfo.rsslError.text);
 		}
 	}
 
@@ -1172,6 +1221,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 		return ret;
 	}
 
+	// error cases
 	switch(ret)
 	{
 		case RSSL_RET_WRITE_FLUSH_FAILED:
@@ -1216,6 +1266,24 @@ static RsslRet getNewBuffer(ProviderThread *pProvThread, ProviderSession *pSessi
 			pSession->remaingPackedBufferLength = length;
 		}
 	}
+	else if (pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		const RsslUInt64 nIter = countStatGetTotal(&pProvThread->bufferSentCount);
+		RsslErrorInfo errorInfo;
+		RsslTunnelStreamGetBufferOptions bufferTunnelOpts;
+		rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
+		bufferTunnelOpts.size = length;
+		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
+		pSession->pWritingBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &errorInfo);
+		if (!pSession->pWritingBuffer)
+		{
+			if (errorInfo.rsslError.rsslErrorId != RSSL_RET_BUFFER_NO_BUFFERS)
+				printf("rsslTunnelStreamGetBuffer() failed: (%d) %s  nIter=%llu\n",
+					errorInfo.rsslError.rsslErrorId, errorInfo.rsslError.text, nIter);
+			return errorInfo.rsslError.rsslErrorId;
+		}
+	}
 	else // use UPA VA Reactor
 	{
 		RsslErrorInfo errorInfo;
@@ -1238,7 +1306,8 @@ RsslRet getItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession,
 	RsslError error;
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	if (providerThreadConfig.totalBuffersPerPack == 1) /* Not packing. */
+	if (providerThreadConfig.totalBuffersPerPack == 1  /* Not packing. */
+		|| pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 	{
 		assert(!pSession->pWritingBuffer);
 		if ((ret = getNewBuffer(pProvThread, pSession, length, &error)) < RSSL_RET_SUCCESS)
@@ -1298,15 +1367,39 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 	RsslError error;
 	RsslRet ret;
 	RsslChannel *pChannel = pSession->pChannelInfo->pChannel;
+	RsslBool useTunnel = RSSL_FALSE;
 
 	countStatIncr(&pProvThread->msgSentCount);
+
+	if (pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		useTunnel = RSSL_TRUE;
+	}
 
 	/* Make sure we stop packing at the end of a burst of updates
 	 *   in case the next burst is for a different channel. 
 	 *   (This will also prevent any latency updates from sitting in the pack for a tick). */
-	if (pSession->packedBufferCount == (providerThreadConfig.totalBuffersPerPack - 1) || !allowPack)
+	if (pSession->packedBufferCount == (providerThreadConfig.totalBuffersPerPack - 1) || !allowPack || useTunnel == RSSL_TRUE)
 	{
 		ret = writeCurrentBuffer(pProvThread, pSession, &error);
+
+		/* Gets tunnel stream buffer usage */
+		if (useTunnel == RSSL_TRUE  &&  provPerfConfig.tunnelStreamBufsUsed == RSSL_TRUE)
+		{
+			RsslTunnelStreamInfo tunnelInfo;
+			RsslErrorInfo tunnelErrorInfo;
+			RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
+			RsslRet retInfo = rsslTunnelStreamGetInfo(pTunnelStream, &tunnelInfo, &tunnelErrorInfo);
+			if (retInfo == RSSL_RET_SUCCESS)
+			{
+				updateValueStatistics(&pProvThread->stats.tunnelStreamBufUsageStats, (double)tunnelInfo.buffersUsed);
+			}
+			else
+			{
+				printf("sendItemMsgBuffer: rsslTunnelStreamGetInfo returned error retInfo = %d\n", retInfo);
+			}
+		}
 		return ret;
 	}
 	else
@@ -1762,6 +1855,11 @@ void providerCollectStats(Provider *pProvider, RsslBool writeStats, RsslBool dis
 					{
 						printValueStatistics(stdout, "  GenMsgLat(usec)", "Msgs", &pProviderThread->stats.intervalGenMsgLatencyStats, RSSL_FALSE);
 						clearValueStatistics(&pProviderThread->stats.intervalGenMsgLatencyStats);
+					}
+					if (pProviderThread->stats.tunnelStreamBufUsageStats.count > 0)
+					{
+						printValueStatistics(stdout, "  TunnelStreamBufferUsed", "Samples", &pProviderThread->stats.tunnelStreamBufUsageStats, RSSL_FALSE);
+						clearValueStatistics(&pProviderThread->stats.tunnelStreamBufUsageStats);
 					}
 					break;
 				case PROVIDER_NONINTERACTIVE:

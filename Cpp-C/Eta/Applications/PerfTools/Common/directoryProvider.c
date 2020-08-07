@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "directoryProvider.h"
@@ -15,7 +15,7 @@ DirectoryConfig directoryConfig;
 /* Will be populated at initialization. */
 RsslRDMService service;
 
-static RsslUInt serviceCapabilities[3];
+static RsslUInt serviceCapabilities[4];
 static RsslUInt32 serviceCapabilitiesCount;
 static RsslBuffer serviceDictionaries[] = { { 6, (char*)"RWFFld" }, { 7, (char*)"RWFEnum" } };
 
@@ -67,7 +67,11 @@ void directoryServiceInit()
 		++serviceCapabilitiesCount;
 	}
 
-
+	/* For accepting tunnel stream */
+	{
+		serviceCapabilities[serviceCapabilitiesCount] = RSSL_DMT_SYSTEM;
+		++serviceCapabilitiesCount;
+	}
 
 	service.info.capabilitiesList = serviceCapabilities;
 	service.info.capabilitiesCount = serviceCapabilitiesCount;

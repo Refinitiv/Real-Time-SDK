@@ -40,6 +40,8 @@ typedef struct
 	char				cipherSuite[255];			/* Server cipher suite */
 
 	char				protocolList[255];			/* List of supported WebSocket sub-protocols */
+	RsslUInt32			guaranteedOutputTunnelBuffers;	/* Guaranteed Output Tunnel Buffers. See -tunnelStreamOutputBufs */
+	RsslBool			tunnelStreamBufsUsed;		/* Control whether to print tunnel Stream buffers usage. See -tunnelStreamBuffersUsed */
 } ProvPerfConfig;
 
 /* Contains the global application configuration */

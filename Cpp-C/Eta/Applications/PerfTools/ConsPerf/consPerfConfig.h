@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* consPerfConfig.h
@@ -15,6 +15,7 @@
 
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslTransport.h"
+#include "perfTunnelMsgHandler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,6 +80,13 @@ typedef struct
 	char				protocolList[256];			/* List of supported WebSocket sub-protocols */
 	RsslInt32 _requestsPerTick;
 	RsslInt32 _requestsPerTickRemainder;
+
+	RsslBool			tunnelMessagingEnabled;		/* Whether to create tunnel for sending messages. -tunnel */
+	char				tunnelStreamServiceName[128];	/* Service name requested by application. -tsServiceName */
+	RsslBool			tunnelUseAuthentication;	/* Whether to use authentication when opening the tunnel stream. */
+	RsslUInt8			tunnelDomainType;			/* DomainType to use when opening the tunnel stream. */
+	RsslUInt32			guaranteedOutputTunnelBuffers;	/* Guaranteed Output Tunnel Buffers. See -tunnelStreamOutputBufs */
+	RsslBool			tunnelStreamBufsUsed;		/* Control whether to print tunnel Stream buffers usage. See -tunnelStreamBuffersUsed */
 } ConsPerfConfig;
 
 /* Contains the global application configuration */
