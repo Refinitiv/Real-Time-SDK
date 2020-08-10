@@ -1207,6 +1207,8 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 				RWS_MOVE_TO_FIELDVALUE(data, pos, endOfLine);
 				if (pos < endOfLine)
 				{
+					/*Remove space followed by ':' for data value fields*/
+					pos++;
 					/* mark the START of the field-value */
 					pFV->data = pHD+(pFN->length + (pos - colon));
 					start = pos;
@@ -1235,14 +1237,14 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
  * client requesting a WebSocket connection  */
 RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 startOffset, RsslSocketChannel * rsslSocketChannel, RsslError *error)
 {
-    RsslInt32 lineLength=0, lineStart=0;
+	RsslInt32 lineLength=0, lineStart=0;
 	RsslInt32 retVal = 0;
 	rwsHttpHdr_t *openHdrs = 0;
 	headerLine_t *hdrLine = 0;
 	rwsSession_t *wsSess = 0;
 	rwsServer_t *wsServer = 0;
 
-    if (datalen == 0) return 0;
+	if (datalen == 0) return 0;
 
 	_DEBUG_TRACE_WS_CONN("fd "SOCKET_PRINT_TYPE" \n", rsslSocketChannel->stream)
 
@@ -1662,14 +1664,14 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 	return retVal;
 }
 
-RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 startOffset, rwsSession_t * wsSess, RsslError *error)
+RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *data, RsslInt32 datalen, RsslInt32 startOffset, rwsSession_t * wsSess, RsslError *error)
 {
 	RsslInt32 lineLength=0, lineStart=0;
 	RsslInt32 retVal = 0;
 	rwsHttpHdr_t *respHdrs = 0;
 	headerLine_t *hdrLine = 0;
 
-    if (datalen == 0) return 0;
+	if (datalen == 0) return 0;
 
 	respHdrs = &(wsSess->hsReceived);
 
@@ -1909,6 +1911,56 @@ RsslInt32 rwsReadResponseHandshake(char *data, RsslInt32 datalen, RsslInt32 star
 				}
 			}
 		}
+
+		/*Callback to provide HTTP header*/
+		if (rsslSocketChannel->httpCallback != NULL)
+		{
+			RsslHttpMessage httpMsg = { 0 };
+			RsslHttpHdrData *httpHdr = NULL;
+			RsslQueueLink  *pLink = 0;
+
+
+			/*Claen up the error struct*/
+			_rsslErrorClean(error);
+
+			rsslInitQueue(&(httpMsg.headers));
+			rsslInitQueue(&(httpMsg.cookies));
+
+			httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
+			if (httpHdr == 0)
+			{
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers", __FILE__, __LINE__);
+				rsslSocketChannel->httpCallback(NULL, error);
+			}
+
+			for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
+			{
+				httpHdr[lnNum-1].name.data = hdrLine[lnNum].field.data;
+				httpHdr[lnNum-1].name.length = hdrLine[lnNum].field.length;
+				httpHdr[lnNum-1].value.data = hdrLine[lnNum].value.data;
+				httpHdr[lnNum-1].value.length = hdrLine[lnNum].value.length;
+				
+				pField = &(hdrLine[lnNum].field);
+				if (!_rwsMatchField(pField, &rwsField_SET_COOKIE))
+					rsslQueueAddLinkToBack(&(httpMsg.headers), &(httpHdr[lnNum - 1].link));
+				else
+					rsslQueueAddLinkToBack(&(httpMsg.cookies), &(httpHdr[lnNum - 1].link));
+			}
+
+			httpMsg.statusCode = wsSess->statusCode;
+			httpMsg.protocolVersion = rwsHdr_HTTP.data;
+			httpMsg.httpMethod = RSSL_HTTP_UNKNOWN;
+			
+			rsslSocketChannel->httpCallback(&httpMsg, error);
+
+			/*Realease memory allocated for queue*/
+			if (httpHdr)
+				_rsslFree(httpHdr);
+		}
+		else
+		{
+			_DEBUG_TRACE_PARSE_HTTP("HTTP header callback was not set <%s:%d>", __FUNCTION__, __LINE__)
+		}
 	}
 
     return retVal;
@@ -2016,6 +2068,15 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 
 	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "User-Agent: Mozilla/5.0\r\n");
 
+	if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
+	{
+		RsslInt32 line = 0;
+		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+		{
+			hsLen += snprintf(hsBuffer + hsLen, RWS_MAX_HTTP_HEADER_SIZE, "Cookie: %s\r\n", rsslSocketChannel->cookies.cookie[line].data);
+		}
+	}
+
 	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
 
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
@@ -2115,7 +2176,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		(*(webSocketDumpInFunc))(__FUNCTION__, buffer, cc, rsslSocketChannel->stream);
 	}
 
-	httpHeaderLen = rwsReadResponseHandshake(buffer, cc, 0, wsSess, error);
+	httpHeaderLen = rwsReadResponseHandshake(rsslSocketChannel, buffer, cc, 0, wsSess, error);
 	
 	_DEBUG_TRACE_WS_CONN("WS Session active httpHeaderLen %d sub-protocol %d\n", 
 								httpHeaderLen, wsSess->protocol)
@@ -2383,9 +2444,73 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 	wsSess->keyAccept.length = (RsslInt32)strlen(wsSess->keyRecv.data);
 	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Accept: %s\r\n", wsSess->keyAccept.data);
 
+	if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
+	{
+		RsslInt32 line = 0;
+		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+		{
+			respLen += snprintf(resp + respLen, RWS_MAX_HTTP_HEADER_SIZE, "Set-Cookie: %s\r\n", rsslSocketChannel->cookies.cookie[line].data);
+		}
+	}
+
+
 	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
 
 	cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, resp, respLen,rwflags, error);
+
+	/*Callback to provide HTTP header*/
+	if (rsslSocketChannel->httpCallback != NULL)
+	{
+		RsslHttpMessage httpMsg = { 0 };
+		RsslHttpHdrData *httpHdr = NULL;
+		RsslInt32 lnNum = 1;
+		RsslBuffer *pField = NULL;
+		rwsHttpHdr_t *respHdrs = 0;
+		headerLine_t *hdrLine = 0;
+
+		/*Claen up the error struct*/
+		_rsslErrorClean(error);
+
+		rsslInitQueue(&(httpMsg.headers));
+		rsslInitQueue(&(httpMsg.cookies));
+
+		respHdrs = &(wsSess->hsReceived);
+		hdrLine = respHdrs->lines;
+
+		httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
+		if (httpHdr == 0)
+		{
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers", __FILE__, __LINE__);
+		}
+
+		for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
+		{
+			httpHdr[lnNum-1].name.data = hdrLine[lnNum].field.data;
+			httpHdr[lnNum-1].name.length = hdrLine[lnNum].field.length;
+			httpHdr[lnNum-1].value.data = hdrLine[lnNum].value.data;
+			httpHdr[lnNum-1].value.length = hdrLine[lnNum].value.length;
+			
+			pField = &(hdrLine[lnNum].field);
+			if (!_rwsMatchField(pField, &rwsField_COOKIE))
+				rsslQueueAddLinkToBack(&(httpMsg.headers), &(httpHdr[lnNum - 1].link));
+			else 
+				rsslQueueAddLinkToBack(&(httpMsg.cookies), &(httpHdr[lnNum - 1].link));
+		}
+
+		httpMsg.statusCode = wsSess->statusCode;
+		httpMsg.protocolVersion = rwsHdr_HTTP.data;
+		httpMsg.httpMethod = RSSL_HTTP_GET;
+
+		rsslSocketChannel->httpCallback(&httpMsg, error);
+
+		/*Realease allocated memory for headers*/
+		if (httpHdr)
+			_rsslFree(httpHdr);
+	}
+	else
+	{
+		_DEBUG_TRACE_WS_WRITE("HTTP header callback was not set <%s:%d>", __FUNCTION__, __LINE__);
+	}
 
 	_DEBUG_TRACE_WS_WRITE("Response sent, fd "SOCKET_PRINT_TYPE" cc %d err %d\n", 
 					rsslSocketChannel->stream, cc, errno)
@@ -5396,6 +5521,10 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 	if (wsOpts->protocols)
 	{
 		RsslBool depracateOldProtocols =  RSSL_FALSE;
+
+		rsslSocketChannel->httpCallback = wsOpts->httpCallback;
+		rsslSocketChannel->cookies = wsOpts->cookies;
+
 		wsSess->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?
 																wsOpts->protocols :
 																RWS_DEFAULT_SUBPROTOCOL), 
@@ -5451,6 +5580,12 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 			return RSSL_RET_FAILURE;
 		}
 	}
+
+	/*Assign callback on server*/
+	rsslServerSocketChannel->httpCallback = wsOpts->httpCallback;
+
+	/*Assign cookes on server*/
+	rsslServerSocketChannel->cookies = wsOpts->cookies;
 
 	if (rsslServerSocketChannel->compressionSupported)
 	{

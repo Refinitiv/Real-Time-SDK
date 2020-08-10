@@ -39,6 +39,207 @@ static RsslServer *pServer = NULL;
 static RsslBuffer applicationName = { 16, (char*)"rsslVATest" } ;
 static RsslBuffer applicationId = { 3, (char*)"256" };
 static RsslBuffer loginConfigPosition = {9, (char*)"localhost"};
+static const RsslBuffer cookiesData[3] = { {105, (char*)"lu=Rg3vHJZnehYLjVg7qi3bZjzg; Expires=Tue, 15 Jan 2013 21:47:38 GMT; Path=/; Domain=.example.com; HttpOnly"},
+										   {55,  (char*)"made_write_conn=1295214458; Path=/; Domain=.example.com"},
+										   {97,  (char*)"reg_fb_gate=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/; Domain=.example.com; HttpOnly"}
+										 };
+static const RsslUserCookies cookiesDataEmpty = {NULL, 0};
+
+static RsslUserCookies userCookes = { const_cast<RsslBuffer*>(cookiesData), 3};
+static RsslUserCookies *pUserCookes = NULL;
+static void(*pHttpCallbackFunctionProv)(RsslHttpMessage* httpMess, RsslError* error) = NULL;
+
+static void(*pHttpCallbackFunctionCons)(RsslHttpMessage* httpMess, RsslError* error) = NULL;
+
+static void HttpCallbackFunctionProv(RsslHttpMessage* httpMess, RsslError* error)
+{
+	RsslHttpHdrData *data = NULL;
+	RsslQueueLink *pLink = NULL;
+	RsslQueue *httpHeaders = &(httpMess->headers);
+	RsslQueue *cookeis = &(httpMess->cookies);
+
+	EXPECT_EQ(httpMess->statusCode, 0);
+	
+	EXPECT_TRUE(httpMess->httpMethod == RSSL_HTTP_UNKNOWN || httpMess->httpMethod == RSSL_HTTP_GET);
+	ASSERT_STREQ((char*)httpMess->protocolVersion, (char*)"HTTP/1.1");
+	EXPECT_TRUE(error->channel == NULL);
+	EXPECT_EQ(error->rsslErrorId, 0);
+	EXPECT_EQ(error->sysError, 0);
+	EXPECT_EQ(error->text[0], '\0');
+
+	if (httpHeaders->count)
+	{
+		RsslInt32 n = 0;
+
+		for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+
+			switch (n) // Line number
+			{
+			case 0:
+				EXPECT_EQ(data->name.length, 7) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Upgrade: websocket") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 9) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "websocket") << printf("Failed HTTP value");
+				break;
+			case 1:
+				EXPECT_EQ(data->name.length, 10) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Connection: keep-alive, Upgrade") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 19) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "keep-alive, Upgrade") << printf("Failed HTTP value");
+				break;
+			case 2:
+				EXPECT_EQ(data->name.length, 4) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Host: localhost:14011") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 15) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "localhost:14011") << printf("Failed HTTP value");
+				break;
+			case 3:
+				// here are WebSocket keys
+				EXPECT_EQ(data->name.length, 17) << printf("Failed HTTP data length");
+				EXPECT_EQ(data->value.length, 24) << printf("Failed HTTP value length");
+				break;
+			case 4:
+				EXPECT_EQ(data->name.length, 21) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Sec-WebSocket-Version: 13") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 2) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "13") << printf("Failed HTTP value");
+				break;
+			case 5:
+				EXPECT_EQ(data->name.length, 22) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Sec-WebSocket-Protocol: rssl.rwf") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 8) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "rssl.rwf") << printf("Failed HTTP value");
+				break;
+			case 6:
+				EXPECT_EQ(data->name.length, 10) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "User-Agent: Mozilla/5.0") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 11) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "Mozilla/5.0") << printf("Failed HTTP value");
+				break;
+			default:
+				FAIL() << "Unhandled case! Add more tests here!";
+			}
+		}
+	}
+	else
+	{
+		FAIL() << "Empty http headers!";
+	}
+	
+	if (cookeis->count)
+	{
+		RsslInt32 n = 0, size = 0;
+		char cookiesValue[3][150] = {};
+
+		for (pLink = rsslQueuePeekFront(cookeis), n = 0; pLink; pLink = rsslQueuePeekNext(cookeis, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			snprintf(cookiesValue[n], strlen(data->value.data) + 1, data->value.data);
+			ASSERT_STREQ(cookiesValue[n], cookiesData[n].data);
+			ASSERT_EQ(strlen(data->value.data), cookiesData[n].length);
+		}
+	}
+	else
+	{
+		FAIL() << "Empty cookies!";
+	}
+}
+
+static void HttpCallbackFunctionCons(RsslHttpMessage* httpMess, RsslError* error)
+{
+	RsslHttpHdrData *data;
+	RsslQueueLink *pLink;
+	RsslQueue *httpHeaders = &(httpMess->headers);
+	RsslQueue *cookeis = &(httpMess->cookies);
+
+	EXPECT_EQ(httpMess->statusCode, 101);
+
+	EXPECT_TRUE(httpMess->httpMethod == RSSL_HTTP_UNKNOWN || httpMess->httpMethod == RSSL_HTTP_GET);
+	ASSERT_STREQ((char*)httpMess->protocolVersion, (char*)"HTTP/1.1");
+	EXPECT_TRUE(error->channel == NULL);
+	EXPECT_EQ(error->rsslErrorId, 0);
+	EXPECT_EQ(error->sysError, 0);
+	EXPECT_EQ(error->text[0], '\0');
+
+	if (httpHeaders->count)
+	{
+		RsslInt32 n = 0;
+
+		for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+
+			switch (n) // Line number
+			{
+			case 0:
+				EXPECT_EQ(data->name.length, 7) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Upgrade: websocket") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 9) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "websocket") << printf("Failed HTTP value");
+				break;
+			case 1:
+				EXPECT_EQ(data->name.length, 10) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Connection: Upgrade") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 7) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "Upgrade") << printf("Failed HTTP value");
+				break;
+			case 2:
+				EXPECT_EQ(data->name.length, 22) << printf("Failed HTTP data length");
+				ASSERT_STREQ(data->name.data, "Sec-WebSocket-Protocol: rssl.rwf") << printf("Failed HTTP data");
+				EXPECT_EQ(data->value.length, 8) << printf("Failed HTTP value length");
+				ASSERT_STREQ(data->value.data, "rssl.rwf") << printf("Failed HTTP value");
+				break;
+			case 3:
+				// here are WebSocket keys
+				EXPECT_EQ(data->name.length, 20) << printf("Failed HTTP data length");
+				EXPECT_EQ(data->value.length, 28) << printf("Failed HTTP value length");
+				break;
+			default:
+				FAIL() << "Unhandled case! Add more tests here!";
+			}
+		}
+	}
+	else
+	{
+		FAIL() << "Empty http headers!";
+	}
+
+	if (cookeis->count)
+	{
+		RsslInt32 n = 0, size = 0;
+		char cookiesValue[3][150] = {};
+
+		for (pLink = rsslQueuePeekFront(cookeis), n = 0; pLink; pLink = rsslQueuePeekNext(cookeis, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			snprintf(cookiesValue[n], strlen(data->value.data) + 1, data->value.data);
+			ASSERT_STREQ(cookiesValue[n], cookiesData[n].data);
+			ASSERT_EQ(strlen(data->value.data), cookiesData[n].length);
+		}
+	}
+	else
+	{
+		FAIL() << "Empty cookies!";
+	}
+}
+
+void setCallbackToHttpHdr(RsslBool setPtr)
+{
+	if (setPtr)
+	{
+		pHttpCallbackFunctionProv = HttpCallbackFunctionProv;
+		pHttpCallbackFunctionCons = HttpCallbackFunctionCons;
+		pUserCookes = &userCookes;
+	}
+	else
+	{
+		pHttpCallbackFunctionProv = NULL;
+		pHttpCallbackFunctionCons = NULL;
+		pUserCookes = NULL;
+	}
+}
 
 void rsslTestInitialize(rsslTestInitOpts *pOpts)
 {
@@ -61,9 +262,13 @@ void rsslTestInitialize(rsslTestInitOpts *pOpts)
 		bindOpts.guaranteedOutputBuffers = pOpts->serverGuaranteedOutputBuffers;
 		bindOpts.maxOutputBuffers = pOpts->serverMaxOutputBuffers;
 
-		if(rsslTestConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		if (rsslTestConnectionType == RSSL_CONN_TYPE_WEBSOCKET) 
+		{
 			bindOpts.wsOpts.protocols = const_cast<char*>("rssl.rwf");
-		
+			bindOpts.wsOpts.httpCallback = pHttpCallbackFunctionProv;
+			bindOpts.wsOpts.cookies = pUserCookes!=NULL ? (*pUserCookes) : cookiesDataEmpty;
+		}
+
 		if (pOpts->compressionType != RSSL_COMP_NONE)
 		{
 			/* If zlib compression, force compression on for all clients */
@@ -114,6 +319,8 @@ RsslChannel *rsslTestCreateConsumerChannel()
 		if (rsslTestConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
 			connectOpts.wsOpts.protocols = const_cast<char*>("rssl.rwf");
+			connectOpts.wsOpts.httpCallback = pHttpCallbackFunctionCons;
+			connectOpts.wsOpts.cookies = pUserCookes != NULL ? (*pUserCookes) : cookiesDataEmpty;;
 		}
 	}
 	else

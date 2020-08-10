@@ -43,6 +43,17 @@ RTR_C_ALWAYS_INLINE void _rsslSetError(RsslError *error, RsslChannel *chnl, Rssl
 	return;
 }
 
+/* clean error values */
+RTR_C_ALWAYS_INLINE void _rsslErrorClean(RsslError *error)
+{
+	error->channel = 0;
+	error->rsslErrorId = RSSL_RET_SUCCESS;
+	error->sysError = 0;
+	error->text[0] = '\0';
+
+	return;
+}
+
 #define RSSL_NULL_PTR(ptr, func, ptrname, err) \
 	(( ptr == 0) ? _rsslNullPtr(func, ptrname, __FILE__, __LINE__, err) : 0 )
 

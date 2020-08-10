@@ -26,6 +26,24 @@ static const char *applicationId = "256";
 static const char *applicationName = "rsslProvider";
 
 static RsslBool supportRTT = RSSL_FALSE;
+/* cookie name */
+static const char *nameCookieAuthToken = "AuthToken";
+/* cookie name */
+static const char *nameCookiePosition = "AuthPosition";
+/* cookie name */
+static const char *nameCookieApplicationId = "applicationId";
+
+/* authentication token retrived from cookies*/
+static char valueCookieAuthToken[AUTH_TOKEN_LENGTH];
+
+/* position retrived from cookies*/
+static char valueCookiePosition[MAX_LOGIN_INFO_STRLEN];
+
+/* applicationId token retrived from cookies*/
+static char valueCookieApplicationId[MAX_LOGIN_INFO_STRLEN];
+
+/* use cookies for login */
+static RsslBool loginWithCookies = RSSL_FALSE;
 
 /*
  * Initializes login information fields.
@@ -125,6 +143,15 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 	switch(msg->msgBase.msgClass)
 	{
 	case RSSL_MC_REQUEST:
+
+		if (loginWithCookies)
+		{
+			if (sendLoginRequestReject(chnl, msg->msgBase.streamId, ALREADY_LOGGED_WITH_COOKIE) != RSSL_RET_SUCCESS)
+				return RSSL_RET_FAILURE;
+			loginWithCookies = RSSL_FALSE;
+			break;
+		}
+
 		/* get key */
 		key = (RsslMsgKey *)rsslGetMsgKey(msg);
 
@@ -340,6 +367,55 @@ static RsslRet sendLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, Rss
 
 	return RSSL_RET_SUCCESS;
 }
+/*
+ * Sends the login response based on cookies data
+ * chnl - The channel to send request reject status message to
+ * reason - The reason for the reject
+ */
+RsslRet sendCoockiesLoginResponse(RsslChannel* chnl) 
+{
+	RsslLoginResponseInfo loginRespInfo;
+	RsslError error;
+	RsslBuffer* msgBuf = 0;
+
+	initLoginRespInfo(&loginRespInfo);
+
+	/* get a buffer for the login response */
+	msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
+
+	if (msgBuf != NULL)
+	{
+		loginRespInfo.StreamId = -1;
+		snprintf(loginRespInfo.Username, AUTH_TOKEN_LENGTH, "%s", valueCookieAuthToken);
+		snprintf(loginRespInfo.ApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", valueCookieApplicationId);
+		snprintf(loginRespInfo.Position, MAX_LOGIN_INFO_STRLEN, "%s", valueCookiePosition);
+
+		loginRespInfo.SingleOpen = 0;				/* this provider does not support SingleOpen behavior */
+		loginRespInfo.SupportBatchRequests = RDM_LOGIN_BATCH_SUPPORT_REQUESTS | RDM_LOGIN_BATCH_SUPPORT_CLOSES;		/* this provider supports batch requests and batch close */
+		loginRespInfo.SupportOMMPost = 1;
+		/* keep default values for all others */
+
+		/* encode login response */
+		if (encodeLoginResponse(chnl, &loginRespInfo, msgBuf) != RSSL_RET_SUCCESS)
+		{
+			rsslReleaseBuffer(msgBuf, &error);
+			printf("\nencodeLoginResponse() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		/* send login response */
+		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
+		return RSSL_RET_FAILURE;
+	}
+	
+	return RSSL_RET_SUCCESS;
+}
+
 
 /* 
  * Closes the login stream for a channel. 
@@ -387,3 +463,61 @@ static void closeLoginStream(RsslInt32 streamId)
 	}
 }
 
+static RsslBool copyCookieValue(const char *cookies, char* value)
+{
+	RsslBool endOfLine = RSSL_FALSE;
+	char* ptrCoockieEq = (char*)cookies, *ptrCoockieSc;
+	size_t valueLength = 0;
+
+	ptrCoockieEq = strchr(ptrCoockieEq, '=');
+	if (ptrCoockieEq)
+	{
+		ptrCoockieSc = strchr(ptrCoockieEq, ';');
+		if (ptrCoockieSc)
+		{
+			valueLength = (size_t)ptrCoockieSc - (size_t)ptrCoockieEq - 1; // ptrCoockieEq - 1 skip  in value ';' 
+			strncpy(value, ptrCoockieEq + 1, valueLength); // ptrCoockieEq + 1 to point to the next symbol after '='
+		}
+		else
+		{
+			valueLength = strlen(ptrCoockieEq + 1);
+			strncpy(value, ptrCoockieEq + 1, valueLength); // ptrCoockieEq + 1 to point to the next symbol after '='
+		}
+	}
+	else
+	{
+		printf("Cookies value is not valid: %s \n", cookies);
+		endOfLine = RSSL_TRUE;
+	}
+	return endOfLine;
+}
+
+RsslBool checkLoginCockies(const char* coockies)
+{
+	static RsslUInt32 cookiesCnt = 0;
+	const char* ptrCoockie = coockies;
+
+	cookiesCnt = cookiesCnt > 3 ? 0 : cookiesCnt;
+
+	while (*ptrCoockie)
+	{
+		if (!strncmp(ptrCoockie, nameCookieAuthToken, strlen(nameCookieAuthToken)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookieAuthToken)) break;
+		}
+		if (!strncmp(ptrCoockie, nameCookiePosition, strlen(nameCookiePosition)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookiePosition)) break;
+		}
+		if (!strncmp(ptrCoockie, nameCookieApplicationId, strlen(nameCookieApplicationId)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookieApplicationId)) break;
+		}
+		ptrCoockie++;
+	}
+
+	return (loginWithCookies = (cookiesCnt >= 3 ? RSSL_TRUE : RSSL_FALSE));
+}

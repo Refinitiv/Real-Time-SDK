@@ -8783,6 +8783,12 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 			rsslSocketChannel->mutex = &(rsslChnlImpl->chanMutex);
 
+		/*Add callback to the socket channel*/
+		rsslSocketChannel->httpCallback = rsslServerSocketChannel->httpCallback;
+
+		/*Add coockes ptr to the socket channel*/
+		rsslSocketChannel->cookies = rsslServerSocketChannel->cookies;
+
 		/* map RsslSocketChannel to RsslChannel struct */
 		_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
 		rsslChnlImpl->transportInfo = rsslSocketChannel;

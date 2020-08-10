@@ -41,7 +41,8 @@ typedef struct {
 /* reasons a login request is rejected */
 typedef enum {
 	MAX_LOGIN_REQUESTS_REACHED	= 0,
-	NO_USER_NAME_IN_REQUEST		= 1
+	NO_USER_NAME_IN_REQUEST		= 1,
+	ALREADY_LOGGED_WITH_COOKIE	= 2
 } RsslLoginRejectReason;
 
 /* login response information */
