@@ -2878,9 +2878,10 @@ static RsslRet _reactorHandleTunnelManagerEvents(RsslReactorImpl *pReactorImpl, 
 {
 	RsslRet ret;
 
-	if (tunnelManagerNeedsDispatchNow(pReactorChannel->pTunnelManager))
+	if (tunnelManagerNeedsDispatchNow(pReactorChannel->pTunnelManager) && !pReactorChannel->tunnelDispatchEventQueued)
 	{
 		RsslReactorChannelEventImpl *pEvent;
+		pReactorChannel->tunnelDispatchEventQueued = RSSL_TRUE;
 		pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
 		rsslClearReactorChannelEventImpl(pEvent);
 		pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM;
