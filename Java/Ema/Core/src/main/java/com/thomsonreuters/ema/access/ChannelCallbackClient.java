@@ -873,14 +873,27 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
 		
+		ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+		
+		oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
+		
 		/* The Client ID is required parameter to enable the session management */
 		if(configImpl.clientId().length() != 0 )
-		{
-			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+		{				
 			oAuthCredential.clientId(configImpl.clientId());
-			oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
-			consumerRole.reactorOAuthCredential(oAuthCredential);
 		}
+		
+		if(configImpl.clientSecret().length() != 0 )
+		{				
+			oAuthCredential.clientSecret(configImpl.clientSecret());
+		}
+		
+		if(configImpl.tokenScope().length() != 0 )
+		{				
+			oAuthCredential.tokenScope(configImpl.tokenScope());
+		}
+		
+		consumerRole.reactorOAuthCredential(oAuthCredential);
 		
 		ConsumerWatchlistOptions watchlistOptions = consumerRole.watchlistOptions();
 		watchlistOptions.channelOpenCallback(this);

@@ -69,7 +69,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
@@ -1303,6 +1302,8 @@ public class Reactor
     	    	authOptions.username(options.userName().toString());
     	    	authOptions.password(options.password().toString());
     	    	authOptions.clientId(options.clientId().toString());
+    	    	authOptions.clientSecret(options.clientSecret().toString());
+    	    	authOptions.tokenScope(options.tokenScope().toString());
     	    	
     	    	connOptions.applyServiceDiscoveryOptions(options);
     			
