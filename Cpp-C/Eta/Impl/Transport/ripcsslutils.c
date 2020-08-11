@@ -1815,6 +1815,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 
 	if ((sess->connection = (*(sslFuncs.ssl_new))(sess->ctx)) == NULL)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2000 ripcSSLConnect error creating new SSL connection", __FILE__, __LINE__);
 		return 0;
 	}
@@ -1823,6 +1824,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 
 	if ((*(sslFuncs.set_cipher_list))(sess->connection, CIPHER_LIST) < 1)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect error setting up cipher list (no valid ciphers) (errno %d)", __FILE__, __LINE__, errno);
 		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		return 0;
@@ -1831,6 +1833,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	/* Setup SNI extension.  Note that we're just going to pass in the hostName as is. */
 	if ((*(sslFuncs.ctrl))(sess->connection, RSSL_SSL_CTRL_SET_TLSEXT_HOSTNAME, RSSL_TLSEXT_NAMETYPE_host_name, chnl->hostName) < 1)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Error setting up SNI extension (errno %d)", __FILE__, __LINE__, errno);
 		ripcSSLErrors(error, (RsslInt32)strlen(error->text));
 		return 0;
@@ -1858,12 +1861,14 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 
 			if (params == NULL)
 			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2000 ripcSSLConnect Unable to get ssl certificate verification parameters", __FILE__, __LINE__);
 				return 0;
 			}
 
 			if ((*cryptoFuncs.x509_verify_param_set1_ip_asc)(params, ((RsslSocketChannel*)userSpecPtr)->hostName) != 1)
 			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Unable to set IP address verification on SSL object", __FILE__, __LINE__);
 				return 0;
 			}
@@ -1872,6 +1877,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 		{
 			if ((*sslFuncs.ssl_set1_host)(sess->connection, ((RsslSocketChannel*)userSpecPtr)->hostName) != 1)
 			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 2001 ripcSSLConnect Unable to set hostName verification on ssl object", __FILE__, __LINE__);
 				return 0;
 			}
@@ -1882,6 +1888,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	  and initComplete to 0.  ssl_connect will be called when initTransport is called again.*/
 	if ((retVal = ipcConnected(fd)) == -1)
 	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d>  Error: 1002 ripcSSLConnect() client connect() failed.  System errno: (%d)\n", __FILE__, __LINE__, errno);
 		return 0;
 	}
