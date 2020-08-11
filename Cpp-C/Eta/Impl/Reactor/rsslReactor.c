@@ -6471,11 +6471,11 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 		case RSSL_RD_TP_INIT:
 			break;
 		case RSSL_RD_TP_TCP:
-			strncat(pParameterBuf, "?", 1);
+			strcat(pParameterBuf, "?");
 			strncat(pParameterBuf, rssl_rest_transport_type_tcp_text.data, rssl_rest_transport_type_tcp_text.length);
 			break;
 		case RSSL_RD_TP_WEBSOCKET:
-			strncat(pParameterBuf, "?", 1);
+			strcat(pParameterBuf, "?");
 			strncat(pParameterBuf, rssl_rest_transport_type_websocket_text.data, rssl_rest_transport_type_websocket_text.length);
 			break;
 		default:
@@ -6493,24 +6493,24 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 		case RSSL_RD_DP_RWF:
 			if (strlen(pParameterBuf) == 0)
 			{
-				strncat(pParameterBuf, "?", 1);
+				strcat(pParameterBuf, "?");
 				strncat(pParameterBuf, rssl_rest_dataformat_type_rwf_text.data, rssl_rest_dataformat_type_rwf_text.length);
 			}
 			else
 			{
-				strncat(pParameterBuf, "&", 1);
+				strcat(pParameterBuf, "&");
 				strncat(pParameterBuf, rssl_rest_dataformat_type_rwf_text.data, rssl_rest_dataformat_type_rwf_text.length);;
 			}
 			break;
 		case RSSL_RD_DP_JSON2:
 			if (strlen(pParameterBuf) == 0)
 			{
-				strncat(pParameterBuf, "?", 1);
+				strcat(pParameterBuf, "?");
 				strncat(pParameterBuf, rssl_rest_dataformat_type_tr_json2_text.data, rssl_rest_dataformat_type_tr_json2_text.length);
 			}
 			else
 			{
-				strncat(pParameterBuf, "&", 1);
+				strcat(pParameterBuf, "&");
 				strncat(pParameterBuf, rssl_rest_dataformat_type_tr_json2_text.data, rssl_rest_dataformat_type_tr_json2_text.length);
 			}
 			break;
@@ -6554,8 +6554,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 
 	if (strlen(pParameterBuf) > 0)
 	{
-		strncat(serviceDiscoveryURLBuffer.data, pParameterBuf,
-			strlen(pParameterBuf));
+		strcat(serviceDiscoveryURLBuffer.data, pParameterBuf);
 	}
 	
 	serviceDiscoveryURLBuffer.length = (RsslUInt32)strlen(serviceDiscoveryURLBuffer.data);
@@ -6569,7 +6568,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 
 	pAuthHeader->value.data = nextPos;
 	strncat(pAuthHeader->value.data, pTokenType->data,pTokenType->length);
-	strncat(pAuthHeader->value.data, " ", 1);
+	strcat(pAuthHeader->value.data, " ");
 	strncat(pAuthHeader->value.data, pAccessToken->data, pAccessToken->length);
 	pAuthHeader->value.length = pTokenType->length + 1 + pAccessToken->length;
 

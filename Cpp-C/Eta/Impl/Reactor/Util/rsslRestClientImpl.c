@@ -1721,7 +1721,7 @@ void _rsslAllocateAndConvertBufferForUrlData(RsslBuffer* inputBuffer, RsslUInt32
 	}
 	else
 	{
-		strncpy((*buffer)->data + (*bufferIndex) + 1, value, valueLength);
+		strcpy((*buffer)->data + (*bufferIndex) + 1, value);
 		(*bufferIndex) = (*bufferIndex) + valueLength;
 	}
 }

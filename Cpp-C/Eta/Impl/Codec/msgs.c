@@ -939,13 +939,13 @@ RSSL_API RsslBool rsslValidateEncodedMsgBuf(const RsslMsg *pMsg)
 
 	encMsgBufStart = pMsg->msgBase.encMsgBuffer.data;
 	encMsgBufEnd = pMsg->msgBase.encMsgBuffer.data + pMsg->msgBase.encMsgBuffer.length;
+	
+	if ( pMsg->msgBase.encDataBody.data < encMsgBufStart || pMsg->msgBase.encDataBody.data > encMsgBufEnd )
+		 return RSSL_FALSE;
 
-    switch( pMsg->msgBase.msgClass )
-    {
-		if ( pMsg->msgBase.encDataBody.data < encMsgBufStart || pMsg->msgBase.encDataBody.data > encMsgBufEnd )
-			 return RSSL_FALSE;
-
-        case RSSL_MC_UPDATE: 
+	switch( pMsg->msgBase.msgClass )
+	{
+		case RSSL_MC_UPDATE: 
 			if ( pMsg->updateMsg.flags & RSSL_UPMF_HAS_MSG_KEY )
 			{
 				if( ( pMsg->updateMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_NAME ) &&

@@ -151,7 +151,7 @@ RTR_C_INLINE RsslRet _rsslCreateStringCopyFromChar(RsslBuffer *targetBuf, char *
 	targetBuf->data = (char*)malloc(targetBuf->length * sizeof(char) + 1);
 	if (!targetBuf->data)
 		return RSSL_RET_FAILURE;
-	strncpy(targetBuf->data, sourceStr, targetBuf->length + 1);
+	strcpy(targetBuf->data, sourceStr);
 	targetBuf->data[targetBuf->length] = '\0';
 	return RSSL_RET_SUCCESS;
 }

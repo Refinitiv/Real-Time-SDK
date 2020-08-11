@@ -23,6 +23,8 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 #include <sys/timeb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #endif
 
 #define RSSL_JNI_NULL_FD -1

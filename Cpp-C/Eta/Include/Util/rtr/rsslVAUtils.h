@@ -289,7 +289,7 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 			return RSSL_RET_FAILURE;
 		}
 
-		strncpy(destOpts->wsOpts.protocols, sourceOpts->wsOpts.protocols, tempLen);
+		strcpy(destOpts->wsOpts.protocols, sourceOpts->wsOpts.protocols);
 	}
 	
 	return RSSL_RET_SUCCESS;

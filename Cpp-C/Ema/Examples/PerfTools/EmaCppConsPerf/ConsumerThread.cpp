@@ -93,6 +93,8 @@ extern "C"
 	 void * ConsumerThread::ThreadFunc( void* pArguments )
 	{
 		((ConsumerThread *)pArguments)->run();
+		
+		return 0;
 	}
 }
 #endif
