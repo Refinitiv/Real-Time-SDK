@@ -370,7 +370,7 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 		{
 			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketPriceMsgs[i];
 			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo, RSSL_RWF_PROTOCOL_TYPE);
-			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
+			pEncMsgBuf->data = (char*)malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
 			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
 				printf("Encoding pre-encoded buf: encodeItemUpdate() failed: %d\n", ret);
@@ -392,7 +392,7 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 		{
 			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[i];
 			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo, RSSL_RWF_PROTOCOL_TYPE);
-			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
+			pEncMsgBuf->data = (char*)malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
 			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
 			{
 				printf("Encoding pre-encoded buf: encodeItemUpdate() failed: %d\n", ret);
@@ -1151,10 +1151,10 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 	{
 		RsslErrorInfo tunnelErrorInfo;
 		RsslTunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions;
+		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
 		rsslClearTunnelStreamSubmitOptions(&rsslTunnelStreamSubmitOptions);
 		rsslTunnelStreamSubmitOptions.containerType = RSSL_DT_MSG;
-
-		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 		pSession->lastWriteRet = ret =
 			rsslTunnelStreamSubmit(pTunnelStream, pSession->pWritingBuffer, &rsslTunnelStreamSubmitOptions, &tunnelErrorInfo);
@@ -1171,9 +1171,10 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 		if (rtrUnlikely(ret != RSSL_RET_SUCCESS))
 		{
+			RsslRet retVal;
+
 			printf("rsslTunnelStreamSubmit() failed with return code %d - <%s>\n", ret, tunnelErrorInfo.rsslError.text);
 
-			RsslRet retVal;
 			if (retVal = rsslTunnelStreamReleaseBuffer(pSession->pWritingBuffer, &tunnelErrorInfo) != RSSL_RET_SUCCESS)
 			{
 				printf("rsslTunnelStreamReleaseBuffer() failed with return code %d - <%s>\n", retVal, tunnelErrorInfo.rsslError.text);
@@ -1204,10 +1205,11 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 		if (ret < RSSL_RET_SUCCESS)
 		{
+			RsslRet retVal;
+
 			/* rsslReactorSubmit failed, release buffer */
 			printf("rsslReactorSubmit() failed with return code %d - <%s>\n", ret, errorInfo.rsslError.text);
 
-			RsslRet retVal;
 			if ((retVal = rsslReactorReleaseBuffer(pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &errorInfo)) != RSSL_RET_SUCCESS)
 				printf("rsslReactorReleaseBuffer() failed with return code %d - <%s>\n", retVal, errorInfo.rsslError.text);
 		}
@@ -1270,10 +1272,11 @@ static RsslRet getNewBuffer(ProviderThread *pProvThread, ProviderSession *pSessi
 	{
 		const RsslUInt64 nIter = countStatGetTotal(&pProvThread->bufferSentCount);
 		RsslErrorInfo errorInfo;
+		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
 		RsslTunnelStreamGetBufferOptions bufferTunnelOpts;
 		rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
 		bufferTunnelOpts.size = length;
-		RsslTunnelStream *pTunnelStream = pSession->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 		pSession->pWritingBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &errorInfo);
 		if (!pSession->pWritingBuffer)

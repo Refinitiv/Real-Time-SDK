@@ -216,11 +216,11 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 		RsslErrorInfo rsslErrorInfo;
 		RsslRet	retval = 0;
 
+		RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
 		RsslTunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions;
 		rsslClearTunnelStreamSubmitOptions(&rsslTunnelStreamSubmitOptions);
 		rsslTunnelStreamSubmitOptions.containerType = RSSL_DT_MSG;
-
-		RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 		retval = rsslTunnelStreamSubmit(pTunnelStream, msgBuf, &rsslTunnelStreamSubmitOptions, &rsslErrorInfo);
 
@@ -530,10 +530,10 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 
 			if (useTunnel == RSSL_TRUE)
 			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 				const RsslUInt64 nIter = countStatGetTotal(&pConsumerThread->stats.requestCount);
 				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
 				bufferTunnelOpts.size = 512;
-				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 				if ( (msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
 				{
@@ -680,9 +680,9 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 
 			if (useTunnel)
 			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
 				bufferTunnelOpts.size = requestedSize;
-				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 				if ((msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
 				{
@@ -830,9 +830,9 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 			RsslUInt32 requestedSize = estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo, pConsumerThread->pChannel->protocolType);
 			if (useTunnel)
 			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
 				bufferTunnelOpts.size = requestedSize;
-				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
 
 				if ((msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
 				{
@@ -3220,8 +3220,7 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 		return RSSL_RC_CRET_FAILURE;
 	}
 
-	RsslRet ret = processItemMsg(pReactorChannel, pMsg);
-	return ret;
+	return processItemMsg(pReactorChannel, pMsg);
 }
 
 
