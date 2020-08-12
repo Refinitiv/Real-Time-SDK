@@ -1342,7 +1342,7 @@ public class Reactor
      * Submit OAuth credential renewal with password or password change.
      * 
      * @param renewalOptions The {@link ReactorOAuthCredentialRenewalOptions} to configure OAuth credential renewal options.
-     * @param oAuthCredentialRenewal The {@ReactorOAuthCredentialRenewal} to configure credential renewal information.
+     * @param oAuthCredentialRenewal The {@link ReactorOAuthCredentialRenewal} to configure credential renewal information.
      * @param errorInfo error structure to be populated in the event of failure
      * @return {@link ReactorReturnCodes} indicating success or failure
      */
