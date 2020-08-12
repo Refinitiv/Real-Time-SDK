@@ -169,8 +169,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	{
 		try
 		{
-			final String defaultPerfToolsConsumer = "Consumer_4";
-			_ommConfig = EmaFactory.createOmmConsumerConfig().consumerName(defaultPerfToolsConsumer);
+			_ommConfig = EmaFactory.createOmmConsumerConfig();
 			// A blank user name is an invalid input to OmmConsumerConfig.username and will trigger an invalid usage exception.
 			if(_consPerfConfig.username().length() != 0)
 				_ommConfig.username(_consPerfConfig.username());

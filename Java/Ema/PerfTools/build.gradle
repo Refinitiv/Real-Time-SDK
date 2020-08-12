@@ -37,7 +37,7 @@ javadoc {
 }
 
 task runEMAPerfConsumer(type: JavaExec) {
-    dependsOn 'copyDictionary', 'copyEmaConfig'
+    dependsOn 'copyDictionary'
     group 'Run EMA Performance Tools Examples'
     description "Run EMAJ OMM Consumer performance application"
 
@@ -61,22 +61,13 @@ task copyDictionary( type: Copy ) {
 	into '.'
 }
 
-task copyEmaConfig( type: Copy) {
-    from '../EmaConfig.xml'
-    into '.'
-}
-
 task deleteDictionary( type: Delete ) {
 	delete "$projectDir/RDMFieldDictionary"
 	delete "$projectDir/RDMFieldDictionary_large"
 	delete "$projectDir/enumtype.def"
 }
 
-task deleteEmaConfig( type: Delete ) {
-    delete "$projectDir/EmaConfig.xml"
-}
-
-run.dependsOn copyDictionary, copyEmaConfig
-clean.dependsOn deleteDictionary, deleteEmaConfig
+run.dependsOn copyDictionary
+clean.dependsOn deleteDictionary
 
 
