@@ -56,8 +56,8 @@ gradlew.bat runConsumer113 -PcommandLineArgs='-username <username> -password <pa
 + Instantiates an AppClient object to receive and process item messages
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the user credential
-  - Sets the consumer name to "Consumer_3"
-  - The Consumer_3 uses the Channel_4 channel name for using the RSSL_ENCRYPTED channel type.
+  - Sets the consumer name to "Consumer_6"
+  - The Consumer_6 uses the Channel_15 channel name for using the RSSL_ENCRYPTED channel type.
   - Loads configuration information for the specified consumer name
     from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 
