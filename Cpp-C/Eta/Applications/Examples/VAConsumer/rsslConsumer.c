@@ -65,6 +65,7 @@ static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
+static RsslBool restEnableLog = RSSL_FALSE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -72,6 +73,7 @@ static int channelCommandCount = 0;
 
 fd_set readFds, exceptFds;
 static RsslReactor *pReactor = NULL;
+static FILE *restLogFileName = NULL;
 
 char userNameBlock[128];
 char passwordBlock[128];
@@ -160,7 +162,9 @@ void printUsageAndExit(char *appName)
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
 			"\n -runtime adjusts the running time of the application.\n"
-			"\n -maxEventsInPool size of event pool.\n"
+			"\n -maxEventsInPool size of event pool\n"
+			"\n -restEnableLog enable REST logging message\n"
+			"\n -restLogFileName set REST logging output stream\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -321,6 +325,16 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				snprintf(protocolList, 128, "%s", argv[i-1]);
 			}
+			else if (strcmp("-restLogFileName", argv[i]) == 0)
+			{
+				i += 2;
+				restLogFileName = fopen(argv[i - 1], "w");
+				if (!restLogFileName)
+				{
+					printf("Error: Unable to open the specified file name : %s \n", argv[i - 1]);
+					printUsageAndExit(argv[0]);
+				}
+			}
 			else if (strcmp("-cache", argv[i]) == 0)
 			{
 				i++;
@@ -340,6 +354,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				RTTSupport = RSSL_TRUE;
+			}
+			else if (strcmp("-restEnableLog", argv[i]) == 0)
+			{
+				i++;
+				restEnableLog = RSSL_TRUE;
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || 
 					(strcmp("-webSocket", argv[i]) == 0) || 
@@ -1810,6 +1829,11 @@ int main(int argc, char **argv)
 
 	reactorOpts.maxEventsInPool = maxEventsInPool;
 
+	reactorOpts.restEnableLog = restEnableLog;
+
+	if (restLogFileName)
+		reactorOpts.restLogOutputStream = restLogFileName;
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -2162,6 +2186,9 @@ void cleanUpAndExit(int code)
 		printf("Error cleaning up reactor: %s\n", rsslErrorInfo.rsslError.text);
 		exitApp(-1);
 	}
+
+	if (restLogFileName)
+		fclose(restLogFileName);
 
 	for (i = 0; i < channelCommandCount; ++i)
 	{

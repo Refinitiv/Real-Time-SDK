@@ -160,6 +160,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceDump(DEFAULT_XML_TRACE_DUMP),
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	enableRtt(DEFAULT_ENABLE_RTT),
+	restEnableLog(DEFAULT_REST_ENABLE_LOG),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -168,6 +169,7 @@ BaseConfig::BaseConfig() :
 	traceStr(),
 	tokenReissueRatio(DEFAULT_TOKEN_REISSUE_RATIO),
 	defaultServiceIDForConverter(DEFAULT_SERVICE_ID_FOR_CONVERTER),
+	restLogFileName(),
 	jsonExpandedEnumFields(DEFAULT_JSON_EXPANDED_ENUM_FIELDS),
 	catchUnknownJsonKeys(DEFAULT_CATCH_UNKNOWN_JSON_KEYS),
 	catchUnknownJsonFids(DEFAULT_CATCH_UNKNOWN_JSON_FIDS),
@@ -202,6 +204,7 @@ void BaseConfig::clear()
 	xmlTraceDump = DEFAULT_XML_TRACE_DUMP;
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	enableRtt = DEFAULT_ENABLE_RTT;
+	restEnableLog = DEFAULT_REST_ENABLE_LOG;
 	loggerConfig.clear();
 	catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
 	parameterConfigGroup = 1;
@@ -209,6 +212,7 @@ void BaseConfig::clear()
 	libCryptoName.clear();
 	traceStr.clear();
 	libcurlName.clear();
+	restLogFileName.clear();
 	tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
 	defaultServiceIDForConverter = DEFAULT_SERVICE_ID_FOR_CONVERTER;
 	jsonExpandedEnumFields = DEFAULT_JSON_EXPANDED_ENUM_FIELDS;
@@ -249,7 +253,9 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t catchUnknownJsonKeys : ").append(catchUnknownJsonKeys)
 		.append("\n\t catchUnknownJsonFids : ").append(catchUnknownJsonFids)
 		.append("\n\t closeChannelFromFailure : ").append(closeChannelFromFailure)
-		.append("\n\t outputBufferSize : ").append(outputBufferSize);
+		.append("\n\t outputBufferSize : ").append(outputBufferSize)
+		.append("\n\t restEnableLog : ").append(restEnableLog)
+		.append("\n\t restLogFileName : ").append(restLogFileName);
 
 	return traceStr;
 }

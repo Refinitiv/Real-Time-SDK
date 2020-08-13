@@ -629,7 +629,40 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	pReactorImpl->reissueTokenAttemptLimit = pReactorOpts->reissueTokenAttemptLimit;
 	pReactorImpl->reissueTokenAttemptInterval = pReactorOpts->reissueTokenAttemptInterval;
 	pReactorImpl->restRequestTimeout = pReactorOpts->restRequestTimeOut;
-
+	pReactorImpl->restEnableLog = pReactorOpts->restEnableLog;
+	if (pReactorOpts->restLogOutputStream)
+	{
+		if (pReactorOpts->restLogOutputStream == stdout)
+		{
+			if (fprintf(pReactorOpts->restLogOutputStream, "%s \n", "REST log redirected to stdout.") < 0)
+			{
+				_reactorWorkerCleanupReactor(pReactorImpl);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to open stdout stream");
+				return NULL;
+			}
+			pReactorImpl->restLogOutputStream = pReactorOpts->restLogOutputStream;
+		}
+		else if (pReactorOpts->restLogOutputStream == stderr)
+		{
+			if (fprintf(pReactorOpts->restLogOutputStream, "%s \n", "REST log redirected to stderr.") < 0)
+			{
+				_reactorWorkerCleanupReactor(pReactorImpl);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to open stderr stream");
+				return NULL;
+			}
+			pReactorImpl->restLogOutputStream = pReactorOpts->restLogOutputStream;
+		}
+		else
+		{
+			if (fprintf(pReactorOpts->restLogOutputStream, "%s \n", "REST log redirected to file.") < 0)
+			{
+				_reactorWorkerCleanupReactor(pReactorImpl);
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to open the specified file");
+				return NULL;
+			}
+			pReactorImpl->restLogOutputStream = pReactorOpts->restLogOutputStream;
+		}
+	}
 	if (pReactorOpts->tokenServiceURL.data && pReactorOpts->tokenServiceURL.length)
 	{
 		pReactorImpl->tokenServiceURLBuffer.length = RSSL_REACTOR_DEFAULT_URL_LENGHT;
@@ -1248,8 +1281,14 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
+			if (pRsslReactorImpl->restEnableLog)
+				(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+
 			rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer,
 				&errorInfo.rsslError);
+
+			if (pRsslReactorImpl->restEnableLog)
+				(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
 
 			free(pRestRequestArgs);
 
@@ -1331,8 +1370,14 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 		_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
+		if (pRsslReactorImpl->restEnableLog)
+			(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+
 		rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, 
 			&pRsslReactorImpl->serviceDiscoveryRespBuffer, &errorInfo.rsslError);
+
+		if (pRsslReactorImpl->restEnableLog)
+			(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
 
 		if (restResponse.isMemReallocated)
 		{
@@ -6665,6 +6710,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 	{
 		RsslUInt8 retryCount = 0;
 		RsslBuffer tokenServiceURL = pReactorImpl->tokenServiceURL;
+		RsslReactorImpl* pRsslReactorImpl = pReactorChannelImpl->pParentReactor;
 
 		while (retryCount <= 1) /* Retry the request using the redirect URL only one time. */
 		{
@@ -6680,8 +6726,14 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 			{
 				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
+				if (pRsslReactorImpl->restEnableLog)
+					(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+
 				rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse, &pTokenSessionImpl->rsslAccessTokenRespBuffer,
 					&errorInfo.rsslError);
+
+				if (pRsslReactorImpl->restEnableLog)
+					(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
@@ -6882,6 +6934,8 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 		RsslUInt8 retryCount = 0;
 		RsslBuffer serviceDiscoveryURL = pReactorImpl->serviceDiscoveryURL;
 		RsslReactorDiscoveryTransportProtocol transport = RSSL_RD_TP_INIT;
+		RsslReactorImpl* pRsslReactorImpl = pReactorChannelImpl->pParentReactor;
+
 		pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
 		rsslClearBuffer(&argumentsAndHeaders);
@@ -6949,8 +7003,14 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 			_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
+			if (pRsslReactorImpl->restEnableLog)
+				(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+
 			rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse,
 				&pTokenSessionImpl->rsslServiceDiscoveryRespBuffer, &errorInfo.rsslError);
+
+			if (pRsslReactorImpl->restEnableLog)
+				(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
 
 			if (restResponse.isMemReallocated)
 			{

@@ -477,6 +477,14 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.enableRtt = tmp > 0 ? true : false;
 	}
 
+	pConfigImpl->get<EmaString>(instanceNodeName + "RestLogFileName", _activeConfig.restLogFileName);
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "RestEnableLog", tmp))
+	{
+		_activeConfig.restEnableLog = tmp > 0 ? true : false;
+	}
+
+
 	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReissueTokenAttemptLimit", tempInt))
 		_activeConfig.reissueTokenAttemptLimit = tempInt;
@@ -1285,6 +1293,19 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
         if (_activeConfig.maxEventsInPool != DEFAULT_MAX_EVENT_IN_POOL)
             reactorOpts.maxEventsInPool = _activeConfig.maxEventsInPool;
 
+		if (_activeConfig.restEnableLog != DEFAULT_REST_ENABLE_LOG)
+			reactorOpts.restEnableLog = _activeConfig.restEnableLog;
+
+		if (!_activeConfig.restLogFileName.empty())
+		{
+			reactorOpts.restLogOutputStream = fopen(_activeConfig.restLogFileName, "w");
+			if (!reactorOpts.restLogOutputStream)
+			{
+				EmaString temp("Failed to open spesified file: ");
+				temp.append(_activeConfig.restLogFileName);
+				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
+			}
+		}
 		reactorOpts.userSpecPtr = ( void* )this;
 
 		_pRsslReactor = rsslCreateReactor( &reactorOpts, &rsslErrorInfo );

@@ -206,6 +206,13 @@ int main(int argc, char **argv)
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	if (watchlistConsumerConfig.restEnableLog)
+	{
+		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
+		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
+	}
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -510,6 +517,9 @@ int main(int argc, char **argv)
 		printf("rsslReactorCloseChannel() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
+
+	if (reactorOpts.restLogOutputStream)
+		fclose(reactorOpts.restLogOutputStream);
 
 	rsslUninitialize();
 

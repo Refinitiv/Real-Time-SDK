@@ -117,6 +117,9 @@ typedef struct
 	RsslBool			queryEndpoint;					/* Queries the EDP service discovery in application for the specified connection type and location. */
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
 
+	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
+	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
+
 	char			_userNameMem[255];
 	char			_passwordMem[255];
 	char			_serviceNameMem[255];

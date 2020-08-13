@@ -116,6 +116,7 @@
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
 #define DEFAULT_ENABLE_RTT							  false
+#define DEFAULT_REST_ENABLE_LOG						  false
 
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
@@ -444,6 +445,7 @@ public:
 	bool					xmlTraceHex;
 	bool					xmlTraceDump;
 	bool					enableRtt;
+	bool					restEnableLog;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.
@@ -457,6 +459,7 @@ public:
 	UInt32					requestTimeout;
 	EmaString				traceStr;
 	Double					tokenReissueRatio;
+	EmaString				restLogFileName;
 
 	/* Configure the  RsslReactorJsonConverterOptions */
 	UInt16					defaultServiceIDForConverter;
