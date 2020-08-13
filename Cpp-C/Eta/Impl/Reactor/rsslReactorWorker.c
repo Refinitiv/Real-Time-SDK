@@ -8,6 +8,7 @@
 #include "rtr/rsslReactorImpl.h"
 #include "rtr/rsslReactorEventsImpl.h"
 #include <stddef.h>
+#include <xmlDump.h>
 
 #include <assert.h>
 #ifdef _WIN32
@@ -3664,6 +3665,8 @@ static void restResponseErrDump(FILE* outputStream, RsslError* pErrorOutput)
 		pOutputStream = stdout;
 
 	fprintf(pOutputStream, "\n--- REST RESPONSE ERROR---\n\n");
+
+	xmlDumpTimestamp(pOutputStream);
 
 	fprintf(pOutputStream, "Error: %s\n Error ID: %d\n System error: %d\n", pErrorOutput->text,
 		pErrorOutput->rsslErrorId, pErrorOutput->sysError);
