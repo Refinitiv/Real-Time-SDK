@@ -88,7 +88,19 @@ public class ReactorServiceDiscoveryOptions
         	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientId.length());
         	_clientId.copy(byteBuffer);
         	dest.clientId().data(byteBuffer);  
-        }  		
+        }
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
+        	_clientSecret.copy(byteBuffer);
+        	dest.clientSecret().data(byteBuffer);  
+        } 
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_tokenScope.length());
+        	_tokenScope.copy(byteBuffer);
+        	dest.tokenScope().data(byteBuffer);  
+        } 
 		
 		dest._transport = _transport;
 		dest._dataFormat = _dataFormat;
