@@ -9,9 +9,6 @@
  * DateTimeStringFormat is an interface to string conversion methods for OmmDate, OmmTime & OmmDateTime.
  * <br>DateTimeStringFormat provides interface to methods that convert OmmDate/OmmTime/OmmDateTime
  * into string based on a specified format.
- * 
- * DateTimeStringFormat is single threaded. If an application accesses a single
- * object of DateTimeStringFormat via multiple threads, it needs to implement its own locking mechanism.
  *
  * @see Data, OmmDate, OmmTime, OmmDateTime.
  * 
