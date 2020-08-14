@@ -1634,7 +1634,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         {
         	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
         	cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-            cOpt.connectionType(chnlInfo.connectionArg.encryptedConnectionType());
+            cOpt.encryptionOptions().connectionType(chnlInfo.connectionArg.encryptedConnectionType());
             setEncryptedConfiguration(cOpt);        	           	        	
         }        
         else if (chnlInfo.shouldEnableHttp)
