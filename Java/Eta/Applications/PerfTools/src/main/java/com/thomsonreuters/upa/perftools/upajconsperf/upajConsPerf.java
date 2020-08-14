@@ -782,7 +782,7 @@ public class upajConsPerf implements ShutdownCallback
 						_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().average(),
 						Math.sqrt(_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().variance()),
 						((_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().maxValue() : 0.0),
-								((_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().minValue() : 0.0),
+						((_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().minValue() : 0.0),
 						processCpuLoad,
 						memoryUsage);
 				_consumerThreadsInfo[i].statsFileWriter().flush();
@@ -828,6 +828,12 @@ public class upajConsPerf implements ShutdownCallback
 				{
 					_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().print("  GenMsgLat(usec)", "Msgs", false);
 					_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().clear();
+				}
+				
+				if (_consumerThreadsInfo[i].stats().tunnelStreamBufUsageStats().count() > 0)
+				{
+					_consumerThreadsInfo[i].stats().tunnelStreamBufUsageStats().print("  TunnelStreamBufferUsed", "Samples", false);
+					_consumerThreadsInfo[i].stats().tunnelStreamBufUsageStats().clear();
 				}
 				
 				if (statusCount > 0)

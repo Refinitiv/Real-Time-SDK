@@ -91,6 +91,7 @@ public class DirectoryProvider
         _service.info().isSource(1);
 
         _service.info().capabilitiesList().add((long)DomainTypes.DICTIONARY);
+        _service.info().capabilitiesList().add((long)DomainTypes.SYSTEM);
         if (xmlMsgData.hasMarketPrice())
         {
             _service.info().capabilitiesList().add((long)DomainTypes.MARKET_PRICE);
