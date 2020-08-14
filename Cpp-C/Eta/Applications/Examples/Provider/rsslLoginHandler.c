@@ -480,8 +480,7 @@ static RsslBool copyCookieValue(const char *cookies, char* value)
 		}
 		else
 		{
-			valueLength = strlen(ptrCoockieEq + 1);
-			strncpy(value, ptrCoockieEq + 1, valueLength); // ptrCoockieEq + 1 to point to the next symbol after '='
+			strcpy(value, ptrCoockieEq + 1); // ptrCoockieEq + 1 to point to the next symbol after '='
 		}
 	}
 	else
