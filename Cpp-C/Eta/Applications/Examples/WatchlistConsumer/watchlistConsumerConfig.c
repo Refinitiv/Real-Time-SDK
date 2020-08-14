@@ -101,6 +101,11 @@ void printUsageAndExit(int argc, char **argv)
 			"   -tsAuth  Causes the consumer to use authentication when opening tunnel streams.\n"
 			"\n"
 			" -rtt Turns on the Round Trip Time monitoring feature in the login stream"
+			"\n"
+			"-restEnableLog enable REST logging message"
+			"\n"
+			"-restLogFileName set REST logging output stream"
+			"\n"
 			, argv[0], argv[0]);
 	exit(-1);
 }
@@ -176,6 +181,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.protocolList, 255, "rssl.rwf");
 
 	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
+	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
+	watchlistConsumerConfig.restOutputStreamName = NULL;
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
@@ -494,6 +501,20 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			else if (RTR_STRNICMP(argv[i], "false", 5) == 0)
 			{
 				watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_FALSE;
+			}
+		}
+		else if (strcmp("-restEnableLog", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.restEnableLog = RSSL_TRUE;
+		}
+		else if (0 == strcmp(argv[i], "-restLogFileName"))
+		{
+			i += 2;
+			watchlistConsumerConfig.restOutputStreamName = fopen(argv[i - 1], "w");
+			if (!watchlistConsumerConfig.restOutputStreamName)
+			{
+				printf("Error: Unable to open the specified file name %s\n", argv[i - 1]);
+				printUsageAndExit(argc, argv);
 			}
 		}
 		else

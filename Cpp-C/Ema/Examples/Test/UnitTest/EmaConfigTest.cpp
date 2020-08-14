@@ -374,6 +374,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addAscii("Channel", "Channel_1")
 			.addAscii("Logger", "Logger_1")
 			.addAscii("Dictionary", "Dictionary_1")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -470,6 +472,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_1" ) << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerName == "Logger_1" ) << "Logger name , \"Logger_1\"";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE( activeConfig.restLogFileName == "Rest.log" ) << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE( activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE( activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -535,6 +539,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addAscii("Channel", "Channel_1")
 			.addAscii("Logger", "Logger_1")
 			.addAscii("Dictionary", "Dictionary_1")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -640,6 +646,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -712,6 +720,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addAscii("Channel", "Channel_1")
 			.addAscii("Logger", "Logger_1")
 			.addAscii("Dictionary", "Dictionary_1")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -818,6 +828,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -889,6 +901,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("Channel", "Channel_1")
 			.addAscii("Logger", "Logger_1")
 			.addAscii("Dictionary", "Dictionary_1")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -998,6 +1012,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1" ) << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1" ) << "Logger name , \"Logger_1\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -1230,6 +1246,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Channel", "Channel_2")
 			.addAscii("Logger", "Logger_2")
 			.addAscii("Dictionary", "Dictionary_2")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
 			.addUInt("ItemCountHint", 9000)
 			.addUInt("ServiceCountHint", 9000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -1329,6 +1347,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_2" ) << "Connection name , \"Channel_2\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerName == "Logger_2" ) << "Logger name , \"Logger_2\"";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2" ) << "dictionaryName , \"Dictionary_2\"";
+		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 9000) << "itemCountHint , 9000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 9000) << "serviceCountHint , 9000";
 		EXPECT_TRUE( activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";

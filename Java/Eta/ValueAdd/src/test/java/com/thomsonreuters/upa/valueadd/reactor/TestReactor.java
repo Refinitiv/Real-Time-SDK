@@ -86,7 +86,7 @@ public class TestReactor {
 			fail("Caught I/O exception");
 		}
 	}
-	
+
 	/** Creates a TestReactor. */
 	public TestReactor(ReactorOptions reactorOptions)
 	{
@@ -117,7 +117,18 @@ public class TestReactor {
 	 * or more are received.
 	 * @param expectedEventCount The exact number of events that should be received.
 	 */
-	public void dispatch(int expectedEventCount)
+	public void dispatch(int expectedEventCount){
+		dispatch(expectedEventCount, false);
+	}
+
+	/** Calls dispatch on the component's Reactor, and will store received events for later review.
+	 * The test will verify that the exact number of events is received, and will fail if fewer
+	 * or more are received.
+	 * Used for forced close connection from client, use {@link #dispatch(int)} for ordinary scenarios
+	 * @param expectedEventCount The exact number of events that should be received.
+	 * @param channelWasClosed true if client forcible have closed channel
+	 */
+	public void dispatch(int expectedEventCount, boolean channelWasClosed)
 	{
 		long timeoutMsec;
 		
@@ -125,7 +136,7 @@ public class TestReactor {
         	timeoutMsec = 1000;
         else
         	timeoutMsec = 200;
-        dispatch(expectedEventCount, timeoutMsec);
+        dispatch(expectedEventCount, timeoutMsec, channelWasClosed);
 	}
 	
 	
@@ -135,7 +146,19 @@ public class TestReactor {
 	 * @param expectedEventCount The exact number of events that should be received.
 	 * @param timeoutMsec The maximum time to wait for all events.
 	 */
-	public void dispatch(int expectedEventCount, long timeoutMsec)
+	public void dispatch(int expectedEventCount, long timeoutMsec){
+		dispatch(expectedEventCount, timeoutMsec, false);
+	}
+
+	/** Waits for notification on the component's Reactor, and calls dispatch when triggered. It will
+	 * store any received events for later review.
+	 * Waiting for notification stops once the expected number of events is received (unless that number is zero, in which case it waits for the full specified time).
+	 * Used for forced close connection from client, use {@link #dispatch(int)} for ordinary scenarios
+	 * @param expectedEventCount The exact number of events that should be received.
+	 * @param timeoutMsec The maximum time to wait for all events.
+	 * @param channelWasClosed true if client forcible have closed channel
+	 */
+	public void dispatch(int expectedEventCount, long timeoutMsec, boolean channelWasClosed)
 	{
         int selectRet = 0;
         long currentTimeUsec, stopTimeUsec;
@@ -160,10 +183,20 @@ public class TestReactor {
 				{
                     long selectTime;
 
+					//check if channel still exists and opened
+					if(_reactor.reactorChannel()==null || _reactor.reactorChannel().selectableChannel()==null || !_reactor.reactorChannel().selectableChannel().isOpen()) {
+						if (channelWasClosed) {
+							return;
+						} else {
+							fail("No selectable channel exists");
+						}
+					}
+
 					_reactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, _reactor.reactorChannel());
 				   
 					for (TestReactorComponent component : _componentList)
-						if (component.reactorChannel() != null && component.reactorChannelIsUp())
+						if (component.reactorChannel() != null && component.reactorChannelIsUp() &&
+							component.reactorChannel().selectableChannel() != null )
 							component.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, component.reactorChannel());
 	
 					selectTime = (stopTimeUsec - currentTimeUsec)/1000;

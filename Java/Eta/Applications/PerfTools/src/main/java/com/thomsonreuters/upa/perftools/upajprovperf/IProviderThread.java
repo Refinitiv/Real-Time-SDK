@@ -55,13 +55,15 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamListenerCallback;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
 
 /**
  * Interactive provider implementation of the provider thread callback. Handles
  * accepting of new channels, processing of incoming messages and sending of
  * message bursts.
  */
-public class IProviderThread extends ProviderThread implements ProviderCallback
+public class IProviderThread extends ProviderThread implements ProviderCallback, TunnelStreamListenerCallback
 {
     private static final String applicationName = "upajProvPerf";
     private static final String applicationId = "256";
@@ -174,6 +176,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _providerRole.loginMsgCallback(this);
         _providerRole.directoryMsgCallback(this);
         _providerRole.dictionaryMsgCallback(this);
+        _providerRole.tunnelStreamListenerCallback(this);
 
         System.out.printf("Accepting new Reactor connection...\n");
         
@@ -779,32 +782,37 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     public int defaultMsgCallback(ReactorMsgEvent event)
     {
         ReactorChannel reactorChannel = event.reactorChannel();
-        ProviderSession provSession = (ProviderSession)reactorChannel.userSpecObj();
-        ProviderThread providerThread = provSession.providerThread();
-        
-        Msg msg = event.msg();
-        
-        _decodeIter.clear();
-        
-        if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null)
-        {
-            _decodeIter.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
-        }
-        
-        switch (msg.domainType())
-        {
-            case DomainTypes.MARKET_PRICE:
-                if (_xmlMsgData.marketPriceUpdateMsgCount() > 0)
-                    _itemRequestHandler.processMsg(providerThread, provSession, msg, _directoryProvider.openLimit(), _directoryProvider.serviceId(), _directoryProvider.qos(), _decodeIter, event.errorInfo().error());
-                else
-                    _itemRequestHandler.sendRequestReject(providerThread, provSession, msg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, event.errorInfo().error());
-                break;
-            default:
-                _itemRequestHandler.sendRequestReject(providerThread, provSession, msg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, event.errorInfo().error());
-                break;
-        }
+   
+        processMessage(reactorChannel, event.msg());
 
         return ReactorCallbackReturnCodes.SUCCESS;
+    }
+    
+    /* This method is used to handle messages on the tunnel stream as well */
+    void processMessage(ReactorChannel reactorChannel, Msg msg)
+    {
+         ProviderSession provSession = (ProviderSession)reactorChannel.userSpecObj();
+         ProviderThread providerThread = provSession.providerThread();
+         
+         _decodeIter.clear();
+         
+         if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null)
+         {
+             _decodeIter.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
+         }
+         
+         switch (msg.domainType())
+         {
+             case DomainTypes.MARKET_PRICE:
+                 if (_xmlMsgData.marketPriceUpdateMsgCount() > 0)
+                     _itemRequestHandler.processMsg(providerThread, provSession, msg, _directoryProvider.openLimit(), _directoryProvider.serviceId(), _directoryProvider.qos(), _decodeIter, _errorInfo.error());
+                 else
+                     _itemRequestHandler.sendRequestReject(providerThread, provSession, msg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, _errorInfo.error());
+                 break;
+             default:
+                 _itemRequestHandler.sendRequestReject(providerThread, provSession, msg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, _errorInfo.error());
+                 break;
+         }
     }
 
     /* (non-Javadoc)
@@ -909,6 +917,19 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
 
         return ReactorCallbackReturnCodes.SUCCESS;
     }
+    
+	@Override
+	public int listenerCallback(TunnelStreamRequestEvent event) 
+	{
+		TunnelStreamHandler tunnelStreamHandler = new TunnelStreamHandler(this);
+		
+		tunnelStreamHandler.applicationId(applicationId);
+		tunnelStreamHandler.applicationName(applicationName);
+		
+		tunnelStreamHandler.processNewStream(event);
+		
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 
     private long currentTime()
     {

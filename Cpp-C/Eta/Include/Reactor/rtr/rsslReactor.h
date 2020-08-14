@@ -290,7 +290,7 @@ RTR_C_INLINE void rsslClearReactorChannelRole(RsslReactorChannelRole *pRole)
  */
 typedef struct {
 	RsslInt32	dispatchDecodeMemoryBufferSize;	/*!< Size of the memory buffer(in bytes) that the RsslReactor will use when decoding RsslRDMMsgs to pass to callback functions. */
-    RsslInt32   maxEventsInPool;        /*!< Specifies maximum amount of the events in the RsslReactor pool. The default value -1 the maximum is not specified.>*/
+    RsslInt32   maxEventsInPool;				/*!< Specifies maximum amount of the events in the RsslReactor pool. The default value -1 the maximum is not specified.>*/
     void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
 	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the EDP-RT service discovery. The service discovery is used when the connection arguments is not specified
 												 * in the RsslReactorConnectInfo.rsslConnectOptions */
@@ -302,6 +302,8 @@ typedef struct {
 	RsslInt32	reissueTokenAttemptInterval;	/*!< The interval time for the RsslReactor will wait before attempting to reissue the token, in milliseconds. The minimum interval is 1000 milliseconds */
 	RsslUInt32	restRequestTimeOut;				/*!< Specifies maximum time the request is allowed to take for token service and service discovery, in seconds. If set to 0, there is no timeout */
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
+	RsslBool	restEnableLog;					/*!< Enable REST interaction debug messages> */
+	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
 } RsslCreateReactorOptions;
 
 /**
@@ -322,6 +324,8 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->reissueTokenAttemptLimit = -1;
 	pReactorOpts->reissueTokenAttemptInterval = 5000;
 	pReactorOpts->restRequestTimeOut = 90;
+	pReactorOpts->restEnableLog = RSSL_FALSE;
+	pReactorOpts->restLogOutputStream = NULL;
 }
 
 /**

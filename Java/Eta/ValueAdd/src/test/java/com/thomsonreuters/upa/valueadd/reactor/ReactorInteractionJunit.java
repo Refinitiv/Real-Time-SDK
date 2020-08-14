@@ -7,11 +7,6 @@
 
 package com.thomsonreuters.upa.valueadd.reactor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import com.thomsonreuters.upa.codec.CloseMsg;
@@ -25,12 +20,14 @@ import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
+import static org.junit.Assert.*;
+
 public class ReactorInteractionJunit
 {
 	
     /** Reusable ReactorErrorInfo */
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
-    
+
     @Test
     public void SimpleRequestTest_Watchlist()
     {
@@ -66,14 +63,9 @@ public class ReactorInteractionJunit
         
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
-        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
-        providerRole.channelEventCallback(provider);
-        providerRole.loginMsgCallback(provider);
-        providerRole.directoryMsgCallback(provider);
-        providerRole.dictionaryMsgCallback(provider);
-        providerRole.defaultMsgCallback(provider);
+		initProviderRole(provider);
 
-        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+		/* Connect the consumer and provider. Setup login & directory streams automatically. */
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
@@ -111,19 +103,8 @@ public class ReactorInteractionJunit
         providerStreamId = receivedRequestMsg.streamId();
         
         /* Provider sends refresh .*/
-        refreshMsg.clear();
-        refreshMsg.msgClass(MsgClasses.REFRESH);
-        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
-        refreshMsg.streamId(providerStreamId);
-        refreshMsg.containerType(DataTypes.NO_DATA);
-        refreshMsg.applyHasMsgKey();
-        refreshMsg.msgKey().applyHasServiceId();
-        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
-        refreshMsg.msgKey().applyHasName();
-        refreshMsg.msgKey().name().data("TRI.N");
-        refreshMsg.state().streamState(StreamStates.OPEN);
-        refreshMsg.state().dataState(DataStates.OK);
-        
+        createRefreshMessage(refreshMsg, providerStreamId, "TRI.N");
+
         assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
         
         /* Consumer receives refresh. */
@@ -155,23 +136,54 @@ public class ReactorInteractionJunit
 	 * the refresh. */
     class CloseOnDefaultMsgConsumer extends Consumer
     {
-        public CloseOnDefaultMsgConsumer(TestReactor testReactor)
+        /** in case value is N>0 - consumer is going to listen for the messages and will forcible close channel after Nth message*/
+        private int _forceCloseChannelMessageNumber;
+        /** counter for consumer messages to drop connection */
+        private int _consumerDefaultMessagesCounter = 0;
+        /** makes consumer to return ReactorReturnCodes.FAILURE after channel is closed */
+        private boolean _returnFailure;
+
+        public CloseOnDefaultMsgConsumer(TestReactor testReactor, int breakChannelMessageNumber, boolean returnFailure)
         {
             super(testReactor);
+            _forceCloseChannelMessageNumber = breakChannelMessageNumber;
+            _returnFailure = returnFailure; 
         }
 
         @Override
         public int defaultMsgCallback(ReactorMsgEvent event)
         {
-            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-            CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
             super.defaultMsgCallback(event);
+
+            //ordinary scenario - sending close message
+            if(_forceCloseChannelMessageNumber <=0){
+                ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+                CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
            
-            closeMsg.clear();
-            closeMsg.msgClass(MsgClasses.CLOSE);
-            closeMsg.domainType(event.msg().domainType());
-            closeMsg.streamId(event.msg().streamId());
-            submit(closeMsg, submitOptions);
+                closeMsg.clear();
+                closeMsg.msgClass(MsgClasses.CLOSE);
+                closeMsg.domainType(event.msg().domainType());
+                closeMsg.streamId(event.msg().streamId());
+                submit(closeMsg, submitOptions);
+                return ReactorReturnCodes.SUCCESS;
+            }
+
+            /**unexpected consumer failure scenario, going to close client channel upon
+             * _forceCloseChannelMessageNumber-th message arrival
+             *
+             */
+            if(_forceCloseChannelMessageNumber > 0) {
+                _consumerDefaultMessagesCounter++;
+                //forced channel closing after _forceCloseChannelMessageNumber message was received
+                if (_consumerDefaultMessagesCounter == _forceCloseChannelMessageNumber) {
+                    
+                    event.reactorChannel().close(_errorInfo);
+                    assert _errorInfo._code == ReactorReturnCodes.SUCCESS : "Consumer close channel failed";
+                    return _returnFailure ? ReactorReturnCodes.FAILURE : ReactorReturnCodes.SUCCESS;
+                } else if(_consumerDefaultMessagesCounter > _forceCloseChannelMessageNumber) {
+                    fail("Consumer message handler was invoked after channel forced closing");
+                }
+            }
             return ReactorReturnCodes.SUCCESS;
         }
     }
@@ -181,6 +193,59 @@ public class ReactorInteractionJunit
 	{
 		/* Test a simple request/refresh  exchange (no watchlist), followed by
 		 * a close from the consumer. */
+		SimpleRequestTest_CloseFromCallbackInner(0);
+	}
+
+	@Test
+	public void SimpleRequestTest_UnexpectedCloseFromCallback()
+	{
+		/* Test a simple request/refresh exchange followed by
+		 * force channel close from the consumer. */
+		SimpleRequestTest_CloseFromCallbackInner(20);
+    }
+
+	@Test
+	public void SimpleRequestTest_UnexpectedCloseFromCallbackWithoutReactorShutdown()
+	{
+		int failureCount =20;
+		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+
+		/* Create reactors. */
+		TestReactor consumerReactor = new TestReactor();
+		TestReactor providerReactor = new TestReactor();
+
+		/* Create consumer. */
+		Consumer consumer = new CloseOnDefaultMsgConsumer(consumerReactor, failureCount, false);
+		initConsumerRole(consumer);
+
+		/* Create provider. */
+		Provider provider = new Provider(providerReactor);
+		initProviderRole(provider);
+		
+		/* Connect the consumer and provider. Setup login & directory streams automatically. */
+		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+		opts.setupDefaultLoginStream(true);
+		opts.setupDefaultDirectoryStream(true);
+		provider.bind(opts);
+		TestReactor.openSession(consumer, provider, opts);
+		RefreshMsg refreshMsg = (RefreshMsg) CodecFactory.createMsg();
+		//sending messages for force disconnect scenario, starting from 1 as as handler counts every message
+		for(int i=1; i<failureCount*2; i++) {
+			/* Provider sends refresh .*/
+			createRefreshMessage(refreshMsg, 5, "TRI.N." + i);
+			int result = provider.submitAndDispatch(refreshMsg, submitOptions, false);
+			assertTrue(result >= ReactorReturnCodes.SUCCESS);
+		}
+		
+		//Only messages that are dispatched before channel is closed are expected to be passed to consumer
+		consumerReactor.dispatch(failureCount, false);
+
+		consumer.close();
+		provider.close();	
+	}
+	
+	public void SimpleRequestTest_CloseFromCallbackInner(int failureCount)
+	{
 
 	    ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
@@ -197,27 +262,14 @@ public class ReactorInteractionJunit
 		TestReactor providerReactor = new TestReactor();
 				
 		/* Create consumer. */
-		Consumer consumer = new CloseOnDefaultMsgConsumer(consumerReactor);
-		ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
-        consumerRole.initDefaultRDMLoginRequest();
-        consumerRole.initDefaultRDMDirectoryRequest();
-        consumerRole.channelEventCallback(consumer);
-        consumerRole.loginMsgCallback(consumer);
-        consumerRole.directoryMsgCallback(consumer);
-        consumerRole.dictionaryMsgCallback(consumer);
-        consumerRole.defaultMsgCallback(consumer);
-        consumerRole.watchlistOptions().channelOpenCallback(consumer);
-		
-        /* Create provider. */
+		Consumer consumer = new CloseOnDefaultMsgConsumer(consumerReactor, failureCount, true);
+		initConsumerRole(consumer);
+
+		/* Create provider. */
 		Provider provider = new Provider(providerReactor);
-		ProviderRole providerRole = (ProviderRole)provider.reactorRole();
-		providerRole.channelEventCallback(provider);
-        providerRole.loginMsgCallback(provider);
-        providerRole.directoryMsgCallback(provider);
-        providerRole.dictionaryMsgCallback(provider);
-        providerRole.defaultMsgCallback(provider);
-		
-		
+		initProviderRole(provider);
+
+
 		/* Connect the consumer and provider. Setup login & directory streams automatically. */
 		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 		opts.setupDefaultLoginStream(true);
@@ -256,21 +308,9 @@ public class ReactorInteractionJunit
 		assertEquals(5, requestMsg.streamId());
 		
 		/* Provider sends refresh .*/
-		refreshMsg.clear();
-		refreshMsg.msgClass(MsgClasses.REFRESH);
-		refreshMsg.domainType(DomainTypes.MARKET_PRICE);
-		refreshMsg.streamId(5);
-		refreshMsg.containerType(DataTypes.NO_DATA);
-		refreshMsg.applyHasMsgKey();
-		refreshMsg.msgKey().applyHasServiceId();
-		refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
-		refreshMsg.msgKey().applyHasName();
-		refreshMsg.msgKey().name().data("TRI.N");
-		refreshMsg.state().streamState(StreamStates.OPEN);
-		refreshMsg.state().dataState(DataStates.OK);
-		
+		createRefreshMessage(refreshMsg, 5, "TRI.N");
 		assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-		
+
 		/* Consumer receives refresh. */
 		consumerReactor.dispatch(1);
 		event = consumerReactor.pollEvent();
@@ -284,25 +324,84 @@ public class ReactorInteractionJunit
 		assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
 		assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
 		assertTrue(receivedRefreshMsg.msgKey().checkHasName());
-		assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+		assertEquals("TRI.N", receivedRefreshMsg.msgKey().name().toString());
 		assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
 		assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
 		assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
 		assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-		
-		/* Provider receives close (Consumer submitted one from inside the callback); */
-		providerReactor.dispatch(1);
-        event = providerReactor.pollEvent();
-        assertEquals(TestReactorEventTypes.MSG, event.type());
-        msgEvent = (ReactorMsgEvent)event.reactorEvent();
-        assertNotNull(msgEvent.transportBuffer());
-        assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
-        receivedCloseMsg = (CloseMsg)msgEvent.msg();
-        assertEquals(5, receivedCloseMsg.streamId());
-        assertEquals(DomainTypes.MARKET_PRICE, receivedCloseMsg.domainType());
-				
-		TestReactorComponent.closeSession(consumer, provider);
+
+		//sending messages for force disconnect scenario, starting from 1 as as handler counts every message
+		for(int i=1; i<failureCount*2; i++) {
+            /* Provider sends refresh .*/
+            consumerReactor.pollEvent();
+            createRefreshMessage(refreshMsg, 5, "TRI.N." + i);
+            int result = provider.submitAndDispatch(refreshMsg, submitOptions, i >= failureCount - 1);
+            if (i <= failureCount) {
+                assertTrue(result >= ReactorReturnCodes.SUCCESS);
+            } else {
+                assertFalse(result >= ReactorReturnCodes.SUCCESS);
+            }
+            consumerReactor.dispatch(1, i >= failureCount - 1);
+        }
+
+		//closing message is expected only for ordinary scenario
+		if(failureCount<=0) {
+            /* Provider receives close (Consumer submitted one from inside the callback); */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertNotNull(msgEvent.transportBuffer());
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+            receivedCloseMsg = (CloseMsg)msgEvent.msg();
+            assertEquals(5, receivedCloseMsg.streamId());
+            assertEquals(DomainTypes.MARKET_PRICE, receivedCloseMsg.domainType());
+        }
+
+		//clear messages for unexpected channel close scenario
+		if(failureCount>0){
+		    providerReactor.pollEvent();
+        }
+		TestReactorComponent.closeSession(consumer, provider,  failureCount>0);
 	}
+
+	private void initConsumerRole(Consumer consumer)
+	{
+		ConsumerRole consumerRole = (ConsumerRole) consumer.reactorRole();
+		consumerRole.initDefaultRDMLoginRequest();
+		consumerRole.initDefaultRDMDirectoryRequest();
+		consumerRole.channelEventCallback(consumer);
+		consumerRole.loginMsgCallback(consumer);
+		consumerRole.directoryMsgCallback(consumer);
+		consumerRole.dictionaryMsgCallback(consumer);
+		consumerRole.defaultMsgCallback(consumer);
+		consumerRole.watchlistOptions().channelOpenCallback(consumer);
+	}
+	
+	private void initProviderRole(Provider provider)
+	{
+		ProviderRole providerRole = (ProviderRole) provider.reactorRole();
+		providerRole.channelEventCallback(provider);
+		providerRole.loginMsgCallback(provider);
+		providerRole.directoryMsgCallback(provider);
+		providerRole.dictionaryMsgCallback(provider);
+		providerRole.defaultMsgCallback(provider);
+	}
+
+	private void createRefreshMessage(RefreshMsg refreshMsg, int streamId, String msgKeyName) {
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(streamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data(msgKeyName);
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+    }
 
     @Test
     public void VerifyConsumerRoleMsgCopyTest()

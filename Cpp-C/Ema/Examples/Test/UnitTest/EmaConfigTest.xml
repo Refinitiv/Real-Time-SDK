@@ -27,6 +27,8 @@
 			<Channel value="Channel_2"/>
 			<Logger value="Logger_2"/>
 			<Dictionary value="Dictionary_2"/>
+			<RestLogFileName value="Rest1.log"/>
+			<RestEnableLog value="0"/>
 			<ItemCountHint value="500000"/>
 			<ServiceCountHint value="655"/>
 			<ObeyOpenWindow value="0"/>

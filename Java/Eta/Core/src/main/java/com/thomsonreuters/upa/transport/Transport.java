@@ -25,16 +25,10 @@ public class Transport
     
     static
     {
-		for (Package thisPacakge : Package.getPackages())
-		{
-			if (thisPacakge.getName().equals("com.thomsonreuters.upa.transport"))
-			{
-		        _libVersionInfo.productDate(thisPacakge.getImplementationVendor());
-		        _libVersionInfo.productInternalVersion(thisPacakge.getImplementationVersion());
-		        _libVersionInfo.productVersion(thisPacakge.getSpecificationVersion());				
-				break;
-			}
-		}
+        Package thisPackage = Transport.class.getPackage();
+        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
+        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
+        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());
         
         if (_libVersionInfo.productInternalVersion() == null)
         {

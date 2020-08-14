@@ -1046,6 +1046,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 													if (activeConfig.libcurlName.length() == 0)
 														activeConfig.libcurlName = eentry.getAscii();
 												}
+												else if (eentry.getName() == "RestLogFileName")
+												{
+													activeConfig.restLogFileName = eentry.getAscii();
+												}
 												break;
 
 											case DataType::UIntEnum:
@@ -1144,6 +1148,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												else if (eentry.getName() == "EnableRtt")
 												{
 													activeConfig.enableRtt = eentry.getUInt() ? true : false;
+												}
+												else if (eentry.getName() == "RestEnableLog")
+												{
+													activeConfig.restEnableLog = eentry.getUInt() ? true : false;
 												}
 
 												break;

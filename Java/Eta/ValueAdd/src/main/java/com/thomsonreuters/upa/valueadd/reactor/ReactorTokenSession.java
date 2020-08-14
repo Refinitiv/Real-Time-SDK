@@ -62,6 +62,8 @@ class ReactorTokenSession implements RestCallback
     	_restAuthRequest.username(_reactorOAuthCredential.userName().toString());
     	_restAuthRequest.password(_reactorOAuthCredential.password().toString());
     	_restAuthRequest.clientId(_reactorOAuthCredential.clientId().toString());
+    	_restAuthRequest.clientSecret(_reactorOAuthCredential.clientSecret().toString());
+    	_restAuthRequest.tokenScope(_reactorOAuthCredential.tokenScope().toString());
     	
     	_resultClosure = new RestResultClosure(this, this);
     	_restConnectOptions.restResultClosure(_resultClosure);

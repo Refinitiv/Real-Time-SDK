@@ -277,6 +277,7 @@ static void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType);
 #endif
 static void reactorUnitTests_WaitWhileChannelDown(RsslConnectionTypes connectionType);
 static void reactorUnitTests_ReconnectAttemptLimit(RsslConnectionTypes connectionType);
+static void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType);
 
 static void reactorUtilTest_ConnectDeepCopy(RsslConnectionTypes connectionType);
 
@@ -383,6 +384,7 @@ TEST_P(ReactorUtilTest, ReconnectAttemptLimit)
 {
 	reactorUnitTests_ReconnectAttemptLimit(GetParam());
 }
+
 #ifdef COMPILE_64BITS
 TEST_P(ReactorUtilTest, ManyConnections)
 {
@@ -393,6 +395,11 @@ TEST_P(ReactorUtilTest, EventQueuePerformance)
 	reactorUnitTests_EventPoolSize(GetParam());
 }
 #endif
+
+TEST_P(ReactorUtilTest, UnreachableAddress)
+{
+	reactorUnitTests_InvalidNetworkInterface(GetParam());
+}
 
 INSTANTIATE_TEST_CASE_P(
 	TestingReactorUtilTests,
@@ -477,6 +484,7 @@ protected:
 	RsslReactorOAuthCredential _reactorOAuthCredential;
 	RsslConsumerWatchlistOptions _watchlistOptions;
 	RsslBool cleanupReactor;
+
 };
 
 int ReactorSessionMgntTest::connectInfoCount = 3;
@@ -5332,4 +5340,32 @@ void reactorUtilTest_ConnectDeepCopy(RsslConnectionTypes connectionType)
 	}
 	
 	rsslFreeConnectOpts(&outOpts);
+}
+
+void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType)
+{
+	RsslBindOptions rsslBindOpts;
+
+	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
+
+	clearObjects();
+
+	rsslClearBindOpts(&rsslBindOpts);
+	rsslBindOpts.serviceName = const_cast<char*>("443");
+
+	connectOpts[index].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	connectOpts[index].rsslConnectOptions.encryptionOpts.encryptedProtocol = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? RSSL_CONN_TYPE_WEBSOCKET : RSSL_CONN_TYPE_SOCKET;
+
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("untrusted-root.badssl.com");
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("443");
+
+	/*The interface name is valid but does not allow access remote address.*/
+	connectOpts[index].rsslConnectOptions.connectionInfo.unified.interfaceName = const_cast<char*>("192.168.56.1");
+
+	connectOpts[index].connectionCount = 0;
+	connectOpts[index].reactorConnectionList = 0;
+	connectOpts[index].reconnectAttemptLimit = 0;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
+	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
 }

@@ -63,6 +63,7 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"Vendor",
 	"XmlTraceFileName",
 	"WsProtocols",
+	"RestLogFileName",
 };
 
 thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
@@ -140,6 +141,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"RemoveItemsOnDisconnect",
 	"RequestTimeout",
 	"RestRequestTimeOut",
+	"RestEnableLog",
 	"ServerSharedSocket",
 	"ServiceCountHint",
 	"ServiceId",

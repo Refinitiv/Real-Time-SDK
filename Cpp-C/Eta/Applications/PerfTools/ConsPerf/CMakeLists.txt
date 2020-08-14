@@ -8,7 +8,9 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/perfTunnelMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/tunnelStreamHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
 
@@ -20,7 +22,9 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/perfTunnelMsgHandler.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.h
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/tunnelStreamHandler.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.h
   )

@@ -18,7 +18,6 @@ import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 
 /** A component represents a consumer, provider, etc. on the network (note the Consumer and Provider subclasses). */
 
@@ -49,7 +48,7 @@ public abstract class TestReactorComponent {
     
     static int _portToBind = 16123; /** A port to use when binding servers. Incremented with each bind. */
     static int _portToBindForReconnectTest = 16000; /** A port to use when binding servers. Incremented with each bind. */
-    
+
     /** Returns the port the next bind call will use. Useful for testing reconnection
      * to servers that won't be bound until later in a test. */
     static int nextReservedServerPort()
@@ -191,12 +190,19 @@ public abstract class TestReactorComponent {
     /** Sends a Msg to the component's channel. */
     int submit(Msg msg, ReactorSubmitOptions submitOptions)
     {
+    	return submit(msg, submitOptions, false);
+    }
+
+    int submit(Msg msg, ReactorSubmitOptions submitOptions, boolean expectFailure)
+    {
         int ret;
 
         ret = _reactorChannel.submit(msg, submitOptions, _errorInfo);
         
-        assertTrue("submit failed: " + ret + "(" + _errorInfo.location() + "--" + _errorInfo.error().text() + ")",
-                ret >= ReactorReturnCodes.SUCCESS);
+        if (!expectFailure) {
+            assertTrue("submit failed: " + ret + "(" + _errorInfo.location() + "--" + _errorInfo.error().text() + ")",
+                    ret >= ReactorReturnCodes.SUCCESS);
+        }
 
         return ret;
     }
@@ -204,8 +210,14 @@ public abstract class TestReactorComponent {
     /** Sends a Msg to the component's channel, and dispatches to ensure no events are received and any internal flush events are processed. */
     int submitAndDispatch(Msg msg, ReactorSubmitOptions submitOptions)
     {
-        int ret = submit(msg, submitOptions);
-        testReactor().dispatch(0);
+        return submitAndDispatch(msg, submitOptions, false);
+    }
+
+    /** Sends a Msg to the component's channel, and dispatches. Allowing any unprocessed messages left*/
+    int submitAndDispatch(Msg msg, ReactorSubmitOptions submitOptions, boolean expectFailures)
+    {
+        int ret = submit(msg, submitOptions, expectFailures);
+        testReactor().dispatch(expectFailures ? -1 : 0);
         return ret;
     }
     
@@ -234,8 +246,15 @@ public abstract class TestReactorComponent {
 	/** Disconnect a consumer and provider component and clean them up. */
 	public static void closeSession(Consumer consumer, Provider provider)
 	{
+		closeSession(consumer,provider,false);
+	}
+	/** Disconnect a consumer and provider component and clean them up.
+	 * Do additional checks to not fail on dirty client disonnection.
+	 * */
+	public static void closeSession(Consumer consumer, Provider provider, boolean expectConsumerFailure)
+	{
 		/* Make sure there's nothing left in the dispatch queue. */
-		consumer.testReactor().dispatch(0);
+		consumer.testReactor().dispatch(0, expectConsumerFailure);
 		provider.testReactor().dispatch(0);
 		
 		consumer.close();
@@ -245,7 +264,9 @@ public abstract class TestReactorComponent {
     /** Closes the component's channel. */
     void closeChannel()
     {
-        assertEquals(ReactorReturnCodes.SUCCESS, _reactorChannel.close(_errorInfo));
+        if(ReactorChannel.State.CLOSED!=_reactorChannel.state()){
+            assertEquals(ReactorReturnCodes.SUCCESS, _reactorChannel.close(_errorInfo));
+        }
         _reactorChannelIsUp = false;
         _reactorChannel = null;
     }

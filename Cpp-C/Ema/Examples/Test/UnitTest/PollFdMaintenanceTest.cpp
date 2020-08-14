@@ -94,14 +94,15 @@ private:
   void handleIhe(UInt64, const EmaString&) {}
   void handleIhe(UInt64, const char*) {}
   void handleMee(const char*) {}
-  LoggerConfig& getActiveLoggerConfig() {}
-  OmmLoggerClient& getOmmLoggerClient() {}
-  ErrorClientHandler& getErrorClientHandler() {}
-  bool hasErrorClientHandler() const {}
-  EmaString& getInstanceName() const {}
+  // all dummy ipplementation need to fix warning: [-Wreturn-type] 
+  LoggerConfig& getActiveLoggerConfig() {static LoggerConfig dummyConfig; return dummyConfig;}
+  OmmLoggerClient& getOmmLoggerClient() {static int dummyLoger[10]; return reinterpret_cast<OmmLoggerClient&>(dummyLoger);}
+  ErrorClientHandler& getErrorClientHandler() {static int dummyHeader[10]; return reinterpret_cast<ErrorClientHandler&>(dummyHeader);}
+  bool hasErrorClientHandler() const {return true;}
+  EmaString& getInstanceName() const {static EmaString str; return str;}
   void msgDispatched(bool value = true) {}
-  Mutex& getUserMutex() {}
-  bool isAtExit() {}
+  Mutex& getUserMutex() {static Mutex mtx; return mtx;}
+  bool isAtExit() {return true;}
 };
 
 TEST(PollFdMaintenanceTest, eventFds)

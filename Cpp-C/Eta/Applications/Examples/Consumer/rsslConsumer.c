@@ -72,6 +72,7 @@ static char proxyPort[128];
 static char proxyUserName[128];
 static char proxyPasswd[128];
 static char proxyDomain[128];
+static char cookiesData[4096];
 static char libsslName[255];
 static char libcryptoName[255];
 static char libcurlName[255];
@@ -79,6 +80,7 @@ static char cipherSuite[255];
 static char authenticationToken[AUTH_TOKEN_LENGTH];
 static char authenticationExtended[AUTH_TOKEN_LENGTH];
 static char applicationId[128];
+static RsslBuffer cookieBuff = {0};
 static RsslConnectionTypes connType = RSSL_CONN_TYPE_SOCKET;
 static RsslConnectionTypes encryptedConnType = RSSL_CONN_TYPE_INIT;
 static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
@@ -102,6 +104,7 @@ static RsslBool slReq = RSSL_FALSE;
 static RsslBool isInLoginSuspectState = RSSL_FALSE;
 static RsslBool jsonEnumExpand = RSSL_FALSE;
 static RsslBool supportRTT = RSSL_FALSE;
+static RsslBool httpHdrEnable = RSSL_FALSE;
 
 static RsslBool xmlTrace = RSSL_FALSE;
 RsslBool showTransportDetails = RSSL_FALSE;
@@ -125,7 +128,9 @@ static const char *defaultProxyPort = "";
 static const char *defaultProxyUserName = "";
 static const char *defaultProxyPasswd = "";
 static const char *defaultProxyDomain = "";
+static const char *defaultCookies = "";
 static const char *defaultCAStore = "";
+
 
 /* For TREP authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -168,6 +173,7 @@ int main(int argc, char **argv)
 	snprintf(proxyUserName, 128, "%s", defaultProxyUserName);
 	snprintf(proxyPasswd, 128, "%s", defaultProxyPasswd);
 	snprintf(proxyDomain, 128, "%s", defaultProxyDomain);
+	snprintf(cookiesData, 128, "%s", defaultCookies);
 	snprintf(sslCAStore, 255, "%s", defaultCAStore);
 	memset((void*)cipherSuite, 0, 255);
 
@@ -456,6 +462,19 @@ int main(int argc, char **argv)
 				i += 2;
 				timeToRun = atoi(argv[i-1]);
 			}
+			else if (strcmp("-httpHdr", argv[i]) == 0)
+			{
+				i++;
+				httpHdrEnable = RSSL_TRUE;
+			}
+			else if (strcmp("-httpCookie", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(cookiesData, 4096, "%s", argv[i-1]);
+				cookieBuff.data = cookiesData;
+				cookieBuff.length = (rtrUInt32)strlen(cookiesData);
+				checkCmdLoginCockies(cookiesData);
+			}
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
@@ -475,7 +494,7 @@ int main(int argc, char **argv)
 				printf(" -ax Specifies the Authentication Extended information.\n");
 				printf(" -aid Specifies the Application ID.\n");
 				printf("\n -runtime adjusts the time the application runs.\n");
-				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET, WEBSOCKET and HTTP(Windows only).\n");
+				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are socket, websocket and http(Windows only).\n");
 				printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
 				printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
 				printf("\n -ph specifies the proxy host\n");
@@ -489,6 +508,8 @@ int main(int argc, char **argv)
 				printf(" -pl or -protocolList white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
 				printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
 				printf("\n -rtt If specified, the consumer connection will support the round trip time functionality in the login stream.\n");
+				printf(" -httpHdr If specified, http header will be accesible on the provider side\n");
+				printf(" -httpCookie with ';' delineated list of cookies data\n");
 #ifdef _WIN32
 				/* WINDOWS: wait for user to enter something before exiting  */
 				printf("\nPress Enter or Return key to exit application:");
@@ -937,6 +958,53 @@ static RsslRet readFromChannel(RsslChannel* chnl)
 	return RSSL_RET_SUCCESS;
 }
 
+static void HttpCallbackFunction(RsslHttpMessage* httpMess, RsslError* error)
+{
+	RsslHttpHdrData *data = NULL;
+	RsslQueueLink *pLink = NULL;
+	RsslQueue *httpHeaders = &(httpMess->headers);
+	RsslQueue *cookeis = &(httpMess->cookies);
+
+	if (error->rsslErrorId)
+	{
+		printf("Http header error %s \n", error->text);
+	}
+
+	if (httpHeaders->count)
+	{
+		RsslInt32 n = 0;
+
+		printf("HTTP header data: \n");
+
+		for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			printf("%s\n", data->name.data);
+		}
+	}
+	else
+	{
+		printf("Failed to get http headers. \n");
+	}
+
+	if (cookeis->count)
+	{
+
+		printf("HTTP cookies data: \n");
+
+		for (pLink = rsslQueuePeekFront(cookeis); pLink; pLink = rsslQueuePeekNext(cookeis, pLink))
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			printf("%s ", data->name.data);
+		}
+		printf("\n");
+	}
+	else
+	{
+		printf("Http cookies is empty. \n");
+	}
+}
+
 /*
  * Connects to the RSSL server and returns the channel to the caller.
  * hostname - The hostname of the server to connect to
@@ -965,10 +1033,39 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 	copts.guaranteedOutputBuffers = 500;
 	copts.connectionType = connType;
 	if (connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType != RSSL_CONN_TYPE_INIT)
+	{
 		copts.encryptionOpts.encryptedProtocol = encryptedConnType;
+		
+		if (encryptedConnType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			copts.wsOpts.protocols = protocolList;
+
+			if (httpHdrEnable)
+			{
+				copts.wsOpts.httpCallback = HttpCallbackFunction;
+				if (cookieBuff.length)
+				{
+					copts.wsOpts.cookies.cookie = &cookieBuff;
+					copts.wsOpts.cookies.numberOfCookies = 1;
+				}
+			}
+		}
+	}
 	
 	if (connType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
 		copts.wsOpts.protocols = protocolList;
+
+		if (httpHdrEnable)
+		{
+			copts.wsOpts.httpCallback = HttpCallbackFunction;
+			if (cookieBuff.length)
+			{
+				copts.wsOpts.cookies.cookie = &cookieBuff;
+				copts.wsOpts.cookies.numberOfCookies = 1;
+			}
+		}
+	}
 
 	copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	copts.minorVersion = RSSL_RWF_MINOR_VERSION;

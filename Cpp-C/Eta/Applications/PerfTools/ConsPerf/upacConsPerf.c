@@ -502,6 +502,12 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 				clearValueStatistics(&consumerThreads[i].stats.intervalUpdateDecodeTimeStats);
 			}
 
+			if (consumerThreads[i].stats.tunnelStreamBufUsageStats.count > 0)
+			{
+				printValueStatistics(stdout, "  TunnelStreamBufferUsed", "Samples", &consumerThreads[i].stats.tunnelStreamBufUsageStats, RSSL_FALSE);
+				clearValueStatistics(&consumerThreads[i].stats.tunnelStreamBufUsageStats);
+			}
+
 			if (statusCount)
 				printf("  - Received %llu status messages.\n", statusCount);
 		}

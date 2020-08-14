@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 #include "rtr/rsslTypes.h"
+#include "rtr/rsslQueue.h"
 #include "rtr/rsslRetCodes.h"
 
 /**
@@ -529,6 +530,54 @@ typedef enum {
 	RSSL_ENC_TLSV1_2 = 0x04				/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
 } RsslEncryptionProtocolTypes;
 
+/**
+* @brief RSSL HTTP Methods
+ * @see rwsReadResponseHandshake
+ * @see rwsSendResponseHandshake
+*/
+typedef enum {
+	RSSL_HTTP_UNKNOWN = 0,    /*!< (0) Indicates UNKNOW HTTP method. */
+	RSSL_HTTP_GET = 1,        /*!< (1) Indicates HTTP GET method. */
+	RSSL_HTTP_POST = 2,       /*!< (2) Indicates HTTP POST method. */
+	RSSL_HTTP_PUT = 3,        /*!< (3) Indicates HTTP PUT method. */
+	RSSL_HTTP_DELETE = 4,     /*!< (4) Indicates HTTP DELETE method. */
+	RSSL_HTTP_PATCH = 5       /*!< (5) Indicates HTTP PATCH method. */
+} RsslHttpMethod;
+
+/** @brief Http header used for storing ptr to all http headers. 
+ * @see rwsReadResponseHandshake
+ * @see rwsSendResponseHandshake
+ */
+typedef struct {
+	RsslQueueLink link;
+	RsslBuffer    name;			/* A pointer to string of one HTTP header line */
+	RsslBuffer    value;        /* A pointer to the start of the field-value and length */
+}RsslHttpHdrData;
+
+/** @brief Http message struct used for storing all data about HTTP. Used like a external type for user.
+ * @see rwsReadResponseHandshake
+ * @see rwsSendResponseHandshake
+ */
+typedef struct{
+	RsslHttpMethod	httpMethod;	    /* Represent methods of HTTP request such as GET or POST */
+	RsslUInt32		statusCode;			/*!<represents HTTP status code for the HTTP response. */
+	RsslQueue		headers;			/*!<represents a list of available HTTP Headers represented by a key and value pair structure. */
+	RsslQueue		cookies;            /*!<represents a list of available cookies represented by a key and value pair structure. */
+	RsslBuffer		dataBody;			/*!<represents the data body portion of message if any. */
+	char*			protocolVersion;	/*!<represents the protocol version. */
+}RsslHttpMessage;
+
+typedef void RsslHttpCallback(RsslHttpMessage*, RsslError*);
+
+/** @brief Options used for configuring a WebSocket connection (::RSSL_CONN_TYPE_WEBSOCKET).
+*@see rsslConnect
+* @see RsslConnectOptions
+* @see RsslBindOptions
+*/
+typedef struct {
+	RsslBuffer *cookie;
+	RsslInt32 numberOfCookies;
+}RsslUserCookies;
 
 /** @brief Options used for configuring a WebSocket connection (::RSSL_CONN_TYPE_WEBSOCKET).
  * @see rsslConnect
@@ -536,11 +585,14 @@ typedef enum {
  * @see RsslBindOptions
  */
 typedef struct {
-	char			*protocols;			/*!< @brief The left-to-right priority ordered, white space delineated list of supported/preferred protocols */
-	RsslUInt64		maxMsgSize;	 /*!<  @brief Maximum size of messages that the WebSocket transport will read on client side. */
+	char				*protocols;			   /*!< @brief The left-to-right priority ordered, white space delineated list of supported/preferred protocols */
+	RsslUInt64			maxMsgSize;	           /*!<  @brief Maximum size of messages that the WebSocket transport will read on client side. */
+	RsslHttpCallback	*httpCallback;		   /*!<  @brief > Callback to provide http header*/
+	RsslUserCookies		cookies;               /*!<  @brief > Income pointer of user cookes.*/
 } RsslWSocketOpts;
 
-#define RSSL_INIT_WEBSOCKET_OPTS { 0, 61440}
+#define RSSL_INIT_COOKIES_OPTS   { NULL, 0 }
+#define RSSL_INIT_WEBSOCKET_OPTS { 0, 61440, NULL, RSSL_INIT_COOKIES_OPTS }
 
 
 /** @brief Options used for configuring an encrypted tunneled connection (::RSSL_CONN_TYPE_ENCRYPTED).
@@ -737,6 +789,9 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyDomain = NULL;
 	opts->wsOpts.maxMsgSize = 61440;
 	opts->wsOpts.protocols = NULL;
+	opts->wsOpts.httpCallback = NULL;
+	opts->wsOpts.cookies.cookie = NULL;
+	opts->wsOpts.cookies.numberOfCookies = 0;
 }
 
 /**
@@ -970,7 +1025,10 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->sysRecvBufSize = 0;
 	opts->componentVersion = NULL;
 	opts->wsOpts.maxMsgSize = 61440;
-;	opts->wsOpts.protocols = NULL;
+	opts->wsOpts.protocols = NULL;
+	opts->wsOpts.httpCallback = NULL;
+	opts->wsOpts.cookies.cookie = NULL;
+	opts->wsOpts.cookies.numberOfCookies = 0;
 	opts->encryptionOpts.cipherSuite = NULL;
 	opts->encryptionOpts.dhParams = NULL;
 	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;

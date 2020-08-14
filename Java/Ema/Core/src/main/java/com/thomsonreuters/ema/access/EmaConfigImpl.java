@@ -133,6 +133,8 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
     private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
     private boolean								_takeExclusiveSignOnControl = true;
+    private Buffer								_clientSecret = CodecFactory.createBuffer();
+    private Buffer								_tokenScope = CodecFactory.createBuffer();
 
 	EmaConfigImpl()
 	{
@@ -197,6 +199,9 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			_programmaticConfigure.clear();
 		
 		_takeExclusiveSignOnControl = true;
+		_clientId.clear();
+		_clientSecret.clear();
+		_tokenScope.clear();
 	}
 	
 	protected void usernameInt(String username)
@@ -233,6 +238,16 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	protected void clientIdInt(String clientId)
 	{
 		_clientId.data(clientId);
+	}
+	
+	protected void clientSecretInt(String clientSecret)
+	{
+		_clientSecret.data(clientSecret);
+	}
+	
+	protected void tokenScopeInt(String tokenScope)
+	{
+		_tokenScope.data(tokenScope);
 	}
 	
 	protected void tokenServiceUrlInt(String tokenServiceUrl)
@@ -854,6 +869,16 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	Buffer clientId()
 	{
 		return _clientId;
+	}
+	
+	Buffer clientSecret()
+	{
+		return _clientSecret;
+	}
+	
+	Buffer tokenScope()
+	{
+		return _tokenScope;
 	}
 	
 	Buffer tokenServiceUrl()

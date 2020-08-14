@@ -18,6 +18,8 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 	Buffer _userName = CodecFactory.createBuffer();
 	Buffer _password = CodecFactory.createBuffer();
 	Buffer _clientId = CodecFactory.createBuffer();
+	Buffer _clientSecret = CodecFactory.createBuffer();
+	Buffer _tokenScope = CodecFactory.createBuffer();
 	int _transport, _dataFormat;
 	String _proxyPort;
 	String _proxyHostName;
@@ -39,6 +41,8 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 		_userName.clear();
 		_password.clear();
 		_clientId.clear();
+		_clientSecret.clear();
+		_tokenScope.clear();
 		_transport = ServiceEndpointDiscoveryOption.TransportProtocol.UNKNOWN;
 		_dataFormat = ServiceEndpointDiscoveryOption.DataformatProtocol.UNKNOWN;
 		_proxyHostName = null;
@@ -164,6 +168,20 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 	public ServiceEndpointDiscoveryOption takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl)
 	{
 		_takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+		return this;
+	}
+
+	@Override
+	public ServiceEndpointDiscoveryOption clientSecret(String clientSecret)
+	{
+		_clientSecret.data(clientSecret);
+		return this;
+	}
+
+	@Override
+	public ServiceEndpointDiscoveryOption tokenScope(String tokenScope)
+	{
+		_tokenScope.data(tokenScope);
 		return this;
 	}
 }

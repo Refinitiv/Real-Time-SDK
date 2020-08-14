@@ -328,6 +328,8 @@ typedef struct {
 	RsslUInt32		encryptionProtocolFlags;
 	char*			serverCert;
 	char*			serverPrivateKey;
+	RsslHttpCallback *httpCallback;
+	RsslUserCookies	cookies;
 } RsslServerSocketChannel;
 
 #define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, RSSL_ENC_TLSV1_2, 0, 0 };
@@ -531,6 +533,8 @@ typedef struct
 											*/
 	void				*newTransportInfo;
 	RsslUInt16			port;				/* port number that was used to connect to the server (for Consumer, NiProvider). */
+	RsslHttpCallback    *httpCallback;		/* callback to provide http headers*/
+	RsslUserCookies		cookies;			/* income user cookies */
 #if (defined(_WINDOWS) || defined(_WIN32))
 	RsslBool socketRowSet;
 	MIB_TCPROW socketRow;
@@ -671,6 +675,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 
 	rsslSocketChannel->rwsSession = 0;
 	rsslSocketChannel->rwsLargeMsgBufferList = 0;
+	rsslSocketChannel->httpCallback = 0;
 
 #if (defined(_WINDOWS) || defined(_WIN32))
 	rsslSocketChannel->socketRowSet = RSSL_FALSE;

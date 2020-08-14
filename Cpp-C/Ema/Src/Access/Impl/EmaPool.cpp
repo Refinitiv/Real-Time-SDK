@@ -7,6 +7,7 @@
  */
 
 #include "GlobalPool.h"
+#include "libxml/parser.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -14,6 +15,7 @@ GlobalPool g_pool;
 
 GlobalPool::GlobalPool()
 {
+	xmlInitParser();
 }
 
 GlobalPool::~GlobalPool()
@@ -105,4 +107,6 @@ GlobalPool::~GlobalPool()
 		if ( _elementListSetDefPool.count() )
 			_elementListSetDefPool.clear(), needToClear = true;
 	}
+
+	xmlCleanupParser();
 }

@@ -98,6 +98,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 /** Provides the logic that consumer connections use in upajConsPerf for
   * connecting to a provider, requesting items, and processing the received
@@ -177,6 +179,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private DictionaryRequest _dictionaryRequest; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Buffer _fieldDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Buffer _enumTypeDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private TunnelStreamHandler _tunnelStreamHandler; // Use the VA Reactor tunnel stream instead of the UPA Channel for sending and receiving
+    private TunnelStreamSubmitOptions _tunnelStreamSubmitOptions;
+    private TunnelStreamInfo _tunnelStreamInfo;
 
     {
     	_eIter = CodecFactory.createEncodeIterator();
@@ -197,6 +202,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         _mpItem = new MarketPriceItem();
         _msgKey = CodecFactory.createMsgKey();
         _itemInfo = new ItemInfo();
+        _tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
     }
 
 	public ConsumerThread(ConsumerThreadInfo consInfo, ConsPerfConfig consConfig, XmlItemInfoList itemList, XmlMsgData msgData, PostUserInfo postUserInfo, ShutdownCallback shutdownCallback) 
@@ -237,6 +243,14 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         _dictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
         _fieldDictionaryName.data("RWFFld");
         _enumTypeDictionaryName.data("RWFEnum");
+        
+        /* Creates the tunnel stream handle to send and receive messages using a tunnel stream. */
+        if (consConfig.useTunnel())
+        {
+        	_tunnelStreamHandler = new TunnelStreamHandler(this, consConfig.tunnelAuth(), DomainTypes.SYSTEM);
+        	_tunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
+        	_tunnelStreamSubmitOptions.containerType(DataTypes.MSG);
+        }
 	}
 
 	/* Initializes consumer thread. */
@@ -526,6 +540,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             }       
         }
 	}
+    
+    public ConsPerfConfig consumerPerfConfig()
+    {
+    	return _consPerfConfig;
+    }
 
 	/** Run the consumer thread. */
 	public void run()
@@ -626,14 +645,44 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     {
                         service = _service;
                     }
-            		if ((ret = sendBursts(currentTicks, service)) < TransportReturnCodes.SUCCESS)
-            		{
-            			if (ret != TransportReturnCodes.NO_BUFFERS)
-            			{
-            				continue;
-            			}
-            			// not successful cases were handled in sendBursts method
-            		}
+                    
+                    if(_tunnelStreamHandler != null)
+                    {
+                    	 if(_reactorChannel != null && !_tunnelStreamHandler.tunnelStreamOpenSent()) 
+                         {
+                         	if ( _tunnelStreamHandler.openStream(_reactorChannel, service, _errorInfo) != ReactorReturnCodes.SUCCESS)
+                         	{
+                         		closeChannelAndShutDown(_errorInfo.error().text());
+                         		return;
+                         	}
+                         }
+                    	 else
+                    	 {
+                    		/* Checks to ensure that the tunnel stream is established */
+                    		if(_tunnelStreamHandler.tunnelStream() != null)
+                    		{
+                    			if ((ret = sendBursts(currentTicks, service)) < TransportReturnCodes.SUCCESS)
+                    			{
+                    				if (ret != TransportReturnCodes.NO_BUFFERS)
+                    				{
+                    					continue;
+                    				}
+                    				// not successful cases were handled in sendBursts method
+                    			}
+                    		}
+                    	 }
+                    }
+                    else
+                    {
+                    	if ((ret = sendBursts(currentTicks, service)) < TransportReturnCodes.SUCCESS)
+                    	{
+                    		if (ret != TransportReturnCodes.NO_BUFFERS)
+                    		{
+                    			continue;
+                    		}
+                    		// not successful cases were handled in sendBursts method
+                    	}
+                    }
             	}
 
             	if (++currentTicks == _consPerfConfig.ticksPerSec())
@@ -657,6 +706,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         }
         else // use UPA VA Reactor for sending and receiving
         {
+        	if(_tunnelStreamHandler != null)
+        	{
+        		_tunnelStreamHandler.closeStreams(_errorInfo);
+        	}
+        	
             closeReactor();
         }
         System.out.println("\nConsumerThread " + _consThreadInfo.threadId() + " exiting...");
@@ -788,6 +842,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
         {
             TransportBuffer msgBuf = null;
+            
             if ((msgBuf = getBuffer(512, false)) == null)
             {
                 return TransportReturnCodes.NO_BUFFERS;
@@ -813,7 +868,22 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         {
             if (_reactorChannel.state() == com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State.READY)
             {
-                ret = _reactorChannel.submit(msg, _submitOptions, _errorInfo);
+            	if(Objects.isNull(_tunnelStreamHandler))
+            	{
+            		ret = _reactorChannel.submit(msg, _submitOptions, _errorInfo);
+            	}
+            	else
+            	{
+            		ret = _tunnelStreamHandler.tunnelStream().submit(msg, _errorInfo);
+            		
+					if(_consPerfConfig.tunnelStreamBufsUsed())
+					{
+						if (_tunnelStreamHandler.tunnelStream().info(_tunnelStreamInfo, _errorInfo) == ReactorReturnCodes.SUCCESS)
+						{
+							_consThreadInfo.stats().tunnelStreamBufUsageStats().update(_tunnelStreamInfo.buffersUsed());
+						}
+					}
+				}
                 
                 if (ret == ReactorReturnCodes.NO_BUFFERS)
                 {
@@ -878,14 +948,47 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             _submitOptions.writeArgs().clear();
             _submitOptions.writeArgs().priority(WritePriorities.HIGH);
             _submitOptions.writeArgs().flags(WriteFlags.DIRECT_SOCKET_WRITE);
-            int retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+            
+            int retval;
+            
+            if(Objects.isNull(_tunnelStreamHandler))
+            {
+            	retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+            }
+            else
+            {
+            	retval = _tunnelStreamHandler.tunnelStream().submit(msgBuf, _tunnelStreamSubmitOptions, _errorInfo);
+            	
+				if(_consPerfConfig.tunnelStreamBufsUsed())
+				{
+					if (_tunnelStreamHandler.tunnelStream().info(_tunnelStreamInfo, _errorInfo) == ReactorReturnCodes.SUCCESS)
+					{
+						_consThreadInfo.stats().tunnelStreamBufUsageStats().update(_tunnelStreamInfo.buffersUsed());
+					}
+				}
+            }
 
             if (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
             {
                 //call flush and write again until there is data in the queue
                 while (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
                 {
-                    retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+                    if(Objects.isNull(_tunnelStreamHandler))
+                    {
+                    	retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+                    }
+                    else
+                    {
+                    	retval = _tunnelStreamHandler.tunnelStream().submit(msgBuf, _tunnelStreamSubmitOptions, _errorInfo);
+                    	
+    					if(_consPerfConfig.tunnelStreamBufsUsed())
+    					{
+    						if (_tunnelStreamHandler.tunnelStream().info(_tunnelStreamInfo, _errorInfo) == ReactorReturnCodes.SUCCESS)
+    						{
+    							_consThreadInfo.stats().tunnelStreamBufUsageStats().update(_tunnelStreamInfo.buffersUsed());
+    						}
+    					}
+                    }
                 }
             }
             else if (retval < ReactorReturnCodes.SUCCESS)
@@ -893,8 +996,16 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 // write failed, release buffer and shut down
                 if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
                 {
-                    _reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+                    if(Objects.isNull(_tunnelStreamHandler))
+                    {
+                	_reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+                    }
+                    else
+                    {
+                	_tunnelStreamHandler.tunnelStream().releaseBuffer(msgBuf, _errorInfo);
+                    }
                 }
+                
                 closeChannelAndShutDown(_errorInfo.error().text());
             }
         }
@@ -2031,6 +2142,16 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
         return ReactorCallbackReturnCodes.SUCCESS;
     }
+    
+    public int handleTunnelStreamMsgCallback(Msg msg, ReactorChannel reactorChannel)
+    {
+    	_dIter.clear();
+        _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
+
+        processMarketPriceResp(msg, _dIter);
+    	
+    	return ReactorCallbackReturnCodes.SUCCESS;
+    }
 
     @Override
     public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
@@ -2204,7 +2325,14 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         {
             if (_reactorChannel != null && _reactorChannel.state() == ReactorChannel.State.READY)
             {
-                msgBuf = _reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+            	if(Objects.isNull(_tunnelStreamHandler))
+            	{
+            		msgBuf = _reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+            	}
+            	else
+            	{
+            		msgBuf = _tunnelStreamHandler.tunnelStream().getBuffer(length, _errorInfo);
+            	}
             }
         }
         

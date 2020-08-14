@@ -140,7 +140,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
 	private boolean						_bInitialChannelReadyEventReceived;
-	String 								_productVersion;
+	private static final String 		_productVersion = ChannelCallbackClient.class.getPackage().getImplementationVersion();
 	
 	ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor rsslReactor)
 	{
@@ -155,18 +155,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 																		"Created ChannelCallbackClient",
 																		Severity.TRACE).toString());
 		}
-
-		for (Package thisPackage : Package.getPackages())
-		{
-			if (thisPackage.getName().equals("com.thomsonreuters.ema.access"))
-			{
-		        _productVersion = thisPackage.getImplementationVersion();				
-				break;
-			}
-		}
-
-        if (_productVersion == null)
-        	_productVersion = "EMA Java Edition";
 	}
 
 	@Override
@@ -932,14 +920,27 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
 		
+		ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+		
+		oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
+		
 		/* The Client ID is required parameter to enable the session management */
 		if(configImpl.clientId().length() != 0 )
-		{
-			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
+		{				
 			oAuthCredential.clientId(configImpl.clientId());
-			oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
-			consumerRole.reactorOAuthCredential(oAuthCredential);
 		}
+		
+		if(configImpl.clientSecret().length() != 0 )
+		{				
+			oAuthCredential.clientSecret(configImpl.clientSecret());
+		}
+		
+		if(configImpl.tokenScope().length() != 0 )
+		{				
+			oAuthCredential.tokenScope(configImpl.tokenScope());
+		}
+		
+		consumerRole.reactorOAuthCredential(oAuthCredential);
 		
 		ConsumerWatchlistOptions watchlistOptions = consumerRole.watchlistOptions();
 		watchlistOptions.channelOpenCallback(this);

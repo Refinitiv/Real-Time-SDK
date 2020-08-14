@@ -28,6 +28,8 @@ void setAuthenticationExtended(char* authenticationExtended);
 void setApplicationId(char* applicationId);
 /* allows the application to set RTT support */
 void setRTTSupported(RsslBool rttSupport);
+/* check up cookies format*/
+void checkCmdLoginCockies(const char* coockies);
 
 /* sends a login request */
 RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role, LoginSuccessCallback loginSuccessCB);
