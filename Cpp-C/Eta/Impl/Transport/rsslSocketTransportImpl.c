@@ -10877,6 +10877,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		transOpts.jitOpts.libcryptoName = 0;
 		transOpts.initConfig = 0;
 		transOpts.initConfigSize = 0;
+		transOpts.initCurlDebug = initOpts->initCurlDebug;
 
 		if (initOpts->initConfig && initOpts->initConfigSize)
 		{
@@ -11083,6 +11084,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 ripcinitend:
 	if (ret == RSSL_RET_FAILURE)
 	{
+		transOpts.initCurlDebug = RSSL_FALSE;
 
 		if (transOpts.initConfig)
 		{
@@ -11113,6 +11115,11 @@ ripcinitend:
 	}
 
 	return(ret);
+}
+
+RsslBool getCurlDebugMode() 
+{
+	return transOpts.initCurlDebug;
 }
 
 RsslInt32 getProtocolNumber()
@@ -11174,6 +11181,8 @@ RsslInt32 ipcCleanup()
 		int i;
 		ipcCleanRsslServerSocketChannel();
 		ipcCleanRsslSocketChannel();
+
+		transOpts.initCurlDebug = RSSL_FALSE;
 
 		if (gblInputBufs)
 			rtr_smplcDropRef(gblInputBufs);

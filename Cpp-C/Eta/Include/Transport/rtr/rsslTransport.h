@@ -224,13 +224,14 @@ typedef struct
 	RsslLockingTypes rsslLocking;			/*!< Lock method used for the RSSL API */
 	rsslJITOpts		 jitOpts;				/*!< JIT libray options */
 	void*			 initConfig;			/*!< private config init */			
-	size_t			 initConfigSize;		/*!< private size of config init */			
+	size_t			 initConfigSize;		/*!< private size of config init */	
+	RsslBool		 initCurlDebug;			/*!< curl debug (verbose) mode enable */
 }RsslInitializeExOpts;
 
 /**
  * @brief Static initializer for RsslInitializeExOpts
  */
-#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0 }
+#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0, RSSL_FALSE }
 
 /**
  * @brief Initializes the RSSL API and all internal members

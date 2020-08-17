@@ -32,9 +32,6 @@
 #include <sys/poll.h>
 #endif
 
- /*  debug curl - set to 0 is off, set to 1 will print debug msgs */
-unsigned char curlDebug = 0;
-
 #include "rtr/rsslSocketTransportImpl.h"
 #include "rtr/ripcflip.h"
 #include "rtr/ripcutils.h"
@@ -243,7 +240,7 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_OPENSOCKETFUNCTION, rsslCurlOpenSocketCallback);
 	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SOCKOPTDATA, rsslSocketChannel);
 	
-	if(curlDebug)
+	if(getCurlDebugMode())
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_VERBOSE, 1L);
 
     (*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_CONNECT_ONLY, 1L);

@@ -775,6 +775,8 @@ RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_n
 
 RsslInt32 getProtocolNumber();
 
+RsslBool getCurlDebugMode();
+
 RsslUInt8 getConndebug();
 
 #define IPC_NULL_PTR(__ptr,__fnm,__ptrname,__err) \
