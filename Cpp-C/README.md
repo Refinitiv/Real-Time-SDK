@@ -141,7 +141,7 @@ Please refer to top level README.md and to Cpp-C/Eta/README.MD or Cpp-C/Ema/READ
 Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/ESDK_C_Installation_Guide.pdf) or [EMA](Cpp-C/Ema/Docs/ESDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install ESDK 
-There are 3 ways to install Eletron SDK:
+There are 3 ways to install Elektron SDK:
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Elektron-SDK-BinaryPack/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to ESDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning ESDK GitHub repo with --recursive to include submodule found in [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. 
 
@@ -153,7 +153,7 @@ Elektron SDK package is also available on [MyRefinitiv.com](https://my.refinitiv
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraies, user must download [CMake](https://cmake.org).
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org).
 
 Refer to the ESDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 
