@@ -657,9 +657,12 @@ RsslRet RTR_FASTCALL _rsslFloatAsString(RsslDecodeIterator *pIter, RsslBuffer *o
 RsslRet RTR_FASTCALL _rsslFloatToString(void *pFloat, RsslBuffer *oBuffer)
 {
 	int length = 0;
-
-	length = snprintf(oBuffer->data, oBuffer->length, "%.*g", oBuffer->length - 3, *(RsslFloat*)pFloat);
-	// length = snprintf(oBuffer->data, oBuffer->length, "%g", *(RsslFloat*)pFloat);
+	rtrUInt32 numDigits = 7;
+	if (3 < oBuffer->length && oBuffer->length < 11)
+	{
+		numDigits = oBuffer->length - 3;
+	}
+	length = snprintf(oBuffer->data, oBuffer->length, "%.*g", numDigits, *(RsslFloat*)pFloat);
 	if (length >= 0 && length < (int)oBuffer->length)
 	{
 		oBuffer->length = length;
@@ -688,9 +691,12 @@ RsslRet RTR_FASTCALL _rsslDoubleAsString(RsslDecodeIterator *pIter, RsslBuffer *
 RsslRet RTR_FASTCALL _rsslDoubleToString(void  *pDouble, RsslBuffer *oBuffer)
 {
 	int length = 0;
-
-	length = snprintf(oBuffer->data, oBuffer->length, "%.*g", oBuffer->length - 3, *(RsslDouble*)pDouble);
-	//length = snprintf(oBuffer->data, oBuffer->length, "%g", *(RsslDouble*)pDouble);
+	rtrUInt32 numDigits = 16;
+	if (3 < oBuffer->length && oBuffer->length < 19)
+	{
+		numDigits = oBuffer->length - 3;
+	}
+	length = snprintf(oBuffer->data, oBuffer->length, "%.*g", numDigits, *(RsslDouble*)pDouble);
 	if (length >= 0 && length < (int)oBuffer->length)
 	{
 		oBuffer->length = length;

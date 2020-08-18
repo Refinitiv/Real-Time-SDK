@@ -50,6 +50,7 @@
 #else
 #define DO_NOT_TEST_FLOAT
 #endif
+#define EXP_LEADING_ZERO
 #endif
 
 #endif
@@ -6930,6 +6931,31 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testDouble == testDoubleOut);
 	//printf("testDouble: %f   testDoubleOut:  %f", testDouble, testDoubleOut); 
 
+	/* Double conversion test */
+	testDouble = 0.021509407150852;
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	rsslClearEncodeIterator(&encIter);
+	ASSERT_TRUE(rsslSetEncodeIteratorBuffer(&encIter, &testDataBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslEncodePrimitiveType(&encIter, RSSL_DT_DOUBLE, &testDouble) == RSSL_RET_SUCCESS);
+	testDataBuf.length = rsslGetEncodedBufferLength(&encIter);
+	rsslClearDecodeIterator(&decIter);
+	ASSERT_TRUE(rsslSetDecodeIteratorBuffer(&decIter, &testDataBuf) == RSSL_RET_SUCCESS);
+	/* should fail */
+	rsslClearBuffer(&testStrBuf);
+	testStrBuf.data = testStringSmall;
+	testStrBuf.length = sizeof(testStringSmall);
+	ASSERT_TRUE(rsslEncodedPrimitiveToString(&decIter, RSSL_DT_DOUBLE, &testStrBuf) != RSSL_RET_SUCCESS);
+	/* should pass */
+	rsslClearBuffer(&testStrBuf);
+	testStrBuf.data = testString;
+	testStrBuf.length = sizeof(testString);
+	ASSERT_TRUE(rsslEncodedPrimitiveToString(&decIter, RSSL_DT_DOUBLE, &testStrBuf) == RSSL_RET_SUCCESS);
+	testDoubleOut = atof(testStrBuf.data);
+	ASSERT_TRUE(testDouble == testDoubleOut);
+	//printf("testDouble: %f   testDoubleOut:  %f", testDouble, testDoubleOut); 
+
 	/* Real conversion test */
 	testDouble = 12345.6789012;
 	rsslClearBuffer(&testDataBuf);
@@ -7258,6 +7284,348 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(rsslBufferIsEqual(&testBuffer, &testStrBuf) == RSSL_TRUE);
 
 }
+
+bool testCompareDoubles(const RsslDouble testDoubleA, const RsslDouble testDoubleB)
+{
+	RsslDouble diff = testDoubleB - testDoubleA;
+	// maximum difference between MAX_VALUE/MIN_VALUE and real value 0 .. 2048 = 2^11
+	// it is the precision difference between long(64bit) and double(53bit)
+
+	if (diff == 0) {
+		return true;
+	}
+	else {
+		RsslDouble valueNextDouble;
+		if (diff < 0)
+		{   //  testDoubleB  <  testDoubleA
+			valueNextDouble = nextafter(testDoubleB, testDoubleA);
+			return (testDoubleA <= valueNextDouble);
+		}
+		else {  //  testDoubleA  <  testDoubleB
+			valueNextDouble = nextafter(testDoubleA, testDoubleB);
+			return (testDoubleB <= valueNextDouble);
+		}
+	}
+}
+
+TEST(stringConversionTest, stringToDoubleConversionTest)
+{
+	RsslBuffer testDataBuf, testStrBuf;
+	char testData[128], testString[128];
+	RsslDouble testDouble, testDoubleOut;
+	const char* sVal;
+
+	sVal = "-9223372036854775808.";
+	testDouble = -9223372036854775808.;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_EQ(testDoubleOut, testDouble);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	testDataBuf.length = sizeof(testData);
+	testDataBuf.data = testData;
+	ASSERT_TRUE(_rsslDoubleToString(&testDoubleOut, &testDataBuf) == RSSL_RET_SUCCESS);
+
+	sVal = "0.02150940715085";
+	testDouble = 0.02150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "0.00150940715085";
+	testDouble = 0.00150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "0.001509407150852";
+	testDouble = 0.00150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "0.021509407150852";
+	testDouble = 0.02150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "7.02150940715085";
+	testDouble = 7.02150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "120.00150940715085";
+	testDouble = 120.00150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "42.001509407150852";
+	testDouble = 42.00150940715085;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "529.021509407150852";
+	testDouble = 529.0215094071509;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+
+	sVal = "0.00000000000015094";
+	testDouble = 0.00000000000015;
+	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.data = testString;
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
+	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+}
+
+bool testDoubleToString(RsslDouble valDouble, const char* valString, char* errorText)
+{
+	RsslBuffer testDataBuf, testStrBuf;
+	char testData[128], testString[128];
+	int res;
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	rsslClearEncodeIterator(&encIter);
+	if (rsslSetEncodeIteratorBuffer(&encIter, &testDataBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetEncodeIteratorBuffer error");
+		return false;
+	}
+	if (rsslEncodePrimitiveType(&encIter, RSSL_DT_DOUBLE, &valDouble) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslEncodePrimitiveType error");
+		return false;
+	}
+	testDataBuf.length = rsslGetEncodedBufferLength(&encIter);
+
+	rsslClearDecodeIterator(&decIter);
+	if (rsslSetDecodeIteratorBuffer(&decIter, &testDataBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetDecodeIteratorBuffer error");
+		return false;
+	}
+
+	rsslClearBuffer(&testStrBuf);
+	testStrBuf.data = testString;
+	testStrBuf.length = sizeof(testString);
+	if (rsslEncodedPrimitiveToString(&decIter, RSSL_DT_DOUBLE, &testStrBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetEncodeIteratorBuffer error");
+		return false;
+	}
+
+	res = strcmp(testString, valString);
+	if (res != 0)
+	{
+		sprintf(errorText, "comparison error strcmp  %s", testString);
+	}
+	return (res == 0);
+}
+
+TEST(stringConversionTest, doubleToStringConversionTest)
+{
+	RsslDouble testDouble;
+	char errorText[256];
+	const char* testStr;
+
+	struct TestValues {
+		RsslDouble doubleVal;
+		const char* strVal;
+		const char* strVal2012;
+	};
+	struct TestValues tValues[] = {
+		{-9223372036854775808., "-9.223372036854776e+18", "-9.223372036854776e+018"},
+		{-9223372036854775000., "-9.223372036854775e+18", "-9.223372036854775e+018"},
+		{-9223372036854776000., "-9.223372036854776e+18", "-9.223372036854776e+018"},
+		{-9223372036854780000., "-9.22337203685478e+18" , "-9.22337203685478e+018"},
+		{0.021509407150852, "0.021509407150852", },
+		{0.02150940715085, "0.02150940715085", },
+		{0.00150940715085, "0.00150940715085", },
+		{7.02150940715085, "7.02150940715085", },
+		{120.00150940715085, "120.0015094071508", "120.0015094071509"},
+		{120.0015094071508, "120.0015094071508", },
+		{120.0015094071509, "120.0015094071509", },
+		{42.001509407150852, "42.00150940715085", },
+		{42.00150940715085,  "42.00150940715085", },
+		{529.02150940715085, "529.0215094071508", },
+		{529.0215094071508,  "529.0215094071508", },
+		{529.0215094071509,  "529.0215094071509", },
+		{0.00000000000015, "1.5e-13", "1.5e-013"},
+		{0.00000000000015094, "1.5094e-13", "1.5094e-013"},
+		{0.0000000000001509474521633478, "1.509474521633478e-13", "1.509474521633478e-013"},
+		{0.00000000000015094745216334782, "1.509474521633478e-13", "1.509474521633478e-013"},
+		{0.00000000000015094745216334787, "1.509474521633479e-13", "1.509474521633479e-013"},
+		{0.0000000000001509474521633479, "1.509474521633479e-13", "1.509474521633479e-013"},
+	};
+
+	size_t lenTValues = sizeof(tValues) / sizeof(struct TestValues);
+	for (size_t i = 0; i < lenTValues; ++i)
+	{
+		testDouble = tValues[i].doubleVal;
+#if defined(EXP_LEADING_ZERO)
+		if (tValues[i].strVal2012 != NULL  &&  tValues[i].strVal2012[0] != '\0')
+			testStr = tValues[i].strVal2012;
+		else
+			testStr = tValues[i].strVal;
+#else
+		testStr = tValues[i].strVal;
+#endif
+		EXPECT_TRUE(testDoubleToString(testDouble, testStr, errorText)) << errorText;
+	}
+}
+
+bool testCompareFloats(const RsslFloat testFloatA, const RsslFloat testFloatB)
+{
+	RsslFloat diff = testFloatB - testFloatA;
+
+	if (diff == 0) {
+		return true;
+	}
+	else {
+		RsslFloat valueNextFloat;
+		if (diff < 0)
+		{   //  testDoubleB  <  testDoubleA
+			valueNextFloat = nextafterf(testFloatB, testFloatA);
+			diff = valueNextFloat - testFloatA;
+			return (testFloatA <= valueNextFloat);
+		}
+		else {  //  testDoubleA  <  testDoubleB
+			valueNextFloat = nextafterf(testFloatA, 0.f);// testFloatB);
+			return (testFloatB <= valueNextFloat);
+		}
+	}
+}
+
+bool testFloatToString(RsslFloat valFloat, const char* valString, char* errorText)
+{
+	RsslBuffer testDataBuf, testStrBuf;
+	char testData[128], testString[128];
+	int res;
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	rsslClearEncodeIterator(&encIter);
+	if (rsslSetEncodeIteratorBuffer(&encIter, &testDataBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetEncodeIteratorBuffer error");
+		return false;
+	}
+	if (rsslEncodePrimitiveType(&encIter, RSSL_DT_FLOAT, &valFloat) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslEncodePrimitiveType error");
+		return false;
+	}
+	testDataBuf.length = rsslGetEncodedBufferLength(&encIter);
+
+	rsslClearDecodeIterator(&decIter);
+	if (rsslSetDecodeIteratorBuffer(&decIter, &testDataBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetDecodeIteratorBuffer error");
+		return false;
+	}
+
+	rsslClearBuffer(&testStrBuf);
+	testStrBuf.data = testString;
+	testStrBuf.length = sizeof(testString);
+	if (rsslEncodedPrimitiveToString(&decIter, RSSL_DT_FLOAT, &testStrBuf) != RSSL_RET_SUCCESS)
+	{
+		sprintf(errorText, "rsslSetEncodeIteratorBuffer error");
+		return false;
+	}
+
+	res = strcmp(testString, valString);
+	if (res != 0)
+	{
+		sprintf(errorText, "comparison error strcmp  %s", testString);
+	}
+	return (res == 0);
+}
+
+TEST(stringConversionTest, floatToStringConversionTest)
+{
+	RsslFloat testFloat;
+	const char* testStr;
+	char errorText[256];
+
+	struct TestValues {
+		RsslFloat doubleVal;
+		const char* strVal;
+		const char* strVal2012;
+	};
+	struct TestValues tValues[] = {
+		{-9.223379e+24F, "-9.223379e+24", "-9.223379e+024"},
+		{-9223379000.F, "-9.223379e+09", "-9.223379e+009"},
+		{-9223378000.F, "-9.223378e+09", "-9.223378e+009"},
+		{-9223377000.F, "-9.223377e+09", "-9.223377e+009"},
+		{-9223376000.F, "-9.223376e+09", "-9.223376e+009"},
+		{-9223375000.F, "-9.223375e+09", "-9.223375e+009"},
+		{-9223374000.F, "-9.223374e+09", "-9.223374e+009"},
+		{-9223373000.F, "-9.223373e+09", "-9.223373e+009"},
+		{-9223372000.F, "-9.223372e+09", "-9.223372e+009"},
+		{-9223371000.F, "-9.223371e+09", "-9.223371e+009"},
+		{-9223370000.F, "-9.22337e+09",  "-9.22337e+009"},
+		{-9223376.F, "-9223376", },
+		{-9.223376F, "-9.223376", },
+		{-0.0009223376F, "-0.0009223376", },
+		{-9.223376e-17F, "-9.223376e-17", "-9.223376e-017"},
+		{0.02150949f, "0.02150949", },
+		{0.02150948f, "0.02150948", },
+		{0.02150947f, "0.02150947", },
+		{0.02150946f, "0.02150946", },
+		{0.02150945f, "0.02150945", },
+		{0.02150944f, "0.02150944", },
+		{0.02150943f, "0.02150943", },
+		{0.02150942f, "0.02150942", },
+		{0.02150941f, "0.02150941", },
+		{0.0215094f, "0.0215094", },
+		{0.02150939f, "0.02150939", },
+		{2.150942e-21f, "2.150942e-21", "2.150942e-021"},
+		{2.150942e+14f, "2.150942e+14", "2.150942e+014"},
+		{2.1509426e+14f, "2.150943e+14", "2.150943e+014"},
+		{42.0015f, "42.0015", },
+		{42.50151f, "42.50151", },
+		{42.60152f, "42.60152", },
+		{42.20153f, "42.20153", },
+		{42.00154f, "42.00154", },
+		{42.10155f, "42.10155", },
+		{42.80156f, "42.80156", },
+		{42.90157f, "42.90157", },
+		{42.30158f, "42.30158", },
+		{42.20159f, "42.20159", },
+	};
+
+	size_t lenTValues = sizeof(tValues) / sizeof(struct TestValues);
+	for (size_t i = 0; i < lenTValues; ++i)
+	{
+		testFloat = tValues[i].doubleVal;
+#if defined(EXP_LEADING_ZERO)
+		if (tValues[i].strVal2012 != NULL && tValues[i].strVal2012[0] != '\0')
+			testStr = tValues[i].strVal2012;
+		else
+			testStr = tValues[i].strVal;
+#else
+		testStr = tValues[i].strVal;
+#endif
+		EXPECT_TRUE(testFloatToString(testFloat, testStr, errorText)) << errorText;
+	}
+}
+
 
 /* Basic test of blank vs. nonblank data, w/ and w/out set defs */
 /* Also tests rsslEncodedPrimitiveToString(), and rsslDecodePrimitiveType() */
