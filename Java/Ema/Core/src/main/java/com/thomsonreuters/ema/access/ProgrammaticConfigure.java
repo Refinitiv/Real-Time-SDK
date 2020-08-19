@@ -1716,14 +1716,14 @@ class ProgrammaticConfigure
 							encryptedSocketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
 						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
-							encryptedSocketChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncryptSocket).enableSessionMgnt;
+							encryptedSocketChannelConfig.enableSessionMgnt = fileCfgEncryptSocket.enableSessionMgnt;
 						}
 						
 						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
 							encryptedSocketChannelConfig.location = location;
 						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
 						{
-							encryptedSocketChannelConfig.location = ((EncryptedChannelConfig)fileCfgEncryptSocket).location;
+							encryptedSocketChannelConfig.location = fileCfgEncryptSocket.location;
 						}
 					}
 
