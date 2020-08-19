@@ -1459,6 +1459,15 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT;
 				}
 
+				if (wsSess->deflate && (wsSess->server->compressionSupported != RSSL_COMP_ZLIB))
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> WebSocket server does not support the RSSL_COMP_ZLIB compression",
+						__FUNCTION__, __LINE__);
+					return(-1);
+				}
+
 				if ((!wsSess->deflate) || (wsSess->deflate && 
 					!((wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)||
 					(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT))))
@@ -5584,22 +5593,16 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 	/*Assign callback on server*/
 	rsslServerSocketChannel->httpCallback = wsOpts->httpCallback;
 
-	/*Assign cookes on server*/
+	/*Assign cookies on server*/
 	rsslServerSocketChannel->cookies = wsOpts->cookies;
 
 	if (rsslServerSocketChannel->compressionSupported)
 	{
-		if (rsslServerSocketChannel->compressionSupported != RSSL_COMP_ZLIB)
+		if (rsslServerSocketChannel->compressionSupported == RSSL_COMP_ZLIB)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
-					"<%s:%d>: Error Invalid compression type configured for WebSocket connections\n", 
-					__FUNCTION__, __LINE__);
-			return RSSL_RET_FAILURE;
+			wsServer->compressionSupported = rsslServerSocketChannel->compressionSupported;
+			wsServer->zlibCompLevel = rsslServerSocketChannel->zlibCompressionLevel;
 		}
-
-		wsServer->compressionSupported = rsslServerSocketChannel->compressionSupported;
-		wsServer->zlibCompLevel = rsslServerSocketChannel->zlibCompressionLevel;
 	}
 
 	return RSSL_RET_SUCCESS;
