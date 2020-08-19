@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.thomsonreuters.upa.codec.Codec;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -193,11 +194,10 @@ public class Module_1a_Connect
             Transport.uninitialize();
             System.exit(TransportReturnCodes.FAILURE);
         }
-        else
-        {
 
-            System.out.printf("Channel successfully connected to server.\n");
-        }
+        int channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+        System.out.printf("Channel IPC descriptor = %d\n", channelFDValue);
+
         opMask |= SelectionKey.OP_READ;
         opMask |= SelectionKey.OP_CONNECT;
 
@@ -250,7 +250,7 @@ public class Module_1a_Connect
                 /* If our channel has not updated, we must have timed out */
                 if (!keyIter.hasNext())
                 {
-                    System.out.printf("Channel initialization has timed out.\n");
+                    System.out.printf("Channel initialization has timed out, exiting...\n");
                     closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                 }
                 else
@@ -281,7 +281,7 @@ public class Module_1a_Connect
                          */
                         if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                         {
-                            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", channelFDValue, error.errorId(), error.sysError(), error.text());
                             closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                         }
                         else
@@ -307,7 +307,9 @@ public class Module_1a_Connect
                                          * to InitChannel are required to complete it.
                                          */
                                         opMask = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
-                                        System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                        int oldChannelFDValue = channelFDValue;
+                                        channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                        System.out.printf("Channel In Progress - New FD: %d    OLD FD: %d\n", channelFDValue, oldChannelFDValue);
                                         try
                                         {
                                             key = inProgInfo.oldSelectableChannel().keyFor(selector);
@@ -330,7 +332,7 @@ public class Module_1a_Connect
                                     }
                                     else
                                     {
-                                        System.out.printf("Channel init in progress...\n");
+                                        System.out.printf("Channel %d in progress...\n", channelFDValue);
                                     }
                                 }
                                     break;
@@ -340,17 +342,18 @@ public class Module_1a_Connect
                                  */
                                 case TransportReturnCodes.SUCCESS:
                                 {
-                                    System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+                                    System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", channelFDValue);
 
                                     /* Populate information from channel */
                                     if ((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
                                     {
-                                        System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                                        System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                                         closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                                     }
 
                                     /* Print out basic channel info */
-                                    System.out.printf("\nChannel Info:\n" + "Max Fragment Size:         %d\n" + "Max Output Buffers:        %d, %d  Guaranteed\n" + "Input Buffers:             %d\n" + "Send/Receive Buffer Sizes: %d/%d\n" + "Ping Timeout:              %d\n",
+                                    System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+                                                      channelFDValue,
                                                       channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
                                                       channelInfo.maxOutputBuffers(), /*  This is the maximum number of output buffers available to the channel. */
                                                       channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
@@ -359,6 +362,7 @@ public class Module_1a_Connect
                                                       channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
                                                       channelInfo.pingTimeout()); /*  This is the value of the negotiated ping timeout */
 
+                                    System.out.printf("Connected component version: ");
                                     int count = channelInfo.componentInfo().size();
                                     if (count == 0)
                                         System.out.printf("(No component info)");
@@ -375,7 +379,7 @@ public class Module_1a_Connect
                                     break;
                                 default: /* Error handling */
                                 {
-                                    System.out.printf("Unexpected init return code: %d\n", retCode);
+                                    System.out.printf("Bad return value fd=%d <%d>\n", channelFDValue, retCode);
                                     /* Closes channel, closes server, cleans up and exits the application. */
                                     closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                                 }

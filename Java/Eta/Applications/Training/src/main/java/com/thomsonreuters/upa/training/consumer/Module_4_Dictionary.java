@@ -180,6 +180,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.thomsonreuters.upa.codec.Codec;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -246,7 +247,10 @@ import com.thomsonreuters.upa.transport.WriteFlags;
  * The Class Module_4_Dictionary.
  */
 public class Module_4_Dictionary
-{    
+{
+
+	static int channelFDValue = -1;
+
     private static final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
     private static final String ENUM_TABLE_FILE_NAME = "enumtype.def";
     
@@ -486,7 +490,9 @@ public class Module_4_Dictionary
 			Transport.uninitialize();
 			System.exit(TransportReturnCodes.FAILURE);
 		}
-		
+
+		channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+		System.out.printf("Channel IPC descriptor = %d\n", channelFDValue);
 		
 		/* Create a bit mask to specify what I/O notification operations to keep track of (e.g. READ and CONNECT)*/
 	
@@ -580,7 +586,7 @@ public class Module_4_Dictionary
 						 */
 						if((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
 						{
-							System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+							System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 							closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
 						}
 						
@@ -604,7 +610,9 @@ public class Module_4_Dictionary
 									 * to InitChannel are required to complete it.
 									 */
 									opMask = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
-									System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+									final int oldChannelFDValue = channelFDValue;
+									channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+									System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
 									try
 									{
 										key = inProgInfo.oldSelectableChannel().keyFor(selector);
@@ -627,35 +635,34 @@ public class Module_4_Dictionary
 								}
 								else
 								{
-									System.out.printf("Channel init in progress...\n");
+									System.out.printf("Channel %d in progress...\n", channelFDValue);
 								}
 							}
 							break;
 							case TransportReturnCodes.SUCCESS:
 							{
-								System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+								System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", channelFDValue);
 			
 								
 								/* Populate information from channel */
 								if((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
 								{
-									System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+									System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 									closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
 								}
 								
 								/* Print out basic channel info */
-								System.out.printf("Channel Info:\n"
-												+ "Max Fragment Size:         %d\n"
-												+ "Max Output Buffers:        %d\n"
-												+ "Input Buffers:             %d\n"
-												+ "Send/Receive Buffer Sizes: %d/%d\n"
-												+ "Ping Timeout:              %d\n\n",
-												channelInfo.maxFragmentSize(),
-												channelInfo.maxOutputBuffers(),
-												channelInfo.numInputBuffers(),
-												channelInfo.sysSendBufSize(),
-												channelInfo.sysRecvBufSize(),
-												channelInfo.pingTimeout());
+								System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+										channelFDValue,
+										channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
+										channelInfo.maxOutputBuffers(), /*  This is the maximum number of output buffers available to the channel. */
+										channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
+										channelInfo.numInputBuffers(), /*  This is the number of input buffers available to the channel. */
+										channelInfo.sysSendBufSize(), /*  This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
+										channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
+										channelInfo.pingTimeout()); /*  This is the value of the negotiated ping timeout */
+
+								System.out.printf("Connected component version: ");
 								 int count = channelInfo.componentInfo().size();
 						            if (count == 0)
 						                System.out.printf("(No component info)");
@@ -672,7 +679,7 @@ public class Module_4_Dictionary
 							break;	
 							default:
 							{
-								System.out.printf("Unexpected return value\n");
+								System.out.printf("Bad return value fd=%d <%d>\n", channelFDValue, retCode);
 								closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
 							}
 							break;
@@ -700,7 +707,7 @@ public class Module_4_Dictionary
         }
         else if(retCode < TransportReturnCodes.SUCCESS)
         {
-        	System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        	System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 			closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
         }
 		
@@ -766,7 +773,7 @@ public class Module_4_Dictionary
 								 ******************************************/
 								if((retCode = msg.decode(decodeIter)) != CodecReturnCodes.SUCCESS)
 								{
-									System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+									System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 									closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
 								}
 								
@@ -1022,7 +1029,9 @@ public class Module_4_Dictionary
 									/* Switch to a new channel if required */
 									case TransportReturnCodes.READ_FD_CHANGE:
 										opMask = SelectionKey.OP_READ;
-										System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+										final int oldChannelFDValue = channelFDValue;
+										channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+										System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
 										try
 										{
 											key = channel.selectableChannel().keyFor(selector);
@@ -1098,7 +1107,7 @@ public class Module_4_Dictionary
 								case TransportReturnCodes.FAILURE:
 								default:
 								{
-									System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+									System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 									closeChannelCleanUpAndExit(channel, selector,TransportReturnCodes.FAILURE, dictionary);
 								}
 							}
@@ -1190,7 +1199,7 @@ public class Module_4_Dictionary
 		
 		if((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
 		{
-			System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+			System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 		}
 		
 		/* when users are done, they should unload dictionaries to clean up memory */
@@ -1423,7 +1432,7 @@ public class Module_4_Dictionary
 				case TransportReturnCodes.FAILURE:
 				default:
 				{
-					System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+					System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
 					channel.releaseBuffer(msgBuf, error);
 					return TransportReturnCodes.FAILURE;
 				}
@@ -1603,11 +1612,11 @@ public class Module_4_Dictionary
 				ElementList elementList = CodecFactory.createElementList();
 				ElementEntry elementEntry = CodecFactory.createElementEntry();
 				
-				System.out.printf("Received Login Refresh Msg with Stream Id %d\n", msg.streamId());
+				System.out.printf("\nReceived Login Refresh Msg with Stream Id %d\n", msg.streamId());
 				
 				if((msg.flags() & RefreshMsgFlags.SOLICITED) != 0)
 				{
-					System.out.printf("The refresh msg is a solicited refresh (sent as a response to a request).\n");
+					System.out.printf("\nThe refresh msg is a solicited refresh (sent as a response to a request).\n");
 				}
 				else
 				{
@@ -1653,11 +1662,11 @@ public class Module_4_Dictionary
 				
 				if(key != null)
 				{
-					System.out.printf("Received Login Response for Username: %s\n", key.name().toString());
+					System.out.printf("\nReceived Login Response for ApplicationId: %s\n", key.name().toString());
 				}
 				else
 				{
-					System.out.printf("Received Login Response for Username: Unknown\n");
+					System.out.printf("\nReceived Login Response for ApplicationId: Unknown\n");
 				}
 				
 				pState = ((RefreshMsg)msg).state();
@@ -2052,10 +2061,6 @@ public class Module_4_Dictionary
     				/* Map summary data is present. Its type should be that of Map.containerType */
     				System.out.printf("summary data is present. Its type should be that of Map.containerType\n");
     				/* Continue decoding ... */
-    			}
-    			else
-    			{
-    				System.out.printf("\nMap summary data is NOT present.\n");
     			}
     			
     	        while ((retval = mapEntry.decode(dIter, serviceId)) != CodecReturnCodes.END_OF_CONTAINER)

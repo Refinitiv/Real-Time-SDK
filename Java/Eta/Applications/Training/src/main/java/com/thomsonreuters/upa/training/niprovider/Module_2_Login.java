@@ -156,6 +156,7 @@ import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -325,6 +326,9 @@ public class Module_2_Login
             System.exit(TransportReturnCodes.FAILURE);
         }
 
+        int channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+        System.out.printf("Channel IPC descriptor = %d\n", channelFDValue);
+
         /* Connection was successful, add socketId to I/O notification mechanism and initialize connection */
         opMask |= SelectionKey.OP_READ;
         opMask |= SelectionKey.OP_CONNECT;
@@ -411,7 +415,7 @@ public class Module_2_Login
                          ***************************************************************************/
                         if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                         {
-                            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                             closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
                         }
 
@@ -436,7 +440,9 @@ public class Module_2_Login
                                      * to InitChannel are required to complete it.
                                      */
                                     opMask = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
-                                    System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                    final int oldChannelFDValue = channelFDValue;
+                                    channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                    System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
 
                                     /* File descriptor has changed, unregister old and register new */
 
@@ -462,7 +468,7 @@ public class Module_2_Login
                                 }
                                 else
                                 {
-                                    System.out.printf("Channel init in progress...\n");
+                                    System.out.printf("Channel %d in progress...\n", channelFDValue);
                                 }
                             }
                                 break;
@@ -473,7 +479,7 @@ public class Module_2_Login
                              */
                             case TransportReturnCodes.SUCCESS:
                             {
-                                System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+                                System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", channelFDValue);
 
                                 /*********************************************************
                                  * Connection is now active. The Channel can be
@@ -491,8 +497,17 @@ public class Module_2_Login
                                 }
 
                                 /* Print out basic channel info */
-                                System.out.printf("\nChannel Info:\n" + "Max Fragment Size:         %d\n" + "Max Output Buffers:        %d\n" + "Input Buffers:             %d\n" + "Send/Receive Buffer Sizes: %d/%d\n" + "Ping Timeout:              %d\n", channelInfo.maxFragmentSize(),
-                                                  channelInfo.maxOutputBuffers(), channelInfo.numInputBuffers(), channelInfo.sysSendBufSize(), channelInfo.sysRecvBufSize(), channelInfo.pingTimeout());
+                                System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+                                        channelFDValue,
+                                        channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
+                                        channelInfo.maxOutputBuffers(), /* This is the maximum number of output buffers available to the channel. */
+                                        channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
+                                        channelInfo.numInputBuffers(), /*  This is the number of input buffers available to the channel. */
+                                        channelInfo.sysSendBufSize(), /*  This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
+                                        channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
+                                        channelInfo.pingTimeout()); /* This is the value of the negotiated ping timeout */
+
+                                System.out.printf("Connected component version: ");
                                 int count = channelInfo.componentInfo().size();
                                 if (count == 0)
                                     System.out.printf("(No component info)");
@@ -509,7 +524,7 @@ public class Module_2_Login
                                 break;
                             default:
                             {
-                                System.out.printf("Unexpected return value\n");
+                                System.out.printf("Bad return value fd=%d <%d>\n", channelFDValue, retCode);
                                 closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
                             }
                                 break;
@@ -555,7 +570,7 @@ public class Module_2_Login
         }
         else if (retCode < TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
             closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
         }
 
@@ -754,7 +769,9 @@ public class Module_2_Login
                                         /* File descriptor changed, typically due to tunneling keep-alive */
                                         /* Unregister old socketId and register new socketId */
                                         opMask = SelectionKey.OP_READ;
-                                        System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                        final int oldChannelFDValue = channelFDValue;
+                                        channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                        System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
                                         try
                                         {
                                             key = channel.selectableChannel().keyFor(selector);
@@ -840,7 +857,7 @@ public class Module_2_Login
                                 case TransportReturnCodes.FAILURE:
                                 default:
                                 {
-                                    System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                                    System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                                     closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
                                 }
                             }
@@ -1445,12 +1462,12 @@ public class Module_2_Login
                 ElementEntry elementEntry = CodecFactory.createElementEntry();
 
                 /* check stream id */
-                System.out.printf("Received Login Refresh Msg with Stream Id %d\n", msg.streamId());
+                System.out.printf("\nReceived Login Refresh Msg with Stream Id %d\n", msg.streamId());
 
                 /* check if it's a solicited refresh */
                 if ((msg.flags() & RefreshMsgFlags.SOLICITED) != 0)
                 {
-                    System.out.printf("The refresh msg is a solicited refresh (sent as a response to a request).\n");
+                    System.out.printf("\nThe refresh msg is a solicited refresh (sent as a response to a request).\n");
                 }
                 else
                 {
@@ -1516,11 +1533,11 @@ public class Module_2_Login
                 /* get Username */
                 if (key != null)
                 {
-                    System.out.printf("Received Login Response for Username: %s\n", key.name().toString());
+                    System.out.printf("\nReceived Login Response for ApplicationId: %s\n", key.name().toString());
                 }
                 else
                 {
-                    System.out.printf("Received Login Response for Username: Unknown\n");
+                    System.out.printf("\nReceived Login Response for ApplicationId: Unknown\n");
                 }
 
                 /* get state information */
