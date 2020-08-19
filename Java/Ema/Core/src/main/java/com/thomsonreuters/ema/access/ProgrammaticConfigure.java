@@ -1691,9 +1691,9 @@ class ProgrammaticConfigure
 					currentChannelConfig = encryptedSocketChannelConfig;
 					activeConfig.channelConfigSet.add( currentChannelConfig );
 
-					HttpChannelConfig fileCfgEncryptSocket = null;
+					SocketChannelConfig fileCfgEncryptSocket = null;
 					if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
-						fileCfgEncryptSocket = (HttpChannelConfig)( fileCfg );
+						fileCfgEncryptSocket = (SocketChannelConfig)( fileCfg );
 
 					if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
 						encryptedSocketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
@@ -1737,7 +1737,7 @@ class ProgrammaticConfigure
 						
 						if (fileCfgEncryptSocket.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 						{
-							encryptedSocketChannelConfig.encryptionConfig.copy(((EncryptedChannelConfig) fileCfgEncryptSocket).encryptionConfig);
+							encryptedSocketChannelConfig.encryptionConfig.copy((fileCfgEncryptSocket).encryptionConfig);
 						}
 					}
 					break;
