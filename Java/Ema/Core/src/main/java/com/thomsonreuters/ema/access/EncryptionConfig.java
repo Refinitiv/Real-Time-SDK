@@ -12,8 +12,6 @@ class EncryptionConfig
 	String 				SecurityProtocol;
 	String				KeyManagerAlgorithm;
 	String				TrustManagerAlgorithm;
-	String				location;
-	boolean				enableSessionMgnt;
 
 	EncryptionConfig()
 	{
@@ -30,8 +28,6 @@ class EncryptionConfig
 		SecurityProtocol = null;
 		KeyManagerAlgorithm = null;
 		TrustManagerAlgorithm = null;
-		location = ActiveConfig.DEFAULT_REGION_LOCATION;
-		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
 	}
 
 	void copy(EncryptionConfig source)
@@ -44,7 +40,5 @@ class EncryptionConfig
 		SecurityProtocol = source.SecurityProtocol;
 		KeyManagerAlgorithm = source.KeyManagerAlgorithm;
 		TrustManagerAlgorithm = source.TrustManagerAlgorithm;
-		location = source.location;
-		enableSessionMgnt = source.enableSessionMgnt;
 	}
 }
