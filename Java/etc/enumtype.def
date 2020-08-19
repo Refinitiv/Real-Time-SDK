@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.42
-!tag Build_RDMD  4.20.42
-!tag DT_Version  20.51
-!tag Date        1-Jun-2020
+!tag RT_Version  4.20.44
+!tag Build_RDMD  4.20.44
+!tag DT_Version  20.71
+!tag Date        10-Aug-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -361,6 +361,7 @@ CAN_P_CCY  13593
 QUOTE_CUR  13594
 CURRENCY_D 13595
 MN_IIN_CCY 13596
+INS_P_CCY  13612
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8720,6 +8721,11 @@ DRK_EXID   13610
    1622        "SRB"   SCB Group - StarCB Brokers SA
    1623        "IBJ"   India Bullion and Jewellers Association Ltd
    1624        "CBO"   Chicago Board Options Exchange
+   1625        "SWP"   Southwest Power Pool
+   1626        "U2D"   U2 DIAMONDS
+   1627        "CHM"   CHINIMANDI
+   1628        "CEN"   Centro Nacional De Control De Energeia (The National Energy Control Center)
+   1629        "LBM"   NASDAQ LBMA Trade Data
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11767,6 +11773,7 @@ RETRAN_IND  4763
       0          "0"   undefined
       1          "1"   Regular
       2          "2"   Retransmission
+      3          "3"   Internal Retransmission
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13939,6 +13946,10 @@ SEC_STATUS  9000
      29   "  TBB   "   To Be Repurchased/Bought Back
      30   "  IBL   "   Pre-issued - Issued before Local Issue Date
      31   "  ACT   "   Active
+     32   "  FIN   "   Final
+     33   "  PAR   "   Partially Prerefunded
+     34   "  TBL   "   To Be Liquidated
+     35   "  TBM   "   To be Removed
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17243,6 +17254,8 @@ AVGPRC_TP2 13082
       9   "60M AVG "   60 Months rolling Average Price
      10   "52WK AVG"   52 Week rolling Average Price
      11   "YEAR AVG"   Calendar year average price
+     12   "BID AVG "   Average of BID High and BID Low
+     13   " MTDAvg "   Month To Date
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17286,6 +17299,7 @@ BLK_HR_TYP 13014
      32   "BLOCK 6 "   Block 6 - 19:00 - 23:00
      33   "BLOCK1+2"   23:00 - 07:00
      34   "BLOCK3+4"   07:00 - 15:00
+     35   "DAYTIME "   Day Time (08:00-22:00)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18722,6 +18736,7 @@ LOTSZUNIT2 13416
 MIN_AQT_UT 13420
 MIN_BQT_UT 13421
 MET_UNIT   13564
+CNTR_SZ_UT 13611
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -19140,6 +19155,12 @@ MET_UNIT   13564
     412      "CHF/P"   Swiss Franc Per Point
     413      " IMM "   IMM Index
     414      "RATE "   Rate Index
+    415      "M THB"   millions of Thai baht
+    416      "M VND"   Millions of Vietnamese dong
+    417      "K VND"   Thousands of Vietnamese dong
+    418      "VND  "   Vietnamese dong
+    419      "MNCM "   million of normal cubic meter
+    420      "KSCM "   thousands standard cubic meter
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20722,7 +20743,7 @@ ORGN_PORT  13579
     304   "IT FCO  "   Fiumicino
     305   "CN SHA  "   Shanghai
     306   "CN SZX  "   Shenzhen
-    307   "CN CAN  "   Guangzhou
+    307   "CN CAN  "   Guangzhou Baiyun International Apt
     308   "US EWR  "   Newark
     309   "US NYC  "   New York
     310   "US SAV  "   Savannah
@@ -20934,6 +20955,135 @@ ORGN_PORT  13579
     516   "PE MRI  "   Matarani
     517   "CL ANF  "   Antofagasta
     518   "US BAL  "   Baltimore
+    519   "CA SJB  "   Saint John
+    520   "AR ASO  "   Arroyo Seco
+    521   "AR DGU  "   Del Guazu
+    522   "AR NEC  "   Necochea
+    523   "AR PGV  "   Puerto Galvan
+    524   "AR QQN  "   Quequen
+    525   "AR RAM  "   Ramallo
+    526   "AR SNS  "   San Nicolas (San Nicolas de los Arroyos)
+    527   "AR SPD  "   San Pedro
+    528   "AU ALH  "   Albany
+    529   "AU MEL  "   Melbourne
+    530   "AU PLO  "   Port Lincoln
+    531   "BG VAR  "   Varna
+    532   "BR ANT  "   Antonina
+    533   "BR ARB  "   Aratu
+    534   "BR FOR  "   Fortaleza
+    535   "BR IQI  "   Itaqui
+    536   "BR SFS  "   Sao Francisco do Sul
+    537   "BR SUA  "   Suape
+    538   "CA BCO  "   Baie Comeau
+    539   "CA HAL  "   Halifax
+    540   "CA PRR  "   Prince Rupert
+    541   "CA QUE  "   Quebec
+    542   "CA SNI  "   Sarnia
+    543   "CA ST6  "   Sorel-Tracy
+    544   "CA THU  "   Thunder Bay
+    545   "CA TRR  "   Trois-Rivieres (Three Rivers)
+    546   "CL ARI  "   Arica
+    547   "CL GYC  "   Guayacan
+    548   "CN FZG  "   Fuzhou Pt
+    549   "CN PLI  "   Beijing (Penglai Pt)
+    550   "CO BAQ  "   Barranquilla
+    551   "DE BKE  "   Brake
+    552   "DE LBC  "   Lubeck
+    553   "DK NAK  "   Nakskov
+    554   "DZ AAE  "   Annaba (ex Bone)
+    555   "DZ ORN  "   Oran
+    556   "EE KND  "   Kunda
+    557   "EG SGA  "   Safaga
+    558   "ES CAD  "   Cadiz
+    559   "ES CEU  "   Ceuta
+    560   "ES HUV  "   Huelva
+    561   "ES LCG  "   La Coruna
+    562   "ES PAS  "   Pasajes
+    563   "ES SDR  "   Santander
+    564   "FI NLI  "   Naantali (Nadendal)
+    565   "FI RAA  "   Raahe (Brahestad)
+    566   "FR BAY  "   Bayonne
+    567   "FR BES  "   Brest
+    568   "FR CFR  "   Caen
+    569   "FR LRT  "   Lorient
+    570   "GB KLN  "   King's Lynn
+    571   "ID CIG  "   Cigading
+    572   "ID CIW  "   Ciwandan
+    573   "ID MAK  "   Makassar
+    574   "ID PNJ  "   Panjang
+    575   "ID SUB  "   Surabaya
+    576   "ID TPP  "   Tanjung Priok
+    577   "ID TRH  "   Tarakan Island
+    578   "IE GRN  "   Greenore
+    579   "IR BKK  "   Bandar-e Emam Khomeyni
+    580   "IR ZBR  "   Chah Bahar
+    581   "IT CAG  "   Cagliari
+    582   "IT QOS  "   Oristano
+    583   "IT SVN  "   Savona
+    584   "IT PZL  "   Pozzallo
+    585   "IT VCE  "   Venezia  (Venice)
+    586   "JP HKT  "   Hakata
+    587   "JP KSM  "   Kashima
+    588   "JP KUH  "   Kushiro
+    589   "JP MIZ  "   Mizushima
+    590   "JP NGO  "   Nagoya
+    591   "JP SBS  "   Shibushi
+    592   "JP TMK  "   Tomakomai
+    593   "JP UKB  "   Kobe
+    594   "KW SWK  "   Shuwaikh
+    595   "LB BEY  "   Beirut
+    596   "LY TIP  "   Tripoli
+    597   "MA AGA  "   Agadir
+    598   "MX TPB  "   Topolobampo
+    599   "MY BKI  "   Kota Kinabalu
+    600   "MY KCH  "   Kuching
+    601   "MY PEN  "   Penang
+    602   "MY PGU  "   Pasir Gudang
+    603   "MY WSP  "   Westport (Port Klang)
+    604   "NG CBQ  "   Calabar
+    605   "NG PHC  "   Port Harcourt
+    606   "NL DZL  "   Delfzijl
+    607   "NL EEM  "   Eemshaven
+    608   "NO TRD  "   Trondheim
+    609   "PH BTG  "   Batangas
+    610   "PH MNL  "   Manila
+    611   "PH TLD  "   Toledo / Cebu
+    612   "PL GDY  "   Gdynia
+    613   "PT AVE  "   Aveiro
+    614   "PT LIS  "   Lisboa / Lisboa
+    615   "PT VIC  "   Vila do Conde
+    616   "SD SWA  "   Swakin
+    617   "SE KLR  "   Kalmar
+    618   "TH KSI  "   Koh Sichang
+    619   "TH LCH  "   Laem Chabang
+    620   "TH SRI  "   Sriracha
+    621   "TR SSX  "   Samsun
+    622   "TR TEK  "   Tekirdag
+    623   "UA ILK  "   Chornomorsk
+    624   "UA KHE  "   Kherson
+    625   "UA NLV  "   Nikolaev ( Mykolaiv )
+    626   "US AEK  "   Aberdeen
+    627   "US DET  "   Detroit
+    628   "US EPL  "   New Portland
+    629   "US GLS  "   Galveston
+    630   "US KAM  "   Kalama
+    631   "US LOG  "   Longview
+    632   "US MOB  "   Mobile
+    633   "US MRH  "   Morehead City
+    634   "US NEW  "   Destrehan
+    635   "US ORF  "   Norfolk
+    636   "US PBC  "   Port of Palm Beach
+    637   "US SRE  "   Saint Rose
+    638   "US VAN  "   Vancouver
+    639   "UY NVP  "   Nueva Palmira
+    640   "VN CLN  "   Cai Lan
+    641   "VN HLG  "   Ha Long
+    642   "VN TOT  "   Cai Mep
+    643   "DK KOL  "   Kolding
+    644   "EE MUG  "   Muuga
+    645   "SA DMM  "   Ad Dammam
+    646   "BR STM  "   Santarem
+    647   "CN GZG  "   Guangzhou Pt
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21749,6 +21899,7 @@ FIXING_TYP 13597
      19   "1400 CHI"   2:00 PM Chicago Fixing Time (CT)
      20   "1600 NYC"   4:00 PM New York Fixing Time (ET)
      21   "1500 CHI"   3:00 PM Chicago Fixing Time (CT)
+     22   "1230 MSK"   12:30 PM Moscow Fixing Time
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21847,8 +21998,6 @@ UNIT_STAT  13609
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET290 13611
-PRE_2ET291 13612
 PRE_2ET292 13613
 PRE_2ET293 13614
 PRE_2ET294 13615

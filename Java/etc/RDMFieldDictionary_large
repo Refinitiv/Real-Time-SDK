@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.42_TREP_20.51		06/02/2020
-!	* Modified 06/02/2020 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.42.
+!   Version	 4.20.44_TREP_20.71		08/11/2020
+!	* Modified 08/11/2020 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.44.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.42_TREP
+!   Version: 4.20.44_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.42
+!tag Version   4.20.44
 !tag Build     1
-!tag Date      13-May-2020
+!tag Date      17-Jul-2020
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -19916,7 +19916,10 @@ NUM_TB_NCP "NUM TEND BID NCP"    7161  NULL        INTEGER            15   INT64
 !
 ! Number of Tendered Noncompetitive BIDs.
 !
-PRE_INT283 "PRED INTEGER 283"    7162  NULL        INTEGER            15   INT64           8
+WEEK_NUM   "WEEK NUMBER"         7162  NULL        INTEGER            15   INT64           8
+!
+! Week Number - The time-period the reference price is valid for.
+!
 PRE_INT284 "PRED INTEGER 284"    7163  NULL        INTEGER            15   INT64           8
 PRE_INT285 "PRED INTEGER 285"    7164  NULL        INTEGER            15   INT64           8
 PRE_INT286 "PRED INTEGER 286"    7165  NULL        INTEGER            15   INT64           8
@@ -24465,7 +24468,7 @@ CO_RPT_STN "NATIVE CO PRT STA"   8594  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Native company reporting status for the venue traded
 !
-CTB_ID     "CTBTR ID CODE"       8595  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID     "CTBTR ID CODE"       8595  CTB_ID2     ALPHANUMERIC       16  RMTES_STRING    16
 !
 ! The ID code of the contributor
 !
@@ -24478,10 +24481,13 @@ COUNTRY_N  "COUNTRY CD NATIVE"   8598  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Native Country/Territories/Special Area Code
 !
-PRE_16T032 "PRED 16 TXT 032"     8599  NULL        ALPHANUMERIC       16  RMTES_STRING    16
-PRE_16T033 "PRED 16 TXT 033"     8600  NULL        ALPHANUMERIC       16  RMTES_STRING    16
-PRE_16T034 "PRED 16 TXT 034"     8601  NULL        ALPHANUMERIC       16  RMTES_STRING    16
-PRE_16T035 "PRED 16 TXT 035"     8602  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID2    "CTBTR ID CODE 2"     8599  CTB_ID3     ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID3    "CTBTR ID CODE 3"     8600  CTB_ID4     ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID4    "CTBTR ID CODE 4"     8601  CTB_ID5     ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID5    "CTBTR ID CODE 5"     8602  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! The ID code of the contributor
+!
 PRE_16T036 "PRED 16 TXT 036"     8603  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T037 "PRED 16 TXT 037"     8604  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T038 "PRED 16 TXT 038"     8605  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -26698,8 +26704,14 @@ YL_ZYLD_DT "YR LO ZERO YLD DT"   9372  NULL        DATE               11  DATE  
 !
 ! Date on which the Year Low Zero Yield is updated.
 !
-PRE_DT262  "PRED DATE 262"       9373  NULL        DATE               11  DATE             4
-PRE_DT263  "PRED DATE 263"       9374  NULL        DATE               11  DATE             4
+NAVT_QT_DT "NAV TRD QTE DT"      9373  NULL        DATE               11  DATE             4
+!
+! Date of NAV Trading quote. 
+!
+NAVTRD_DT  "NAV TRD DT"          9374  NULL        DATE               11  DATE             4
+!
+! Date of last NAV trade.
+!
 PRE_DT264  "PRED DATE 264"       9375  NULL        DATE               11  DATE             4
 PRE_DT265  "PRED DATE 265"       9376  NULL        DATE               11  DATE             4
 PRE_DT266  "PRED DATE 266"       9377  NULL        DATE               11  DATE             4
@@ -30730,35 +30742,68 @@ HST_PC_RTO "HST PUT CALL RTO"   10815  NULL        PRICE              17  REAL64
 !
 ! Historical Put/Call ratio by volume.
 !
-PRERL1825  "PRED REAL 1825"     10816  NULL        PRICE              17  REAL64           9
-PRERL1826  "PRED REAL 1826"     10817  NULL        PRICE              17  REAL64           9
-PRERL1827  "PRED REAL 1827"     10818  NULL        PRICE              17  REAL64           9
-PRERL1828  "PRED REAL 1828"     10819  NULL        PRICE              17  REAL64           9
-PRERL1829  "PRED REAL 1829"     10820  NULL        PRICE              17  REAL64           9
-PRERL1830  "PRED REAL 1830"     10821  NULL        PRICE              17  REAL64           9
-PRERL1831  "PRED REAL 1831"     10822  NULL        PRICE              17  REAL64           9
-PRERL1832  "PRED REAL 1832"     10823  NULL        PRICE              17  REAL64           9
-PRERL1833  "PRED REAL 1833"     10824  NULL        PRICE              17  REAL64           9
-PRERL1834  "PRED REAL 1834"     10825  NULL        PRICE              17  REAL64           9
-PRERL1835  "PRED REAL 1835"     10826  NULL        PRICE              17  REAL64           9
-PRERL1836  "PRED REAL 1836"     10827  NULL        PRICE              17  REAL64           9
-PRERL1837  "PRED REAL 1837"     10828  NULL        PRICE              17  REAL64           9
-PRERL1838  "PRED REAL 1838"     10829  NULL        PRICE              17  REAL64           9
-PRERL1839  "PRED REAL 1839"     10830  NULL        PRICE              17  REAL64           9
-PRERL1840  "PRED REAL 1840"     10831  NULL        PRICE              17  REAL64           9
-PRERL1841  "PRED REAL 1841"     10832  NULL        PRICE              17  REAL64           9
-PRERL1842  "PRED REAL 1842"     10833  NULL        PRICE              17  REAL64           9
-PRERL1843  "PRED REAL 1843"     10834  NULL        PRICE              17  REAL64           9
-PRERL1844  "PRED REAL 1844"     10835  NULL        PRICE              17  REAL64           9
-PRERL1845  "PRED REAL 1845"     10836  NULL        PRICE              17  REAL64           9
-PRERL1846  "PRED REAL 1846"     10837  NULL        PRICE              17  REAL64           9
-PRERL1847  "PRED REAL 1847"     10838  NULL        PRICE              17  REAL64           9
-PRERL1848  "PRED REAL 1848"     10839  NULL        PRICE              17  REAL64           9
-PRERL1849  "PRED REAL 1849"     10840  NULL        PRICE              17  REAL64           9
-PRERL1850  "PRED REAL 1850"     10841  NULL        PRICE              17  REAL64           9
-PRERL1851  "PRED REAL 1851"     10842  NULL        PRICE              17  REAL64           9
-PRERL1852  "PRED REAL 1852"     10843  NULL        PRICE              17  REAL64           9
-PRERL1853  "PRED REAL 1853"     10844  NULL        PRICE              17  REAL64           9
+NAVT_B_PRC "NAV TRD BID PRC"    10816  NULL        PRICE              17  REAL64           9
+!
+! NAV Trading Bid Price.
+!
+NAVT_A_PRC "NAV TRD ASK PRC"    10817  NULL        PRICE              17  REAL64           9
+!
+! NAV Trading Ask Price.
+!
+NAVTRD_PRC "NAV TRD PRC"        10818  NULL        PRICE              17  REAL64           9
+!
+! Last NAV Trade Price.
+!
+CLS_IV_NOR "IV NORMD CLOSE"     10819  NULL        PRICE              17  REAL64           9
+!
+! Implied Volatility Normalized Close.
+!
+BID_IV_NOR "IV NORMD BID"       10820  NULL        PRICE              17  REAL64           9
+!
+! Implied Volatility Normalized Bid.
+!
+ASK_IV_NOR "IV NORMD ASK"       10821  NULL        PRICE              17  REAL64           9
+!
+! Implied Volatility Normalized Ask.
+!
+MID_IV_NOR "IV NORMD MID"       10822  NULL        PRICE              17  REAL64           9
+!
+! Implied Volatility Normalized Mid.
+!
+CNTR_SIZE  "CONTRACT SIZE"      10823  NULL        PRICE              17  REAL64           9
+!
+! Contract Size.
+!
+BSLD_OPEN  "BASE LOAD OPN"      10824  NULL        PRICE              17  REAL64           9
+!
+! Today's Baseload Power Price Open.
+!
+BSIZ1_DEC  "BID SIZE 1 DEC"     10825  NULL        PRICE              17  REAL64           9
+BSIZ2_DEC  "BID SIZE 2 DEC"     10826  NULL        PRICE              17  REAL64           9
+BSIZ3_DEC  "BID SIZE 3 DEC"     10827  NULL        PRICE              17  REAL64           9
+BSIZ4_DEC  "BID SIZE 4 DEC"     10828  NULL        PRICE              17  REAL64           9
+BSIZ5_DEC  "BID SIZE 5 DEC"     10829  NULL        PRICE              17  REAL64           9
+BSIZ6_DEC  "BID SIZE 6 DEC"     10830  NULL        PRICE              17  REAL64           9
+BSIZ7_DEC  "BID SIZE 7 DEC"     10831  NULL        PRICE              17  REAL64           9
+BSIZ8_DEC  "BID SIZE 8 DEC"     10832  NULL        PRICE              17  REAL64           9
+BSIZ9_DEC  "BID SIZE 9 DEC"     10833  NULL        PRICE              17  REAL64           9
+BSIZ10_DEC "BID SIZE 10 DEC"    10834  NULL        PRICE              17  REAL64           9
+!
+! Decimal bid size field associated with the fields BEST_BIDn.
+!
+ASIZ1_DEC  "ASK SIZE 1 DEC"     10835  NULL        PRICE              17  REAL64           9
+ASIZ2_DEC  "ASK SIZE 2 DEC"     10836  NULL        PRICE              17  REAL64           9
+ASIZ3_DEC  "ASK SIZE 3 DEC"     10837  NULL        PRICE              17  REAL64           9
+ASIZ4_DEC  "ASK SIZE 4 DEC"     10838  NULL        PRICE              17  REAL64           9
+ASIZ5_DEC  "ASK SIZE 5 DEC"     10839  NULL        PRICE              17  REAL64           9
+ASIZ6_DEC  "ASK SIZE 6 DEC"     10840  NULL        PRICE              17  REAL64           9
+ASIZ7_DEC  "ASK SIZE 7 DEC"     10841  NULL        PRICE              17  REAL64           9
+ASIZ8_DEC  "ASK SIZE 8 DEC"     10842  NULL        PRICE              17  REAL64           9
+ASIZ9_DEC  "ASK SIZE 9 DEC"     10843  NULL        PRICE              17  REAL64           9
+ASIZ10_DEC "ASK SIZE 10 DEC"    10844  NULL        PRICE              17  REAL64           9
+!
+! Decimal ask size field associated with the fields BEST_ASKn.
+!
 PRERL1854  "PRED REAL 1854"     10845  NULL        PRICE              17  REAL64           9
 PRERL1855  "PRED REAL 1855"     10846  NULL        PRICE              17  REAL64           9
 PRERL1856  "PRED REAL 1856"     10847  NULL        PRICE              17  REAL64           9
@@ -35587,8 +35632,17 @@ UNIT_STAT  "UNIT STATUS"        13609  NULL        ENUMERATED    5 ( 8 )  ENUM  
 ! The status of the processing unit in the refinery
 !
 DRK_EXID   "DARK TRD EXCH ID"   13610  NULL        ENUMERATED    5 ( 3 )  ENUM             2
-PRE_2ET290 "PRED 2 ET 290"      13611  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET291 "PRED 2 ET 291"      13612  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+CNTR_SZ_UT "CONTRACT SIZE UNIT" 13611  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Contract Size Unit.
+!
+INS_P_CCY  "INS PRC CURRENCY"   13612  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Currency associated with INSPRC.
+!
 PRE_2ET292 "PRED 2 ET 292"      13613  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET293 "PRED 2 ET 293"      13614  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET294 "PRED 2 ET 294"      13615  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -37745,8 +37799,14 @@ OB_TRD_NS  "ORD BOOK TRD TM NS" 14676  NULL        INTEGER            15  TIME  
 !
 ! Orderbook trade time.
 !
-PRE_247_NS "PRED TIME NS 247"   14677  NULL        INTEGER            15  TIME             8
-PRE_248_NS "PRED TIME NS 248"   14678  NULL        INTEGER            15  TIME             8
+NAVT_QT_NS "NAV TRD QTE TM NS"  14677  NULL        INTEGER            15  TIME             8
+!
+! Time of NAV Trading quote.
+!
+NAVTRD_NS  "NAV TRD TM NS"      14678  NULL        INTEGER            15  TIME             8
+!
+! Time of last NAV trade.
+!
 PRE_249_NS "PRED TIME NS 249"   14679  NULL        INTEGER            15  TIME             8
 PRE_250_NS "PRED TIME NS 250"   14680  NULL        INTEGER            15  TIME             8
 PRE_251_NS "PRED TIME NS 251"   14681  NULL        INTEGER            15  TIME             8
