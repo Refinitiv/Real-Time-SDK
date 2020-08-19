@@ -1685,15 +1685,15 @@ class ProgrammaticConfigure
 					}
 					break;
 				case ConnectionTypes.SOCKET:
-					SocketChannelConfig encryptedSocketChannelConfig = new SocketChannelConfig();
+					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
 					encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
 					encryptedSocketChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
 					currentChannelConfig = encryptedSocketChannelConfig;
 					activeConfig.channelConfigSet.add( currentChannelConfig );
 
-					SocketChannelConfig fileCfgEncryptSocket = null;
+					EncryptedChannelConfig fileCfgEncryptSocket = null;
 					if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
-						fileCfgEncryptSocket = (SocketChannelConfig)( fileCfg );
+						fileCfgEncryptSocket = (EncryptedChannelConfig)( fileCfg );
 
 					if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
 						encryptedSocketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
@@ -1710,7 +1710,22 @@ class ProgrammaticConfigure
 					else if ( fileCfgEncryptSocket != null )
 						encryptedSocketChannelConfig.serviceName = fileCfgEncryptSocket.serviceName;
 					
-
+					if (channelType == ConnectionTypes.ENCRYPTED)
+					{
+						if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
+							encryptedSocketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedSocketChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncryptSocket).enableSessionMgnt;
+						}
+						
+						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
+							encryptedSocketChannelConfig.location = location;
+						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedSocketChannelConfig.location = ((EncryptedChannelConfig)fileCfgEncryptSocket).location;
+						}
+					}
 
 					if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0  )
 						encryptedSocketChannelConfig.httpProxyPort = tunnelingProxyPort;
