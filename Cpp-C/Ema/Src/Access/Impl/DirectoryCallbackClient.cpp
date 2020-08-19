@@ -996,7 +996,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 
 				if ( pServiceList[jdx].info.flags & RDM_SVC_IFF_HAS_DICTS_USED )
 					for ( UInt32 idx = 0; idx < pServiceList[jdx].info.dictionariesUsedCount; ++idx )
-						info.addDictionaryProvided( pServiceList[jdx].info.dictionariesUsedList[idx].data,
+						info.addDictionaryUsed( pServiceList[jdx].info.dictionariesUsedList[idx].data,
 						                            pServiceList[jdx].info.dictionariesUsedList[idx].length );
 
 				( *pDirectoryPtr )->setInfo( info );
