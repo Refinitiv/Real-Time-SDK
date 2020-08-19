@@ -1055,7 +1055,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				
 				if (tunnelingChannelCfg.httpProxy)
 				{
-					tunnelingChannelCfg.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
+					tunnelingChannelCfg.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;
 					tunnelingChannelCfg.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
 					tunnelingChannelCfg.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
 					tunnelingChannelCfg.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
@@ -1068,44 +1068,57 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			}
 			else if(encrypedProtocol == ConnectionTypes.SOCKET)
 			{
-				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-				socketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
-				socketChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
-
-				readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
+				EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
+				encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+				encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
 				
-				socketChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
+					encryptedChannelConfig.enableSessionMgnt = ce.intLongValue() == 0 ? false : true;
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelLocation)) != null)
+					encryptedChannelConfig.location = ce.asciiValue();
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+					encryptedChannelConfig.hostName = ce.asciiValue();
+
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+					encryptedChannelConfig.serviceName = ce.asciiValue();
+
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+					encryptedChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+				
+				encryptedChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
 
 				HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
 				
-				socketChannelConfig.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
-				if ( socketChannelConfig.httpProxyHostName == null || socketChannelConfig.httpProxyHostName.length() == 0)
+				encryptedChannelConfig.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
+				if ( encryptedChannelConfig.httpProxyHostName == null || encryptedChannelConfig.httpProxyHostName.length() == 0)
 				{
 					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyHost)) != null)
-						socketChannelConfig.httpProxyHostName = ce.asciiValue();
+						encryptedChannelConfig.httpProxyHostName = ce.asciiValue();
 				}
 				
-				socketChannelConfig.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
-				if (socketChannelConfig.httpProxyPort == null || socketChannelConfig.httpProxyPort.length() == 0)
+				encryptedChannelConfig.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
+				if (encryptedChannelConfig.httpProxyPort == null || encryptedChannelConfig.httpProxyPort.length() == 0)
 				{
 					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyPort)) != null)
-						socketChannelConfig.httpProxyPort = ce.asciiValue();
+						encryptedChannelConfig.httpProxyPort = ce.asciiValue();
 				}
 				
-				if ( (socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length()  > 0) ||
-				     (socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
-					socketChannelConfig.httpProxy = true;
+				if ( (encryptedChannelConfig.httpProxyPort != null && encryptedChannelConfig.httpProxyPort.length()  > 0) ||
+				     (encryptedChannelConfig.httpProxyHostName != null && encryptedChannelConfig.httpProxyHostName.length() > 0))
+					encryptedChannelConfig.httpProxy = true;
 				
-				if (socketChannelConfig.httpProxy)
+				if (encryptedChannelConfig.httpProxy)
 				{
-					socketChannelConfig.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
-					socketChannelConfig.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
-					socketChannelConfig.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
-					socketChannelConfig.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
-					socketChannelConfig.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
+					encryptedChannelConfig.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;
+					encryptedChannelConfig.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
+					encryptedChannelConfig.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
+					encryptedChannelConfig.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
+					encryptedChannelConfig.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
 				}
 				
-				currentChannelConfig = socketChannelConfig;
+				currentChannelConfig = encryptedChannelConfig;
 			}
 			else
 			{

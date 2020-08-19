@@ -599,7 +599,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		
 		switch (channelCfg.rsslConnectionType)
 		{
-		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET: 
+		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
 			{
 				SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
 				strConnectionType = "SOCKET";
@@ -620,6 +620,16 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
 				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR )
 				.append( "ObjectName " ).append( tempChannelCfg.objectName ).append( OmmLoggerClient.CR );
+				
+				// Provides additional logging information for encrypted connection.
+				if(channelCfg.rsslConnectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
+				{
+					EncryptedChannelConfig tempEncryptedChannelCfg = (EncryptedChannelConfig)channelCfg;
+					cfgParameters.append( "EncryptedProtocolType " ).append( tempEncryptedChannelCfg.encryptedProtocolType ).append( OmmLoggerClient.CR )
+					.append( "EnableSessionMgnt " ).append( ( tempEncryptedChannelCfg.enableSessionMgnt ? "true" : "false" ) ).append( OmmLoggerClient.CR )
+					.append( "Location " ).append( tempEncryptedChannelCfg.location ).append( OmmLoggerClient.CR );
+				}
+				
 				break;
 			}
 		default:
@@ -729,7 +739,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
 				{
-					if(channelConfig.encryptedProtocolType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP)
+					if(channelConfig.encryptedProtocolType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP || 
+							channelConfig.encryptedProtocolType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET)
 					{
 						_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
 						_rsslReactorConnOptions.connectionList().get(i).location(((EncryptedChannelConfig)channelConfig).location);

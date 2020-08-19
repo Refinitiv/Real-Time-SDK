@@ -379,7 +379,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             }
 
             // connect
-            System.out.println("connecting to proxy");
             _scktChannel.connect(_cachedInetSocketAddress, _httpProxy);
 
             if (_httpProxy)
