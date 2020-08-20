@@ -10,11 +10,10 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.*;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -850,7 +849,40 @@ public class AckMsgTests extends TestCase
 	     
 	     System.out.println("\ttestAckMsg_EncodeUPAAckMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherAckMsg_EMADecode passed");
 	}
-	
+
+	public void testAckMsg_cloneIsNotSupportedFromTheEncodeSide()
+	{
+		TestUtilities.printTestHead("testAckMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		AckMsg msg = EmaFactory.createAckMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE);
+
+		try {
+			AckMsg cloneMessage = EmaFactory.createAckMsg(msg);
+			TestUtilities.checkResult(false, "Clone not supported  - exception expected: ");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
+			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
+		}
+	}
+
+	public void testAckMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testAckMsg_cloneMsgKeyWLScenario", "cloning for minimal ema ack message");
+		AckMsg emaMsg = EmaFactory.createAckMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		AckMsg emaClonedMsg = EmaFactory.createAckMsg(emaMsg);
+
+		compareEmaAckMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA AckMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testAckMsg_clone()
 	{
 		TestUtilities.printTestHead("testAckMsg_clone", "cloning for ema ack message");
@@ -922,6 +954,8 @@ public class AckMsgTests extends TestCase
 		ackMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		ackMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(ackMsg);
+
 		System.out.println("End UPA AckMsg Set");
 		System.out.println();
 
@@ -959,16 +993,9 @@ public class AckMsgTests extends TestCase
 		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, majorVersion, minorVersion, dictionary, null);
 		
 		com.thomsonreuters.ema.access.AckMsg emaAckMsgClone = EmaFactory.createAckMsg(emaAckMsg);
-		
-		TestUtilities.checkResult(emaAckMsgClone.domainType() == emaAckMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaAckMsgClone.streamId() == emaAckMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaAckMsgClone.ackId() == emaAckMsg.ackId(), "Compare ackId");
-		TestUtilities.checkResult(emaAckMsgClone.hasSeqNum() == emaAckMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaAckMsgClone.seqNum() == emaAckMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaAckMsgClone.hasNackCode() == emaAckMsg.hasNackCode(), "Compare hasNackCode");
-		TestUtilities.checkResult(emaAckMsgClone.nackCode() == emaAckMsg.nackCode(), "Compare nackCode");
-		TestUtilities.checkResult(emaAckMsgClone.hasMsgKey() == emaAckMsg.hasMsgKey(), "Compare hasMsgKey");
-		
+
+		compareEmaAckMsgFields(emaAckMsg, emaAckMsgClone, "Ack clone message");
+
 		String emaAckMsgString = emaAckMsg.toString();
 		String emaAckMsgCloneString = emaAckMsgClone.toString();
 		
@@ -976,10 +1003,25 @@ public class AckMsgTests extends TestCase
 		System.out.println(emaAckMsgClone);
 		
 		TestUtilities.checkResult(emaAckMsgString.equals(emaAckMsgCloneString), "emaAckMsgString.equals(emaAckMsgCloneString)");
+
+		com.thomsonreuters.ema.access.AckMsg emaAckMsgClone2 = EmaFactory.createAckMsg(emaAckMsgClone);
+		compareEmaAckMsgFields(emaAckMsg, emaAckMsgClone2, "Ack double-cloned message");
+		String emaAckMsgClone2String = emaAckMsgClone2.toString();
+		TestUtilities.checkResult(emaAckMsgString.equals(emaAckMsgClone2String), "double-cloned emaAckMsgString.equals(emaAckMsgClone2String)");
+
 		System.out.println("End EMA AckMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.AckMsg ackMsg) {
+		ackMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		ackMsg.extendedHeader(extendedHeader);
+
+		ackMsg.applyPrivateStream();
+	}
+
 	public void testAckMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testAckMsg_cloneEdit", "clone and edit ema ack message");
@@ -1139,4 +1181,34 @@ public class AckMsgTests extends TestCase
 		System.out.println("End EMA AckMsg Clone");
 		System.out.println();
 	}
+
+	private void compareEmaAckMsgFields(AckMsg expected, AckMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+		TestUtilities.checkResult(expected.privateStream() == actual.privateStream(), checkPrefix + "privateStream");
+
+		TestUtilities.checkResult(expected.hasExtendedHeader() == actual.hasExtendedHeader(), checkPrefix + "hasExtendedHeader");
+		if(expected.hasExtendedHeader())
+			TestUtilities.checkResult(expected.extendedHeader().equals(actual.extendedHeader()), checkPrefix + "extendedHeader");
+
+		TestUtilities.checkResult(expected.hasSeqNum() == actual.hasSeqNum(), checkPrefix + "hasSeqNum");
+		if(expected.hasSeqNum())
+			TestUtilities.checkResult(expected.seqNum() == actual.seqNum(), checkPrefix + "seqNum");
+
+		TestUtilities.checkResult(expected.ackId() == actual.ackId(), checkPrefix + "ackId");
+
+		TestUtilities.checkResult(expected.hasNackCode() == actual.hasNackCode(), checkPrefix + "hasNackCode");
+		if(expected.hasNackCode())
+			TestUtilities.checkResult(expected.nackCode() == actual.nackCode(), checkPrefix + "nackCode");
+
+		TestUtilities.checkResult(expected.hasText() == actual.hasText(), checkPrefix + "hasText");
+		if(expected.hasText())
+			TestUtilities.checkResult(expected.text().equals(actual.text()), checkPrefix + "text");
+	}
+
 }

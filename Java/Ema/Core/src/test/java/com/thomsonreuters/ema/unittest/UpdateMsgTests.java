@@ -10,11 +10,9 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.*;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -893,11 +891,29 @@ public class UpdateMsgTests extends TestCase
 	     TestUtilities.checkResult(decCopyUpdateMsg.permissionData().equals(updateMsg.permissionData()));
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyUpdateMsg.attrib().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyUpdateMsg.payload().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
-	     
+
 	     System.out.println("\ttestUpdateMsg_EncodeUPAUpdateWithRefreshMsgTypeAsAttrib_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode passed");
 	}
-	
-	public void testUpdateMsg_clone()
+
+	public void testUpdateMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testUpdateMsg_cloneMsgKeyWLScenario", "cloning for minimal ema update message");
+		UpdateMsg emaMsg = EmaFactory.createUpdateMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		UpdateMsg emaClonedMsg = EmaFactory.createUpdateMsg(emaMsg);
+
+		compareEmaUpdateMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA UpdateMsg Clone msgKey");
+		System.out.println();
+	}
+
+		public void testUpdateMsg_clone()
 	{
 		TestUtilities.printTestHead("testUpdateMsg_clone", "cloning for ema update message");
 		
@@ -968,6 +984,8 @@ public class UpdateMsgTests extends TestCase
 		updateMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		updateMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(updateMsg);
+
 		System.out.println("End UPA UpdateMsg Set");
 		System.out.println();
 
@@ -1005,17 +1023,8 @@ public class UpdateMsgTests extends TestCase
 		
 		com.thomsonreuters.ema.access.UpdateMsg emaUpdateMsgClone = EmaFactory.createUpdateMsg(emaUpdateMsg);
 		
-		TestUtilities.checkResult(emaUpdateMsgClone.domainType() == emaUpdateMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaUpdateMsgClone.streamId() == emaUpdateMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaUpdateMsgClone.hasSeqNum() == emaUpdateMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaUpdateMsgClone.seqNum() == emaUpdateMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaUpdateMsgClone.hasMsgKey() == emaUpdateMsg.hasMsgKey(), "Compare hasMsgKey");
-		TestUtilities.checkResult(emaUpdateMsgClone.doNotCache() == emaUpdateMsg.doNotCache(), "Compare doNotCache");
-		TestUtilities.checkResult(emaUpdateMsgClone.doNotConflate() == emaUpdateMsg.doNotConflate(), "Compare doNotConflate");
-		TestUtilities.checkResult(emaUpdateMsgClone.hasConflated() == emaUpdateMsg.hasConflated(), "Compare hasConfInfo");
-		TestUtilities.checkResult(emaUpdateMsgClone.conflatedCount() == emaUpdateMsg.conflatedCount(), "Compare conflationCount");
-		TestUtilities.checkResult(emaUpdateMsgClone.conflatedTime() == emaUpdateMsg.conflatedTime(), "Compare conflationTime");
-		
+		compareEmaUpdateMsgFields(emaUpdateMsg, emaUpdateMsgClone, "Update cloned message");
+
 		String emaUpdateMsgString = emaUpdateMsg.toString();
 		String emaUpdateMsgCloneString = emaUpdateMsgClone.toString();
 		
@@ -1023,11 +1032,28 @@ public class UpdateMsgTests extends TestCase
 		System.out.println(emaUpdateMsgClone);
 		
 		TestUtilities.checkResult(emaUpdateMsgString.equals(emaUpdateMsgCloneString), "emaUpdateMsgString.equals(emaUpdateMsgCloneString)");
-				
+
+		com.thomsonreuters.ema.access.UpdateMsg emaUpdateMsgClone2 = EmaFactory.createUpdateMsg(emaUpdateMsgClone);
+		compareEmaUpdateMsgFields(emaUpdateMsg, emaUpdateMsgClone2, "Update double-cloned message");
+		String emaUpdateMsgClone2String = emaUpdateMsgClone2.toString();
+		TestUtilities.checkResult(emaUpdateMsgString.equals(emaUpdateMsgClone2String), "double-cloned emaUpdateMsgString.equals(emaUpdateMsgClone2String)");
+
 		System.out.println("End EMA UpdateMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.UpdateMsg updateMsg) {
+		updateMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		updateMsg.extendedHeader(extendedHeader);
+
+		updateMsg.applyHasPermData();
+		Buffer permissionData = CodecFactory.createBuffer();
+		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
+		updateMsg.permData(permissionData);
+	}
+
 	public void testUpdateMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testUpdateMsg_cloneEdit", "clone and edit ema update message");
@@ -1187,5 +1213,37 @@ public class UpdateMsgTests extends TestCase
 		
 		System.out.println("End EMA UpdateMsg Clone");
 		System.out.println();
+	}
+
+	private void compareEmaUpdateMsgFields(UpdateMsg expected, UpdateMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + "base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasConflated() == actual.hasConflated(), "hasConflated");
+		if(expected.hasConflated()) {
+			TestUtilities.checkResult(expected.conflatedCount() == actual.conflatedCount(), "conflatedCount");
+			TestUtilities.checkResult(expected.conflatedTime() == actual.conflatedTime(), "conflatedTime");
+		}
+
+		TestUtilities.checkResult(expected.doNotCache() == actual.doNotCache(), "doNotCache");
+		TestUtilities.checkResult(expected.doNotConflate() == actual.doNotConflate(), "doNotConflate");
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+		TestUtilities.checkResult(expected.hasPublisherId() == actual.hasPublisherId(), checkPrefix + "hasPublisherId");
+		if(expected.hasPublisherId()) {
+			TestUtilities.checkResult(expected.publisherIdUserId() == actual.publisherIdUserId(), checkPrefix + "publisherIdUserId");
+			TestUtilities.checkResult(expected.publisherIdUserAddress() == actual.publisherIdUserAddress(), checkPrefix + "publisherIdUserAddress");
+		}
+
+		TestUtilities.checkResult(expected.hasPermissionData() == actual.hasPermissionData(), checkPrefix + "hasPermissionData");
+		if(expected.hasPermissionData())
+			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
+
+		TestUtilities.checkResult(expected.hasSeqNum() == actual.hasSeqNum(), checkPrefix + "hasSeqNum");
+		if(expected.hasSeqNum())
+			TestUtilities.checkResult(expected.seqNum() == actual.seqNum(), checkPrefix + "seqNum");
 	}
 }

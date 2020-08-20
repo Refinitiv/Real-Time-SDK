@@ -11,10 +11,12 @@ import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = RefreshMsgImpl.class.getCanonicalName() + ".RefreshMsgImpl(RefreshMsg other)";
 	private  byte[] defaultGroupId = { 0, 0};
 	private OmmStateImpl 	_state = new OmmStateImpl();
 	private OmmQosImpl 		_qos;
@@ -34,77 +36,80 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	
 	RefreshMsgImpl(RefreshMsg other)
 	{
-		super(DataTypes.REFRESH_MSG, new EmaObjectManager());
-		
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.RefreshMsgImpl.RefreshMsgImpl(RefreshMsg other)");
-		
-		// Set the decoded values from the clone buffer to the encoder
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.RefreshMsgImpl.RefreshMsgImpl(UpdateMsg other)");
+		super((MsgImpl)other, CLONE_CONSTRUCTOR_NAME);
 
-		if(hasMsgKey() || other.hasMsgKey())
+		if(other.hasMsgKey())
 		{
-			if (hasName())
-				name(name());
+			if (other.hasName())
+				name(other.name());
 
-			if (hasNameType())
-				nameType(nameType());
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasId())
-				id(id());
+			if (other.hasId())
+				id(other.id());
 
-			if (hasFilter())
-				filter(filter());
+			if (other.hasFilter())
+				filter(other.filter());
 
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
+			if(other.attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
 		}
 		
-		domainType(domainType());
+		domainType(other.domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		streamId(other.streamId());
+
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 		
-		if (hasQos())
-			qos(qos().timeliness(), qos().rate());
+		if (other.hasQos())
+			qos(other.qos().timeliness(), other.qos().rate());
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
 
 		if (other.hasSeqNum())
-			seqNum(seqNum());
+			seqNum(other.seqNum());
 
-		if (other.hasPermissionData())
-			permissionData(permissionData());
+		if (other.hasPermissionData()) {
+			((com.thomsonreuters.upa.codec.RefreshMsg) _rsslMsg).permData(CodecFactory.createBuffer());
+			permissionData(other.permissionData());
+		}
 		
-		if (hasPartNum())
-			partNum(partNum());
+		if (other.hasPartNum())
+			partNum(other.partNum());
 
 		if (other.hasPublisherId())
-			publisherId(publisherIdUserId(), publisherIdUserAddress());
+			publisherId(other.publisherIdUserId(), other.publisherIdUserAddress());
 		
 		state(other.state().streamState(), other.state().dataState(), other.state().statusCode(), other.state().statusText());
 
+		((com.thomsonreuters.upa.codec.RefreshMsg) _rsslMsg).groupId(CodecFactory.createBuffer());
 		itemGroup(other.itemGroup());
 		
-		solicited(solicited());
+		solicited(other.solicited());
 		
-		complete(complete());
+		complete(other.complete());
 		
-		clearCache(clearCache());
+		clearCache(other.clearCache());
 		
-		privateStream(privateStream());
+		privateStream(other.privateStream());
 		
-		doNotCache(doNotCache());
-				
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		doNotCache(other.doNotCache());
+
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 	
 	@Override
@@ -336,8 +341,6 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 										.append( statusCode ).append( "'." ).toString();
 			throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
 		}
-		
-		((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().text().data(statusText);
 
 		return this;
 	}
@@ -565,7 +568,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -644,7 +647,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 
 		_rsslDecodeIter.clear();
 
-		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(rsslBuffer, _rsslMajVer, _rsslMinVer);
 		if (CodecReturnCodes.SUCCESS != retCode)
 		{
 			_errorCode = ErrorCode.ITERATOR_SET_FAILURE;
@@ -660,18 +663,18 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 				return;
 			case CodecReturnCodes.ITERATOR_OVERRUN:
 				_errorCode = ErrorCode.ITERATOR_OVERRUN;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
 				return;
 			case CodecReturnCodes.INCOMPLETE_DATA:
 				_errorCode = ErrorCode.INCOMPLETE_DATA;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
 				return;
 			default:
 				_errorCode = ErrorCode.UNKNOWN_ERROR;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
 				return;
 		}
 	}

@@ -11,10 +11,12 @@ import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class PostMsgImpl extends MsgImpl implements PostMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = PostMsgImpl.class.getCanonicalName() + ".PostMsgImpl(PostMsg other)";
 	private final static String CREATE_NAME = "Create";
 	private final static String DELETE_NAME = " | Delete";
 	private final static String MODIFY_NAME = " | ModifyPermission";
@@ -34,48 +36,50 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	
 	PostMsgImpl(PostMsg other)
 	{
-		super(DataTypes.POST_MSG, new EmaObjectManager());
+		super((MsgImpl)other, CLONE_CONSTRUCTOR_NAME);
 
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.PostMsgImpl.PostMsgImpl(PostMsg other)");
+		if (other.hasMsgKey()) {
+			if (other.hasName())
+				name(other.name());
 
-		// Set the decoded values from the clone buffer to the encoder
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.PostMsgImpl.PostMsgImpl(PostMsg other)");
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-		if (hasMsgKey() || other.hasMsgKey())
-		{
-			if (hasName())
-				name(name());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasNameType())
-				nameType(nameType());
+			if (other.hasId())
+				id(other.id());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasFilter())
+				filter(other.filter());
 
-			if (hasId())
-				id(id());
-
-			if (hasFilter())
-				filter(filter());
-
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
+			if (other.attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
 		}
 
-		domainType(domainType());
+		domainType(other.domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
 
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		if (other.hasPermissionData()) {
+			((com.thomsonreuters.upa.codec.RefreshMsg) _rsslMsg).permData(CodecFactory.createBuffer());
+			permissionData(other.permissionData());
+		}
+
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 
 	@Override
@@ -467,7 +471,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -520,6 +524,8 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 

@@ -11,10 +11,12 @@ import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class StatusMsgImpl extends MsgImpl implements StatusMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = StatusMsgImpl.class.getCanonicalName() + ".StatusMsgImpl(StatusMsg other)";
 	private OmmStateImpl _state = new OmmStateImpl();
 	private boolean 	 _stateSet;
 	
@@ -30,54 +32,59 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	
 	StatusMsgImpl(StatusMsg other)
 	{
-		super(DataTypes.STATUS_MSG, new EmaObjectManager());
-		
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.StatusMsgImpl.StatusMsgImpl(StatusMsg other)");
+		super((MsgImpl)other, CLONE_CONSTRUCTOR_NAME);
 
-		// Set the decoded values from the clone buffer to the encoder
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.StatusMsgImpl.StatusMsgImpl(StatusMsg other)");
-
-		if (hasMsgKey() || other.hasMsgKey())
+		if (other.hasMsgKey())
 		{
-			if (hasName())
-				name(name());
+			if (other.hasName())
+				name(other.name());
 
-			if (hasNameType())
-				nameType(nameType());
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasId())
-				id(id());
+			if (other.hasId())
+				id(other.id());
 
-			if (hasFilter())
-				filter(filter());
+			if (other.hasFilter())
+				filter(other.filter());
 
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
+			if(other.attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
 		}
-		
-		domainType(domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		domainType(other.domainType());
+
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
-		
-		if (other.hasItemGroup())
+
+		if (other.hasPermissionData()) {
+			((com.thomsonreuters.upa.codec.RefreshMsg) _rsslMsg).permData(CodecFactory.createBuffer());
+			permissionData(other.permissionData());
+		}
+
+		if (other.hasItemGroup()) {
+			((com.thomsonreuters.upa.codec.RefreshMsg) _rsslMsg).groupId(CodecFactory.createBuffer());
 			itemGroup(other.itemGroup());
-		
+		}
+
 		if(other.hasState())
 			state(other.state().streamState(), other.state().dataState(), other.state().statusCode(), other.state().statusText());
 
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 	
 	@Override
@@ -442,7 +449,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -497,6 +504,8 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 

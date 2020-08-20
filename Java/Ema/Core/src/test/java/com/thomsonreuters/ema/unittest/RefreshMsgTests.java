@@ -10,13 +10,10 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmQos;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.*;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -976,7 +973,47 @@ public class RefreshMsgTests extends TestCase
 	     
 	     System.out.println("\ttestRefreshMsg_EncodeUPARefreshWithRefreshTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherRefreshMsg_EMADecode passed");
 	}
-	
+
+	public void testRefreshMsg_cloneIsNotSupportedFromTheEncodeSide()
+	{
+		TestUtilities.printTestHead("testRefreshMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		RefreshMsg msg = EmaFactory.createRefreshMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE);
+
+		try {
+			RefreshMsg cloneMessage = EmaFactory.createRefreshMsg(msg);
+			TestUtilities.checkResult(false, "Clone not supported  - exception expected: ");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
+			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
+		}
+	}
+
+	public void testRefreshMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testRefreshMsg_cloneMsgKeyWLScenario", "cloning for minimal ema refresh message");
+		RefreshMsg emaMsg = EmaFactory.createRefreshMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample())
+			// refresh message always has group id
+			.itemGroup(ByteBuffer.wrap(new byte[] {1, 2, 3}));
+
+
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		RefreshMsg emaMsg2 = JUnitTestConnect.createRefreshMsg();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		JUnitTestConnect.setRsslData(emaMsg2, JUnitTestConnect.getRsslData(emaMsg), majorVersion, minorVersion, dictionary, null);
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg2, true);
+		RefreshMsg emaClonedMsg = EmaFactory.createRefreshMsg(emaMsg2);
+
+		compareEmaRefreshMsgFields(emaMsg2, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg2, false);
+
+		System.out.println("End EMA RefreshMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testRefreshMsg_clone()
 	{
 		TestUtilities.printTestHead("testRefreshMsg_clone", "cloning for ema refresh message");
@@ -1057,6 +1094,8 @@ public class RefreshMsgTests extends TestCase
 		refreshMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		refreshMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(refreshMsg);
+
 		System.out.println("End UPA RefreshMsg Set");
 		System.out.println();
 
@@ -1094,25 +1133,9 @@ public class RefreshMsgTests extends TestCase
 		JUnitTestConnect.setRsslData(emaRefreshMsg, refreshMsgDecode, majorVersion, minorVersion, dictionary, null);
 		
 		com.thomsonreuters.ema.access.RefreshMsg emaRefreshMsgClone = EmaFactory.createRefreshMsg(emaRefreshMsg);
-		
-		TestUtilities.checkResult(emaRefreshMsgClone.domainType() == emaRefreshMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaRefreshMsgClone.streamId() == emaRefreshMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasPartNum() == emaRefreshMsg.hasPartNum(), "Compare hasPartNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.partNum() == emaRefreshMsg.partNum(), "Compare partNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasSeqNum() == emaRefreshMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.seqNum() == emaRefreshMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasQos() == emaRefreshMsg.hasQos(), "Compare hasQos");
-		TestUtilities.checkResult(emaRefreshMsgClone.qos().timeliness() == emaRefreshMsg.qos().timeliness(), "Compare qos timeliness");
-		TestUtilities.checkResult(emaRefreshMsgClone.qos().rate() == emaRefreshMsg.qos().rate(), "Compare qos rate");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().code() == emaRefreshMsg.state().code(), "Compare state code");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().streamState() == emaRefreshMsg.state().streamState(), "Compare state streamState");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().dataState() == emaRefreshMsg.state().dataState(), "Compare state dataState");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().statusText().equals(emaRefreshMsg.state().statusText()), "Compare state dataState");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasMsgKey() == emaRefreshMsg.hasMsgKey(), "Compare hasMsgKey");
-		TestUtilities.checkResult(emaRefreshMsgClone.doNotCache() == emaRefreshMsg.doNotCache(), "Compare doNotCache");
-		TestUtilities.checkResult(emaRefreshMsgClone.clearCache() == emaRefreshMsg.clearCache(), "Compare clearCache");
-		TestUtilities.checkResult(emaRefreshMsgClone.solicited() == emaRefreshMsg.solicited(), "Compare doNotCache");
-		
+
+		compareEmaRefreshMsgFields(emaRefreshMsg, emaRefreshMsgClone, "Refresh cloned message");
+
 		String emaRefreshMsgString = emaRefreshMsg.toString();
 		String emaRefreshMsgCloneString = emaRefreshMsgClone.toString();
 		
@@ -1120,11 +1143,35 @@ public class RefreshMsgTests extends TestCase
 		System.out.println(emaRefreshMsgClone);
 		
 		TestUtilities.checkResult(emaRefreshMsgString.equals(emaRefreshMsgCloneString), "emaRefreshMsgString.equals(emaRefreshMsgCloneString)");
-		
+
+
+		com.thomsonreuters.ema.access.RefreshMsg emaRefreshMsgClone2 = EmaFactory.createRefreshMsg(emaRefreshMsgClone);
+		compareEmaRefreshMsgFields(emaRefreshMsg, emaRefreshMsgClone2, "Refresh double-cloned message");
+		String emaRefreshMsgClone2String = emaRefreshMsgClone2.toString();
+		TestUtilities.checkResult(emaRefreshMsgString.equals(emaRefreshMsgClone2String), "double-cloned emaRefreshMsgString.equals(emaRefreshMsgClone2String)");
+
 		System.out.println("End EMA RefreshMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.RefreshMsg refreshMsg) {
+		refreshMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		refreshMsg.extendedHeader(extendedHeader);
+
+		Buffer itemGroup = CodecFactory.createBuffer();
+		itemGroup.data(ByteBuffer.wrap(new byte[] {30, 40, 50, 60, 77, 77, 77, 77, 88}));
+		refreshMsg.groupId(itemGroup);
+
+		refreshMsg.applyHasPermData();
+		Buffer permissionData = CodecFactory.createBuffer();
+		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
+		refreshMsg.permData(permissionData);
+
+		refreshMsg.applyPrivateStream();
+	}
+
 	public void testRefreshMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testRefreshMsg_cloneEdit", "clone and edit ema refresh message");
@@ -1242,25 +1289,9 @@ public class RefreshMsgTests extends TestCase
 		JUnitTestConnect.setRsslData(emaRefreshMsg, refreshMsgDecode, majorVersion, minorVersion, dictionary, null);
 		
 		com.thomsonreuters.ema.access.RefreshMsg emaRefreshMsgClone = EmaFactory.createRefreshMsg(emaRefreshMsg);
-		
-		TestUtilities.checkResult(emaRefreshMsgClone.domainType() == emaRefreshMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaRefreshMsgClone.streamId() == emaRefreshMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasPartNum() == emaRefreshMsg.hasPartNum(), "Compare hasPartNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.partNum() == emaRefreshMsg.partNum(), "Compare partNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasSeqNum() == emaRefreshMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.seqNum() == emaRefreshMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasQos() == emaRefreshMsg.hasQos(), "Compare hasQos");
-		TestUtilities.checkResult(emaRefreshMsgClone.qos().timeliness() == emaRefreshMsg.qos().timeliness(), "Compare qos timeliness");
-		TestUtilities.checkResult(emaRefreshMsgClone.qos().rate() == emaRefreshMsg.qos().rate(), "Compare qos rate");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().code() == emaRefreshMsg.state().code(), "Compare state code");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().streamState() == emaRefreshMsg.state().streamState(), "Compare state streamState");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().dataState() == emaRefreshMsg.state().dataState(), "Compare state dataState");
-		TestUtilities.checkResult(emaRefreshMsgClone.state().statusText().equals(emaRefreshMsg.state().statusText()), "Compare state dataState");
-		TestUtilities.checkResult(emaRefreshMsgClone.hasMsgKey() == emaRefreshMsg.hasMsgKey(), "Compare hasMsgKey");
-		TestUtilities.checkResult(emaRefreshMsgClone.doNotCache() == emaRefreshMsg.doNotCache(), "Compare doNotCache");
-		TestUtilities.checkResult(emaRefreshMsgClone.clearCache() == emaRefreshMsg.clearCache(), "Compare clearCache");
-		TestUtilities.checkResult(emaRefreshMsgClone.solicited() == emaRefreshMsg.solicited(), "Compare doNotCache");
-		
+
+		compareEmaRefreshMsgFields(emaRefreshMsg, emaRefreshMsgClone, "Refresh cloned message");
+
 		String emaRefreshMsgString = emaRefreshMsg.toString();
 		String emaRefreshMsgCloneString = emaRefreshMsgClone.toString();
 		
@@ -1303,4 +1334,53 @@ public class RefreshMsgTests extends TestCase
 		System.out.println("End EMA RefreshMsg Clone");
 		System.out.println();
 	}
+
+	private void compareEmaRefreshMsgFields(RefreshMsg expected, RefreshMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		TestUtilities.checkResult(expected.doNotCache() == actual.doNotCache(), checkPrefix + "doNotCache");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+			TestUtilities.checkResult(expected.state().code() == actual.state().code(), checkPrefix + "state.code");
+			TestUtilities.checkResult(expected.state().statusCode() == actual.state().statusCode(), checkPrefix + "state.statusCode");
+			TestUtilities.checkResult(expected.state().streamState() == actual.state().streamState(), checkPrefix + "state.streamState()");
+			TestUtilities.checkResult(expected.state().statusText().equals(actual.state().statusText()), checkPrefix + "state.statusText");
+
+		TestUtilities.checkResult(expected.hasPublisherId() == actual.hasPublisherId(), checkPrefix + "hasPublisherId");
+		if(expected.hasPublisherId()) {
+			TestUtilities.checkResult(expected.publisherIdUserId() == actual.publisherIdUserId(), checkPrefix + "publisherIdUserId");
+			TestUtilities.checkResult(expected.publisherIdUserAddress() == actual.publisherIdUserAddress(), checkPrefix + "publisherIdUserAddress");
+		}
+
+		TestUtilities.checkResult(expected.clearCache() == actual.clearCache(), checkPrefix + "clearCache");
+		TestUtilities.checkResult(expected.privateStream() == actual.privateStream(), checkPrefix + "privateStream");
+
+		TestUtilities.checkResult(expected.itemGroup().equals(actual.itemGroup()), checkPrefix + "itemGroup");
+
+		TestUtilities.checkResult(expected.hasPermissionData() == actual.hasPermissionData(), checkPrefix + "hasPermissionData");
+		if(expected.hasPermissionData())
+			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
+
+		TestUtilities.checkResult(expected.solicited() == actual.solicited(), checkPrefix + "solicited");
+
+		TestUtilities.checkResult(expected.hasQos() == actual.hasQos(), checkPrefix + "hasQos");
+		if(expected.hasQos()) {
+			TestUtilities.checkResult(expected.qos().rate() == actual.qos().rate(), checkPrefix + "qos.rate");
+			TestUtilities.checkResult(expected.qos().timeliness() == actual.qos().timeliness(), checkPrefix + "qos.timeliness");
+		}
+
+		TestUtilities.checkResult(expected.hasSeqNum() == actual.hasSeqNum(), checkPrefix + "hasSeqNum");
+		if(expected.hasSeqNum())
+			TestUtilities.checkResult(expected.seqNum() == actual.seqNum(), checkPrefix + "seqNum");
+
+		TestUtilities.checkResult(expected.hasPartNum() == actual.hasPartNum(), checkPrefix + "hasPartNum");
+		if(expected.hasPartNum())
+			TestUtilities.checkResult(expected.partNum() == actual.partNum(), checkPrefix + "partNum");
+
+		TestUtilities.checkResult(expected.clearCache() == actual.clearCache(), checkPrefix + "clearCache");
+	}
+
 }
