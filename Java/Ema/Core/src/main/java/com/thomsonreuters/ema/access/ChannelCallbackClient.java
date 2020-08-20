@@ -139,7 +139,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
 	private boolean						_bInitialChannelReadyEventReceived;
-	private static final String 		_productVersion = ChannelCallbackClient.class.getPackage().getImplementationVersion();
+	private static String		 	_productVersion = null;
+	{
+		_productVersion = ChannelCallbackClient.class.getPackage().getImplementationVersion();
+		if (_productVersion == null) {
+			_productVersion = "EMA Java Edition";
+		}
+	}
 	
 	ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor rsslReactor)
 	{

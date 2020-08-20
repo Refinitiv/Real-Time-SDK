@@ -310,6 +310,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_bindOptions.compressionType(_activeServerConfig.serverConfig.compressionType);
 			
 			String productVersion = OmmServerBaseImpl.class.getPackage().getImplementationVersion();
+			if ( productVersion == null)
+				productVersion = "EMA Java Edition";
+
 	        _bindOptions.componentVersion(productVersion);
 			
 			_server = Transport.bind(_bindOptions, _transportError);

@@ -2,6 +2,8 @@ package com.thomsonreuters.upa.transport;
 
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.Enumeration;
+import java.util.jar.Manifest;
 
 import com.thomsonreuters.upa.transport.DummyLock;
 import com.thomsonreuters.upa.transport.LibraryVersionInfoImpl;
@@ -26,10 +28,25 @@ public class Transport
     static
     {
         Package thisPackage = Transport.class.getPackage();
-        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
         _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
         _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());
-        
+
+        try {
+            URLClassLoader cl = (URLClassLoader) Transport.class.getClassLoader();
+            Enumeration<URL> urls = cl.findResources("META-INF/MANIFEST.MF");
+            while(urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if(url.getPath().contains("upa-")){
+                    Manifest manifest = new Manifest(url.openStream());
+                    String val = manifest.getMainAttributes().getValue("Build-Date");
+                    _libVersionInfo.productDate(val);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            _libVersionInfo.productDate(null);
+        }
+
         if (_libVersionInfo.productInternalVersion() == null)
         {
             _libVersionInfo.productInternalVersion("UPA Java Edition");
@@ -38,7 +55,11 @@ public class Transport
         {
             _libVersionInfo.productVersion("UPA Java Edition");
         }
-        
+        if (_libVersionInfo.productDate() == null)
+        {
+            _libVersionInfo.productDate("N/A");
+        }
+
         _defaultComponentVersionBuffer = ByteBuffer.wrap(_libVersionInfo.productInternalVersion().getBytes());
         _initLock = new ReentrantLock();
     }
