@@ -159,6 +159,10 @@ Refer to the ESDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Em
 
 **For Linux**:
 
+Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command(this will require root access to the machine):
+
+	yum install redhat-lsb-core
+
 At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
 
 	cmake -HElektron-SDK -Bbuild-esdk
