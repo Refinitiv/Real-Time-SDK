@@ -33,7 +33,7 @@ public class CryptoHelperTest
 	public static final String LOCALHOST = "localhost";
 	public static final int PORT = 14005;
 	public static final String KEYSTORE_PASSWORD = "changeit";
-	public static final String RESOURCE_PATH = "src/test/resources/com/thomsonreuters/upa/transport/CryptoHelperTest/";
+	public static final String RESOURCE_PATH = "src/test/resources/com/thomsonreuters/upa/transport/CryptoHelperJunit/";
 	public static final String VALID_CERTIFICATE = RESOURCE_PATH + "localhost.jks";
 	public static final String INVALID_CERTIFICATE = RESOURCE_PATH + "invalid_certificate.jks";
 	private CryptoHelper cryptoHelper;
@@ -129,13 +129,15 @@ public class CryptoHelperTest
 
 	private void createCryptoHelper(String keystoreFile) throws IOException {
 		ConnectOptionsImpl options = new ConnectOptionsImpl();
-		options.tunnelingInfo().KeystoreFile(keystoreFile);
-		options.tunnelingInfo().KeystorePasswd(KEYSTORE_PASSWORD);
-		options.tunnelingInfo().KeystoreType("JKS");
-		options.tunnelingInfo().TrustManagerAlgorithm("");
-		options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
-		options.tunnelingInfo().SecurityProtocol("TLS");
-		options.tunnelingInfo().SecurityProvider("SunJSSE");
+		options.encryptionOptions().KeystoreFile(keystoreFile);
+		options.encryptionOptions().KeystorePasswd(KEYSTORE_PASSWORD);
+		options.encryptionOptions().KeystoreType("JKS");
+		options.encryptionOptions().TrustManagerAlgorithm("");
+		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
+		options.encryptionOptions().SecurityProtocol("TLS");
+		options.encryptionOptions().SecurityProvider("SunJSSE");
+		options.unifiedNetworkInfo().address(LOCALHOST);
+		options.unifiedNetworkInfo().serviceName(Integer.toString(PORT));
 		
 		SocketChannel socketChannel = SocketChannel.open();
 		socketChannel.connect(new InetSocketAddress(LOCALHOST, PORT));
