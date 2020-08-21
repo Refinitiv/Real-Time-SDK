@@ -2578,6 +2578,7 @@ public class SocketChannelJunitTest
         final ConnectOptions opts = buildConnectOptions("localhost", portNumber.toString());
         final Error error = TransportFactory.createError();
 
+        consumerChannel._scktChannel = new SocketHelper();
         assertEquals(TransportReturnCodes.SUCCESS, consumerChannel.connect(opts, error));
         assertTrue(consumerChannel.state() == ChannelState.INITIALIZING);
     }
@@ -7120,6 +7121,7 @@ public class SocketChannelJunitTest
 
             connectOpts.blocking(true);
             
+            consumerChannel._scktChannel = new SocketHelper();
             assertEquals(TransportReturnCodes.SUCCESS, consumerChannel.connect(connectOpts, error));
         	assertEquals(ChannelState.ACTIVE, consumerChannel.state());
         }
@@ -7651,6 +7653,8 @@ public class SocketChannelJunitTest
             };            
 
             channel._transport = (SocketProtocol) transport;
+            
+            channel._scktChannel = new SocketHelper();
             channel.connect(opts, error);
             assertTrue(channel.state() == ChannelState.INITIALIZING);
 
