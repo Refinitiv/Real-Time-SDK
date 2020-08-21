@@ -165,6 +165,8 @@ public class WriteBufferJunit
 
         try {
             channel._transport = (SocketProtocol) transport;
+            
+            channel._scktChannel = new SocketHelper();
             channel.connect(opts, error);
             assertTrue(channel.state() == ChannelState.INITIALIZING);
 

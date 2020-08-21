@@ -9,7 +9,6 @@ import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.shared.*;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.*;
@@ -18,7 +17,6 @@ import com.thomsonreuters.upa.valueadd.reactor.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.StreamSupport;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

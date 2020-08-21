@@ -15,6 +15,7 @@ class ChannelConfig
 	int					compressionThreshold;
 	boolean				compressionThresholdSet;
 	int					rsslConnectionType;
+	int 	 			encryptedProtocolType;
 	int					connectionPingTimeout;
 	int					guaranteedOutputBuffers;
 	int					numInputBuffers;
@@ -41,6 +42,7 @@ class ChannelConfig
 		sysRecvBufSize = ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
+		encryptedProtocolType = ActiveConfig.DEFAULT_ENCRYPTED_PROTOCOL_TYPE;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT;
 		compressionThresholdSet = false;
 	}
@@ -56,3 +58,4 @@ class ChannelConfig
 			numInputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
 	}
 }
+

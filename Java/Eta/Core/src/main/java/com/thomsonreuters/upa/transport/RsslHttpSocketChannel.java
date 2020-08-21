@@ -5,10 +5,6 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import com.thomsonreuters.proxy.authentication.CredentialName;
-import com.thomsonreuters.proxy.authentication.CredentialsFactory;
-import com.thomsonreuters.proxy.authentication.ICredentials;
-import com.thomsonreuters.proxy.authentication.IProxyAuthenticator;
 import com.thomsonreuters.proxy.authentication.IProxyAuthenticatorResponse;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticationException;
 import com.thomsonreuters.proxy.authentication.ProxyAuthenticatorFactory;
@@ -97,11 +93,6 @@ import com.thomsonreuters.proxy.authentication.ResponseCodeException;
 
 class RsslHttpSocketChannel extends RsslSocketChannel
 {
-    protected boolean _httpProxy = false;
-    String _httpProxyHost = null;
-    protected int _httpProxyPort = 0;
-    protected String _objectName = null;
-
     protected int HTTP_HEADER3 = 0;          // 1st HTTP chunk header size (value=3 when http)
     protected int HTTP_HEADER_END_SIZE = 4;  // HTTP header end size, i.e. /r/n/r/n (value = 4)
     byte[] _pidBytes;              // store process ID
@@ -111,16 +102,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     byte[] HTTP_TransferEncoding;  // store "Transfer Encoding" chunk of received HTTP OK message
     byte[] HTTP_ContentType;       // store "Content Type" chunk of received HTTP OK message
 
-    protected static final String CHAR_ENCODING = "US-ASCII";
-    protected static final String USER_AGENT = "User-Agent: UPA/Java\r\n";
-    protected static final String PROXY_CONNECTION_KEEP_ALIVE = "Proxy-Connection: Keep-Alive\r\n";
-    protected static final String PRAGMA_NO_CACHE = "Pragma: no-cache\r\n";
-    protected static final String EOL = "\r\n";
-    ByteBuffer _httpPOSTwriteBuffer = ByteBuffer.allocateDirect(DEFAULT_HIGH_WATER_MARK);
     protected int _httpOpCode = 0x80;  // OpCode for HTTP POST request from consumer
     protected int _httpSessionID = 0;  // HTTP session ID (returned to consumer in response to HTTP POST request)
-    int httpOKretry = 0;  // needed for recovery through a proxy
-    protected int httpOKsize;
     protected int firstHTTPchunkHeader_size;
     protected int firstHTTPchunk_size = 7;
 
@@ -142,15 +125,9 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
     protected boolean releaseOldCrypto = false;
 
-    // for proxy authentication
-    protected ICredentials _proxyCredentails = null;
-    protected IProxyAuthenticator _proxyAuthenticator = null;
-    protected String _additionalHttpConnectParams = null;
-    String db;  // debug env variable
-
-    RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool)
+    protected RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
     {
-        super(transport, channelPool);
+        super(transport, channelPool, encrypted);
 
         _http = true;
         HTTP_HEADER4 = 4;
@@ -164,6 +141,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         HTTP_ContentType = new byte[38];
 
         _internalMaxFragmentSize = (6 * 1024) + RIPC_HDR_SIZE;
+    }
+
+    RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool)
+    {
+        this(transport, channelPool, false);
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -246,7 +228,14 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     @Override
     public int connectionType()
     {
-        return ConnectionTypes.HTTP;
+        if (_encrypted)
+        {
+            return ConnectionTypes.ENCRYPTED;
+        }
+        else
+        {
+            return ConnectionTypes.HTTP;
+        }
     }
 
     int connect(ConnectOptions opts, Error error)
@@ -263,6 +252,19 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             if (opts != null)
             {
                 _cachedConnectOptions = opts;
+                try
+                {
+                    _scktChannel.initialize(_cachedConnectOptions);
+                }
+                catch (IOException ex)
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.FAILURE);
+                    error.sysError(0);
+                    error.text("Failed to initialize socket channel: " + ex.getMessage());
+                    return TransportReturnCodes.FAILURE;
+                }
+                
                 dataFromOptions(opts);
             }
             else
@@ -279,6 +281,18 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         else if (opts != null && opts != _cachedConnectOptions)
         {
             _cachedConnectOptions = opts;
+            try
+            {
+                _scktChannel.initialize(_cachedConnectOptions);
+            }
+            catch (IOException ex)
+            {
+                error.channel(null);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text("Failed to initialize socket channel: " + ex.getMessage());
+                return TransportReturnCodes.FAILURE;
+            }
             dataFromOptions(opts);
         }
 
@@ -304,7 +318,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
                 _scktChannel.socket().setReceiveBufferSize(_cachedConnectOptions.sysRecvBufSize());
@@ -365,22 +379,13 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             }
 
             // connect
-            _scktChannel.connect(_cachedInetSocketAddress);
+            _scktChannel.connect(_cachedInetSocketAddress, _httpProxy);
 
             if (_httpProxy)
                 _initChnlState = InitChnlState.PROXY_CONNECTING;
             else
             {
                 _initChnlState = InitChnlState.HTTP_CONNECTING;
-                try
-                {
-                    initializeEngine();
-                }
-                catch (IOException e)
-                {
-                    if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                        System.out.println("IOException initializeTLS: " + e.getMessage());
-                }
             }
 
             _state = ChannelState.INITIALIZING;
@@ -418,15 +423,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 else
                                 {
                                     _initChnlState = InitChnlState.HTTP_CONNECTING;
-                                    try
-                                    {
-                                        initializeEngine();
-                                    }
-                                    catch (IOException e)
-                                    {
-                                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                                            System.out.println("IOException initializeTLS: " + e.getMessage());
-                                    }
                                 }
                                 continue;
                             }
@@ -495,7 +491,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 }
                 else
                 {
-                    _crypto.write(_pingBuffer);
+                    _scktChannel.write(_pingBuffer);
                     retVal = 0;
                 }
             }
@@ -559,44 +555,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         _objectName = opts.tunnelingInfo().objectName();
     }
 
-    /* Store Credentials (needed for Proxy Server authentication) */
-    protected ICredentials readProxyCredentails(ConnectOptions connectOptions)
-    {
-        ICredentials credentails = CredentialsFactory.create();
-
-        if (connectOptions.credentialsInfo().HTTPproxyDomain() != null
-                && !connectOptions.credentialsInfo().HTTPproxyDomain().isEmpty())
-        {
-            credentails.set(CredentialName.DOMAIN, connectOptions.credentialsInfo().HTTPproxyDomain());
-        }
-
-        if (connectOptions.credentialsInfo().HTTPproxyUsername() != null
-                && !connectOptions.credentialsInfo().HTTPproxyUsername().isEmpty())
-        {
-            credentails.set(CredentialName.USERNAME, connectOptions.credentialsInfo().HTTPproxyUsername());
-        }
-
-        if (connectOptions.credentialsInfo().HTTPproxyPasswd() != null
-                && !connectOptions.credentialsInfo().HTTPproxyPasswd().isEmpty())
-        {
-            credentails.set(CredentialName.PASSWORD, connectOptions.credentialsInfo().HTTPproxyPasswd());
-        }
-
-        if (connectOptions.credentialsInfo().HTTPproxyLocalHostname() != null
-                && !connectOptions.credentialsInfo().HTTPproxyLocalHostname().isEmpty())
-        {
-            credentails.set(CredentialName.LOCAL_HOSTNAME, connectOptions.credentialsInfo().HTTPproxyLocalHostname());
-        }
-
-        if (connectOptions.credentialsInfo().HTTPproxyKRB5configFile() != null
-                && !connectOptions.credentialsInfo().HTTPproxyKRB5configFile().isEmpty())
-        {
-            credentails.set(CredentialName.KRB5_CONFIG_FILE, connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
-        }
-
-        return credentails;
-    }
-
     public int init(InProgInfo inProg, Error error)
     {
         assert (inProg != null) : "inProg cannot be null";
@@ -622,7 +580,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     if (_initChnlState == InitChnlState.RECONNECTING && !_cachedConnectOptions.blocking())
                     {
                         // The far end closed connection. Try another protocol.
-                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
+                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
                         if (connect(_cachedConnectOptions, error) == TransportReturnCodes.SUCCESS)
                         {
                             if (_httpProxy)
@@ -631,7 +589,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 _initChnlState = InitChnlState.HTTP_CONNECTING;
 
                             ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
+                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
                             return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
                         }
                         else
@@ -655,6 +613,34 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     break;
                 case InitChnlState.CLIENT_WAIT_PROXY_ACK:
                     retVal = initChnlWaitProxyAck(inProg, error); // may throw a ProxyAuthenticationException
+                    if (retVal == TransportReturnCodes.CHAN_INIT_IN_PROGRESS && _proxyAuthenticator.isAuthenticated())
+                    {
+                    	/* If this is encrypted, start the encryption dance. _scktChannel.finishConnect will return false until the TLS handshake has finished.  */
+                    	if(_encrypted)
+                    	{
+                    		_scktChannel.postProxyInit();
+                    		_initChnlState = InitChnlState.HTTP_CONNECTING;
+                    		// break out here, we're done
+                    		break;
+                    	}
+                    	
+                        _httpPOSTwriteBuffer = setupClientPOSThttpRequest(_initChnlWriteBuffer);
+                        if (_httpPOSTwriteBuffer == null)
+                            return TransportReturnCodes.FAILURE;
+
+                        try
+                        {
+                            _scktChannel.write(_httpPOSTwriteBuffer);
+                        }
+                        catch (Exception e)
+                        {
+                            return TransportReturnCodes.FAILURE;
+                        }
+
+                        _initChnlWriteBuffer.clear();
+
+                        _initChnlState = InitChnlState.CLIENT_WAIT_HTTP_ACK;
+                    }
                     break;
                 case InitChnlState.CLIENT_WAIT_HTTP_ACK:
                     retVal = initChnlWaitHttpAck(error); // will return 0 if didn't get all HTTP OK bytes
@@ -683,125 +669,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         return retVal;
     }
 
-    protected void initializeEngine() throws IOException
-    {
-        // no further initialization needed for RsslHttpSocketChannel
-    }
 
-    /* Write CONNECT HTTP to proxy with no credentials (first attempt, i.e. initiating authentication).
-     * Called when in the init state PROXY_CONNECTING.
-     */
-    int initChnlProxyConnecting() throws IOException
-    {
-        if (_readIoBuffer != null)
-            _readIoBuffer.buffer().clear(); // needed for recovery through a proxy
-
-        if (_proxyAuthenticator == null)
-            _proxyAuthenticator = ProxyAuthenticatorFactory.create(_proxyCredentails, _httpProxyHost); // needed for recovery through a proxy
-        httpOKretry = 0; // needed for recovery through a proxy
-
-        String connectRequest = buildHttpConnectRequest();
-        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-            System.out.println(connectRequest);
-
-        _scktChannel.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
-
-        _initChnlState = InitChnlState.CLIENT_WAIT_PROXY_ACK;
-
-        return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
-    }
-
-    /* Build the HTTP CONNECT message with possible credentials. */
-    protected String buildHttpConnectRequest()
-    {
-        StringBuilder connectRequest = new StringBuilder();
-        connectRequest.append(buildHttpConnectRequestPrefix());
-
-        // add any addtional connect parameters that may be required for authentication
-        if (_additionalHttpConnectParams != null && _additionalHttpConnectParams.length() > 0)
-        {
-            connectRequest.append(_additionalHttpConnectParams);
-            _additionalHttpConnectParams = null;
-        }
-
-        connectRequest.append(EOL);
-
-        return connectRequest.toString();
-    }
-
-    /* Returns a string containing the "common" HTTP Connect request.
-     * A suffix (a trailing \r\n) must be appended to the returned value
-     * (to make it a valid HTTP request).
-     */
-    private final String buildHttpConnectRequestPrefix()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("CONNECT ");
-        sb.append(_host);
-        sb.append(":");
-        sb.append(_port);
-        sb.append(" HTTP/1.1\r\n");
-        sb.append(USER_AGENT);
-        sb.append(PROXY_CONNECTION_KEEP_ALIVE);
-        sb.append("Content-Length: 0\r\n");
-        sb.append("Host: ");
-        sb.append(_host);
-        sb.append(":");
-        sb.append(_port);
-        sb.append("\r\n");
-        sb.append(PRAGMA_NO_CACHE);
-
-        // NOTE: this will *not* be a valid HTTP request until a final "\r\n" is appended to it
-
-        return sb.toString();
-    }
-
-    /* Handle proxy reply to HTTP CONNECT and do any necessary proxy authentication. */
-    protected int initChnlWaitProxyAck(InProgInfo inProg, Error error) throws IOException, ProxyAuthenticationException
-    {
-        int cc;
-
-        cc = initProxyChnlReadFromChannel(_initChnlReadBuffer, error);
-        // System.out.println(Transport.toHexString(_initChnlReadBuffer, 0, _initChnlReadBuffer.position()));
-
-        if (cc == TransportReturnCodes.FAILURE)
-        {
-            error.channel(this);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            error.text("Could not read HTTP OK (reply to HTTP CONNECT)");
-            return TransportReturnCodes.FAILURE;
-        }
-
-        _totalBytesRead += cc;
-
-        // do authentication handling
-        readHttpConnectResponse(_initChnlReadBuffer, inProg, error);
-        _initChnlReadBuffer.clear();
-
-        if (_proxyAuthenticator.isAuthenticated())
-        {
-            _httpPOSTwriteBuffer = setupClientPOSThttpRequest(_initChnlWriteBuffer);
-            if (_httpPOSTwriteBuffer == null)
-                return TransportReturnCodes.FAILURE;
-
-            try
-            {
-                _scktChannel.write(_httpPOSTwriteBuffer);
-            }
-            catch (Exception e)
-            {
-                return TransportReturnCodes.FAILURE;
-            }
-
-            _initChnlWriteBuffer.clear();
-
-            _initChnlState = InitChnlState.CLIENT_WAIT_HTTP_ACK;
-        }
-
-        return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
-    }
 
     /* Build client POST HTTP POSTrequest */
     protected ByteBuffer setupClientPOSThttpRequest(ByteBuffer buf)
@@ -846,140 +714,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         return buf;
     }
 
-    /* Read response message to HTTP CONNECT.
-     * Do necessary proxy authentication.
-     */
-    protected void readHttpConnectResponse(ByteBuffer reader, InProgInfo inProg, Error error) throws ProxyAuthenticationException, IOException
-    {
-        int responseSize = reader.position();
-        int bufferIndex = 0;
-        reader.position(bufferIndex);
 
-        try
-        {
-            byte[] tempBuf = new byte[responseSize];
-            reader.get(tempBuf, 0, responseSize);
-            String response = new String(tempBuf);
-
-            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-            {
-                //for debugging
-                System.out.println("-- begin response -- ");
-                System.out.println(response);
-                System.out.println("-- end response --");
-            }
-            _proxyConnectResponse.append(response); // used to combine "incomplete" responses from the proxy
-
-            if (!_proxyAuthenticator.isAuthenticated() && _proxyConnectResponse.toString().contains(END_OF_RESPONSE))
-            {
-                // process the response to determine whether or not we are authenticated
-                IProxyAuthenticatorResponse authenticatorResponse = null;
-                try
-                {
-                    authenticatorResponse = _proxyAuthenticator.processResponse(_proxyConnectResponse.toString());
-                }
-                catch (ResponseCodeException e)
-                {
-                    // the response from the proxy may, for example, contain an HTML error message intended for uses that we should ignore
-                    ++_ignoredConnectResponses;
-
-                    if (_ignoredConnectResponses < MAX_IGNORED_RESPONSES)
-                    {
-                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                            System.out.println(String.format("Ignoring a response from the proxy that did not contain a response code (%d/%d)",
-                                                             _ignoredConnectResponses, MAX_IGNORED_RESPONSES));
-                        return;
-                    }
-                    else
-                    {
-                        throw e; // too many ignored responses
-                    }
-                }
-
-                if (_proxyAuthenticator.isAuthenticated())
-                {
-                    if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                        System.out.println("Connection established to proxy " + _httpProxyHost + ":" + _httpProxyPort);
-
-                    // possible extra initialization (none for HTTP, initaializeTLS for Encrypted)
-                    initializeEngine();
-                }
-                else
-                {
-                    // this will be added to the next http CONNECT message:
-                    _additionalHttpConnectParams = authenticatorResponse.getProxyAuthorization();
-
-                    if (authenticatorResponse.isProxyConnectionClose())
-                    {
-                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                            System.out.println("*** The proxy requested a close (during authentication). Reconnecting. ***\n");
-                        forceReconnect(inProg, error);
-                    }
-                    else
-                    {
-                        // write http CONNECT message
-                        String connectRequest = buildHttpConnectRequest();
-                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                            System.out.println(connectRequest);
-                        _scktChannel.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
-                    }
-                }
-
-                _proxyConnectResponse.setLength(0); // we are done with the current response from the proxy
-            }
-        }
-        catch (ProxyAuthenticationException e)
-        {
-            // for extra debugging
-            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                System.out.println("ProxyAuthenticationException in readCONNECThttpResponse: " + e.getMessage());
-            throw e;
-        }
-        catch (IOException e)
-        {
-            // for extra debugging
-            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                System.out.println("IOException in readCONNECThttpResponse: " + e.getMessage());
-            throw e;
-        }
-    }
-
-    /* Read a response from the Proxy Server into BytBuffer dst. */
-    protected int initProxyChnlReadFromChannel(ByteBuffer dst, Error error) throws IOException
-    {
-        dst.clear(); // needed for recovery through a proxy
-        int bytesRead = _scktChannel.read(dst);
-        // System.out.println("RsslHttpSocketChannel::initProxyChnlReadFromChannel(ByteBuffer dst, Error error)    bytesRead=="+bytesRead);
-
-        if (bytesRead > 0)
-        {
-            // note that we could cache the msgLen, but normally we should be reading an entire ConnectAck/ConnectNak here.
-
-            if (dst.position() > 2)
-            {
-                int messageLength = (dst.getShort(0) & 0xFF);
-                if (dst.position() >= messageLength)
-                {
-                    // we have at least one complete message
-                    return dst.position();
-                }
-            }
-        }
-        else if (bytesRead == -1)
-        {
-            if (_readIoBuffer != null)
-                _readIoBuffer.buffer().clear();
-            _proxyAuthenticator = null;
-            close(error);
-
-            // The connection was closed by far end (proxy server). Need to try again?
-            _initChnlState = InitChnlState.RECONNECTING;
-            return -1;
-        }
-
-        // we don't have a complete message, or no bytes were read.
-        return 0;
-    }
 
     /* Read "HTTP OK" response to "POST HTTP".
      * Called when in the init state CLIENT_WAIT_HTTP_ACK.
@@ -1522,28 +1257,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         buf[offset++] = (byte)(v & 0xFF);
     }
 
-    /* Reconnect to proxy because of authenticatorResponse.isProxyConnectionClose() */
-    private void forceReconnect(InProgInfo inProg, Error error)
-    {
-        // close current _scktChannel
-        try
-        {
-            _scktChannel.close();
-        }
-        catch (IOException e)
-        {
-            System.err.println("IOException forceReconnect(): " + e.getMessage());
-        }
-
-        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
-
-        _ipcProtocol = null;
-        this.connect(_cachedConnectOptions, error);
-
-        ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-        ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
-    }
-
     /* Reconnect and bridge connections.
      * After reconnectClient(Error) is completed, on the next read/performReadIO call
      * we will keep reading from _oldScktChannel until we receive 0x01 0x0D 0x0A 0x0D 0x0A
@@ -1755,7 +1468,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 {
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println("Connection established to proxy " + _httpProxyHost + ":" + _httpProxyPort);
-                    initializeEngine();
                     _httpReconnectProxyActive = true;
                 }
                 else
@@ -1794,7 +1506,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     String connectRequest = buildHttpConnectRequest();
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println(connectRequest);
-                    _scktChannel.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+                    /* Direct write to channel to avoid calling encryption */
+                    _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
                 }
 
                 _proxyConnectResponse.setLength(0); // we are done with the current response from the proxy
@@ -1839,7 +1552,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
 
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
@@ -1901,7 +1614,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             }
 
             // connect
-            _scktChannel.connect(_cachedInetSocketAddress);
+            _scktChannel.connect(_cachedInetSocketAddress, _httpProxy);
 
             error.channel(this);
             error.errorId(TransportReturnCodes.SUCCESS);

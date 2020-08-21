@@ -9,7 +9,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -1598,7 +1597,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         {
         	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
         	cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-            cOpt.tunnelingInfo().tunnelingType("encrypted"); 
+        	cOpt.encryptionOptions().connectionType(consumerCmdLineParser.encryptedConnectionType());
             setEncryptedConfiguration(cOpt);        	           	        	
         }        
         else if (chnlInfo.shouldEnableHttp)
@@ -1607,8 +1606,43 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             cOpt.connectionType(ConnectionTypes.HTTP);
             cOpt.tunnelingInfo().tunnelingType("http"); 
             setHTTPConfiguration(cOpt);
-        } 
+        }
         
+        /* Setup proxy if configured */
+        if (consumerCmdLineParser.enableProxy())
+        {
+         	String proxyHostName = consumerCmdLineParser.proxyHostname();
+            if ( proxyHostName == null)
+            {
+            	System.err.println("Error: Proxy hostname not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            }           
+            String proxyPort = consumerCmdLineParser.proxyPort();
+            if ( proxyPort == null)
+            {
+            	System.err.println("Error: Proxy port number not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            }                             	
+
+  
+            chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxy(true);
+            chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxyHostName(proxyHostName);
+            try
+            {
+            	chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
+            }
+            catch(Exception e)
+            {
+               	System.err.println("Error: Proxy port number not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);            	
+            }
+            // credentials
+            if (chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxy())
+            {
+                setCredentials(chnlInfo.connectOptions.connectionList().get(0).connectOptions());           
+            }
+        }
+   
         // handle basic tunnel stream configuration
         if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
         {
@@ -1906,8 +1940,13 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         	System.exit(CodecReturnCodes.FAILURE);        		        		        		
         }          
     	    	
-    	options.tunnelingInfo().KeystoreFile(keyFile);
-        options.tunnelingInfo().KeystorePasswd(keyPasswd);   
+    	options.encryptionOptions().KeystoreFile(keyFile);
+        options.encryptionOptions().KeystorePasswd(keyPasswd);  
+        options.encryptionOptions().KeystoreType("JKS");
+        options.encryptionOptions().SecurityProtocol("TLS");
+        options.encryptionOptions().SecurityProvider("SunJSSE");
+        options.encryptionOptions().KeyManagerAlgorithm("SunX509");
+        options.encryptionOptions().TrustManagerAlgorithm("PKIX");
     }
 
     
@@ -1919,41 +1958,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         options.tunnelingInfo().SecurityProvider("SunJSSE");
         options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
         options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
-    	
-        if (consumerCmdLineParser.enableProxy())
-        {
-         	String proxyHostName = consumerCmdLineParser.proxyHostname();
-            if ( proxyHostName == null)
-            {
-            	System.err.println("Error: Proxy hostname not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }           
-            String proxyPort = consumerCmdLineParser.proxyPort();
-            if ( proxyPort == null)
-            {
-            	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }                             	
-
-  
-            options.tunnelingInfo().HTTPproxy(true);
-            options.tunnelingInfo().HTTPproxyHostName(proxyHostName);
-            try
-            {
-            	options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
-            }
-            catch(Exception e)
-            {
-               	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);            	
-            }
-        }
-   
-        // credentials
-        if (options.tunnelingInfo().HTTPproxy())
-        {
-            setCredentials(options);           
-        }
     }    
     
     /*

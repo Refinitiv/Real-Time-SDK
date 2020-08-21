@@ -32,7 +32,7 @@ class RsslHttpSocketChannelProvider
     boolean _wininetControl = false;
     boolean _javaSession = false;
     int _commonSessionId = -1;
-    java.nio.channels.SocketChannel _outboundStreamingChannel;
+    SocketHelper _outboundStreamingChannel;
 
     int _newControlSessionId;
     int _newStreamingSessionId;
@@ -59,7 +59,7 @@ class RsslHttpSocketChannelProvider
 
     static final int RIPC_WININET_CONTROL_RECONNECT = 0x43;
 
-    static Map<Integer, java.nio.channels.SocketChannel> _sessionIdSocketMap = new HashMap<Integer, java.nio.channels.SocketChannel>();
+    static Map<Integer, SocketHelper> _sessionIdSocketMap = new HashMap<Integer, SocketHelper>();
 
     static Map<Integer, RsslSocketChannel> _sessionMap = new HashMap<Integer, RsslSocketChannel>();
 
@@ -260,7 +260,7 @@ class RsslHttpSocketChannelProvider
                     return TransportReturnCodes.FAILURE;
                 }
 
-                java.nio.channels.SocketChannel newStreamingChannel = getPairingStreamingChannel();
+                SocketHelper newStreamingChannel = getPairingStreamingChannel();
 
                 try
                 {
@@ -415,7 +415,7 @@ class RsslHttpSocketChannelProvider
 
                     pipeNode._pipe = java.nio.channels.Pipe.open();
 
-                    ((InProgInfoImpl)inProg).oldSelectableChannel(rsslSocketChannel._scktChannel);
+                    ((InProgInfoImpl)inProg).oldSelectableChannel(rsslSocketChannel._scktChannel.getSocketChannel());
                     ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
                     pipeNode._pipe.source().configureBlocking(false);
                     pipeNode._pipe.sink().configureBlocking(false);
@@ -1408,7 +1408,7 @@ class RsslHttpSocketChannelProvider
 
         if (_wininetControl)
         {
-            java.nio.channels.SocketChannel streamSocket = getPairingStreamingChannel();
+            SocketHelper streamSocket = getPairingStreamingChannel();
 
             if (streamSocket != null)
             {
@@ -1488,7 +1488,7 @@ class RsslHttpSocketChannelProvider
                 }
                 else
                 {
-                    rsslSocketChannel._crypto.write(_pingWriteBuffer);
+                    rsslSocketChannel._scktChannel.write(_pingWriteBuffer);
                     retVal = 0;
                 }
             }
@@ -1600,7 +1600,7 @@ class RsslHttpSocketChannelProvider
         {
             _httpBuffer.put(0, (byte)0x0);
 
-            channel.oldScktChannel().write(_httpBuffer);
+            channel._oldScktChannel.write(_httpBuffer);
 
             if (debugPrint)
                 System.out.println(" Provider sent the LAST 5 BYTES on oldChannel.  " + channel.oldSelectableChannel().toString());
@@ -1626,9 +1626,9 @@ class RsslHttpSocketChannelProvider
                 
                 rsslSocketChannel._oldScktChannel = rsslSocketChannel._scktChannel;
                 _sessionIdSocketMap.remove(rsslSocketChannel._providerSessionId);
-                rsslSocketChannel.selectableChannel().close();
+                rsslSocketChannel._scktChannel.close();
 
-                java.nio.channels.SocketChannel newControlScktChannel =
+                SocketHelper newControlScktChannel =
                         _sessionIdSocketMap.get(rsslSocketChannel._providerHelper._newControlSessionId);
 
                 if (newControlScktChannel != null)
@@ -1667,7 +1667,7 @@ class RsslHttpSocketChannelProvider
         if (debugPrint)
             System.out.println("Close stream channel.. _commonSessionId is " + commonSessionId);
 
-        java.nio.channels.SocketChannel socket = _sessionIdSocketMap.get(commonSessionId);
+        SocketHelper socket = _sessionIdSocketMap.get(commonSessionId);
         try
         {
             Transport._globalLock.lock();
@@ -1700,8 +1700,8 @@ class RsslHttpSocketChannelProvider
             if (sess._newControlId != null && sess._newControlId.intValue() != -1)
                 newControlId = sess._newControlId;
 
-            java.nio.channels.SocketChannel newSocket = _sessionIdSocketMap.get(newSocketId);
-            java.nio.channels.SocketChannel newControlSocket = _sessionIdSocketMap.get(newControlId);
+            SocketHelper newSocket = _sessionIdSocketMap.get(newSocketId);
+            SocketHelper newControlSocket = _sessionIdSocketMap.get(newControlId);
 
             _sessionIdSocketMap.remove(newSocketId);
             _sessionIdSocketMap.remove(newControlId);
@@ -1782,8 +1782,8 @@ class RsslHttpSocketChannelProvider
             if (debugPrint)
                 System.out.println("Close Java new socket " + rsslSocketChannel._providerHelper._newControlSessionId);
 
-            java.nio.channels.SocketChannel newControlScktChannel = _sessionIdSocketMap.get(rsslSocketChannel._providerHelper._newControlSessionId);
-            java.nio.channels.SocketChannel currentScktChannel = _sessionIdSocketMap.get(rsslSocketChannel._providerSessionId);
+            SocketHelper newControlScktChannel = _sessionIdSocketMap.get(rsslSocketChannel._providerHelper._newControlSessionId);
+            SocketHelper currentScktChannel = _sessionIdSocketMap.get(rsslSocketChannel._providerSessionId);
 
             _sessionIdSocketMap.remove(rsslSocketChannel._providerHelper._newControlSessionId);
             _sessionIdSocketMap.remove(rsslSocketChannel._providerSessionId);
@@ -1852,11 +1852,11 @@ class RsslHttpSocketChannelProvider
             Transport._globalLock.lock();
             try
             {
-                rsslSocketChannel._oldScktChannel = rsslSocketChannel.scktChannel();
+                rsslSocketChannel._oldScktChannel = rsslSocketChannel._scktChannel;
                 _sessionIdSocketMap.remove(rsslSocketChannel._providerSessionId);
-                rsslSocketChannel.scktChannel().close();
+                rsslSocketChannel._scktChannel.close();
 
-                java.nio.channels.SocketChannel newControlScktChannel =
+                SocketHelper newControlScktChannel =
                         _sessionIdSocketMap.get(rsslSocketChannel._providerHelper._newControlSessionId);
 
                 rsslSocketChannel._scktChannel = newControlScktChannel;
@@ -1885,7 +1885,7 @@ class RsslHttpSocketChannelProvider
             Transport._globalLock.unlock();
         }
 
-        java.nio.channels.SocketChannel streamingSocket = null;
+        SocketHelper streamingSocket = null;
         if (_wininetStreamingMap.containsKey(_commonSessionId))
         {
             streamingSocket = _sessionIdSocketMap.get(_commonSessionId);
@@ -1917,7 +1917,7 @@ class RsslHttpSocketChannelProvider
                     _sessionIdSocketMap.remove(_commonSessionId);
                     streamingSocket.close();
 
-                    java.nio.channels.SocketChannel newStreamingScktChannel =
+                    SocketHelper newStreamingScktChannel =
                             _sessionIdSocketMap.get(rsslSocketChannel._providerHelper._newStreamingSessionId);
                     
                     _sessionIdSocketMap.remove(rsslSocketChannel._providerHelper._newStreamingSessionId);
@@ -2063,12 +2063,6 @@ class RsslHttpSocketChannelProvider
 
                     if (rsslSocketChannel._scktChannel != null)
                         rsslSocketChannel._scktChannel.close();
-
-                    if (rsslSocketChannel._encrypted)
-                    {
-                        if (rsslSocketChannel._crypto != null)
-                            rsslSocketChannel._crypto.cleanup();
-                    }
                 }
                 else
                 {
@@ -2160,7 +2154,7 @@ class RsslHttpSocketChannelProvider
 
         try
         {
-            rsslSocketChannel.selectableChannel().close();
+            rsslSocketChannel._scktChannel.close();
             closeStreamingSocket();
         }
         catch (Exception e)
@@ -2177,7 +2171,7 @@ class RsslHttpSocketChannelProvider
         _httpBuffer.put(4, (byte)0x0A);
     }
 
-    java.nio.channels.SocketChannel getPairingStreamingChannel()
+    SocketHelper getPairingStreamingChannel()
     {
         if (_wininetStreamingMap.containsKey(_commonSessionId))
         {
@@ -2313,7 +2307,7 @@ class RsslHttpSocketChannelProvider
         }
 
         ArrayList<Integer> listToGo = new ArrayList<Integer>();
-        for (Map.Entry<Integer, java.nio.channels.SocketChannel> entry : _sessionIdSocketMap.entrySet())
+        for (Map.Entry<Integer, SocketHelper> entry : _sessionIdSocketMap.entrySet())
         {
             Integer id = entry.getKey();
             if (currentList.contains(id))
