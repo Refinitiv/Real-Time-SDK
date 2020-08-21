@@ -1,4 +1,4 @@
-if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
+if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	set( SOURCE_FILES
   itemDecoder.c        postHandler.c        rsslWatchlistConsumer.c
   watchlistConsumerConfig.c
@@ -80,6 +80,6 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 							)
 	endif()
 else()
-	message(STATUS "Skipping Eta Example WatchlistConsumer Build: BUILD_ELEKTRON-SDK-BINARYPACK:${BUILD_ELEKTRON-SDK-BINARYPACK}")
+	message(STATUS "Skipping Eta Example WatchlistConsumer Build: BUILD_RTSDK-BINARYPACK:${BUILD_RTSDK-BINARYPACK}")
 endif()
 

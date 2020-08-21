@@ -1,4 +1,4 @@
-if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
+if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	set( SOURCE_FILES
   rsslNIProvider.c         rsslNILoginProvider.c        rsslNIDirectoryProvider.c
   rsslNIItemHandler.c      rsslVANIMarketByOrderItems.c rsslVANIMarketPriceItems.c 
@@ -78,7 +78,7 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 						)
 	endif()
 else()
-	message(STATUS "Skipping Eta Example VANIProvider Build: BUILD_ELEKTRON-SDK-BINARYPACK:${BUILD_ELEKTRON-SDK-BINARYPACK}")
+	message(STATUS "Skipping Eta Example VANIProvider Build: BUILD_RTSDK-BINARYPACK:${BUILD_RTSDK-BINARYPACK}")
 endif()
 
 

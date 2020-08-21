@@ -48,8 +48,8 @@ find_package_handle_standard_args ( Elektron-SDK-BinaryPack
                          )
 
 if (NOT DEFINED Elektron-SDK-BinaryPack_FOUND 
-    AND DEFINED ELEKTRON-SDK-BINARYPACK_FOUND) 
-    set (Elektron-SDK-BinaryPack_FOUND "${ELEKTRON-SDK-BINARYPACK_FOUND}") 
+    AND DEFINED RTSDK-BINARYPACK_FOUND) 
+    set (Elektron-SDK-BinaryPack_FOUND "${RTSDK-BINARYPACK_FOUND}") 
 else()
 	set(Elektron-SDK-BinaryPack_FOUND TRUE)
 endif ()

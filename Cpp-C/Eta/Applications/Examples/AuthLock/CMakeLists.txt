@@ -1,5 +1,5 @@
 
-if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
+if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	set( SOURCE_FILES rsslAuthLock.c )
 
 	add_executable( authlock ${SOURCE_FILES} )
@@ -13,6 +13,6 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 	endif()
 	target_link_libraries( authlock Elektron-SDK-BinaryPack::dacsLib )
 else()
-	message(STATUS "Skipping Eta Example Authlock Build: BUILD_ELEKTRON-SDK-BINARYPACK:${BUILD_ELEKTRON-SDK-BINARYPACK}")
+	message(STATUS "Skipping Eta Example Authlock Build: BUILD_RTSDK-BINARYPACK:${BUILD_RTSDK-BINARYPACK}")
 endif()
 

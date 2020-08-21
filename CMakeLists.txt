@@ -20,7 +20,7 @@ include(esdkOptions)
 include(esdkInfo)
 
 
-if(BUILD_ELEKTRON-SDK-BINARYPACK)
+if(BUILD_RTSDK-BINARYPACK)
 	include(addExternal_elektron-sdk-binarypack)
 endif()
 
