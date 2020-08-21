@@ -22,7 +22,7 @@ public class DirectoryProvider
     protected static final int            REFRESH_MSG_SIZE = 1024;
 
     // vendor name
-    protected static final String         vendor = "Thomson Reuters";
+    protected static final String         vendor = "Refinitiv";
 
     // field dictionary used and provided for the source. 
     protected static final String         fieldDictionaryName = "RWFFld";

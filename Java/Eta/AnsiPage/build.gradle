@@ -34,7 +34,7 @@ uploadArchives {
 
                 developers {
                     developer {
-                        organization 'Thomson Reuters'
+                        organization 'Refinitiv'
                     }
                 }
 

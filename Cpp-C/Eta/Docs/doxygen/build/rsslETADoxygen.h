@@ -5749,7 +5749,7 @@
 /**
  *	@defgroup RSSLWFDomain Reuters Domain Models
  *	@brief The Reuters Domain Model Package contains the enumerations and data structures used with Refinitiv provided domain message models. 
- *	This content is available through the Thomson Reuters Enterprise Platform, EleKtron, Reuters Data Feed Direct, and various other sources. 
+ *	This content is available through the Refinitiv Real-Time Distribution System, EleKtron, Reuters Data Feed Direct, and various other sources. 
  *	@{
  *	
  *  @section TheRSSLWFDomainHelpers Reuters Domain Model Helper and Utility functions

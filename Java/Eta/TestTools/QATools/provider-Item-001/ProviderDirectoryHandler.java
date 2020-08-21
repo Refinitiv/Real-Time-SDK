@@ -64,7 +64,7 @@ public class ProviderDirectoryHandler
     private int _serviceId = 1234;
 
     // vendor name
-    private static final String vendor = "Thomson Reuters";
+    private static final String vendor = "Refinitiv";
 
     // field dictionary name
     private static final String fieldDictionaryName = "RWFFld";

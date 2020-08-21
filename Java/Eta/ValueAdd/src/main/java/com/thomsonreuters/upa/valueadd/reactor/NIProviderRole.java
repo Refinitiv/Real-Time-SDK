@@ -34,7 +34,7 @@ public class NIProviderRole extends ReactorRole
     static final int LOGIN_STREAM_ID = 1;
     static final int DIRECTORY_STREAM_ID = -1;
     static final int OPEN_LIMIT = 5;
-    static final String VENDOR = "Thomson Reuters";
+    static final String VENDOR = "Refinitiv";
     static final String LINK_NAME = "NI_PUB";
     static final String FIELD_DICTIONARY_NAME = "RWFFld";
     static final String ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";

@@ -84,7 +84,7 @@
                     <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
                         <elementList flags="0x08 (HAS_STANDARD_DATA)">
                             <elementEntry name="Name" dataType="ASCII_STRING" data="DIRECT_FEED"/>
-                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Thomson Reuters"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Refinitiv"/>
                             <elementEntry name="IsSource" dataType="UINT" data="1"/>
                             <elementEntry name="Capabilities" dataType="ARRAY">
                                 <array itemLength="0" primitiveType="UINT">

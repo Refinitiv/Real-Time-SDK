@@ -22,7 +22,7 @@
 
 /**
 	@namespace thomsonreuters
-	@brief The thomsonreuters namespace contains all interfaces defined by Thomson Reuters.
+	@brief The thomsonreuters namespace contains all interfaces defined by Refinitiv.
 */
 namespace thomsonreuters {
 

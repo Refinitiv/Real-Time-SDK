@@ -23,7 +23,7 @@ import com.thomsonreuters.ema.perftools.common.XmlItemInfoList;
  * <p>
  * The purpose of this application is to measure performance of the EMA transport,
  * encoders and decoders in consuming Level I Market Price content directly
- * from an OMM provider or through the Thomson Reuters Enterprise Platform.
+ * from an OMM provider or through the Refinitiv Real-Time Distribution System.
  * </p>
  * <em>Summary</em>
  * <p>
