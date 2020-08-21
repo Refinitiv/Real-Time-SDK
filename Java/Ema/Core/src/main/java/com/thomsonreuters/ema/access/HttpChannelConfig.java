@@ -18,6 +18,7 @@ class HttpChannelConfig extends ChannelConfig
 	Boolean 			httpProxy;
 	String 				httpProxyHostName;
 	String 				httpProxyPort;
+	EncryptionConfig encryptionConfig = new EncryptionConfig();
 	
 	/* Credential configuration parameters */
 	String				httpProxyUserName;

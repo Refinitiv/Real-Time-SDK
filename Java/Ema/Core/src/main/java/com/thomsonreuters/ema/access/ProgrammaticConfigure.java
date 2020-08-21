@@ -62,6 +62,7 @@ class ProgrammaticConfigure
 		final static int INIT_TIMEOUT_FLAG =					0x4000;
 		final static int ENABLE_SESSION_MGNT_FLAG =				0x8000; // Enable the reactor to refresh the token and reissue login request.
 		final static int LOCATION_FLAG = 						0x10000; // Specify a location to get an endpoint for establishing a connection.
+		final static int ENCRYPTED_PROTOCOL_FLAG =				0x20000;
 	}
 	
 	/** @class ServerEntryFlag
@@ -509,6 +510,41 @@ class ProgrammaticConfigure
 									for (ElementEntry channelEntry : mapListEntry.elementList())
 									{
 										if ( channelEntry.loadType() == DataTypes.ASCII && channelEntry.name().equals("ChannelType"))
+											return convertToEnum(channelEntry.ascii().ascii());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return INVALID_RETVAL;
+	}
+	
+	int  retrieveEncryptedProtocolConfig(String channelName)
+	{
+		for (Map map : _configList)
+		{
+			for (MapEntry mapEntry : map)
+			{
+				if ( mapEntry.key().dataType() == DataTypes.ASCII &&
+					 mapEntry.key().ascii().ascii().equals("ChannelGroup") &&
+					 mapEntry.loadType() == DataTypes.ELEMENT_LIST )
+				{
+					for (ElementEntry elementEntry : mapEntry.elementList())
+					{
+						if ( elementEntry.loadType() == DataTypes.MAP && elementEntry.name().equals("ChannelList"))
+						{
+							for (MapEntry mapListEntry : elementEntry.map())
+							{
+								if ( mapListEntry.key().dataType() == DataTypes.ASCII  &&
+									mapListEntry.key().ascii().ascii().equals(channelName) &&
+									mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
+								{
+									for (ElementEntry channelEntry : mapListEntry.elementList())
+									{
+										if ( channelEntry.loadType() == DataTypes.ASCII && channelEntry.name().equals("EncryptedProtocolType"))
 											return convertToEnum(channelEntry.ascii().ascii());
 									}
 								}
@@ -1265,7 +1301,7 @@ class ProgrammaticConfigure
 	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg)
 	{
 		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null, location = null;
-		int flags = 0, channelType = 0, compressionType = 0, tunnelingFlags = 0;
+		int flags = 0, channelType = 0, compressionType = 0, tunnelingFlags = 0, encryptedProtocol = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
 		long connectionPingTimeout= 0;
@@ -1319,8 +1355,25 @@ class ProgrammaticConfigure
 					{
 					case ConnectionTypes.SOCKET:
 					case ConnectionTypes.HTTP:
-					case ConnectionTypes.ENCRYPTED:
+					case ConnectionTypes.ENCRYPTED: 
 						flags |= ChannelEntryFlag.CHANNELTYPE_FLAG;
+						break;
+					default:
+						_emaConfigErrList.append( "Unsupported ChannelType [")
+						.append( channelEntry.ascii().ascii())
+						.append( "] in Programmatic Configuration. Use default ChannelType [ChannelType::RSSL_SOCKET]").create(Severity.ERROR);
+						break;
+					}
+				}
+				else if ( channelEntry.name().equals("EncryptedProtocolType"))
+				{
+					encryptedProtocol = convertToEnum(channelEntry.ascii().ascii());
+					
+					switch ( encryptedProtocol )
+					{
+					case ConnectionTypes.SOCKET:
+					case ConnectionTypes.HTTP:
+						flags |= ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG;
 						break;
 					default:
 						_emaConfigErrList.append( "Unsupported ChannelType [")
@@ -1431,8 +1484,8 @@ class ProgrammaticConfigure
 			}
 	
 			ChannelConfig currentChannelConfig = null;
-	
-			if ( channelType == ConnectionTypes.SOCKET )
+			
+			if (channelType == ConnectionTypes.SOCKET)
 			{
 				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
 				socketChannelConfig.serviceName = activeConfig.defaultServiceName;
@@ -1440,7 +1493,7 @@ class ProgrammaticConfigure
 				activeConfig.channelConfigSet.add( currentChannelConfig );
 
 				SocketChannelConfig fileCfgSocket = null;
-				if ( fileCfg != null && fileCfg.rsslConnectionType == ConnectionTypes.SOCKET )
+				if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET))
 					fileCfgSocket = (SocketChannelConfig)( fileCfg );
 
 				if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
@@ -1462,11 +1515,36 @@ class ProgrammaticConfigure
 					socketChannelConfig.serviceName = port;
 				else if ( fileCfgSocket != null )
 					socketChannelConfig.serviceName = fileCfgSocket.serviceName;
+				
+				if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0  )
+					socketChannelConfig.httpProxyPort = tunnelingProxyPort;
+				else if (fileCfgSocket != null)
+					socketChannelConfig.httpProxyPort = fileCfgSocket.httpProxyPort;
+
+				if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0  )
+					socketChannelConfig.httpProxyHostName = tunnelingProxyHost;
+				else if (fileCfgSocket != null)
+					socketChannelConfig.httpProxyHostName = fileCfgSocket.httpProxyHostName;
+				
+				if ( (socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length()  > 0) ||
+					     (socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
+					socketChannelConfig.httpProxy = true;
+				
+				//need to copy other tunneling setting from function calls.
+				if (fileCfgSocket != null)
+				{
+					socketChannelConfig.httpProxyUserName = fileCfgSocket.httpProxyUserName;
+					socketChannelConfig.httpproxyPasswd = fileCfgSocket.httpproxyPasswd;
+					socketChannelConfig.httpProxyDomain = fileCfgSocket.httpProxyDomain;
+					socketChannelConfig.httpProxyLocalHostName = fileCfgSocket.httpProxyLocalHostName;
+					socketChannelConfig.httpProxyKRB5ConfigFile = fileCfgSocket.httpProxyKRB5ConfigFile;
+					
+				}
 
 			}
-			else if ( channelType == ConnectionTypes.ENCRYPTED || channelType == ConnectionTypes.HTTP )
+			else if (channelType == ConnectionTypes.HTTP )
 			{
-				HttpChannelConfig httpChannelConfig = (channelType == ConnectionTypes.ENCRYPTED) ? new EncryptedChannelConfig() : new HttpChannelConfig();
+				HttpChannelConfig httpChannelConfig = new HttpChannelConfig();
 				httpChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = httpChannelConfig;
 				activeConfig.channelConfigSet.add( currentChannelConfig );
@@ -1490,23 +1568,6 @@ class ProgrammaticConfigure
 				else if ( fileCfgEncrypt != null )
 					httpChannelConfig.serviceName = fileCfgEncrypt.serviceName;
 				
-				if (channelType == ConnectionTypes.ENCRYPTED)
-				{
-					if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
-						((EncryptedChannelConfig)httpChannelConfig).enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
-					else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
-					{
-						((EncryptedChannelConfig)httpChannelConfig).enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
-					}
-					
-					if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
-						((EncryptedChannelConfig)httpChannelConfig).location = location;
-					else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
-					{
-						((EncryptedChannelConfig)httpChannelConfig).location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
-					}
-				}
-
 				if ( (tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0 )
 					httpChannelConfig.objectName = objectName;
 				else if ( fileCfgEncrypt != null )
@@ -1534,17 +1595,167 @@ class ProgrammaticConfigure
 					httpChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
 					httpChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
 					httpChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
+				}
+			}
+			else if ( channelType == ConnectionTypes.ENCRYPTED)
+			{
+				/* Default the encrypted protocol if it was not set here */
+				if ((flags & ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG) == 0)
+				{
+					encryptedProtocol = ConnectionTypes.HTTP;
+				}
+				
+				switch(encryptedProtocol)
+				{
+				case ConnectionTypes.HTTP:
+					EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
+					encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.HTTP;
+					currentChannelConfig = encryptedChannelConfig;
+					activeConfig.channelConfigSet.add( currentChannelConfig );
+
+					HttpChannelConfig fileCfgEncrypt = null;
+					if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP) )
+						fileCfgEncrypt = (HttpChannelConfig)( fileCfg );
+
+					if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
+						encryptedChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+					else if ( fileCfgEncrypt != null )
+						encryptedChannelConfig.tcpNodelay = fileCfgEncrypt.tcpNodelay;
+
+					if ( (flags & ChannelEntryFlag.HOST_FLAG) != 0 )
+						encryptedChannelConfig.hostName = host;
+					else if ( fileCfgEncrypt != null )
+						encryptedChannelConfig.hostName = fileCfgEncrypt.hostName;
+
+					if ( (flags & ChannelEntryFlag.PORT_FLAG) != 0 )
+						encryptedChannelConfig.serviceName = port;
+					else if ( fileCfgEncrypt != null )
+						encryptedChannelConfig.serviceName = fileCfgEncrypt.serviceName;
 					
-					if (channelType == ConnectionTypes.ENCRYPTED && fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					if (channelType == ConnectionTypes.ENCRYPTED)
 					{
-						((EncryptedChannelConfig)httpChannelConfig).KeyStoreType = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStoreType;
-						((EncryptedChannelConfig)httpChannelConfig).KeyStoreFile = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStoreFile;
-						((EncryptedChannelConfig)httpChannelConfig).KeyStorePasswd = ((EncryptedChannelConfig)fileCfgEncrypt).KeyStorePasswd;
-						((EncryptedChannelConfig)httpChannelConfig).SecurityProvider = ((EncryptedChannelConfig)fileCfgEncrypt).SecurityProvider;
-						((EncryptedChannelConfig)httpChannelConfig).SecurityProtocol = ((EncryptedChannelConfig)fileCfgEncrypt).SecurityProtocol;
-						((EncryptedChannelConfig)httpChannelConfig).KeyManagerAlgorithm = ((EncryptedChannelConfig)fileCfgEncrypt).KeyManagerAlgorithm;
-						((EncryptedChannelConfig)httpChannelConfig).TrustManagerAlgorithm = ((EncryptedChannelConfig)fileCfgEncrypt).TrustManagerAlgorithm;
+						if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
+							encryptedChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
+						}
+						
+						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
+							encryptedChannelConfig.location = location;
+						else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedChannelConfig.location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
+						}
 					}
+
+					if ( (tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0 )
+						encryptedChannelConfig.objectName = objectName;
+					else if ( fileCfgEncrypt != null )
+						encryptedChannelConfig.objectName = fileCfgEncrypt.objectName;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0  )
+						encryptedChannelConfig.httpProxyPort = tunnelingProxyPort;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.httpProxyPort = fileCfgEncrypt.httpProxyPort;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0  )
+						encryptedChannelConfig.httpProxyHostName = tunnelingProxyHost;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.httpProxyHostName = fileCfgEncrypt.httpProxyHostName;
+					
+					if ( (encryptedChannelConfig.httpProxyPort != null && encryptedChannelConfig.httpProxyPort.length()  > 0) ||
+						     (encryptedChannelConfig.httpProxyHostName != null && encryptedChannelConfig.httpProxyHostName.length() > 0))
+						encryptedChannelConfig.httpProxy = true;
+					
+					//need to copy other tunneling setting from function calls.
+					if (fileCfgEncrypt != null)
+					{
+						encryptedChannelConfig.httpProxyUserName = fileCfgEncrypt.httpProxyUserName;
+						encryptedChannelConfig.httpproxyPasswd = fileCfgEncrypt.httpproxyPasswd;
+						encryptedChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
+						encryptedChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
+						encryptedChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
+						
+						if (fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+						{
+							encryptedChannelConfig.encryptionConfig.copy(fileCfgEncrypt.encryptionConfig);
+						}
+					}
+					break;
+				case ConnectionTypes.SOCKET:
+					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
+					encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					encryptedSocketChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
+					currentChannelConfig = encryptedSocketChannelConfig;
+					activeConfig.channelConfigSet.add( currentChannelConfig );
+
+					EncryptedChannelConfig fileCfgEncryptSocket = null;
+					if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						fileCfgEncryptSocket = (EncryptedChannelConfig)( fileCfg );
+
+					if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
+						encryptedSocketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+					else if ( fileCfgEncryptSocket != null )
+						encryptedSocketChannelConfig.tcpNodelay = fileCfgEncryptSocket.tcpNodelay;
+
+					if ( (flags & ChannelEntryFlag.HOST_FLAG) != 0 )
+						encryptedSocketChannelConfig.hostName = host;
+					else if ( fileCfgEncryptSocket != null )
+						encryptedSocketChannelConfig.hostName = fileCfgEncryptSocket.hostName;
+
+					if ( (flags & ChannelEntryFlag.PORT_FLAG) != 0 )
+						encryptedSocketChannelConfig.serviceName = port;
+					else if ( fileCfgEncryptSocket != null )
+						encryptedSocketChannelConfig.serviceName = fileCfgEncryptSocket.serviceName;
+					
+					if (channelType == ConnectionTypes.ENCRYPTED)
+					{
+						if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
+							encryptedSocketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedSocketChannelConfig.enableSessionMgnt = fileCfgEncryptSocket.enableSessionMgnt;
+						}
+						
+						if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
+							encryptedSocketChannelConfig.location = location;
+						else if ( ( fileCfgEncryptSocket != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+						{
+							encryptedSocketChannelConfig.location = fileCfgEncryptSocket.location;
+						}
+					}
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0  )
+						encryptedSocketChannelConfig.httpProxyPort = tunnelingProxyPort;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.httpProxyPort = fileCfgEncryptSocket.httpProxyPort;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0  )
+						encryptedSocketChannelConfig.httpProxyHostName = tunnelingProxyHost;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.httpProxyHostName = fileCfgEncryptSocket.httpProxyHostName;
+					
+					if ( (encryptedSocketChannelConfig.httpProxyPort != null && encryptedSocketChannelConfig.httpProxyPort.length()  > 0) ||
+						     (encryptedSocketChannelConfig.httpProxyHostName != null && encryptedSocketChannelConfig.httpProxyHostName.length() > 0))
+						encryptedSocketChannelConfig.httpProxy = true;
+					
+					//need to copy other tunneling setting from function calls.
+					if (fileCfgEncryptSocket != null)
+					{
+						encryptedSocketChannelConfig.httpProxyUserName = fileCfgEncryptSocket.httpProxyUserName;
+						encryptedSocketChannelConfig.httpproxyPasswd = fileCfgEncryptSocket.httpproxyPasswd;
+						encryptedSocketChannelConfig.httpProxyDomain = fileCfgEncryptSocket.httpProxyDomain;
+						encryptedSocketChannelConfig.httpProxyLocalHostName = fileCfgEncryptSocket.httpProxyLocalHostName;
+						encryptedSocketChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncryptSocket.httpProxyKRB5ConfigFile;
+						
+						if (fileCfgEncryptSocket.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+						{
+							encryptedSocketChannelConfig.encryptionConfig.copy((fileCfgEncryptSocket).encryptionConfig);
+						}
+					}
+					break;
 				}
 			}
 
@@ -1606,7 +1817,7 @@ class ProgrammaticConfigure
 				currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
 		}
 	}
-	
+
 	void retrieveServerInfo(MapEntry mapEntry, String serverName,
 		ActiveServerConfig activeServerConfig, int setByFnCalled, ServerConfig fileCfg)
 	{
@@ -2437,6 +2648,24 @@ class ProgrammaticConfigure
 				channelType = ConnectionTypes.ENCRYPTED;
 			else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 				channelType = ConnectionTypes.RELIABLE_MCAST;
+			else
+			{
+				_emaConfigErrList.append( "no conversion in convertToEnum for enumType [" )
+				.append( enumValue )
+				.append( "]")
+				.create(Severity.ERROR);
+			}
+			
+			return channelType;
+		}
+		else if ( enumType.equals("EncryptedProtocolType" ) )
+		{
+			int channelType = INVALID_RETVAL;
+
+			if(enumValue.equals("RSSL_SOCKET"))
+				channelType = ConnectionTypes.SOCKET;
+			else if(enumValue.equals("RSSL_HTTP"))
+				channelType = ConnectionTypes.HTTP;
 			else
 			{
 				_emaConfigErrList.append( "no conversion in convertToEnum for enumType [" )

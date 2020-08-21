@@ -82,6 +82,7 @@ public class JUnitTestConnect
 	// Channel Parameters:
 	public static final int ChannelName  = ConfigManager.ChannelName;
 	public static final int ChannelType  = ConfigManager.ChannelType;
+	public static final int EncryptedProtocolType  = ConfigManager.EncryptedProtocolType;
 	public static final int ChannelInitTimeout = ConfigManager.ChannelInitTimeout;
 	
 	// Channel: Multicast
@@ -946,6 +947,8 @@ public class JUnitTestConnect
 
 			if (configParam == ChannelType)
 				return chanConfig.rsslConnectionType;
+			else if (configParam == EncryptedProtocolType)
+				return chanConfig.encryptedProtocolType;
 			else if (configParam == CompressionType)
 				return chanConfig.compressionType;
 			else if (configParam == GuaranteedOutputBuffers)

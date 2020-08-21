@@ -44,7 +44,7 @@ void directoryServiceInit()
 	service.info.serviceName.length = (RsslUInt32)strlen(service.info.serviceName.data);
 
 	service.info.flags |= RDM_SVC_IFF_HAS_VENDOR;
-	service.info.vendor.data = (char*)"Thomson Reuters";
+	service.info.vendor.data = (char*)"Refinitiv";
 	service.info.vendor.length = (RsslUInt32)strlen(service.info.vendor.data);
 
 	service.info.flags |= RDM_SVC_IFF_HAS_IS_SOURCE;

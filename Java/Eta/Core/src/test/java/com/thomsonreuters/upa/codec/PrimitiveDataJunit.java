@@ -3476,6 +3476,7 @@ public class PrimitiveDataJunit
     {
     	ByteBuffer testDataBuffer, testStrBuffer;
     	Buffer testDataBuf  = CodecFactory.createBuffer(), testStrBuf  = CodecFactory.createBuffer();
+    	Buffer testDataOutBuf = CodecFactory.createBuffer();
     	char[] testData = new char[128];
     	char[] testString = new char[128];
     	char[] testStringSmall = new char[1];
@@ -3498,9 +3499,9 @@ public class PrimitiveDataJunit
     	State testState  = CodecFactory.createState();
     	Enum testEnum  = CodecFactory.createEnum(), testEnumOut  = CodecFactory.createEnum();
     	ByteBuffer buffer1;
-    	buffer1 = putString("Thomson Reuters");
+    	buffer1 = putString("Refinitiv");
     	Buffer testBuffer = CodecFactory.createBuffer();
-    	testBuffer.data(buffer1, 0, "Thomson Reuters".length());
+    	testBuffer.data(buffer1, 0, "Refinitiv".length());
     	
     	/* Int conversion test */
     	testInt.value(987654321);
@@ -3511,7 +3512,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testInt.encode(encIter));
     	decIter.clear();
-    	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+        testInt.clear();
+    	assertEquals(CodecReturnCodes.SUCCESS, decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testInt.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3533,7 +3536,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testUInt.encode(encIter));
     	decIter.clear();
+    	testUInt.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testUInt.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3555,7 +3560,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testFloat.encode(encIter));
     	decIter.clear();
+        testFloat.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testFloat.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3577,7 +3584,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testDouble.encode(encIter));
     	decIter.clear();
+        testDouble.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDouble.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3599,7 +3608,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testReal.encode(encIter));
     	decIter.clear();
-    	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+        testReal.clear();
+    	assertEquals(CodecReturnCodes.SUCCESS, decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testReal.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3621,7 +3632,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testDate.encode(encIter));
     	decIter.clear();
-    	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+        testDate.clear();
+    	assertEquals(CodecReturnCodes.SUCCESS, decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDate.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3643,7 +3656,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testTime.encode(encIter));
     	decIter.clear();
+        testTime.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testTime.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3685,7 +3700,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testDateTime.encode(encIter));
     	decIter.clear();
+        testDateTime.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDateTime.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3708,7 +3725,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testDateTime.encode(encIter));
     	decIter.clear();
+        testDateTime.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDateTime.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3735,7 +3754,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testQos.encode(encIter));
     	decIter.clear();
+        testQos.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testQos.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3769,7 +3790,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testState.encode(encIter));
     	decIter.clear();
+        testState.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testState.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3779,7 +3802,7 @@ public class PrimitiveDataJunit
     	testStrBuffer = putString(testString.toString());
     	testStrBuf.data(testStrBuffer);
     	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testState, DataTypes.STATE, testStrBuf));
-   
+
     	/* Enum conversion test */
     	testEnum.value(9);
     	testDataBuf.clear();
@@ -3789,7 +3812,9 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testEnum.encode(encIter));
     	decIter.clear();
-    	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+        testEnum.clear();
+    	assertEquals(CodecReturnCodes.SUCCESS, decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testEnum.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
@@ -3804,23 +3829,25 @@ public class PrimitiveDataJunit
     	
     	/* Buffer conversion test */
     	testDataBuf.clear();
-    	testDataBuffer = putString(testData.toString());
+    	testDataBuffer = putString(testData.toString()); //if i set position to string length
     	testDataBuf.data(testDataBuffer);
     	encIter.clear();
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testBuffer.encode(encIter));
     	decIter.clear();
+    	testDataOutBuf.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDataOutBuf.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.BUFFER, testStrBuf));
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.BUFFER, testStrBuf));
     	/* should pass */
     	testStrBuf.clear();
     	testStrBuffer = putString(testString.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.BUFFER, testStrBuf));
-    	assertEquals(testBuffer.data(), testStrBuf.data());
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.BUFFER, testStrBuf));
+    	assertEquals(testBuffer, testStrBuf);
     	
     	/* ASCII_STRING conversion test */
     	testDataBuf.clear();
@@ -3830,17 +3857,19 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testBuffer.encode(encIter));
     	decIter.clear();
+    	testDataOutBuf.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDataOutBuf.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.ASCII_STRING, testStrBuf));
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.ASCII_STRING, testStrBuf));
     	/* should pass */
     	testStrBuf.clear();
     	testStrBuffer = putString(testString.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.ASCII_STRING, testStrBuf));
-    	assertEquals(testBuffer.data(), testStrBuf.data());
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.ASCII_STRING, testStrBuf));
+        assertEquals(testBuffer, testStrBuf);
     	
     	/* UTF8_STRING conversion test */
     	testDataBuf.clear();
@@ -3850,17 +3879,19 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testBuffer.encode(encIter));
     	decIter.clear();
+    	testDataOutBuf.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDataOutBuf.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.UTF8_STRING, testStrBuf));
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.UTF8_STRING, testStrBuf));
     	/* should pass */
     	testStrBuf.clear();
     	testStrBuffer = putString(testString.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.UTF8_STRING, testStrBuf));
-    	assertEquals(testBuffer.data(), testStrBuf.data());
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.UTF8_STRING, testStrBuf));
+    	assertEquals(testBuffer, testStrBuf);
     	
     	/* RMTES_STRING conversion test */
     	testDataBuf.clear();
@@ -3870,18 +3901,19 @@ public class PrimitiveDataJunit
     	assertEquals(CodecReturnCodes.SUCCESS, encIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
     	assertEquals(CodecReturnCodes.SUCCESS, testBuffer.encode(encIter));
     	decIter.clear();
+    	testDataOutBuf.clear();
     	assertEquals(CodecReturnCodes.SUCCESS,  decIter.setBufferAndRWFVersion(testDataBuf, majorVersion, minorVersion));
+    	assertEquals(CodecReturnCodes.SUCCESS, testDataOutBuf.decode(decIter));
     	testStrBuf.clear();
     	testStrBuffer = putString(testStringSmall.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.RMTES_STRING, testStrBuf));
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.RMTES_STRING, testStrBuf));
     	/* should pass */
     	testStrBuf.clear();
     	testStrBuffer = putString(testString.toString());
     	testStrBuf.data(testStrBuffer);
-    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataBuf, DataTypes.RMTES_STRING, testStrBuf));
-    	assertEquals(testBuffer.data(), testStrBuf.data());
-   
+    	assertEquals(CodecReturnCodes.SUCCESS, Decoders.primitiveToString(testDataOutBuf, DataTypes.RMTES_STRING, testStrBuf));
+    	assertEquals(testBuffer, testStrBuf);
     }
 
     private void floatED(Float putVal)

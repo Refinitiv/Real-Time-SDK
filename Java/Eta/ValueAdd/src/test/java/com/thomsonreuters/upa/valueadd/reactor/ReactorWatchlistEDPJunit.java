@@ -984,7 +984,6 @@ public class ReactorWatchlistEDPJunit
 			}
 
 			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, true);
-			long runtime = System.currentTimeMillis() + ((sleep - 5) * 1000);	        
 
 			for (int j = 0; j < 6; j++)
 			{
@@ -1227,7 +1226,7 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
-			     
+			
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("localhost"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));			
@@ -1256,15 +1255,15 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
 			
 			event = getTestEvent(consumerReactor, 20);
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
 			
 			event = getTestEvent(consumerReactor, 20);
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
 			
 			event = getTestEvent(consumerReactor, 20);
@@ -1350,7 +1349,7 @@ public class ReactorWatchlistEDPJunit
 
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
-			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);				
+			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);		
 			
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
@@ -1361,7 +1360,6 @@ public class ReactorWatchlistEDPJunit
 
 
 			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
-			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);
 
 			try {
 				Thread.sleep(2 * 1000);
@@ -1548,7 +1546,7 @@ public class ReactorWatchlistEDPJunit
 			
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
-			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);		
+			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);	
 
 			try {
 				Thread.sleep(2 * 1000);

@@ -11,12 +11,12 @@ unset(esdk_DEPENDS_LIST)
 # esdk Version information
 #[====================================================================]
 set(esdk_INTERNAL_API_VERSION_MAJOR 3)
-set(esdk_INTERNAL_RELEASE_TWEAK G1)
+set(esdk_INTERNAL_RELEASE_TWEAK L1)
 set(esdk_RELEASE_TYPE rrg)
 
-set( librssl_SO_VERSION 12 )
-set( librsslVA_SO_VERSION 15 )
-set( libema_SO_VERSION 10 )
+set( librssl_SO_VERSION 13 )
+set( librsslVA_SO_VERSION 16 )
+set( libema_SO_VERSION 11 )
 set( librsslJsonConverter_SO_VERSION 2 )
 
 set(Ansi_VERSION_MAJOR 1)

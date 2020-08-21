@@ -1,7 +1,7 @@
 Ultra Performance API (UPA), Java Edition, LibraryVersionInfo
         productVersion: upaj7.0.0.L1.all.eap
         productInternalVersion: upaj7.0.F6
-        productDate: Fri Aug 17 04:02:25 CST 2012 Thomson Reuters
+        productDate: Fri Aug 17 04:02:25 CST 2012 Refinitiv
 Consumer initializing...
 Unable to load field dictionary.  Will attempt to download from provider.
         Text: Can't open file: RDMFieldDictionary
@@ -102,7 +102,7 @@ DirectoryRefresh:
                 serviceId: 1
                 InfoFilter:
                         serviceName: DIRECT_FEED
-                        vendor: Thomson Reuters
+                        vendor: Refinitiv
                         isSource: 1
                         supportsQosRange: 0
                         supportsOutOfBandSnapshots: 0

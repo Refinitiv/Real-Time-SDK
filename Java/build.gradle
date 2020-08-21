@@ -38,16 +38,16 @@ subprojects {
 
 ext.YEAR = '2020'
 
-ext.BuildDate = 'Fri Jun 12 12:25:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.5.0.1'
-ext.SpecificationVersionShort = '3.5.0'
+ext.BuildDate = 'Fri Jul 14 12:25:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.5.1.0'
+ext.SpecificationVersionShort = '3.5.1'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
 ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.5.0.G1'
@@ -59,10 +59,10 @@ ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.5.0.G1'
 //=========================================================================================
 
 
-ext.vendor = 'Thomson Reuters'
-ext.javadoc_footer = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
-ext.javadoc_header = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
-ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Thomson Reuters. All Rights Reserved.</i>'
+ext.vendor = 'Refinitiv'
+ext.javadoc_footer = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
+ext.javadoc_header = '<a href="https://developers.refinitiv.com/" target=_top>Refinitiv</a>'
+ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Refinitiv. All Rights Reserved.</i>'
 
 task downloadBinaryPack(type: Download) {
     description 'This task downloads the Elektron-SDK-BinaryPack file from GitHub.'

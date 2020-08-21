@@ -17,7 +17,7 @@ static char* serviceName;
 static RsslUInt64 serviceId = 1;
 
 /* vendor name */
-static const char* vendorName = "Thomson Reuters";
+static const char* vendorName = "Refinitiv";
 /* field dictionary name */
 static const char *fieldDictionaryName = "RWFFld";
 /* enumtype dictionary name */

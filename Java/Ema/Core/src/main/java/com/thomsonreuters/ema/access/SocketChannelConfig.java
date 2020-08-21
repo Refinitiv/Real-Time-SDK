@@ -15,6 +15,17 @@ class SocketChannelConfig extends ChannelConfig
 	String				serviceName;
 	boolean				tcpNodelay;
 	boolean				directWrite;
+	EncryptionConfig 	encryptionConfig = new EncryptionConfig();
+	Boolean 			httpProxy;
+	String 				httpProxyHostName;
+	String 				httpProxyPort;
+	
+	/* Credential configuration parameters */
+	String				httpProxyUserName;
+	String				httpproxyPasswd;
+	String				httpProxyDomain;
+	String 				httpProxyLocalHostName;
+	String				httpProxyKRB5ConfigFile;
 	
 	SocketChannelConfig() 
 	{
@@ -31,5 +42,6 @@ class SocketChannelConfig extends ChannelConfig
 		serviceName = ActiveConfig.defaultServiceName;
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
+		httpProxy = ActiveConfig.DEFAULT_HTTP_PROXY;
 	}
 }

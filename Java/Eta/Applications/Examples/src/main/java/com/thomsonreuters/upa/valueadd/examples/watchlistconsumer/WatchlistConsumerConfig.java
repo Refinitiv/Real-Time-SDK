@@ -272,6 +272,27 @@ public class WatchlistConsumerConfig
     	    	connectionArg.connectionType(ConnectionTypes.HTTP);
     	    	enableHttp = true;
     	    }
+       	    
+       	    if(CommandLine.hasArg("encryptedConnectionType"))
+       	    {
+	       	    String encryptedConnectionType = CommandLine.value("encryptedConnectionType");
+		       	 if (encryptedConnectionType.equals("socket"))
+		 	    {
+		 	    	connectionArg.encryptedConnectionType(ConnectionTypes.SOCKET); 
+		 	    }
+		   	    else if (connectionType.equals("http"))
+		 	    {
+		 	    	connectionArg.encryptedConnectionType(ConnectionTypes.HTTP);
+		 	    }
+       	    }
+       	    else
+       	    {
+       	    	if(connectionArg.connectionType() == ConnectionTypes.ENCRYPTED)
+       	    	{
+       	    		connectionArg.encryptedConnectionType(ConnectionTypes.HTTP);
+       	    	}
+       	    }
+
     		connectionArg.service(serviceName());
         	
     	
@@ -616,6 +637,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("u", "Login user name. Default is system user name.");
         CommandLine.addOption("passwd", "Password for the user name.");        
         CommandLine.addOption("c", "Socket", "Specifies the connection type that the connection should use. Possible values are: 'Socket', 'http', 'encrypted'");
+        CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer, if the 'encrypted' type is selected.  Possible values are 'Socket', or 'http'");
 
         CommandLine.addOption("runTime", defaultRuntime, "Program runtime in seconds");
         CommandLine.addOption("x", "Provides XML tracing of messages.");

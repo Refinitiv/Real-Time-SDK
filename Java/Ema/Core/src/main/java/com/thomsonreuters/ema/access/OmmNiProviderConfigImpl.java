@@ -294,49 +294,49 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	public OmmNiProviderConfig tunnelingKeyStoreType(String keyStoreType)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreType = keyStoreType;
+		encryptionCfg().KeyStoreType = keyStoreType;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingKeyStoreFile(String keyStoreFile)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreFile = keyStoreFile;
+		encryptionCfg().KeyStoreFile = keyStoreFile;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingKeyStorePasswd(String keyStorePasswd)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStorePasswd = keyStorePasswd;
+		encryptionCfg().KeyStorePasswd = keyStorePasswd;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingSecurityProtocol(String securityProtocol)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProtocol = securityProtocol;
+		encryptionCfg().SecurityProtocol = securityProtocol;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingSecurityProvider(String securityProvider)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProvider = securityProvider;
+		encryptionCfg().SecurityProvider = securityProvider;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingKeyManagerAlgorithm(String keyManagerAlgorithm)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyManagerAlgorithm = keyManagerAlgorithm;
+		encryptionCfg().KeyManagerAlgorithm = keyManagerAlgorithm;
 		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingTrustManagerAlgorithm(String trustManagerAlgorithm)
 	{
-		((EncryptedChannelConfig)tunnelingChannelCfg()).TrustManagerAlgorithm = trustManagerAlgorithm;
+		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
 }
