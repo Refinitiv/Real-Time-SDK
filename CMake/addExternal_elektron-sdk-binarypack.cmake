@@ -23,7 +23,7 @@ endif()
 #  package is not defined
 if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND 
 	(NOT TARGET Elektron-SDK-BinaryPack:rsslVACache) )
-	# An external project for Elektron-SDK-BinaryPack
+	# An external project for RTSDK-BinaryPack
 	set(_EPA_NAME "elektron-sdk-binarypack")
 
 	# Initialize the directory variables for the external project
@@ -54,9 +54,9 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 	# Since the elektron-sdk-binarypack is a different external beast, the default
 	# source and binary directories need to be overridden.  This will need to remain
 	# until the Java binaries are removed or an install is created for the esdkbp
-	set(elektron-sdk-binarypack_source "${CMAKE_CURRENT_SOURCE_DIR}/Elektron-SDK-BinaryPack")
+	set(elektron-sdk-binarypack_source "${CMAKE_CURRENT_SOURCE_DIR}/RTSDK-BinaryPack")
 	set(_EPA_SOURCE_DIR "SOURCE_DIR ${elektron-sdk-binarypack_source}")
-	set(_EPA_BINARY_DIR "BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/Elektron-SDK-BinaryPack")
+	set(_EPA_BINARY_DIR "BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/RTSDK-BinaryPack")
 	
 	# There is no install step for the elektron-sdk-binarypack.  However,
 	# if one is ever done, it should be set to this locaion
