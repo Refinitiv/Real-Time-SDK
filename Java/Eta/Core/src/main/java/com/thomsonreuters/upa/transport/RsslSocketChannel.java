@@ -405,6 +405,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         _needCloseSocket = true;
         _state = ChannelState.INACTIVE;
         _shared_key = 0;
+        _scktChannel = new SocketHelper();
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -431,6 +432,8 @@ class RsslSocketChannel extends UpaNode implements Channel
 
         _readBufStateMachine = new ReadBufferStateMachine(this);
         _shared_key = 0;
+        
+        _scktChannel = connectionType == ConnectionTypes.ENCRYPTED ? new EncryptedSocketHelper() : new SocketHelper();
     }
 
     @Override
