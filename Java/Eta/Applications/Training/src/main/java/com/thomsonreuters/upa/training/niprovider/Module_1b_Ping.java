@@ -8,7 +8,7 @@
  *|-------------------------------------------------------------------------------
  */
 
-/*
+/**
  * This is the UPA NI Provider Training series of the UPA Training Suite
  * applications. The purpose of this application is to show step-by-step 
  * training how to build a UPA OMM NI Provider using the UPA Transport layer.
@@ -39,7 +39,18 @@
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the Connect function to initiate the connection 
  * process and then performs connection initialization processes as needed.
- * 
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14003 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
@@ -60,6 +71,17 @@
  * In this situation, the NIP would send periodic heartbeat messages to inform 
  * the ADH Infrastructure that it is still alive.
  *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1b
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  */
 
 package com.thomsonreuters.upa.training.niprovider;
