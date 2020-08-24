@@ -1,9 +1,9 @@
 
 include(CMakeDependentOption)
 
-option(BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES "Use the prebuilt libries to build esdk applications" OFF)
+option(BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES "Use the prebuilt libries to build rtsdk applications" OFF)
 								
-option(BUILD_INTERNAL_RTSDK "Internal ESDK build" OFF)
+option(BUILD_INTERNAL_RTSDK "Internal RTSDK build" OFF)
 
 mark_as_advanced(BUILD_INTERNAL_RTSDK)
 
@@ -38,7 +38,7 @@ CMAKE_DEPENDENT_OPTION(BUILD_32_BIT_ETA			"Build the ETA project as 32-bit" OFF
 # The default value of BUILD_RTSDK-BINARYPACK is ON 
 #      if this is a not a 32-bit build 
 #         ELSE default value of BUILD_RTSDK-BINARYPACK is OFF
-CMAKE_DEPENDENT_OPTION(BUILD_RTSDK-BINARYPACK "Find the Elektron-SDK-BinaryPack Distribution" ON
+CMAKE_DEPENDENT_OPTION(BUILD_RTSDK-BINARYPACK "Find the RTSDK-BinaryPack Distribution" ON
 						"NOT BUILD_32_BIT_ETA" OFF)
 
 mark_as_advanced(BUILD_32_BIT_ETA

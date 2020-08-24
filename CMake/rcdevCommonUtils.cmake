@@ -499,8 +499,8 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
         message("Prebuilt libraries not found: ${_search_lib},${_search_dlllib} in \n\t${_hints}")
     else()
         # TODO: add all targets with correct namespace
-        #       i.e esdk::
-        # set(TARGET_NAME "esdk::${TARGET_NAME}")
+        #       i.e rtsdk::
+        # set(TARGET_NAME "rtsdk::${TARGET_NAME}")
         add_library(${TARGET_NAME} ${_WPL_LIBTYPE} IMPORTED GLOBAL)
         set_target_properties(${TARGET_NAME} PROPERTIES
                                     INTERFACE_INCLUDE_DIRECTORIES

@@ -10,7 +10,7 @@ include(rcdevExternalUtils)
 
 if(NOT lz4_url)
 	# This is the latest build. However, until deprecated interfaces updates can 
-	# me applied to the esdk code, the older, compatible source will be used
+	# me applied to the rtsdk code, the older, compatible source will be used
 	#set(lz4_url "https://github.com/lz4/lz4/archive/r131.tar.gz")
 	set(lz4_url "https://github.com/lz4/lz4/archive/v1.8.3.tar.gz")
 endif()
@@ -152,7 +152,7 @@ if((NOT lz4_USE_INSTALLED) AND
 	# this policy is needed to supress a CMake warning about the new
 	# standard for using <project>_ROOT variable for find_package()
 	if( POLICY CMP0074 )
-		#message("Setting CMake policy CMP0074  esdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
+		#message("Setting CMake policy CMP0074  rtsdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
 		cmake_policy(SET CMP0074 NEW)
 	endif()
 

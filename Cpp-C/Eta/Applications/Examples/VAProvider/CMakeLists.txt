@@ -33,7 +33,7 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 							)
 	target_link_libraries( VAProvider_shared 
                             librsslVA_shared 
-								Elektron-SDK-BinaryPack::rsslVACache_shared 
+								RTSDK-BinaryPack::rsslVACache_shared 
                             ${SYSTEM_LIBRARIES} 
 						)
 	add_executable( VAProvider ${SOURCE_FILES} )
@@ -44,7 +44,7 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 							)
 	target_link_libraries( VAProvider 
                             librsslVA  
-								Elektron-SDK-BinaryPack::rsslVACache
+								RTSDK-BinaryPack::rsslVACache
                             ${SYSTEM_LIBRARIES} 
 						)
 

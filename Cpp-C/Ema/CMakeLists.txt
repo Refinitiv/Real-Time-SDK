@@ -1,6 +1,6 @@
 
 project(Ema
-		VERSION ${esdk_INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
+		VERSION ${rtsdk_INTERNAL_API_VERSION_MAJOR}.${rtsdk_VERSION_MINOR}.${rtsdk_VERSION_PATCH}.${rtsdk_VERSION_TWEAK}
 		LANGUAGES C CXX)
 		
 #DEBUG_PRINT(Ema_VERSION)
@@ -33,7 +33,7 @@ else()
 endif()
 
 # windows. Supported builds include Debug_MDd, Release_MD
-# arguments from esdk dev build, except no RDEV args
+# arguments from rtsdk dev build, except no RDEV args
 if ( CMAKE_HOST_WIN32 )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D __EMA_COPY_ON_SET__ " )
   set( "CMAKE_CXX_FLAGS_DEBUG_MDD_SHARED" "${CMAKE_CXX_FLAGS_DEBUG_MDD} /D EMA_LIBRARY_EXPORTS" )
