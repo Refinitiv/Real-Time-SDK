@@ -19,8 +19,8 @@ an outline of how to create an OMM NIP application which can establish
 a connection to an ADH server. Once connected, an OMM NIP can publish 
 information into the ADH cache without needing to handle requests for 
 the information. The ADH can cache the information and along with other 
-Enterprise Platform components, provide the information to any OMM consumer 
-applications that indicate interest.
+Refinitiv Real-Time Distribution System components, provide the information 
+to any NIProvider applications that indicate interest.
 
 The general process can be summarized by the following steps.
 

@@ -76,9 +76,9 @@ public class MsgClasses
 
     /**
      * A consumer uses {@link PostMsg} to push content upstream. This information
-     * can be applied to an Enterprise Platform cache or routed further upstream
-     * to a data source. After receiving posted data, upstream components can
-     * republish it to downstream consumers.
+     * can be applied to a Refinitiv Real-Time Distribution System cache or 
+     * routed further upstream to a data source. After receiving posted data, 
+     * upstream components can republish it to downstream consumers.
      */
     public static final int POST = 8;
 

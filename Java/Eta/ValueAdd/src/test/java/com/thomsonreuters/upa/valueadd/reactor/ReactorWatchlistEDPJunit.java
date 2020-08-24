@@ -1048,7 +1048,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;
@@ -1172,7 +1172,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;
@@ -2037,7 +2037,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;

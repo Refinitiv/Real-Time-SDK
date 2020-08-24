@@ -93,7 +93,7 @@ RSSL_API RsslUInt8 rsslExtractMsgClass( const RsslDecodeIterator *pIter );
  * @brief Extract \ref RsslMsgBase::domainType from a buffer containing an encoded \ref RsslMsg. 
  *
  * @param pIter 			\ref RsslDecodeIterator with the \ref RsslBuffer that contains the encoded \ref RsslMsg set on it using \ref rsslSetDecodeIteratorBuffer().
- * @return The \ref RsslMsgBase::domainType enumeration contained in the buffer. See \ref RsslDomainTypes for Reuters Domain Model enumerations.
+ * @return The \ref RsslMsgBase::domainType enumeration contained in the buffer. See \ref RsslDomainTypes for Refinitiv Domain Model enumerations.
  * @see RsslMsgTypes
  */
 RSSL_API RsslUInt8 rsslExtractDomainType( const RsslDecodeIterator *pIter );

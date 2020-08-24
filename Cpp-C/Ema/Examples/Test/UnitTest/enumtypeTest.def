@@ -210,7 +210,7 @@ RDN_EXCHID     4
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Thomson Reuters
+    181        "REU"   Refinitiv
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -5288,7 +5288,7 @@ YIELD_TP     969
       7        "FLT"   flat yield in RT_YIELD_n and SEC_YLD_n.
       8        "CNS"   consortium yield in RT_YIELD_n and SEC_YLD_n.
       9        "F/C"   flat yield in RT_YIELD_n, consortium yield in SEC_YLD_n.
-     10        "REQ"   Reuters equivalent yield in RT_YIELD_n and SEC_YLD_n.
+     10        "REQ"   Refinitiv equivalent yield in RT_YIELD_n and SEC_YLD_n.
      11        "DIS"   discount yield in RT_YIELD_n and SEC_YLD_n.
      12        "BEY"   bond equivalent yield in RT_YIELD_n and SEC_YLD_n.
      13        "NA "   native ask in RT_YIELD_n, SEC_YLD_n not allocated.
@@ -6421,7 +6421,7 @@ ERROR_DESC  1389
       1   "        "   no error.
       2   "Prob Inv"   problem under investigation.
       3   "Stopped "   problem at exchange or data source.
-      4   "Tech Dif"   problem due to technical difficulty at Reuters.
+      4   "Tech Dif"   problem due to technical difficulty at Refinitiv.
       5   "Logd Off"   logged off by Exchange.
 !
 ! ACRONYM    FID
@@ -7013,7 +7013,7 @@ COR_EXID   13402
     178        "CIR"   Irish SE - Chi-X
     179        "CLU"   Luxemburg SE - Chi-X
     180        "SOP"   Suomen Optioporssi
-    181        "REU"   Thomson Reuters
+    181        "REU"   Refinitiv
     182        "LIS"   Lisbon Stock Exchange
     183        "OPO"   Oporto Stock Exchange
     184        "NOM"   Norwegian Options Market (Norsk Opsjonmarked)
@@ -7457,7 +7457,7 @@ COR_EXID   13402
     622        "HNX"   Hanoi Stock Exchange
     623        "KRB"    Korea Interbank Offered Rate
     624        "LOP"    London Metal Exchange - Plastic 
-    625        "RCU"   Source is a Reuters FI Contributor
+    625        "RCU"   Source is a Refinitiv FI Contributor
     626        "RCV"   Source is a London Broker 
     627        "FTY"   FTSE Xinhua - China
     628        "PLU"   Plus Markets Group PLC
@@ -7740,7 +7740,7 @@ COR_EXID   13402
     905        "SDN"   SECURITISED DERIVATIVES NETWORK
     906        "NEI"   NEW ENGLAND ISO
     907        "IDS"   Indore soyabean, soymeal & soyoil prices
-    908        "RFI"   Thomson Reuters Contributed Fixed Income Indices
+    908        "RFI"   Refinitiv Contributed Fixed Income Indices
     909        "NPC"   Newcastle Port Corporation
     910        "GCA"   Green Coffee Association
     911        "JNA"   TOKYO PRO-BOND Market
@@ -7795,7 +7795,7 @@ COR_EXID   13402
     960        "MUI"   Musashi
     961        "JDA"   Japan Securities Dealers Association (JSDA)
     962        "JSR"   JS Price
-    963        "RML"   Reuters Market Light Indian Commodity Prices 
+    963        "RML"   Deprecated. DO NOT USE.
     964        "SAM"   BOLSA DE VALORES DE SAO PAULO - AFTER-MARKET 
     965        "MLK"   EuroMTS Linkers Market
     966        "MSL"   MTS Slovenia
@@ -7819,8 +7819,8 @@ COR_EXID   13402
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
     986        "SBB"   Steel Business Briefing
-    987        "TRE"   Thomson Reuters Indices (Not Exchg)
-    988        "TRZ"   Thomson Reuters Indices (TR indices)
+    987        "TRE"   Refinitiv Indices (Not Exch)
+    988        "TRZ"   Refinitiv Indices (RFV indices)
     989        "CIF"   CONSOLIDATED INDIAN INTEREST RATE FUTURES
     990        "XI2"   XETRA INTERNATIONAL MARKET LEVEL 2
     991        "NZE"   NEW ZEALAND STOCK EXCHANGE
@@ -10001,7 +10001,7 @@ BID_YLD_TP 12888
       6        "SIM"   simple yield in RT_YIELD_n
       7        "FLT"   flat yield in RT_YIELD_n
       8        "CNS"   consortium yield in RT_YIELD_n
-      9        "REQ"   Reuters equivalent yield in RT_YIELD_n
+      9        "REQ"   Refinitiv equivalent yield in RT_YIELD_n
      10        "DIS"   discount yield in RT_YIELD_n
      11        "BEY"   bond equivalent yield in RT_YIELD_n
      12        "NA "   native ask in RT_YIELD_n
@@ -10034,7 +10034,7 @@ SEC_YLD_TP  3137
       6        "SIM"   Simple yield in SEC_YLD_n
       7        "FLT"   Flat yield in SEC_YLD_n
       8        "CNS"   Consortium yield in SEC_YLD_n
-      9        "REQ"   Reuters equivalent yield in SEC_YLD_n
+      9        "REQ"   Refinitiv equivalent yield in SEC_YLD_n
      10        "DIS"   Discount yield in SEC_YLD_n
      11        "BEY"   Bond equivalent yield in SEC_YLD_n
      12        "NA "   Native ask in SEC_YLD_n
@@ -11990,7 +11990,7 @@ SRC_HB_TSO  8922
 ! -----      -------   -------
       0   "        "   Undefined
       1   "3rd Prty"   Heart-Beat Time-Stamp -- Source Supplied (3rd Party Feed)
-      2   "TR      "   Heart-Beat Time-Stamp -- Derived by Thomson Reuters
+      2   "TR      "   Heart-Beat Time-Stamp -- Derived by Refinitiv
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12281,7 +12281,7 @@ IND_L2_IND  8944
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "TRBC    "   Thomson Reuters Business Classification
+      1   "TRBC    "   The Refinitiv Business Classification Schema
       2   "FTICB   "   FTSE Industry Classification Benchmark (ICB)
       3   "GICS    "   Global Industry Classification Standard
       4   "NAICS   "   North American Industry Classification System
@@ -14277,7 +14277,7 @@ L2_REPR     9050
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "MBP-D   "   Market By Price, derived by Thomson Reuters
+      1   "MBP-D   "   Market By Price, derived by Refinitiv
       2   "MBP-N   "   Market by Price, exchange sourced data (Native)
       3   "MBO     "   Market By Order
 !
@@ -14696,7 +14696,7 @@ SRC_BMRG1  12835
 ! -----      -------   -------
       0   "        "   Undefined
       1   "CTB     "   Data contributed by source
-      2   "TRC     "   Data contributed by Thomson Reuters
+      2   "TRC     "   Data contributed by Refinitiv 
 !
 ! ACRONYM    FID
 ! -------    ---

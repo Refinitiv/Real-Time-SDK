@@ -95,7 +95,7 @@ RSSL_API const char* rsslMsgClassToOmmString(RsslUInt8 msgClass);
  */
  
 /**
- *	@defgroup RSSLWFDomainHelpers Reuters Domain Model Helper Functions
+ *	@defgroup RSSLWFDomainHelpers Refinitiv Domain Model Helper Functions
  * 	@{
  */
 

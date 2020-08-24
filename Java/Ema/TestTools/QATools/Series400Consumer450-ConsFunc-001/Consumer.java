@@ -74,7 +74,7 @@ class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 
 	public void onError(String errorText, ServiceEndpointDiscoveryEvent event)
 	{
-		System.out.println("Failed to query EDP-RT service discovery. Error text: " + errorText);
+		System.out.println("Failed to query Refinitiv Data Platform service discovery. Error text: " + errorText);
 	}
 }
 
@@ -106,10 +106,10 @@ public class Consumer
 	    		+ "\ttoken service (mandatory).\n"
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
-	    		+ "  -location location to get an endpoint from EDP-RT service \r\n"
+	    		+ "  -location location to get an endpoint from RDP-RT service \r\n"
 	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
-	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
@@ -324,7 +324,7 @@ public class Consumer
 			
 			if ( host == null || port == null )
 			{
-				System.out.println("Both hostname and port are not avaiable for establishing a connection with ERT in cloud. Exiting...");
+				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time Optimized. Exiting...");
 				return;
 			}
 			

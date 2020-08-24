@@ -30,8 +30,8 @@
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM consumer applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components, 
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
  * The first step of any UPA NIP application is to establish network 
@@ -2907,7 +2907,7 @@ RsslRet sendMarketPriceItemResponse(RsslChannel* upaChannel, RsslUInt32 maxMsgSi
 		/* Item Name */
 		msgBase->msgKey.name.data = marketPriceItemInfo->itemName;
 		msgBase->msgKey.name.length = (RsslUInt32)strlen(marketPriceItemInfo->itemName);
-		/*!< (1) Reuters Instrument Code */
+		/*!< (1) Refinitiv Instrument Code */
 		msgBase->msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
 
 		/* Qos */

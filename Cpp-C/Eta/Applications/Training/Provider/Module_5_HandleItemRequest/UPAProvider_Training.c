@@ -4357,7 +4357,7 @@ RsslRet sendMarketPriceItemResponse(UpaChannelManagementInfo *upaChannelManageme
 		/* Item Name */
 		msgBase->msgKey.name.data = upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName;
 		msgBase->msgKey.name.length = (RsslUInt32)strlen(upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
-		/*!< (1) Reuters Instrument Code */
+		/*!< (1) Refinitiv Instrument Code */
 		msgBase->msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
 
 		/* Qos */

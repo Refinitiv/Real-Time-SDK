@@ -36,7 +36,7 @@
 #define RSSL_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
 #define RSSL_InternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
 #define RSSL_ReleaseType		"@esdk_RELEASE_TYPE@"
-#define RSSL_ProdName			"Elektron Transport API (ETA) C Edition"
+#define RSSL_ProdName			"Enterprise Transport API (ETA) C Edition"
 #define RSSL_Package			" PACKAGE " RSSL_ExternalName " " RSSL_ReleaseType
 #define RSSL_InterfaceVersion	"@librssl_SO_VERSION@"
 

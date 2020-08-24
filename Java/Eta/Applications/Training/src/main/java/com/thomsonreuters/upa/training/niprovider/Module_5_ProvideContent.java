@@ -29,8 +29,8 @@
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM NIProvider applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components,
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
  * The first step of any UPA NIP application is to establish network 

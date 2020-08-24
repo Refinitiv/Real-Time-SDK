@@ -24,13 +24,13 @@ uploadArchives {
             pom.project {
                 name "$archivesBaseName"
                     packaging 'jar'
-                    url 'https://github.com/Refinitiv/Elektron-SDK'
-                    description 'Elektron Message API (EMA) Java Edition'
+                    url 'https://github.com/Refinitiv/Real-Time-SDK'
+                    description 'Enterprise Message API (EMA) Java Edition'
 
                     scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
-                            url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
+                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
                     }
 
                 developers {
@@ -60,7 +60,7 @@ cobertura {
 
 eclipse {
     project {
-        name = 'ESDK-Ema-Src'
+        name = 'RTSDK-Ema-Src'
     }
 }
 
@@ -91,7 +91,7 @@ jar {
 	doFirst { println 'Creating EMA jar file' }
 
 	manifest { 
-		attributes 'Specification-Title': 'Elektron Message API (EMA) Java Edition'
+		attributes 'Specification-Title': 'Enterprise Message API (EMA) Java Edition'
 				from sharedManifest 
 	}
 
@@ -132,7 +132,7 @@ javadoc {
     exclude '**/JUnit*.java'
 
     destinationDir = file('../Docs/refman/emajava/')
-    title = "Elektron Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition" 
+    title = "Enterprise Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition" 
 
     options.footer ("${javadoc_footer}")
     options.header ("${javadoc_header}")
@@ -151,7 +151,7 @@ task javadocJar (type: Jar, dependsOn: this.javadoc) {
     destinationDir = jar.destinationDir
 
     manifest {
-        attributes 'Specification-Title': 'Elektron Message API (EMA) Java Edition'
+        attributes 'Specification-Title': 'Enterprise Message API (EMA) Java Edition'
             from sharedManifest
     }
 }

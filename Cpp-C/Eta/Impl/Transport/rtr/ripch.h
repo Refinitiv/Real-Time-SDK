@@ -61,7 +61,6 @@ extern "C" {
 #define RIPC_PRIORITY_FLUSH_STRATEGY 9  /* sets the priority flush strategy */
 #define RIPC_COMPRESSION_THRESHOLD  10  /* sets the compression threshold */
 #define RIPC_PEAK_POOL_BUF_RESET	11  /* resets the peak number of pool buffers */
-#define RIPC_ELEKTRON_SAFE_LZ4		12  /* does not allow large packets to compressed with LZ4 */
 #define RIPC_IGNORE_CERT_REVOCATION 13
 #define RIPC_MAX_IOCTL_CODE			13
 

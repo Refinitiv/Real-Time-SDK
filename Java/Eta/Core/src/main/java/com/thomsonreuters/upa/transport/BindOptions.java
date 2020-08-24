@@ -197,7 +197,7 @@ public interface BindOptions
     /**
      * If set to true, heartbeat messages are required to flow from the server
      * to the client. If set to false, the server is not required to send
-     * heartbeats. Enterprise Platform and other Refinitiv components
+     * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this value to be set to true.
      * 
      * @param serverToClientPings the serverToClientPings to set
@@ -207,7 +207,7 @@ public interface BindOptions
     /**
      * If set to true, heartbeat messages are required to flow from the server
      * to the client. If set to false, the server is not required to send
-     * heartbeats. Enterprise Platform and other Refinitiv components
+     * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this value to be set to true.
      * 
      * @return the serverToClientPings
@@ -217,7 +217,7 @@ public interface BindOptions
     /**
      * If set to true, heartbeat messages are required to flow from the client
      * to the server. If set to false, the client is not required to send
-     * heartbeats. Enterprise Platform and other Refinitiv components
+     * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this to be set to true.
      * 
      * @param clientToServerPings the clientToServerPings to set
@@ -227,7 +227,7 @@ public interface BindOptions
     /**
      * If set to true, heartbeat messages are required to flow from the client
      * to the server. If set to false, the client is not required to send
-     * heartbeats. Enterprise Platform and other Refinitiv components
+     * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this to be set to true.
      * 
      * @return the clientToServerPings

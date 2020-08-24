@@ -3,18 +3,17 @@ Summary
 
 450__MarketPrice__QueryServiceDiscovery is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud).
+and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized. 
 
 450__MarketPrice__QueryServiceDiscovery illustrates how to query endpoints from
-EDP-RT service discovery using the ServiceEndpointDiscovery class and use the 
+Refinitiv Data Platform service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the cloud service and consuming data. This 
+for establishing a connection with the Refinitiv Real-Time Optimized service and consuming data. This 
 application requires a username (Machine ID), password, and client ID for 
 authorization with the token service in order to an access token for querying 
-endpoints from the EDP service discovery and sending login requests to the cloud 
-service. EMA automatically refreshes the token to keep session alive with the 
-cloud service.
+endpoints from the Refinitiv Data Platform service discovery and sending login requests to the
+service. EMA automatically refreshes the token to keep session alive with the service.
 
 
 Detailed Description
@@ -25,17 +24,17 @@ Detailed Description
 including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory). 
--clientId client ID for application making the request to EDP token service, 
+-clientId client ID for application making the request to Refinitiv Data Platform token service, 
 also known as AppKey generated using an AppGenerator (mandatory). You can 
 generate and manage client IDs at the following URL:
 https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
 to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
--location location to get an endpoint from EDP-RT service discovery. Now, it is either
+-location location to get an endpoint from Refinitiv Data Platform service discovery. Now, it is either
  "us-east" by default or "eu-west" (optional).
 -keyfile keystore file for creating an encrypted connection (mandatory).
 -keypasswd keystore password for creating an encrypted connection (mandatory).
-Note: please refer to README.md of ESDK Java for generating a keystore file.
+Note: please refer to README.md of RTSDK Java for generating a keystore file.
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

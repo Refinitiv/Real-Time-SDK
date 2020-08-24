@@ -219,7 +219,7 @@ typedef struct
 	RsslBuffer      *locationList;   /*!< A list of locations. The list indicates the location of the service. */
 	RsslUInt32      locationCount;   /*!< The number of locations in locationList. */
 	RsslBuffer      port;            /*!< A port number used to establish connection. */
-	RsslBuffer      provider;        /*!< A public cloud provider. */
+	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time Optimized provider. */
 	RsslBuffer      transport;       /*!< A transport type used to access service. */
 } RsslReactorServiceEndpointInfo;
 

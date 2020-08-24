@@ -2,7 +2,7 @@ General Overview of Message Object API Examples
 ===============================================
 
 This folder contains a set of example applications written to the Refinitiv
-Elektron Message API (EMA). These applications present simple usage of the EMA
+Enterprise Message API (EMA). These applications present simple usage of the EMA
 library exposing its various features and showcasing various levels of application
 simplicity and functionality. These applications and their content are intended
 to provide a self learning environment. The examples are structured such a way that

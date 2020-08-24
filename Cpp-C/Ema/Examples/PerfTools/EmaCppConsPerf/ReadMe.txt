@@ -7,7 +7,7 @@ Summary:
  
 The purpose of this application is to measure performance of the EMA,
 in consuming Level I Market Price content directly from an
-OMM provider or through the Thomson Reuters Enterprise Platform.
+OMM provider or through a Refinitiv Real-Time Distribution System. 
 
 The consumer creates two types of threads:
 - A main thread, which collects and records statistical information,
@@ -41,9 +41,9 @@ The following configuration files are required:
 - RDMFieldDictionary and enumtype.def, located in the etc directory.
 - 350k.xml, located in PerfTools/Common
 - MsgData.xml, located in PerfTools/Common (only required if posting). Currently posting is not supported.
-- EmaCppConsPerf includes the PerfTools library. For shared builds, the location of that
-  library must be included in the LD_LIBRARY_PATH. The library (libPerfTools.so) will be found in
-  PerfTools/Common/<env>/Optimized/Shared/obj or PerfTools/Common/<env>/Optimized_Assert/Shared/obj
+- EmaCppConsPerf includes the EMA library. For shared builds, the location of that
+  library must be included in the LD_LIBRARY_PATH. The library (libema.so) will be found in
+  Ema/Libs/<env>/Optimized/Shared or Ema/Libs/<env>/Debug/Shared
   where <env> is your build directory (i.e., OL7_64_GCC482)
 
 -------------------
@@ -65,8 +65,7 @@ Compiling Source:
 
 Development Tool: 
 
-open one of the included solution files with visual studio
-and build.
+open one of the included solution files with visual studio and build.
 
 ----------------
 Example Content:
@@ -102,5 +101,5 @@ ThreadAffinity.cpp  -Used for printout and determination of thread affinity bind
 
 ThreadBinding.h - Handles Thread binding.
 
- XmlItemParser.cpp  -Used for parsing Item file (350k.xml)
+XmlItemParser.cpp  -Used for parsing Item file (350k.xml)
 

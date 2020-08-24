@@ -2,7 +2,7 @@ apply plugin: 'application'
 
 eclipse {
 	project {
-		name = 'ESDK-Ema-PerfTools'
+		name = 'RTSDK-Ema-PerfTools'
 	}
 }
 
@@ -27,7 +27,7 @@ javadoc {
     }
 
     destinationDir = file('../Docs/refman/emajperftools')
-    title = "Elektron Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
+    title = "Enterprise Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
 
     options.footer ("${javadoc_footer}")
     options.header ("${javadoc_header}")

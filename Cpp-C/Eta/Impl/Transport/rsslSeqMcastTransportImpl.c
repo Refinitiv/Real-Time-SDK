@@ -120,7 +120,7 @@ static RsslBool chnlLocking;
 /* initialize lock */
 RTR_C_ALWAYS_INLINE void seqMcastInitLock(RsslMutex *seqMcastLock)
 {
-  (void) RSSL_MUTEX_INIT_ESDK(seqMcastLock);
+  (void) RSSL_MUTEX_INIT_RTSDK(seqMcastLock);
 }
 
 /* destroy lock */

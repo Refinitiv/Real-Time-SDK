@@ -5,7 +5,7 @@ The 220__MarketByPrice__PrivateStream application is provided as an example
 of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketByPrice data from Reuters Data Feed Direct (RDF-D),
+and parsing of OMM MarketByPrice data from Refinitiv Data Feed Direct,
 directly from an OMM Provider application, or from the Advanced
 Distribution Server.
 

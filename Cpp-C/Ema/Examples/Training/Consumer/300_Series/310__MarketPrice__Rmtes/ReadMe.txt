@@ -5,7 +5,7 @@ The 310__MarketPrice__Rmtes application is provided as an example of OMM Consume
 application written to the EMA library showcasing RWF RMTES_STRING processing.
 
 This application demonstrates basic usage of the EMA library for accessing and
-parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly
+parsing of OMM MarketPrice data from Refinitiv Data Feed Direct, directly
 from an OMM Provider application, or from Advanced Distribution Server.
 
 The 310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data

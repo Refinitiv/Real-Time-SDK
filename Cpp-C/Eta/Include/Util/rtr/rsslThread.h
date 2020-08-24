@@ -41,7 +41,7 @@ typedef struct
 
 typedef CRITICAL_SECTION RsslMutex;
 #define RSSL_MUTEX_INIT(__pMutex) (InitializeCriticalSection(__pMutex), 0)
-#define RSSL_MUTEX_INIT_ESDK(__pMutex) (InitializeCriticalSectionAndSpinCount((__pMutex), 512), 0)
+#define RSSL_MUTEX_INIT_RTSDK(__pMutex) (InitializeCriticalSectionAndSpinCount((__pMutex), 512), 0)
 #define RSSL_MUTEX_DESTROY(__pMutex) (DeleteCriticalSection(__pMutex), 0)
 #define RSSL_MUTEX_LOCK(__pMutex) (EnterCriticalSection(__pMutex), 0)
 #define RSSL_MUTEX_UNLOCK(__pMutex) (LeaveCriticalSection(__pMutex), 0)
@@ -84,7 +84,7 @@ RTR_C_INLINE int RSSL_MUTEX_INIT(RsslMutex *pMutex)
 	pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE);
 	return pthread_mutex_init(pMutex, &mutexAttr);
 }
-#define RSSL_MUTEX_INIT_ESDK(__pMutex) (pthread_mutex_init((__pMutex), NULL) ? RSSL_FALSE : RSSL_TRUE)
+#define RSSL_MUTEX_INIT_RTSDK(__pMutex) (pthread_mutex_init((__pMutex), NULL) ? RSSL_FALSE : RSSL_TRUE)
 #define RSSL_MUTEX_DESTROY(__pMutex) (pthread_mutex_destroy(__pMutex))
 #define RSSL_MUTEX_LOCK(__pMutex) (pthread_mutex_lock(__pMutex)) 
 #define RSSL_MUTEX_UNLOCK(__pMutex) (pthread_mutex_unlock(__pMutex))

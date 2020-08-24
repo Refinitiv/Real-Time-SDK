@@ -11450,7 +11450,6 @@ TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
 	RsslTime oTime;
 	RsslBuffer dateTimeStrBuf;
 
-	/* ESDK-3859 */
 	char* invalidTimeValue = const_cast<char*>("1.1:22:33:444");
 	dateTimeStrBuf.data = invalidTimeValue;
 	dateTimeStrBuf.length = (rtrUInt32)strlen(invalidTimeValue);
