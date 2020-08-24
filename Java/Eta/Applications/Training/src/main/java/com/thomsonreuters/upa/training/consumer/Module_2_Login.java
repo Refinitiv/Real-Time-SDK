@@ -13,7 +13,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -23,62 +24,98 @@
  * Provider or ADS). The consumer uses the Channel.connect() function to initiate 
  * the connection and then uses the Channel.init() function to complete 
  * channel initialization. 
- * 
+ *
  * For this simple training app, only a single channel/connection is used for 
  * the entire life of this app.
+ *
+ * Command line usage:
+ * ./gradlew runconsumermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 1b: Ping (heartbeat) Management
  *********************************************************************************
  * Summary:
- * Ping or heartbeat messages indicate the continued presence of an application. 
- * After the consumer connection is active, ping messages must be exchanged. 
- * The negotiated ping timeout is retrieved using the Channel.pingTimeout() method. 
- * The connection will be terminated if ping heartbeats are not sent or received 
+ * Ping or heartbeat messages indicate the continued presence of an application.
+ * After the consumer connection is active, ping messages must be exchanged.
+ * The negotiated ping timeout is retrieved using the Channel.pingTimeout() method.
+ * The connection will be terminated if ping heartbeats are not sent or received
  * within the expected time frame.
  *
  * Detailed Descriptions:
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information 
- * is being exchanged. For example, there may be long periods of time that 
- * elapse between requests made from an OMM consumer application. In this 
- * situation, the consumer would send periodic heartbeat messages to inform 
- * the providing application that it is still alive. Because the provider 
- * application is likely sending more frequent information, providing updates 
- * on any streams the consumer has requested, it may not need to send 
- * heartbeats as the other data is sufficient to announce its continued 
+ * Ping or heartbeat messages are used to indicate the continued presence of
+ * an application. These are typically only required when no other information
+ * is being exchanged. For example, there may be long periods of time that
+ * elapse between requests made from an OMM consumer application. In this
+ * situation, the consumer would send periodic heartbeat messages to inform
+ * the providing application that it is still alive. Because the provider
+ * application is likely sending more frequent information, providing updates
+ * on any streams the consumer has requested, it may not need to send
+ * heartbeats as the other data is sufficient to announce its continued
  * presence. It is the responsibility of each connection to manage the sending
  * and receiving of heartbeat messages.
- * 
+ *
+ *
+ * Command line usage:
+ * ./gradlew runconsumermod1b
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 1c: Reading and Writing Data
  *********************************************************************************
  * Summary:
- * When channel initialization is complete, the state of the channel 
- * Channel.state() is TransportReturnCodes.ACTIVE, and applications can send 
+ * When channel initialization is complete, the state of the channel
+ * Channel.state() is TransportReturnCodes.ACTIVE, and applications can send
  * and receive data.
  *
  * Detailed Descriptions:
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to receive data from the connection. The 
- * arrival of this information is often announced by the I/O notification 
- * mechanism that the Channel.scktChannel() is registered with. The UPA 
- * Transport reads information from the network as a byte stream, after 
- * which it determines buffer boundaries and returns each buffer one by 
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to receive data from the connection. The
+ * arrival of this information is often announced by the I/O notification
+ * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * Transport reads information from the network as a byte stream, after
+ * which it determines buffer boundaries and returns each buffer one by
  * one.
- * 
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
- * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
- * buffer pool associated with a Channel. After a buffer is acquired, 
- * the user can populate the Buffer.data and set the Buffer.length 
- * to the number of bytes referred to by data. If queued information cannot 
- * be passed to the network, a function is provided to allow the application 
+ *
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to write data to the connection. Writing
+ * involves a several step process. Because the UPA Transport provides
+ * efficient buffer management, the user is required to obtain a buffer
+ * from the UPA Transport buffer pool. This can be the guaranteed output
+ * buffer pool associated with a Channel. After a buffer is acquired,
+ * the user can populate the Buffer.data and set the Buffer.length
+ * to the number of bytes referred to by data. If queued information cannot
+ * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
- * mechanism can be used to help with determining when the network is able 
+ * mechanism can be used to help with determining when the network is able
  * to accept additional bytes for writing. The UPA Transport can continue to
- * queue data, even if the network is unable to write. 
+ * queue data, even if the network is unable to write.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1c
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1c -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  * 
  *********************************************************************************
  * UPA Consumer Training Module 2: Log in
@@ -104,7 +141,19 @@
  * information to tailor its interaction with the provider.
  *
  * Content is encoded and decoded using the UPA Message Package and the UPA 
- * Data Package. 
+ * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod2
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod2 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *********************************************************************************/
 
 package com.thomsonreuters.upa.training.consumer;

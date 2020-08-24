@@ -7478,7 +7478,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	/* Create buffer pool for server */
 	if (opts->sharedPoolLock)
 	{
-	    (void) RSSL_MUTEX_INIT_ESDK(&rsslSrvrImpl->sharedBufPoolMutex);
+	    (void) RSSL_MUTEX_INIT_RTSDK(&rsslSrvrImpl->sharedBufPoolMutex);
 		rsslSrvrImpl->hasSharedBufPool = RSSL_TRUE;
 		serverPool = ipcCreatePool(poolSize, &(rsslSrvrImpl->sharedBufPoolMutex));
 	}
@@ -10791,7 +10791,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		if (!gblmutexinit)
 		{
 			RTR_ATOMIC_SET(gblmutexinit,1);
-			RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			poolMutex = &ripcMutex;
 		}
 
@@ -11426,7 +11426,7 @@ RsslInt32 ripcSetDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void) RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void) RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit,1);
 		}
 
@@ -11463,7 +11463,7 @@ RsslInt32 rwsDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void)RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void)RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit, 1);
 		}
 

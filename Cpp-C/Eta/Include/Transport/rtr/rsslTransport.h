@@ -97,7 +97,7 @@ typedef enum {
 	RSSL_CONN_TYPE_UNIDIR_SHMEM		= 3,  /*!< (3) Channel is using a shared memory connection */
 	RSSL_CONN_TYPE_RELIABLE_MCAST	= 4,   /*!< (4) Channel is a reliable multicast based connection. This can be on a unified/mesh network where send and receive networks are the same or a segmented network where send and receive networks are different */
 	RSSL_CONN_TYPE_EXT_LINE_SOCKET  = 5,   /*!< (5) Channel is using an extended line socket transport */	
-	RSSL_CONN_TYPE_SEQ_MCAST		= 6,   /*!< (6) Channel is an unreliable, sequenced multicast connection for reading from an Elektron Direct Feed system. This is a client-only, read-only transport. This transport is supported on Linux only. */
+	RSSL_CONN_TYPE_SEQ_MCAST		= 6,   /*!< (6) Channel is an unreliable, sequenced multicast connection for reading from an Refinitiv Real-Time Direct Feed system. This is a client-only, read-only transport. This transport is supported on Linux only. */
 	RSSL_CONN_TYPE_WEBSOCKET		= 7    /*!< (7) Channel is a WebSocket connection type. */
 } RsslConnectionTypes;
 

@@ -17267,7 +17267,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT32           2
 !
-! Elektron (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
+! Refinitiv Real-Time (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -19497,7 +19497,7 @@ MN_LIQM_OZ "MIN LIQ MKER ORD"    7059  NULL        INTEGER            15  INT64 
 !
 CD_NAK_REJ "CONTRB NAK FID"      7060  NULL        INTEGER            15  INT64            6
 !
-! Elektron Contributions NAK FID
+! Refinitiv Real-Time Contributions NAK FID
 !
 DUDT_MAXLA "DUDT MAX LATENCY"    7061  NULL        INTEGER            15  INT64            6
 !
@@ -29933,7 +29933,7 @@ BLKTRDP_UT "BLK TRD PRC PRE UT" 12847  NULL        ENUMERATED    3 ( 4 )  ENUM  
 !
 EP_SCO_CAT "EP SCORE CATEGORY"  12848  NULL        ENUMERATED    3 ( 6 )  ENUM             1
 !
-! Elektron Pulse Score Category
+! Refinitiv Real-Time Pulse Score Category
 !
 RQT_ITM_NT "REQUEST ITEM NM TP" 12849  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !

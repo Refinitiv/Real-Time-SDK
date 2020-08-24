@@ -1,15 +1,15 @@
-# Elektron SDK - C/C++ Edition
-This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
+# Refinitiv Real-Time SDK - C/C++ Edition
+This is the Refinitiv Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
-The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
+The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
 
-The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
 # New In This Release
 
-Please refer to the CHANGELOG file in this section to see what is new in this release of Elektron SDK - C/C++ Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
+Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - C/C++ Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version.
 
 ### Supported Platforms, OSs, Compilers
 
@@ -66,7 +66,7 @@ Platforms & Compilers:
 NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
 
 #### Tested Versions
-External modules used by this version of ESDK C/C++:
+External modules used by this version of RTSDK C/C++:
 
 	Dependency		Version
 	----------		-------
@@ -119,10 +119,10 @@ This release supports encryption for TLS 1.2.
 
 ### Interoperability
 
-ESDK Cpp-C supports connectivity to the following platforms:
+RTSDK Cpp-C supports connectivity to the following platforms:
 
-- Enterprise Platform for Real-Time (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher. 
-- Elektron: Elektron Deployed, Elektron Hosted, Elektron Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher. 
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Direct Feed
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
@@ -134,61 +134,61 @@ This release has been tested with the following:
 
 # Documentation
 
-Please refer to top level README.md and to Cpp-C/Eta/README.MD or Cpp-C/Ema/README.MD files to find more information. Sections Cpp-C/Eta/Docs/ and Cpp-C/Ema/Docs contain PDF/HTML documentation. In current directory, please find the test plan with test results: ESDK-C-Edition\_Test\_Plan.xlsx
+Please refer to top level README.md and to Cpp-C/Eta/README.MD or Cpp-C/Ema/README.MD files to find more information. Sections Cpp-C/Eta/Docs/ and Cpp-C/Ema/Docs contain PDF/HTML documentation. In current directory, please find the test plan with test results: RTSDK-C-Edition\_Test\_Plan.xlsx
 
 # Installation and Build
 
-Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/ESDK_C_Installation_Guide.pdf) or [EMA](Cpp-C/Ema/Docs/ESDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
+Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/RTSDK_C_Installation_Guide.pdf) or [EMA](Cpp-C/Ema/Docs/RTSDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
-## Install ESDK 
-There are 3 ways to install Elektron SDK:
+## Install RTSDK 
+There are 3 ways to install Refinitiv Real-Time SDK:
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Elektron-SDK-BinaryPack/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to ESDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning ESDK GitHub repo with --recursive to include submodule found in [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to RTSDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning RTSDK GitHub repo with --recursive to include submodule found in [a BinaryPack repository](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack). 
 
-Elektron SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
+Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
 
-Elektron SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
+Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
 
-## Building ESDK
+## Building RTSDK
 
 **Using CMake**:
 
 Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org).
 
-Refer to the ESDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
+Refer to the RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 
 **For Linux**:
 
-Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command(this will require root access to the machine):
+Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command (this will require root access to the machine):
 
 	yum install redhat-lsb-core
 
-At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
+At the same directory level as the resulting RTSDK directory, issue the following command to build the optimized Makefile files:
 
-	cmake -HElektron-SDK -Bbuild-esdk
-	# Elektron-SDK is the ESDK directory 
+	cmake -HRTSDK -Bbuild-esdk
+	# Refinitiv Real-Time SDK is the RTSDK directory 
 	# build-esdk is the directory where all build output is placed 
 	# Note: build-esdk is automatically created
 
 Issue the following command to build debug Makefile files:
 
-	cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
+	cmake -HRTSDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
 
 The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
-Go to the build-esdk directory and type "make" to create the ESDK libraries. Note that the libraries are sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
+Go to the build-esdk directory and type "make" to create the RTSDK libraries. Note that the libraries are sent to the RTSDK directory (i.e., not the build-esdk directory).
 
 **For Windows**:
 
-At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
+At the same directory level as the resulting RTSDK directory, issue the following command to build the Solution and vcxproj files:
 
-	cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
-	# Elektron-SDK is the ESDK directory with the source code 
+	cmake -HRTSDK -Bbuild-esdk -G "VisualStudioVersion"
+	# RTDK is the directory with the source code 
 	# build-esdk is the directory where all build output is placed; this is where the built binaries are placed 
 	# Note: build-esdk is automatically created
 	# "VisualStudioVersion" is the visual studio version to use for build on windows (e.g., "Visual Studio 14 2015 Win64")
 	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
 
-The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. User must open these files and build all libraries and examples in the same manner as with prior ESDK versions. Note that the build output is sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
+The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the build-esdk directory).
 
 Note that only the following Windows compilers are supported.
 
@@ -226,8 +226,8 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 

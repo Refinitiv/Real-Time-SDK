@@ -273,7 +273,7 @@ RTR_C_INLINE ripcWinInetSession *ripcWinInetNewSession(RsslSocket fd, char* name
 
 	session->errorText[0] = '\0';
 
-	RSSL_MUTEX_INIT_ESDK( &session->tunnelMutex );
+	RSSL_MUTEX_INIT_RTSDK( &session->tunnelMutex );
 		
 	/* create reusable output buffer for connection messages */
 	session->outPutBuffer = (char*)_rsslMalloc(MAX_RSSL_ERROR_TEXT);

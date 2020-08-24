@@ -23,7 +23,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -35,9 +36,9 @@
  * connection to the well-known hostname and port of a server (Interactive 
  * Provider or ADS). The consumer uses the rsslConnect() function to initiate 
  * the connection and then uses the rsslInitChannel() function to complete 
- * channel initialization.(rssl stands for Reuters Source Sink Library.
+ * channel initialization.(rssl stands for Refinitiv Source Sink Library.
  * UPA stands for “Ultra Performance API.” It was the previous name of the product, 
- * before it was re-branded as ETA “Elektron Transport API”.)
+ * before it was re-branded as ETA “Enterprise Transport API”.)
  * 
  *
  ************************************************************************
@@ -3453,7 +3454,7 @@ RsslRet sendDictionaryRequest(UpaChannelManagementInfo *upaChannelManagementInfo
 	/* msgKey.nameType is Not used for Dictionary Request Message Use, per UPA C RDM Usage Guide.
 	 * So we probably don't need to do this.
 	 */
-	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC; /*!< (1) Reuters Instrument Code */
+	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC; /*!< (1) Refinitiv Instrument Code */
 
 	/* msgKey.name is Required. Specify a msgKey.flags value of RSSL_MKF_HAS_NAME. Populate msgKey.name with the name
 	 * of the desired dictionary as seen in the Source Directory response.
@@ -3606,7 +3607,7 @@ RsslRet sendMarketPriceItemRequest(UpaChannelManagementInfo *upaChannelManagemen
 	reqMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME_TYPE | RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_SERVICE_ID;
 
 	/* msgKey.nameType Optional. When consuming from Refinitiv sources, typically set to
-	 * RDM_INSTRUMENT_NAME_TYPE_RIC (the "Reuters Instrument Code"). If this is not specified,
+	 * RDM_INSTRUMENT_NAME_TYPE_RIC (the "Refinitiv Instrument Code"). If this is not specified,
 	 * msgKey.nameType defaults to RDM_INSTRUMENT_NAME_TYPE_RIC.
 	 */
 	reqMsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
@@ -3706,7 +3707,7 @@ RsslRet processMarketPriceItemResponse(UpaChannelManagementInfo *upaChannelManag
 				/* When displaying update information, we should also display the updateType information. */
 				/*!< @brief Indicates domain-specific information about the type of content contained in this update.
 				 * See rsslRDM.h RDMUpdateEventTypes enum for domain-specific enumerations for usage with the 
-				 * Reuters Domain Models.
+				 * Refinitiv Domain Models.
 				 */
 				printf("UPDATE TYPE: %u\n", msg->updateMsg.updateType);
 			}

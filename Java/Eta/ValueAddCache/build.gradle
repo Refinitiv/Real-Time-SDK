@@ -24,13 +24,13 @@ uploadArchives {
             pom.project {
                 name "$archivesBaseName"
                     packaging 'jar'
-                    url 'https://github.com/Refinitiv/Elektron-SDK'
-                    description 'Elektron Transport API (ETA) Java Edition ValueAddCache Classes'
+                    url 'https://github.com/Refinitiv/Real-Time-SDK'
+                    description 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
 
                     scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
-                            url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
+                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
                     }
 
                 developers {
@@ -56,7 +56,7 @@ signing {
 
 eclipse {
     project {
-        name = 'ESDK-Eta-ValueAddCache'
+        name = 'RTSDK-Eta-ValueAddCache'
     }
 }
 
@@ -80,7 +80,7 @@ jar {
 	doFirst { println 'Creating ValueAddCache jar file' }
 
 	manifest { 
-		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAddCache Classes'
+		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
 		from sharedManifest 
 	}
 
@@ -116,7 +116,7 @@ task javadocJar (type: Jar) {
         destinationDir = jar.destinationDir
 
         manifest {
-		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAddCache Classes'
+		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
                 from sharedManifest
         }
 }

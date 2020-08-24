@@ -97,7 +97,7 @@ public interface ChannelInformation
 
 	    /**
 	     * Indicates that the channel is using unreliable, sequenced multicast connection
-		 * for reading from an Elektron Direct Feed system.
+		 * for reading from an Refinitiv Direct Feed system.
 	     */
 	    public static final int SEQUENCED_MCAST = 6;
 	}

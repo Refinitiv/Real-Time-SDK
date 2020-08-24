@@ -255,7 +255,7 @@ int main( int argc, char* argv[] )
 
 		if ( !host.length() || !port.length() )
 		{
-			cout << "Both hostname and port are not available for establishing a connection with ERT in cloud. Exiting..." << endl;
+			cout << "Both hostname and port are not available for establishing a connection with Refinitiv Real-Time Optimized. Exiting..." << endl;
 			return -1;
 		}
 

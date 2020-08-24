@@ -5,8 +5,8 @@ The 240__MarketPrice__RippleFields application is provided as an example
 of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and handling ripple fields of OMM MarketPrice data from Reuters Data Feed
-Direct (RDF-D), directly from an OMM Provider application, or from  
+and handling ripple fields of OMM MarketPrice data from Refinitiv Data Feed
+Direct, directly from an OMM Provider application, or from  
 Advanced Distribution Server.
 
 

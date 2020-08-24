@@ -5,7 +5,7 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from an 
-ADS device, OMM Provider application or Elektron Real Time in Cloud (ERT in cloud)
+ADS device, OMM Provider application or Refinitiv Real-Time Optimized 
 using ValueAdd components.  It is a single-threaded client application.
 
 This application leverages the consumer watchlist feature provided by the
@@ -58,7 +58,7 @@ can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
 Both the shared version of libcurl and the openssl libraries are needed to run this example for 
-connecting and consuming data from the Elektron Real Time in Cloud (ERT in cloud).
+connecting and consuming data from Refinitiv Real-Time Optimized. 
 
 -------------------
 Command line usage:
@@ -73,7 +73,7 @@ or
 WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -clientId <client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
-using the default "us-east" region and enable session management to login and subscribe data from ERT in cloud.
+using the default "us-east" region and enable session management to login and subscribe data from Refinitiv Real-Time Optimized. 
 
 or
 
@@ -107,8 +107,9 @@ The -ec option specifies the encrypted transport protocol. Valid arguments are s
 Http is only supported on Windows Platforms.\n"
 
 The -clientId option specifies an unique ID for authenticating with the EDP token service (mandatory).
-You can generate and manage client Ids at the following URL: https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator
-(you need an Eikon login to access this page)
+You can generate and manage client Ids by using the Eikon App Key Generator. 
+This is found by visiting my.Refinitiv.com, launching Eikon (need valid login), and 
+searching for "App Key Generator". The App Key is the Client ID. 
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
 authentication token management and query EDP-RT service discovery(if -query is not specified)

@@ -21,9 +21,7 @@ using namespace std;
 int numOfItemUpdateForTest = 600;
 bool userDispatch = false; //test case for diff dispatch mode with channel set
 bool dirAdminControl = false; //test case admin Control with channel set
-//APIQA ESDK-1601
 bool testChannelInfoWithLoginHandle = false;
-//END APIQA ESDK-1601
 //END APIQA
 AppClient::AppClient() :
 	_bConnectionUp( false )
@@ -55,9 +53,9 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmProviderEve
 	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 	cout << refreshMsg << endl;
 
-    // API QA ESDK-1601
+	// APIQA
 	cout << endl << "event channel info (refresh)" << endl << ommEvent.getChannelInformation() << endl;
-	// END API QA ESDK-1601
+	// END APIQA
 
 	if ( refreshMsg.getState().getStreamState() == OmmState::OpenEnum )
 	{
@@ -80,9 +78,9 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmProviderEvent&
 	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 	cout << statusMsg << endl;
 
-    // API QA ESDK-1601
+	// APIQA 
 	cout << endl << "event channel info (status)" << endl << ommEvent.getChannelInformation() << endl;   
-	// END API QA ESDK-1601
+	// END APIQA
         
         if ( statusMsg.hasState() )
         {
@@ -213,21 +211,19 @@ int main( int argc, char* argv[] )
 		if (dirAdminControl)
 			config->adminControlDirectory(OmmNiProviderConfig::UserControlEnum);
                 
-		// API QA ESDK-1601
 		OmmProvider *pOmmprovider = 0;
-        if (testChannelInfoWithLoginHandle) 
-            pOmmprovider = new OmmProvider(config->username("user"));
+		if (testChannelInfoWithLoginHandle) 
+		    pOmmprovider = new OmmProvider(config->username("user"));
 		else
-            pOmmprovider = new OmmProvider(config->username("user"), appClient);
+		    pOmmprovider = new OmmProvider(config->username("user"), appClient);
 
 		OmmProvider& provider = *pOmmprovider;
-        ChannelInformation ci;
+		ChannelInformation ci;
 		provider.getChannelInformation( ci );
-        cout << "channel info (provider)" << endl << ci << endl;
+		cout << "channel info (provider)" << endl << ci << endl;
 
-        if (testChannelInfoWithLoginHandle) 
-            UInt64 loginHandle = provider.registerClient( ReqMsg().domainType( MMT_LOGIN ).name( "user" ), appClient );
-		// END API QA ESDK-1601
+		if (testChannelInfoWithLoginHandle) 
+		    UInt64 loginHandle = provider.registerClient( ReqMsg().domainType( MMT_LOGIN ).name( "user" ), appClient );
 
 		if (dirAdminControl)
 			sendDirRefresh(provider);

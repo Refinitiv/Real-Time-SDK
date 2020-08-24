@@ -10,7 +10,7 @@ include(rcdevExternalUtils)
 
 if(NOT lz4_url)
 	# This is the latest build. However, until deprecated interfaces updates can 
-	# me applied to the rtsdk code, the older, compatible source will be used
+	# be applied to the rtsdk code in esdk repository, the older, compatible source will be used
 	#set(lz4_url "https://github.com/lz4/lz4/archive/r131.tar.gz")
 	set(lz4_url "https://github.com/lz4/lz4/archive/v1.8.3.tar.gz")
 endif()

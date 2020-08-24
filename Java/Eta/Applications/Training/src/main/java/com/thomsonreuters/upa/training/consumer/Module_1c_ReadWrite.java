@@ -13,7 +13,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -26,6 +27,18 @@
  * 
  * For this simple training app, only a single channel/connection is used for 
  * the entire life of this app.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 -i ""))
+ * or
+ *
+ * ./gradlew runconsumermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 1b: Ping (heartbeat) Management
  *********************************************************************************
@@ -48,6 +61,18 @@
  * heartbeats as the other data is sufficient to announce its continued 
  * presence. It is the responsibility of each connection to manage the sending
  * and receiving of heartbeat messages.
+ *
+ *
+ * Command line usage:
+ * ./gradlew runconsumermod1b
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  * 
  *********************************************************************************
  * UPA Consumer Training Module 1c: Reading and Writing Data
@@ -79,7 +104,18 @@
  * mechanism can be used to help with determining when the network is able 
  * to accept additional bytes for writing. The UPA Transport can continue to
  * queue data, even if the network is unable to write. 
- *********************************************************************************/
+ *
+ * Command line usage:
+ * ./gradlew runconsumermod1c
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1c -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *******************************************************************************/
 
 package com.thomsonreuters.upa.training.consumer;
 

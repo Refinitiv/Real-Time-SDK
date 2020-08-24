@@ -38,9 +38,8 @@ class AppClient implements OmmProviderClient
 										 // with channel set
 	static boolean DIRADMINCONTROL = false; // test case admin Control with
 											// channel set
-	// APIQA ESDK-1601
 	static boolean TESTCHANNELINFOWITHLOGINHANDLE = false;
-    // END APIQA ESDK-1601	
+
 	boolean _sendRefreshMsg = false;
 	// END APAQA
 	boolean _connectionUp;
@@ -58,9 +57,9 @@ class AppClient implements OmmProviderClient
 
 		System.out.println("Item State: " + refreshMsg.state());
 		
-		// APIQA ESDK-1601
+		// APIQA 
 		System.out.println( "event channel info (refresh)\n" + event.channelInformation());
-		// END APIQA ESDK-1601
+		// END APIQA
 
 		if (refreshMsg.state().streamState() == OmmState.StreamState.OPEN)
 		{
@@ -84,9 +83,9 @@ class AppClient implements OmmProviderClient
 		System.out.println("Item Name: " + (statusMsg.hasName() ? statusMsg.name() : "<not set>"));
 		System.out.println("Service Name: " + (statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>"));
 		System.out.println("Item State: " + statusMsg.state());
-		// APIQA ESDK-1601
+		// APIQA 
 		System.out.println( "event channel info (status)\n" + event.channelInformation());
-		// END APIQA ESDK-1601
+		// END APIQA
 	}
 	// APIQA
 	boolean sendRefreshMsg()
@@ -233,7 +232,6 @@ public class NiProvider
 				config.operationModel(OperationModel.USER_DISPATCH);
 			if (appClient.DIRADMINCONTROL)
 				config.adminControlDirectory(OmmNiProviderConfig.AdminControl.USER_CONTROL);
-			//APIQA ESDK-1601
 			if (appClient.TESTCHANNELINFOWITHLOGINHANDLE)
 				provider = EmaFactory.createOmmProvider(config.username("user"));
 			else 
@@ -243,9 +241,7 @@ public class NiProvider
             System.out.println("channel information (niprovider): " + ci);
 
 			if (appClient.TESTCHANNELINFOWITHLOGINHANDLE)
-			    provider.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_LOGIN), appClient);
-			//END APIQA ESDK-1601
-			
+				provider.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_LOGIN), appClient);
 			if (appClient.DIRADMINCONTROL)
 				sendDirRefresh(provider);
 			if (appClient.USERDISPATCH)

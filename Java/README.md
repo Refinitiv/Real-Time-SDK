@@ -1,15 +1,16 @@
-# Elektron SDK - Java Edition
-This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
+# Refinitiv Real-Time SDK - Java Edition
+This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
-The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
+The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
 
-The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
 # New In This Release
 
-Please refer to the CHANGELOG file in this section to see what is new in this release of Elektron SDK - Java Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
+Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - Java Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
 
 ### Supported Platforms, OSs, Compilers
 
@@ -19,7 +20,7 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Elektron-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11.
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
@@ -28,7 +29,7 @@ Refinitiv will extend support to other platforms based on the following criteria
 - All problems must be reproducible on one of the core platforms listed below. Refinitiv support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
-The Elektron-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
+The Refinitiv Real-Time-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
 
 ##### Windows
 
@@ -86,10 +87,10 @@ The **keystore** file is used to contain your own private keys and public key ce
 
 ### Interoperability
 
-ESDK Java supports connectivity to the following platforms:
+RTSDK Java supports connectivity to the following platforms:
 
-- Enterprise Platform for Real-Time (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher. 
-- Elektron: Elektron Deployed, Elektron Hosted, Elektron Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher.
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Direct Feed
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
@@ -101,32 +102,32 @@ This release has been tested with the following:
 
 # Documentation
   
-Please refer to top level README.md and to Java/Eta/README.MD or Java/Ema/README.MD files to find more information. In this directory, please find the test plan with test results: ESDK-Java-Edition\_Test\_Plan.xlsx
+Please refer to top level README.md and to Java/Eta/README.MD or Java/Ema/README.MD files to find more information. In this directory, please find the test plan with test results: RTSDK-Java-Edition\_Test\_Plan.xlsx
 
 # Installation & Build
 
-Please refer to Installation Guides for [ETA](Java/Eta/Docs/ESDK_J_Installation_Java.pdf) and [EMA](Java/Ema/Docs/ESDK_J_Installation_Java.pdf) for detailed instructions. In this section are some basic details.
+Please refer to Installation Guides for [ETA](Java/Eta/Docs/RTSDK_J_Installation_Java.pdf) and [EMA](Java/Ema/Docs/RTSDK_J_Installation_Java.pdf) for detailed instructions. In this section are some basic details.
 
-## Install ESDK 
+## Install RTSDK 
 This section shows the required setup needed before you can build any of the Java APIs.
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build ESDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Elektron-SDK-BinaryPack/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to ESDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning ESDK GitHub repo with --recursive to include submodule found in [Elektron-SDK-BinaryPack](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository. 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to RTSDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning RTSDK GitHub repo with --recursive to include submodule found in [a BinaryPack repository](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack). 
 
-Elektron SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-java/downloads).
+Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-java/downloads).
 
-Elektron SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
+Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
 
-## Building ESDK
+## Building RTSDK
 
 **Using Gradle**:
 
-Gradle is now used to build ESDK.
+Gradle is now used to build RTSDK.
 Gradle can be downloaded from https://gradle.org
 NOTE: Starting release ESDK 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
 
-Refer to the ESDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
+Refer to the RTSDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 
-Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
+Navigate to `RTSDK/Java` and issue the appropriate Gradle command as follows:
 
 	Windows: gradlew.bat jar
 	Linux: ./gradlew jar
@@ -172,9 +173,9 @@ The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this 
 
 # Maven Central
 
-For ease of product use, as of the ESDK 1.2 release, Refinitiv maintains its ESDK Jar files on Maven Central.
+For ease of product use, as of the RTSDK 1.2 release, Refinitiv maintains its RTSDK Jar files on Maven Central.
 
-You can download ESDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify ESDK dependencies (this is sample code) :
+You can download RTSDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify RTSDK dependencies (this is sample code) :
 
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
@@ -206,7 +207,7 @@ You can download ESDK libraries and dependencies from Maven Central using severa
 		<version>3.5.0.1</version>
 	</dependency>
 
-Gradle uses the following syntax to specify ESDK dependencies:
+Gradle uses the following syntax to specify RTSDK dependencies:
 
 	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.0.1'
 	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.0.1'
@@ -226,8 +227,8 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 
 Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.

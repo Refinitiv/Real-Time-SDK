@@ -5,9 +5,9 @@ The 332__Dictionary__Streaming application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed
-Direct (RDF-D), directly from an OMM Provider application, or from 
-Advanced Distribution Server.
+and parsing of OMM Dictionary and MarketPrice data from Refinitiv Data Feed
+Direct, directly from an OMM Provider application, or from Advanced Distribution 
+Server.
 
 The 332__Dictionary__Streaming showcases usage of directory stream in OMM
 Consumer. It demonstrates opening of dictionary stream as well as its processing.

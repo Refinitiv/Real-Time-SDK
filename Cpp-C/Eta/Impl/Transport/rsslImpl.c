@@ -160,9 +160,9 @@ RTR_C_ALWAYS_INLINE rsslChannelImpl *_rsslCreateChannel()
 
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	{
-	  (void) RSSL_MUTEX_INIT_ESDK( &chnl->chanMutex );
+	  (void) RSSL_MUTEX_INIT_RTSDK( &chnl->chanMutex );
 	}
-	(void) RSSL_MUTEX_INIT_ESDK( &chnl->traceMutex );
+	(void) RSSL_MUTEX_INIT_RTSDK( &chnl->traceMutex );
 
 	// Allocate hash table for handling fragmentation
 	rsslHashTableInit(&(chnl->assemblyBuffers), 65535, UInt32_key_hash, checkFragID, RSSL_TRUE, &rsslErrorInfo);
@@ -198,7 +198,7 @@ RTR_C_ALWAYS_INLINE rsslServerImpl* _rsslCreateServer()
 
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	{
-	  (void) RSSL_MUTEX_INIT_ESDK( &srvr->srvrMutex );
+	  (void) RSSL_MUTEX_INIT_RTSDK( &srvr->srvrMutex );
 	}
 	
 	srvr->hasSharedBufPool = RSSL_FALSE;
@@ -999,7 +999,7 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 		case RSSL_CONN_TYPE_SEQ_MCAST:
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 Elektron Direct Feed connection type (%d) is currently not supported for a server\n", __FILE__, __LINE__, opts->connectionType);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 Sequenced Multicast connection type (%d) is currently not supported for a server\n", __FILE__, __LINE__, opts->connectionType);
 			_rsslReleaseServer(rsslSrvrImpl);
 			return NULL;
 		}

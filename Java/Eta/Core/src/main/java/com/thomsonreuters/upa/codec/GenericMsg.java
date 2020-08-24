@@ -8,8 +8,8 @@ import com.thomsonreuters.upa.codec.Buffer;
  * established via a request-refresh/status interaction, this message can be
  * sent from consumer to provider as well as from provider to consumer, and can
  * also be leveraged by non-interactive provider applications. Generic messages
- * are transient and are typically not cached by any Enterprise Platform
- * components. The msgKey of a {@link GenericMsg} does not need to match the
+ * are transient and are typically not cached by any Refinitiv Real-Time Distibution 
+ * System components. The msgKey of a {@link GenericMsg} does not need to match the
  * {@link MsgKey} information associated with the stream the generic message is
  * flowing on. This allows for the key information to be used independently of
  * the stream. Any specific message usage, msgKey usage, expected interactions,

@@ -2902,7 +2902,7 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslIni
 	if (rsslRetVal == RSSL_RET_SUCCESS)
 	{
 		/* initialize lock for FDs */
-		RSSL_MUTEX_INIT_ESDK(&fdsLock);
+		RSSL_MUTEX_INIT_RTSDK(&fdsLock);
 
 		/* clear selectLoopServer FDs */
 		FD_ZERO(&readfds);
