@@ -16,12 +16,12 @@ list(APPEND CMAKE_MODULE_PATH ${rtsdk_CMAKE_DIR})
 include(rcdevEnvironment)
 include(rcdevSupport)
 
-include(esdkOptions)
-include(esdkInfo)
+include(rtsdkOptions)
+include(rtsdkInfo)
 
 
 if(BUILD_RTSDK-BINARYPACK)
-	include(addExternal_elektron-sdk-binarypack)
+	include(addExternal_rtsdk-binarypack)
 endif()
 
 if (BUILD_UNIT_TESTS)
