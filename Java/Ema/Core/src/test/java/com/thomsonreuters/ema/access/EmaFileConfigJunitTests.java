@@ -837,7 +837,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			elementList.clear();
 
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_ENCRYPTED"));
-			innerElementList.add(EmaFactory.createElementEntry().ascii("EncryptedProtocolType", "EncryptedProtocolType::RSSL_SOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EncryptedProtocolType", "EncryptedProtocolType::RSSL_HTTP"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::ZLib"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 8000));
