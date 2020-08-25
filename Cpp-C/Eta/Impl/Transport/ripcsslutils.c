@@ -51,6 +51,10 @@ static char* default11CryptoLibName = "libcrypto-1_1-x64.dll";
 
 static RsslOpenSSLAPIVersion openSSLAPI = RSSL_OPENSSL_VNONE;
 
+// for monitoring calls of initialization and releasing
+static RsslInt32 countInitializeSSLServer = 0;
+static RsslInt32 countReleaseSSLServer = 0;
+
 ripcSSLProtocolFlags ripcGetSupportedProtocolFlags()
 {
 	if (openSSLAPI == RSSL_OPENSSL_V1_0 || openSSLAPI == RSSL_OPENSSL_V1_1)
@@ -2048,6 +2052,8 @@ RsslInt32 ripcReleaseSSLServer(void* srvr, RsslError *error)
 			(*(sslFuncs.ctx_free))(server->ctx);
 
 		_rsslFree(server);
+
+		++countReleaseSSLServer;
 	}
 
 	return 1;
@@ -2103,6 +2109,7 @@ ripcSSLServer *ripcInitializeSSLServer(RsslServerSocketChannel* chnl, RsslError 
 	/* not setting the cache size - right now that will allow 20000 sessions 
 	   - this is extreme, need a better idea of actual number of sessions to allow */
 
+	++countInitializeSSLServer;
 	return server;
 }
 
@@ -2124,3 +2131,12 @@ ripcSSLSession *ripcInitializeSSLSession(RsslSocket fd, RsslInt32 SSLProtocolVer
 	return sess;
 }
 
+RsslInt32 ripcGetCountInitializeSSLServer()
+{
+	return countInitializeSSLServer;
+}
+
+RsslInt32 ripcGetCountReleaseSSLServer()
+{
+	return countReleaseSSLServer;
+}

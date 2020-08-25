@@ -14,6 +14,9 @@
 #include <malloc.h>
 #include <assert.h>
 
+ // for monitoring calls of initialization and releasing
+static RsslInt32 countShmTransCreate = 0;
+static RsslInt32 countShmTransDestroy = 0;
 
 rtrShmTransServer *rtrShmTransCreate(rtrShmCreateOpts *createOpts, RsslError *error)
 {
@@ -176,6 +179,7 @@ rtrShmTransServer *rtrShmTransCreate(rtrShmCreateOpts *createOpts, RsslError *er
 	rtrReleaseMutex(trans->controlMutex);
 	*trans->byteWritten = 0;
 
+	++countShmTransCreate;
 	return trans;
 }
 
@@ -298,6 +302,8 @@ int rtrShmTransDestroy( void *trans, RsslError *error )
 	rssl_pipe_close(&shmTransServerns->_bindPipe);
 	rssl_pipe_close(&shmTransServerns->_acceptPipe);
 	free(trans);
+
+	++countShmTransDestroy;
 	return 0;
 }
 
@@ -659,4 +665,12 @@ rtrShmBuffer* rtrShmTransClientRead(rtrShmTransClient *trans, RsslChannel *chnl,
 	return trans->readBuffer;
 }
 
+RsslInt32 ripcGetCountShmTransCreate()
+{
+	return countShmTransCreate;
+}
 
+RsslInt32 ripcGetCountShmTransDestroy()
+{
+	return countShmTransDestroy;
+}

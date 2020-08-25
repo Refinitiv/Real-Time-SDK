@@ -220,6 +220,9 @@ RTR_C_ALWAYS_INLINE void rtrShmTransServerWrite(rtrShmTransServer *trans)
 	return;
 }
 
+RsslInt32 ripcGetCountShmTransCreate();
+
+RsslInt32 ripcGetCountShmTransDestroy();
 
 #ifdef __cplusplus
 };
