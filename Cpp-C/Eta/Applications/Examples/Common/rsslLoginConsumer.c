@@ -257,6 +257,10 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 				/* provider role */
 				loginReqInfo.Role = RSSL_PROVIDER;
 			}
+
+			/* Set RTT support for this connection */
+			loginReqInfo.RTT = RTTSupport;
+
 			/* keep default values for all others */
 
 			/* encode login request */
@@ -273,37 +277,6 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 		}
 		else
 		{
-			snprintf(loginReqInfo.Position, 128, "localhost");
-		}
-		/* Password */
-		snprintf(loginReqInfo.Password, 128, "%s", pword);
-		/* InstanceId */
-		snprintf(loginReqInfo.InstanceId, 128, "%s", instanceId);
-		/* if provider, change role and single open from default values */
-		if (role == RSSL_PROVIDER)
-		{
-			/* this provider does not support SingleOpen behavior */
-			loginReqInfo.SingleOpen = 0;
-			/* provider role */
-			loginReqInfo.Role = RSSL_PROVIDER; 
-		}
-		
-		/* Set RTT support for this connection */
-		loginReqInfo.RTT = RTTSupport;
-
-		/* keep default values for all others */
-
-		/* encode login request */
-		if ((ret = encodeLoginRequest(chnl, &loginReqInfo, msgBuf)) != RSSL_RET_SUCCESS)
-		{
-			rsslReleaseBuffer(msgBuf, &error); 
-			printf("\nencodeLoginRequest() failed with return code: %d\n", ret);
-			return ret;
-		}
-
-		/* send login request */
-		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
-		{
 			printf("rsslGetBuffer(): Failed <%s>\n", error.text);
 			return RSSL_RET_FAILURE;
 		}
@@ -312,6 +285,7 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 	{
 		loginSuccessCallback(chnl);
 	}
+
 	return RSSL_RET_SUCCESS;
 }
 
