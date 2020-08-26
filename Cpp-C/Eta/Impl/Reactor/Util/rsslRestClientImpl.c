@@ -951,7 +951,7 @@ RsslRestClient* rsslCreateRestClient(RsslCreateRestClientOptions *pRestClientOpt
 		RsslUInt32 i;
 		RsslRestBufferImpl* pRestBufferImpl;
 
-		(void)RSSL_MUTEX_INIT_ESDK(&rsslRestClientImpl->headersPoolMutex);
+		(void)RSSL_MUTEX_INIT_RTSDK(&rsslRestClientImpl->headersPoolMutex);
 
 		for (i = 0; i < rsslRestClientImpl->numberOfBuffers; i++)
 		{

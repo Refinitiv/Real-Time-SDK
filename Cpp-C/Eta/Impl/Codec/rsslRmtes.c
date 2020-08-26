@@ -335,14 +335,14 @@ int controlParse(unsigned char* curPtr, unsigned char* endPtr, RsslRmtesWorkingS
 				}
 				break;
 			case ESC_21:
-				if(*iIter != 0x40)  /* Reuters Ctrl 1 to CL */
+				if(*iIter != 0x40)  /* Refinitiv Ctrl 1 to CL */
 				{
 					*retCode = ESC_ERROR;
 					return 0;
 				}
 				break;
 			case ESC_22:
-				if(*iIter != 0x30)	/* Reuters Ctrl 2 to CR */
+				if(*iIter != 0x30)	/* Refinitiv Ctrl 2 to CR */
 				{
 					*retCode = ESC_ERROR;
 					return 0;

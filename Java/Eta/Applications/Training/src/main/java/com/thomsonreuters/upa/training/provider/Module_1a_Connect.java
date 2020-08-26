@@ -34,7 +34,19 @@
  * Whenever an OMM consumer application attempts to connect, the provider uses 
  * the Server.accept() method to begin the connection initialization process.
  * 
- * For this simple training app, the interactive provider only supports a single client. 
+ * For this simple training app, the interactive provider only supports a single client.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1a
+ * (runs with a default set of parameters (-p 14002))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1a -PcommandLineArgs="[-p <SrvrPortNo>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *****************************************************************************************/
 
 package com.thomsonreuters.upa.training.provider;
@@ -303,7 +315,8 @@ public class Module_1a_Connect
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                System.out.printf("Exception %s\n", e.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -539,7 +552,8 @@ public class Module_1a_Connect
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                System.out.printf("Exception %s\n", e1.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
         }
     }
@@ -558,6 +572,7 @@ public class Module_1a_Connect
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         try
         {
@@ -578,9 +593,8 @@ public class Module_1a_Connect
          * Calling CloseChannel terminates the connection for each connection
          * client.
          *********************************************************/
-        if ((channel != null) && (channel.close(error) < TransportReturnCodes.SUCCESS))
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -601,9 +615,8 @@ public class Module_1a_Connect
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((server != null)) {
+            isClosedAndClean &= server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -617,6 +630,12 @@ public class Module_1a_Connect
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -626,6 +645,6 @@ public class Module_1a_Connect
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 }

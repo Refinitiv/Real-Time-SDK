@@ -5,7 +5,7 @@ The 422__MarketPrice__ErrorClient application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA for accessing and parsing
-of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from
+of OMM MarketPrice data from Refinitiv Data Feed Direct, directly from
 an OMM Provider application, or from Advanced Distribution Server.
 
 The 422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient

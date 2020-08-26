@@ -452,7 +452,7 @@ else()
                                     "-D__EMA_COPY_ON_SET__")
     endif()
 
-	rcdev_add_target(esdk libema libema_shared)
+	rcdev_add_target(rtsdk libema libema_shared)
 
 endif()
 

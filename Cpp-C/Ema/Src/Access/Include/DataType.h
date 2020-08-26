@@ -94,16 +94,16 @@ public :
 			
 		BufferEnum = 16,		/*!< A general purpose buffer. */
 
-		AsciiEnum = 17,			/*!< An 8-bit characters encoding using the Reuters Basic Character Set 
+		AsciiEnum = 17,			/*!< An 8-bit characters encoding using the Refinitiv Basic Character Set 
 									(RBCS). The first 128 characters are equivalent to the ASCII character 
 									set (ANSI X3.4-1968). */
 								
 		Utf8Enum = 18,			/*!< A UTF-8 encoding of ISO 10646 (specified in section 3.9 of the Unicode
 									4.0 standard and IETF's RFC 3629). */
 		
-		RmtesEnum = 19,			/*!< An encoding with the Reuters Multilingual Text Encoding Standard.
+		RmtesEnum = 19,			/*!< An encoding with the Refinitiv Multilingual Text Encoding Standard.
 									RMTES uses ISO 2022 escape sequences to select the character sets used. 
-									RMTES provides support for the Reuters Basic Character Set, UTF-8, 
+									RMTES provides support for the Refinitiv Basic Character Set, UTF-8, 
 									Japanese Latin and Katakana (JIS C 6220 - 1969), Japanese Kanji (JIS X 
 									0208 - 1990), and Chinese National Standard (CNS 11643-1986). StringRMTES 
 									also supports RREP sequences for character repetition and RHPA sequences 

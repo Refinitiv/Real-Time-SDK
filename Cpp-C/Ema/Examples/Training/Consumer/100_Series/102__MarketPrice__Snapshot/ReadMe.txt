@@ -3,7 +3,7 @@ Summary
 
 102__MarketPrice__Snapshot is an example of an OMM Consumer application
 written to the EMA library and demonstrates basic usage of the EMA library 
-in accessing and parsing OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),
+in accessing and parsing OMM MarketPrice data either from Refinitiv Data Feed Direct, 
 directly from an OMM Provider application, or from the Advanced
 Distribution Server.
 

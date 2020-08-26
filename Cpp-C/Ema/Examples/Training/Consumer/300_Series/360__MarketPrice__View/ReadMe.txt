@@ -6,7 +6,7 @@ application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for opening item
 stream with a list of field IDs called "View" and parsing of OMM MarketPrice
-data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider
+data from Refinitiv Data Feed Direct, directly from an OMM Provider
 application, or from Advanced Distribution Server.
 
 The 360__MarketPrice__View showcases usage of view request feature supported

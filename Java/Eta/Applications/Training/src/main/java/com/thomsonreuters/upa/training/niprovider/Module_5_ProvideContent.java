@@ -7,12 +7,12 @@
  *|-------------------------------------------------------------------------------
  */
 
-/*
+/**
  * This is the UPA NI Provider Training series of the UPA Training Suite
- * applications. The purpose of this application is to show step-by-step 
+ * applications. The purpose of this application is to show step-by-step
  * training how to build a UPA OMM NI Provider using the UPA Transport layer.
  *
- * Main c source file for the UPA NI Provider Training application. It is a 
+ * Main c source file for the UPA NI Provider Training application. It is a
  * single-threaded client application.
  *
  ************************************************************************
@@ -29,150 +29,221 @@
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM NIProvider applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components,
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
- * communication with an ADH server. To do so, the OMM NIP typically creates 
- * an outbound connection to the well-known hostname and port of an ADH. 
- * The OMM NIP uses the Connect function to initiate the connection 
+ * The first step of any UPA NIP application is to establish network
+ * communication with an ADH server. To do so, the OMM NIP typically creates
+ * an outbound connection to the well-known hostname and port of an ADH.
+ * The OMM NIP uses the Connect function to initiate the connection
  * process and then performs connection initialization processes as needed.
- * 
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14003 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
- * In this module, after establishing a connection, ping messages might 
- * need to be exchanged. The negotiated ping timeout is available via 
- * the Channel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
- * recommends sending ping messages at intervals one-third the 
+ * In this module, after establishing a connection, ping messages might
+ * need to be exchanged. The negotiated ping timeout is available via
+ * the Channel. If ping heartbeats are not sent or received within
+ * the expected time frame, the connection can be terminated. Refinitiv
+ * recommends sending ping messages at intervals one-third the
  * size of the ping timeout.
  *
  * Detailed Descriptions:
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information 
- * is being exchanged. For example, there may be long periods of time that 
+ * Ping or heartbeat messages are used to indicate the continued presence of
+ * an application. These are typically only required when no other information
+ * is being exchanged. For example, there may be long periods of time that
  * elapse between requests made from an OMM NIP application to ADH Infrastructure.
- * In this situation, the NIP would send periodic heartbeat messages to inform 
+ * In this situation, the NIP would send periodic heartbeat messages to inform
  * the ADH Infrastructure that it is still alive.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1b
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  *
  ************************************************************************
  * UPA NI Provider Training Module 1c: Reading and Writing Data
  ************************************************************************
  * Summary:
- * In this module, when a client or server Channel.state is 
- * _CH_STATE_ACTIVE, it is possible for an application to receive 
- * data from the connection. Similarly, when a client or server 
- * Channel.state is _CH_STATE_ACTIVE, it is possible for an 
- * application to write data to the connection. Writing involves a several 
- * step process. 
+ * In this module, when a client or server Channel.state is
+ * ACTIVE, it is possible for an application to receive
+ * data from the connection. Similarly, when a client or server
+ * Channel.state is ACTIVE, it is possible for an
+ * application to write data to the connection. Writing involves a several
+ * step process.
  *
  * Detailed Descriptions:
- * When a client or server Channel.state is _CH_STATE_ACTIVE, it is 
- * possible for an application to receive data from the connection. The 
- * arrival of this information is often announced by the I/O notification 
- * mechanism that the Channel.socketId is registered with. The UPA 
- * Transport reads information from the network as a byte stream, after 
- * which it determines Buffer boundaries and returns each buffer one by 
+ * When a client or server Channel.state is ACTIVE, it is
+ * possible for an application to receive data from the connection. The
+ * arrival of this information is often announced by the I/O notification
+ * mechanism that the Channel.socketId is registered with. The UPA
+ * Transport reads information from the network as a byte stream, after
+ * which it determines Buffer boundaries and returns each buffer one by
  * one.
- * 
- * When a client or server Channel.state is _CH_STATE_ACTIVE, it is 
- * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
- * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
- * buffer pool associated with an Channel. After a buffer is acquired, 
- * the user can populate the Buffer.data and set the Buffer.length 
- * to the number of bytes referred to by data. If queued information cannot 
- * be passed to the network, a function is provided to allow the application 
+ *
+ * When a client or server Channel.state is ACTIVE, it is
+ * possible for an application to write data to the connection. Writing
+ * involves a several step process. Because the UPA Transport provides
+ * efficient buffer management, the user is required to obtain a buffer
+ * from the UPA Transport buffer pool. This can be the guaranteed output
+ * buffer pool associated with an Channel. After a buffer is acquired,
+ * the user can populate the Buffer.data and set the Buffer.length
+ * to the number of bytes referred to by data. If queued information cannot
+ * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
- * mechanism can be used to help with determining when the network is able 
+ * mechanism can be used to help with determining when the network is able
  * to accept additional bytes for writing. The UPA Transport can continue to
- * queue data, even if the network is unable to write. 
+ * queue data, even if the network is unable to write.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1c
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA NI Provider Training Module 2: Log in
  ************************************************************************
  * Summary:
- * In this module, applications authenticate with one another using the Login 
- * domain model. An OMM NIP must register with the system using a Login request 
- * prior to providing any content. Because this is done in an interactive manner, 
- * the NIP should assign a streamId with a positive value which the ADH will 
+ * In this module, applications authenticate with one another using the Login
+ * domain model. An OMM NIP must register with the system using a Login request
+ * prior to providing any content. Because this is done in an interactive manner,
+ * the NIP should assign a streamId with a positive value which the ADH will
  * reference when sending its response.
  *
  * Detailed Descriptions:
- * After receiving a Login request, the ADH determines whether the NIP is 
- * permissioned to access the system. The ADH sends a Login response, indicating 
- * to the NIP whether the ADH grants it access. 
- * 
- * a) If the application is denied, the ADH closes the Login stream and the 
- * NI provider application cannot perform any additional communication. 
- * b) If the application gains access to the ADH, the Login response informs 
+ * After receiving a Login request, the ADH determines whether the NIP is
+ * permissioned to access the system. The ADH sends a Login response, indicating
+ * to the NIP whether the ADH grants it access.
+ *
+ * a) If the application is denied, the ADH closes the Login stream and the
+ * NI provider application cannot perform any additional communication.
+ * b) If the application gains access to the ADH, the Login response informs
  * the application of this. The NI provider must now provide a Source Directory.
- * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
- * Data Package. 
- * 
+ *
+ * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod2
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300 -s DIRECT_FEED))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod2 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  ************************************************************************
  * UPA NI Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
  * Summary:
  * In this module, OMM NIP application provides Source Directory information.
- * The Source Directory domain model conveys information about all available 
- * services in the system. After completing the Login process, an OMM NIP must 
+ * The Source Directory domain model conveys information about all available
+ * services in the system. After completing the Login process, an OMM NIP must
  * provide a Source Directory refresh.
- * 
+ *
  * Detailed Descriptions:
- * The Source Directory domain model conveys information about all 
- * available services in the system. After completing the Login process, 
+ * The Source Directory domain model conveys information about all
+ * available services in the system. After completing the Login process,
  * an OMM NIP must provide a Source Directory refresh indicating:
- * 
- * a) Service, service state, QoS, and capability information associated 
+ *
+ * a) Service, service state, QoS, and capability information associated
  * with the NIP
- * b) Supported domain types and any item group information associated 
+ * b) Supported domain types and any item group information associated
  * with the service.
- * 
- * At a minimum, Refinitiv recommends that the NIP send the Info, 
- * State, and Group filters for the Source Directory. Because this is provider 
+ *
+ * At a minimum, Refinitiv recommends that the NIP send the Info,
+ * State, and Group filters for the Source Directory. Because this is provider
  * instantiated, the NIP should use a streamId with a negative value.
- * 
- * a) The Source Directory Info filter contains service name and serviceId 
- * information for all available services, though NIPs typically provide data 
+ *
+ * a) The Source Directory Info filter contains service name and serviceId
+ * information for all available services, though NIPs typically provide data
  * on only one service.
- * b) The Source Directory State filter contains status information for service. 
- * This informs the ADH whether the service is Up and available or Down and 
+ * b) The Source Directory State filter contains status information for service.
+ * This informs the ADH whether the service is Up and available or Down and
  * unavailable.
- * c) The Source Directory Group filter conveys item group status information, 
- * including information about group states as well as the merging of groups. 
+ * c) The Source Directory Group filter conveys item group status information,
+ * including information about group states as well as the merging of groups.
  * For additional information about item groups, refer to UPAC Developer Guide.
- * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ *
+ * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod3
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300 -s DIRECT_FEED -id 1))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod3 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>] [-id <Service ID>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  *
  ************************************************************************
  * UPA NI Provider Training Module 4: Load Dictionary Information
  ************************************************************************
  * Summary:
- * Dictionaries may be available locally in a file for an OMM NIP appliation. In 
- * this Training example, the OMM NIP will use dictionaries that are available 
+ * Dictionaries may be available locally in a file for an OMM NIP appliation. In
+ * this Training example, the OMM NIP will use dictionaries that are available
  * locally in a file.
- * 
+ *
  * Detailed Descriptions:
- * Some data requires the use of a dictionary for encoding or decoding. This 
- * dictionary typically defines type and formatting information and directs 
- * the application as to how to encode or decode specific pieces of information. 
- * Content that uses the FieldList type requires the use of a field dictionary 
- * (usually the Refinitiv RDMFieldDictionary, though it could also be a 
+ * Some data requires the use of a dictionary for encoding or decoding. This
+ * dictionary typically defines type and formatting information and directs
+ * the application as to how to encode or decode specific pieces of information.
+ * Content that uses the FieldList type requires the use of a field dictionary
+ * (usually the Refinitiv RDMFieldDictionary, though it could also be a
  * user-defined or modified field dictionary).
- * 
- * Dictionaries may be available locally in a file for an OMM NIP appliation. In 
- * this Training example, the OMM NIP will use dictionaries that are available 
+ *
+ * Dictionaries may be available locally in a file for an OMM NIP appliation. In
+ * this Training example, the OMM NIP will use dictionaries that are available
  * locally in a file.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod4
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300 -s DIRECT_FEED -id 1))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod4 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>] [-id <Service ID>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  *
  ************************************************************************
@@ -200,6 +271,18 @@
  * 
  * Content is encoded and decoded using the UPA Message Package and the UPA 
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod5
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300 -s DIRECT_FEED -id 1 -mp TRI))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod5 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>] [-mp <Market Price Item Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  */
 
@@ -481,7 +564,7 @@ public class Module_5_ProvideContent
          */
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
             System.exit(TransportReturnCodes.FAILURE);
         }
 
@@ -1162,7 +1245,7 @@ public class Module_5_ProvideContent
                     sendItemCloseStatusMsg(channel, maxMsgSize, encodeIter);
 
                     /* Note that closing Login stream will automatically close all other streams at the provider */
-                    if ((retCode = closeLoginStream(channel, maxMsgSize, encodeIter)) != TransportReturnCodes.SUCCESS) /* (retCode > CodecReturnCodes.SUCCESS) or (retCode < CodecReturnCodes.SUCCESS) */
+                    if ((retCode = closeLoginStream(channel, maxMsgSize, encodeIter)) < TransportReturnCodes.SUCCESS) /* (retCode > CodecReturnCodes.SUCCESS) or (retCode < CodecReturnCodes.SUCCESS) */
                     {
                         /* When you close login, we want to make a best effort to get this across the network as it will gracefully
                          * close all open streams. If this cannot be flushed or failed, this application will just close the connection
@@ -1208,7 +1291,7 @@ public class Module_5_ProvideContent
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
     {
-
+        boolean isClosedAndClean = true;
         try
         {
             selector.close();
@@ -1228,9 +1311,8 @@ public class Module_5_ProvideContent
          * Calling CloseChannel terminates the connection to the ADH.
          *********************************************************/
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -1245,6 +1327,12 @@ public class Module_5_ProvideContent
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("NIProvider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1252,7 +1340,7 @@ public class Module_5_ProvideContent
             System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
 
     }
 

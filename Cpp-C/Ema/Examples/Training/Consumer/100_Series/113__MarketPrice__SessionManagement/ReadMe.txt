@@ -3,15 +3,15 @@ Summary
 
 113__MarketPrice__SessionManagement is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud).
+and parsing OMM MarketPrice data from Refinitiv Real-Time Optimized.
 
 113__MarketPrice__SessionManagement illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
-a connection with the cloud service and consume data. This application requires a user name
-(machine ID) and a password for authorization with the token service in order to use
+a connection with a Refinitiv Real-Time service and consume data. This application requires 
+a user name (machine ID) and a password for authorization with the token service in order to use
 the access token for querying endpoints from the EDP service discovery and sending login 
-requests to the cloud service. EMA automatically refreshes the token to keep session alive 
-with the cloud service. 
+requests to the service. EMA automatically refreshes the token to keep session alive 
+with the service. 
 
 
 Detailed Description
@@ -23,9 +23,9 @@ including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory).
 -clientId client ID to perform authorization with the token service (mandatory).
- You can generate and manage client Ids at the following URL:
- https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
- to access this page).
+ You can generate and manage client Ids by using the Eikon App Key Generator.
+ This is found by visiting my.Refinitiv.com, launching Eikon, and 
+ searching for "App Key Generator". Eikon login is required to generate clientID.
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 -websocket Use the WebSocket transport protocol (optional).
 

@@ -951,6 +951,8 @@ RSSL_RSSL_UNIDIRECTION_SHMEM_IMPL_FAST(RsslRet) rsslUniShMemSrvrIoctl(rsslServer
 
 RSSL_RSSL_UNIDIRECTION_SHMEM_IMPL_FAST(RsslRet) rsslUniShMemCloseServer(rsslServerImpl *rsslSrvrImpl, RsslError *error)
 {
+	rtrShmTransDestroy(rsslSrvrImpl->transportInfo, error);
+
 	return RSSL_RET_SUCCESS;
 }
 

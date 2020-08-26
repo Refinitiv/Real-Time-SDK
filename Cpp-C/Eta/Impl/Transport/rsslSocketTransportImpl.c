@@ -125,6 +125,7 @@ static RsslUInt32			shutdownFlag =  SHUT_WR;
 static RsslMutex		ripcMutex;
 static RsslQueue			activeSocketChannelList;
 static RsslQueue			freeSocketChannelList;
+static RsslQueue			activeServerSocketChannelList;
 static RsslQueue			freeServerSocketChannelList;
 
 /* Used to tell if openSSL has been loaded */
@@ -504,6 +505,7 @@ RsslServerSocketChannel* createRsslServerSocketChannel()
     if (rsslServerSocketChannel)
     {
 		rsslInitQueueLink(&(rsslServerSocketChannel->link1));
+		rsslInitQueueLink(&(rsslServerSocketChannel->link2));
 		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
     }
 
@@ -7478,7 +7480,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	/* Create buffer pool for server */
 	if (opts->sharedPoolLock)
 	{
-	    (void) RSSL_MUTEX_INIT_ESDK(&rsslSrvrImpl->sharedBufPoolMutex);
+	    (void) RSSL_MUTEX_INIT_RTSDK(&rsslSrvrImpl->sharedBufPoolMutex);
 		rsslSrvrImpl->hasSharedBufPool = RSSL_TRUE;
 		serverPool = ipcCreatePool(poolSize, &(rsslSrvrImpl->sharedBufPoolMutex));
 	}
@@ -7691,6 +7693,23 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	rsslSrvrImpl->Server.state = rsslServerSocketChannel->state;
 	rsslSrvrImpl->transportInfo = (void*)rsslServerSocketChannel;
 	rsslSrvrImpl->Server.portNumber = net2host_u16(ipcGetServByName(rsslServerSocketChannel->serverName));
+
+	/* put rsslServerSocketChannel to activeServerSocketChannelList */
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	rsslQueueAddLinkToBack(&activeServerSocketChannelList, &(rsslServerSocketChannel->link2));
+
+	rsslSrvrImpl->serverCountersInfo.countOfFreeServerSocketChannelList = rsslQueueGetElementCount(&freeServerSocketChannelList);
+	rsslSrvrImpl->serverCountersInfo.countOfActiveServerSocketChannelList = rsslQueueGetElementCount(&activeServerSocketChannelList);
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
 
 	/* this connection type is mainly used to determine between transport types */
 	rsslSrvrImpl->connectionType = RSSL_CONN_TYPE_SOCKET;
@@ -10791,7 +10810,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		if (!gblmutexinit)
 		{
 			RTR_ATOMIC_SET(gblmutexinit,1);
-			RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			poolMutex = &ripcMutex;
 		}
 
@@ -10802,6 +10821,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 	if (!initialized)
 	{
 		rsslInitQueue(&freeServerSocketChannelList);
+		rsslInitQueue(&activeServerSocketChannelList);
 		rsslInitQueue(&freeSocketChannelList);
 		rsslInitQueue(&activeSocketChannelList);
 
@@ -11254,7 +11274,7 @@ RsslInt32 ipcCleanup()
 
 RsslInt32 ipcShutdownServer(RsslServerSocketChannel* rsslServerSocketChannel, RsslError *error)
 {
-	RsslInt32			ret = RSSL_RET_FAILURE;
+	RsslInt32			ret = RSSL_RET_SUCCESS;
 
 	if (IPC_NULL_PTR(rsslServerSocketChannel, "ipcShutdownServer", "server", error))
 		return RSSL_RET_FAILURE;
@@ -11268,7 +11288,7 @@ RsslInt32 ipcShutdownServer(RsslServerSocketChannel* rsslServerSocketChannel, Rs
 
 
 		/* this should only be done on the platforms this is supported on */
-		(*(transFuncs[rsslServerSocketChannel->connType].shutdownServer))((void*)rsslServerSocketChannel);
+		(*(transFuncs[rsslServerSocketChannel->connType].shutdownServer))((void*)rsslServerSocketChannel->transportInfo);
 
 	IPC_MUTEX_UNLOCK(rsslServerSocketChannel);
     }
@@ -11314,17 +11334,14 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvrImpl,
 		if (rsslSrvrSocketChannel->stream != RIPC_INVALID_SOCKET)
 		{
 			sock_close(rsslSrvrSocketChannel->stream);
-			rsslSrvrSocketChannel->stream = RIPC_INVALID_SOCKET;
 
-			if (rsslSrvrSocketChannel->state != RSSL_CH_STATE_INACTIVE)
-				rsslSrvrSocketChannel->state = RSSL_CH_STATE_INACTIVE;
+			ipcCloseActiveSrvr(rsslSrvrSocketChannel);
 		}
 
-		rsslSrvrSocketChannel->transportInfo = NULL;
-		retVal = ipcSrvrDropRef(rsslSrvrSocketChannel, error);
-	}
+		ipcShutdownServer(rsslSrvrSocketChannel, error);
 
-	_rsslCleanServer(rsslSrvrImpl);
+		ipcSrvrDropRef(rsslSrvrSocketChannel, error);
+	}
 
 	return retVal;
 }
@@ -11426,7 +11443,7 @@ RsslInt32 ripcSetDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void) RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void) RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit,1);
 		}
 
@@ -11463,7 +11480,7 @@ RsslInt32 rwsDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void)RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void)RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit, 1);
 		}
 
@@ -11744,9 +11761,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 			rsslServerSocketChannel->dhParams = 0;
 		}
 
-		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
+		if (rsslQueueLinkInAList(&(rsslServerSocketChannel->link2)))
+		{
+			rsslQueueRemoveLink(&activeServerSocketChannelList, &(rsslServerSocketChannel->link2));
+		}
 
 		rsslQueueAddLinkToBack(&freeServerSocketChannelList, &(rsslServerSocketChannel->link1));
+
+		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
 
 		if (multiThread)
 		{
@@ -12059,3 +12081,31 @@ void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
 		rsslSocketChannel->state = RSSL_CH_STATE_INACTIVE;
 }
 
+// Collects info from the non-rsslImpl counters
+// rsslSocketTransportImpl
+// countOfFreeServerSocketChannelList, countOfActiveServerSocketChannelList
+// numberCallsOfReleaseSSLServer - ripcssutils
+// numberCallsOfShmTransDestroy - shmemtrans
+void ipcGetOfServerSocketChannelCounters(rsslServerCountersInfo* serverCountersInfo)
+{
+	RsslInt32 ripcGetCountShmTransDestroy();
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	serverCountersInfo->countOfActiveServerSocketChannelList = rsslQueueGetElementCount(&activeServerSocketChannelList);
+	serverCountersInfo->countOfFreeServerSocketChannelList = rsslQueueGetElementCount(&freeServerSocketChannelList);
+	serverCountersInfo->numberCallsOfReleaseSSLServer = ripcGetCountReleaseSSLServer();
+	serverCountersInfo->numberCallsOfShmTransDestroy = ripcGetCountShmTransDestroy();
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
+	return;
+}

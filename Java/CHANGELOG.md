@@ -1,28 +1,23 @@
-This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Refinitiv Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-There are three types of ESDK releases that append a letter directly followed by a number to the version number. 
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and fixes prior to RTSDK-1.5.1.L1, may refer to ESDK or Elektron.
 
-"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
-"G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+There are three types of RTSDK releases that append a letter directly followed by a number to the version number.
+
+"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub.
+"G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub.
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.5.0.G1 aka EMA 3.5.0.G1 and ETA 3.5.0.G1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, and, openJDK 1.11. 
-
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance. Included in this release are rebranding changes.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion  function doesn't work as expected
-- [Case Number: 07697024 and GitHub # 141] [ESDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
-- [Case Number: 08453636] [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra
-- [GitHub #117] [ESDK-3854] Support Posting in EMAJ Providers
-- [GitHub #137] [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB
-- [Case Number: 08600487] [ESDK-3909] EMA Java indexOutOfBoundsException
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -31,6 +26,10 @@ FULL CHANGELOG
 --------------------------------------------
 ESDK Java Release 1.5.0.G1 (Jun 30, 2020)
 --------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, and, openJDK 1.11.
 
 EMA Java 3.5.0.G1 Issues Resolved
 ---------------------------------

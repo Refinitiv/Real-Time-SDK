@@ -23,7 +23,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -37,7 +38,7 @@
  * the connection and then uses the rsslInitChannel() function to complete 
  * channel initialization.(rssl stands for Reuters Source Sink Library.
  * UPA stands for “Ultra Performance API.” It was the previous name of the product, 
- * before it was re-branded as ETA “Elektron Transport API”.)
+ * before it was re-branded as ETA “Enterprise Transport API”.)
  * 
  *
  ************************************************************************

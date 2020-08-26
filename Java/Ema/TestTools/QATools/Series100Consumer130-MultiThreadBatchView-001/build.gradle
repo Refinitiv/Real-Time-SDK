@@ -2,7 +2,7 @@ apply plugin: 'application'
 
 eclipse {
         project {
-                name = 'ESDK-Ema-Examples'
+                name = 'RTSDK-Ema-Examples'
         }
 }
 

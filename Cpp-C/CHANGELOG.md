@@ -1,25 +1,23 @@
-This is the change log of the Elektron-SDK (ESDK) for C++/C. ESDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-There are three types of ESDK releases that append a letter directly followed by a number to the version number. 
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and summaries of fixes/features prior to RTSDK-1.5.1.L1, may continue to refer to ESDK or Elektron.
 
-"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
+There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
+
+"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
 "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.5.0.L1 aka EMA 3.5.0.L1 and ETA 3.5.0.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in EDP connectivity.
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
 
 Customer Issues Resolved
 ------------------
-- [GitHub # 117] [ESDK-504] Support Posting in EMA Providers
-- [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion function doesn't work as expected 
-- [Case Number: 07697024] [GitHub # 141] [ESDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
-- [Case Number: 07823520] [ESDK-3441] ETA Reactor API persistently retains memory not released until shutdown (reactor events)
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -28,6 +26,10 @@ FULL CHANGELOG
 ---------------------------------------------
 ESDK C++/C Release 1.5.0.G1 (Jun 30, 2020)
 ---------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in EDP connectivity.
 
 EMA C++ 3.5.0.G1 Issues Resolved
 --------------------------------
@@ -60,6 +62,10 @@ Both ETA C and EMA C++ 3.5.0.G1 Issues Resolved
 ---------------------------------------------
 ESDK C++/C Release 1.5.0.L1 (Mar 31, 2020)
 ---------------------------------------------
+
+New Features Added
+------------------
+This release introduces support for Websocket Transport in ESDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will soon be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library.
 
 EMA C++ 3.5.0.L1 Issues Resolved
 --------------------------------
@@ -99,6 +105,10 @@ Both ETA C and EMA C++ 3.4.0.G1 Issues Resolved
 ---------------------------------------------
 ESDK C++/C Release 1.4.0.L1 (Nov 15, 2019)
 ---------------------------------------------
+
+New Features Added
+------------------
+This release adds Server Side Encryption support in EMA and ETA.
 
 EMA C++ 3.4.0.L1 Issues Resolved
 --------------------------------

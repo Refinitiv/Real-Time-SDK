@@ -370,7 +370,7 @@ int main( int argc, char* argv[] )
 		}
 		else if(temp == 16 )
 	    { 
-            cout << "SEND REQUEST FOR Different DOMAIN needs to do with live ELEKTRON FEED "<< endl;
+            cout << "SEND REQUEST FOR Different DOMAIN needs to do with live FEED "<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure1 );
 			UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "AGG.V" ).domainType(7), client,  closure2 );
 			UInt64 h3 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "BBH.ITC" ).domainType(8), client,  closure3 );
@@ -381,19 +381,19 @@ int main( int argc, char* argv[] )
 		}	
 		else if(temp == 17 )
 	    { 
-            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live ELEKTRON FEED "<< endl;
+            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live FEED "<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure1 );
             UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "A.N" ).interestAfterRefresh(true), client,  closure2 );
 			UInt64 h3 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure3 );
 		}
 		else if(temp == 18 )
 	    { 
-            cout << "SEND REQUEST FOR SPOT live ELEKTRON FEED with request for MSGKey in update flag set"<< endl;
+            cout << "SEND REQUEST FOR SPOT live FEED with request for MSGKey in update flag set"<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "SPOT" ), client,  closure1 );
 		}
 		else if(temp == 19 )
 	    { 
-            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live ELEKTRON FEED "<< endl;
+            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live FEED "<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure1 );
             UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "A.N" ).interestAfterRefresh(true), client,  closure2 );
 			UInt64 h3 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure3 );
@@ -403,7 +403,7 @@ int main( int argc, char* argv[] )
 		}
 		else if(temp == 20 )
 	    { 
-            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live ELEKTRON FEED  Reissue on TRI.N h1 with refresh request"<< endl;
+            cout << "SEND REQUEST FOR TRI.N, TRI.N , A.N live FEED  Reissue on TRI.N h1 with refresh request"<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure1 );
             UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "A.N" ).interestAfterRefresh(true), client,  closure2 );
 			UInt64 h3 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure3 );
@@ -422,7 +422,7 @@ int main( int argc, char* argv[] )
 		}
 	    else if(temp == 22 )
 	    { 
-            cout << "SEND REQUEST FOR SPOT live ELEKTRON FEED with request for MSGKey in update flag set channel config in EMACOnfig.xml should had  MsgKeyInUpdates  "<< endl;
+            cout << "SEND REQUEST FOR SPOT live FEED with request for MSGKey in update flag set channel config in EMACOnfig.xml should had  MsgKeyInUpdates  "<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "SPOT" ), client,  closure1 );
 		}
 		else if(temp == 23 )

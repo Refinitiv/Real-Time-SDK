@@ -3800,7 +3800,7 @@ RsslInt32 rwsReadWsConnMsg(void *transport, char *buf, int bufLen, ripcRWFlags r
 		if (frame->control)
 			// TODO Should probably do something but I doubt there is anything we can do except 
 			// response to a PING or CLOSE.  The questions to ask are, How likely is this since 
-			// the client would be an ESDK WS client( not likely) and do we read for the Frame 
+			// the client would be an RTSDK WS client( not likely) and do we read for the Frame 
 			// data message after handling the control message??  So, return and let the 
 			// calling function make the decision if it should call this function again
 			return 0;

@@ -36,6 +36,18 @@
  *
  * For this simple training app, the interactive provider only supports a single client.
  *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 ))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  *****************************************************************************************
@@ -61,6 +73,18 @@
  * it may not need to send heartbeats as the other data is sufficient to announce
  * its continued presence. It is the responsibility of each connection to manage
  * the sending and receiving of heartbeat messages.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1b
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1b -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 1c: Reading and Writing Data
@@ -96,6 +120,18 @@
  * to accept additional bytes for writing. The UPA Transport can continue to
  * queue data, even if the network is unable to write.
  *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1c
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1c -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 2: Perform/Handle Login Process
  *****************************************************************************************
@@ -129,6 +165,18 @@
  * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
  *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod2
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod2 -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  ************************************************************************
  * UPA Interactive Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
@@ -161,7 +209,19 @@
  *
  * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
- * 
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod3
+ * (runs with a default set of parameters (-p 14002 -r 300 -s DIRECT_FEED ))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod3 -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>] [-s <Service Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  ************************************************************************
  * UPA Interactive Provider Training Module 4: Provide Necessary Dictionaries
  ************************************************************************
@@ -190,6 +250,18 @@
  *
  * Content is encoded and decoded using the UPA Message Package and the UPA 
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod4
+ * (runs with a default set of parameters (-p 14002 -r 300 -s DIRECT_FEED ))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod4 -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>] [-s <Service Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *****************************************************************************************/
 
 package com.thomsonreuters.upa.training.provider;
@@ -1213,6 +1285,7 @@ public class Module_4_ProvideDictionary
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1241,9 +1314,8 @@ public class Module_4_ProvideDictionary
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        if ((server != null)) {
+            isClosedAndClean = server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1261,6 +1333,13 @@ public class Module_4_ProvideDictionary
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
+
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1270,7 +1349,7 @@ public class Module_4_ProvideDictionary
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /**

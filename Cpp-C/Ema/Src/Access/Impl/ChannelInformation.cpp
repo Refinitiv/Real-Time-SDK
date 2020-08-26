@@ -67,7 +67,7 @@ const EmaString& ChannelInformation::toString() const {
   }
   _toString.append( "\n\tprotocol type: " );
   switch( _protocolType ) {
-	case RwfEnum: _toString.append( "Reuters wire format" ); break;
+	case RwfEnum: _toString.append( "Refinitiv wire format" ); break;
 	case RsslJsonEnum: _toString.append("Rssl JSON format"); break;
 	case UnknownEnum:
 	default:

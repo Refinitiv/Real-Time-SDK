@@ -8,7 +8,7 @@
  *|-------------------------------------------------------------------------------
  */
 
-/*
+/**
  * This is the UPA NI Provider Training series of the UPA Training Suite
  * applications. The purpose of this application is to show step-by-step 
  * training how to build a UPA OMM NI Provider using the UPA Transport layer.
@@ -30,8 +30,8 @@
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM NIProvider applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components,
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
  * The first step of any UPA NIP application is to establish network 
@@ -39,7 +39,18 @@
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the Connect function to initiate the connection 
  * process and then performs connection initialization processes as needed.
- * 
+ *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14003 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
@@ -60,6 +71,17 @@
  * In this situation, the NIP would send periodic heartbeat messages to inform 
  * the ADH Infrastructure that it is still alive.
  *
+ * Command line usage:
+ *
+ * ./gradlew runniprovidermod1b
+ * (runs with a default set of parameters (-h localhost -p 14003 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runniprovidermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  */
 
 package com.thomsonreuters.upa.training.niprovider;
@@ -667,7 +689,7 @@ public class Module_1b_Ping
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
     {
-
+        boolean isClosedAndClean = true;
         try
         {
             selector.close();
@@ -687,9 +709,8 @@ public class Module_1b_Ping
          * Calling CloseChannel terminates the connection to the ADH.
          *********************************************************/
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -704,6 +725,12 @@ public class Module_1b_Ping
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("NIProvider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -711,7 +738,7 @@ public class Module_1b_Ping
             System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
 
     }
 

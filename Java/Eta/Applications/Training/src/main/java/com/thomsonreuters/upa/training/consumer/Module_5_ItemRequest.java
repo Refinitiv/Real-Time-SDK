@@ -13,7 +13,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -23,149 +24,224 @@
  * Provider or ADS). The consumer uses the Channel.connect() function to initiate 
  * the connection and then uses the Channel.init() function to complete 
  * channel initialization. 
- * 
- * For this simple training app, only a single channel/connection is used for 
+ *
+ * For this simple training app, only a single channel/connection is used for
  * the entire life of this app.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 1b: Ping (heartbeat) Management
  *********************************************************************************
  * Summary:
- * Ping or heartbeat messages indicate the continued presence of an application. 
- * After the consumer's connection is active, ping messages must be exchanged. 
- * The negotiated ping timeout is retrieved using the Channel.pingTimeout() method. 
- * The connection will be terminated if ping heartbeats are not sent or received 
+ * Ping or heartbeat messages indicate the continued presence of an application.
+ * After the consumer connection is active, ping messages must be exchanged.
+ * The negotiated ping timeout is retrieved using the Channel.pingTimeout() method.
+ * The connection will be terminated if ping heartbeats are not sent or received
  * within the expected time frame.
  *
  * Detailed Descriptions:
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information 
- * is being exchanged. For example, there may be long periods of time that 
- * elapse between requests made from an OMM consumer application. In this 
- * situation, the consumer would send periodic heartbeat messages to inform 
- * the providing application that it is still alive. Because the provider 
- * application is likely sending more frequent information, providing updates 
- * on any streams the consumer has requested, it may not need to send 
- * heartbeats as the other data is sufficient to announce its continued 
+ * Ping or heartbeat messages are used to indicate the continued presence of
+ * an application. These are typically only required when no other information
+ * is being exchanged. For example, there may be long periods of time that
+ * elapse between requests made from an OMM consumer application. In this
+ * situation, the consumer would send periodic heartbeat messages to inform
+ * the providing application that it is still alive. Because the provider
+ * application is likely sending more frequent information, providing updates
+ * on any streams the consumer has requested, it may not need to send
+ * heartbeats as the other data is sufficient to announce its continued
  * presence. It is the responsibility of each connection to manage the sending
  * and receiving of heartbeat messages.
- * 
+ *
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1b
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1b -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 1c: Reading and Writing Data
  *********************************************************************************
  * Summary:
- * When channel initialization is complete, the state of the channel 
- * Channel.state() is TransportReturnCodes.ACTIVE, and applications can send 
+ * When channel initialization is complete, the state of the channel
+ * Channel.state() is TransportReturnCodes.ACTIVE, and applications can send
  * and receive data.
  *
  * Detailed Descriptions:
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to receive data from the connection. The 
- * arrival of this information is often announced by the I/O notification 
- * mechanism that the Channel.scktChannel() is registered with. The UPA 
- * Transport reads information from the network as a byte stream, after 
- * which it determines buffer boundaries and returns each buffer one by 
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to receive data from the connection. The
+ * arrival of this information is often announced by the I/O notification
+ * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * Transport reads information from the network as a byte stream, after
+ * which it determines buffer boundaries and returns each buffer one by
  * one.
- * 
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
- * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
- * buffer pool associated with a Channel. After a buffer is acquired, 
- * the user can populate the Buffer.data and set the Buffer.length 
- * to the number of bytes referred to by data. If queued information cannot 
- * be passed to the network, a function is provided to allow the application 
+ *
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to write data to the connection. Writing
+ * involves a several step process. Because the UPA Transport provides
+ * efficient buffer management, the user is required to obtain a buffer
+ * from the UPA Transport buffer pool. This can be the guaranteed output
+ * buffer pool associated with a Channel. After a buffer is acquired,
+ * the user can populate the Buffer.data and set the Buffer.length
+ * to the number of bytes referred to by data. If queued information cannot
+ * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
- * mechanism can be used to help with determining when the network is able 
+ * mechanism can be used to help with determining when the network is able
  * to accept additional bytes for writing. The UPA Transport can continue to
- * queue data, even if the network is unable to write. 
- * 
+ * queue data, even if the network is unable to write.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1c
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1c -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *********************************************************************************
  * UPA Consumer Training Module 2: Log in
  *********************************************************************************
  * Summary:
- * Applications authenticate using the Login domain model. An OMM consumer must 
- * authenticate with a provider using a Login request prior to issuing any other 
- * requests or opening any other streams. After receiving a Login request, an 
- * Interactive Provider determines whether a user is permissioned to access the 
- * system. The Interactive Provider sends back a Login response, indicating to 
+ * Applications authenticate using the Login domain model. An OMM consumer must
+ * authenticate with a provider using a Login request prior to issuing any other
+ * requests or opening any other streams. After receiving a Login request, an
+ * Interactive Provider determines whether a user is permissioned to access the
+ * system. The Interactive Provider sends back a Login response, indicating to
  * the consumer whether access is granted.
  *
  * Detailed Descriptions:
- * After receiving a Login request, an Interactive Provider determines whether 
- * a user is permissioned to access the system. The Interactive Provider sends 
+ * After receiving a Login request, an Interactive Provider determines whether
+ * a user is permissioned to access the system. The Interactive Provider sends
  * back a Login response, indicating to the consumer whether access is granted.
- * 
- * a) If the application is denied, the Login stream is closed, and the 
+ *
+ * a) If the application is denied, the Login stream is closed, and the
  * consumer application cannot send additional requests.
- * b) If the application is granted access, the Login response contains 
- * information about available features, such as Posting, Pause and Resume, 
- * and the use of Dynamic Views. The consumer application can use this 
+ * b) If the application is granted access, the Login response contains
+ * information about available features, such as Posting, Pause and Resume,
+ * and the use of Dynamic Views. The consumer application can use this
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod2
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod2 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA Consumer Training Module 3: Obtain Source Directory
  ************************************************************************
  * Summary:
- * The Source Directory domain model conveys information about all available 
- * services in the system. An OMM consumer typically requests a Source 
- * Directory to retrieve information about available services and their 
- * capabilities. This includes information about supported domain types, the 
- * service's state, the quality of service (QoS), and any item group 
+ * The Source Directory domain model conveys information about all available
+ * services in the system. An OMM consumer typically requests a Source
+ * Directory to retrieve information about available services and their
+ * capabilities. This includes information about supported domain types, the
+ * service's state, the quality of service (QoS), and any item group
  * information associated with the service.
  *
  * Detailed Descriptions:
- * The Source Directory Info filter contains service name and serviceId 
- * information for all available services. When an appropriate service is 
- * discovered by the OMM consumer, it uses the serviceId associated with the 
- * service on all subsequent requests to that service. 
+ * The Source Directory Info filter contains service name and serviceId
+ * information for all available services. When an appropriate service is
+ * discovered by the OMM consumer, it uses the serviceId associated with the
+ * service on all subsequent requests to that service.
  *
- * The Source Directory State filter contains status information for service, 
+ * The Source Directory State filter contains status information for service,
  * which informs the consumer whether the service is Up and available, or Down
- * and unavailable. 
+ * and unavailable.
  *
- * The Source Directory Group filter conveys item group status information, 
- * including information about group states, as well as the merging of groups. 
+ * The Source Directory Group filter conveys item group status information,
+ * including information about group states, as well as the merging of groups.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod3
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300 -s DIRECT_FEED))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod3 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
  * UPA Consumer Training Module 4: Obtain Dictionary Information
  ************************************************************************
  * Summary:
- * Consumer applications often require a dictionary for encoding or decoding 
- * specific pieces of information. This dictionary typically defines type and 
- * formatting information. Content that uses the FieldList type requires 
- * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary, 
+ * Consumer applications often require a dictionary for encoding or decoding
+ * specific pieces of information. This dictionary typically defines type and
+ * formatting information. Content that uses the FieldList type requires
+ * the use of a field dictionary (usually the Refinitiv RDMFieldDictionary,
  * although it could also be a user-defined or user-modified field dictionary).
- * A consumer application can choose whether to load necessary dictionary 
- * information from a local file or download the information from an available 
+ * A consumer application can choose whether to load necessary dictionary
+ * information from a local file or download the information from an available
  * provider.
  *
  * Detailed Descriptions:
  * The Source Directory message should inform (from previous Module 3):
  * - DictionariesProvided: Which dictionaries are available for download.
- * - DictionariesUsed: The consumer of any dictionaries required to decode 
+ * - DictionariesUsed: The consumer of any dictionaries required to decode
  *   the content provided on a service. (Not used in previous Module 3)
  *
- * A consumer application can determine whether to load necessary dictionary 
+ * A consumer application can determine whether to load necessary dictionary
  * information from a local file or download the information from the
  * provider if available.
- * 
- * - If loading from a file, UPA offers several utility functions to load and 
+ *
+ * - If loading from a file, UPA offers several utility functions to load and
  *   manage a properly-formatted field dictionary.
- * - If downloading information, the application issues a request using the 
- *   Dictionary domain model. The provider application should respond with a 
- *   dictionary response, typically broken into a multi-part message. UPA 
+ * - If downloading information, the application issues a request using the
+ *   Dictionary domain model. The provider application should respond with a
+ *   dictionary response, typically broken into a multi-part message. UPA
  *   offers several utility functions for encoding and decoding of the
  *   Dictionary domain content.
- * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ *
+ * Content is encoded and decoded using the UPA Message Package and the UPA
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod4
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300 -s DIRECT_FEED))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod4 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  ************************************************************************
  * UPA Consumer Training Module 5: Issue Item Requests 
  ************************************************************************
@@ -200,6 +276,18 @@
  * 
  * Content is encoded and decoded using the UPA Message Package and the UPA 
  * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod5
+ * (runs with a default set of parameters (-h localhost -p 14002 -i "" -r 300 -s DIRECT_FEED -mp TRI))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod5 -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <Running Time>] [-s <Service Name>] [-mp <Market Price Item Name>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *
  */
 
@@ -1293,6 +1381,7 @@ public class Module_5_ItemRequest
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1304,9 +1393,8 @@ public class Module_5_ItemRequest
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1322,12 +1410,19 @@ public class Module_5_ItemRequest
          ******************************************/
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
+
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("UPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 
     /*

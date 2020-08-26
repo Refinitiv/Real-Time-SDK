@@ -23,7 +23,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -36,7 +37,19 @@
  * 
  * For this simple training app, only a single channel/connection is used for 
  * the entire life of this app.
- *********************************************************************************/
+ *******************************************************************************
+ * Command line usage:
+ *
+ * ./gradlew runconsumermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 -i ""))
+ *
+ * or
+ *
+ * ./gradlew runconsumermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ * **/
 
 package com.thomsonreuters.upa.training.consumer;
 
@@ -406,6 +419,7 @@ public class Module_1a_Connect
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         /*********************************************************
          * Client/Consumer Application Life Cycle Major Step 5: Close connection
@@ -424,9 +438,8 @@ public class Module_1a_Connect
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -443,11 +456,17 @@ public class Module_1a_Connect
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 }

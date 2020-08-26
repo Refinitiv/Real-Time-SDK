@@ -24,13 +24,13 @@ uploadArchives {
             pom.project {
                 name "$archivesBaseName"
                     packaging 'jar'
-                    url 'https://github.com/Refinitiv/Elektron-SDK'
-                    description 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+                    url 'https://github.com/Refinitiv/Real-Time-SDK'
+                    description 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
 
                     scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
-                            url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
+                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
                     }
 
                 developers {
@@ -60,7 +60,7 @@ cobertura {
 
 eclipse {
     project {
-        name = 'ESDK-Eta-ValueAdd'
+        name = 'RTSDK-Eta-ValueAdd'
     }
 }
 
@@ -68,8 +68,8 @@ dependencies {
         compile group: 'org.json', name: 'json', version: '20180130'
         compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.12'
         compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
-
-
+        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
 	// as only the compile test depenency. When publishing to maven central the task
@@ -110,7 +110,7 @@ jar {
 	doFirst { println 'Creating ValueAdd jar file' }
 
 	manifest { 
-		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
 		from sharedManifest 
 	}
 
@@ -147,7 +147,7 @@ task javadocJar (type: Jar) {
         destinationDir = jar.destinationDir
 
         manifest {
-		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
                 from sharedManifest
         }
 }

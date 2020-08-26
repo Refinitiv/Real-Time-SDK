@@ -2298,7 +2298,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTokenSer
 {
 	rsslClearCreateReactorOptions(&mOpts);
 
-	mOpts.tokenServiceURL.data = (char *)"https://abc.edp.thomsonreuters.com/auth/oauth2/beta1/token/xx1";
+	mOpts.tokenServiceURL.data = (char *)"https://abc.edp.refinitiv.com/auth/oauth2/beta1/token/xx1";
 	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
@@ -2316,7 +2316,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidServiceD
 {
 	rsslClearCreateReactorOptions(&mOpts);
 
-	mOpts.serviceDiscoveryURL.data = (char *)"https://abc.edp.thomsonreuters.com/streaming/pricing/xx1";
+	mOpts.serviceDiscoveryURL.data = (char *)"https://abc.edp.refinitiv.com/streaming/pricing/xx1";
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 

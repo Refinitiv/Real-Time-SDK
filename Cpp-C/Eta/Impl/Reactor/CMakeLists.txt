@@ -276,7 +276,7 @@ DEBUG_PRINT(librsslVA_tmp)
 		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON)
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
-	rcdev_add_target(esdk librsslVA librsslVA_shared)
+	rcdev_add_target(rtsdk librsslVA librsslVA_shared)
 
 endif()
 

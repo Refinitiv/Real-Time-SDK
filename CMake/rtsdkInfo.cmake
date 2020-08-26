@@ -6,13 +6,13 @@ attributes for source repositories, values for versioning of
 locally static projects which generate an interface for evaluating 
 versioning compatibility.
 #]================================================================]
-unset(esdk_DEPENDS_LIST)
+unset(rtsdk_DEPENDS_LIST)
 
-# esdk Version information
+# rtsdk Version information
 #[====================================================================]
-set(esdk_INTERNAL_API_VERSION_MAJOR 3)
-set(esdk_INTERNAL_RELEASE_TWEAK L1)
-set(esdk_RELEASE_TYPE rrg)
+set(rtsdk_INTERNAL_API_VERSION_MAJOR 3)
+set(rtsdk_INTERNAL_RELEASE_TWEAK L1)
+set(rtsdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 13 )
 set( librsslVA_SO_VERSION 16 )
@@ -26,16 +26,16 @@ set(Ansi_VERSION_TWEAK 44)
 
 # This file is included by other development repos
 # and the set to cache is not neccessary
-if (DEFINED esdk_VERSION)
-	set(esdk_VERSION ${esdk_VERSION} CACHE INTERNAL "")
-	set(esdk_VERSION_MAJOR ${esdk_VERSION_MAJOR} CACHE INTERNAL "")
-	set(esdk_VERSION_MINOR ${esdk_VERSION_MINOR} CACHE INTERNAL "")
-	set(esdk_VERSION_PATCH ${esdk_VERSION_PATCH} CACHE INTERNAL "")
-	set(esdk_VERSION_TWEAK ${esdk_VERSION_TWEAK} CACHE INTERNAL "")
+if (DEFINED rtsdk_VERSION)
+	set(rtsdk_VERSION ${rtsdk_VERSION} CACHE INTERNAL "")
+	set(rtsdk_VERSION_MAJOR ${rtsdk_VERSION_MAJOR} CACHE INTERNAL "")
+	set(rtsdk_VERSION_MINOR ${rtsdk_VERSION_MINOR} CACHE INTERNAL "")
+	set(rtsdk_VERSION_PATCH ${rtsdk_VERSION_PATCH} CACHE INTERNAL "")
+	set(rtsdk_VERSION_TWEAK ${rtsdk_VERSION_TWEAK} CACHE INTERNAL "")
 
-	set(esdk_INTERNAL_API_VERSION_MAJOR ${esdk_INTERNAL_API_VERSION_MAJOR} CACHE INTERNAL "")
-	set(esdk_INTERNAL_RELEASE_TWEAK ${esdk_INTERNAL_RELEASE_TWEAK} CACHE INTERNAL "")
-	set(esdk_RELEASE_TYPE ${esdk_RELEASE_TYPE} CACHE INTERNAL "")
+	set(rtsdk_INTERNAL_API_VERSION_MAJOR ${rtsdk_INTERNAL_API_VERSION_MAJOR} CACHE INTERNAL "")
+	set(rtsdk_INTERNAL_RELEASE_TWEAK ${rtsdk_INTERNAL_RELEASE_TWEAK} CACHE INTERNAL "")
+	set(rtsdk_RELEASE_TYPE ${rtsdk_RELEASE_TYPE} CACHE INTERNAL "")
 
 	set(librssl_SO_VERSION ${librssl_SO_VERSION} CACHE INTERNAL "")
 	set(librsslVA_SO_VERSION ${librsslVA_SO_VERSION} CACHE INTERNAL "")
@@ -44,14 +44,14 @@ if (DEFINED esdk_VERSION)
 endif()
 
 # Build Timestamp
-string(TIMESTAMP esdk_timestamp "%a %b %d %H:%M:%S CST")
-string(TIMESTAMP esdk_year %Y)
+string(TIMESTAMP rtsdk_timestamp "%a %b %d %H:%M:%S CST")
+string(TIMESTAMP rtsdk_year %Y)
 
 #
 #  The following entries are for pre-configuring the external
-# projects esdk will add by default.  If the system installed package is
+# projects rtsdk will add by default.  If the system installed package is
 # prefered, it can be used by setting the corresponding flag and version.
-# The versions listed below are the minimum version the esdk was verified
+# The versions listed below are the minimum version the rtsdk was verified
 # and any other version used are officially not supported by this release.
 # However, other version may still work are the user can try newer versions
 # at their own risk.  
@@ -71,7 +71,7 @@ string(TIMESTAMP esdk_year %Y)
 #       cjson 
 #       curl 
 #
-# Each external project has a corresponding cmake module in the esdk/CMake module
+# Each external project has a corresponding cmake module in the rtsdk/CMake module
 # directory.  Each module has the common prefix 'addExternal_'(e.g. addExternal_zlib.cmake).
 # At the top of every module, the default package source is defined.  This file may server
 # as an override to any of the current package locations.

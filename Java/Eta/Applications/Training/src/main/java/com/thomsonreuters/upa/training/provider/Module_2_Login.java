@@ -13,79 +13,115 @@
  * An OMM Interactive Provider application opens a listening socket on a well-known 
  * port allowing OMM consumer applications to connect. Once connected, consumers 
  * can request data from the Interactive Provider.
- * 
- * In this module, the OMM Interactive Provider application opens a listening socket 
+ *
+ * In this module, the OMM Interactive Provider application opens a listening socket
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish 
- * a listening socket, usually on a well-known port so that consumer applications 
- * can easily connect. The provider uses the Transport.bind() method to open the port 
+ * The first step of any UPA Interactive Provider application is to establish
+ * a listening socket, usually on a well-known port so that consumer applications
+ * can easily connect. The provider uses the Transport.bind() method to open the port
  * and listen for incoming connection attempts.
- * Whenever an OMM consumer application attempts to connect, the provider uses 
+ * Whenever an OMM consumer application attempts to connect, the provider uses
  * the Server.accept() method to begin the connection initialization process.
- * 
- * For this simple training app, the interactive provider only supports a single client. 
- * 
+ *
+ * For this simple training app, the interactive provider only supports a single client.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1a
+ * (runs with a default set of parameters (-h localhost -p 14002 ))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1a -PcommandLineArgs="[-h <SrvrHostname>] [-p <SrvrPortNo>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  *****************************************************************************************
  * Summary:
- * In this module, after establishing a connection, ping messages might 
- * need to be exchanged. The negotiated ping timeout is available via 
- * the Channel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
- * recommends sending ping messages at intervals one-third the 
+ * In this module, after establishing a connection, ping messages might
+ * need to be exchanged. The negotiated ping timeout is available via
+ * the Channel. If ping heartbeats are not sent or received within
+ * the expected time frame, the connection can be terminated. Refinitiv
+ * recommends sending ping messages at intervals one-third the
  * size of the ping timeout.
  *
  * Detailed Descriptions:
- * Once the connection is active, the consumer and provider applications 
- * might need to exchange ping messages. A negotiated ping timeout is available 
+ * Once the connection is active, the consumer and provider applications
+ * might need to exchange ping messages. A negotiated ping timeout is available
  * via Channel corresponding to each connection (this value might differ on
- * a per-connection basis). A connection can be terminated if ping heartbeats 
- * are not sent or received within the expected time frame. Refinitiv 
+ * a per-connection basis). A connection can be terminated if ping heartbeats
+ * are not sent or received within the expected time frame. Refinitiv
  * recommends sending ping messages at intervals one-third the size of the ping timeout.
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information is 
- * being exchanged. Because the provider application is likely sending more frequent 
- * information, providing updates on any streams the consumer has requested, 
- * it may not need to send heartbeats as the other data is sufficient to announce 
- * its continued presence. It is the responsibility of each connection to manage 
+ * Ping or heartbeat messages are used to indicate the continued presence of
+ * an application. These are typically only required when no other information is
+ * being exchanged. Because the provider application is likely sending more frequent
+ * information, providing updates on any streams the consumer has requested,
+ * it may not need to send heartbeats as the other data is sufficient to announce
+ * its continued presence. It is the responsibility of each connection to manage
  * the sending and receiving of heartbeat messages.
- * 
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1b
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1b -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
+ *
  *****************************************************************************************
  * UPA Interactive Provider Training Module 1c: Reading and Writing Data
  *****************************************************************************************
  * Summary:
- * In this module, when a client or server Channel.state() is 
- * ChannelState.ACTIVE, it is possible for an application to receive 
- * data from the connection. Similarly, when a client or server 
- * Channel.state() is ChannelState.ACTIVE, it is possible for an 
- * application to write data to the connection. Writing involves a several 
- * step process. 
+ * In this module, when a client or server Channel.state() is
+ * ChannelState.ACTIVE, it is possible for an application to receive
+ * data from the connection. Similarly, when a client or server
+ * Channel.state() is ChannelState.ACTIVE, it is possible for an
+ * application to write data to the connection. Writing involves a several
+ * step process.
  *
  * Detailed Descriptions:
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to receive data from the connection. The 
- * arrival of this information is often announced by the I/O notification 
- * mechanism that the Channel.scktChannel() is registered with. The UPA 
- * Transport reads information from the network as a byte stream, after 
- * which it determines buffer boundaries and returns each buffer one by 
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to receive data from the connection. The
+ * arrival of this information is often announced by the I/O notification
+ * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * Transport reads information from the network as a byte stream, after
+ * which it determines buffer boundaries and returns each buffer one by
  * one.
  *
- * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
- * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
- * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
- * buffer pool associated with a Channel. After a buffer is acquired, 
- * the user can populate the Buffer.data and set the Buffer.length 
- * to the number of bytes referred to by data. If queued information cannot 
- * be passed to the network, a function is provided to allow the application 
+ * When a client or server Channel.state() is ChannelState.ACTIVE, it is
+ * possible for an application to write data to the connection. Writing
+ * involves a several step process. Because the UPA Transport provides
+ * efficient buffer management, the user is required to obtain a buffer
+ * from the UPA Transport buffer pool. This can be the guaranteed output
+ * buffer pool associated with a Channel. After a buffer is acquired,
+ * the user can populate the Buffer.data and set the Buffer.length
+ * to the number of bytes referred to by data. If queued information cannot
+ * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
- * mechanism can be used to help with determining when the network is able 
+ * mechanism can be used to help with determining when the network is able
  * to accept additional bytes for writing. The UPA Transport can continue to
- * queue data, even if the network is unable to write. 
+ * queue data, even if the network is unable to write.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod1c
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod1c -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  * 
  *****************************************************************************************
  * UPA Interactive Provider Training Module 2: Perform/Handle Login Process
@@ -118,7 +154,19 @@
  * one client session from the consumer, that is, only supports one channel/client connection.
  *
  * Content is encoded and decoded using the UPA Message Package and the UPA 
- * Data Package. 
+ * Data Package.
+ *
+ * Command line usage:
+ *
+ * ./gradlew runprovidermod2
+ * (runs with a default set of parameters (-p 14002 -r 300))
+ *
+ * or
+ *
+ * ./gradlew runprovidermod2 -PcommandLineArgs="[-p <SrvrPortNo>] [-r <Running Time>]"
+ * (runs with specified set of parameters, all parameters are optional)
+ *
+ * Pressing the CTRL+C buttons terminates the program.
  *****************************************************************************************/
 
 package com.thomsonreuters.upa.training.provider;
@@ -440,7 +488,8 @@ public class Module_2_Login
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                System.out.printf("Exception %s\n", e.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -657,7 +706,8 @@ public class Module_2_Login
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                System.out.printf("Exception %s\n", e1.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -898,7 +948,8 @@ public class Module_2_Login
                                     }
                                     catch (ClosedChannelException e)
                                     {
-                                        e.printStackTrace();
+                                        System.out.printf("Exception %s\n", e.getMessage());
+                                        System.exit(TransportReturnCodes.FAILURE);
                                     }
                                 }
                                     break;
@@ -947,7 +998,8 @@ public class Module_2_Login
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                System.out.printf("Exception %s\n", e1.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
 
         }
@@ -965,6 +1017,7 @@ public class Module_2_Login
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         try
         {
@@ -985,9 +1038,8 @@ public class Module_2_Login
          * Calling CloseChannel terminates the connection for each connection
          * client.
          *********************************************************/
-        if ((channel != null) && (channel.close(error) < TransportReturnCodes.SUCCESS))
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -1008,9 +1060,8 @@ public class Module_2_Login
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        if ((server != null)) {
+            isClosedAndClean &= server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -1024,6 +1075,13 @@ public class Module_2_Login
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n",
+                error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1033,7 +1091,7 @@ public class Module_2_Login
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /*********************************************************

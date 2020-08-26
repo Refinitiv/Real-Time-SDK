@@ -6,7 +6,7 @@
 # |-----------------------------------------------------------------------------
 #
 project(EtaJNI 
-        VERSION ${esdk_INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
+        VERSION ${rtsdk_INTERNAL_API_VERSION_MAJOR}.${rtsdk_VERSION_MINOR}.${rtsdk_VERSION_PATCH}.${rtsdk_VERSION_TWEAK}
         LANGUAGES C CXX)
 
 DEBUG_PRINT(Eta_VERSION)
@@ -101,5 +101,5 @@ else()
 
 endif()
 
-rcdev_add_target(esdk libEtaJni_shared)
+rcdev_add_target(rtsdk libEtaJni_shared)
 

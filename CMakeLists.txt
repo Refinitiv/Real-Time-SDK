@@ -6,22 +6,22 @@ cmake_minimum_required (VERSION 3.10.3)
 # the minimum required version to an earlier version, but there is no
 # guarantee of a successful build if changed.
 
-project (esdk
+project (rtsdk
 		VERSION 1.5.1.0
 		LANGUAGES C CXX)
 
-set(esdk_CMAKE_DIR "${esdk_SOURCE_DIR}/CMake")
-list(APPEND CMAKE_MODULE_PATH ${esdk_CMAKE_DIR})
+set(rtsdk_CMAKE_DIR "${rtsdk_SOURCE_DIR}/CMake")
+list(APPEND CMAKE_MODULE_PATH ${rtsdk_CMAKE_DIR})
 
 include(rcdevEnvironment)
 include(rcdevSupport)
 
-include(esdkOptions)
-include(esdkInfo)
+include(rtsdkOptions)
+include(rtsdkInfo)
 
 
-if(BUILD_ELEKTRON-SDK-BINARYPACK)
-	include(addExternal_elektron-sdk-binarypack)
+if(BUILD_RTSDK-BINARYPACK)
+	include(addExternal_rtsdk-binarypack)
 endif()
 
 if (BUILD_UNIT_TESTS)
@@ -40,7 +40,7 @@ include(addExternal_cjson)
 if (RCDEV_OUTPUT_DIRECTORY_PREFIX)
     rcdev_update_output_dirs("${RCDEV_OUTPUT_DIRECTORY_PREFIX}")
 else()
-    rcdev_update_output_dirs("${esdk_SOURCE_DIR}/Cpp-C")
+    rcdev_update_output_dirs("${rtsdk_SOURCE_DIR}/Cpp-C")
 endif()
 
 add_subdirectory( Cpp-C )

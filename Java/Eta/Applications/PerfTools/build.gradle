@@ -2,7 +2,7 @@ apply plugin: 'application'
 
 eclipse {
         project {
-                name = 'ESDK-Eta-PerfTools'
+                name = 'RTSDK-Eta-PerfTools'
         }
 }
 
@@ -39,7 +39,7 @@ javadoc {
     classpath = files( exportedProjects.collect { project(it).sourceSets.main.compileClasspath } )
 
     destinationDir = file('../../Docs/refman/upajperftools')
-    title = "Elektron Transport API (ETA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
+    title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
 
     options.footer ("${javadoc_footer}")
     options.header ("${javadoc_header}")

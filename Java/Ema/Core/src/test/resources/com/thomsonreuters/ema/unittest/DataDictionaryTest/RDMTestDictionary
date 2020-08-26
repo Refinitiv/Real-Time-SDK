@@ -17260,7 +17260,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT32           2
 !
-! Elektron (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
+! Refinitiv Real-Time (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !

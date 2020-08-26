@@ -3,7 +3,7 @@ Summary
 
 121__MarketPrice__FieldListSearchByName is an example of an OMM Consumer 
 application and demonstrates basic usage of the EMA library in accessing and parsing
-OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from an OMM 
+OMM MarketPrice data from Refinitiv Data Feed Direct, directly from an OMM 
 Provider application, or from an Advanced Distribution Server.
 
 121__MarketPrice__FieldListSearchByName illustrates how to selectively extract data 
