@@ -875,7 +875,7 @@ public class Module_2_Login
 
                     /* Close Login stream */
                     /* Note that closing Login stream will automatically close all other streams at the provider */
-                    if ((retCode = closeLoginStream(channel, channelInfo.maxFragmentSize())) != TransportReturnCodes.SUCCESS)
+                    if ((retCode = closeLoginStream(channel, channelInfo.maxFragmentSize())) < TransportReturnCodes.SUCCESS)
                     {
                         /* When you close login, we want to make a best effort to get this across the network as it will gracefully
                          * close all open streams. If this cannot be flushed or failed, this application will just close the connection
@@ -925,6 +925,7 @@ public class Module_2_Login
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         /*********************************************************
          * Client/Consumer Application Life Cycle Major Step 5: Close connection
@@ -943,9 +944,8 @@ public class Module_2_Login
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -960,12 +960,18 @@ public class Module_2_Login
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 
     /*

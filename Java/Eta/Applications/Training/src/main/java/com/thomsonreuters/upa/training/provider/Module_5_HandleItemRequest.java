@@ -764,8 +764,8 @@ public class Module_5_HandleItemRequest
                     else
                     {
                         /* For this simple training app, the interactive provider only supports one client session from the consumer. */
-                         clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
-                            System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", upaServerFDValue, clientChannelFDValue);
+                        clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                        System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", upaServerFDValue, clientChannelFDValue);
                         /*set clientAccepted to be TRUE and exit the while Main Loop #1*/
                         clientAccepted = true;
                     }
@@ -862,8 +862,8 @@ public class Module_5_HandleItemRequest
                                  */
                                 opMask = SelectionKey.OP_READ;
                                 final int oldChannelFDValue = clientChannelFDValue;
-                                    clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
-                                    System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", clientChannelFDValue, oldChannelFDValue);
+                                clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", clientChannelFDValue, oldChannelFDValue);
                                 try
                                 {
                                     key = inProgInfo.oldSelectableChannel().keyFor(selector);
@@ -1411,6 +1411,7 @@ public class Module_5_HandleItemRequest
      *********************************************************/
 	public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1439,9 +1440,8 @@ public class Module_5_HandleItemRequest
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        if ((server != null)) {
+            isClosedAndClean = server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1459,6 +1459,13 @@ public class Module_5_HandleItemRequest
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
+
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1468,7 +1475,7 @@ public class Module_5_HandleItemRequest
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /**

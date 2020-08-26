@@ -1262,6 +1262,7 @@ public class Module_4_Dictionary
 	 *********************************************************/
 	public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code, DataDictionary dictionary)
 	{
+		boolean isClosedAndClean = true;
 		Error error = TransportFactory.createError();
 
 		try
@@ -1291,13 +1292,19 @@ public class Module_4_Dictionary
 		 * Step 6) Uninitialize Transport at end  *
 		 ******************************************/
 		Transport.uninitialize();
+
+		if (isClosedAndClean) {
+			System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+		} else {
+			System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+		}
 		
 		if(code == TransportReturnCodes.SUCCESS)
 		{
 			System.out.printf("UPA Consumer Training Application successfully ended.\n");
 		}
 		
-		System.exit(code);
+		System.exit(0);
 	}
 	/*
 	 * Initializes the ping times for upaChannel.

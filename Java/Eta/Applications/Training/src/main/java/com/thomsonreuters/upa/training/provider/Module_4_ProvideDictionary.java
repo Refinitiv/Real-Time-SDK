@@ -221,7 +221,7 @@
  * (runs with specified set of parameters, all parameters are optional)
  *
  * Pressing the CTRL+C buttons terminates the program.
- * 
+ *
  ************************************************************************
  * UPA Interactive Provider Training Module 4: Provide Necessary Dictionaries
  ************************************************************************
@@ -1285,6 +1285,7 @@ public class Module_4_ProvideDictionary
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1313,9 +1314,8 @@ public class Module_4_ProvideDictionary
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        if ((server != null)) {
+            isClosedAndClean = server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1333,6 +1333,13 @@ public class Module_4_ProvideDictionary
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
+
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1342,7 +1349,7 @@ public class Module_4_ProvideDictionary
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /**

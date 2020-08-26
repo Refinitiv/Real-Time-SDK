@@ -50,7 +50,7 @@
  * (runs with specified set of parameters, all parameters are optional)
  *
  * Pressing the CTRL+C buttons terminates the program.
- * 
+ *
  */
 
 package com.thomsonreuters.upa.training.niprovider;
@@ -431,7 +431,7 @@ public class Module_1a_Connect
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
     {
-
+        boolean isClosedAndClean = true;
         try
         {
             selector.close();
@@ -451,9 +451,8 @@ public class Module_1a_Connect
          * Calling CloseChannel terminates the connection to the ADH.
          *********************************************************/
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -468,6 +467,12 @@ public class Module_1a_Connect
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("NIProvider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -475,7 +480,7 @@ public class Module_1a_Connect
             System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
 
     }
 
