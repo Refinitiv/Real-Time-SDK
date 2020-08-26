@@ -346,6 +346,8 @@ void RTR_FASTCALL _rsslReleaseChannel(rsslChannelImpl *chnl)
 /* releases server to freeList */
 void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr)
 {
+	rsslServerCountersInfo* countersInfo = &srvr->serverCountersInfo;
+
 	/* server always owns component version string when present */
 	if ((srvr->componentVer.componentVersion.length) && (srvr->componentVer.componentVersion.data))
 	{
@@ -358,8 +360,6 @@ void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr)
 	}
 
 	_rsslCleanServer(srvr);
-
-	rsslServerCountersInfo* countersInfo = &srvr->serverCountersInfo;
 
 	mutexFuncs.staticMutexLock();
 	if (rsslQueueLinkInAList(&(srvr->link1)))
