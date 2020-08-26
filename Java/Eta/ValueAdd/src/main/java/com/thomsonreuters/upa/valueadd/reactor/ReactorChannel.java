@@ -28,6 +28,7 @@ import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorTokenSession.SessionState;
 
 /**
 * Channel representing a connection handled by a Reactor.
@@ -147,7 +148,8 @@ public class ReactorChannel extends VaNode
     	RECEIVED_AUTH_TOKEN,
     	QUERYING_SERVICE_DISCOVERY,
     	RECEIVED_ENDPOINT_INFO,
-    	AUTHENTICATE_USING_PASSWD_GRANT
+    	AUTHENTICATE_USING_PASSWD_GRANT,
+    	STOP_QUERYING_SERVICE_DISCOVERY
     }
     
     private SessionMgntState _sessionMgntState = SessionMgntState.UNKNOWN;
@@ -287,6 +289,7 @@ public class ReactorChannel extends VaNode
 	    _errorInfoEDP = null;    
 	    _loginRequestForEDP = null;		
 	    _reactorServiceEndpointInfoList.clear();
+	    _restConnectOptions = null;
     }
     
     /* Check if the tunnel manager needs a dispatch, timer event, or channel flush. */
@@ -1401,9 +1404,13 @@ public class ReactorChannel extends VaNode
     	}
     	else if(_state == State.EDP_RT_FAILED)
     	{
-    		return reconnect(reactorConnectInfo, error);
+    		/* Checks if it is not STOPPED sending a request to both token service or the service discovery. */
+    		if ( (_tokenSession.sessionMgntState() != SessionState.STOP_TOKEN_REQUEST) && (_sessionMgntState != SessionMgntState.STOP_QUERYING_SERVICE_DISCOVERY) )
+    		{
+    			_state = State.EDP_RT; /* Waiting to retry the failure. */
+    		}
     	}
-    		
+    	
     	return null;
     }
     

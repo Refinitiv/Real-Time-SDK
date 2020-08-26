@@ -285,6 +285,17 @@ class ConsumerCmdLineParser implements CommandLineParser
     				
     				++argsCount;
     			}
+    			else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+    			{
+    				String takeExclusiveSignOnControlStr = args[++argsCount];
+    				
+    				if(takeExclusiveSignOnControlStr.equalsIgnoreCase("true"))
+						takeExclusiveSignOnControl = true;
+					else if (takeExclusiveSignOnControlStr.equalsIgnoreCase("false"))
+						takeExclusiveSignOnControl = false;
+    				
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");

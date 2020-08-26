@@ -1080,7 +1080,7 @@ public class Reactor
     	
       	try
     	{
-      		if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE )
+      		if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST)
       		{
       			return ReactorReturnCodes.SUCCESS;
       		}
@@ -1726,7 +1726,7 @@ public class Reactor
         ReactorErrorInfo errorInfoTemp;
         ReactorAuthTokenEventCallback callback = reactorChannel.reactorAuthTokenEventCallback();
 
-        if (callback != null)
+        if (callback != null && reactorChannel.enableSessionManagement())
         {
     		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
     		reactorAuthTokenEvent.reactorChannel(reactorChannel);

@@ -67,6 +67,8 @@ eclipse {
 dependencies {
         compile group: 'org.json', name: 'json', version: '20180130'
         compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.12'
+        compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
+
 
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito

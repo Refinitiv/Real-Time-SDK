@@ -132,6 +132,7 @@ class RestClient implements Runnable, RestCallback {
 		}
 		break;	
 		case RestEventTypes.FAILED:
+		case RestEventTypes.STOPPED:
 			
 			if(reactorChannel != null)
 			{
@@ -151,6 +152,16 @@ class RestClient implements Runnable, RestCallback {
 				if(reactorChannel.state() == State.EDP_RT)
 				{
 					reactorChannel.setEDPErrorInfo(_errorInfo);
+					
+					if(event.eventType() == RestEventTypes.STOPPED)
+					{
+						reactorChannel.sessionMgntState(SessionMgntState.STOP_QUERYING_SERVICE_DISCOVERY);
+					}
+					else
+					{
+						reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
+					}
+					
 					reactorChannel.state(State.EDP_RT_FAILED);
 				}
 				
@@ -173,13 +184,19 @@ class RestClient implements Runnable, RestCallback {
                 ReactorReturnCodes.FAILURE,
                 "RestHandler.failed", "Failed REST request for the service discovery. Text: " + errorText);
 		
-		reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, event.errorInfo());
-		
 		reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
 		
+		reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, event.errorInfo());
 		if (reactorChannel.state() == State.EDP_RT)
 		{
 			reactorChannel.state(State.EDP_RT_FAILED);
+			
+			/* Retry when failed to send a request to service discovery */
+			if ( getServiceDiscovery(reactorChannel.restConnectOptions(), reactorChannel.tokenSession().authTokenInfo(), false,
+    				reactorChannel.reactorServiceEndpointInfoList(), event.errorInfo()) != ReactorReturnCodes.SUCCESS)
+			{
+				return ReactorReturnCodes.FAILURE;
+			}
 		}
 
 		return ReactorReturnCodes.SUCCESS;

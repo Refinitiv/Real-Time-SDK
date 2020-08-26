@@ -779,6 +779,9 @@ public class TestReactor {
             assertEquals(ReactorReturnCodes.SUCCESS, _reactor.shutdown(_errorInfo));
             _reactor = null;
         }
+        
+        if(_eventQueue != null)
+        	_eventQueue.clear();
     }
 	
 }
