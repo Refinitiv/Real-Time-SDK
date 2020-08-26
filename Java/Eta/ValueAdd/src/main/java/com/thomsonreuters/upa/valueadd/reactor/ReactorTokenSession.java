@@ -487,6 +487,8 @@ class ReactorTokenSession implements RestCallback
 					{
 						ReactorChannel reactorChannel = _reactorChannelList.get(i);
 						
+						reactorChannel.copyEDPErrorInfo(errorInfo);
+						
 						/* Send the warning only when the ReactorChannel is active */
 						if(reactorChannel.state() == State.READY || reactorChannel.state() == ReactorChannel.State.UP)
 						{
@@ -551,6 +553,8 @@ class ReactorTokenSession implements RestCallback
 			for(int i = 0; i < _reactorChannelList.size(); i++)
 			{
 				ReactorChannel reactorChannel = _reactorChannelList.get(i);
+				
+				reactorChannel.copyEDPErrorInfo(event.errorInfo());
 				
 				/* Send the warning only when the ReactorChannel is active */
 				if(reactorChannel.state() == State.READY || reactorChannel.state() == State.UP)

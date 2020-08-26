@@ -28,7 +28,6 @@ import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorTokenSession.SessionState;
 
 /**
 * Channel representing a connection handled by a Reactor.
@@ -107,7 +106,7 @@ public class ReactorChannel extends VaNode
     /* Link for ReactorChannel queue */
     private ReactorChannel _reactorChannelNext, _reactorChannelPrev;
 	
-    private ReactorErrorInfo _errorInfoEDP;    
+    private ReactorErrorInfo _errorInfoEDP = ReactorFactory.createReactorErrorInfo();
     LoginRequest _loginRequestForEDP;
     private RestConnectOptions _restConnectOptions;
     private ReactorTokenSession _tokenSession;
@@ -177,9 +176,13 @@ public class ReactorChannel extends VaNode
 		return _tokenSession;
 	}
 
-    void setEDPErrorInfo(ReactorErrorInfo errorInfo)
+    void copyEDPErrorInfo(ReactorErrorInfo errorInfo)
     {
-    	_errorInfoEDP = errorInfo;
+    	_errorInfoEDP.code(errorInfo.code());
+    	_errorInfoEDP.location(errorInfo.location());
+    	_errorInfoEDP.error().errorId(errorInfo.error().errorId());
+    	_errorInfoEDP.error().sysError(errorInfo.error().sysError());
+    	_errorInfoEDP.error().text(errorInfo.error().text());
     }
     
     ReactorErrorInfo getEDPErrorInfo()
@@ -286,7 +289,7 @@ public class ReactorChannel extends VaNode
 		_reactorConnectOptions = null;
 		_listIndex = 0;
 		
-	    _errorInfoEDP = null;    
+	    _errorInfoEDP.clear();
 	    _loginRequestForEDP = null;		
 	    _reactorServiceEndpointInfoList.clear();
 	    _restConnectOptions = null;
@@ -1395,6 +1398,7 @@ public class ReactorChannel extends VaNode
     		{
     			if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
     			{
+    				_state = State.EDP_RT;
     				error.text(errorInfo.error().text());
         			return null;
     			}
@@ -1404,11 +1408,9 @@ public class ReactorChannel extends VaNode
     	}
     	else if(_state == State.EDP_RT_FAILED)
     	{
-    		/* Checks if it is not STOPPED sending a request to both token service or the service discovery. */
-    		if ( (_tokenSession.sessionMgntState() != SessionState.STOP_TOKEN_REQUEST) && (_sessionMgntState != SessionMgntState.STOP_QUERYING_SERVICE_DISCOVERY) )
-    		{
-    			_state = State.EDP_RT; /* Waiting to retry the failure. */
-    		}
+    		error.text(_errorInfoEDP.error().text());
+    		
+    		_state = State.DOWN; /* Waiting to re-retry the failure with another channel info in the list. */
     	}
     	
     	return null;

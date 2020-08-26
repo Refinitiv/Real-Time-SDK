@@ -150,15 +150,11 @@ class RestProxyAuthHandler
 						{
 	   	   					Header header = response.getFirstHeader("Location");
 	   	   					try {
-		   	   	                if( header != null )
+		   	   	                if( header != null && header.getValue() != null)
 		   	   	                {
-		   	   	                    String newHost = header.getValue();
-		   	   	                    if ( newHost != null )
-		   	   	                    { 
-		   	   	                    	httpRequest.setURI(new URI(newHost));
-		   	   	                    	done = false;
-		   	   	                    	break;
-		   	   	                    }
+		   	   	                    httpRequest.setURI(new URI(header.getValue()));
+		   	   	                    done = false;
+		   	   	                    break;
 		   	   	                }
 		   	   	                else
 		   	   	                {
