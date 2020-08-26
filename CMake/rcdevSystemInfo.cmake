@@ -89,8 +89,8 @@ macro(rcdev_set_new_postprefix_path)
 		# Check to see if need to force GCC instead of system defined GNU
 		if (${RCDEV_HOST_COMPILER} STREQUAL "GNU" 
 			AND (  ${PROJECT_NAME} STREQUAL "rtsdk"
-				OR ${PROJECT_NAME} MATCHES  "^Elektron" 
-				OR ${PROJECT_NAME} STREQUAL "Elektron-SDK-BinaryPack")
+				OR ${PROJECT_NAME} MATCHES  "^rtsdk" 
+				OR ${PROJECT_NAME} STREQUAL "RTSDK-BinaryPack")
 			)
 			rcdev_get_platform_suffix(_sys_suffix gcc)
 		endif()

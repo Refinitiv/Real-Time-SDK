@@ -85,13 +85,6 @@ string(TIMESTAMP rtsdk_year %Y)
 #    googletest_version  "1.8.1"
 #
 #
-# Elektron-SDK-BinaryPack - default values, for latest, look 
-#                           in addExternal_elektron-sdk-binarypack.cmake
-#[====================================================================]
-# set(elektron-sdk-binarypack_url "https://git.sami.int.thomsonreuters.com/EPD/Elektron-SDK-BinaryPack/repository/Elektron-SDK-BinaryPack.tar.xz")
-# set(elektron-sdk-binarypack_hash "MD5=2891965258fec4e2807967866a5aba0a")
-# set(elektron-sdk-binarypack_version "1.2.2")
-#
 # googletest - default values, for latest, look in addExternal_gtest.cmake
 #[====================================================================]
 # set(googletest_url "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz")
