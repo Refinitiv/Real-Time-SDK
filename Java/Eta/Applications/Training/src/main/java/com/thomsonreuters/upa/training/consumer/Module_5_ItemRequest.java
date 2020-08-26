@@ -14,7 +14,7 @@
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
- * and Refinitiv Real-Time. 
+ * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -1381,6 +1381,7 @@ public class Module_5_ItemRequest
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1392,9 +1393,8 @@ public class Module_5_ItemRequest
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1410,12 +1410,19 @@ public class Module_5_ItemRequest
          ******************************************/
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
+
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("UPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 
     /*

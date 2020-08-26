@@ -1,4 +1,11 @@
-add_executable( rsslTransportUnitTest rsslTransportUnitTest.cpp )
+set ( rsslTransportUnitTestSrcFiles
+	rsslAllocateUnitTest.cpp
+	rsslTransportUnitTest.cpp
+
+	TransportUnitTest.h
+)
+
+add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} )
 target_link_libraries( rsslTransportUnitTest 
 							librssl 
 							GTest::Main 
@@ -9,7 +16,7 @@ set_target_properties( rsslTransportUnitTest
 								OUTPUT_NAME rsslTransportUnitTest 
 						)
 
-add_executable( rsslTransportUnitTest_shared rsslTransportUnitTest.cpp )
+add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} )
 target_link_libraries( rsslTransportUnitTest_shared 
 							librssl_shared 
 							GTest::Main 

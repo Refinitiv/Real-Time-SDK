@@ -28,6 +28,7 @@
 #include "rtr/rsslEventSignal.h"
 #include "rtr/ripcsslutils.h"
 
+#include "TransportUnitTest.h"
 
 #if defined(_WIN32)
 #include <time.h>
@@ -68,6 +69,9 @@ RsslMutex pipeLock;
 bool testComplete;
 bool failTest;
 bool shutdownTest;
+
+char pathServerKey[256];  // describes the path to Server key for creating a server on an encrypted connection
+char pathServerCert[256]; // describes the path to Server certificate for creating a server on an encrypted connection
 
 #define MAX_MSG_WRITE_COUNT 100000
 #define MAX_THREADS 20
@@ -112,7 +116,7 @@ RSSL_THREAD_DECLARE(deadlockThread, pArg)
 
 	while (!testComplete)
 	{
-		selectTime.tv_sec = 30;
+		selectTime.tv_sec = 150;
 		selectTime.tv_usec = 0;
 
 		useread = readfds;
@@ -798,6 +802,62 @@ RsslServer* startupServer(RsslBool blocking)
 	return server;
 
 }
+
+/* This function starts up the RsslServer. */
+RsslServer* bindRsslServer(TUServerConfig* serverConfig)
+{
+	RsslServer* server;
+	RsslError err;
+	RsslBindOptions bindOpts;
+
+	rsslClearBindOpts(&bindOpts);
+
+	bindOpts.guaranteedOutputBuffers = 5000;
+
+	bindOpts.interfaceName = (char*)"localhost";
+
+	bindOpts.maxOutputBuffers = 5000;
+	bindOpts.serviceName = serverConfig->portNo;
+
+	bindOpts.majorVersion = RSSL_RWF_MAJOR_VERSION;
+	bindOpts.minorVersion = RSSL_RWF_MINOR_VERSION;
+	bindOpts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	bindOpts.tcp_nodelay = RSSL_TRUE;
+	bindOpts.sysSendBufSize = 0;
+	bindOpts.sysRecvBufSize = 0;
+	bindOpts.maxFragmentSize = 6144;
+	bindOpts.wsOpts.protocols = (char*)"";
+
+	bindOpts.channelsBlocking = serverConfig->blocking;
+	bindOpts.serverBlocking = serverConfig->blocking;
+
+	bindOpts.connectionType = serverConfig->connType;
+
+	if (bindOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		bindOpts.encryptionOpts.serverCert = serverConfig->serverCert;
+		bindOpts.encryptionOpts.serverPrivateKey = serverConfig->serverKey;
+		bindOpts.encryptionOpts.cipherSuite = serverConfig->cipherSuite;
+	}
+
+	server = rsslBind(&bindOpts, &err);
+
+	if (server == NULL)
+		std::cout << "Could not start rsslServer. Port: " << serverConfig->portNo << std::endl << "Error text: " << err.text << std::endl;
+
+	return server;
+}
+
+void clearTUConfig(TUServerConfig* serverConfig)
+{
+	serverConfig->blocking = RSSL_FALSE;
+	snprintf(serverConfig->portNo, sizeof(serverConfig->portNo), "");
+	serverConfig->connType = RSSL_CONN_TYPE_INIT;
+	snprintf(serverConfig->serverCert, sizeof(serverConfig->serverCert), "");
+	snprintf(serverConfig->serverKey, sizeof(serverConfig->serverKey), "");
+	snprintf(serverConfig->cipherSuite, sizeof(serverConfig->cipherSuite), "");
+}
+
 
 /* Google Test requires that all functions that have test usage(i.e. using the ASSERT or EXPECT macros) have a void return type.
 	Since RSSL_THREAD declaration functions require a void* return type, they will need to wrap the actual tested functionality in another function. */
@@ -3016,11 +3076,86 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeErrorOnRsslBindLUP)
 
 #endif
 
+rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
+{
+	rsslServerImpl *srvrImpl = (rsslServerImpl *)pServer;
+	rsslServerCountersInfo* serverCountersInfo = &srvrImpl->serverCountersInfo;
+	return serverCountersInfo;
+}
+
+void exitMissingArgument(char **argv, int arg)
+{
+	printf("Config error: %s missing argument.\n"
+		"Run '%s -?' to see usage.\n\n", argv[arg], argv[0]);
+	exit(-1);
+}
+
+void exitWithUsage()
+{
+	printf("Options:\n"
+		"  -?                                   Shows this usage\n"
+		"\n"
+		"  -keyfile                             Server private key for OpenSSL encryption.\n"
+		"  -cert                                Server certificate for openSSL encryption.\n"
+		"\n"
+	);
+#ifdef _WIN32
+	printf("\nPress Enter or Return key to exit application:");
+	getchar();
+#endif
+	exit(-1);
+}
+
+void printArgs()
+{
+	printf(
+		"             Server Key : %s\n"
+		"             Server Cert: %s\n"
+		"\n"
+		,
+		pathServerKey,
+		pathServerCert
+	);
+	return;
+}
 
 int main(int argc, char* argv[])
 {
+	RsslUInt8 iargs;
 	int ret;
+
+	pathServerKey[0] = '\0';
+	pathServerCert[0] = '\0';
+
+	for (iargs = 0; iargs < argc; ++iargs)
+	{
+		if (0 == strcmp("-?", argv[iargs]))
+		{
+			exitWithUsage();
+		}
+		else if (0 == strcmp("-keyfile", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(pathServerKey, sizeof(pathServerKey), argv[iargs]);
+		}
+		else if (0 == strcmp("-cert", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(pathServerCert, sizeof(pathServerCert), argv[iargs]);
+		}
+	}
+
+	if (argc > 1)
+	{
+		printArgs();
+	}
+
 	::testing::InitGoogleTest(&argc, argv);
+
+	// Run ServerStartStopTests after all the other tests.
+	// ServerStartStopTests create and destroy the transport library and its internal members many times.
+	// It will interfere with other tests that could run parallel.
+	::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
 	RsslThreadId dlThread;
 	RSSL_MUTEX_INIT(&pipeLock);
 
@@ -3030,6 +3165,10 @@ int main(int argc, char* argv[])
 	testComplete = true;
 	resetDeadlockTimer();
 	RSSL_THREAD_JOIN(dlThread);
-	
+
+	// Run ServerStartStopTests
+	::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
+	ret = RUN_ALL_TESTS();
+
 	return ret;
 }

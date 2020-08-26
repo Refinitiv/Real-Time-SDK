@@ -564,7 +564,7 @@ public class Module_5_ProvideContent
          */
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
             System.exit(TransportReturnCodes.FAILURE);
         }
 
@@ -1245,7 +1245,7 @@ public class Module_5_ProvideContent
                     sendItemCloseStatusMsg(channel, maxMsgSize, encodeIter);
 
                     /* Note that closing Login stream will automatically close all other streams at the provider */
-                    if ((retCode = closeLoginStream(channel, maxMsgSize, encodeIter)) != TransportReturnCodes.SUCCESS) /* (retCode > CodecReturnCodes.SUCCESS) or (retCode < CodecReturnCodes.SUCCESS) */
+                    if ((retCode = closeLoginStream(channel, maxMsgSize, encodeIter)) < TransportReturnCodes.SUCCESS) /* (retCode > CodecReturnCodes.SUCCESS) or (retCode < CodecReturnCodes.SUCCESS) */
                     {
                         /* When you close login, we want to make a best effort to get this across the network as it will gracefully
                          * close all open streams. If this cannot be flushed or failed, this application will just close the connection
@@ -1291,7 +1291,7 @@ public class Module_5_ProvideContent
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
     {
-
+        boolean isClosedAndClean = true;
         try
         {
             selector.close();
@@ -1311,9 +1311,8 @@ public class Module_5_ProvideContent
          * Calling CloseChannel terminates the connection to the ADH.
          *********************************************************/
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -1328,6 +1327,12 @@ public class Module_5_ProvideContent
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("NIProvider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1335,7 +1340,7 @@ public class Module_5_ProvideContent
             System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
 
     }
 

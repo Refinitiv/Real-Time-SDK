@@ -663,6 +663,7 @@ public class Module_1b_Ping
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         /*********************************************************
          * Client/Consumer Application Lifecycle Major Step 5: Close connection
@@ -681,9 +682,8 @@ public class Module_1b_Ping
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -698,12 +698,18 @@ public class Module_1b_Ping
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 
     /*

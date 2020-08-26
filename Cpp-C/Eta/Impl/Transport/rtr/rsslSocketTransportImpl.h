@@ -288,7 +288,8 @@ typedef struct {
 } ripcCompFuncs;
 
 typedef struct {
-	RsslQueueLink      link1;      /* It is used to add this type to RsslQueue */
+	RsslQueueLink		link1;		/* It is used to add this type to RsslQueue freeServerSocketChannelList */
+	RsslQueueLink		link2;		/* It is used to add this type to RsslQueue activeServerSocketChannelList */
 	char		*serverName;		/* portName or port number */
 	char		*interfaceName;		/* Inteface hostName or ip address */
 	RsslUInt32	maxMsgSize;			/* Maximum Message Size */
@@ -336,7 +337,13 @@ typedef struct {
 
 RTR_C_INLINE void rsslClearRsslServerSocketChannel(RsslServerSocketChannel *rsslServerSocketChannel)
 {
+	// save link to freeServerSocketChannelList
+	RsslQueueLink* prevlink1 = rsslServerSocketChannel->link1.prev;
+	RsslQueueLink* nextlink1 = rsslServerSocketChannel->link1.next;
+
 	memset((void*)rsslServerSocketChannel, 0, sizeof(RsslServerSocketChannel));
+	rsslServerSocketChannel->link1.prev = prevlink1;
+	rsslServerSocketChannel->link1.next = nextlink1;
 	rsslServerSocketChannel->compressionSupported = RSSL_COMP_NONE;
 	rsslServerSocketChannel->protocolType = 0; // RIPC_RWF_PROTOCOL_TYPE;
 	rsslServerSocketChannel->encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
@@ -814,6 +821,8 @@ RsslInt32 ipcAdditionalHeaderLength();
 extern RsslRet ipcShutdownServer(RsslServerSocketChannel* socket, RsslError *error);
 extern RsslRet ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error);
 extern void ipcCloseActiveSrvr(RsslServerSocketChannel *rsslServerSocketChannel);
+
+extern void ipcGetOfServerSocketChannelCounters(rsslServerCountersInfo* serverCountersInfo);
 
 // Contains code necessary to set the debug func pointers for Socket transport
 RsslRet rsslSetSocketDebugFunctions(

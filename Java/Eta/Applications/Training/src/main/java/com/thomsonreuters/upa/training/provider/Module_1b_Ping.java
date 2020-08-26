@@ -354,7 +354,8 @@ public class Module_1b_Ping
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                System.out.printf("Exception %s\n", e.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -582,7 +583,8 @@ public class Module_1b_Ping
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                System.out.printf("Exception %s\n", e1.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
 
         }
@@ -717,8 +719,6 @@ public class Module_1b_Ping
                                         break;
                                     case TransportReturnCodes.INIT_NOT_INITIALIZED:
                                     case TransportReturnCodes.FAILURE:
-                                        System.out.printf("Error (%d) (errno: %d) channelInactive Error Text: %s\n", error.errorId(), error.sysError(), error.text());
-                                        break;
                                     default: /* Error handling */
                                         if (retCode < 0)
                                         {
@@ -778,7 +778,8 @@ public class Module_1b_Ping
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                System.out.printf("Exception %s\n", e1.getMessage());
+                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
             }
 
         }
@@ -798,6 +799,7 @@ public class Module_1b_Ping
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         try
         {
@@ -818,9 +820,8 @@ public class Module_1b_Ping
          * Calling CloseChannel terminates the connection for each connection
          * client.
          *********************************************************/
-        if ((channel != null) && (channel.close(error) < TransportReturnCodes.SUCCESS))
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -841,9 +842,8 @@ public class Module_1b_Ping
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((server != null)) {
+            isClosedAndClean &= server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -857,6 +857,12 @@ public class Module_1b_Ping
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -866,7 +872,7 @@ public class Module_1b_Ping
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /*********************************************************

@@ -4259,7 +4259,7 @@ public class ReactorWatchlistEDPJunit
 	public void EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest()
 	{
 		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest <<<<<<<<<<\n");	
-		
+		assumeTrue(checkCredentials());
 		TestReactor consumerReactor = null;
 		
 		try

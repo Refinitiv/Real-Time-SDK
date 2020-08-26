@@ -664,14 +664,7 @@ int ipcIsConnected(RsslSocket fd, void *transport)
 
 int ipcServerShutdown(void *transport)
 {
-	RsslServerSocketChannel *rsslServerSocketChannel = (RsslServerSocketChannel *)transport;
-
-	if (rsslServerSocketChannel->stream != RIPC_INVALID_SOCKET)
-	{
-		sock_close(rsslServerSocketChannel->stream);
-		ipcCloseActiveSrvr(rsslServerSocketChannel);
-	}
-
+	// Do nothing as the server socket is closed and the ipcCloseActiveSrvr() method in the rsslSocketCloseServer() method.
 	return 1;
 }
 
