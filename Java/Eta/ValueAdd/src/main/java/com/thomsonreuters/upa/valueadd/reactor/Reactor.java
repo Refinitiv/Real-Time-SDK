@@ -1113,13 +1113,21 @@ public class Reactor
 				return errorInfo.code();
 			}
     	
-            if (isBlocking && reactorChannel.applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+            if ( isBlocking )
             {
-            	return errorInfo.code();
+            	if(reactorChannel.applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+            	{
+            		return errorInfo.code();
+            	}
+            	else
+            	{
+            		reactorChannel.state(State.EDP_RT_DONE);
+            	}
             }
             else
             {
-            	reactorChannel.state(State.EDP_RT_DONE);
+            	/* Waits for a service discovery response for non-blocking request. */
+            	reactorChannel.state(State.EDP_RT);
             }
     	}
     	else
