@@ -1929,19 +1929,16 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
     	
     	String keyFile = consumerCmdLineParser.keyStoreFile();
     	String keyPasswd = consumerCmdLineParser.keystorePassword();
-        if (keyFile == null)
+    	
+        if (keyFile != null && !keyFile.isEmpty() )
         {
-        	System.err.println("Error: Keystore file not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystoreFile(keyFile);      		        		        		
         }                   
-        if (keyPasswd == null)
+        if (keyPasswd != null && !keyPasswd.isEmpty())
         {
-        	System.err.println("Error: Keystore password not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystorePasswd(keyPasswd);  		        		        		
         }          
-    	    	
-    	options.encryptionOptions().KeystoreFile(keyFile);
-        options.encryptionOptions().KeystorePasswd(keyPasswd);  
+    	    	 
         options.encryptionOptions().KeystoreType("JKS");
         options.encryptionOptions().SecurityProtocol("TLS");
         options.encryptionOptions().SecurityProvider("SunJSSE");
