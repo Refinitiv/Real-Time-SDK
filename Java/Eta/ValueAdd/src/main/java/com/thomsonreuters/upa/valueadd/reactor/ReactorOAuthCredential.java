@@ -179,7 +179,7 @@ public class ReactorOAuthCredential
      * 
      * <p>The Reactor will not copy password and client secret if the callback is specified.</p>
      * 
-     * @param oAuthCredentialEventCallback
+     * @param oAuthCredentialEventCallback the OAuth credential event callback.
      */
     public void reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEventCallback oAuthCredentialEventCallback)
     {
