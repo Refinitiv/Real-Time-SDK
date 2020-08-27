@@ -8,12 +8,12 @@
 include(rcdevExternalUtils)
 
 if(NOT rtsdk-binarypack_url)
-	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Elektron-SDK-1.5.0.G1/Elektron-SDK-BinaryPack-1.5.0.G1.tar.xz")
+	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-1.5.1.L1/RTSDK-BinaryPack-1.5.1.L1.tar.xz")
 endif()
 if(NOT rtsdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(rtsdk-binarypack_hash "MD5=c1a74713f99f1844c74342f62da3c700")
+	set(rtsdk-binarypack_hash "MD5=a9ef95bf54a8ffe1e0f29f387662cf7f")
 endif()
 if(NOT rtsdk-binarypack_version)
 	set(rtsdk-binarypack_version "1.5.0.1")

@@ -12,7 +12,7 @@ dependencies {
 	compile project(':Eta:ValueAddCache')
 	compile project(':Eta:Applications:Shared')
 	// Adding dependency on the jdacsUpalib.jar
-	compile fileTree(dir: '../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
+	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
 }
 
 mainClassName = 'com.thomsonreuters.upa.examples.provider.Provider'
