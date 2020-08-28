@@ -1,13 +1,14 @@
 # Enterprise Transport API (ETA) Java Edition
+
 This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  
 
-The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
+The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 ETA Java contains open source components. The transport, decoder, encoder, and cache components are open source. 
 
-This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
+This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -82,8 +83,7 @@ Users can use Transport API to write consumer-based applications capable of the 
 - Make Streaming and Snapshot based subscription requests.
 - Perform Batch, Views, and Symbol List requests to capable provider applications, including ADS.
 - Pause and Resume active data streams open to the ADS.
-- Send Post Messages to capable provider applications, including ADS
-(used for making Consumer-based Publishing and Contributions).
+- Send Post Messages to capable provider applications, including ADS (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
 #### Provider Applications: Interactive
@@ -93,8 +93,7 @@ Users can use Transport API to write interactive providers capable of the follow
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
-- Receive and acknowledge Post Messages
-(used when receiving Consumer-based Publishing and Contributions).
+- Receive and acknowledge Post Messages (used when receiving Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
@@ -172,7 +171,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 

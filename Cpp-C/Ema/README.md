@@ -1,10 +1,8 @@
 # Enterprise Message API (EMA) - C++ Edition
 
-
 The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution Systems, Refinitiv Real-Time Optimized, and Refinitiv Data Feed Direct products.
 
 Copyright (C) 2018-2020 Refinitiv. All rights reserved.
   
@@ -99,14 +97,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.5.0.G1
+    libema.lib                ema3.5.1.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.5.0.G1
-    libema.dll                ema3.5.0.G1
+    libema.lib                ema3.5.1.L1
+    libema.dll                ema3.5.1.L1
 
 #### Linux
     
@@ -126,13 +124,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.5.0.G1
+    libema.a                    ema3.5.1.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.5.0.1           libema.so.10          ema3.5.0.G1
+    libema.so.3.5.1.L1          libema.so.11          ema3.5.1.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -166,7 +164,7 @@ This will create all necessary soft links for example makefiles to link. It is s
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 
