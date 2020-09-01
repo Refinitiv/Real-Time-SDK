@@ -1398,7 +1398,7 @@ public class ReactorChannel extends VaNode
     		{
     			if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
     			{
-    				_state = State.EDP_RT;
+    				_state = State.DOWN;
     				error.text(errorInfo.error().text());
         			return null;
     			}
