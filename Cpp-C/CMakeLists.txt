@@ -6,7 +6,7 @@ if( CMAKE_HOST_UNIX )
 
 else() #  if ( CMAKE_HOST_WIN32 )
 
-	set( SYSTEM_LIBRARIES wininet.lib ws2_32.lib  crypt32.lib cryptui.lib )
+	set( SYSTEM_LIBRARIES wininet.lib ws2_32.lib  crypt32.lib cryptui.lib Iphlpapi.lib )
 
 endif()
 

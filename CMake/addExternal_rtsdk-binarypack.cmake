@@ -13,7 +13,7 @@ endif()
 if(NOT rtsdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(rtsdk-binarypack_hash "MD5=242c2579ddf375144f98be60fa8498fc")
+	set(rtsdk-binarypack_hash "MD5=d89130bd8a9281267856c37e3da25d64")
 endif()
 if(NOT rtsdk-binarypack_version)
 	set(rtsdk-binarypack_version "1.5.0.1")
