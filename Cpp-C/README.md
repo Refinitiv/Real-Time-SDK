@@ -1,9 +1,9 @@
 # Refinitiv Real-Time SDK - C/C++ Edition
 This is the Refinitiv Real-Time SDK. This SDK encompasses a couple of APIs:  Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
-The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
+The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -18,8 +18,9 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-- Red Hat Advanced Server 6.X Release 64-bit
+- Red Hat Enterprise Server 6.X Release 64-bit
 - Oracle Linux Server 6.X or 7.X Release 64-bit
+- Red Hat Enterprise Server 8.X Release 64-bit
 - CentOS 7.X Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
@@ -48,7 +49,8 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 11.0 (2012) 64-bit
 	Microsoft Visual Studio 12.0 (2013) 64-bit
 	Microsoft Visual Studio 14.0 (2015) 64-bit
-	Microsoft Visual Studio 15.0 (2017) 64-bit 
+	Microsoft Visual Studio 14.1 (2017) 64-bit 
+	Microsoft Visual Studio 14.2 (2019) 64-bit 
 
 NOTE: User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
 
@@ -56,14 +58,15 @@ NOTE: User has the option to use pre-built libraries for the compilers listed ab
 
 Platforms & Compilers:
 
-	GCC compiler suite version 4.4.4 or higher for RHAS 6.X, 64-bit, Native build
+	GCC compiler suite version 4.4.4 or higher for Red Hat Enterprise Server 6.X, 64-bit, Native build
 	GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
 	GCC compiler suite version 4.4.4 or higher for Oracle Linux 6.0, 64-bit, qualification with RH6 library build
 	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
+	GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
+NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8, Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
 
 #### Tested Versions
 External modules used by this version of RTSDK C/C++:
@@ -85,17 +88,18 @@ This release has been tested with supported valid OS/compiler combinations.
 ##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
-	OS					GCC Version		Use-Prebuilt Library			Use-Natively Build Library
-	--------------------------------	------------		----------------------			----------------------------		
-	Oracle Linux Server 6.6 64-bit 		GCC 4.4.4  		RHEL6_64_GCC444				OL6_64_GCC444
-	Red Hat Advanced Server 6.3 64-bit   	GCC 4.4.6		RHEL6_64_GCC444 		 	RHEL6_64_GCC446	
-	Red Hat Advanced Server 6.9 64-bit   	GCC 4.4.7		RHEL6_64_GCC444 		 	RHEL6_64_GCC447	
-	CentOS 7.0 64-bit                	GCC 4.8.2		OL7_64_GCC482				CENTOS7_64_GCC482
-	Oracle Linux Server 7.7 64-bit 		GCC 4.8.5		OL7_64_GCC482				OL7_64_GCC485
-	Red Hat Advanced Server 7.7 64-bit 	GCC 4.8.5 		OL7_64_GCC482				RHEL7_64_GCC485
-	Oracle Linux Server 7.7 64-bit     	GCC 7.4.0		n/a           				OL7_64_GCC740
-	Red Hat Linux Server 6.10 64-bit 	GCC 7.4.0 		n/a					RHEL6_64_GCC740
-	Red Hat Linux Server 7.7 64-bit 	GCC 7.4.0 		n/a					RHEL7_64_GCC740
+	OS						GCC Version	Use-Prebuilt Library	Use-Natively Build Library
+	--------------------------------		------------	----------------------	----------------------------		
+	Oracle Linux Server 6.6 64-bit 			GCC 4.4.4  	RHEL6_64_GCC444		OL6_64_GCC444
+	Red Hat Enterprise Linux Server 6.3 64-bit   	GCC 4.4.6	RHEL6_64_GCC444	 	RHEL6_64_GCC446	
+	Red Hat Enterprise Linux Server 6.9 64-bit   	GCC 4.4.7	RHEL6_64_GCC444	 	RHEL6_64_GCC447	
+	CentOS 7.0 64-bit                		GCC 4.8.2	OL7_64_GCC482		CENTOS7_64_GCC482
+	Oracle Linux Server 7.7 64-bit 			GCC 4.8.5	OL7_64_GCC482		OL7_64_GCC485
+	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 4.8.5 	OL7_64_GCC482		RHEL7_64_GCC485
+	Oracle Linux Server 7.7 64-bit     		GCC 7.4.0	n/a           		OL7_64_GCC740
+	Red Hat Enterprise Linux Server 6.10 64-bit 	GCC 7.4.0 	n/a			RHEL6_64_GCC740
+	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
+	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
 
 	n/a = This is not a tested combination
 
@@ -128,8 +132,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.3
-- ADH 3.3.3
+- ADS 3.4.2
+- ADH 3.4.2
 - DACS 7.3
 
 # Documentation
@@ -153,7 +157,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org).
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14 or greater.
 
 Refer to the RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 
@@ -165,37 +169,36 @@ Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linu
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the optimized Makefile files:
 
-	cmake -HRTSDK -Bbuild-esdk
+	cmake -HRTSDK -BbuildDir
 	# Refinitiv Real-Time SDK is the RTSDK directory 
-	# build-esdk is the directory where all build output is placed 
-	# Note: build-esdk is automatically created
+	# buildDir is the directory where all build output is placed 
+	# Note: buildDir, or anything your specify in place of it in above command, is automatically created
 
 Issue the following command to build debug Makefile files:
 
-	cmake -HRTSDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
+	cmake -HRTSDK -BbuildDir –DCMAKE_BUILD_TYPE=Debug
 
-The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
-Go to the build-esdk directory and type "make" to create the RTSDK libraries. Note that the libraries are sent to the RTSDK directory (i.e., not the build-esdk directory).
+The cmake command builds all needed Makefile files (and related dependencies) in the buildDir directory. 
+Go to the buildDir directory and type "make" to create the RTSDK libraries. Note that the libraries are sent to the RTSDK directory (i.e., not the buildDir directory).
 
 **For Windows**:
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the Solution and vcxproj files:
 
-	cmake -HRTSDK -Bbuild-esdk -G "VisualStudioVersion"
+	cmake -HRTSDK -BbuildDir -G <VisualStudioVersion>
 	# RTDK is the directory with the source code 
-	# build-esdk is the directory where all build output is placed; this is where the built binaries are placed 
-	# Note: build-esdk is automatically created
-	# "VisualStudioVersion" is the visual studio version to use for build on windows (e.g., "Visual Studio 14 2015 Win64")
+	# buildDir is the directory where all build output is placed; this is where the built binaries are placed 
+	# Note: buildDir, or anything your specify in place of it in above command, is automatically created
+	# "VisualStudioVersion" is the visual studio version to use for build on windows.
+	# Valid values for VisualStudioVersion are 
+		# "Visual Studio 16 2019" -A x64 
+		# "Visual Studio 15 2017 Win64"
+		# "Visual Studio 14 2015 Win64" 
+		# "Visual Studio 12 2013 Win64"
+		# "Visual Studio 11 2012 Win64"
 	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
 
-The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the build-esdk directory).
-
-Note that only the following Windows compilers are supported.
-
-- Visual Studio 15 2017
-- Visual Studio 14 2015
-- Visual Studio 12 2013
-- Visual Studio 11 2012
+The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the buildDir directory).
 
 Note that your installation of Visual Studio needs to be updated to add Microsoft Foundation Classes per Microsoft when encountering this build error: fatal error RC105: cannot open include file 'afxres.h'.
 

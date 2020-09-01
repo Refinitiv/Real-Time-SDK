@@ -22,7 +22,7 @@
 
 /* Suppress warning C4756: overflow in constant arithmetic that occurs only on VS2013 */
 #if defined(WIN32) &&  _MSC_VER == 1800
-#pragma warning( disable : 4056)
+#pragma warning( disable : 4056 4756)
 #endif
 
 #ifdef WIN32

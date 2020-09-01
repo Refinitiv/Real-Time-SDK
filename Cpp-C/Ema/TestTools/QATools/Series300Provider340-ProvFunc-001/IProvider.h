@@ -62,9 +62,7 @@ protected:
 
 	void onReqMsg( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
 
-	void onRefreshMsg(const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
-
-	void onStatusMsg(const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void onPostMsg(const thomsonreuters::ema::access::PostMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
 
 };
 

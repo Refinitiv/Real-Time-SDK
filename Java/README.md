@@ -1,10 +1,9 @@
 # Refinitiv Real-Time SDK - Java Edition
 This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
-The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.
+The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
-
+The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -96,8 +95,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.3
-- ADH 3.3.3
+- ADS 3.4.2
+- ADH 3.4.2
 - DACS 7.3
 
 # Documentation
@@ -180,40 +179,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.5.0.1</version>
+		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.5.0.1</version>
+		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.5.0.1</version>
+		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.5.0.1</version>
+		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.5.0.1</version>
+		<version>3.5.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.0.1'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.0.1'
-        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.0.1'
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.1.0'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.1.0'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.1.0'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.1.0'
+        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.1.0'
 
 # Developing 
 

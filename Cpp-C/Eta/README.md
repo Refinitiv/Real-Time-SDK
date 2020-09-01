@@ -6,9 +6,9 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 
 ETA contains open source components. The transport, decoder and encoder components are open source. The reliable multicast transport and VA cache component are closed source.
 
-This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
+This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -139,11 +139,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.5.0.G1     
-    librsslVA.lib             eta3.5.0.G1
-    librsslVACache.lib        eta3.5.0.G1
-    libansi.lib               eta3.5.0.G1
-    libdacs.lib               eta3.5.0.G1
+    librssl.lib*              eta3.5.1.L1     
+    librsslVA.lib             eta3.5.1.L1
+    librsslVACache.lib        eta3.5.1.L1
+    libansi.lib               eta3.5.1.L1
+    libdacs.lib               eta3.5.1.L1
 
     *librssl.lib includes JsonConverter
 
@@ -151,27 +151,27 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.5.0.G1
-    librssl.lib               eta3.5.0.G1
-    librssl.pdb               eta3.5.0.G1
-    librsslVA.dll             eta3.5.0.G1
-    librsslVA.lib             eta3.5.0.G1
-    librsslVA.pdb             eta3.5.0.G1
-    librsslVACache.dll        eta3.5.0.G1
-    librsslVACache.lib        eta3.5.0.G1
-    librsslVACache.pdb        eta3.5.0.G1
-    librsslJsonConverter.dll  eta3.5.0.G1
-    librsslJsonConverter.lib  eta3.5.0.G1
-    librsslJsonConverter.pdb  eta3.5.0.G1
+    librssl.dll               eta3.5.1.L1
+    librssl.lib               eta3.5.1.L1
+    librssl.pdb               eta3.5.1.L1
+    librsslVA.dll             eta3.5.1.L1
+    librsslVA.lib             eta3.5.1.L1
+    librsslVA.pdb             eta3.5.1.L1
+    librsslVACache.dll        eta3.5.1.L1
+    librsslVACache.lib        eta3.5.1.L1
+    librsslVACache.pdb        eta3.5.1.L1
+    librsslJsonConverter.dll  eta3.5.1.L1
+    librsslJsonConverter.lib  eta3.5.1.L1
+    librsslJsonConverter.pdb  eta3.5.1.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
 In addition, several versions of a shared library can co-exist on the machine. This allows for easy upgrade of functionality by deploying a newer shared library. It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.5.0.G1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
+To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.5.1.L1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
 
-The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.5.0.G1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.5.0.G1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.5.0.G1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
+The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.5.1.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.5.1.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.5.1.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
 
 	./LinuxSoLink
     
@@ -180,22 +180,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.5.0.G1
-    librsslVA.a                        eta3.5.0.G1
-    librsslVACache.a                   eta3.5.0.G1
-    libansi.lib                        eta3.5.0.G1
-    libdacs.lib                        eta3.5.0.G1
+    librssl.a                          eta3.5.1.L1
+    librsslVA.a                        eta3.5.1.L1
+    librsslVACache.a                   eta3.5.1.L1
+    libansi.lib                        eta3.5.1.L1
+    libdacs.lib                        eta3.5.1.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.5.0.0                 librssl.so.12                   eta3.5.0.G1
-    librsslVA.so.3.5.0.0               librsslVA.so.15                 eta3.5.0.G1
-    librsslJsonConverter.so.3.5.0.0    librsslJsonConverter.so.1       eta3.5.0.G1
+    librssl.so.3.5.1.0                 librssl.so.13                   eta3.5.1.L1
+    librsslVA.so.3.3.5.1.              librsslVA.so.16                 eta3.5.1.L1
+    librsslJsonConverter.so.3.5.1.0    librsslJsonConverter.so.2       eta3.5.1.L1
 
-    librsslVACache.so.3.5.0.0          librsslVACache.so.3             eta3.5.0.G1
-    librsslRelMcast.so.3.5.0.0         librsslRelMcast.so.1            eta3.5.0.G1
+    librsslVACache.so.3.5.1.0          librsslVACache.so.3             eta3.5.1.L1
+    librsslRelMcast.so.3.5.1.0         librsslRelMcast.so.1            eta3.5.1.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -233,7 +233,7 @@ The Transport API provides a helpful script that will create soft links for the 
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 

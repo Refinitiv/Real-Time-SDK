@@ -1549,7 +1549,7 @@ public class Reactor
     
     void loginReissue(ReactorChannel reactorChannel, String authToken, ReactorErrorInfo errorInfo)
     {
-		if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+		if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN || reactorChannel.state() == State.EDP_RT)
 			return;
 
 		LoginRequest loginRequest = null;		

@@ -19865,7 +19865,15 @@ public class ReactorWatchlistJUnitNew
     	eIter.setBufferAndRWFVersion(buffer, provider.reactorChannel().majorVersion(), provider.reactorChannel().majorVersion());
         assertEquals(CodecReturnCodes.SUCCESS, dictionaryRefresh.encode(eIter));
         submitOptions.clear();
-        assertTrue(provider.reactorChannel().submit(buffer, submitOptions, errorInfo) >= ReactorReturnCodes.SUCCESS);
+        
+        int ret = 0;
+        
+        do
+        {
+        	ret = provider.reactorChannel().submit(buffer, submitOptions, errorInfo);
+        }while(ret == ReactorReturnCodes.WRITE_CALL_AGAIN);
+        
+        assertTrue(ret >= ReactorReturnCodes.SUCCESS);
         providerReactor.dispatch(0);
 
         /* Consumer receives refresh. */

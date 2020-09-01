@@ -2,20 +2,19 @@
 
 As of Oct 1, 2018 the former Financial and Risk business division of Thomson Reuters is now known as Refinitiv. All names and marks owned by Thomson Reuters, including Thomson, Reuters and the Kinesis logo are used under license from Thomson Reuters and its affiliated companies.
 
-Refinitiv products will be undergoing brand changes at a future date to reflect Refinitiv branding. 
+- Refinitiv products will be undergoing brand changes to reflect Refinitiv branding. For any further information please contact us at legal@refinitiv.com.
+- Eektron SDK is now rebranded to Refinitiv Real-Time SDK. Further rebranding changes are forthcoming.
 
-For any further information please contact us at legal@refinitiv.com.
+REBRAND IMPACT STATEMENT: Starting with release RTSDK 2.0 (ETA/EMA 3.6), rebranding activities will be completed and will impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to ESDK/RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. However, all future fixes will be made only on re-branded releases. After July 2021, non-rebranded revisions will no longer be available or supported for licensing reasons. With the 2.0.0 release, a REBRAND.md file will be published with exact details and sample code to serve as a guide to quickly adapt to changes. For further details on impact and timelines on RTSDK and other APIs, please see the [API Product Change Notification (PCN)](API%20Rebranding%20-%20Product%20Change%20Notification.pdf).
 
 
 
 # Refinitiv Real-Time SDK
 This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs: open source Enterprise Message API (EMA) and the open source Enterprise Transport API (ETA).
 
-Refinitiv Real-Time SDK was formerly known as the Elektron SDK. 
-
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
 
 
 
@@ -55,8 +54,8 @@ We will review issues and pull requests to determine any appropriate changes.
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Refinitiv%20Real-Time%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 Please email a signed and scanned copy to `sdkagreement@refinitiv.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 

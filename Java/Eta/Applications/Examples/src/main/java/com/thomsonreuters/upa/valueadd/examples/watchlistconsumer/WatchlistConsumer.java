@@ -1817,19 +1817,16 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     	
     	String keyFile = watchlistConsumerConfig.keyStoreFile();
     	String keyPasswd = watchlistConsumerConfig.keystorePassword();
-        if (keyFile == null)
+    	
+        if (keyFile != null && !keyFile.isEmpty())
         {
-        	System.err.println("Error: Keystore file not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystoreFile(keyFile);     		        		        		
         }                   
-        if (keyPasswd == null)
+        if (keyPasswd != null && !keyFile.isEmpty())
         {
-        	System.err.println("Error: Keystore password not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystorePasswd(keyPasswd);    		        		        		
         }          
-    	    	
-    	options.encryptionOptions().KeystoreFile(keyFile);
-        options.encryptionOptions().KeystorePasswd(keyPasswd); 
+        
         options.encryptionOptions().KeystoreType("JKS");
         options.encryptionOptions().SecurityProtocol("TLS");
         options.encryptionOptions().SecurityProvider("SunJSSE");
