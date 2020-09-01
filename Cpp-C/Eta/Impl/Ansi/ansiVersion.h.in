@@ -22,14 +22,14 @@
 #define ANSI_Product_Major     @Ansi_VERSION_PATCH@ 	// Release patch number
 #define ANSI_Product_Minor     @Ansi_VERSION_TWEAK@   	// Release tweak number
 
-#define ANSI_Year				"@esdk_year@"
+#define ANSI_Year				"@rtsdk_year@"
 #define ANSI_CompanyName		" Refinitiv"
 #define ANSI_Version			ANSI_Release_Major,ANSI_Release_Minor,ANSI_Product_Major,ANSI_Product_Minor
 #define ANSI_VersionString		MKSTR(ANSI_Release_Major) "." MKSTR(ANSI_Release_Minor) "." MKSTR(ANSI_Product_Major) "." MKSTR(ANSI_Product_Minor) " (" BLDTYPE ")"
 #define ANSI_LegalCopyRight		"Copyright (C) " ANSI_Year ANSI_CompanyName ", All Rights Reserved. "
 #define ANSI_ExternalName		"ansi@Ansi_VERSION_MAJOR@.@Ansi_VERSION_MINOR@.@Ansi_VERSION_PATCH@.@ansi_INTERNAL_RELEASE_TWEAK@"
 #define ANSI_InternalName		"ansi@Ansi_VERSION_MAJOR@.@Ansi_VERSION_MINOR@.@Ansi_VERSION_PATCH@.@Ansi_VERSION_TWEAK@"
-#define ANSI_ReleaseType		"@esdk_RELEASE_TYPE@"
+#define ANSI_ReleaseType		"@rtsdk_RELEASE_TYPE@"
 #define ANSI_ProdName			"ANSI Library C Edition"
 #define ANSI_Package			" PACKAGE " ANSI_ExternalName " " ANSI_ReleaseType
 
@@ -38,6 +38,6 @@ static char ansiVersion[]   = " VERSION " ANSI_InternalName;
 static char ansiWhat[]      = "@(#)ansiVersion.h" ANSI_InternalName;
 static char ansiWhere[]     = "s.ansiVersion.h";
 static char ansiPackage[]   = ANSI_Package;
-static char ansiDeltaDate[] = " @esdk_timestamp@ " ANSI_Year;
+static char ansiDeltaDate[] = " @rtsdk_timestamp@ " ANSI_Year;
 
 #endif

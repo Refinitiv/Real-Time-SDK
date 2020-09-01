@@ -259,7 +259,7 @@ function(rcdev_get_normalized_platform_suffix suffix)
 		elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
 				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
 				 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) )
-			rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
+			rcdev_get_platform_suffix(_sfx "gcc" "rhel")
 		else()
 			rcdev_get_platform_suffix(_sfx "gcc" )
 		endif()
