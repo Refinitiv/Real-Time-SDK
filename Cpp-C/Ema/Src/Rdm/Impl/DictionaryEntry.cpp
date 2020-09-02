@@ -13,7 +13,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::rdm;
 
 DictionaryEntry::DictionaryEntry()
 {
@@ -59,59 +59,59 @@ DictionaryEntry& DictionaryEntry::operator=(const DictionaryEntry& other)
 	return *this;
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntry::getAcronym() const
+const rtsdk::ema::access::EmaString& DictionaryEntry::getAcronym() const
 {
 	return _pImpl->getAcronym();
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntry::getDDEAcronym() const
+const rtsdk::ema::access::EmaString& DictionaryEntry::getDDEAcronym() const
 {
 	return _pImpl->getDDEAcronym();
 }
 
-thomsonreuters::ema::access::Int16 DictionaryEntry::getFid() const
+rtsdk::ema::access::Int16 DictionaryEntry::getFid() const
 {
 	return _pImpl->getFid();
 }
 
-thomsonreuters::ema::access::Int16 DictionaryEntry::getRippleToField() const
+rtsdk::ema::access::Int16 DictionaryEntry::getRippleToField() const
 {
 	return _pImpl->getRippleToField();
 }
 
 
-thomsonreuters::ema::access::Int8 DictionaryEntry::getFieldType() const
+rtsdk::ema::access::Int8 DictionaryEntry::getFieldType() const
 {
 	return _pImpl->getFieldType();
 }
 
-thomsonreuters::ema::access::UInt16 DictionaryEntry::getLength() const
+rtsdk::ema::access::UInt16 DictionaryEntry::getLength() const
 {
 	return _pImpl->getLength();
 }
 
-thomsonreuters::ema::access::UInt8 DictionaryEntry::getEnumLength() const
+rtsdk::ema::access::UInt8 DictionaryEntry::getEnumLength() const
 {
 	return _pImpl->getEnumLength();
 }
 
 
-thomsonreuters::ema::access::UInt8 DictionaryEntry::getRwfType() const
+rtsdk::ema::access::UInt8 DictionaryEntry::getRwfType() const
 {
 	return _pImpl->getRwfType();
 }
 
-thomsonreuters::ema::access::UInt32 DictionaryEntry::getRwfLength() const
+rtsdk::ema::access::UInt32 DictionaryEntry::getRwfLength() const
 {
 	return _pImpl->getRwfLength();
 }
 
-bool DictionaryEntry::hasEnumType(thomsonreuters::ema::access::UInt16 value) const
+bool DictionaryEntry::hasEnumType(rtsdk::ema::access::UInt16 value) const
 {
 	return _pImpl->hasEnumType(value);
 }
 
-const EnumType& DictionaryEntry::getEnumType(thomsonreuters::ema::access::UInt16 value) const
+const EnumType& DictionaryEntry::getEnumType(rtsdk::ema::access::UInt16 value) const
 {
 	return _pImpl->getEnumEntry(value);
 }
@@ -126,7 +126,7 @@ const EnumTypeTable& DictionaryEntry::getEnumTypeTable() const
 	return _pImpl->getEnumTypeTable();
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntry::toString() const
+const rtsdk::ema::access::EmaString& DictionaryEntry::toString() const
 {
 	return _pImpl->toString();
 }

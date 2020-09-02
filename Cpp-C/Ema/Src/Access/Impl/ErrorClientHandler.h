@@ -14,7 +14,7 @@
 #include "OmmProvider.h"
 #include "ClientSession.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

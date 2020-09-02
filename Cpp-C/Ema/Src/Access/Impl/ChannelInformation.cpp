@@ -9,7 +9,7 @@
 #include "ChannelInfoImpl.h"
 #include "ChannelInformation.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 ChannelInformation::ChannelInformation()
 {
@@ -208,7 +208,7 @@ ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProt
   return *this;
 }
 
-void thomsonreuters::ema::access::getChannelInformationImpl(const RsslReactorChannel* rsslReactorChannel,
+void rtsdk::ema::access::getChannelInformationImpl(const RsslReactorChannel* rsslReactorChannel,
 															OmmCommonImpl::ImplementationType implType,
 															ChannelInformation& ci) 
 {
@@ -235,7 +235,7 @@ void thomsonreuters::ema::access::getChannelInformationImpl(const RsslReactorCha
 /* ci has been cleared and calling function has verified that channel arguments are non-null.
  * Calling function has also updated hostname and ipAddress
  */
-void thomsonreuters::ema::access::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
+void rtsdk::ema::access::getChannelInformation(const RsslReactorChannel* rsslReactorChannel,
 												 const RsslChannel* rsslChannel,
 												 ChannelInformation& ci) {
   // create channel info

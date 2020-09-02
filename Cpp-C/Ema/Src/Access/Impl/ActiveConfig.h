@@ -128,7 +128,7 @@
 #define PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 0x40  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 #define PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 0x80  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

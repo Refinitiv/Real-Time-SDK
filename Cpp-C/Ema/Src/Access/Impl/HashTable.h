@@ -13,7 +13,7 @@
 #include <string.h>
 #include <new>
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

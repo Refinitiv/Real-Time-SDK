@@ -47,7 +47,7 @@
 #include "ElementListSetDef.h"
 #include "FieldListSetDef.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -107,6 +107,6 @@ public :
 
 }
 
-extern thomsonreuters::ema::access::GlobalPool g_pool;
+extern rtsdk::ema::access::GlobalPool g_pool;
 
 #endif // __thomsonreuters_ema_access_GlobalPool_h

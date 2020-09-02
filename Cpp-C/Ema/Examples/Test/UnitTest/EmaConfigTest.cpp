@@ -15,8 +15,8 @@
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderImpl.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 using namespace std;
 
 class EmaConfigTest : public ::testing::Test {

@@ -9,7 +9,7 @@
 #ifndef __thomsonreuters_ema_access_OmmState_h
 #define __thomsonreuters_ema_access_OmmState_h
 /**
-	@class thomsonreuters::ema::access::OmmState OmmState.h "Access/Include/OmmState.h"
+	@class rtsdk::ema::access::OmmState OmmState.h "Access/Include/OmmState.h"
 	@brief OmmState represents State information in Omm. 
 
 	OmmState is used to represent state of item, item group and service.
@@ -26,7 +26,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -199,9 +199,9 @@ private :
 	friend class StaticDecoder;
 	friend class RefreshMsgDecoder;
 	friend class StatusMsgDecoder;
-	friend class thomsonreuters::ema::domain::login::LoginStatusImpl;
-	friend class thomsonreuters::ema::domain::login::LoginRefreshImpl;
-	friend class thomsonreuters::ema::domain::login::LoginReqImpl;
+	friend class rtsdk::ema::domain::login::LoginStatusImpl;
+	friend class rtsdk::ema::domain::login::LoginRefreshImpl;
+	friend class rtsdk::ema::domain::login::LoginReqImpl;
 
 	Decoder& getDecoder();
 	bool hasDecoder() const;

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
+	@class rtsdk::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
 	@brief OmmMemoryExhaustionException represents out of memory exceptions.
 
 	OmmMemoryExhaustionException are thrown when malloc() returns a null pointer,
@@ -25,7 +25,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

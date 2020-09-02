@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmException OmmException.h "Access/Include/OmmException.h"
+	@class rtsdk::ema::access::OmmException OmmException.h "Access/Include/OmmException.h"
 	@brief OmmException is a parent class for all exception types thrown by EMA.
 
 	This class provides all the common functionalities and methods used by the inheriting classes.
@@ -34,7 +34,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

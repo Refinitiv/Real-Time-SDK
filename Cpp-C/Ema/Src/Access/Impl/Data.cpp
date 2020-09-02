@@ -8,7 +8,7 @@
 
 #include "Data.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 const EmaString ReqMsgString( "ReqMsg" );
 const EmaString RefreshMsgString( "RefreshMsg" );

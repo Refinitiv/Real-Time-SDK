@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ComplexType_h
 
 /**
-	@class thomsonreuters::ema::access::ComplexType ComplexType.h "Access/Include/ComplexType.h"
+	@class rtsdk::ema::access::ComplexType ComplexType.h "Access/Include/ComplexType.h"
 	@brief ComplexType class is a parent class from whom all complex data types inherit.
 
 	ComplexType class represents all OMM Data constructs set-able as message payload.
@@ -24,7 +24,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

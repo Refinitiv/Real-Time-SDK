@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmBuffer_h
 
 /**
-	@class thomsonreuters::ema::access::OmmBuffer OmmBuffer.h "Access/Include/OmmBuffer.h"
+	@class rtsdk::ema::access::OmmBuffer OmmBuffer.h "Access/Include/OmmBuffer.h"
 	@brief OmmBuffer represents a binary buffer value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

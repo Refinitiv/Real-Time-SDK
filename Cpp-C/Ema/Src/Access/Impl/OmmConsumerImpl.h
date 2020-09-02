@@ -12,7 +12,7 @@
 #include "OmmBaseImpl.h"
 #include "OmmConsumerActiveConfig.h"
 #include "ChannelInformation.h"
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

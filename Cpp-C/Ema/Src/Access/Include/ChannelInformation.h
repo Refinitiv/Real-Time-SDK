@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ChannelInformation_h
 
 /**
-   @class thomsonreuters::ema::access::ChannelInformation ChannelInformation.h "Access/Include/ChannelInformation.h"
+   @class rtsdk::ema::access::ChannelInformation ChannelInformation.h "Access/Include/ChannelInformation.h"
    @brief ChannelInfo provides information on application channel(s).
 
    For IProvider applications, this channel information is about channels used by
@@ -28,7 +28,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

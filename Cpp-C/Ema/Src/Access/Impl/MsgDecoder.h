@@ -12,7 +12,7 @@
 #include "Decoder.h"
 #include "NoDataImpl.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

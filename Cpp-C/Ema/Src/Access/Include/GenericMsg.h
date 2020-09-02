@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_GenericMsg_h
 
 /**
-	@class thomsonreuters::ema::access::GenericMsg GenericMsg.h "Access/Include/GenericMsg.h"
+	@class rtsdk::ema::access::GenericMsg GenericMsg.h "Access/Include/GenericMsg.h"
 	@brief GenericMsg allows applications to bidirectionally send messages without any implied
 	message semantics.
 
@@ -77,7 +77,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

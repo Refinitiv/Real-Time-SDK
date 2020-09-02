@@ -9,7 +9,7 @@
 #define __thomsonreuters_ema_rdm_DataDictionary_h
 
 /**
-	class thomsonreuters::ema::rdm::DataDictionary DataDictionary.h "Rdm/Include/DataDictionary.h"
+	class rtsdk::ema::rdm::DataDictionary DataDictionary.h "Rdm/Include/DataDictionary.h"
 	@brief This class houses all known fields loaded from an RDM field dictionary and
 	their corresponding enum types loaded from an enum type dictionary.
     
@@ -32,7 +32,7 @@
 #include "Access/Include/EmaVector.h"
 #include "Access/Include/Series.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -79,105 +79,105 @@ public:
 	*
 	* @return the minFid
 	*/
-	thomsonreuters::ema::access::Int32 getMinFid() const;
+	rtsdk::ema::access::Int32 getMinFid() const;
 
 	/**
 	* The highest fieldId present in the dictionary.
 	*
 	* @return the maxFid
 	*/
-	thomsonreuters::ema::access::Int32 getMaxFid() const;
+	rtsdk::ema::access::Int32 getMaxFid() const;
 
 	/**
 	* The list of DictionaryEntry of this DataDictionary.
 	*
 	* @return the list of DictionaryEntry
 	*/
-	const thomsonreuters::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
+	const rtsdk::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
 
 	/**
 	* The list of EnumTypeTable of this DataDictionary.
 	*
 	* @return the list of EnumTypeTable
 	*/
-	const thomsonreuters::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
+	const rtsdk::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
 
 	/**
 	* DictionaryId Tag. All dictionaries loaded using this object will have this tag matched if found.
 	*
 	* @return the DictionaryId
 	*/
-	thomsonreuters::ema::access::Int32 getDictionaryId() const;
+	rtsdk::ema::access::Int32 getDictionaryId() const;
 
 	/**
 	* Field Version Tag.
 	*
 	* @return the FieldVersion
 	*/
-	const thomsonreuters::ema::access::EmaString& getFieldVersion() const;
+	const rtsdk::ema::access::EmaString& getFieldVersion() const;
 
 	/**
 	* Enum RT_Version Tag.
 	*
 	* @return the EnumRecordTemplateVersion
 	*/
-	const thomsonreuters::ema::access::EmaString& getEnumRecordTemplateVersion() const;
+	const rtsdk::ema::access::EmaString& getEnumRecordTemplateVersion() const;
 
 	/**
 	* Enum DT_Version Tag.
 	*
 	* @return the EnumDisplayTemplateVersion
 	*/
-	const thomsonreuters::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
+	const rtsdk::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
 
 	/**
 	* Field Filename Tag.
 	*
 	* @return the FieldFilename
 	*/
-	const thomsonreuters::ema::access::EmaString& getFieldFilename() const;
+	const rtsdk::ema::access::EmaString& getFieldFilename() const;
 
 	/**
 	* Field Description Tag.
 	*
 	* @return the FieldDescription
 	*/
-	const thomsonreuters::ema::access::EmaString& getFieldDescription() const;
+	const rtsdk::ema::access::EmaString& getFieldDescription() const;
 
 	/**
 	* Field Build Tag.
 	*
 	* @return the FieldBuild
 	*/
-	const thomsonreuters::ema::access::EmaString& getFieldBuild() const;
+	const rtsdk::ema::access::EmaString& getFieldBuild() const;
 
 	/**
 	* Field Date Tag.
 	*
 	* @return the FieldDate
 	*/
-	const thomsonreuters::ema::access::EmaString& getFieldDate() const;
+	const rtsdk::ema::access::EmaString& getFieldDate() const;
 
 	/**
 	* Enum Filename Tag.
 	*
 	* @return the EnumFilename
 	*/
-	const thomsonreuters::ema::access::EmaString& getEnumFilename() const;
+	const rtsdk::ema::access::EmaString& getEnumFilename() const;
 
 	/**
 	* Enum Description Tag.
 	*
 	* @return the EnumDescription
 	*/
-	const thomsonreuters::ema::access::EmaString& getEnumDescription() const;
+	const rtsdk::ema::access::EmaString& getEnumDescription() const;
 
 	/**
 	* Enum Date Tag.
 	*
 	* @return the EnumDate
 	*/
-	const thomsonreuters::ema::access::EmaString& getEnumDate() const;
+	const rtsdk::ema::access::EmaString& getEnumDate() const;
 
 	/**
 	* Check whether the DictionaryEntry exists
@@ -186,7 +186,7 @@ public:
 	*
 	* @return true if the DictionaryEntry exists otherwise false
 	*/
-	bool hasEntry(thomsonreuters::ema::access::Int16 fieldId) const;
+	bool hasEntry(rtsdk::ema::access::Int16 fieldId) const;
 
 	/**
 	* Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
@@ -195,9 +195,9 @@ public:
 	* @entry[out] the entry in the dictionary corresponding to the given fieldId, if the entry exists
 	*
 	* @throw OmmInvalidUsageException if the entry does not exist
-	* Same like {@link DataDictionary#getEntry(thomsonreuters::ema::access::Int16)} note, entry should be created first and managed by the user
+	* Same like {@link DataDictionary#getEntry(rtsdk::ema::access::Int16)} note, entry should be created first and managed by the user
 	*/
-	void getEntry(thomsonreuters::ema::access::Int16 fieldId, DictionaryEntry& entry) const;
+	void getEntry(rtsdk::ema::access::Int16 fieldId, DictionaryEntry& entry) const;
 
 	/**
 	* Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
@@ -208,7 +208,7 @@ public:
 	*
 	* @return the dictionary entry if it exists
 	*/
-	const DictionaryEntry& getEntry(thomsonreuters::ema::access::Int16 fieldId) const;
+	const DictionaryEntry& getEntry(rtsdk::ema::access::Int16 fieldId) const;
 
 	/**
 	* Check whether the DictionaryEntry exists
@@ -217,7 +217,7 @@ public:
 	*
 	* @return true if the DictionaryEntry exists otherwise false
 	*/
-	bool hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	bool hasEntry(const rtsdk::ema::access::EmaString& fieldName) const;
 
 	/**
 	* Returns the entry in the dictionary corresponding to the given fieldName, if the entry exists.
@@ -226,9 +226,9 @@ public:
 	* @entry[out] the entry in the dictionary corresponding to the given fieldName, if the entry exists
 	*
 	* @throw OmmInvalidUsageException if the entry does not exist
-	* Same like {@link DataDictionary#getEntry(const thomsonreuters::ema::access::EmaString&)} note, entry should be created first and managed by the user
+	* Same like {@link DataDictionary#getEntry(const rtsdk::ema::access::EmaString&)} note, entry should be created first and managed by the user
 	*/
-	void getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
+	void getEntry(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	/**
 	* Returns the entry in the dictionary corresponding to the given fieldName, if the entry exists.
@@ -239,7 +239,7 @@ public:
 	*
 	* @return the dictionary entry if it exists
 	*/
-	const DictionaryEntry& getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	const DictionaryEntry& getEntry(const rtsdk::ema::access::EmaString& fieldName) const;
 
 	/**
 	* Check whether the EnumType exists
@@ -249,7 +249,7 @@ public:
 	*
 	* @return the enumerated type if it exists
 	*/
-	bool hasEnumType(thomsonreuters::ema::access::Int16 fieldId, thomsonreuters::ema::access::UInt16 value) const;
+	bool hasEnumType(rtsdk::ema::access::Int16 fieldId, rtsdk::ema::access::UInt16 value) const;
 
 	/**
 	* Returns the corresponding enumerated type in the dictionary entry's
@@ -262,7 +262,7 @@ public:
 	*
 	* @return the enumerated type if it exists
 	*/
-	const EnumType& getEnumType(thomsonreuters::ema::access::Int16 fieldId, thomsonreuters::ema::access::UInt16 value) const;
+	const EnumType& getEnumType(rtsdk::ema::access::Int16 fieldId, rtsdk::ema::access::UInt16 value) const;
 	//@}
 
 	///@name Operations 
@@ -286,7 +286,7 @@ public:
 	* file name from \p filename.
 	*
 	*/
-	void loadFieldDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadFieldDictionary(const rtsdk::ema::access::EmaString& filename);
 
 	/**
 	* Adds information from an enumerated types dictionary file to the data
@@ -300,7 +300,7 @@ public:
 	* file name from \p filename.
 	*
 	*/
-	void loadEnumTypeDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadEnumTypeDictionary(const rtsdk::ema::access::EmaString& filename);
 
 	/**
 	* Encode the field dictionary information into a data payload
@@ -316,7 +316,7 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	void encodeFieldDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeFieldDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
 	/**
 	* Encode the field dictionary information into a data payload
@@ -337,9 +337,9 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	bool encodeFieldDictionary(thomsonreuters::ema::access::Series& series,
-		thomsonreuters::ema::access::Int32& currentFid, thomsonreuters::ema::access::UInt32 verbosity, 
-		thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeFieldDictionary(rtsdk::ema::access::Series& series,
+		rtsdk::ema::access::Int32& currentFid, rtsdk::ema::access::UInt32 verbosity, 
+		rtsdk::ema::access::UInt32 fragmentationSize);
 
 	/**
 	* Decode the field dictionary information contained in a data payload
@@ -355,7 +355,7 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	void decodeFieldDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeFieldDictionary(const rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
 	/**
 	* Encode the enumerated types dictionary according the domain model, using
@@ -369,7 +369,7 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	void encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeEnumTypeDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
 	/**
 	* Encode the enumerated types dictionary according the domain model, using
@@ -390,8 +390,8 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	bool encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::Int32& enumTableCount,
-		thomsonreuters::ema::access::UInt32 verbosity, thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeEnumTypeDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::Int32& enumTableCount,
+		rtsdk::ema::access::UInt32 verbosity, rtsdk::ema::access::UInt32 fragmentationSize);
 
 	/**
 	* Decode the enumerated types information contained in an encoded enum
@@ -406,7 +406,7 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	void decodeEnumTypeDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeEnumTypeDictionary(const rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
 	/**
 	* Extract dictionary type from the encoded payload of a EMA message where
@@ -420,13 +420,13 @@ public:
 	*
 	* \remark see verbosity definition at "Rdm/Include/EmaRdm.h"
 	*/
-	thomsonreuters::ema::access::UInt32 extractDictionaryType(const thomsonreuters::ema::access::Series& series);
+	rtsdk::ema::access::UInt32 extractDictionaryType(const rtsdk::ema::access::Series& series);
 
 	/** Returns a string representation of the class instance.
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
 	*/
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 	/** Operator const char* overload.
 	@throw OmmMemoryExhaustionException if app runs out of memory
@@ -436,7 +436,7 @@ public:
 
 private:
 
-	friend class thomsonreuters::ema::access::FieldListDecoder;
+	friend class rtsdk::ema::access::FieldListDecoder;
 
 	DataDictionary(bool);
 

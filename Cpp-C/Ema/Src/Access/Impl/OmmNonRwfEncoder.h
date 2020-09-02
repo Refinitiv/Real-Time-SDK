@@ -11,7 +11,7 @@
 
 #include "Encoder.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

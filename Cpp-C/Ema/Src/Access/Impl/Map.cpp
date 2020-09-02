@@ -13,7 +13,7 @@
 #include "GlobalPool.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 extern const EmaString& getMActionAsString( MapEntry::MapAction mAction );
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );

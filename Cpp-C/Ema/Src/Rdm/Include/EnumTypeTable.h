@@ -16,7 +16,7 @@
 #include "EnumType.h"
 #include "Access/Include/EmaVector.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -33,13 +33,13 @@ public:
 	* Returns the list of EnumType that is belonged to this EnumTypeTable.
 	* @return the list of EnumType
 	*/
-	const thomsonreuters::ema::access::EmaVector<EnumType>& getEnumTypes() const;
+	const rtsdk::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
 	/**
 	* Returns the list of Field ID that references to this EnumTypeTable.
 	* @return the list of FID
 	*/
-	const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>& getFidReferences() const;
+	const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& getFidReferences() const;
 	//@}
 
 	///@name Operations
@@ -47,7 +47,7 @@ public:
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
 	*/
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 	/** Operator const char* overload.
 	@throw OmmMemoryExhaustionException if app runs out of memory
@@ -61,7 +61,7 @@ private:
 	friend class DataDictionaryImpl;
 
 	template<class T>
-	friend class thomsonreuters::ema::access::EmaVector;
+	friend class rtsdk::ema::access::EmaVector;
 
 	EnumTypeTableImpl* _pImpl;
 

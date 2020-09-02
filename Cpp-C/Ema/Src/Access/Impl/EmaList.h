@@ -12,7 +12,7 @@
 #include "Common.h"
 #include "Utilities.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

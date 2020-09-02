@@ -9,7 +9,7 @@
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 DictionaryConfig::DictionaryConfig() :
 	dictionaryName(),

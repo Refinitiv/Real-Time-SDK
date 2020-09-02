@@ -13,7 +13,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 ServiceEndpointDiscoveryResp::ServiceEndpointDiscoveryResp() :
 _toString(0,4096)

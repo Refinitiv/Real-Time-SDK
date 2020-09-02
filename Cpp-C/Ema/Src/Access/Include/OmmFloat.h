@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmFloat_h
 
 /**
-	@class thomsonreuters::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
+	@class rtsdk::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
 	@brief OmmFloat represents float value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

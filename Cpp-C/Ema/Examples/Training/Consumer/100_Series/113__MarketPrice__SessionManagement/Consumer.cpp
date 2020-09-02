@@ -8,7 +8,7 @@
 #include "Consumer.h"
 #include <cstring>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 bool connectWebSocket = false;

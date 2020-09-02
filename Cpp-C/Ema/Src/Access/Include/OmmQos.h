@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmQos_h
 
 /**
-	@class thomsonreuters::ema::access::Qos Qos.h "Access/Include/Qos.h"
+	@class rtsdk::ema::access::Qos Qos.h "Access/Include/Qos.h"
 	@brief OmmQos represents Quality Of Service information in Omm.
 
 	\remark OmmQos is a read only class.
@@ -24,7 +24,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -16,7 +16,7 @@
 #include  <sys/types.h>
 #endif
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 Pipe::Pipe() :
  _initialized( false )

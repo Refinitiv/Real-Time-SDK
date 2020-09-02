@@ -10,7 +10,7 @@
 #include "Access/Impl/EmaStringInt.h"
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 // with gcc 4.4.7, using EMAString::npos in the google test macros causes linking errors.

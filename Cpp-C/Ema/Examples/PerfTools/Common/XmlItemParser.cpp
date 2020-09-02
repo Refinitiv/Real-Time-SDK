@@ -14,7 +14,7 @@
 
 using namespace std;
 using namespace perftool::common;
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 XmlItemParser::XmlItemParser() :
  _count(0),
@@ -213,7 +213,7 @@ XmlItemParser::~XmlItemParser()
 {
 	if(_pXmlItemList)
 	{
-		for( thomsonreuters::ema::access::UInt64 i = 0; i <_pXmlItemList->size(); i++)
+		for( rtsdk::ema::access::UInt64 i = 0; i <_pXmlItemList->size(); i++)
 		{
 			if( (*_pXmlItemList)[i] )
 			{

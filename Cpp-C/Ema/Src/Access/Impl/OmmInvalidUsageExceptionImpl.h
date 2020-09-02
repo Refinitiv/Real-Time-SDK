@@ -11,7 +11,7 @@
 
 #include "OmmInvalidUsageException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

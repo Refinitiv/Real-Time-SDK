@@ -14,7 +14,7 @@
 #include "EmaList.h"
 #include "ConfigErrorHandling.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

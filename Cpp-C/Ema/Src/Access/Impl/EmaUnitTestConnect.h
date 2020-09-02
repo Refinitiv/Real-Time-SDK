@@ -12,7 +12,7 @@
 #include "RmtesBufferImpl.h"
 #include "RmtesBuffer.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 	namespace ema {
 

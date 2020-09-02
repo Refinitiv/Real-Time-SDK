@@ -21,7 +21,7 @@
 #include "ReqMsg.h"
 #include "PostMsg.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_UpdateMsg_h
 
 /**
-	@class thomsonreuters::ema::access::UpdateMsg UpdateMsg.h "Access/Include/UpdateMsg.h"
+	@class rtsdk::ema::access::UpdateMsg UpdateMsg.h "Access/Include/UpdateMsg.h"
 	@brief UpdateMsg conveys changes to item data.
 
 	The following code snippet shows receiving and processing of UpdateMsg.
@@ -62,7 +62,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

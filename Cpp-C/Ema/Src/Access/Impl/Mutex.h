@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #endif
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 	

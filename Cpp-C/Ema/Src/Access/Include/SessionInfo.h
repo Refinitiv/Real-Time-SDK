@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_SessionInfo_h
 
  /**
-	 @class thomsonreuters::ema::access::SessionInfo SessionInfo.h "Access/Include/SessionInfo.h"
+	 @class rtsdk::ema::access::SessionInfo SessionInfo.h "Access/Include/SessionInfo.h"
 	 @brief SessionInfo provides session information when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -20,7 +20,7 @@
 
 #include "Access/Include/ChannelInformation.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

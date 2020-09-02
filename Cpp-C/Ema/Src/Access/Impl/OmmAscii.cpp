@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmAscii::OmmAscii() :
   _pDecoder( new ( _space ) OmmAsciiDecoder() )

@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 TunnelStreamLoginReqMsgImpl::TunnelStreamLoginReqMsgImpl() :
  _loginReqMsg(),

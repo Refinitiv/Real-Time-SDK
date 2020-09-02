@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ServiceEndpointDiscoveryEvent_h
 
 /**
-	@class thomsonreuters::ema::access::ServiceEndpointDiscoveryEvent ServiceEndpointDiscoveryEvent.h "Access/Include/ServiceEndpointDiscoveryEvent.h"
+	@class rtsdk::ema::access::ServiceEndpointDiscoveryEvent ServiceEndpointDiscoveryEvent.h "Access/Include/ServiceEndpointDiscoveryEvent.h"
 	@brief ServiceEndpointDiscoveryEvent encapsulates query identifiers.
 
 	ServiceEndpointDiscoveryEvent is used to convey query identifiers to application. ServiceEndpointDiscoveryEvent is returned
@@ -25,7 +25,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

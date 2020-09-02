@@ -16,7 +16,7 @@
 #include "EnumType.h"
 #include "EnumTypeTable.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -34,27 +34,27 @@ public:
 
 	void rsslDictionaryEntry(RsslDictionaryEntry* rsslDictionaryEntry);
 
-	const thomsonreuters::ema::access::EmaString& getAcronym() const;
+	const rtsdk::ema::access::EmaString& getAcronym() const;
 
-	const thomsonreuters::ema::access::EmaString& getDDEAcronym() const;
+	const rtsdk::ema::access::EmaString& getDDEAcronym() const;
 
-	thomsonreuters::ema::access::Int16 getFid() const;
+	rtsdk::ema::access::Int16 getFid() const;
 
-	thomsonreuters::ema::access::Int16 getRippleToField() const;
+	rtsdk::ema::access::Int16 getRippleToField() const;
 
-	thomsonreuters::ema::access::Int8 getFieldType() const;
+	rtsdk::ema::access::Int8 getFieldType() const;
 
-	thomsonreuters::ema::access::UInt16 getLength() const;
+	rtsdk::ema::access::UInt16 getLength() const;
 
-	thomsonreuters::ema::access::UInt8 getEnumLength() const;
+	rtsdk::ema::access::UInt8 getEnumLength() const;
 
-	thomsonreuters::ema::access::UInt8 getRwfType() const;
+	rtsdk::ema::access::UInt8 getRwfType() const;
 
-	thomsonreuters::ema::access::UInt16 getRwfLength() const;
+	rtsdk::ema::access::UInt16 getRwfLength() const;
 
-	bool hasEnumType(thomsonreuters::ema::access::UInt16 value) const;
+	bool hasEnumType(rtsdk::ema::access::UInt16 value) const;
 
-	const EnumType& getEnumEntry(thomsonreuters::ema::access::UInt16 value) const;
+	const EnumType& getEnumEntry(rtsdk::ema::access::UInt16 value) const;
 
 	bool hasEnumTypeTable() const;
 
@@ -62,7 +62,7 @@ public:
 
 	RsslDictionaryEntry* getRsslDictionaryEntry();
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 	/** Detects that the instance was created by user or API.
 	* @return true when the instance was created by user; otherwise when the instance was created by API.
@@ -73,13 +73,13 @@ public:
 
 private:
 
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringAcronym;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringDDEAcronym;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable rtsdk::ema::access::EmaStringInt	_stringAcronym;
+	mutable rtsdk::ema::access::EmaStringInt	_stringDDEAcronym;
+	mutable rtsdk::ema::access::EmaString		_stringToString;
 
 	RsslDictionaryEntry*	_pRsslDictionaryEntry;
 	EnumType				_enumType;
-	mutable thomsonreuters::ema::access::EmaVector<EnumType>*    _pEnumEntryList;
+	mutable rtsdk::ema::access::EmaVector<EnumType>*    _pEnumEntryList;
 	EnumTypeTable			_enumTypeTable;
 	bool					_isManagedByUser;  // true when the instance is created by user, otherwise the instance is created by API
 };

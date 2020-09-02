@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_StatusMsg_h
 
 /**
-	@class thomsonreuters::ema::access::StatusMsg StatusMsg.h "Access/Include/StatusMsg.h"
+	@class rtsdk::ema::access::StatusMsg StatusMsg.h "Access/Include/StatusMsg.h"
 	@brief StatusMsg conveys item state information.
 
 	StatusMsg is used to convey item state information, permission change or item group id change.
@@ -70,7 +70,7 @@
 #include "Access/Include/Msg.h"
 #include "Access/Include/OmmState.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -217,7 +217,7 @@ public :
 		@param[in] domainType specifies RDM Message Model Type (default value is rdm::MMT_MARKET_PRICE)
 		@return reference to this object
 	*/
-	StatusMsg& domainType( UInt16 domainType = thomsonreuters::ema::rdm::MMT_MARKET_PRICE );
+	StatusMsg& domainType( UInt16 domainType = rtsdk::ema::rdm::MMT_MARKET_PRICE );
 
 	/** Specifies Name.
 		@param[in] name specifies item name

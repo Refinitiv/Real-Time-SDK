@@ -11,7 +11,7 @@
 
 #include "OmmNonRwfEncoder.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

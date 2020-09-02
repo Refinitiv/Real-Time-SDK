@@ -11,7 +11,7 @@
 
 #include "EmaString.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

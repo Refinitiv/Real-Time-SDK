@@ -11,7 +11,7 @@
 
 #include "OmmOutOfRangeException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

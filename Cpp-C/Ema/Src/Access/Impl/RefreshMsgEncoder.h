@@ -12,7 +12,7 @@
 #include "MsgEncoder.h"
 #include "RefreshMsg.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

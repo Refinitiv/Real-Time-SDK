@@ -31,19 +31,19 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public rtsdk::ema::access::OmmConsumerClient
 {
 public :
 
-	void decode( const thomsonreuters::ema::access::OmmOpaque& oq );	// print content of the Opaque data to screen in hexadecimal format
+	void decode( const rtsdk::ema::access::OmmOpaque& oq );	// print content of the Opaque data to screen in hexadecimal format
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 };
 
 #endif // __ema_consumer_h_

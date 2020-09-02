@@ -18,7 +18,7 @@
 * @see FieldList
 */
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -40,7 +40,7 @@ public:
 	*
 	* @return the DataDictionary for the field list
 	*/
-	static const DataDictionary& dataDictionary(const thomsonreuters::ema::access::FieldList& fieldList);
+	static const DataDictionary& dataDictionary(const rtsdk::ema::access::FieldList& fieldList);
 
 private:
 

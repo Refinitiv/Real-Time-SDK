@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmSystemException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmSystemException OmmSystemException.h "Access/Include/OmmSystemException.h"
+	@class rtsdk::ema::access::OmmSystemException OmmSystemException.h "Access/Include/OmmSystemException.h"
 	@brief OmmSystemException represents exceptions thrown by operating system.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

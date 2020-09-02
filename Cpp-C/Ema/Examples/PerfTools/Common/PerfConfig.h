@@ -11,7 +11,7 @@
 #include "Ema.h"
 
 #define MAX_CONS_THREADS 8
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 // Provides common configuration options. 
 class PerfConfig
 {

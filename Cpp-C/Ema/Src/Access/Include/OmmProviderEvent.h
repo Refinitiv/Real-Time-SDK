@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ommProviderEvent_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProviderEvent OmmProviderEvent.h "Access/Include/OmmProviderEvent.h"
+	@class rtsdk::ema::access::OmmProviderEvent OmmProviderEvent.h "Access/Include/OmmProviderEvent.h"
 	@brief OmmProviderEvent encapsulates item identifiers.
 
 	OmmProviderEvent is used to convey item identifiers to application. OmmProviderEvent is returned
@@ -27,7 +27,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

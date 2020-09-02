@@ -9,7 +9,7 @@
 #include "ProviderSessionInfo.h"
 #include "OmmProvider.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 ProviderSessionInfo::ProviderSessionInfo() :
 	_handle(0),

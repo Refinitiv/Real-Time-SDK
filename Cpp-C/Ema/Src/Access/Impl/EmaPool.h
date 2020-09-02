@@ -15,7 +15,7 @@
 
 #include <new>
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

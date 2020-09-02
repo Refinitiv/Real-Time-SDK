@@ -14,7 +14,7 @@
 #include "rtr/rsslState.h"
 #include "rtr/rsslQos.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

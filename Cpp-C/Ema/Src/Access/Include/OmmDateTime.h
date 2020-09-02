@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmDateTime_h
 
 /**
-	@class thomsonreuters::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
+	@class rtsdk::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
 	@brief OmmDateTime represents DateTime info in Omm.
 	
 	OmmDateTime encapsulates year, month, day, hour, minute, second, millisecond,
@@ -52,7 +52,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #include "rtr/rsslMsgEncoders.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 MsgEncoder::MsgEncoder() :
 #ifdef __EMA_COPY_ON_SET__

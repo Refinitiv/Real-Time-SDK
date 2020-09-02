@@ -12,7 +12,7 @@
 #include "OmmIProviderConfig.h"
 #include "EmaConfigImpl.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -30,7 +30,7 @@
 #include "RefreshMsgEncoder.h"
 #include "ProgrammaticConfigure.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
@@ -1741,7 +1741,7 @@ void EmaConfigErrorList::log( OmmLoggerClient* logger, OmmLoggerClient::Severity
 }
 
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -1919,7 +1919,7 @@ void ConfigElement::appendErrorMessage( EmaString& errorMsg, OmmLoggerClient::Se
 	_parent->appendErrorMessage( errorMsg, severity );
 }
 
-namespace thomsonreuters
+namespace rtsdk
 {
 
 namespace ema

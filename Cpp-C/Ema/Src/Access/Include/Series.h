@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_Series_h
 
 /**
-	@class thomsonreuters::ema::access::Series Series.h "Access/Include/Series.h"
+	@class rtsdk::ema::access::Series Series.h "Access/Include/Series.h"
 	@brief Series is a homogeneous container of complex data type entries.
 
 	Series entries have no explicit identification. They are implicitly indexed inside Series.
@@ -110,7 +110,7 @@
 #include "Access/Include/SeriesEntry.h"
 #include "Access/Include/SummaryData.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -244,7 +244,7 @@ public :
 
 private :
 
-	friend class thomsonreuters::ema::rdm::DataDictionaryImpl;
+	friend class rtsdk::ema::rdm::DataDictionaryImpl;
 
 	Decoder& getDecoder();
 	bool hasDecoder() const;

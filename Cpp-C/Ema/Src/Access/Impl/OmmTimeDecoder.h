@@ -14,7 +14,7 @@
 #include "DateTimeStringFormat.h"
 
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

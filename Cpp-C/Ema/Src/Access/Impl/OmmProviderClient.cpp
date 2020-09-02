@@ -8,7 +8,7 @@
 
 #include "OmmProviderClient.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmProviderClient::OmmProviderClient()
 {

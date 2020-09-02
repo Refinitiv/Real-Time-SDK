@@ -19,8 +19,8 @@
 #include <ctype.h>
 #include <new>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 #define DEFAULT_SERVICE_ID										0
 #define DEFAULT_SERVICE_IS_SOURCE								0

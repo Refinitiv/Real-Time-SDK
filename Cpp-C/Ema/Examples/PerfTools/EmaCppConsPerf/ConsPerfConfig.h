@@ -12,7 +12,7 @@
 #include "../Common/PerfConfig.h"
 
 #define MAX_CONS_THREADS 8
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 // Provides configuration options for the consumer. 
 class ConsPerfConfig : public PerfConfig
 {

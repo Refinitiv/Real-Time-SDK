@@ -8,7 +8,7 @@
 
 #include "OmmMemoryExhaustionExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmMemoryExhaustionExceptionImpl::OmmMemoryExhaustionExceptionImpl()
 {

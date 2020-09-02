@@ -12,7 +12,7 @@
 #include "EmaString.h"
 #include "OmmLoggerClient.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

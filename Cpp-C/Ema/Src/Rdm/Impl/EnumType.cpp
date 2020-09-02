@@ -4,7 +4,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::rdm;
 
 EnumType::EnumType()
 {
@@ -33,22 +33,22 @@ EnumType::~EnumType()
 	}
 }
 
-thomsonreuters::ema::access::UInt16 EnumType::getValue() const
+rtsdk::ema::access::UInt16 EnumType::getValue() const
 {
 	return _pImpl->getValue();
 }
 
-const thomsonreuters::ema::access::EmaString& EnumType::getDisplay() const
+const rtsdk::ema::access::EmaString& EnumType::getDisplay() const
 {
 	return _pImpl->getDisplay();
 }
 
-const thomsonreuters::ema::access::EmaString& EnumType::getMeaning() const
+const rtsdk::ema::access::EmaString& EnumType::getMeaning() const
 {
 	return _pImpl->getMeaning();
 }
 
-const thomsonreuters::ema::access::EmaString& EnumType::toString() const
+const rtsdk::ema::access::EmaString& EnumType::toString() const
 {
 	return _pImpl->toString();
 }

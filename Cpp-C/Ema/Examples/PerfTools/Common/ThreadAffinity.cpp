@@ -27,7 +27,7 @@
 
 #endif
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace perftool::common;
 using namespace std;
 

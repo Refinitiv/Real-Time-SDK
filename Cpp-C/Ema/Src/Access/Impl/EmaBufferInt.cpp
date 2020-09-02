@@ -11,7 +11,7 @@
 #include "Utilities.h"
 #include <stdlib.h>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 EmaBufferInt::EmaBufferInt() :
  EmaBuffer()

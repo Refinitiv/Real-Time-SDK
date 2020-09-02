@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_MapEntry_h
 
 /**
-	@class thomsonreuters::ema::access::MapEntry MapEntry.h "Access/Include/MapEntry.h"
+	@class rtsdk::ema::access::MapEntry MapEntry.h "Access/Include/MapEntry.h"
 	@brief MapEntry represents an entry of Map.
 
 	MapEntry associates entry's key, permission information, action, data and its data type.
@@ -66,7 +66,7 @@
 
 #include "Access/Include/Key.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

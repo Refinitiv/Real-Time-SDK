@@ -8,7 +8,7 @@
 
 #include "OmmInaccessibleLogFileExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmInaccessibleLogFileExceptionImpl::OmmInaccessibleLogFileExceptionImpl( const EmaString& fileName)
 	: OmmInaccessibleLogFileException( fileName )

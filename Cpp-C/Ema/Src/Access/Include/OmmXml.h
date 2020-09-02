@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmXml_h
 
 /**
-	@class thomsonreuters::ema::access::OmmXml OmmXml.h "Access/Include/OmmXml.h"
+	@class rtsdk::ema::access::OmmXml OmmXml.h "Access/Include/OmmXml.h"
 	@brief OmmXml represents XML data format in Omm.
 
 	The following code snippet shows setting of XML data into FieldList;
@@ -60,7 +60,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

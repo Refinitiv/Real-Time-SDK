@@ -9,7 +9,7 @@
 #include "OmmEnumDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmEnumDecoder::OmmEnumDecoder() :
  _pRsslBuffer( 0 ),

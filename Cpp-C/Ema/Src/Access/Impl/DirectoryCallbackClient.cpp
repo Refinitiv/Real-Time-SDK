@@ -22,7 +22,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 #define DEFAULT_DIRECTORY_RESP_MSG_SIZE 8192
 

@@ -11,7 +11,7 @@
 
 #include "OmmInvalidConfigurationException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

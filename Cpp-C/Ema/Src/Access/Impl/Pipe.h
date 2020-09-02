@@ -9,7 +9,7 @@
 #ifndef __thomsonreuters_ema_access_Pipe_h
 #define __thomsonreuters_ema_access_Pipe_h
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

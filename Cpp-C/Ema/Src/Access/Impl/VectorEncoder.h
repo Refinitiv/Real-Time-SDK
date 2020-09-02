@@ -15,7 +15,7 @@
 #include "VectorEntry.h"
 #include "rtr/rsslVector.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

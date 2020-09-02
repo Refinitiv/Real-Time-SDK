@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmInvalidHandleException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmInvalidHandleException OmmInvalidHandleException.h "Access/Include/OmmInvalidHandleException.h"
+	@class rtsdk::ema::access::OmmInvalidHandleException OmmInvalidHandleException.h "Access/Include/OmmInvalidHandleException.h"
 	@brief OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer.
 
 	OmmConsumer uses UInt64 values, called handles to identify individual item streams.
@@ -25,7 +25,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

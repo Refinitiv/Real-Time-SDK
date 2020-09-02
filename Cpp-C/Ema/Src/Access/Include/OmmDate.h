@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmDate_h
 
 /**
-	@class thomsonreuters::ema::access::OmmDate OmmDate.h "Access/Include/OmmDate.h"
+	@class rtsdk::ema::access::OmmDate OmmDate.h "Access/Include/OmmDate.h"
 	@brief OmmDate represents Date info in Omm.
 
 	OmmDate encapsulates year, month and day information.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

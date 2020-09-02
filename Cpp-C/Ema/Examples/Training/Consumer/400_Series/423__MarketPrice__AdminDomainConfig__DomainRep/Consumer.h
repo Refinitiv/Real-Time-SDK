@@ -42,19 +42,19 @@ unsigned long long getCurrentTime()
 	return msec;
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient		// client receiving messages
+class AppClient : public rtsdk::ema::access::OmmConsumerClient		// client receiving messages
 {
 public :
 
-	void decode( const thomsonreuters::ema::access::FieldList& );			// print content of passed in FieldList to screen
+	void decode( const rtsdk::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 };
 
 #endif // __ema_consumer_h_

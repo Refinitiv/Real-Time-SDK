@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmArrayEntry_h
 
 /**
-	@class thomsonreuters::ema::access::OmmArrayEntry OmmArrayEntry.h "Access/Include/OmmArrayEntry.h"
+	@class rtsdk::ema::access::OmmArrayEntry OmmArrayEntry.h "Access/Include/OmmArrayEntry.h"
 	@brief OmmArrayEntry represents an entry of OmmArray.
 
 	OmmArrayEntry associates entry's data and its data type.
@@ -57,7 +57,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

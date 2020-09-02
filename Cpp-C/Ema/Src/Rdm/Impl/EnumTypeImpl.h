@@ -14,7 +14,7 @@
 #include "EnumType.h"
 #include "EmaStringInt.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -30,23 +30,23 @@ public:
 
 	virtual ~EnumTypeImpl();
 
-	thomsonreuters::ema::access::UInt16 getValue() const;
+	rtsdk::ema::access::UInt16 getValue() const;
 
-	const thomsonreuters::ema::access::EmaString& getDisplay() const;
+	const rtsdk::ema::access::EmaString& getDisplay() const;
 
-	const thomsonreuters::ema::access::EmaString& getMeaning() const;
+	const rtsdk::ema::access::EmaString& getMeaning() const;
 
 	void rsslEnumType(RsslEnumType* rsslEnumType);
 
 	RsslEnumType*			rsslEnumType();
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 private:
 
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringDispaly;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringMeaning;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable rtsdk::ema::access::EmaStringInt	_stringDispaly;
+	mutable rtsdk::ema::access::EmaStringInt	_stringMeaning;
+	mutable rtsdk::ema::access::EmaString		_stringToString;
 
 	RsslEnumType*			_pRsslEnumType;
 

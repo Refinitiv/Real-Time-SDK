@@ -16,7 +16,7 @@
 #include "EmaBufferInt.h"
 #include "EmaPool.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

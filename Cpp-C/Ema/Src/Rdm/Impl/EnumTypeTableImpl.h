@@ -13,7 +13,7 @@
 #include <EmaVector.h>
 #include <EnumType.h>
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -26,15 +26,15 @@ public:
 	EnumTypeTableImpl();
 	virtual ~EnumTypeTableImpl();
 
-	const thomsonreuters::ema::access::EmaVector<EnumType>& getEnumTypes() const;
+	const rtsdk::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
-	const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>& getFidReferences() const;
+	const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& getFidReferences() const;
 
 	RsslEnumTypeTable* getRsslEnumTypeTable() const;
 
 	void rsslEnumTypeTable(RsslEnumTypeTable*);
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 private:
 
@@ -42,11 +42,11 @@ private:
 
 	mutable bool 										_refreshEnumTypeList;
 
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable rtsdk::ema::access::EmaString		_stringToString;
 
-	mutable thomsonreuters::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
+	mutable rtsdk::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
 
-	mutable thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>*    _pFidsList;
+	mutable rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>*    _pFidsList;
 
 	EnumTypeTableImpl(RsslEnumTypeTable*);
 };

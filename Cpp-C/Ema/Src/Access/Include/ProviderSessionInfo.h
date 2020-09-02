@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ProviderSessionInfo_h
 
  /**
-	 @class thomsonreuters::ema::access::ProviderSessionInfo ProviderSessionInfo.h "Access/Include/ProviderSessionInfo.h"
+	 @class rtsdk::ema::access::ProviderSessionInfo ProviderSessionInfo.h "Access/Include/ProviderSessionInfo.h"
 	 @brief ProviderSessionInfo provides session information for OmmProvider when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -21,7 +21,7 @@
 #include "Access/Include/SessionInfo.h"
 #include "Access/Include/OmmProvider.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

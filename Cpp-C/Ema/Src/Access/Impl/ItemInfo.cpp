@@ -14,7 +14,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 ItemInfo::ItemInfo(OmmServerBaseImpl& ommServerBaseimpl) :
 _streamId(0),

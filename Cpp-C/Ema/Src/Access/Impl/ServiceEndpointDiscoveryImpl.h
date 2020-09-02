@@ -18,7 +18,7 @@
 #include "rtr/rsslReactor.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

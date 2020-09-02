@@ -24,7 +24,7 @@
 #include "rtr/rsslState.h"
 #include "rtr/rsslErrorInfo.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -33,25 +33,25 @@ namespace thomsonreuters {
 	}
 }
 
-extern const thomsonreuters::ema::access::DataType::DataTypeEnum msgDataType[];
+extern const rtsdk::ema::access::DataType::DataTypeEnum msgDataType[];
 
-bool getCurrentDir( thomsonreuters::ema::access::EmaString& );
+bool getCurrentDir( rtsdk::ema::access::EmaString& );
 
-void stateToString( RsslState* , thomsonreuters::ema::access::EmaString& );
+void stateToString( RsslState* , rtsdk::ema::access::EmaString& );
 
 void hexToChar( char* out, char in );
 
-void hexToString( thomsonreuters::ema::access::EmaString& output, const thomsonreuters::ema::access::EmaBuffer& in );
+void hexToString( rtsdk::ema::access::EmaString& output, const rtsdk::ema::access::EmaBuffer& in );
 
 const char* ptrToStringAsHex( void* );
 
 const char* timeString();
 
-int emaGetUserName(thomsonreuters::ema::access::EmaString& string);
+int emaGetUserName(rtsdk::ema::access::EmaString& string);
 
-int emaGetPosition(thomsonreuters::ema::access::EmaString& string);
+int emaGetPosition(rtsdk::ema::access::EmaString& string);
 
-thomsonreuters::ema::access::EmaString& addIndent( thomsonreuters::ema::access::EmaString& temp, thomsonreuters::ema::access::UInt64 indent, bool addLine = false );
+rtsdk::ema::access::EmaString& addIndent( rtsdk::ema::access::EmaString& temp, rtsdk::ema::access::UInt64 indent, bool addLine = false );
 
 void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo );
 

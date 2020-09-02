@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmJsonConverterException_h
 
  /**
-	 @class thomsonreuters::ema::access::OmmJsonConverterException OmmJsonConverterException.h "Access/Include/OmmJsonConverterException.h"
+	 @class rtsdk::ema::access::OmmJsonConverterException OmmJsonConverterException.h "Access/Include/OmmJsonConverterException.h"
 	 @brief OmmJsonConverterException is thrown when EMA fails to perform for RWF/JSON conversion.
 	 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -24,7 +24,7 @@
 #include "Access/Include/OmmException.h"
 #include "Access/Include/SessionInfo.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

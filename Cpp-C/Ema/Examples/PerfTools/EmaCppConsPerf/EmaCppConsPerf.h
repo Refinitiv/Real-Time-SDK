@@ -20,7 +20,7 @@ class ConsumerThread;
 class ItemInfo;
 class ItemRequest;
 class ConsPerfConfig;
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 class EmaCppConsPerf {
 
 public:

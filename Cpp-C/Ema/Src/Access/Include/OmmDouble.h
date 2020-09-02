@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmDouble_h
 
 /**
-	@class thomsonreuters::ema::access::OmmDouble OmmDouble.h "Access/Include/OmmDouble.h"
+	@class rtsdk::ema::access::OmmDouble OmmDouble.h "Access/Include/OmmDouble.h"
 	@brief OmmDouble represents double in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

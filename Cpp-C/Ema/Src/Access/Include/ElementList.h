@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ElementList_h
 
 /**
-	@class thomsonreuters::ema::access::ElementList ElementList.h "Access/Include/ElementList.h"
+	@class rtsdk::ema::access::ElementList ElementList.h "Access/Include/ElementList.h"
 	@brief ElementList is a heterogeneous container of complex and primitive data type entries.
 	
 	ElementList entries are identified by name.
@@ -145,7 +145,7 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/ElementEntry.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

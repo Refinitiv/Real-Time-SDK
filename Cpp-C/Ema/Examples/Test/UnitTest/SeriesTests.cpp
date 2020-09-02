@@ -8,7 +8,7 @@
 
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 TEST(SeriesTests, testSeriesContainsFieldListsDecodeAll)

@@ -23,7 +23,7 @@
 #include "OmmProviderEvent.h"
 #include "EmaVector.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -13,7 +13,7 @@
 
 #include <stdlib.h>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 RmtesBufferImpl::RmtesBufferImpl() :
  _rsslBuffer(),

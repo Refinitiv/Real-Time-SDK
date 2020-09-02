@@ -13,7 +13,7 @@
 #include "HashTable.h"
 #include "ItemInfo.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

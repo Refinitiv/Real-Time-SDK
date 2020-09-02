@@ -15,7 +15,7 @@
 #include "OmmState.h"
 #include "rtr/rsslFieldList.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

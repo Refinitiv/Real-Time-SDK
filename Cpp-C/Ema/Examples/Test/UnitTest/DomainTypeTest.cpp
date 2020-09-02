@@ -9,8 +9,8 @@
 #include "TestUtilities.h"
 #include "Rdm/Impl/RdmUtilities.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 using namespace std;
 
 TEST(DomainTypeTest, testDomainType)

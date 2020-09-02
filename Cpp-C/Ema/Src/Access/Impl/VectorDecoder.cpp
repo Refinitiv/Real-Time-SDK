@@ -11,7 +11,7 @@
 #include "StaticDecoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 VectorDecoder::VectorDecoder() :
  _rsslVector(),

@@ -17,7 +17,7 @@
 
 #include "HashTable.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

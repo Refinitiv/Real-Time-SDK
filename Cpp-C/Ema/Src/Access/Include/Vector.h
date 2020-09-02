@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_vector_h
 
 /**
-	@class thomsonreuters::ema::access::Vector Vector.h "Access/Include/Vector.h"
+	@class rtsdk::ema::access::Vector Vector.h "Access/Include/Vector.h"
 	@brief Vector is a homogeneous container of complex data type entries.
 
 	Vector entries are identified by index.
@@ -109,7 +109,7 @@
 #include "Access/Include/VectorEntry.h"
 #include "Access/Include/SummaryData.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

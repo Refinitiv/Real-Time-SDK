@@ -1,6 +1,6 @@
 #include "OmmIProviderActiveConfig.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 #define DEFAULT_USER_DISPATCH							OmmNiProviderConfig::ApiDispatchEnum
 #define DEFAULT_REFRESH_FIRST_REQUIRED					true
@@ -24,7 +24,7 @@ OmmIProviderActiveConfig::~OmmIProviderActiveConfig()
 {
 }
 
-void thomsonreuters::ema::access::OmmIProviderActiveConfig::clear()
+void rtsdk::ema::access::OmmIProviderActiveConfig::clear()
 {
 	ActiveServerConfig::clear();
 

@@ -8,7 +8,7 @@
 
 #include "OmmConsumerErrorClient.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmConsumerErrorClient::OmmConsumerErrorClient()
 {

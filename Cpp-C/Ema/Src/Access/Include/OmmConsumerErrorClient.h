@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmConsumerErrorClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
+	@class rtsdk::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
 	@brief OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.
 
 	By default OmmConsumer class throws exceptions if a usage error occurs. Specifying OmmConsumerErrorClient
@@ -33,7 +33,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

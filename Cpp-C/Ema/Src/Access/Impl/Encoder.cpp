@@ -9,7 +9,7 @@
 #include "Encoder.h"
 #include "GlobalPool.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 Encoder::Encoder() :
  _pEncodeIter( 0 ),

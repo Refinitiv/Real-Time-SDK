@@ -30,8 +30,8 @@
 #pragma warning( disable : 4355)
 #endif
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProviderConfig& config ) :
 	_activeConfig(),

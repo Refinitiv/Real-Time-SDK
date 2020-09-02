@@ -15,7 +15,7 @@
 
 #define MAX_NODATA		20
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

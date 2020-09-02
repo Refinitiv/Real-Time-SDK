@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmReal_h
 
 /**
-	@class thomsonreuters::ema::access::OmmReal OmmReal.h "Access/Include/OmmReal.h"
+	@class rtsdk::ema::access::OmmReal OmmReal.h "Access/Include/OmmReal.h"
 	@brief OmmReal represents Real number in Omm.
 
 	OmmReal encapsulates magnitude type and mantissa information.
@@ -60,7 +60,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

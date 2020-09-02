@@ -13,7 +13,7 @@
 #include "Mutex.h"
 #include <stdio.h>
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

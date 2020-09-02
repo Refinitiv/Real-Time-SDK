@@ -14,7 +14,7 @@
 #include "EmaStringInt.h"
 #include "rtr/rsslRmtes.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

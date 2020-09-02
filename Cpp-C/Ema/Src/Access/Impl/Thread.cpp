@@ -9,7 +9,7 @@
 #include "Thread.h"
 #include "Utilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 Thread::Thread() :
  _isStopping( false ),

@@ -7,7 +7,7 @@
 
 #include "Consumer.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 UInt64 updateCount = 0;

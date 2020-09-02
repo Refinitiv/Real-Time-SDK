@@ -10,7 +10,7 @@
 #include "OmmDateDecoder.h"
 #include "OmmTimeDecoder.h"
 #include "OmmDateTimeDecoder.h"
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 void DateTimeStringFormat::dateTimeStringFormatType(DateTimeStringFormatTypes format )
 {

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ommProviderConfig_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
+	@class rtsdk::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
 	@brief OmmProviderConfig is a base class for the OmmNiProviderConfig
 
 	@see OmmProvider,
@@ -19,7 +19,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

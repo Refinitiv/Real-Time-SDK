@@ -16,7 +16,7 @@
 
 #include "rtr/rsslReactorChannel.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

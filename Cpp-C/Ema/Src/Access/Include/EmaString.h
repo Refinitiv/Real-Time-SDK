@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_EmaString_h
 
 /**
-	@class thomsonreuters::ema::access::EmaString EmaString.h "Access/Include/EmaString.h"
+	@class rtsdk::ema::access::EmaString EmaString.h "Access/Include/EmaString.h"
 	@brief EmaString class is a container of a null terminated Ascii character string.
 
 	The following code snippet shows simple usage of EmaString;
@@ -47,7 +47,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	
 namespace ema {
 

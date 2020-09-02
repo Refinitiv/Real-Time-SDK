@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_FilterEntry_h
 
 /**
-	@class thomsonreuters::ema::access::FilterEntry FilterEntry.h "Access/Include/FilterEntry.h"
+	@class rtsdk::ema::access::FilterEntry FilterEntry.h "Access/Include/FilterEntry.h"
 	@brief FilterEntry represents an entry of FilterList.
 
 	FilterEntry associates entry's id, action, permission info, data and its data type.
@@ -59,7 +59,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

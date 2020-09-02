@@ -18,7 +18,7 @@
 
 #include "DataDictionaryImpl.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -82,7 +82,7 @@ public :
 
 	const EmaString& getEnumDisplay(UInt16 enumValue) const;
 
-    const thomsonreuters::ema::rdm::DataDictionary& getDataDictionary();
+    const rtsdk::ema::rdm::DataDictionary& getDataDictionary();
 
 private :
 
@@ -128,7 +128,7 @@ private :
 
 	bool						_atEnd;
 
-	thomsonreuters::ema::rdm::DataDictionary*				_pDataDictionary;
+	rtsdk::ema::rdm::DataDictionary*				_pDataDictionary;
 };
 
 class FieldListDecoderPool : public DecoderPool< FieldListDecoder >

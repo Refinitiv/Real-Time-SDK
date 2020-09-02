@@ -13,8 +13,8 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum );
 
@@ -59,7 +59,7 @@ FieldListDecoder::~FieldListDecoder()
 	}
 }
 
-const thomsonreuters::ema::rdm::DataDictionary& FieldListDecoder::getDataDictionary()
+const rtsdk::ema::rdm::DataDictionary& FieldListDecoder::getDataDictionary()
 {
 	return *_pDataDictionary;
 }

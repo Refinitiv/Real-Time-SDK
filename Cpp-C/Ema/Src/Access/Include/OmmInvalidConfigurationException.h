@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmInvalidConfigurationException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmInvalidConfigurationException OmmInvalidConfigurationException.h "Access/Include/OmmInvalidConfigurationException.h"
+	@class rtsdk::ema::access::OmmInvalidConfigurationException OmmInvalidConfigurationException.h "Access/Include/OmmInvalidConfigurationException.h"
 	@brief OmmInvalidConfigurationException represents and indicates fatal configuration errors.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -23,7 +23,7 @@
 #include "Access/Include/OmmException.h"
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

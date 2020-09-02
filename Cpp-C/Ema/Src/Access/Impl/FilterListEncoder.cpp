@@ -13,7 +13,7 @@
 #include "FilterList.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 FilterListEncoder::FilterListEncoder() :
  _rsslFilterList(),

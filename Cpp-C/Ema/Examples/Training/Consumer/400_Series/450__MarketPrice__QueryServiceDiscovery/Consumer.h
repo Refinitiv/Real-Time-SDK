@@ -31,22 +31,22 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient, public thomsonreuters::ema::access::ServiceEndpointDiscoveryClient
+class AppClient : public rtsdk::ema::access::OmmConsumerClient, public rtsdk::ema::access::ServiceEndpointDiscoveryClient
 {
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onSuccess( const thomsonreuters::ema::access::ServiceEndpointDiscoveryResp& serviceEndpointResp, 
-		const thomsonreuters::ema::access::ServiceEndpointDiscoveryEvent& event );
+	void onSuccess( const rtsdk::ema::access::ServiceEndpointDiscoveryResp& serviceEndpointResp, 
+		const rtsdk::ema::access::ServiceEndpointDiscoveryEvent& event );
 
-	void onError( const thomsonreuters::ema::access::EmaString& statusText, 
-			const thomsonreuters::ema::access::ServiceEndpointDiscoveryEvent& event );
+	void onError( const rtsdk::ema::access::EmaString& statusText, 
+			const rtsdk::ema::access::ServiceEndpointDiscoveryEvent& event );
 };
 
 #endif // __ema_consumer_h_

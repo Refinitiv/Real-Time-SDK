@@ -13,9 +13,9 @@
 #include "rtr/rsslTransport.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
-class thomsonreuters::ema::access::CastingOperatorContext
+class rtsdk::ema::access::CastingOperatorContext
 {
 public :
 

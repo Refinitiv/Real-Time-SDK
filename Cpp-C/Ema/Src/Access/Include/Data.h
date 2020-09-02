@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_Data_h
 
 /**
-	@class thomsonreuters::ema::access::Data Data.h "Access/Include/Data.h"
+	@class rtsdk::ema::access::Data Data.h "Access/Include/Data.h"
 	@brief Data class is a parent abstract class defining common interfaces for all Data type classes.
 
 	All classes representing OMM Data inherit from this class.
@@ -26,7 +26,7 @@
 #include "Access/Include/EmaBuffer.h"
 #include "Access/Include/DataType.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -18,7 +18,7 @@
 #include "ExceptionTranslator.h"
 #include "ProgrammaticConfigure.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -8,7 +8,7 @@
 
 #include "OmmInvalidConfigurationExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmInvalidConfigurationExceptionImpl::OmmInvalidConfigurationExceptionImpl()
 {

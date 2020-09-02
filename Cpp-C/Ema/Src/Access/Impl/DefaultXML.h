@@ -11,7 +11,7 @@
 
 #include "EmaString.h"
 
-thomsonreuters::ema::access::EmaString AsciiValues[] = {
+rtsdk::ema::access::EmaString AsciiValues[] = {
 	"CapabilitiesEntry",
 	"Channel",
 	"ChannelSet",
@@ -66,7 +66,7 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"RestLogFileName",
 };
 
-thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
+rtsdk::ema::access::EmaString EnumeratedValues[] = {
 	"ChannelType",
 	"CompressionType",
 	"EncryptedProtocolType",
@@ -79,7 +79,7 @@ thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
 	"StreamState",
 };
 
-thomsonreuters::ema::access::EmaString Int64Values[] = {
+rtsdk::ema::access::EmaString Int64Values[] = {
 	"DictionaryID",
 	"DispatchTimeoutApiThread",
 	"PipePort",
@@ -92,7 +92,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"MaxEventsInPool",
 };
 
-thomsonreuters::ema::access::EmaString UInt64Values[] = {
+rtsdk::ema::access::EmaString UInt64Values[] = {
 	"AcceptDirMessageWithoutMinFilters",
 	"AcceptingConsumerStatus",
 	"AcceptingRequests",
@@ -175,11 +175,11 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"MaxFragmentSize",
 };
 
-thomsonreuters::ema::access::EmaString DoubleValues[] = {
+rtsdk::ema::access::EmaString DoubleValues[] = {
 	"TokenReissueRatio",
 };
 
-thomsonreuters::ema::access::EmaString NodesThatRequireName[] = {
+rtsdk::ema::access::EmaString NodesThatRequireName[] = {
 	"Channel",
 	"Consumer",
 	"Dictionary",

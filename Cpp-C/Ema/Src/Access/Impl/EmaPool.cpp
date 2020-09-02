@@ -9,7 +9,7 @@
 #include "GlobalPool.h"
 #include "libxml/parser.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 GlobalPool g_pool;
 

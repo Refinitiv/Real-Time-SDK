@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_IOCtlCode_h
 
  /**
-	 \class thomsonreuters::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
+	 \class rtsdk::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
 	 \brief IOCtlCode class provides enumeration representing I/O codes for modifying I/O values programmatically using the modifyIOCtl() method
 	 of provided by OmmProvider and OmmConsumer classes.
 
@@ -29,7 +29,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -13,7 +13,7 @@
 #include "GlobalPool.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmXml::OmmXml() :
  _toString(),

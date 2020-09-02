@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_Payload_h
 
 /**
-	@class thomsonreuters::ema::access::Payload Payload.h "Access/Include/Payload.h"
+	@class rtsdk::ema::access::Payload Payload.h "Access/Include/Payload.h"
 	@brief Payload conveys the data part of item image.
 
 	Payload contains objects of complex type.
@@ -74,7 +74,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

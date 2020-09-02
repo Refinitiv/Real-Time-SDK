@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmArray_h
 
 /**
-	@class thomsonreuters::ema::access::OmmArray OmmArray.h "Access/Include/OmmArray.h"
+	@class rtsdk::ema::access::OmmArray OmmArray.h "Access/Include/OmmArray.h"
 	@brief OmmArray is a homogeneous container of primitive data type entries.
 
 	The following code snippet shows addition of primitive data type entries to OmmArray.
@@ -73,7 +73,7 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/OmmArrayEntry.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

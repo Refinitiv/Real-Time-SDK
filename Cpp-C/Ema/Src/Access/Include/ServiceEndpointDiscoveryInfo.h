@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ServiceEndpointDiscoveryInfo_h
 
 /**
-	@class thomsonreuters::ema::access::ServiceEndpointDiscoveryInfo ServiceEndpointDiscoveryInfo.h "Access/Include/ServiceEndpointDiscoveryInfo.h"
+	@class rtsdk::ema::access::ServiceEndpointDiscoveryInfo ServiceEndpointDiscoveryInfo.h "Access/Include/ServiceEndpointDiscoveryInfo.h"
 	@brief ServiceEndpointDiscoveryInfo represents an service endpoint information from EDP-RT service discovery.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -21,7 +21,7 @@
 
 #include "Access/Include/EmaVector.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

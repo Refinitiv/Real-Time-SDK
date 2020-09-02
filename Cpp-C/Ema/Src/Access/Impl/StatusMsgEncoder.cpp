@@ -11,7 +11,7 @@
 #include "OmmStateDecoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 StatusMsgEncoder::StatusMsgEncoder() :
  MsgEncoder(),

@@ -13,7 +13,7 @@
 
 #include "rtr/rsslSetData.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

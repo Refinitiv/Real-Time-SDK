@@ -31,7 +31,7 @@
 #include <poll.h>
 #endif
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

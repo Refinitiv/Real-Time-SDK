@@ -18,7 +18,7 @@
 #include "EmaList.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

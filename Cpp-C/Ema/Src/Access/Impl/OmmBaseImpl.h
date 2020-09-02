@@ -31,7 +31,7 @@
 #include "OmmException.h"
 #include "OmmBaseImplMap.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

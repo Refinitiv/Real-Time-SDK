@@ -15,7 +15,7 @@
 #include "rtr/rsslArray.h"
 #include "OmmState.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

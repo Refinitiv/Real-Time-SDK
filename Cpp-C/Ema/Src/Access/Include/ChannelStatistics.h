@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ChannelStatistics_h
 
 /**
-   @class thomsonreuters::ema::access::ChannelStatistics ChannelStatistics.h "Access/Include/ChannelStatistics.h"
+   @class rtsdk::ema::access::ChannelStatistics ChannelStatistics.h "Access/Include/ChannelStatistics.h"
    @brief ChannelStats provides statistical information on application channel(s).
 
    For IProvider applications, this channel information is about channels used by
@@ -26,7 +26,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

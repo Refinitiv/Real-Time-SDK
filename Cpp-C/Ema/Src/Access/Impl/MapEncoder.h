@@ -17,7 +17,7 @@
 #include "MapEntry.h"
 #include "rtr/rsslMap.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -11,7 +11,7 @@
 
 #include "OmmSystemException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

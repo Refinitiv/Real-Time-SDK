@@ -26,7 +26,7 @@
 #define FID_FLOAT		-9
 #define FID_DOUBLE		-10
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -44,28 +44,28 @@ class EmaBuffer;
 
 }
 
-extern thomsonreuters::ema::access::EmaString g_userName;
-extern thomsonreuters::ema::access::EmaString g_password;
+extern rtsdk::ema::access::EmaString g_userName;
+extern rtsdk::ema::access::EmaString g_password;
 
-void encodeFieldList( RsslBuffer& rsslBuf, thomsonreuters::ema::access::EmaString& inText );
+void encodeFieldList( RsslBuffer& rsslBuf, rtsdk::ema::access::EmaString& inText );
 void encodeNonRWFData( RsslBuffer* rsslBuf, RsslBuffer* value );
 bool loadDictionaryFromFile( RsslDataDictionary* pDictionary );
 
-void perfDecode( const thomsonreuters::ema::access::ElementList& el );
-void perfDecode( const thomsonreuters::ema::access::FieldList& fl );
+void perfDecode( const rtsdk::ema::access::ElementList& el );
+void perfDecode( const rtsdk::ema::access::FieldList& fl );
 
 void RsslEncodeElementListAll( RsslBuffer& rsslBuf );
 void RsslEncodeFieldListAll( RsslBuffer& rsslBuf );
 void RsslEncodeMapAll( RsslBuffer& mapBuffer );
 
-void EmaEncodeFieldListAll( thomsonreuters::ema::access::FieldList& fl );
-void EmaEncodeElementListAll( thomsonreuters::ema::access::ElementList& el );
-void EmaEncodeMapAll( thomsonreuters::ema::access::Map& map );
+void EmaEncodeFieldListAll( rtsdk::ema::access::FieldList& fl );
+void EmaEncodeElementListAll( rtsdk::ema::access::ElementList& el );
+void EmaEncodeMapAll( rtsdk::ema::access::Map& map );
 
-void EmaDecodeFieldListAll( const thomsonreuters::ema::access::FieldList& fl );
-void EmaDecodeElementListAll( const thomsonreuters::ema::access::ElementList& el );
-void EmaDecodeMapAll( const thomsonreuters::ema::access::Map& map );
+void EmaDecodeFieldListAll( const rtsdk::ema::access::FieldList& fl );
+void EmaDecodeElementListAll( const rtsdk::ema::access::ElementList& el );
+void EmaDecodeMapAll( const rtsdk::ema::access::Map& map );
 
-bool comparingData(RsslBuffer& rsslBuffer, const thomsonreuters::ema::access::EmaString& emaString);
+bool comparingData(RsslBuffer& rsslBuffer, const rtsdk::ema::access::EmaString& emaString);
 
 #endif // __TestUtilities_h

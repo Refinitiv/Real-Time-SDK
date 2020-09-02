@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_SeriesEntry_h
 
 /**
-	@class thomsonreuters::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
+	@class rtsdk::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
 	@brief SeriesEntry represents an entry of Series.
 
 	SeriesEntry associates entry's data and its data type.
@@ -57,7 +57,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

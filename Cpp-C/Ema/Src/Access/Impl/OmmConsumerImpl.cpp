@@ -18,7 +18,7 @@
 #include "ChannelStatsImpl.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config ) :
 	OmmBaseImpl( _activeConfig )

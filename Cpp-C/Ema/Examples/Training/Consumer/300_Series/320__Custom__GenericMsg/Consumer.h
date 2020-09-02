@@ -35,35 +35,35 @@ unsigned long long getCurrentTime()
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient		// client receiving messages
+class AppClient : public rtsdk::ema::access::OmmConsumerClient		// client receiving messages
 {
 public :
 
 	AppClient();
 
-	void decode( const thomsonreuters::ema::access::Msg& );					// print content of passed in Msg to screen
+	void decode( const rtsdk::ema::access::Msg& );					// print content of passed in Msg to screen
 
-	void decode( const thomsonreuters::ema::access::GenericMsg& );			// print content of passed in GenericMsg to screen
+	void decode( const rtsdk::ema::access::GenericMsg& );			// print content of passed in GenericMsg to screen
 
-	void decode( const thomsonreuters::ema::access::FieldList& );			// print content of passed in FieldList to screen
+	void decode( const rtsdk::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
-	void decode( const thomsonreuters::ema::access::ElementList& );			// print content of passed in ElementList to screen
+	void decode( const rtsdk::ema::access::ElementList& );			// print content of passed in ElementList to screen
 
-	void setOmmConsumer( thomsonreuters::ema::access::OmmConsumer& );
+	void setOmmConsumer( rtsdk::ema::access::OmmConsumer& );
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onGenericMsg( const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onGenericMsg( const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
+	rtsdk::ema::access::OmmConsumer* _pOmmConsumer;
 	
-	thomsonreuters::ema::access::UInt64 count;
+	rtsdk::ema::access::UInt64 count;
 };
 
 #endif // __ema_consumer_h_

@@ -13,7 +13,7 @@
 #include "Vector.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 VectorEncoder::VectorEncoder() :
  _rsslVector(),

@@ -36,39 +36,39 @@ namespace common {
 class AppUtil
 {
 public:
-	static void init(const thomsonreuters::ema::access::EmaString& appName, FILE* LOG);
+	static void init(const rtsdk::ema::access::EmaString& appName, FILE* LOG);
 	static void setSum(FILE* SUM) {_SUM = SUM;}
 	static void log(const char* reason, ...);
-	static void logError(const thomsonreuters::ema::access::EmaString text);
+	static void logError(const rtsdk::ema::access::EmaString text);
 	static bool abort(const char* reason ...);
 	static bool hadExitError() {return _exitError;}
 
-	static const thomsonreuters::ema::access::EmaString& getSysTimeStr();
-	static void sleep(thomsonreuters::ema::access::UInt64 millisecs);
+	static const rtsdk::ema::access::EmaString& getSysTimeStr();
+	static void sleep(rtsdk::ema::access::UInt64 millisecs);
 
-	static thomsonreuters::ema::access::Int32 getHostAddress(thomsonreuters::ema::access::UInt32* address);
+	static rtsdk::ema::access::Int32 getHostAddress(rtsdk::ema::access::UInt32* address);
 
-	static thomsonreuters::ema::access::UInt32 getProcessId();
-	static thomsonreuters::ema::access::UInt32 getThreadId();
+	static rtsdk::ema::access::UInt32 getProcessId();
+	static rtsdk::ema::access::UInt32 getThreadId();
 
-	static void formatNameValue(thomsonreuters::ema::access::EmaString& str, const thomsonreuters::ema::access::EmaString& name, thomsonreuters::ema::access::Int32 max, const thomsonreuters::ema::access::EmaString& value);
-	static void formatNameValue(thomsonreuters::ema::access::EmaString& str, const thomsonreuters::ema::access::EmaString& name, thomsonreuters::ema::access::Int32 max, thomsonreuters::ema::access::Int32 value);
-	static void formatNameValue(thomsonreuters::ema::access::EmaString& str, const thomsonreuters::ema::access::EmaString& name, thomsonreuters::ema::access::Int32 max, bool value);
-	static void formatNameValue(thomsonreuters::ema::access::EmaString& str, const thomsonreuters::ema::access::EmaString& name, thomsonreuters::ema::access::Int32 max, thomsonreuters::ema::access::Int64 value);
+	static void formatNameValue(rtsdk::ema::access::EmaString& str, const rtsdk::ema::access::EmaString& name, rtsdk::ema::access::Int32 max, const rtsdk::ema::access::EmaString& value);
+	static void formatNameValue(rtsdk::ema::access::EmaString& str, const rtsdk::ema::access::EmaString& name, rtsdk::ema::access::Int32 max, rtsdk::ema::access::Int32 value);
+	static void formatNameValue(rtsdk::ema::access::EmaString& str, const rtsdk::ema::access::EmaString& name, rtsdk::ema::access::Int32 max, bool value);
+	static void formatNameValue(rtsdk::ema::access::EmaString& str, const rtsdk::ema::access::EmaString& name, rtsdk::ema::access::Int32 max, rtsdk::ema::access::Int64 value);
 
 	static void printCurrentTimeUTC(FILE *file);
 
 private:
 	static void setExitError(bool val) {_exitError = val;}
 
-	static thomsonreuters::ema::access::EmaString				_appName;
-	static thomsonreuters::ema::access::EmaString				_sysTimeStr;
-	static const thomsonreuters::ema::access::Int32				_SIZE = 26;
+	static rtsdk::ema::access::EmaString				_appName;
+	static rtsdk::ema::access::EmaString				_sysTimeStr;
+	static const rtsdk::ema::access::Int32				_SIZE = 26;
 	static char													_sysTimeBuf[_SIZE];
 	static time_t*												_pTime;
 	static tm*													_pTm;
-	static thomsonreuters::ema::access::UInt32					_pid;
-	static thomsonreuters::ema::access::UInt32					_tid;
+	static rtsdk::ema::access::UInt32					_pid;
+	static rtsdk::ema::access::UInt32					_tid;
 
 	static FILE*												_OUT;
 	static FILE*												_LOG;

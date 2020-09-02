@@ -15,7 +15,7 @@
 #include "MarketItemHandler.h"
 #include "StaticDecoder.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 const EmaString ServerChannelHandler::_clientName("ServerChannelHandler");
 

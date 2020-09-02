@@ -14,7 +14,7 @@
 #include "OmmProviderImpl.h"
 #include "DirectoryServiceStore.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

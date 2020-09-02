@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmUInt_h
 
 /**
-	@class thomsonreuters::ema::access::OmmUInt OmmUInt.h "Access/Include/OmmUInt.h"
+	@class rtsdk::ema::access::OmmUInt OmmUInt.h "Access/Include/OmmUInt.h"
 	@brief OmmUInt represents UInt64 value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

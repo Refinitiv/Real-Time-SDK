@@ -13,7 +13,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmBuffer::OmmBuffer() :
  _pDecoder( new ( _space ) OmmBufferDecoder() )

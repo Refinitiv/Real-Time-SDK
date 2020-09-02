@@ -12,8 +12,8 @@
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 DictionaryEntryImpl::DictionaryEntryImpl(bool isManagedByUser) : _isManagedByUser(isManagedByUser)
 {
@@ -33,7 +33,7 @@ void DictionaryEntryImpl::rsslDictionaryEntry(RsslDictionaryEntry* rsslDictionar
 	_pRsslDictionaryEntry = rsslDictionaryEntry;
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::getAcronym() const
+const rtsdk::ema::access::EmaString& DictionaryEntryImpl::getAcronym() const
 {
 	_stringAcronym.setInt(_pRsslDictionaryEntry->acronym.data, _pRsslDictionaryEntry->acronym.length,
 		_pRsslDictionaryEntry->acronym.length > 0 ? true : false);
@@ -41,7 +41,7 @@ const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::getAcronym() 
 	return _stringAcronym.toString();
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::getDDEAcronym() const
+const rtsdk::ema::access::EmaString& DictionaryEntryImpl::getDDEAcronym() const
 {
 	_stringDDEAcronym.setInt(_pRsslDictionaryEntry->ddeAcronym.data, _pRsslDictionaryEntry->ddeAcronym.length,
 		_pRsslDictionaryEntry->ddeAcronym.length > 0 ? true : false);
@@ -49,50 +49,50 @@ const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::getDDEAcronym
 	return _stringDDEAcronym.toString();
 }
 
-thomsonreuters::ema::access::Int16 DictionaryEntryImpl::getFid() const
+rtsdk::ema::access::Int16 DictionaryEntryImpl::getFid() const
 {
 	return _pRsslDictionaryEntry->fid;
 }
 
-thomsonreuters::ema::access::Int16 DictionaryEntryImpl::getRippleToField() const
+rtsdk::ema::access::Int16 DictionaryEntryImpl::getRippleToField() const
 {
 	return _pRsslDictionaryEntry->rippleToField;
 }
 
 
-thomsonreuters::ema::access::Int8 DictionaryEntryImpl::getFieldType() const
+rtsdk::ema::access::Int8 DictionaryEntryImpl::getFieldType() const
 {
 	return _pRsslDictionaryEntry->fieldType;
 }
 
-thomsonreuters::ema::access::UInt16 DictionaryEntryImpl::getLength() const
+rtsdk::ema::access::UInt16 DictionaryEntryImpl::getLength() const
 {
 	return _pRsslDictionaryEntry->length;
 }
 
 
-thomsonreuters::ema::access::UInt8 DictionaryEntryImpl::getEnumLength() const
+rtsdk::ema::access::UInt8 DictionaryEntryImpl::getEnumLength() const
 {
 	return _pRsslDictionaryEntry->enumLength;
 }
 
 
-thomsonreuters::ema::access::UInt8 DictionaryEntryImpl::getRwfType() const
+rtsdk::ema::access::UInt8 DictionaryEntryImpl::getRwfType() const
 {
 	return _pRsslDictionaryEntry->rwfType;
 }
 
-thomsonreuters::ema::access::UInt16 DictionaryEntryImpl::getRwfLength() const
+rtsdk::ema::access::UInt16 DictionaryEntryImpl::getRwfLength() const
 {
 	return _pRsslDictionaryEntry->rwfLength;
 }
 
-bool DictionaryEntryImpl::hasEnumType(thomsonreuters::ema::access::UInt16 value) const
+bool DictionaryEntryImpl::hasEnumType(rtsdk::ema::access::UInt16 value) const
 {
 	return (_pRsslDictionaryEntry->pEnumTypeTable && value <= _pRsslDictionaryEntry->pEnumTypeTable->maxValue) ? true : false;
 }
 
-const EnumType& DictionaryEntryImpl::getEnumEntry(thomsonreuters::ema::access::UInt16 value) const
+const EnumType& DictionaryEntryImpl::getEnumEntry(rtsdk::ema::access::UInt16 value) const
 {
 	RsslEnumType* rsslEnumType = ( _pRsslDictionaryEntry->pEnumTypeTable && value <= _pRsslDictionaryEntry->pEnumTypeTable->maxValue) ?
 		_pRsslDictionaryEntry->pEnumTypeTable->enumTypes[value] : 0;
@@ -138,7 +138,7 @@ RsslDictionaryEntry* DictionaryEntryImpl::getRsslDictionaryEntry()
 	return _pRsslDictionaryEntry;
 }
 
-const thomsonreuters::ema::access::EmaString& DictionaryEntryImpl::toString() const
+const rtsdk::ema::access::EmaString& DictionaryEntryImpl::toString() const
 {
 	_stringToString.set(0, 512);
 

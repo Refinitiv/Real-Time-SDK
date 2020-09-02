@@ -13,7 +13,7 @@
 #include "rtr/rsslDataTypeEnums.h"
 #include "EncodeIterator.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -50,7 +50,7 @@ public :
 
 protected :
 
-	friend class thomsonreuters::ema::rdm::DataDictionaryImpl;
+	friend class rtsdk::ema::rdm::DataDictionaryImpl;
 
 	Encoder();
 

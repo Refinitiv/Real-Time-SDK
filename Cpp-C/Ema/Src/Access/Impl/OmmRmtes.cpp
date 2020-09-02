@@ -10,7 +10,7 @@
 #include "OmmRmtesDecoder.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmRmtes::OmmRmtes() :
  _pDecoder( new ( _space ) OmmRmtesDecoder() )

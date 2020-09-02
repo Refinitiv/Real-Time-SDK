@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ConsumerSessionInfo_h
 
  /**
-	 @class thomsonreuters::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
+	 @class rtsdk::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
 	 @brief ConsumerSessionInfo provides session information for OmmConsumer when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -20,7 +20,7 @@
 
 #include "Access/Include/SessionInfo.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

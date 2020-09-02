@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #endif
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 	

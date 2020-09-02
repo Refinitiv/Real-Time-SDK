@@ -33,10 +33,10 @@
 #define DEFAULT_IPROV_NAME							  EmaString("EmaIProvider")
 #define DEFAULT_NIPROV_NAME							  EmaString("EmaNiProvider")
 
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::rdm;
 
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

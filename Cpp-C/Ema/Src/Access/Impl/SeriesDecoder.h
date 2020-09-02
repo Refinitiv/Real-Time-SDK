@@ -15,7 +15,7 @@
 #include "FieldListSetDef.h"
 #include "NoDataImpl.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

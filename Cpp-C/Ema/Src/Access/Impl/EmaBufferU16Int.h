@@ -11,7 +11,7 @@
 
 #include "EmaBufferU16.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	
 namespace ema {
 

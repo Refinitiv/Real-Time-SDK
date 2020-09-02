@@ -15,7 +15,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 #define EMASTRING_SIZE sizeof( EmaStringInt )
 

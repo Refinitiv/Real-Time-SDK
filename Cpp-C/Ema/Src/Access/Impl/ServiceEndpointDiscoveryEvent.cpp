@@ -9,7 +9,7 @@
 
 #include "ServiceEndpointDiscoveryEvent.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 ServiceEndpointDiscoveryEvent::ServiceEndpointDiscoveryEvent() :
 _pClosure(0)

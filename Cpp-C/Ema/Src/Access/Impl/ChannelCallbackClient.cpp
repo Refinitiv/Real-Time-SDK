@@ -19,7 +19,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 const EmaString ChannelCallbackClient::_clientName( "ChannelCallbackClient" );
 

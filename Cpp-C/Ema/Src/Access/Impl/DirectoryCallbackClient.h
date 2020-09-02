@@ -16,7 +16,7 @@
 #include "OmmLoggerClient.h"
 #include "ItemCallbackClient.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -18,7 +18,7 @@
 #ifndef __thomsonreuters_ema_domain_LoginStatusImpl_h
 #define __thomsonreuters_ema_domain_LoginStatusImpl_h
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -34,7 +34,7 @@ public:
 
 	LoginStatusImpl(const LoginStatusImpl&);
 
-	LoginStatusImpl(const thomsonreuters::ema::access::StatusMsg&);
+	LoginStatusImpl(const rtsdk::ema::access::StatusMsg&);
 
 	virtual ~LoginStatusImpl();
 
@@ -42,19 +42,19 @@ public:
 
 	LoginStatusImpl& operator=(const LoginStatusImpl&);
 
-	LoginStatusImpl& message(const thomsonreuters::ema::access::StatusMsg&);
+	LoginStatusImpl& message(const rtsdk::ema::access::StatusMsg&);
 
-	LoginStatusImpl& authenticationErrorCode(const thomsonreuters::ema::access::UInt64& value);
+	LoginStatusImpl& authenticationErrorCode(const rtsdk::ema::access::UInt64& value);
 
-	LoginStatusImpl& authenticationErrorText(const thomsonreuters::ema::access::EmaString& value);
+	LoginStatusImpl& authenticationErrorText(const rtsdk::ema::access::EmaString& value);
 
-	LoginStatusImpl& name(const thomsonreuters::ema::access::EmaString&);
+	LoginStatusImpl& name(const rtsdk::ema::access::EmaString&);
 
-	LoginStatusImpl& nameType(const thomsonreuters::ema::access::UInt32&);
+	LoginStatusImpl& nameType(const rtsdk::ema::access::UInt32&);
 
-	LoginStatusImpl& state(const thomsonreuters::ema::access::OmmState::StreamState&, const thomsonreuters::ema::access::OmmState::DataState, const thomsonreuters::ema::access::UInt8&, const thomsonreuters::ema::access::EmaString&);
+	LoginStatusImpl& state(const rtsdk::ema::access::OmmState::StreamState&, const rtsdk::ema::access::OmmState::DataState, const rtsdk::ema::access::UInt8&, const rtsdk::ema::access::EmaString&);
 
-	LoginStatusImpl& state(const thomsonreuters::ema::access::OmmState&);
+	LoginStatusImpl& state(const rtsdk::ema::access::OmmState&);
 
 	bool hasAuthenticationErrorCode() const;
 
@@ -66,30 +66,30 @@ public:
 
 	bool hasState() const;
 
-	const thomsonreuters::ema::access::StatusMsg& getMessage();
+	const rtsdk::ema::access::StatusMsg& getMessage();
 
-	const thomsonreuters::ema::access::UInt64& getAuthenticationErrorCode() const;
+	const rtsdk::ema::access::UInt64& getAuthenticationErrorCode() const;
 
-	const thomsonreuters::ema::access::EmaString& getAuthenticationErrorText() const;
+	const rtsdk::ema::access::EmaString& getAuthenticationErrorText() const;
 
-	const thomsonreuters::ema::access::EmaString& getName() const;
+	const rtsdk::ema::access::EmaString& getName() const;
 
-	const thomsonreuters::ema::access::UInt32& getNameType() const;
+	const rtsdk::ema::access::UInt32& getNameType() const;
 
-	const thomsonreuters::ema::access::OmmState& getState() const;
+	const rtsdk::ema::access::OmmState& getState() const;
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 private:
 
-	void encode(thomsonreuters::ema::access::StatusMsg&) const;
+	void encode(rtsdk::ema::access::StatusMsg&) const;
 
-	void decode(const thomsonreuters::ema::access::StatusMsg&);
+	void decode(const rtsdk::ema::access::StatusMsg&);
 
-	const thomsonreuters::ema::access::StatusMsg& message() const;
+	const rtsdk::ema::access::StatusMsg& message() const;
 
-	thomsonreuters::ema::access::UInt64									_authenticationErrorCode;
-	thomsonreuters::ema::access::EmaString								_authenticationErrorText;
+	rtsdk::ema::access::UInt64									_authenticationErrorCode;
+	rtsdk::ema::access::EmaString								_authenticationErrorText;
 
 	mutable bool			_changed;
 	bool					_authenticationErrorCodeSet;
@@ -98,23 +98,23 @@ private:
 	bool					_nameSet;
 	bool					_nameTypeSet;
 
-	thomsonreuters::ema::access::UInt32					_domainType;
+	rtsdk::ema::access::UInt32					_domainType;
 
-	thomsonreuters::ema::access::UInt32					_nameType;
-	thomsonreuters::ema::access::EmaString				_name;
+	rtsdk::ema::access::UInt32					_nameType;
+	rtsdk::ema::access::EmaString				_name;
 
 	RsslState*											_rsslState;
-	thomsonreuters::ema::access::EmaStringInt			_stateText;
-	thomsonreuters::ema::access::OmmState				_state;
+	rtsdk::ema::access::EmaStringInt			_stateText;
+	rtsdk::ema::access::OmmState				_state;
 
-	thomsonreuters::ema::access::StatusMsg				_statusMsg;
+	rtsdk::ema::access::StatusMsg				_statusMsg;
 
-	mutable thomsonreuters::ema::access::ElementList*	_pElementList;
+	mutable rtsdk::ema::access::ElementList*	_pElementList;
 
-	mutable thomsonreuters::ema::access::EmaString       _toString;
+	mutable rtsdk::ema::access::EmaString       _toString;
 
 #ifdef __EMA_COPY_ON_SET__
-	thomsonreuters::ema::access::EmaString				_statusText;
+	rtsdk::ema::access::EmaString				_statusText;
 #endif
 };
 			

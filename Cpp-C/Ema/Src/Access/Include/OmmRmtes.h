@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmRmtes_h
 
 /**
-	@class thomsonreuters::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
+	@class rtsdk::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
 	@brief OmmRmtes represents Rmtes string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_VectorEntry_h
 
 /**
-	@class thomsonreuters::ema::access::VectorEntry VectorEntry.h "Access/Include/VectorEntry.h"
+	@class rtsdk::ema::access::VectorEntry VectorEntry.h "Access/Include/VectorEntry.h"
 	@brief VectorEntry represents an entry of Vector.
 	
 	VectorEntry associates entry's position, action, permission information, data and its data type.
@@ -57,7 +57,7 @@
  
 #include "Access/Include/OmmError.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmNiProviderConfig_h
 
 /**
-	@class thomsonreuters::ema::access::OmmNiProviderConfig OmmNiProviderConfig.h "Access/Include/OmmNiProviderConfig.h"
+	@class rtsdk::ema::access::OmmNiProviderConfig OmmNiProviderConfig.h "Access/Include/OmmNiProviderConfig.h"
 	@brief OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider.
 
 	OmmNiProviderConfig provides a default basic NonInteractive OmmProvider configuration.
@@ -31,7 +31,7 @@
 #include "Access/Include/EmaString.h"
 #include "Access/Include/OmmProviderConfig.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

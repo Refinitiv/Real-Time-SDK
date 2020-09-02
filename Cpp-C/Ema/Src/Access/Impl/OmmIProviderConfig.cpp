@@ -10,7 +10,7 @@
 #include "OmmIProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmIProviderConfig::OmmIProviderConfig() :
 	_pImpl( 0 )

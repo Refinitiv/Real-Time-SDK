@@ -32,7 +32,7 @@
 #pragma warning( disable : 4355)
 #endif
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient, void* closure) :
 	OmmProviderImpl(ommProvider),

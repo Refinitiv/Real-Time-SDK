@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmConsumerClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerClient OmmConsumerClient.h "Access/Include/OmmConsumerClient.h"
+	@class rtsdk::ema::access::OmmConsumerClient OmmConsumerClient.h "Access/Include/OmmConsumerClient.h"
 	@brief OmmConsumerClient class provides callback interfaces to pass received messages.
 
 	Application needs to implement an application client class inheriting from OmmConsumerClient.
@@ -67,7 +67,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

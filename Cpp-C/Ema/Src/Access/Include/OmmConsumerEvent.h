@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmConsumerEvent_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerEvent OmmConsumerEvent.h "Access/Include/OmmConsumerEvent.h"
+	@class rtsdk::ema::access::OmmConsumerEvent OmmConsumerEvent.h "Access/Include/OmmConsumerEvent.h"
 	@brief OmmConsumerEvent encapsulates item identifiers.
 
 	OmmConsumerEvent is used to convey item identifiers to application. OmmConsumerEvent is returned
@@ -27,7 +27,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

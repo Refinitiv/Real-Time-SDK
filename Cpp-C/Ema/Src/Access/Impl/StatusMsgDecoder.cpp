@@ -14,7 +14,7 @@
 
 #include "rtr/rsslMsgDecoders.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 StatusMsgDecoder::StatusMsgDecoder() :
  MsgDecoder(),

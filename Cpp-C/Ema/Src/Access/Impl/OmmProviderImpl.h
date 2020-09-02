@@ -14,7 +14,7 @@
 #include "OmmProviderConfig.h"
 #include "ChannelInformation.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_FilterList_h
 
 /**
-	@class thomsonreuters::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
+	@class rtsdk::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
 	@brief FilterList is a heterogeneous container of complex data type entries.
 
 	FilterList entries are identified by Filter Id. For the source directory information,
@@ -120,7 +120,7 @@
 #include "Access/Include/ComplexType.h"
 #include "Access/Include/FilterEntry.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -1,8 +1,8 @@
 #include "EnumTypeTableImpl.h"
 #include "EnumTypeImpl.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 EnumTypeTableImpl::EnumTypeTableImpl() :
 _pEnumTypeList(0),
@@ -44,7 +44,7 @@ void EnumTypeTableImpl::rsslEnumTypeTable(RsslEnumTypeTable* enumTypeTable)
 	_pEnumTypeTable = enumTypeTable;
 }
 
-const thomsonreuters::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEnumTypes() const
+const rtsdk::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEnumTypes() const
 {
 	if (_pEnumTypeList == 0)
 	{
@@ -74,7 +74,7 @@ const thomsonreuters::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEn
 	return *_pEnumTypeList;
 }
 
-const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>& EnumTypeTableImpl::getFidReferences() const
+const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& EnumTypeTableImpl::getFidReferences() const
 {
 	if (_pFidsList == 0)
 	{
@@ -93,7 +93,7 @@ const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>
 	return *_pFidsList;
 }
 
-const thomsonreuters::ema::access::EmaString& EnumTypeTableImpl::toString() const
+const rtsdk::ema::access::EmaString& EnumTypeTableImpl::toString() const
 {
 	_stringToString.set(0, 256);
 

@@ -19,7 +19,7 @@
 #include "HashTable.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 
@@ -35,118 +35,118 @@ public:
 
 	virtual ~DataDictionaryImpl();
 
-	thomsonreuters::ema::access::Int32 getMinFid() const;
+	rtsdk::ema::access::Int32 getMinFid() const;
 
-	thomsonreuters::ema::access::Int32 getMaxFid() const;
+	rtsdk::ema::access::Int32 getMaxFid() const;
 
-	const thomsonreuters::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
+	const rtsdk::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
 
-	thomsonreuters::ema::access::Int32 getInfoDictionaryId() const;
+	rtsdk::ema::access::Int32 getInfoDictionaryId() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldVersion() const;
+	const rtsdk::ema::access::EmaString& getFieldVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumRecordTemplateVersion() const;
+	const rtsdk::ema::access::EmaString& getEnumRecordTemplateVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
+	const rtsdk::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldFilename() const;
+	const rtsdk::ema::access::EmaString& getFieldFilename() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldDescription() const;
+	const rtsdk::ema::access::EmaString& getFieldDescription() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldBuild() const;
+	const rtsdk::ema::access::EmaString& getFieldBuild() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldDate() const;
+	const rtsdk::ema::access::EmaString& getFieldDate() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumFilename() const;
+	const rtsdk::ema::access::EmaString& getEnumFilename() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDescription() const;
+	const rtsdk::ema::access::EmaString& getEnumDescription() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDate() const;
+	const rtsdk::ema::access::EmaString& getEnumDate() const;
 
-	bool hasEntry(thomsonreuters::ema::access::Int32 fieldId) const;
+	bool hasEntry(rtsdk::ema::access::Int32 fieldId) const;
 
-	void getEntry(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+	void getEntry(rtsdk::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
 
-	const DictionaryEntry& getEntry(thomsonreuters::ema::access::Int32 fieldId) const;
+	const DictionaryEntry& getEntry(rtsdk::ema::access::Int32 fieldId) const;
 
-	bool hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	bool hasEntry(const rtsdk::ema::access::EmaString& fieldName) const;
 
-	void getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
+	void getEntry(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
-	const DictionaryEntry& getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	const DictionaryEntry& getEntry(const rtsdk::ema::access::EmaString& fieldName) const;
 
-	bool hasEnumType(thomsonreuters::ema::access::Int32 fieldId, thomsonreuters::ema::access::Int32 value) const;
+	bool hasEnumType(rtsdk::ema::access::Int32 fieldId, rtsdk::ema::access::Int32 value) const;
 
-	const EnumType& getEnumType(thomsonreuters::ema::access::Int32 fieldId, thomsonreuters::ema::access::Int32 value) const;
+	const EnumType& getEnumType(rtsdk::ema::access::Int32 fieldId, rtsdk::ema::access::Int32 value) const;
 
-	const thomsonreuters::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
+	const rtsdk::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
 
 	void clear();
 
-	void loadFieldDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadFieldDictionary(const rtsdk::ema::access::EmaString& filename);
 
-	void loadEnumTypeDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadEnumTypeDictionary(const rtsdk::ema::access::EmaString& filename);
 
-	void encodeFieldDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeFieldDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
-	bool encodeFieldDictionary(thomsonreuters::ema::access::Series& series, 
-		thomsonreuters::ema::access::Int32& currentFid, thomsonreuters::ema::access::UInt32 verbosity, 
-		thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeFieldDictionary(rtsdk::ema::access::Series& series, 
+		rtsdk::ema::access::Int32& currentFid, rtsdk::ema::access::UInt32 verbosity, 
+		rtsdk::ema::access::UInt32 fragmentationSize);
 
-	void decodeFieldDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeFieldDictionary(const rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
-	void encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeEnumTypeDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
-	bool encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::Int32& currenCount,
-		thomsonreuters::ema::access::UInt32 verbosity, thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeEnumTypeDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::Int32& currenCount,
+		rtsdk::ema::access::UInt32 verbosity, rtsdk::ema::access::UInt32 fragmentationSize);
 
-	void decodeEnumTypeDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeEnumTypeDictionary(const rtsdk::ema::access::Series& series, rtsdk::ema::access::UInt32 verbosity);
 
-	thomsonreuters::ema::access::UInt32 extractDictionaryType(const thomsonreuters::ema::access::Series& series);
+	rtsdk::ema::access::UInt32 extractDictionaryType(const rtsdk::ema::access::Series& series);
 
 	void setRsslDataDictionary(const RsslDataDictionary* rsslDataDictionary);
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const rtsdk::ema::access::EmaString& toString() const;
 
 private:
 	
-	typedef thomsonreuters::ema::access::HashTable< thomsonreuters::ema::access::EmaString, thomsonreuters::ema::access::Int16,
-		thomsonreuters::ema::access::Hasher<thomsonreuters::ema::access::EmaString>,
-		thomsonreuters::ema::access::Equal_To<thomsonreuters::ema::access::EmaString> > FieldNameToIdHash;
+	typedef rtsdk::ema::access::HashTable< rtsdk::ema::access::EmaString, rtsdk::ema::access::Int16,
+		rtsdk::ema::access::Hasher<rtsdk::ema::access::EmaString>,
+		rtsdk::ema::access::Equal_To<rtsdk::ema::access::EmaString> > FieldNameToIdHash;
 
 	FieldNameToIdHash* fieldNameToIdMap() const;
 
 	static void throwIueForQueryOnly();
 
-	void getEntryInt(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+	void getEntryInt(rtsdk::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
 
-	void getEntryInt(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
+	void getEntryInt(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	mutable FieldNameToIdHash* _pfieldNameToIdHash;
 
 	mutable RsslDataDictionary* _pRsslDataDictionary;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumRTVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDTVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldFilename;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldDesc;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldBuild;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldDate;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumFilename;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDesc;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDate;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoFieldVersion;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoEnumRTVersion;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoEnumDTVersion;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoFieldFilename;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoFieldDesc;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoFieldBuild;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoFieldDate;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoEnumFilename;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoEnumDesc;
+	mutable rtsdk::ema::access::EmaStringInt	_stringInfoEnumDate;
+	mutable rtsdk::ema::access::EmaString		_stringToString;
 
 	mutable DictionaryEntry		_dictionaryEntry;
 	mutable EnumType           _enumType;
-	mutable thomsonreuters::ema::access::EmaVector<DictionaryEntry>*	_pDictionaryEntryList;
-	mutable thomsonreuters::ema::access::EmaVector<EnumTypeTable>*	_pEnumTypeTableList;
+	mutable rtsdk::ema::access::EmaVector<DictionaryEntry>*	_pDictionaryEntryList;
+	mutable rtsdk::ema::access::EmaVector<EnumTypeTable>*	_pEnumTypeTableList;
 	RsslBuffer _errorText;
 	bool _loadedFieldDictionary;
 	bool _loadedEnumTypeDef;
 	bool _ownRsslDataDictionary;
 
-	mutable thomsonreuters::ema::access::Mutex _dataAccessMutex;
+	mutable rtsdk::ema::access::Mutex _dataAccessMutex;
 };
 
 }

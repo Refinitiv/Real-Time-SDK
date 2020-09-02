@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_RefreshMsg_h
 
 /**
-	@class thomsonreuters::ema::access::RefreshMsg RefreshMsg.h "Access/Include/RefreshMsg.h"
+	@class rtsdk::ema::access::RefreshMsg RefreshMsg.h "Access/Include/RefreshMsg.h"
 	@brief RefreshMsg conveys item image, state, permission and group information.
 
 	RefreshMsg is sent when item data needs to be synchronized. This happens as a response
@@ -69,7 +69,7 @@
 #include "Access/Include/OmmState.h"
 #include "Access/Include/OmmQos.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

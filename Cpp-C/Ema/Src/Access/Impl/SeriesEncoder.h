@@ -14,7 +14,7 @@
 #include "EmaPool.h"
 #include "rtr/rsslSeries.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

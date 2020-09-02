@@ -10,7 +10,7 @@
 #include "ActiveConfig.h"
 #include "OmmIProviderActiveConfig.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 class EmaActiveConfigTest : public ::testing::Test {

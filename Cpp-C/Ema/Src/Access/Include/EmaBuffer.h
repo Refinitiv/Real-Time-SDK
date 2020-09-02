@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_EmaBuffer_h
 
 /**
-	@class thomsonreuters::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
+	@class rtsdk::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
 	@brief EmaBuffer represents a general use binary buffer.
 
 	EmaBuffer is a buffer of 8 bit long characters where each character is represented by char or byte.
@@ -21,7 +21,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	
 namespace ema {
 

@@ -36,35 +36,35 @@ unsigned long long getCurrentTime()
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public rtsdk::ema::access::OmmConsumerClient
 {
 public :
 
-	void decode( const thomsonreuters::ema::access::FieldList& );			// print content of passed in FieldList to screen
+	void decode( const rtsdk::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 };
 
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public thomsonreuters::ema::access::OmmConsumerErrorClient
+class AppErrorClient : public rtsdk::ema::access::OmmConsumerErrorClient
 {
 public :
 
-	void onInvalidHandle( thomsonreuters::ema::access::UInt64, const thomsonreuters::ema::access::EmaString& );
+	void onInvalidHandle( rtsdk::ema::access::UInt64, const rtsdk::ema::access::EmaString& );
 
-	void onInaccessibleLogFile( const thomsonreuters::ema::access::EmaString&, const thomsonreuters::ema::access::EmaString& );
+	void onInaccessibleLogFile( const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString& );
 
-	void onSystemError( thomsonreuters::ema::access::Int64, void* , const thomsonreuters::ema::access::EmaString& );
+	void onSystemError( rtsdk::ema::access::Int64, void* , const rtsdk::ema::access::EmaString& );
 	
-	void onMemoryExhaustion( const thomsonreuters::ema::access::EmaString& );
+	void onMemoryExhaustion( const rtsdk::ema::access::EmaString& );
 	
-	void onInvalidUsage( const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32 );
+	void onInvalidUsage( const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32 );
 };
 
 #endif // __ema_consumer_h_

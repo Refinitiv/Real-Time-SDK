@@ -15,7 +15,7 @@
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

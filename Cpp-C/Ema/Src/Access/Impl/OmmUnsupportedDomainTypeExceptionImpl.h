@@ -11,7 +11,7 @@
 
 #include "OmmUnsupportedDomainTypeException.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmUtf8_h
 
 /**
-	@class thomsonreuters::ema::access::OmmUtf8 OmmUtf8.h "Access/Include/OmmUtf8.h"
+	@class rtsdk::ema::access::OmmUtf8 OmmUtf8.h "Access/Include/OmmUtf8.h"
 	@brief OmmUtf8 represents Utf8 string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

@@ -11,7 +11,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 RmtesBuffer::RmtesBuffer() :
  _pImpl( new ( _space ) RmtesBufferImpl() )

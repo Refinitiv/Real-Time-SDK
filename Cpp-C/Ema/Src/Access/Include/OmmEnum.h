@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_OmmEnum_h
 
 /**
-	@class thomsonreuters::ema::access::OmmEnum OmmEnum.h "Access/Include/OmmEnum.h"
+	@class rtsdk::ema::access::OmmEnum OmmEnum.h "Access/Include/OmmEnum.h"
 	@brief OmmEnum represents UInt16 value in Omm. The enumeration is the meaning of the UInt16 value.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 
 namespace ema {
 

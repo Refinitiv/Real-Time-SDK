@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_DataType_h
 
 /**
-	\class thomsonreuters::ema::access::DataType DataType.h "Access/DataType.h"
+	\class rtsdk::ema::access::DataType DataType.h "Access/DataType.h"
 	\brief DataType class provides enumeration representing Omm data types.
 
 	DataType::DataTypeEnum is a numeric and symbolic representation of Omm data type.
@@ -33,7 +33,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	
 namespace ema {
 

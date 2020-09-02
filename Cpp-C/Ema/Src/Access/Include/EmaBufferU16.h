@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_EmaBufferU16_h
 
 /**
-	@class thomsonreuters::ema::access::EmaBufferU16 EmaBufferU16.h "Access/Include/Include/EmaBufferU16.h"
+	@class rtsdk::ema::access::EmaBufferU16 EmaBufferU16.h "Access/Include/Include/EmaBufferU16.h"
 	@brief EmaBufferU16 represents general use binary buffer.
 
 	EmaBufferU16 is a buffer of 16 bit long characters where each character is represented by UInt16.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace rtsdk {
 	
 namespace ema {
 
