@@ -94,7 +94,7 @@ void exitWithUsage()
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
-	printf(" -maxEventsInPool size of event pool\n")
+	printf(" -maxEventsInPool size of event pool\n");
     //API QA
 	printf(" -testCompressionZlib turns on Zlib compression\n");
 	printf(" -compressionLevel specifies Zlib compression level\n");
