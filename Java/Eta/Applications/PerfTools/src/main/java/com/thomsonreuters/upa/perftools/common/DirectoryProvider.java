@@ -22,7 +22,7 @@ public class DirectoryProvider
     protected static final int            REFRESH_MSG_SIZE = 1024;
 
     // vendor name
-    protected static final String         vendor = "Thomson Reuters";
+    protected static final String         vendor = "Refinitiv";
 
     // field dictionary used and provided for the source. 
     protected static final String         fieldDictionaryName = "RWFFld";
@@ -91,6 +91,7 @@ public class DirectoryProvider
         _service.info().isSource(1);
 
         _service.info().capabilitiesList().add((long)DomainTypes.DICTIONARY);
+        _service.info().capabilitiesList().add((long)DomainTypes.SYSTEM);
         if (xmlMsgData.hasMarketPrice())
         {
             _service.info().capabilitiesList().add((long)DomainTypes.MARKET_PRICE);

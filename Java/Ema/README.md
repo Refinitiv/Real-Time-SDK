@@ -1,8 +1,9 @@
-# Elektron Message API (EMA) Java Edition
+# Enterprise Message API (EMA) Java Edition
 
-The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
+The Enterprise Message API: This is an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Refinitiv based on customer feedback.
 
-EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
+EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
+
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
   
 # EMA Java Documentation
@@ -75,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.5.0.1.jar         ema3.5.0.G1
+    ema-3.5.1.0.jar         ema3.5.1.L1
 
 # EMA Java Issues and Workarounds
  
@@ -89,18 +90,18 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     I-COS Questionnaire: 6313
     Refinitiv Item Number: N/A
-    Product Name: Elektron Message API - Java Edition
-    Release Number: 3.5.0
+    Product Name: Enterprise Message API - Java Edition
+    Release Number: 3.5.1
     Load Number: 1
-    Load ID: ema3.5.0.L1.java
-        Supersedes: ema3.4.0.L1.java
+    Load ID: ema3.5.1.L1.java
+        Supersedes: ema3.5.0.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 

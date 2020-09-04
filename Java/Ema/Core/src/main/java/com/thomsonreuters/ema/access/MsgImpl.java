@@ -9,11 +9,8 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.Attrib;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
-import com.thomsonreuters.ema.access.Payload;
 import com.thomsonreuters.upa.codec.AckMsgFlags;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -50,9 +47,8 @@ class MsgImpl extends DataImpl implements Msg
 	protected StringBuilder _errorString;
 	protected boolean _domainTypeSet;
 	protected com.thomsonreuters.upa.codec.Buffer _copiedBuffer = CodecFactory.createBuffer();
-	protected com.thomsonreuters.upa.codec.Buffer _copiedEncodedDataBodyBuffer = CodecFactory.createBuffer();
 	protected int _allocatedMemory = AllocatedMemory.UNKNOWN;
-	private ByteBuffer _extendedHeader;
+	protected ByteBuffer _extendedHeader;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
@@ -69,7 +65,7 @@ class MsgImpl extends DataImpl implements Msg
 			_encodeComplete = false;
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
-			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));		}
+		}
 		else
 		{
 			_objManager = objManager;
@@ -81,6 +77,18 @@ class MsgImpl extends DataImpl implements Msg
 		}
 	}
 	
+	MsgImpl(MsgImpl other, String functionName)
+	{
+		this(other._dataType, new EmaObjectManager());
+		_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+
+		_objManager.initialize();
+
+		cloneBufferToMsg(this, other, functionName);
+		//set exact flags from ETA message as RWF binary flags could be empty
+		_rsslMsg.flags(other._rsslMsg.flags());
+	}
+
 	@Override
 	public boolean hasMsgKey()
 	{
@@ -236,10 +244,8 @@ class MsgImpl extends DataImpl implements Msg
 			_extendedHeader.clear();
 		}
 		
-		_extendedHeader.put(_rsslMsg.extendedHeader().data().array(), _rsslMsg.extendedHeader().position(), _rsslMsg.extendedHeader().length());
-		
-		_extendedHeader.flip();
-		
+		_extendedHeader = Utilities.copyFromPool(_rsslMsg.extendedHeader(), _extendedHeader, _objManager);
+
 		return _extendedHeader;
 	}
 
@@ -283,49 +289,6 @@ class MsgImpl extends DataImpl implements Msg
 		}
 		
 		return _serviceName;
-	}
-	
-	void decodeCloneAttribPayload(MsgImpl other)
-	{
-		if(hasMsgKey())
-		{
-			if (other.attrib().dataType() != DataTypes.NO_DATA)
-			{
-				com.thomsonreuters.upa.codec.Buffer rsslBuffer = other.attribData()._rsslBuffer;
-				
-				_rsslMsg.msgKey().encodedAttrib(rsslBuffer);
-				
-				_rsslMsg.msgKey().applyHasAttrib();
-				
-				if(other.attrib().dataType() < DataTypes.MSG)
-				{
-					_rsslMsg.msgKey().attribContainerType(DataTypes.MSG);
-				}
-				else 
-				{
-					_rsslMsg.msgKey().attribContainerType(other.attrib().dataType());
-				}
-				
-				attribData().decode(_rsslMsg.msgKey().encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
-			}
-			else
-			{
-				attribData().decode(_rsslMsg.msgKey().encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
-			}
-		}
-		
-		int dType = dataType(_rsslMsg.containerType(), _rsslMajVer, _rsslMinVer, _rsslMsg.encodedDataBody());
-		if (DataTypes.ERROR == dType)
-		{
-			_payloadDecoded = dataInstance(_payloadDecoded, DataTypes.ERROR);
-			_payloadDecoded.decode(_rsslMsg.encodedDataBody(),
-					_rsslMajVer, _rsslMinVer, null, ErrorCode.ITERATOR_SET_FAILURE);
-		}
-		else
-		{
-			_payloadDecoded = dataInstance(_payloadDecoded, dType);
-			_payloadDecoded.decode(_rsslMsg.encodedDataBody(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
-		}
 	}
 	
 	void decodeAttribPayload()
@@ -909,7 +872,10 @@ class MsgImpl extends DataImpl implements Msg
 	{
 		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
-		
+
+		if (_rsslBuffer.length() <= 0)
+			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+
 		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
 	    if (ret != CodecReturnCodes.SUCCESS)
 	    {
@@ -937,7 +903,7 @@ class MsgImpl extends DataImpl implements Msg
 		return _rsslBuffer;
 	}
 	
-	static void cloneBufferToMsg(MsgImpl destMsg, MsgImpl other, String functionName)
+	void cloneBufferToMsg(MsgImpl destMsg, MsgImpl other, String functionName)
 	{
 		if(other._rsslBuffer.length() > 0)
 		{
@@ -973,69 +939,16 @@ class MsgImpl extends DataImpl implements Msg
 				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
 			
 				destMsg._rsslMsg.streamId(other.streamId());
+			} else {
+				String errText = errorString()
+						.append("Failed to clone empty encoded buffer for ")
+						.append(functionName)
+						.toString();
+				throw ommIUExcept().message(errText, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
 			}
 		}
 	}
-	
-	void cloneMsgKey(MsgImpl other, MsgKey destMsgKey, int destMsgKeyFlag, String functionName)
-	{
-		destMsgKey = CodecFactory.createMsgKey();
-				
-		if(other.hasName())
-		{
-			_allocatedMemory |= AllocatedMemory.NAME;	
-			destMsgKey.applyHasName();
-		}
-		
-		
-		if (other.hasNameType())
-		{
-			destMsgKey.nameType(other.nameType());
-			destMsgKey.applyHasNameType();
-		}
 
-		if (other.hasServiceId())
-		{
-			destMsgKey.serviceId(other.serviceId());
-			destMsgKey.applyHasServiceId();
-		}
-
-		if (other.hasId())
-		{
-			destMsgKey.identifier(other.id());
-			destMsgKey.applyHasIdentifier();
-		}
-
-		if (other.hasFilter())
-		{
-			destMsgKey.filter(other.filter());
-			destMsgKey.applyHasFilter();
-		}
-		
-		if (other.attrib().dataType() != DataTypes.NO_DATA)
-		{
-			com.thomsonreuters.upa.codec.Buffer rsslBuffer = other.attribData()._rsslBuffer;
-			
-			destMsgKey.encodedAttrib(rsslBuffer);
-			
-			destMsgKey.applyHasAttrib();
-			
-			if(other.attrib().dataType() < DataTypes.MSG)
-			{
-				destMsgKey.attribContainerType(DataTypes.MSG);
-			}
-			else 
-			{
-				destMsgKey.attribContainerType(other.attrib().dataType());
-			}
-			
-			attribData().decode(destMsgKey.encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
-		}
-		else
-		{
-			attribData().decode(destMsgKey.encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
-		}
-	}
 
 	com.thomsonreuters.upa.codec.Msg rsslMsg()
 	{

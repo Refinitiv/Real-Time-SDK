@@ -1,5 +1,5 @@
 if( NOT Eta_SOURCE_DIR)
-	set(Eta_SOURCE_DIR "${esdk_SOURCE_DIR}/Cpp-C/Eta")
+	set(Eta_SOURCE_DIR "${rtsdk_SOURCE_DIR}/Cpp-C/Eta")
 endif()
 
 	set(srcFiles_rsslJsonConverterTest

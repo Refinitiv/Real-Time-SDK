@@ -166,7 +166,7 @@ public class Consumer
 					"\n\tcomponent information: " + ci.componentInformation() +
 					"\n\tconnection type: " + ConnectionTypes.toString(ci.connectionType()) +
 					"\n\tchannel state: " + ci.channelState() +
-					"\n\tprotocol type: " + (ci.protocolType() == Codec.RWF_PROTOCOL_TYPE ? "Reuters wire format" : "unknown wire format") +
+					"\n\tprotocol type: " + (ci.protocolType() == Codec.RWF_PROTOCOL_TYPE ? "Refinitiv wire format" : "unknown wire format") +
 					"\n\tmajor version: " + ci.majorVersion() + "\n\tminor version: " + ci.minorVersion() + "\n\tping timeout: " + ci.pingTimeout());
 
 			if (appClient.USERDISPATCH)

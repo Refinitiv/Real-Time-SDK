@@ -10,11 +10,10 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.*;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -872,7 +871,40 @@ public class GenericMsgTests extends TestCase
 	     
 	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
-	
+
+	public void testGenericMsgMsg_cloneIsNotSupportedFromTheEncodeSide()
+	{
+		TestUtilities.printTestHead("testGenericMsgMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		GenericMsg msg = EmaFactory.createGenericMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE);
+
+		try {
+			GenericMsg cloneMessage = EmaFactory.createGenericMsg(msg);
+			TestUtilities.checkResult(false, "Clone not supported - exception expected: ");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
+			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
+		}
+	}
+
+	public void testGenericMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testGenericMsg_cloneMsgKeyWLScenario", "cloning for minimal ema generic message");
+		GenericMsg emaMsg = EmaFactory.createGenericMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		GenericMsg emaClonedMsg = EmaFactory.createGenericMsg(emaMsg);
+
+		compareEmaGenericMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA GenericMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testGenericMsg_clone()
 	{
 		TestUtilities.printTestHead("testGenericMsg_clone", "cloning for ema generic message");
@@ -941,6 +973,8 @@ public class GenericMsgTests extends TestCase
 		genericMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		genericMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(genericMsg);
+
 		System.out.println("End UPA GenericMsg Set");
 		System.out.println();
 
@@ -978,17 +1012,7 @@ public class GenericMsgTests extends TestCase
 		
 		com.thomsonreuters.ema.access.GenericMsg emaGenericMsgClone = EmaFactory.createGenericMsg(emaGenericMsg);
 		
-		TestUtilities.checkResult(emaGenericMsgClone.domainType() == emaGenericMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaGenericMsgClone.streamId() == emaGenericMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaGenericMsgClone.hasPartNum() == emaGenericMsg.hasPartNum(), "Compare hasPartNum");
-		TestUtilities.checkResult(emaGenericMsgClone.partNum() == emaGenericMsg.partNum(), "Compare partNum");
-		TestUtilities.checkResult(emaGenericMsgClone.hasSeqNum() == emaGenericMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaGenericMsgClone.seqNum() == emaGenericMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaGenericMsgClone.hasSecondarySeqNum() == emaGenericMsg.hasSecondarySeqNum(), "Compare hasSecondarySeqNum");
-		TestUtilities.checkResult(emaGenericMsgClone.secondarySeqNum() == emaGenericMsg.secondarySeqNum(), "Compare secondarySeqNum");
-		TestUtilities.checkResult(emaGenericMsgClone.complete() == emaGenericMsg.complete(), "Compare complete");
-		TestUtilities.checkResult(emaGenericMsgClone.hasMsgKey() == emaGenericMsg.hasMsgKey(), "Compare hasMsgKey");
-		
+		compareEmaGenericMsgFields(emaGenericMsg, emaGenericMsgClone, "Generic cloned message");
 		String emaGenericMsgString = emaGenericMsg.toString();
 		String emaGenericMsgCloneString = emaGenericMsgClone.toString();
 		
@@ -996,11 +1020,30 @@ public class GenericMsgTests extends TestCase
 		System.out.println(emaGenericMsgClone);
 		
 		TestUtilities.checkResult(emaGenericMsgString.equals(emaGenericMsgCloneString), "emaGenericMsgString.equals(emaGenericMsgCloneString)");
-		
+
+		com.thomsonreuters.ema.access.GenericMsg emaGenericMsgClone2 = EmaFactory.createGenericMsg(emaGenericMsgClone);
+		compareEmaGenericMsgFields(emaGenericMsg, emaGenericMsgClone2, "Generic double-cloned message");
+		String emaGenericMsgClone2String = emaGenericMsgClone2.toString();
+		TestUtilities.checkResult(emaGenericMsgString.equals(emaGenericMsgClone2String), "double-cloned check emaGenericMsgString.equals(emaGenericMsgClone2String)");
+
 		System.out.println("End EMA GenericMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.GenericMsg genericMsg) {
+		genericMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		genericMsg.extendedHeader(extendedHeader);
+
+		genericMsg.applyHasPermData();
+		Buffer permissionData = CodecFactory.createBuffer();
+		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
+		genericMsg.permData(permissionData);
+
+		genericMsg.applyMessageComplete();
+	}
+
 	public void testGenericMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testGenericMsg_cloneEdit", "clone and edit ema generic message");
@@ -1154,9 +1197,36 @@ public class GenericMsgTests extends TestCase
 		emaGenericMsgCloneString = emaGenericMsgClone.toString();
 		
 		TestUtilities.checkResult(!emaGenericMsgString.equals(emaGenericMsgCloneString), "Check that emaGenericMsgString does not equal emaGenericMsgCloneString");
-		
+
+		ByteBuffer permData = ByteBuffer.wrap(new byte[]{16, 32, 48});
+		emaGenericMsgClone.permissionData(permData);
+		GenericMsg emaGenericMsgClone2 = EmaFactory.createGenericMsg(emaGenericMsgClone);
+		TestUtilities.checkResult(permData.equals(emaGenericMsgClone2.permissionData()), "clone2 permdata should match clone alter");
 		
 		System.out.println("End EMA GenericMsg Clone");
 		System.out.println();
 	}
+	private void compareEmaGenericMsgFields(GenericMsg expected, GenericMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasPermissionData() == actual.hasPermissionData(), checkPrefix + "hasPermissionData");
+		if(expected.hasPermissionData())
+			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
+
+		TestUtilities.checkResult(expected.hasSeqNum() == actual.hasSeqNum(), checkPrefix + "hasSeqNum");
+		if(expected.hasSeqNum())
+			TestUtilities.checkResult(expected.seqNum() == actual.seqNum(), checkPrefix + "seqNum");
+
+		TestUtilities.checkResult(expected.hasPartNum() == actual.hasPartNum(), checkPrefix + "hasPartNum");
+		if(expected.hasPartNum())
+			TestUtilities.checkResult(expected.partNum() == actual.partNum(), checkPrefix + "partNum");
+
+		TestUtilities.checkResult(expected.hasSecondarySeqNum() == actual.hasSecondarySeqNum(), checkPrefix + "hasSecondarySeqNum");
+		if(expected.hasSecondarySeqNum())
+			TestUtilities.checkResult(expected.secondarySeqNum() == actual.secondarySeqNum(), checkPrefix + "secondarySeqNum");
+
+		TestUtilities.checkResult(expected.complete() == actual.complete(), checkPrefix + "complete");
+	}
+
 }

@@ -211,7 +211,7 @@ static RsslRet sendDirectoryRefresh(RsslReactor *pReactor, RsslReactorChannel* p
 		RsslRDMService service;
 
 		RsslBuffer serviceNameString = { 256, (char *)alloca(256) };
-		RsslBuffer vendorString = { 15, (char *)"Thomson Reuters" };
+		RsslBuffer vendorString = { 9, (char *)"Refinitiv" };
 		RsslBuffer linkName = { 12, (char *)"rsslProvider" };
 
 		RsslRDMServiceLink links[1];

@@ -500,8 +500,7 @@ public class ReactorWatchlistEDPJunit
 			else if(event.type() == TestReactorEventTypes.AUTH_TOKEN_EVENT)
 			{
 				assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
-				assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
-				ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();		
+				assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());	
 			}
 			
 			event = consumerReactor.pollEvent();			
@@ -524,7 +523,7 @@ public class ReactorWatchlistEDPJunit
 					System.out.println(authTokenEvent.reactorAuthTokenInfo());			
 	
 					System.out.println(authTokenEvent.errorInfo().toString());
-					assertTrue(authTokenEvent.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" }"));		
+					assertTrue(authTokenEvent.errorInfo().toString().contains("Invalid username or password"));		
 				}
 			}
 			
@@ -575,9 +574,17 @@ public class ReactorWatchlistEDPJunit
 			// fix the connection type and run it again. 
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);  
-			rcOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.ENCRYPTED);			
+			rcOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+			
+			int ret = consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo);
+			
+			if (ret != ReactorReturnCodes.SUCCESS)
+			{
+				System.out.println("Location : " + errorInfo.location());
+				System.out.println("Error text: " + errorInfo.error().text());
+			}
 
-			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			assertTrue("Expected SUCCESS", ret == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
 		}
 		finally
@@ -983,8 +990,7 @@ public class ReactorWatchlistEDPJunit
 				consumer.testReactor().dispatch(-1);
 			}
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, true);
-			long runtime = System.currentTimeMillis() + ((sleep - 5) * 1000);	        
+			verifyAuthTokenEvent(consumerReactor, 15, true, true);
 
 			for (int j = 0; j < 6; j++)
 			{
@@ -1001,6 +1007,10 @@ public class ReactorWatchlistEDPJunit
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			
+			if(chnlEvent.eventType() != ReactorChannelEventTypes.CHANNEL_UP)
+				System.out.println("" + chnlEvent.toString());
+			
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());			
 
 			for (int j = 0; j < 6; j++)
@@ -1049,7 +1059,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;
@@ -1094,7 +1104,8 @@ public class ReactorWatchlistEDPJunit
 
 			rcOpts.connectionList().add(connectInfo);
 			rcOpts.connectionList().add(connectInfoSecond);
-			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
+			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);
+			consumerRole.rdmLoginRequest().userName().data("FAKE");
 			consumerRole.rdmLoginRequest().password().data("FAKE");
 			
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -1130,7 +1141,7 @@ public class ReactorWatchlistEDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
 
-			for (int i = 0; i < 2; i++)
+			for (int i = 0; i < 1; i++)
 			{
 				System.out.println(i);
 				verifyAuthTokenEvent(consumerReactor, 30, false, true);
@@ -1143,19 +1154,27 @@ public class ReactorWatchlistEDPJunit
 						e.printStackTrace();
 					}
 					consumer.testReactor().dispatch(-1);
-				}			
-
-				// Consumer receives CHANNEL_DOWN_RECONNECTING event
+				}
+				
 				event = consumerReactor.pollEvent();
 				assertNotNull("Did not receive CHANNEL_EVENT", event);
 				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+				assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
+
+				event = consumerReactor.pollEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+				ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+				assertTrue(authTokenEvent.errorInfo().error().text().contains("{\"error_description\":\"Invalid username or password.\",\"error\":\"access_denied\"}"));
 				
-				// Consumer receives CHANNEL_DOWN_RECONNECTING event
-//				event = consumerReactor.pollEvent();
-//				assertNotNull("Did not receive CHANNEL_EVENT", event);
-//				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-//				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				event = consumerReactor.pollEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+				assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
 			}
 
 		}
@@ -1173,7 +1192,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;
@@ -1183,11 +1202,11 @@ public class ReactorWatchlistEDPJunit
 			ReactorErrorInfo errorInfo = null;		 
 
 			TestReactorEvent event;
-			ReactorChannelEvent chnlEvent;			
-
-			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorChannelEvent chnlEvent;
+			
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+       
+			consumerReactor = new TestReactor(reactorOptions);
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1196,6 +1215,7 @@ public class ReactorWatchlistEDPJunit
 
 			
 			consumerRole.rdmLoginRequest().password().data("FAKE");
+			consumerRole.rdmLoginRequest().userName().data("FAKE");
 			
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);     
@@ -1227,7 +1247,6 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
-			     
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("localhost"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));			
@@ -1247,57 +1266,58 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
 			
 			/* Authentication event for the second connection */
-			event = getTestEvent(consumerReactor, 20);
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
 			ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
-			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));
 			
-			event = getTestEvent(consumerReactor, 20);
+			// Consumer receives CHANNEL_DOWN_RECONNECTING event
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
 			
-			event = getTestEvent(consumerReactor, 20);
+			// Consumer receives CHANNEL_DOWN_RECONNECTING event
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
 			
-			event = getTestEvent(consumerReactor, 20);
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
 			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
-			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));
 			
-			event = getTestEvent(consumerReactor, 20);
+			// Consumer receives CHANNEL_DOWN_RECONNECTING event
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
 			
-			event = getTestEvent(consumerReactor, 20);
+			// Consumer receives CHANNEL_DOWN_RECONNECTING event
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
 			
-			event = getTestEvent(consumerReactor, 20);
+			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
 			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
 			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
-			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));		
-			
-			event = getTestEvent(consumerReactor, 20);
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN, chnlEvent.eventType());
-			
-			consumerReactor.close();
+			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));	
 		}
 		finally
 		{
@@ -1360,13 +1380,11 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());			
 
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
-			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);
+			verifyAuthTokenEvent(consumerReactor, 10, true, true);
 
 			try {
 				Thread.sleep(2 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -2039,7 +2057,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
-		// from EDP Gateway because of too many invalid requests.
+		// from Refinitiv Data Platform because of too many invalid requests.
 		unlockAccount();
 		
 		TestReactor consumerReactor = null;
@@ -2881,9 +2899,17 @@ public class ReactorWatchlistEDPJunit
 			 * create a Client Connection.
 			 */
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
-			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+			
+			int ret = consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo);
+			
+			if ( ret == ReactorReturnCodes.SUCCESS)
+			{
+				System.out.println("Location: " + errorInfo.location());
+				System.out.println("Error text: " + errorInfo.error().text());
+			}
 
-			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			assertTrue("Expected SUCCESS", ret == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);		
 
 			// check that user specified connection info was not overwritten
@@ -4002,15 +4028,25 @@ public class ReactorWatchlistEDPJunit
 			 */
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
-
-			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			
-			for(int i = 1 ;i < 65; i++)
+			int ret = consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo);
+			
+			assertEquals("Checks the number of AuthTokenEvent", 1, consumerReactor._countAuthTokenEventCallbackCalls);
+			
+			if (ret != ReactorReturnCodes.SUCCESS)
+			{
+				System.out.println("Location : " + errorInfo.location());
+				System.out.println("Error text: " + errorInfo.error().text());
+			}
+
+			assertTrue("Expected SUCCESS", ret == ReactorReturnCodes.SUCCESS);
+			
+			for(int i = 1 ;i < 80; i++)
 			{
 				consumerReactor.dispatch(-1, 1000);
 			}
 			
-			assertEquals("Checks the number of AuthTokenEvent", 3, consumerReactor._countAuthTokenEventCallbackCalls);
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls >= 2);
 			
 			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
 			
@@ -4066,12 +4102,12 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			
-			for(int i = 1 ;i < 65; i++)
+			for(int i = 1 ;i < 80; i++)
 			{
 				consumerReactor.dispatch(-1, 1000);
 			}
 			
-			assertEquals("Checks the number of AuthTokenEvent", 3, consumerReactor._countAuthTokenEventCallbackCalls);
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls >= 2);
 			
 			assertTrue("Expected One token session", consumer.reactorChannel().reactor().numberOfTokenSession() == 1);
 			
@@ -4104,7 +4140,7 @@ public class ReactorWatchlistEDPJunit
 			
 			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
 			
-			TestReactor.enableReactorXmlTracing();
+			//TestReactor.enableReactorXmlTracing();
 			consumerReactor = new TestReactor(reactorOptions);
 
 			Consumer consumer = new Consumer(consumerReactor);
@@ -4165,7 +4201,7 @@ public class ReactorWatchlistEDPJunit
 			
 			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
 			
-			TestReactor.enableReactorXmlTracing();
+			//TestReactor.enableReactorXmlTracing();
 			consumerReactor = new TestReactor(reactorOptions);
 
 			Consumer consumer = new Consumer(consumerReactor);
@@ -4261,7 +4297,7 @@ public class ReactorWatchlistEDPJunit
 	public void EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest()
 	{
 		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest <<<<<<<<<<\n");	
-		
+		assumeTrue(checkCredentials());
 		TestReactor consumerReactor = null;
 		
 		try
@@ -4405,7 +4441,7 @@ public class ReactorWatchlistEDPJunit
 			
 			reactorOptions.tokenReissueRatio(0.1); // Send token reissue every 30 seconds
 	
-			TestReactor.enableReactorXmlTracing();
+			//TestReactor.enableReactorXmlTracing();
 			consumerReactor = new TestReactor(reactorOptions);
 	
 			Consumer consumer = new Consumer(consumerReactor);

@@ -20,7 +20,7 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * The purpose of this application is to measure performance of the UPA transport, 
  * encoders and decoders, in providing Level I Market Price content to the
- * Thomson Reuters Enterprise Platform Advanced Data Hub (ADH).
+ * Refinitiv Real-Time Distribution System Advanced Data Hub (ADH).
  * <p>
  * <em>Summary</em>
  * <p>

@@ -31,6 +31,7 @@ public class ConsumerStats
 	private ValueStatistics _overallLatencyStats;		/* Overall latency statistics. */
 	private ValueStatistics _postLatencyStats;			/* Posting latency statistics. */
 	private ValueStatistics _genMsgLatencyStats;		/* Generic msg latency statistics. */
+	private ValueStatistics _tunnelStreamBufUsageStats;	/* Tunnel Buffer Usage statistics. */
 	private boolean			_imageTimeRecorded;			/* Stats thread sets this once it has recorded/printed
 	 													 * this consumer's image retrieval time. */
 	
@@ -55,6 +56,7 @@ public class ConsumerStats
 		_overallLatencyStats = new ValueStatistics();
 		_postLatencyStats = new ValueStatistics();
 		_genMsgLatencyStats = new ValueStatistics();
+		_tunnelStreamBufUsageStats = new ValueStatistics();
 	}
 	
 	/**
@@ -505,6 +507,26 @@ public class ConsumerStats
 	public ValueStatistics genMsgLatencyStats()
 	{
 		return _genMsgLatencyStats;
+	}
+	
+	/**
+	 *  Tunnel stream buffer usage statistics.
+	 *
+	 * @param tunnelStreamBufUsageStats the tunnel stream buffer usage stats
+	 */
+	public void tunnelStreamBufUsageStats(ValueStatistics tunnelStreamBufUsageStats)
+	{
+		_tunnelStreamBufUsageStats= tunnelStreamBufUsageStats;
+	}
+	
+	/**
+	 *  Tunnel stream buffer usage statistics.
+	 *
+	 * @return the value statistics
+	 */
+	public ValueStatistics tunnelStreamBufUsageStats()
+	{
+		return _tunnelStreamBufUsageStats;
 	}
 	
 	/**

@@ -559,9 +559,14 @@ public class Consumer implements ResponseCallback
         if (connectionType.equals("encrypted"))
         {
             channelSession.setConnectionType(ConnectionTypes.ENCRYPTED);
-            _tunnelingConnectOpts.tunnelingInfo().tunnelingType("encrypted");
-            // build tunneling and credentials config and pass to channelSession
-            setEncryptedConfiguration(_tunnelingConnectOpts);
+            String subProtocol = CommandLine.value("encryptedConnectionType");
+            if(subProtocol != null)
+            {
+            	if(subProtocol.equals("socket"))
+            		_tunnelingConnectOpts.encryptionOptions().connectionType(ConnectionTypes.SOCKET);
+            	else if(subProtocol.equals("http"))
+            		_tunnelingConnectOpts.encryptionOptions().connectionType(ConnectionTypes.HTTP);
+            }
         }
         else if (connectionType.equals("http"))
         {
@@ -570,6 +575,9 @@ public class Consumer implements ResponseCallback
             // build http and credentials config and pass to channelSession
             setHTTPconfiguration(_tunnelingConnectOpts);
         }
+        
+        // build tunneling and credentials config and pass to channelSession
+        setEncryptedConfiguration(_tunnelingConnectOpts);
 
         // load dictionary
         dictionaryHandler.loadDictionary();
@@ -616,23 +624,11 @@ public class Consumer implements ResponseCallback
         }
         
         String keyFile = CommandLine.value("keyfile");
-        if (keyFile == null)
-        {
-        	System.err.println("Error: Keystore file is missing for connectionType of encryption.");
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }
-        
+     
         String keyPasswd = CommandLine.value("keypasswd");
-        if (keyPasswd == null)
-        {
-        	System.err.println("Error: Keystore Password is missing for connectionType of encryption.");
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }
                 
-        options.tunnelingInfo().KeystoreFile(keyFile);
-        options.tunnelingInfo().KeystorePasswd(keyPasswd);        
+        options.encryptionOptions().KeystoreFile(keyFile);
+        options.encryptionOptions().KeystorePasswd(keyPasswd);        
         channelSession.tunnelingConnectOptions(_tunnelingConnectOpts);
 
         // credentials
@@ -1354,6 +1350,7 @@ public class Consumer implements ResponseCallback
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
         CommandLine.addOption("rtt", false, "Enables RTT feature.");
+        CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
     }
 
     /**

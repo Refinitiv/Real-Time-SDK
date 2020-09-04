@@ -13,8 +13,8 @@
 	@file EmaRdm.h "Rdm/Include/EmaRdm.h"
 	@brief EmaRdm.h file contains RDM constants and definitions.
 
-	Reuters Domain Models. The EMA RDM package consists of a header file containing
-	the Reuters Domain Model specific definitions that can be used by the EMA applications.
+	Refinitiv Domain Models. The EMA RDM package consists of a header file containing
+	the Refinitiv Domain Model specific definitions that can be used by the EMA applications.
 	The definitions in this file will be made extensible in the future.
 */
 
@@ -22,7 +22,7 @@
 
 /**
 	@namespace thomsonreuters
-	@brief The thomsonreuters namespace contains all interfaces defined by Thomson Reuters.
+	@brief The thomsonreuters namespace contains all interfaces defined by Refinitiv.
 */
 namespace thomsonreuters {
 
@@ -194,7 +194,7 @@ static const thomsonreuters::ema::access::UInt32 SERVICE_DATA_STATUS	= 4;	/*!< D
 	Instrument name types are used on market doamin messages (e.g., MarketPrice domain)
 */
 static const thomsonreuters::ema::access::UInt8 INSTRUMENT_NAME_UNSPECIFIED     = 0;		/*!< Symbology is not specified or not applicable */
-static const thomsonreuters::ema::access::UInt8 INSTRUMENT_NAME_RIC             = 1;		/*!< Reuters Instrument Code */
+static const thomsonreuters::ema::access::UInt8 INSTRUMENT_NAME_RIC             = 1;		/*!< Refinitiv Instrument Code */
 static const thomsonreuters::ema::access::UInt8 INSTRUMENT_NAME_CONTRIBUTOR     = 2;		/*!< Contribution Instrument Code */
 static const thomsonreuters::ema::access::UInt8 INSTRUMENT_NAME_MAX_RESERVED    = 127;		/*!< Maximum reserved Name Type*/
 //@}

@@ -41,7 +41,7 @@ public:
 	*/
 	const EmaString&	getEndPoint() const;
 
-	/** Gets a list of location where the infrastructure is deployed in the cloud provider
+	/** Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time Optimized
 	*	@return a list of location
 	*/
 	const EmaVector<EmaString>& getLocationList() const;
@@ -51,8 +51,8 @@ public:
 	*/
 	const EmaString&	getPort() const;
 
-	/** Gets a public cloud provider
-	*	@return a cloud provider
+	/** Gets a public provider 
+	*	@return a provider 
 	*/
 	const EmaString&	getProvider() const;
 

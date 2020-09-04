@@ -10,7 +10,7 @@ public interface ReactorOAuthCredentialEventCallback
      * A callback function that the {@link Reactor} will use to get sensitive information from the application
      * The reactorSubmitOAuthCredentialRenewal() method is used to submit sensitive information.
      * 
-     * @param event A ReactorOAuthCredentialEvent containing event information. The
+     * @param reactorOAuthCredentialEvent containing event information. The
      *            ReactorOAuthCredentialEvent is valid only during callback
      *            
      * @return ReactorCallbackReturnCodes A callback return code that can

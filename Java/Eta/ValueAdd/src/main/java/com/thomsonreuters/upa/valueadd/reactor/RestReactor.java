@@ -8,6 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLContext;
 
@@ -25,6 +28,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -38,6 +42,7 @@ import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
@@ -58,6 +63,11 @@ import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
+import org.slf4j.Logger;
+
+import org.slf4j.LoggerFactory;
+import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CodecFactory;
 
 class RestReactor
 {
@@ -77,6 +87,9 @@ class RestReactor
 	static final String AUTH_POST = "POST";
 	static final String AUTH_REQUEST_USER_AGENT = "HTTP/1.1";
 	
+	static final int AUTH_HANDLER = 1;
+	static final int DISCOVERY_HANDLER = 2;
+	
 	private boolean _reactorActive;
 	private RestReactorOptions _restReactorOptions = new RestReactorOptions();
 	private final SSLContextBuilder	_sslContextBuilder = new SSLContextBuilder();
@@ -86,7 +99,11 @@ class RestReactor
     private ConnectingIOReactor _ioReactor;
     private BasicNIOConnPool _pool;
     private RestProxyAuthHandler _restProxyAuthHandler;
-        
+
+    private Logger loggerClient = null;
+    private List<StringBuilder> bufferPool = null;
+    Lock lock = new ReentrantLock();
+
     public RestReactor(RestReactorOptions options, ReactorErrorInfo errorInfo)
     {
     	 if (errorInfo == null)
@@ -156,6 +173,9 @@ class RestReactor
          }
     	 
          _reactorActive = true;
+         
+         loggerClient = LoggerFactory.getLogger(this.getClass());
+         bufferPool = new ArrayList<StringBuilder>();
     }
 
     RestReactorOptions restReactorOptions()
@@ -173,6 +193,16 @@ class RestReactor
         	errorInfo.error().text(text);
         return reactorReturnCode;
     }
+
+    public int submitAuthRequest(RestAuthOptions authOptions, final RestConnectOptions restConnectOptions, 
+   		 ReactorAuthTokenInfo authTokenInfo, final ReactorErrorInfo errorInfo,
+   		 boolean redirect, String location)
+  	{
+    	restConnectOptions.authRedirect(redirect);
+    	restConnectOptions.authRedirectLocation(location);
+    	
+    	return submitAuthRequest(authOptions, restConnectOptions, authTokenInfo, errorInfo);
+  	}
     
     public int submitAuthRequest(RestAuthOptions authOptions, final RestConnectOptions restConnectOptions, 
     		 ReactorAuthTokenInfo authTokenInfo, final ReactorErrorInfo errorInfo)
@@ -217,9 +247,14 @@ class RestReactor
 			}
 		}
 
-		final String url = restConnectOptions.tokenServiceURL();
-
-		final RestHandler restHandler = new RestHandler(this, restConnectOptions.restResultClosure());
+		String url;
+		if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+			url = restConnectOptions.authRedirectLocation();
+		} else {
+			url = restConnectOptions.tokenServiceURL();
+		}
+		
+		final RestHandler restHandler = new RestHandler(this, authOptions, restConnectOptions, authTokenInfo, errorInfo);
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
@@ -238,13 +273,17 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
-			
+
 			  requester.execute(
 		                 new BasicAsyncRequestProducer(restConnectOptions.tokenServiceHost(), httpRequest),
 		                 new BasicAsyncResponseConsumer(),
 		                 _pool,
 		                 HttpClientContext.create(),
 		                 restHandler);
+
+			if (loggerClient.isTraceEnabled()) {
+				loggerClient.trace(prepareRequestString(httpRequest, restConnectOptions));
+			}
 		}
 		else
 		{
@@ -284,6 +323,19 @@ class RestReactor
         return ReactorReturnCodes.SUCCESS;
    	}
     
+    public int submitRequestForServiceDiscovery(RestRequest request, 
+    		RestConnectOptions restConnectOptions, ReactorAuthTokenInfo authTokenInfo, 
+    		List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList, 
+    		final ReactorErrorInfo errorInfo,
+    		boolean redirect, String location) 
+    {
+    	restConnectOptions.discoveryRedirect(redirect);
+    	restConnectOptions.discoveryRedirectLocation(location);
+    	
+    	return submitRequestForServiceDiscovery(request, restConnectOptions, authTokenInfo, 
+        		reactorServiceEndpointInfoList, errorInfo);
+    }
+    
     public int submitRequestForServiceDiscovery(RestRequest request, RestConnectOptions restConnectOptions, ReactorAuthTokenInfo authTokenInfo,
     		List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList, final ReactorErrorInfo errorInfo) 
     {
@@ -303,7 +355,7 @@ class RestReactor
     	{
 	    	return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+                    "RestReactor.submitRequestForServiceDiscovery", "failed to submit a request, exception = " + getExceptionCause(e));
     	}
 		
 		Map<String,String> queryParameter = request.queryParameter();
@@ -312,17 +364,22 @@ class RestReactor
 			for (Map.Entry<String,String> entry : queryParameter.entrySet())
 				uriBuilder.setParameter(entry.getKey(), entry.getValue());
 		}
-		
+
 		String url = null;
 		try
 		{
-			url = uriBuilder.build().toString();
+			if ((restConnectOptions.discoveryRedirect()) 
+					&& (restConnectOptions.discoveryRedirectLocation() != null)) {
+				url = restConnectOptions.discoveryRedirectLocation();
+			} else {
+				url = uriBuilder.build().toString();
+			}
 		}
 		catch (URISyntaxException e)
 		{
 			 return populateErrorInfo(errorInfo,
                      ReactorReturnCodes.FAILURE,
-                     "RestReactor.submitRequest", "failed to submit a request, exception = " + getExceptionCause(e));
+                     "RestReactor.submitRequestForServiceDiscovery", "failed to submit a request, exception = " + getExceptionCause(e));
 		}
 		
 		final HttpGet httpRequest = new HttpGet(url);
@@ -337,7 +394,8 @@ class RestReactor
 		
 		httpRequest.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 		
-		final RestHandler restHandler = new RestHandler(this, restConnectOptions.restResultClosure());
+		final RestHandler restHandler = new RestHandler(this, request, restConnectOptions, authTokenInfo, 
+				reactorServiceEndpointInfoList, errorInfo);
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
@@ -353,19 +411,23 @@ class RestReactor
 	             _pool,
 	             HttpCoreContext.create(),
 	             restHandler);
+			
+			if (loggerClient.isTraceEnabled()) {
+				loggerClient.trace(prepareRequestString(httpRequest, restConnectOptions));
+			}
+			
 		}
 		else
 		{
 			final RestProxyAuthHandler proxyAuthHandler = new RestProxyAuthHandler(this, _sslconSocketFactory);
 			new Thread() {
 				public void run() {
-				    
 				    HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 		   			RequestConfig config = RequestConfig.custom()
 		                    .setProxy(proxy)
 		                    .build();
 		   			httpRequest.setConfig(config);
-		   			
+
 		   			try {
 		   				proxyAuthHandler.executeAsync(httpRequest, restConnectOptions, restHandler, errorInfo);
 					} catch (IOException e) {
@@ -502,57 +564,134 @@ class RestReactor
    					entity.setContentType(headers.get(HttpHeaders.CONTENT_TYPE));
    			}
    			
-   			String url = restConnectOptions.tokenServiceURL();
    			RestResponse restResponse = new RestResponse();
 
-   			final HttpPost httppost = new HttpPost(url);
-
-   			httppost.setEntity(entity);
+   			// Initial value of URL is either default one or saved permanent redirect location.
+   			String url = restConnectOptions.tokenServiceURL();
    			
-   			if( (restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
+   			boolean done = false;
+   			int attemptCount = 0;
+   			while ((attemptCount <= 1) && (!done))
    			{
-   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
-	   			RequestConfig config = RequestConfig.custom()
-	                    	.setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
-	                    	.build();
-	   			httppost.setConfig(config);
-	   			
-   				int ret = _restProxyAuthHandler.executeSync(httppost, restConnectOptions, restResponse, errorInfo);
-   				
-   				if( ret == ReactorReturnCodes.SUCCESS)
+   				final HttpPost httppost = new HttpPost(url);
+
+   				httppost.setEntity(entity);
+
+   	   			if( (restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
+   	   			{
+   	   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
+   		   			RequestConfig config = RequestConfig.custom()
+   		                    	.setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
+   		                    	.build();
+   		   			httppost.setConfig(config);
+
+   	   				int ret = _restProxyAuthHandler.executeSync(httppost, restConnectOptions, restResponse, errorInfo);
+
+   	   				if( ret == ReactorReturnCodes.SUCCESS)
+   	   				{
+   	   					ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
+   	   				}
+
+   	   				return ret;
+   	   			}
+   				else
    				{
-   					ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
+   					final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
+   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+   					httppost.setConfig(config);
+   					try
+   					{
+   						if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(prepareRequestString(httppost, restConnectOptions));
+						}
+   						
+						final HttpResponse response = httpClient.execute(httppost);
+		
+		   	   			// Extracting content string for further logging and processing
+		   	   			HttpEntity entityFromResponse = response.getEntity();
+		   	   			String contentString = null;
+		   	   			Exception extractingContentException = null;
+		   	   			try
+		   	   			{
+		   	   				contentString =  EntityUtils.toString(entityFromResponse);
+		   	   			} catch (Exception e)
+		   	   			{
+		   	   				extractingContentException = e;
+		   	   			}
+
+		   	   			if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(prepareResponseString(response, 
+									contentString, extractingContentException));
+						}
+		   	   			
+						int statusCode = response.getStatusLine().getStatusCode();
+		   	   			switch (statusCode) {
+		   	   				case HttpStatus.SC_OK:
+					   			convertResponse(this, response, restResponse, errorInfo,
+					   					contentString, extractingContentException);
+				   				ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
+				   				done = true;
+				   				break;
+		   	   				case HttpStatus.SC_MOVED_PERMANENTLY:
+		   	   				case HttpStatus.SC_MOVED_TEMPORARILY:
+		   	   				case HttpStatus.SC_TEMPORARY_REDIRECT:
+		   	   				case 308:                // HttpStatus.SC_PERMANENT_REDIRECT:
+		   	   					Header header = response.getFirstHeader("Location");
+		   	   	                if( header != null )
+		   	   	                {
+		   	   	                    String newHost = header.getValue();
+		   	   	                    if ( newHost != null )
+		   	   	                    {
+		   	   	                    	url = newHost;
+		   	   	                    	
+		   	   	                    	if ((statusCode == HttpStatus.SC_MOVED_PERMANENTLY) || (statusCode == 308)) {
+		   	   	                    		Buffer newUrl = CodecFactory.createBuffer();
+		   	   	                    		newUrl.data(newHost);
+		   	   	                    		restConnectOptions.reactorOptions().tokenServiceURL(newUrl);
+		   	   	                    	}
+		   	   	                    }
+		   	   	                    
+		   	   	                    done = false;
+		   	   	                    break;
+		   	   	                }
+		   	   	                else
+		   	   	                {
+		   	   	                	populateErrorInfo(errorInfo,
+		   	   	                		ReactorReturnCodes.FAILURE,
+		   	   	                		"RestReactor.submitAuthRequestBlocking", 
+		   	   	                		"Failed to request authentication token information. " 
+		   	   	                		+ "Malformed redirection response.");
+
+		   	   	                	return ReactorReturnCodes.FAILURE;
+		   	   	                }
+		   	   	                			
+		   	   				case HttpStatus.SC_FORBIDDEN:
+		   	   				case 451: //  Unavailable For Legal Reasons
+		   	   				default:
+				   				populateErrorInfo(errorInfo,
+		                                ReactorReturnCodes.FAILURE,
+		                                "RestReactor.submitAuthRequestBlocking",
+		                                "Failed to request authentication token information. Text: "
+		                                +  (Objects.nonNull(contentString) ? contentString : ""));
+				   				return ReactorReturnCodes.FAILURE;
+		   	   			}
+   					}
+   					finally
+   					{
+   						httpClient.close();
+   					}
    				}
-   				
-   				return ret;
-   			}
-   			else
-   			{
-   				final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
-   				RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
-   				httppost.setConfig(config);
-   				try
-   				{
-		   			final HttpResponse response = httpClient.execute(httppost);
-		   			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-		   			{
-		   				return populateErrorInfo(errorInfo,   				
-		                            ReactorReturnCodes.FAILURE,
-		                            "RestReactor.submitAuthRequestBlocking", 
-		                            "Failed to request authentication token information. Text: " 
-		                            + EntityUtils.toString(response.getEntity()));
-		   			}
-		   			else
-		   			{
-			   			convertResponse(this, response, restResponse, errorInfo);
-		   				ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
-		   			}
-   				}
-   				finally
-   				{
-   					httpClient.close();
-   				}
-   			}
+   				attemptCount++;
+   			}	
+			if ((attemptCount > 1) && (!done)) {
+				populateErrorInfo(errorInfo,
+                        ReactorReturnCodes.FAILURE,
+                        "RestReactor.submitAuthRequestBlocking",
+                        "Failed to request authentication token information. "
+                        + "Too many redirect attempts.");
+
+				return ReactorReturnCodes.FAILURE;
+			}
    		}
    		catch(JSONException | ParseException | IOException e)
    		{
@@ -581,9 +720,9 @@ class RestReactor
                     "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
     	
     	URIBuilder uriBuilder = null;
-    	
     	try {
-    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL());    		
+    		
+   			uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL());    		
     	}
     	catch (Exception e)
     	{
@@ -616,56 +755,136 @@ class RestReactor
 
 			String token = authTokenInfo.accessToken();
 			RestResponse restResponse = new RestResponse();
-			
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
-		
-			if((restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
-   			{
-   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
-	   			RequestConfig config = RequestConfig.custom()
-	                    .setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
-	                    .build();
-	   			httpget.setConfig(config);
-	   			
-   				int ret = _restProxyAuthHandler.executeSync(httpget, restConnectOptions, restResponse, errorInfo);
-   				
-   				if(ret == ReactorReturnCodes.SUCCESS)
-   				{
-   					RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
-   				}
-   				
-   				return ret;
-   			}
-   			else
-   			{
-   				final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
-   				RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
-	   			httpget.setConfig(config);
-   				try
-   				{
-	   				HttpResponse response = httpClient.execute(httpget);
+   			boolean done = false;
+   			int attemptCount = 0;
+   			while ((attemptCount <= 1) && (!done)) {
+				httpget.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 
-	   				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-					{
-		   				populateErrorInfo(errorInfo,   				
-		                        ReactorReturnCodes.FAILURE,
-		                        "RestReactor.submitServiceDiscoveryRequestBlocking", 
-		                        "Failed to request service discovery information. Text: " 
-		                        + EntityUtils.toString(response.getEntity()));
-		   				
-		   				return ReactorReturnCodes.FAILURE;
-					}
-					else
-					{
-		   				convertResponse(this, response, restResponse, errorInfo);
-		   				RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
-					}
-   				}
-   				finally
+				if((restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
    				{
-   					httpClient.close();
+   					HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
+	   				RequestConfig config = RequestConfig.custom()
+	                        .setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
+	                        .build();
+	   				httpget.setConfig(config);
+
+   					int ret = _restProxyAuthHandler.executeSync(httpget, restConnectOptions, restResponse, errorInfo);
+
+   					if(ret == ReactorReturnCodes.SUCCESS)
+   					{
+   						RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
+   					}
+
+   					return ret;
    				}
-   			}
+   				else
+   				{
+   					final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
+   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+	   				httpget.setConfig(config);
+   					try
+   					{
+   						if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(prepareRequestString(httpget, restConnectOptions));
+						}
+   						
+						final HttpResponse response = httpClient.execute(httpget);
+
+		   	   			// Extracting content string for further logging and processing
+		   	   			HttpEntity entityFromResponse = response.getEntity();
+		   	   			String contentString = null;
+		   	   			Exception extractingContentException = null;
+		   	   			try
+		   	   			{
+		   	   				contentString =  EntityUtils.toString(entityFromResponse);
+		   	   			} catch (Exception e)
+		   	   			{
+		   	   				extractingContentException = e;
+		   	   			}
+	   					
+	   					if (loggerClient.isTraceEnabled()) {
+							loggerClient.trace(
+									prepareResponseString(response, contentString, 
+											extractingContentException));
+						}
+	   					
+						int statusCode = response.getStatusLine().getStatusCode();
+		   	   			switch (statusCode) {
+	   	   					case HttpStatus.SC_OK:
+	   	   						convertResponse(this, response, restResponse, errorInfo,
+					   					contentString, extractingContentException);
+	   	   						RestClient.parseServiceDiscovery(restResponse, reactorServiceEndpointInfoList);
+	   	   						done = true;
+	   	   						break;
+	   	   					case HttpStatus.SC_MOVED_PERMANENTLY:
+	   	   					case HttpStatus.SC_MOVED_TEMPORARILY:
+	   	   					case HttpStatus.SC_TEMPORARY_REDIRECT:
+	   	   					case 308:                // HttpStatus.SC_PERMANENT_REDIRECT:
+	   	   						Header header = response.getFirstHeader("Location");
+	   	   						if( header != null )
+	   	   						{
+	   	   							String newHost = header.getValue();
+	   	   							if ( newHost != null )
+	   	   							{ 
+	   	   								try {
+	   	   									uriBuilder = new URIBuilder(newHost);
+	   	   								}
+	   	   								catch (Exception e)
+	   	   								{
+	   	   									return populateErrorInfo(errorInfo,
+	   	   											ReactorReturnCodes.FAILURE,
+	   	   											"RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+	   	   								}
+
+	   	   								if ((statusCode == HttpStatus.SC_MOVED_PERMANENTLY) || (statusCode == 308)) {
+		   	   	                    		Buffer newUrl = CodecFactory.createBuffer();
+		   	   	                    		newUrl.data(newHost);
+		   	   	                    		restConnectOptions.reactorOptions().serviceDiscoveryURL(newUrl);
+	   	   								}
+	   	   							}
+	   	   							
+	   	   							done = false;
+	   								break;
+	   	   						}
+	   	   						else
+	   	   						{
+	   	   							populateErrorInfo(errorInfo,
+	   	   								ReactorReturnCodes.FAILURE,
+	   	   								"RestReactor.submitServiceDiscoveryRequestBlocking", 
+	   	   								"Failed to request service discovery information. " 
+	   	   										+ "Malformed redirection response.");
+	   	   							return ReactorReturnCodes.FAILURE;
+	   	   						}
+	   	   						
+	   	   				case HttpStatus.SC_FORBIDDEN:
+	   	   				case 451: //  Unavailable For Legal Reasons
+	   	   				default:
+	   	   						populateErrorInfo(errorInfo,
+	   	   								ReactorReturnCodes.FAILURE,
+	   	   								"RestReactor.submitServiceDiscoveryRequestBlocking", 
+	   	   								"Failed to request service discovery information. Text: " 
+	   	   								+ (Objects.nonNull(contentString) ? contentString : ""));
+
+	   	   						return ReactorReturnCodes.FAILURE;
+		   	   			}
+
+   					}
+   					finally
+   					{
+   						httpClient.close();
+   					}
+   				}
+				attemptCount++;
+   			}	
+			if ((attemptCount > 1) && (!done)) {
+				populateErrorInfo(errorInfo,
+                        ReactorReturnCodes.FAILURE,
+                        "RestReactor.submitServiceDiscoveryRequestBlocking", 
+                        "Failed to request service discovery information. " 
+                        + "Too many redirect attempts.");
+
+				return ReactorReturnCodes.FAILURE;
+			}
    		}
 	    catch (URISyntaxException e)
 		{
@@ -690,20 +909,18 @@ class RestReactor
    		return ReactorReturnCodes.SUCCESS;
    	}
     
-    static int convertResponse(RestReactor RestReactor, HttpResponse response, RestResponse clientResponse, ReactorErrorInfo errorInfo)
+    static int convertResponse(RestReactor RestReactor, HttpResponse response, RestResponse clientResponse,
+    		ReactorErrorInfo errorInfo, String entityString, Exception extractingContentException)
     {
-    	HttpEntity entity = response.getEntity();
-    	String entityString = null;
-    	try
-		{
-			entityString =  EntityUtils.toString(entity);
-		} catch (ParseException | IOException e)
-    	{
+    	if (extractingContentException != null) {
 			return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
-                    "RestHandler.handleResponse", "failed to convert entity to json object, exception = " + getExceptionCause(e));
+                    "RestHandler.handleResponse", "failed to convert entity to json object, exception = " 
+                    + getExceptionCause(extractingContentException));
     	}
     	
+    	HttpEntity entity = response.getEntity();
+
 		StatusLine statusLine = response.getStatusLine();
 		
 		clientResponse.statusCode(statusLine.getStatusCode());
@@ -756,5 +973,179 @@ class RestReactor
 		}
 		return cause;
     }
+
     
+    public String prepareRequestString(AbstractHttpMessage request,
+    		RestConnectOptions restConnectOptions) {
+    	StringBuilder requestLogBuffer = null;
+    	try {
+    		lock.lock();
+    		requestLogBuffer = extractFromPool();
+    	} finally {
+    		lock.unlock();
+    	}
+    	
+    	requestLogBuffer.setLength(0);
+    	
+    	requestLogBuffer.append("The next HTTP request was sent\n"); 
+    	requestLogBuffer.append(request.toString() + "\n"); 
+    	Header[] headers = request.getAllHeaders();
+    	for(Header header : headers) {
+    		requestLogBuffer.append("    " + header.getName());
+    		requestLogBuffer.append(": ");
+    		requestLogBuffer.append(header.getValue());
+    		requestLogBuffer.append("\n");
+    	}
+    	
+    	if (restConnectOptions.proxyHost() != null) {
+    		requestLogBuffer.append("    Proxy:\n");
+    		requestLogBuffer.append("        Proxy host: " + restConnectOptions.proxyHost());
+    		requestLogBuffer.append("\n");
+    		requestLogBuffer.append("        Proxy port: " + restConnectOptions.proxyPort());
+    		requestLogBuffer.append("\n");
+    		String proxyUser = restConnectOptions.proxyUserName();
+    		if (proxyUser != null ) {
+    			requestLogBuffer.append("        Proxy user: " + proxyUser);
+    			requestLogBuffer.append("\n");
+    		}
+    		String proxyPassword = restConnectOptions.proxyPassword();
+    		if (proxyPassword != null) {
+    			requestLogBuffer.append("        *** proxy password ***" + proxyUser);
+    			requestLogBuffer.append("\n");   			
+    		}
+    	} else {
+    		requestLogBuffer.append("    No proxy is used\n");
+    	}
+    	
+    	HttpEntity entity = null;
+    	if (HttpEntityEnclosingRequestBase.class.isAssignableFrom(request.getClass())) {
+			entity = ((HttpEntityEnclosingRequestBase) request).getEntity();
+    	}
+    	if (BasicHttpEntityEnclosingRequest.class.isAssignableFrom(request.getClass())) {
+			entity = ((BasicHttpEntityEnclosingRequest) request).getEntity();
+    	}
+	    if (entity != null) {
+			Header contentEncoding = entity.getContentEncoding();
+			if (contentEncoding != null) {
+				requestLogBuffer.append("    " + contentEncoding.getName());
+				requestLogBuffer.append(": ");
+				requestLogBuffer.append(contentEncoding.getValue());
+				requestLogBuffer.append("\n");
+			}
+			requestLogBuffer.append("    ContentLength: " + entity.getContentLength());
+			requestLogBuffer.append("\n");
+			Header contentType = entity.getContentType();
+			if (contentType != null) {
+				requestLogBuffer.append("    " + contentType.getName());
+				requestLogBuffer.append(": ");
+				requestLogBuffer.append(contentType.getValue());
+				requestLogBuffer.append("\n");
+			}
+			String contentString = null;
+			boolean parsed = false;
+			try {
+				contentString = EntityUtils.toString(entity);
+				parsed = true;
+			} catch (ParseException e) {
+				requestLogBuffer.append("    Invalid content of request:\n");
+				parsed = false;
+			} catch (IOException e) {
+				requestLogBuffer.append("    Invalid content of request:\n");
+				parsed = false;
+
+			}
+			if ((contentString != null) && !contentString.isEmpty() && parsed) {
+				requestLogBuffer.append("    Content of request:\n");
+
+				String[] contentComponents = contentString.split("&");
+				for (String component : contentComponents) {
+					String[] nameValue = component.split("=");
+
+					if ("password".equals(nameValue[0])) {
+						nameValue[1] = "<*** password ***>";
+					}
+					if ("newPassword".equals(nameValue[0])) {
+						nameValue[1] = "<*** newPassword ***>";
+					}
+					if ("client_secret".equals(nameValue[0])) {
+						nameValue[1] = "<*** client_secret ***>";
+					}
+
+					requestLogBuffer.append("        " + nameValue[0] + ": " + nameValue[1]);
+					requestLogBuffer.append("\n");
+				}
+			} 
+		}
+    	requestLogBuffer.append("\n");
+ 
+    	String returnString = requestLogBuffer.toString();
+    	try {
+    		lock.lock();
+    		returnToPool(requestLogBuffer);
+    	} finally {
+    		lock.unlock();
+    	} 
+    	
+    	return returnString;
+    }
+    
+    public String prepareResponseString(HttpResponse response, String contentString, 
+    		Exception extractingContentException) {
+    	StringBuilder responseLogBuffer = null;
+    	try {
+    		lock.lock();
+    		responseLogBuffer = extractFromPool();
+    	} finally {
+    		lock.unlock();
+    	}
+    	
+    	responseLogBuffer.setLength(0);
+
+    	responseLogBuffer.append("The next HTTP response was received\n"); 
+    	responseLogBuffer.append(response.getStatusLine() + "\n"); 
+    	Header[] headers = response.getAllHeaders();
+    	for(Header header : headers) {
+    		responseLogBuffer.append("    " + header.getName());
+    		responseLogBuffer.append(": ");
+    		responseLogBuffer.append(header.getValue());
+    		responseLogBuffer.append("\n");
+    	}
+    	HttpEntity entity = response.getEntity();
+    	if (entity != null) {
+    		if ((contentString != null) && (!contentString.isEmpty())) {
+    			responseLogBuffer.append("    Content string:\n");
+    			responseLogBuffer.append("        " + contentString + "\n");
+    		} else {
+    			if (extractingContentException == null) {
+    				responseLogBuffer.append("    Content string is empty\n");
+    			} else {
+    				responseLogBuffer.append("    The next exception is thrown while reading content string:\n");
+    				responseLogBuffer.append("    " + getExceptionCause(extractingContentException));
+    				responseLogBuffer.append("\n");
+    			}
+    		}
+    		
+    	}	
+    	responseLogBuffer.append("\n");
+   
+    	String returnString = responseLogBuffer.toString();
+    	try {
+    		lock.lock();
+    		returnToPool(responseLogBuffer);
+    	} finally {
+    		lock.unlock();
+    	}    	
+    	
+    	return returnString;
+    }
+    
+    private StringBuilder extractFromPool() {
+    	return bufferPool.isEmpty() ? new StringBuilder() : bufferPool.remove(bufferPool.size() - 1);
+    }
+    
+    private void returnToPool(StringBuilder buffer) {
+    	if (!bufferPool.contains(buffer)) {
+    		bufferPool.add(buffer);
+    	}
+    }
 }

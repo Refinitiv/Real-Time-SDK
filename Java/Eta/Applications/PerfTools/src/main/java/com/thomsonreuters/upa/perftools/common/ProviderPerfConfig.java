@@ -18,11 +18,11 @@ public class ProviderPerfConfig
     private static int                 _packingBufferLength;         // Size of packable buffer, if packing.
     private static int                 _refreshBurstSize;            // Number of refreshes to send in a burst(controls granularity of time-checking) 
     private static int                 _updatesPerSec;               // Total update rate per second(includes latency updates).
-	private static int                 _updatesPerTick;              // Updates per tick
-	private static int                 _updatesPerTickRemainder;     // Updates per tick (remainder)
+    private static int                 _updatesPerTick;              // Updates per tick
+    private static int                 _updatesPerTickRemainder;     // Updates per tick (remainder)
     private static int                 _genMsgsPerSec;               // Total generic msg rate per second(includes latency generic msgs).
-	private static int                 _genMsgsPerTick;              // Generic msgs per tick
-	private static int                 _genMsgsPerTickRemainder;     // Generic msgs per tick (remainder)
+    private static int                 _genMsgsPerTick;              // Generic msgs per tick
+    private static int                 _genMsgsPerTickRemainder;     // Generic msgs per tick (remainder)
     
     private static int                 _latencyUpdateRate;           // Total latency update rate per second
     private static int                 _latencyGenMsgRate;           // Total latency generic msg rate per second
@@ -47,11 +47,13 @@ public class ProviderPerfConfig
     private static String              _summaryFilename;             // Summary file
     private static String              _statsFilename;               // Stats file
     private static String              _latencyFilename;             // Latency file
-	private static boolean             _logLatencyToFile;            // Whether to log update latency information to a file
+    private static boolean             _logLatencyToFile;            // Whether to log update latency information to a file
     private static int                 _writeStatsInterval;          // Controls how often statistics are written 
     private static boolean             _displayStats;                // Controls whether stats appear on the screen
     private static boolean             _directWrite;                 // direct write enabled
     private static boolean             _useReactor;                  // Use the VA Reactor instead of the UPA Channel for sending and receiving.
+    private static int                 _tunnelStreamOutputBuffers;   // Tunnel Stream Guaranteed Output Buffers.
+    private static boolean             _tunnelStreamBufsUsed;        // Control whether to print tunnel Stream buffers usage.
 
     static
     {
@@ -87,6 +89,8 @@ public class ProviderPerfConfig
         CommandLine.addOption("runTime", 360, "Runtime of the application, in seconds");
         CommandLine.addOption("threads", 1, "Number of provider threads to create");
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
+        CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
     }
 
     private ProviderPerfConfig()
@@ -161,7 +165,9 @@ public class ProviderPerfConfig
             _packingBufferLength = CommandLine.intValue("packBufSize");
             _highWaterMark = CommandLine.intValue("highWaterMark");
             _sendBufSize = CommandLine.intValue("sendBufSize");
-            _recvBufSize = CommandLine.intValue("recvBufSize");        	
+            _recvBufSize = CommandLine.intValue("recvBufSize");
+            _tunnelStreamOutputBuffers = CommandLine.intValue("tunnelStreamOutputBufs");
+            _tunnelStreamBufsUsed = CommandLine.booleanValue("tunnelStreamBuffersUsed");
         }
         catch (NumberFormatException ile)
         {
@@ -247,39 +253,41 @@ public class ProviderPerfConfig
     private static void createConfigString(BindOptions bindOptions)
     {
         _configString = "--- TEST INPUTS ---\n\n" +
-                "       Steady State Time: " + _runTime + " sec\n" +
-                "                    Port: " + _portNo + "\n" +
-                "            Thread Count: " + _threadCount + "\n" +
-                "          Output Buffers: " + _guaranteedOutputBuffers 
+            "          Steady State Time: " + _runTime + " sec\n" +
+            "                       Port: " + _portNo + "\n" +
+            "               Thread Count: " + _threadCount + "\n" +
+            "             Output Buffers: " + _guaranteedOutputBuffers 
                                              + (bindOptions == null ? "" : "(effective = " + bindOptions.guaranteedOutputBuffers() + ")")
                                              + "\n" +
-                "      Max Output Buffers: " + _maxOutputBuffers + ((_maxOutputBuffers > 0)? "" : "(use default)") 
+            "         Max Output Buffers: " + _maxOutputBuffers + ((_maxOutputBuffers > 0)? "" : "(use default)") 
                                              + (bindOptions == null ? "" : "(effective = " + bindOptions.maxOutputBuffers() + ")")
                                              + "\n" +
-                "       Max Fragment Size: " + _maxFragmentSize + "\n" +
-                "        Send Buffer Size: " + _sendBufSize + ((_sendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
-                "        Recv Buffer Size: " + _recvBufSize + ((_recvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
-                "          Interface Name: " + (_interfaceName.length() > 0 ? _interfaceName : "(use default)") + "\n" +
-                "             Tcp_NoDelay: " + (_tcpNoDelay ? "Yes" : "No") + "\n" +
-                "               Tick Rate: " + _ticksPerSec + "\n" +
-                "       Use Direct Writes: " + (_directWrite ? "Yes" : "No") + "\n" +
-                "         High Water Mark: " + _highWaterMark + ((_highWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
-                "            Latency File: " + _latencyFilename + "\n" +
-                "            Summary File: " + _summaryFilename + "\n" +
-                "    Write Stats Interval: " + _writeStatsInterval + "\n" +
-                "              Stats File: " + _statsFilename + "\n" +
-                "           Display Stats: " + _displayStats + "\n" + 
-                "             Update Rate: " + _updatesPerSec + "\n" +
-                "     Latency Update Rate: " + _latencyUpdateRate + "\n" +
-                "        Generic Msg Rate: " + _genMsgsPerSec + "\n" +
-                "Generic Msg Latency Rate: " + _latencyGenMsgRate + "\n" +
-                "      Refresh Burst Size: " + _refreshBurstSize + "\n" +
-                "               Data File: " + _msgFilename + "\n" +
-                "                 Packing: " + (_totalBuffersPerPack <= 1 ? "No" :  "Yes(max " + _totalBuffersPerPack  + " per pack, " + _packingBufferLength +" buffer size)") + "\n" +
-                "            Service Name: " + _serviceName + "\n" +
-                "              Service ID: " + _serviceId + "\n" +
-                "              Open Limit: " + _openLimit + "\n" +
-                "             Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
+            "          Max Fragment Size: " + _maxFragmentSize + "\n" +
+            "           Send Buffer Size: " + _sendBufSize + ((_sendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+            "           Recv Buffer Size: " + _recvBufSize + ((_recvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+            "             Interface Name: " + (_interfaceName.length() > 0 ? _interfaceName : "(use default)") + "\n" +
+            "                Tcp_NoDelay: " + (_tcpNoDelay ? "Yes" : "No") + "\n" +
+            "                  Tick Rate: " + _ticksPerSec + "\n" +
+            "          Use Direct Writes: " + (_directWrite ? "Yes" : "No") + "\n" +
+            "            High Water Mark: " + _highWaterMark + ((_highWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
+            "               Latency File: " + _latencyFilename + "\n" +
+            "               Summary File: " + _summaryFilename + "\n" +
+            "       Write Stats Interval: " + _writeStatsInterval + "\n" +
+            "                 Stats File: " + _statsFilename + "\n" +
+            "              Display Stats: " + _displayStats + "\n" + 
+            "                Update Rate: " + _updatesPerSec + "\n" +
+            "        Latency Update Rate: " + _latencyUpdateRate + "\n" +
+            "           Generic Msg Rate: " + _genMsgsPerSec + "\n" +
+            "   Generic Msg Latency Rate: " + _latencyGenMsgRate + "\n" +
+            "         Refresh Burst Size: " + _refreshBurstSize + "\n" +
+            "                  Data File: " + _msgFilename + "\n" +
+            "                    Packing: " + (_totalBuffersPerPack <= 1 ? "No" :  "Yes(max " + _totalBuffersPerPack  + " per pack, " + _packingBufferLength +" buffer size)") + "\n" +
+            "               Service Name: " + _serviceName + "\n" +
+            "                 Service ID: " + _serviceId + "\n" +
+            "                 Open Limit: " + _openLimit + "\n" +
+            "TunnelStream Output Buffers: " + _tunnelStreamOutputBuffers + "\n" +
+            "Print TunnelStream Bufs Used: " + (_tunnelStreamBufsUsed ? "Yes" : "No") + "\n" +
+            "                Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
     }
 
     /**
@@ -493,6 +501,16 @@ public class ProviderPerfConfig
     public static int guaranteedOutputBuffers()
     {
         return _guaranteedOutputBuffers;
+    }
+    
+    /**
+     *  Tunnel Stream Guaranteed Output Buffers.
+     *
+     * @return the int
+     */
+    public static int tunnelStreamGuaranteedOutputBuffers()
+    {
+        return _tunnelStreamOutputBuffers;
     }
     
     /**
@@ -869,4 +887,14 @@ public class ProviderPerfConfig
     {
         return _useReactor;
     }
+    
+    /**
+	 *  Control to print TunnelStream Usage Buffers.
+	 *
+	 * @return the boolean
+	 */
+	public static boolean tunnelStreamBufsUsed()
+	{
+		return _tunnelStreamBufsUsed;
+	}
 }

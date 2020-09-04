@@ -3,8 +3,10 @@ package com.thomsonreuters.upa.perftools.common;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Objects;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
@@ -18,6 +20,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 /**
  * ProviderThreads are used to control individual threads. Each thread handles
@@ -57,7 +61,9 @@ public class ProviderThread extends Thread
 	
     private ReactorSubmitOptions        _submitOptions;                     // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ReactorErrorInfo            _errorInfo;                         // Use the VA Reactor instead of the UPA Channel for sending and receiving
- 
+    private TunnelStreamSubmitOptions	_tunnelStreamSubmitOptions;         // Use the VA Reactor tunnel stream for submitting messages.
+    private TunnelStreamInfo 			_tunnelStreamInfo;
+    
     /**
      * Instantiates a new provider thread.
      *
@@ -87,6 +93,9 @@ public class ProviderThread extends Thread
         _submitOptions.writeArgs().priority(WritePriorities.HIGH);
         _submitOptions.writeArgs().flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
         _errorInfo = ReactorFactory.createReactorErrorInfo();
+        _tunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
+        _tunnelStreamSubmitOptions.containerType(DataTypes.MSG);
+        _tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
     }
 
     /**
@@ -236,14 +245,30 @@ public class ProviderThread extends Thread
         }
         else // use UPA VA Reactor for sending and receiving
         {
-            int retval = session.clientChannelInfo().reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+            int retval = ReactorReturnCodes.SUCCESS;
+            		
+            if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+            {
+            	retval = session.clientChannelInfo().reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+            }
+            else
+            {
+            	retval = session.clientChannelInfo().tunnelStream.submit(session.writingBuffer(), _tunnelStreamSubmitOptions, _errorInfo);
+            }
 
             if (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
             {
                 //call flush and write again until there is data in the queue
                 while (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
                 {
-                    retval = session.clientChannelInfo().reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+                	if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+                	{
+                		retval = session.clientChannelInfo().reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
+                	}
+                	else
+                	{
+                		retval = session.clientChannelInfo().tunnelStream.submit(session.writingBuffer(), _tunnelStreamSubmitOptions, _errorInfo);
+                	}
                 }
             }
             else if (retval < ReactorReturnCodes.SUCCESS)
@@ -282,7 +307,7 @@ public class ProviderThread extends Thread
      */
     public int getItemMsgBuffer(ProviderSession session, int length, Error error)
     {
-        if(ProviderPerfConfig.totalBuffersPerPack() == 1)  // Not packing
+        if(ProviderPerfConfig.totalBuffersPerPack() == 1 || Objects.nonNull(session.clientChannelInfo().tunnelStream))  // Not packing or tunnel stream
         {
             int ret = getNewBuffer(session, length, error);
             if(ret < TransportReturnCodes.SUCCESS)
@@ -366,7 +391,14 @@ public class ProviderThread extends Thread
        {
            if (session.clientChannelInfo().reactorChannel.state() == ReactorChannel.State.READY)
            {
-               msgBuf = session.clientChannelInfo().reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+        	   if(Objects.isNull(session.clientChannelInfo().tunnelStream))
+        	   {
+        		   msgBuf = session.clientChannelInfo().reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+        	   }
+        	   else
+        	   {
+        		   msgBuf = session.clientChannelInfo().tunnelStream.getBuffer(length, _errorInfo);
+        	   }
            }
            else
            {
@@ -402,9 +434,20 @@ public class ProviderThread extends Thread
        // Make sure we stop packing at the end of a burst of updates
        // in case the next burst is for a different channel. 
        // (This will also prevent any latency updates from sitting in the pack for a tick).
-       if(session.packedBufferCount() == (ProviderPerfConfig.totalBuffersPerPack() -1) || !allowPack)
+       if(session.packedBufferCount() == (ProviderPerfConfig.totalBuffersPerPack() -1) || !allowPack || Objects.nonNull(session.clientChannelInfo().tunnelStream))
        {
-          return writeCurrentBuffer(session, error);
+          int ret = writeCurrentBuffer(session, error);
+          
+          /* Gets tunnel stream buffer usage */
+          if(ProviderPerfConfig.tunnelStreamBufsUsed() && Objects.nonNull(session.clientChannelInfo().tunnelStream))
+          {
+        	  if (session.clientChannelInfo().tunnelStream.info(_tunnelStreamInfo, _errorInfo) == ReactorReturnCodes.SUCCESS)
+        	  {
+          			getProvThreadInfo().stats().tunnelStreamBufUsageStats().update(_tunnelStreamInfo.buffersUsed());
+        	  }
+          }
+          
+          return ret;
        }
        else
        {

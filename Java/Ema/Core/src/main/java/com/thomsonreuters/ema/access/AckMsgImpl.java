@@ -11,10 +11,12 @@ import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class AckMsgImpl extends MsgImpl implements AckMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = AckMsgImpl.class.getCanonicalName() + ".AckMsgImpl(AckMsg  other)";
 	private final static String ACCESSDENIED_STRING = "AccessDenied";
 	private final static String DENIEDBYSOURCE_STRING = "DeniedBySource";
 	private final static String SOURCEDOWN_STRING = "SourceDown";
@@ -43,41 +45,38 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	
 	AckMsgImpl(AckMsg other)
 	{
-		super(DataTypes.ACK_MSG, new EmaObjectManager());
-		
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.AckMsgImpl.AckMsgImpl(AckMsg other)");
-		
-		// Set the decoded values from the clone buffer to the encoder
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.AckMsgImpl.AckMsgImpl(AckMsg other)");
-		
-		if (hasMsgKey() || other.hasMsgKey())
+		super((MsgImpl)other, CLONE_CONSTRUCTOR_NAME);
+
+		if (other.hasMsgKey())
 		{
-			if (hasName())
-				name(name());
+			if (other.hasName())
+				name(other.name());
 
-			if (hasNameType())
-				nameType(nameType());
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasId())
-				id(id());
+			if (other.hasId())
+				id(other.id());
 
-			if (hasFilter())
-				filter(filter());
+			if (other.hasFilter())
+				filter(other.filter());
 
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
+			if(other.attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
 		}
 
-		domainType(domainType());
+		domainType(other.domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
@@ -85,9 +84,10 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 		if (other.hasText())
 			text(other.text());
 
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 	
 	@Override
@@ -394,7 +394,7 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -447,6 +447,8 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 

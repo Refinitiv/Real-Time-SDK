@@ -137,6 +137,9 @@ OPENSSL_SSL_CTX* ripcSSLSetupCTXClient(ripcSSLProtocolFlags version, RsslSocketC
 
 OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerSocketChannel* chnl, RsslError *error);
 
+RsslInt32 ripcGetCountInitializeSSLServer();
+
+RsslInt32 ripcGetCountReleaseSSLServer();
 
 #ifdef __cplusplus
 } /* extern "C" */

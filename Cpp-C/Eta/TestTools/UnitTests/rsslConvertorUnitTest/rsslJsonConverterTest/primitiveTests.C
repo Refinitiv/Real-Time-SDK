@@ -17,7 +17,7 @@
 
 /* Suppress warning C4756: overflow in constant arithmetic that occurs only on VS2013 */
 #if defined(WIN32) &&  _MSC_VER == 1800
-#pragma warning( disable : 4056)
+#pragma warning( disable : 4056 4756)
 #endif
 
 #ifdef WIN32
@@ -796,7 +796,6 @@ TEST_P(InvalidUintStringTestFixture, InvalidUintStringTests)
 
 	/* Build message containing the invalid UINT64 value. */
 
-	/* ESDK-3860 */
 	jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"EUROCLR_NO\":");
 	jsonStringStream << uintString << "}}";
 
@@ -845,7 +844,7 @@ TEST_P(InvalidUintParserTestFixture, InvalidUintParserTests)
 	ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON parser error:"));
 }
 
-/* ESDK-3860 : Should add additional test inputs for others invalid UInt type such as $, #, A as well. */
+/* Added additional test inputs for others invalid UInt type such as $, #, A as well. */
 INSTANTIATE_TEST_CASE_P(PrimitiveTests, InvalidUintParserTestFixture, ::testing::Values(
 	"$",
 	"#",

@@ -22,7 +22,8 @@
  * In this module, the application initializes the UPA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
- * the Enterprise Platform, Data Feed Direct, and Elektron.
+ * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
+ * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
@@ -92,6 +93,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.thomsonreuters.upa.codec.Codec;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -254,11 +256,10 @@ public class Module_1b_Ping
             Transport.uninitialize();
             System.exit(TransportReturnCodes.FAILURE);
         }
-        else
-        {
 
-            System.out.printf("Channel successfully connected to server.\n");
-        }
+        int channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+        System.out.printf("Channel IPC descriptor = %d\n", channelFDValue);
+
         opMask |= SelectionKey.OP_READ;
         opMask |= SelectionKey.OP_CONNECT;
 
@@ -342,7 +343,7 @@ public class Module_1b_Ping
                          */
                         if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                         {
-                            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                             closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                         }
                         else
@@ -368,7 +369,9 @@ public class Module_1b_Ping
                                          * to InitChannel are required to complete it.
                                          */
                                         opMask = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
-                                        System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                        final int oldChannelFDValue = channelFDValue;
+                                        channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                        System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
                                         try
                                         {
                                             key = inProgInfo.oldSelectableChannel().keyFor(selector);
@@ -391,7 +394,7 @@ public class Module_1b_Ping
                                     }
                                     else
                                     {
-                                        System.out.printf("Channel init in progress...\n");
+                                        System.out.printf("Channel %d in progress...\n", channelFDValue);
                                     }
                                 }
                                     break;
@@ -401,17 +404,18 @@ public class Module_1b_Ping
                                  */
                                 case TransportReturnCodes.SUCCESS:
                                 {
-                                    System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+                                    System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", channelFDValue);
 
                                     /* Populate information from channel */
                                     if ((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
                                     {
-                                        System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                                        System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                                         closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                                     }
 
                                     /* Print out basic channel info */
-                                    System.out.printf("\nChannel Info:\n" + "Max Fragment Size:         %d\n" + "Max Output Buffers:        %d, %d  Guaranteed\n" + "Input Buffers:             %d\n" + "Send/Receive Buffer Sizes: %d/%d\n" + "Ping Timeout:              %d\n",
+                                    System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+                                                      channelFDValue,
                                                       channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
                                                       channelInfo.maxOutputBuffers(), /* This is the maximum number of output buffers available to the channel. */
                                                       channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
@@ -419,6 +423,8 @@ public class Module_1b_Ping
                                                       channelInfo.sysSendBufSize(), /*  This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
                                                       channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
                                                       channelInfo.pingTimeout()); /* This is the value of the negotiated ping timeout */
+
+                                    System.out.printf("Connected component version: ");
 
                                     int count = channelInfo.componentInfo().size();
                                     if (count == 0)
@@ -436,7 +442,7 @@ public class Module_1b_Ping
                                     break;
                                 default: /* Error handling */
                                 {
-                                    System.out.printf("Unexpected init return code: %d\n", retCode);
+                                    System.out.printf("Bad return value fd=%d: <%s>\n", channelFDValue, TransportReturnCodes.toString(retCode));
                                     /* Closes channel, closes server, cleans up and exits the application. */
                                     closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
                                 }
@@ -554,7 +560,9 @@ public class Module_1b_Ping
                                     /* Switch to a new channel if required */
                                     case TransportReturnCodes.READ_FD_CHANGE:
                                         opMask = SelectionKey.OP_READ;
-                                        System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                        final int oldChannelFDValue = channelFDValue;
+                                        channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                        System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
                                         try
                                         {
                                             key = channel.selectableChannel().keyFor(selector);
@@ -655,6 +663,7 @@ public class Module_1b_Ping
      *********************************************************/
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, int code)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
         /*********************************************************
          * Client/Consumer Application Lifecycle Major Step 5: Close connection
@@ -673,9 +682,8 @@ public class Module_1b_Ping
             System.out.printf("Exception %s\n", e.getMessage());
         }
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -690,12 +698,18 @@ public class Module_1b_Ping
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("Consumer application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         if (code == TransportReturnCodes.SUCCESS)
         {
             System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
         }
 
-        System.exit(code);
+        System.exit(0);
     }
 
     /*

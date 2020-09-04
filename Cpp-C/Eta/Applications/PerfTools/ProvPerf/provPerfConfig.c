@@ -45,6 +45,8 @@ static void clearProvPerfConfig()
 	snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "");
 
 	snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "");
+	provPerfConfig.guaranteedOutputTunnelBuffers = 15000;
+	provPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
 }
 
 void exitConfigError(char **argv)
@@ -299,6 +301,15 @@ void initProvPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), argv[iargs]);
 		}
+		else if (0 == strcmp("-tunnelStreamOutputBufs", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			sscanf(argv[iargs], "%u", &provPerfConfig.guaranteedOutputTunnelBuffers);
+		}
+		else if (0 == strcmp("-tunnelStreamBuffersUsed", argv[iargs]))
+		{
+			provPerfConfig.tunnelStreamBufsUsed = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -367,7 +378,10 @@ void printProvPerfConfig(FILE *file)
 			"             Private Key: %s\n"
 			"             Server Cert: %s\n"
 			"                  Cipher: %s\n"
-			"        WS Protocol List: %s\n",
+			"        WS Protocol List: %s\n"
+			"   Output Tunnel Buffers: %u\n"
+			" Print Usage Tunnel Bufs: %s\n"
+			,
 			provPerfConfig.runTime,
 			provPerfConfig.connType,
 			provPerfConfig.portNo,
@@ -390,10 +404,12 @@ void printProvPerfConfig(FILE *file)
 			provPerfConfig.serverKey,
 			provPerfConfig.serverCert,
 			provPerfConfig.cipherSuite,
-			provPerfConfig.protocolList
+			provPerfConfig.protocolList,
+			provPerfConfig.guaranteedOutputTunnelBuffers,
+			(provPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No")
 		  );
 
-	fprintf(file, 
+	fprintf(file,
 			"             Update Rate: %d\n"
 			"     Latency Update Rate: %d\n"
 			"        Generic Msg Rate: %d\n"
@@ -495,6 +511,9 @@ void exitWithUsage()
 			"  -keyfile                             Server private key for OpenSSL encryption.\n"
 			"  -cert                                Server certificate for openSSL encryption.\n"
 			"  -cipher                              Optional OpenSSL formatted cipher string.\n"
+			"\n"
+			"  -tunnelStreamOutputBufs <count>      Number of output tunnel buffers(configures guaranteedOutputBuffers in RsslReactorAcceptTunnelStreamOptions).\n"
+			"  -tunnelStreamBuffersUsed             Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
 			"\n"
 			);
 #ifdef _WIN32

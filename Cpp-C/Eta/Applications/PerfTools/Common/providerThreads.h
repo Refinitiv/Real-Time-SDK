@@ -19,6 +19,7 @@
 #include "statistics.h"
 #include "rtr/rsslQueue.h"
 #include "hashTable.h"
+#include "perfTunnelMsgHandler.h"
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslReactorChannel.h"
 #include "rtr/rsslReactor.h"
@@ -98,7 +99,8 @@ typedef struct
 	ValueStatistics		intervalGenMsgLatencyStats;	/* Gen Msg latency statistics (recorded by stats thread). */
 	CountStat			genMsgSentCount;			/* Counts generic messages sent. */
 	CountStat			genMsgRecvCount;			/* Counts generic messages received. */
-	CountStat			latencyGenMsgSentCount;		/* counts latency generic messages sent. */
+	CountStat			latencyGenMsgSentCount;		/* Counts latency generic messages sent. */
+	ValueStatistics		tunnelStreamBufUsageStats;	/* Tunnel Buffer Usage statistics. */
 } ProvStats;
 
 RTR_C_INLINE void provStatsInit(ProvStats *stats)
@@ -111,6 +113,7 @@ RTR_C_INLINE void provStatsInit(ProvStats *stats)
 	initCountStat(&stats->latencyGenMsgSentCount);
 	clearValueStatistics(&stats->genMsgLatencyStats);
 	clearValueStatistics(&stats->intervalGenMsgLatencyStats);
+	clearValueStatistics(&stats->tunnelStreamBufUsageStats);
 }
 
 /*** ProviderThread ****/
@@ -182,7 +185,8 @@ typedef struct {
 	RsslBuffer		*preEncMarketPriceMsgs;		/* Buffer of a pre-encoded market price message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
 	RsslBuffer		*preEncMarketByOrderMsgs;	/* Buffer of a pre-encoded market by order message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
 
-	RsslUInt32		remaingPackedBufferLength; /* Keep track of the remaining packed buffer for handling JSON protocol */
+	RsslUInt32		remaingPackedBufferLength;	/* Keep track of the remaining packed buffer for handling JSON protocol */
+	PerfTunnelMsgHandler perfTunnelMsgHandler;	/* Handler for exchanging messages between a consumer and provider through a tunnel stream. */
 } ProviderSession;
 
 /* Clears providerThreadConfig to defaults. */

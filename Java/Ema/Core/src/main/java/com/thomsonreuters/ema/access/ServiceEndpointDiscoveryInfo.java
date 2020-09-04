@@ -34,7 +34,7 @@ public interface ServiceEndpointDiscoveryInfo
 	public String endpoint();
 	
 	/**
-	 * Gets a list of location where the infrastructure is deployed in the cloud provider
+	 * Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time Optimized 
 	 * 
 	 * @return a list of location
 	 */
@@ -48,9 +48,9 @@ public interface ServiceEndpointDiscoveryInfo
 	public String port();
 	
 	/**
-	 * Gets a public cloud provider
+	 * Gets a public Refinitiv Real-Time Optimized provider
 	 * 
-	 * @return a cloud provider
+	 * @return a Refinitiv Real-Time Optimized provider
 	 */
 	public String provider();
 	

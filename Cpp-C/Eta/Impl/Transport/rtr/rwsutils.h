@@ -343,8 +343,8 @@ typedef struct rwsServer {
 
 typedef struct rwsSession {
 	rwsServer_t		*server;
-	RsslUInt64      actualInBuffLen;
-	RsslUInt64      inputReadCursor;
+	RsslUInt64		actualInBuffLen;
+	RsslUInt64		inputReadCursor;
 	rwsHttpHdr_t	hsReceived;
 	RsslInt32		headerLineNum;
 	RsslInt32		statusCode;
@@ -417,7 +417,7 @@ void rwsReleaseLargeBuffer(RsslSocketChannel *, rtr_msgb_t *);
 RsslInt32 rwsReadHttpHeader(char *, RsslInt32, RsslInt32, rwsSession_t *, rwsHttpHdr_t *, RsslError *);
 
 RsslRet rwsReadOpeningHandshake(char *, RsslInt32 , RsslInt32 , RsslSocketChannel * , RsslError *);
-RsslInt32 rwsReadResponseHandshake(char *, RsslInt32 , RsslInt32 , rwsSession_t * , RsslError *);
+RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *, RsslInt32 , RsslInt32 , rwsSession_t * , RsslError *);
 ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel * , ripcSessInProg *, RsslError *);
 ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * , ripcSessInProg *, RsslError *);
 

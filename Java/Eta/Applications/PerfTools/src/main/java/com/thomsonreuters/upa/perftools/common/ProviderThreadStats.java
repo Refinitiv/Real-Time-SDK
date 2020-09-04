@@ -15,6 +15,7 @@ public class ProviderThreadStats
     private ValueStatistics _refreshBufLenStats;
     private ValueStatistics _updateBufLenStats;
     private ValueStatistics _genMsgBufLenStats;
+    private ValueStatistics _tunnelStreamBufUsageStats;	/* Tunnel Buffer Usage statistics. */
     
     {
         _firstGenMsgSentTime = 0;
@@ -30,9 +31,11 @@ public class ProviderThreadStats
         _refreshBufLenStats = new ValueStatistics();
         _updateBufLenStats = new ValueStatistics();
         _genMsgBufLenStats = new ValueStatistics();
+        _tunnelStreamBufUsageStats = new ValueStatistics();
         _refreshBufLenStats.clear();
         _updateBufLenStats.clear();
         _genMsgBufLenStats.clear();
+        _tunnelStreamBufUsageStats.clear();
     }
 
     /**
@@ -254,4 +257,24 @@ public class ProviderThreadStats
     {
         _genMsgBufLenStats = genMsgBufLenStats;
     }
+    
+    /**
+	 *  Tunnel stream buffer usage statistics.
+	 *
+	 * @param tunnelStreamBufUsageStats the tunnel stream buffer usage stats
+	 */
+	public void tunnelStreamBufUsageStats(ValueStatistics tunnelStreamBufUsageStats)
+	{
+		_tunnelStreamBufUsageStats= tunnelStreamBufUsageStats;
+	}
+	
+	/**
+	 *  Tunnel stream buffer usage statistics.
+	 *
+	 * @return the value statistics
+	 */
+	public ValueStatistics tunnelStreamBufUsageStats()
+	{
+		return _tunnelStreamBufUsageStats;
+	}
 }

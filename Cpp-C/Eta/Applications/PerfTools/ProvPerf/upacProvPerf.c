@@ -10,6 +10,7 @@
 #include "statistics.h"
 #include "dictionaryProvider.h"
 #include "rtr/rsslGetTime.h"
+#include "perfTunnelMsgHandler.h"
 #include "testUtils.h"
 #include "rtr/rsslReactor.h"
 #include <stdio.h>
@@ -444,16 +445,20 @@ RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorC
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+RsslRet processItemMsg(RsslReactorChannel *pReactorChannel, RsslMsg *pMsg)
 {
 	ProviderSession *pProvSession = (ProviderSession *)pReactorChannel->userSpecPtr;
 	ProviderThread *pProvThread = pProvSession->pProviderThread;
-	RsslMsg *pMsg = pMsgEvent->pRsslMsg;
 	RsslDecodeIterator dIter;
+
+	//printf("processItemMsg Received message in TunnelStream with stream ID %d, class %u(%s) and domainType %u(%s)\n\n",
+	//	pMsg->msgBase.streamId,
+	//	pMsg->msgBase.msgClass, rsslMsgClassToString(pMsg->msgBase.msgClass),
+	//	pMsg->msgBase.domainType, rsslDomainTypeToString(pMsg->msgBase.domainType));
 
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
-	
+
 	/* set version info */
 	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
 
@@ -461,24 +466,47 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 
 	switch (pMsg->msgBase.domainType)
 	{
-		case RSSL_DMT_MARKET_PRICE:
-			if (xmlMsgDataHasMarketPrice)
-				processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
-			else
-				sendItemRequestReject(pProvThread, pProvSession, 
-						pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
-		case RSSL_DMT_MARKET_BY_ORDER:
-			if (xmlMsgDataHasMarketByOrder)
-				processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
-			else
-				sendItemRequestReject(pProvThread, pProvSession, 
-						pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
-		default:
-			sendItemRequestReject(pProvThread, pProvSession, 
-					pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
-			break;
+	case RSSL_DMT_MARKET_PRICE:
+		if (xmlMsgDataHasMarketPrice)
+			processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
+		else
+			sendItemRequestReject(pProvThread, pProvSession,
+				pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+		break;
+	case RSSL_DMT_MARKET_BY_ORDER:
+		if (xmlMsgDataHasMarketByOrder)
+			processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
+		else
+			sendItemRequestReject(pProvThread, pProvSession,
+				pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+		break;
+	default:
+		sendItemRequestReject(pProvThread, pProvSession,
+			pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+		break;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+{
+
+	processItemMsg(pReactorChannel, pMsgEvent->pRsslMsg);
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet tunnelStreamListenerCallback(RsslTunnelStreamRequestEvent *pEvent, RsslErrorInfo *pErrorInfo)
+{
+	ProviderSession *pProvSession = (ProviderSession *)pEvent->pReactorChannel->userSpecPtr;
+	PerfTunnelMsgHandler *pPerfTunnelMsgHandler = &pProvSession->perfTunnelMsgHandler;
+
+	perfTunnelMsgHandlerProcessNewStream(pPerfTunnelMsgHandler, pEvent);
+
+	if (pPerfTunnelMsgHandler->tunnelStreamHandler.tunnelStreamOpenRequested == RSSL_TRUE)
+	{
+		perfTunnelMsgHandlerAddCallbackProcessItemMsg(pPerfTunnelMsgHandler, processItemMsg);
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
@@ -526,6 +554,7 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 	providerRole.loginMsgCallback = loginMsgCallback;
 	providerRole.directoryMsgCallback = directoryMsgCallback;
 	providerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+	providerRole.tunnelStreamListenerCallback = tunnelStreamListenerCallback;
 
 	// waiting until provider thread initializes
 	while (pProvThread->pReactor == NULL) {}
@@ -1221,6 +1250,11 @@ static RsslRet sendItemRequestReject(ProviderThread *pProvThread, ProviderSessio
 	}
 
 	printf("\nRejecting Item Request with streamId=%d and domain %s.  Reason: %s\n", streamId,  rsslDomainTypeToString(domainType), itemRejectReasonToString(reason));
+
+	if (perfTunnelMsgHandlerGetStreamId() == streamId && domainType == RSSL_DMT_SYSTEM && provPerfConfig.useReactor == RSSL_FALSE)
+	{
+		printf("The Item Request for TunnelStream. It requires to use -reactor in command line.\n");
+	}
 
 	/* send request reject status */
 	return sendItemMsgBuffer(pProvThread, pProvSession, RSSL_TRUE);

@@ -5,6 +5,15 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 
+import com.thomsonreuters.proxy.authentication.CredentialName;
+import com.thomsonreuters.proxy.authentication.CredentialsFactory;
+import com.thomsonreuters.proxy.authentication.ICredentials;
+import com.thomsonreuters.proxy.authentication.IProxyAuthenticator;
+import com.thomsonreuters.proxy.authentication.IProxyAuthenticatorResponse;
+import com.thomsonreuters.proxy.authentication.ProxyAuthenticationException;
+import com.thomsonreuters.proxy.authentication.ProxyAuthenticatorFactory;
+import com.thomsonreuters.proxy.authentication.ResponseCodeException;
+
 // Init state transitions for consumer with socket connection:
 //
 //                           +--------------------------+
@@ -163,6 +172,24 @@ class RsslSocketChannel extends UpaNode implements Channel
     int _junitTestBufPosition; // only used for JUnit testing
     boolean _isJunitTest;
 
+    // for proxy
+    protected static final String CHAR_ENCODING = "US-ASCII";
+    protected static final String USER_AGENT = "User-Agent: UPA/Java\r\n";
+    protected static final String PROXY_CONNECTION_KEEP_ALIVE = "Proxy-Connection: Keep-Alive\r\n";
+    protected static final String PRAGMA_NO_CACHE = "Pragma: no-cache\r\n";
+    protected static final String EOL = "\r\n";
+    protected boolean _httpProxy = false;
+    String _httpProxyHost = null;
+    protected int _httpProxyPort = 0;
+    protected String _objectName = null;
+    protected ICredentials _proxyCredentails = null;
+    protected IProxyAuthenticator _proxyAuthenticator = null;
+    protected String _additionalHttpConnectParams = null;
+    String db;  // debug env variable
+    ByteBuffer _httpPOSTwriteBuffer = ByteBuffer.allocateDirect(DEFAULT_HIGH_WATER_MARK);
+    int httpOKretry = 0;  // needed for recovery through a proxy
+    protected int httpOKsize;
+    
     ConnectOptions _cachedConnectOptions = null;
     InetSocketAddress _cachedInetSocketAddress = null;
     InetSocketAddress _cachedBindInetSocketAddress = null;
@@ -173,8 +200,8 @@ class RsslSocketChannel extends UpaNode implements Channel
     // Used to print/log debug output, must be used within the scope of a lock
     StringBuilder _debugOutput;
 
-    java.nio.channels.SocketChannel _scktChannel;
-    java.nio.channels.SocketChannel _oldScktChannel;
+    SocketHelper _scktChannel;
+    SocketHelper _oldScktChannel;
 
     int _state;
 
@@ -253,7 +280,6 @@ class RsslSocketChannel extends UpaNode implements Channel
     protected int HTTP_HEADER4 = 0;   // HTTP chunk header size for RIPC Connection Reply (value=4 when http)
     protected int CHUNKEND_SIZE = 0;  // HTTP chunk end size, i.e. /r/n (value = 2 when http)
     protected int HTTP_PROVIDER_EXTRA = 8;
-    CryptoHelper _crypto = null;     // encryptor/decryptor
 
     boolean _isProviderHTTP = false;
     RsslHttpSocketChannelProvider _providerHelper = null;
@@ -302,7 +328,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         public static final int WAIT_CLIENT_KEY = 18; // used with conn version 14 or higher for key exchange
     }
 
-    RsslSocketChannel(SocketProtocol transport, Pool channelPool)
+    protected RsslSocketChannel(SocketProtocol transport, Pool channelPool, SocketHelper socketHelper)
     {
         // _maxFragmentSize (which we return to the user) is RIPC MAX_USER_MSG_SIZE - RIPC PACKED_HDR_SIZE.
         // Buffer sizes will be allocated at _internalMaxFragmentSize as RIPC MAX_USER_MSG_SIZE + RIPC_HDR_SIZE.
@@ -337,6 +363,18 @@ class RsslSocketChannel extends UpaNode implements Channel
         _state = ChannelState.INACTIVE;
 
         _shared_key = 0;
+        _scktChannel = socketHelper;
+    }
+
+    RsslSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
+    {
+        this(transport, channelPool, encrypted ? new EncryptedSocketHelper() : new SocketHelper());
+        _encrypted = encrypted;
+    }
+    
+    RsslSocketChannel(SocketProtocol transport, Pool channelPool)
+    {
+        this(transport, channelPool, false);
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -367,6 +405,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         _needCloseSocket = true;
         _state = ChannelState.INACTIVE;
         _shared_key = 0;
+        _scktChannel = new SocketHelper();
     }
 
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
@@ -393,12 +432,21 @@ class RsslSocketChannel extends UpaNode implements Channel
 
         _readBufStateMachine = new ReadBufferStateMachine(this);
         _shared_key = 0;
+        
+        _scktChannel = connectionType == ConnectionTypes.ENCRYPTED ? new EncryptedSocketHelper() : new SocketHelper();
     }
 
     @Override
     public int connectionType()
     {
-        return ConnectionTypes.SOCKET;
+        if (_encrypted)
+        {
+            return ConnectionTypes.ENCRYPTED;
+        }
+        else
+        {
+            return ConnectionTypes.SOCKET;
+        }
     }
 
     /* Resets this object back to default values.
@@ -1157,11 +1205,6 @@ class RsslSocketChannel extends UpaNode implements Channel
             try
             {
                 _scktChannel.close();
-                if (_encrypted)
-                {
-                    if (_crypto != null)
-                        _crypto.cleanup();
-                }
             }
             catch (IOException e)
             {
@@ -1311,6 +1354,10 @@ class RsslSocketChannel extends UpaNode implements Channel
                         else
                         {
                             _state = ChannelState.CLOSED;
+                            if (_httpProxy)
+                            {
+                                _proxyAuthenticator = null;
+                            }
 
                             if (_providerHelper != null)
                             {
@@ -1347,6 +1394,10 @@ class RsslSocketChannel extends UpaNode implements Channel
         catch (CompressorException e)
         {
             _state = ChannelState.CLOSED;
+            if (_httpProxy)
+            {
+                _proxyAuthenticator = null;
+            }
             returnValue = TransportReturnCodes.FAILURE;
             error.channel(this);
             error.errorId(TransportReturnCodes.FAILURE);
@@ -1395,6 +1446,10 @@ class RsslSocketChannel extends UpaNode implements Channel
             {
                 _needCloseSocket = true;
                 _state = ChannelState.CLOSED;
+                if (_httpProxy)
+                {
+                    _proxyAuthenticator = null;
+                }
                 returnValue = TransportReturnCodes.FAILURE;
                 populateErrorDetails(error, TransportReturnCodes.FAILURE, e.getLocalizedMessage());
             }
@@ -2782,6 +2837,15 @@ class RsslSocketChannel extends UpaNode implements Channel
         _host = opts.unifiedNetworkInfo().address();
         _port = opts.unifiedNetworkInfo().serviceName();
         _portIntValue = ((UnifiedNetworkInfoImpl)opts.unifiedNetworkInfo()).port();
+        
+        _httpProxy = opts.tunnelingInfo().HTTPproxy();
+        if (_httpProxy)
+        {
+            _httpProxyHost = opts.tunnelingInfo().HTTPproxyHostName();
+            _httpProxyPort = opts.tunnelingInfo().HTTPproxyPort();
+        }
+        
+        _objectName = opts.tunnelingInfo().objectName();
     }
 
     int connect(ConnectOptions opts, Error error)
@@ -2798,6 +2862,18 @@ class RsslSocketChannel extends UpaNode implements Channel
             if (opts != null)
             {
                 _cachedConnectOptions = opts;
+                try
+                {
+                    _scktChannel.initialize(_cachedConnectOptions);
+                }
+                catch (IOException ex)
+                {
+                    error.channel(null);
+                    error.errorId(TransportReturnCodes.FAILURE);
+                    error.sysError(0);
+                    error.text("Failed to initialize socket channel: " + ex.getMessage());
+                    return TransportReturnCodes.FAILURE;
+                }
                 dataFromOptions(opts);
             }
             else
@@ -2814,6 +2890,18 @@ class RsslSocketChannel extends UpaNode implements Channel
         else if (opts != null && opts != _cachedConnectOptions)
         {
             _cachedConnectOptions = opts;
+            try
+            {
+                _scktChannel.initialize(_cachedConnectOptions);
+            }
+            catch (IOException ex)
+            {
+                error.channel(null);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text("Failed to initialize socket channel: " + ex.getMessage());
+                return TransportReturnCodes.FAILURE;
+            }
             dataFromOptions(opts);
         }
 
@@ -2839,7 +2927,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         try
         {
             _totalBytesRead = 0;
-            _scktChannel = java.nio.channels.SocketChannel.open();
+            _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
                 _scktChannel.socket().setReceiveBufferSize(_cachedConnectOptions.sysRecvBufSize());
@@ -2860,8 +2948,19 @@ class RsslSocketChannel extends UpaNode implements Channel
                 _scktChannel.configureBlocking(false);
             }
 
-            _cachedInetSocketAddress = new InetSocketAddress(_cachedConnectOptions.unifiedNetworkInfo().address(),
-                                                             ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
+            if (_cachedInetSocketAddress == null)
+            {
+                // for tunneling through a proxy, we will connect to a proxy
+                if (_httpProxy)
+                {
+                    _cachedInetSocketAddress = new InetSocketAddress(_httpProxyHost, _httpProxyPort);
+                    _proxyCredentails = readProxyCredentails(_cachedConnectOptions);
+                    _proxyAuthenticator = ProxyAuthenticatorFactory.create(_proxyCredentails, _httpProxyHost);
+                }
+                else
+                    _cachedInetSocketAddress = new InetSocketAddress(_cachedConnectOptions.unifiedNetworkInfo().address(),
+                                                                     ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
+            }
 
             // if interfaceName is specified, bind to NIC
             String interfaceName = _cachedConnectOptions.unifiedNetworkInfo().interfaceName();
@@ -2905,9 +3004,14 @@ class RsslSocketChannel extends UpaNode implements Channel
             }
 
             // connect
-            _scktChannel.connect(_cachedInetSocketAddress);
+            _scktChannel.connect(_cachedInetSocketAddress, _httpProxy);
 
-            _initChnlState = InitChnlState.CONNECTING;
+            if (_httpProxy)
+                _initChnlState = InitChnlState.PROXY_CONNECTING;
+            else
+            {
+                _initChnlState = InitChnlState.CONNECTING;
+            }
 
             _state = ChannelState.INITIALIZING;
             error.channel(this);
@@ -2938,7 +3042,14 @@ class RsslSocketChannel extends UpaNode implements Channel
                             // The far end closed connection. Try another protocol.
                             if (connect(_cachedConnectOptions, error) == TransportReturnCodes.SUCCESS)
                             {
-                                _initChnlState = InitChnlState.CONNECTING;
+                            	if (_httpProxy)
+                                {
+                                    _initChnlState = InitChnlState.PROXY_CONNECTING;
+                                }
+                                else
+                                {
+                                    _initChnlState = InitChnlState.CONNECTING;
+                                }
                                 continue;
                             }
                             else
@@ -3004,7 +3115,7 @@ class RsslSocketChannel extends UpaNode implements Channel
 
         // set socket channel
         // it was created by server accept
-        _scktChannel = socketChannel;
+        _scktChannel.setSocketChannel(socketChannel);
 
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
@@ -3152,13 +3263,13 @@ class RsslSocketChannel extends UpaNode implements Channel
     @Override @Deprecated
     public java.nio.channels.SocketChannel scktChannel()
     {
-        return _scktChannel;
+        return _scktChannel.getSocketChannel();
     }
 
     @Override @Deprecated
     public java.nio.channels.SocketChannel oldScktChannel()
     {
-        return _oldScktChannel;
+        return _oldScktChannel.getSocketChannel();
     }
 
     @Override
@@ -3167,13 +3278,13 @@ class RsslSocketChannel extends UpaNode implements Channel
     	if (_providerHelper != null && _providerHelper._pipeNode != null)
     		return _providerHelper._pipeNode._pipe.source();
     	
-        return _scktChannel;
+        return _scktChannel.getSocketChannel();
     }
 
     @Override
     public SelectableChannel oldSelectableChannel()
     {
-        return _oldScktChannel;
+        return _oldScktChannel.getSocketChannel();
     }
 
     @Override
@@ -3225,12 +3336,16 @@ class RsslSocketChannel extends UpaNode implements Channel
                     if (_initChnlState == InitChnlState.RECONNECTING && !_cachedConnectOptions.blocking())
                     {
                         // The far end closed connection. Try another protocol.
-                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel);
+                        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
                         if (connect(_cachedConnectOptions, error) == TransportReturnCodes.SUCCESS)
                         {
-                            _initChnlState = InitChnlState.CONNECTING;
+                        	if (_httpProxy)
+                                _initChnlState = InitChnlState.PROXY_CONNECTING;
+                            else
+                               _initChnlState = InitChnlState.CONNECTING;
+
                             ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
-                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel);
+                            ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
                             return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
                         }
                         else
@@ -3243,6 +3358,29 @@ class RsslSocketChannel extends UpaNode implements Channel
                         }
                     }
                     break;
+                case InitChnlState.PROXY_CONNECTING:
+                    retVal = initChnlProxyConnecting();
+                    break;
+                case InitChnlState.CLIENT_WAIT_PROXY_ACK:
+                    retVal = initChnlWaitProxyAck(inProg, error); // may throw a ProxyAuthenticationException
+                    if(retVal == TransportReturnCodes.FAILURE)
+                    {
+                    	_needCloseSocket = true;
+                        return TransportReturnCodes.FAILURE;
+                    }
+                    if (_proxyAuthenticator.isAuthenticated())
+                    {
+                    	/* If this is encrypted, start the encryption dance. _scktChannel.finishConnect will return false until the TLS handshake has finished.  */
+                    	if(_encrypted)
+                    	{
+                    		_scktChannel.postProxyInit();
+                    		_initChnlState = InitChnlState.CONNECTING;
+                    		// break out here, we're done
+                    		break;
+                    	}
+                        retVal = initChnlSendConnectReq(inProg, error);
+                    }
+                    break;
                 case InitChnlState.READ_HDR:
                     retVal = initChnlReadHdr(inProg, error);
                     break;
@@ -3253,7 +3391,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     break;
             }
         }
-        catch (IOException e)
+        catch (IOException | ProxyAuthenticationException e)
         {
             error.channel(this);
             error.errorId(TransportReturnCodes.FAILURE);
@@ -3330,13 +3468,8 @@ class RsslSocketChannel extends UpaNode implements Channel
             }
         }
         _ipcProtocol.protocolOptions()._componentInfo = _componentInfo;
-        if (!_encrypted)
-        {
-            _scktChannel.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
-        }
-        else
-            _crypto.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
-
+        _scktChannel.write(_ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer));
+        
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
         _initChnlState = InitChnlState.WAIT_ACK;
@@ -4031,5 +4164,293 @@ class RsslSocketChannel extends UpaNode implements Channel
         else
             return true;
     }
+    
+    /* Write CONNECT HTTP to proxy with no credentials (first attempt, i.e. initiating authentication).
+     * Called when in the init state PROXY_CONNECTING.
+     */
+    int initChnlProxyConnecting() throws IOException
+    {
+        if (_readIoBuffer != null)
+            _readIoBuffer.buffer().clear(); // needed for recovery through a proxy
 
+        if (_proxyAuthenticator == null)
+            _proxyAuthenticator = ProxyAuthenticatorFactory.create(_proxyCredentails, _httpProxyHost); // needed for recovery through a proxy
+        httpOKretry = 0; // needed for recovery through a proxy
+
+        String connectRequest = buildHttpConnectRequest();
+        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+            System.out.println(connectRequest);
+        /* Perform a direct write here, because we will not have any encryption setup at this point */
+        _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+
+        _initChnlState = InitChnlState.CLIENT_WAIT_PROXY_ACK;
+
+        return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
+    }
+    
+    /* Build the HTTP CONNECT message with possible credentials. */
+    protected String buildHttpConnectRequest()
+    {
+        StringBuilder connectRequest = new StringBuilder();
+        connectRequest.append(buildHttpConnectRequestPrefix());
+
+        // add any addtional connect parameters that may be required for authentication
+        if (_additionalHttpConnectParams != null && _additionalHttpConnectParams.length() > 0)
+        {
+            connectRequest.append(_additionalHttpConnectParams);
+            _additionalHttpConnectParams = null;
+        }
+
+        connectRequest.append(EOL);
+
+        return connectRequest.toString();
+    }
+
+    /* Returns a string containing the "common" HTTP Connect request.
+     * A suffix (a trailing \r\n) must be appended to the returned value
+     * (to make it a valid HTTP request).
+     */
+    private final String buildHttpConnectRequestPrefix()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("CONNECT ");
+        sb.append(_host);
+        sb.append(":");
+        sb.append(_port);
+        sb.append(" HTTP/1.1\r\n");
+        sb.append(USER_AGENT);
+        sb.append(PROXY_CONNECTION_KEEP_ALIVE);
+        sb.append("Content-Length: 0\r\n");
+        sb.append("Host: ");
+        sb.append(_host);
+        sb.append(":");
+        sb.append(_port);
+        sb.append("\r\n");
+        sb.append(PRAGMA_NO_CACHE);
+
+        // NOTE: this will *not* be a valid HTTP request until a final "\r\n" is appended to it
+
+        return sb.toString();
+    }
+
+    /* Handle proxy reply to HTTP CONNECT and do any necessary proxy authentication. */
+    protected int initChnlWaitProxyAck(InProgInfo inProg, Error error) throws IOException, ProxyAuthenticationException
+    {
+        int cc;
+
+        cc = initProxyChnlReadFromChannel(_initChnlReadBuffer, error);
+        // System.out.println(Transport.toHexString(_initChnlReadBuffer, 0, _initChnlReadBuffer.position()));
+
+        if (cc == TransportReturnCodes.FAILURE)
+        {
+            error.channel(this);
+            error.errorId(TransportReturnCodes.FAILURE);
+            error.sysError(0);
+            error.text("Could not read HTTP OK (reply to HTTP CONNECT)");
+            return TransportReturnCodes.FAILURE;
+        }
+
+        _totalBytesRead += cc;
+
+        // do authentication handling
+        readHttpConnectResponse(_initChnlReadBuffer, inProg, error);
+        _initChnlReadBuffer.clear();
+
+        return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
+    }
+
+    /* Read response message to HTTP CONNECT.
+     * Do necessary proxy authentication.
+     */
+    protected void readHttpConnectResponse(ByteBuffer reader, InProgInfo inProg, Error error) throws ProxyAuthenticationException, IOException
+    {
+        int responseSize = reader.position();
+        int bufferIndex = 0;
+        reader.position(bufferIndex);
+
+        try
+        {
+            byte[] tempBuf = new byte[responseSize];
+            reader.get(tempBuf, 0, responseSize);
+            String response = new String(tempBuf);
+
+            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+            {
+                //for debugging
+                System.out.println("-- begin response -- ");
+                System.out.println(response);
+                System.out.println("-- end response --");
+            }
+            _proxyConnectResponse.append(response); // used to combine "incomplete" responses from the proxy
+
+            if (!_proxyAuthenticator.isAuthenticated() && _proxyConnectResponse.toString().contains(END_OF_RESPONSE))
+            {
+                // process the response to determine whether or not we are authenticated
+                IProxyAuthenticatorResponse authenticatorResponse = null;
+                try
+                {
+                    authenticatorResponse = _proxyAuthenticator.processResponse(_proxyConnectResponse.toString());
+                }
+                catch (ResponseCodeException e)
+                {
+                    // the response from the proxy may, for example, contain an HTML error message intended for uses that we should ignore
+                    ++_ignoredConnectResponses;
+
+                    if (_ignoredConnectResponses < MAX_IGNORED_RESPONSES)
+                    {
+                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                            System.out.println(String.format("Ignoring a response from the proxy that did not contain a response code (%d/%d)",
+                                                             _ignoredConnectResponses, MAX_IGNORED_RESPONSES));
+                        return;
+                    }
+                    else
+                    {
+                        throw e; // too many ignored responses
+                    }
+                }
+
+                if (_proxyAuthenticator.isAuthenticated())
+                {
+                    if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                        System.out.println("Connection established to proxy " + _httpProxyHost + ":" + _httpProxyPort);
+                }
+                else
+                {
+                    // this will be added to the next http CONNECT message:
+                    _additionalHttpConnectParams = authenticatorResponse.getProxyAuthorization();
+
+                    if (authenticatorResponse.isProxyConnectionClose())
+                    {
+                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                            System.out.println("*** The proxy requested a close (during authentication). Reconnecting. ***\n");
+                        forceReconnect(inProg, error);
+                    }
+                    else
+                    {
+                        // write http CONNECT message
+                        String connectRequest = buildHttpConnectRequest();
+                        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                            System.out.println(connectRequest);
+                        /* Write directly to the socket instead of the channel to avoid encryption */
+                        _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+                    }
+                }
+
+                _proxyConnectResponse.setLength(0); // we are done with the current response from the proxy
+            }
+        }
+        catch (ProxyAuthenticationException e)
+        {
+            // for extra debugging
+            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                System.out.println("ProxyAuthenticationException in readCONNECThttpResponse: " + e.getMessage());
+            throw e;
+        }
+        catch (IOException e)
+        {
+            // for extra debugging
+            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                System.out.println("IOException in readCONNECThttpResponse: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /* Read a response from the Proxy Server into BytBuffer dst. */
+    protected int initProxyChnlReadFromChannel(ByteBuffer dst, Error error) throws IOException
+    {
+        dst.clear(); // needed for recovery through a proxy
+        /* Proxy interactions are not encrypted, so we will just do a direct read on the _socket */
+        int bytesRead = _scktChannel._socket.read(dst);
+        // System.out.println("RsslHttpSocketChannel::initProxyChnlReadFromChannel(ByteBuffer dst, Error error)    bytesRead=="+bytesRead);
+
+        if (bytesRead > 0)
+        {
+            // note that we could cache the msgLen, but normally we should be reading an entire ConnectAck/ConnectNak here.
+
+            if (dst.position() > 2)
+            {
+                int messageLength = (dst.getShort(0) & 0xFF);
+                if (dst.position() >= messageLength)
+                {
+                    // we have at least one complete message
+                    return dst.position();
+                }
+            }
+        }
+        else if (bytesRead == -1)
+        {
+            if (_readIoBuffer != null)
+                _readIoBuffer.buffer().clear();
+            _proxyAuthenticator = null;
+            error.channel(this);
+            error.errorId(TransportReturnCodes.FAILURE);
+            error.sysError(0);
+            error.text("Proxy has cut the connection.");
+            return TransportReturnCodes.FAILURE;
+        }
+
+        // we don't have a complete message, or no bytes were read.
+        return 0;
+    }
+    
+    /* Reconnect to proxy because of authenticatorResponse.isProxyConnectionClose() */
+    private void forceReconnect(InProgInfo inProg, Error error)
+    {
+        // close current _scktChannel
+        try
+        {
+            _scktChannel.close();
+        }
+        catch (IOException e)
+        {
+            System.err.println("IOException forceReconnect(): " + e.getMessage());
+        }
+
+        ((InProgInfoImpl)inProg).oldSelectableChannel(_scktChannel.getSocketChannel());
+
+        _ipcProtocol = null;
+        this.connect(_cachedConnectOptions, error);
+
+        ((InProgInfoImpl)inProg).flags(InProgFlags.SCKT_CHNL_CHANGE);
+        ((InProgInfoImpl)inProg).newSelectableChannel(_scktChannel.getSocketChannel());
+    }
+    
+    /* Store Credentials (needed for Proxy Server authentication) */
+    protected ICredentials readProxyCredentails(ConnectOptions connectOptions)
+    {
+        ICredentials credentails = CredentialsFactory.create();
+
+        if (connectOptions.credentialsInfo().HTTPproxyDomain() != null
+                && !connectOptions.credentialsInfo().HTTPproxyDomain().isEmpty())
+        {
+            credentails.set(CredentialName.DOMAIN, connectOptions.credentialsInfo().HTTPproxyDomain());
+        }
+
+        if (connectOptions.credentialsInfo().HTTPproxyUsername() != null
+                && !connectOptions.credentialsInfo().HTTPproxyUsername().isEmpty())
+        {
+            credentails.set(CredentialName.USERNAME, connectOptions.credentialsInfo().HTTPproxyUsername());
+        }
+
+        if (connectOptions.credentialsInfo().HTTPproxyPasswd() != null
+                && !connectOptions.credentialsInfo().HTTPproxyPasswd().isEmpty())
+        {
+            credentails.set(CredentialName.PASSWORD, connectOptions.credentialsInfo().HTTPproxyPasswd());
+        }
+
+        if (connectOptions.credentialsInfo().HTTPproxyLocalHostname() != null
+                && !connectOptions.credentialsInfo().HTTPproxyLocalHostname().isEmpty())
+        {
+            credentails.set(CredentialName.LOCAL_HOSTNAME, connectOptions.credentialsInfo().HTTPproxyLocalHostname());
+        }
+
+        if (connectOptions.credentialsInfo().HTTPproxyKRB5configFile() != null
+                && !connectOptions.credentialsInfo().HTTPproxyKRB5configFile().isEmpty())
+        {
+            credentails.set(CredentialName.KRB5_CONFIG_FILE, connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
+        }
+
+        return credentails;
+    }
 }

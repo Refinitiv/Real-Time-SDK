@@ -46,7 +46,8 @@ class ReactorTokenSession implements RestCallback
     	REQ_AUTH_TOKEN_USING_REFRESH_TOKEN,
     	RECEIVED_AUTH_TOKEN,
     	AUTHENTICATE_USING_PASSWD_GRANT,
-    	AUTHENTICATE_USING_PASSWD_REFRESH_TOKEN
+    	AUTHENTICATE_USING_PASSWD_REFRESH_TOKEN,
+    	STOP_TOKEN_REQUEST
     }
     
     
@@ -62,6 +63,8 @@ class ReactorTokenSession implements RestCallback
     	_restAuthRequest.username(_reactorOAuthCredential.userName().toString());
     	_restAuthRequest.password(_reactorOAuthCredential.password().toString());
     	_restAuthRequest.clientId(_reactorOAuthCredential.clientId().toString());
+    	_restAuthRequest.clientSecret(_reactorOAuthCredential.clientSecret().toString());
+    	_restAuthRequest.tokenScope(_reactorOAuthCredential.tokenScope().toString());
     	
     	_resultClosure = new RestResultClosure(this, this);
     	_restConnectOptions.restResultClosure(_resultClosure);
@@ -313,7 +316,6 @@ class ReactorTokenSession implements RestCallback
 	
 	void handleTokenReissue()
 	{
-		
 		_reactorChannelListLock.lock();
     	
 		try
@@ -461,6 +463,7 @@ class ReactorTokenSession implements RestCallback
 				break;
 			}
 			case RestEventTypes.FAILED:
+			case RestEventTypes.STOPPED:
 			{
 				String errorText = "failed to get an access token from the token service"; // Default error status text if data body is not defined
 				
@@ -484,10 +487,15 @@ class ReactorTokenSession implements RestCallback
 					{
 						ReactorChannel reactorChannel = _reactorChannelList.get(i);
 						
+						reactorChannel.copyEDPErrorInfo(errorInfo);
+						
 						/* Send the warning only when the ReactorChannel is active */
 						if(reactorChannel.state() == State.READY || reactorChannel.state() == ReactorChannel.State.UP)
 						{
-							reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, errorInfo);
+							if(reactorChannel.enableSessionManagement())
+							{
+								reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, errorInfo);
+							}
 						}
 						
 						_reactor.sendAuthTokenEvent(reactorChannel, this, errorInfo);
@@ -510,9 +518,17 @@ class ReactorTokenSession implements RestCallback
 				
 				_sessionState = SessionState.REQUEST_TOKEN_FAILURE;
 				
-				if (handlesTokenReissueFailed() )
+				/* Stop retrying for the HTTP 403 and 451 status codes */
+				if (event.eventType() != RestEventTypes.STOPPED)
 				{
-					_reactor.sendAuthTokenWorkerEvent(this);
+					if (handlesTokenReissueFailed() )
+					{
+						_reactor.sendAuthTokenWorkerEvent(this);
+					}
+				}
+				else
+				{
+					_sessionState = SessionState.STOP_TOKEN_REQUEST;
 				}
 				
 				break;
@@ -538,10 +554,15 @@ class ReactorTokenSession implements RestCallback
 			{
 				ReactorChannel reactorChannel = _reactorChannelList.get(i);
 				
+				reactorChannel.copyEDPErrorInfo(event.errorInfo());
+				
 				/* Send the warning only when the ReactorChannel is active */
 				if(reactorChannel.state() == State.READY || reactorChannel.state() == State.UP)
 				{
-					reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, event.errorInfo());
+					if(reactorChannel.enableSessionManagement())
+					{
+						reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, event.errorInfo());
+					}
 				}
 				
 				_reactor.sendAuthTokenEvent(reactorChannel, this, event.errorInfo());

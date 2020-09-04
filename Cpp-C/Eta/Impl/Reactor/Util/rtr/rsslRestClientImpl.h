@@ -297,7 +297,7 @@ typedef struct {
 	RsslBuffer      *locationList;   /*!< A list of locations. The list indicates the location of the service. */
 	RsslUInt32      locationCount;   /*!< The number of locations in locationList. */
 	RsslBuffer      port;            /*!< A port number used to establish connection. */
-	RsslBuffer      provider;        /*!< A public cloud provider. */
+	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time Optimized provider. */
 	RsslBuffer      transport;       /*!< A transport type used to access service. */
 } RsslRestServiceEndpointInfo;
 
@@ -478,6 +478,25 @@ RsslRet rsslRestParseAccessToken(RsslBuffer* dataBody, RsslBuffer *accessToken, 
 * @return a new RsslBuffer if the convertion occurs otherwise returns the passed in buffer.
 */
 RsslBuffer* rsslRestEncodeUrlData(RsslBuffer* inputBuffer, RsslError* pError);
+
+/**
+* @brief Print out the given input argument to the output stream
+* @param outputStream stream where to print data.
+* @param pRestRequest specifies REST request data
+* @param pError Error structure to be populated in the event of an error.
+* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+*/
+
+RsslRet rsslRestRequestDump(FILE* outputStream,  RsslRestRequestArgs* pRestRequest,  RsslError* pError);
+
+/**
+* @brief Print out the given input argument to the output stream
+* @param outputStream stream where to print data.
+* @param pRestRequestResponse specifies REST response data
+* @param pError Error structure to be populated in the event of an error.
+* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+*/
+RsslRet rsslRestResponseDump(FILE* outputStream,  RsslRestResponse* pRestRequestResponse,  RsslError* pError);
 
  /**
  *	@}

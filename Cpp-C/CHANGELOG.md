@@ -1,33 +1,87 @@
-This is the change log of the Elektron-SDK (ESDK) for C++/C. ESDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-There are three types of ESDK releases that append a letter directly followed by a number to the version number. 
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and summaries of fixes/features prior to RTSDK-1.5.1.L1, may continue to refer to ESDK or Elektron.
 
-"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
+There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
+
+"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
 "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.5.0.L1 aka EMA 3.5.0.L1 and ETA 3.5.0.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in EDP connectivity.
+This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
 
 Customer Issues Resolved
 ------------------
-- [GitHub # 117] [ESDK-504] Support Posting in EMA Providers
-- [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion function doesn't work as expected 
-- [Case Number: 07697024] [GitHub # 141] [ESDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
-- [Case Number: 07823520] [ESDK-3441] ETA Reactor API persistently retains memory not released until shutdown (reactor events)
+- [Case Number: 08784579] - [ESDK-4079] - rsslReactorConnect returned 0 when using an invalid network interface
+- [GitHub Pull Request #99] - [ESDK-3241] - Fix invalid usage of pthread_mutex_init()
+- [GitHub #135] - [ESDK-3882] - EMA C++: Setting literal as status text with Login::LoginRefresh::state() is unsafe!
+- [GitHub #147] - [ESDK-4132] - EmaConfigImpl.cpp uses xmlCleanupParser wrongly, can cause memory corruption in multithreaded programs
+- [ESDK-3689] - Enhance ETA Performance tools to support Tunnelstreams
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK C++/C Release 1.5.1.L1 (Sept 4, 2020)
+---------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
+
+EMA C++ 3.5.1.L1 Issues Resolved
+--------------------------------
+- [ESDK-3882] - EMA C++: Setting literal as status text with Login::LoginRefresh::state() is unsafe! [GitHub #135]
+- [ESDK-4132] - EmaConfigImpl.cpp uses xmlCleanupParser wrongly, can cause memory corruption in multithreaded programs [GitHub #147]
+- [ESDK-4086] - EMA must check both DictionaryUsed and DictionaryProvided to download dictionary from network
+- [ESDK-4099] - EMACPP does NOT set HAS_SERVICE_ID flag on onStream postMsg with if it sets serviceName
+
+ETA C 3.5.1.L1 Issues Resolved
+--------------------------------
+- [ESDK-767] - Example and Training code print statements contain mis-spelling of the word "Received"
+- [ESDK-1570] - Calling rsslCloseServer does not call the function assigned to the trans function, shutdown server, for Socket Type connections
+- [ESDK-3211] - Deprecate TLS1.0
+- [ESDK-3219] - XML output rsslDoubleToString issue
+- [ESDK-3241] - Fix invalid usage of pthread_mutex_init() [GitHub Pull Request #99]
+- [ESDK-3638] - WS Transport: Automatic Login by passing token credentials during the initial WebSocket connection to the ADS via HTTP Cookies
+- [ESDK-3639] - Provided the ability for applications to access HTTP headers for WS open handshake and handshake response
+- [ESDK-3689] - Enhance ETA Performance tools to support Tunnelstreams
+- [ESDK-3850] - VS110 and VS120 json conversion test issues
+- [ESDK-3861] - Provides a configurable option to enable curl debugging message in ETA
+- [ESDK-3891] - Replace magic values with constants from rwfNet.h
+- [ESDK-3950] - Add in a programmatic way to access JSON converter library version
+- [ESDK-3981] - catch(std::bad_alloc) for 2 sequential new() leads to memory leak
+- [ESDK-4079] - rsslReactorConnect returned 0 when using an invalid network interface [Case Number: 08784579]
+- [ESDK-4166] - Tunnel Stream Performance Issue with un-needed events?
+- [ESDK-4182] - Consumer app doesn't apply subprotocol for encrypted websocket
+- [ESDK-4249] - Provider and VAProvider cannot bind port if setting compressionType to LZ4 when setting subprotocol
+
+Both ETA C and EMA C++ 3.5.1.L1 Issues Resolved
+-----------------------------------------------
+- [ESDK-3646] - VS2019 Support: add build machine, add build support
+- [ESDK-3665] - Add DACSLock code snippet for ETA/EMA C++ into documentation
+- [ESDK-3697] - Build and ship libraries using RedHat 8.X
+- [ESDK-3902] - Document lsb_release requirement for cmake
+- [ESDK-3956] - Readme and text files have spelling errors
+- [ESDK-4090] - Rebranding: Change code references to "Thomson Reuters" in unit tests, examples, etc.
+- [ESDK-4091] - Support a configurable debug parameters to show REST interactions (that do not print credentials)
+- [ESDK-4165] - Rebranding: Change references in Code Comments and READMEs
+- [ESDK-4177] - Rebranding: Change references to ESDK in Cmake build
+
+---------------------------------------------
 ESDK C++/C Release 1.5.0.G1 (Jun 30, 2020)
 ---------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in EDP connectivity.
 
 EMA C++ 3.5.0.G1 Issues Resolved
 --------------------------------
@@ -47,6 +101,7 @@ ETA C 3.5.0.G1 Issues Resolved
 - [ESDK-3441] ETA Reactor API persistently retains memory and is not released until shutdown [Case Number: 07823520]
 - [ESDK-3819] Suppport Round Trip Latency Monitoring
 - [ESDK-3850] VS110 and VS120 json conversion test issues
+- [ESDK-3897] Access Violation Closing Reactor Tunnel (over SSL) [Github #139]
 - [ESDK-3963] Add ability to catch WSAEWOULDBLOCK  error
 - [ESDK-4069] Tunnel stream must notify application when login timeout occurs for authenticating a tunnel stream
 
@@ -61,9 +116,13 @@ Both ETA C and EMA C++ 3.5.0.G1 Issues Resolved
 ESDK C++/C Release 1.5.0.L1 (Mar 31, 2020)
 ---------------------------------------------
 
+New Features Added
+------------------
+This release introduces support for Websocket Transport in ESDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will soon be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library.
+
 EMA C++ 3.5.0.L1 Issues Resolved
 --------------------------------
-- [ESDK-3244] Catch polymorphic type by reference, not by value [GitHub Pull Request# 97]
+- [ESDK-3244] Catch polymorphic type by reference, not by value [GitHub Pull Request #97]
 - [ESDK-3274] EMAC++ 'OmmInvalidUsageException', Text='The Field name STOCK_TYPE does not exist in the field dictionary' [Case Number: 07645599]
 
 ETA C 3.5.0.L1 Issues Resolved
@@ -100,11 +159,15 @@ Both ETA C and EMA C++ 3.4.0.G1 Issues Resolved
 ESDK C++/C Release 1.4.0.L1 (Nov 15, 2019)
 ---------------------------------------------
 
+New Features Added
+------------------
+This release adds Server Side Encryption support in EMA and ETA.
+
 EMA C++ 3.4.0.L1 Issues Resolved
 --------------------------------
 - [ESDK-3294] Enhancement Request: Added ability to dynamically increase number of allocated output buffers for handling "out of buffers" error [Case Number: 07652023]
 - [ESDK-3417] Documentation Issue: Specify in EMA Config guide, the precedence of configuration vectors
-- [ESDK-3495] Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient [Case Number: 08003411 GitHub # 118])
+- [ESDK-3495] Memory leak in C++/EMA (in OmmConsumer/OmmLoggerClient) [Case Number: 08003411 GitHub # 118]
 - [ESDK-3535] Inconsistency contents in default and description of ReissueTokenAttemptInterval and ReissueTokenAttemptLimit parameter [GitHub # 120]
 
 ETA C 3.4.0.L1 Issues Resolved

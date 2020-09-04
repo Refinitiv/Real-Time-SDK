@@ -10,12 +10,10 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.PostMsg;
+import com.thomsonreuters.ema.access.*;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -880,7 +878,40 @@ public class PostMsgTests extends TestCase
 	     
 	     System.out.println("\ttestPostMsg_EncodeUPAPostMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherPostMsg_EMADecode passed");
 	}
-	
+
+	public void testPostMsgMsg_cloneIsNotSupportedFromTheEncodeSide()
+	{
+		TestUtilities.printTestHead("testPostMsgMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		PostMsg msg = EmaFactory.createPostMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE);
+
+		try {
+			PostMsg cloneMessage = EmaFactory.createPostMsg(msg);
+			TestUtilities.checkResult(false, "Clone not supported - exception expected: ");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
+			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
+		}
+	}
+
+	public void testPostMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testPostMsg_cloneMsgKeyWLScenario", "cloning for minimal ema post message");
+		PostMsg emaMsg = EmaFactory.createPostMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		PostMsg emaClonedMsg = EmaFactory.createPostMsg(emaMsg);
+
+		compareEmaPostMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA PostMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testPostMsg_clone()
 	{
 		TestUtilities.printTestHead("testPostMsg_clone", "cloning for ema post message");
@@ -955,6 +986,8 @@ public class PostMsgTests extends TestCase
 		postMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		postMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(postMsg);
+
 		System.out.println("End UPA PostMsg Set");
 		System.out.println();
 
@@ -993,17 +1026,8 @@ public class PostMsgTests extends TestCase
 		
 		com.thomsonreuters.ema.access.PostMsg emaPostMsgClone = EmaFactory.createPostMsg(emaPostMsg);
 		
-		TestUtilities.checkResult(emaPostMsgClone.domainType() == emaPostMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaPostMsgClone.streamId() == emaPostMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaPostMsgClone.hasPartNum() == emaPostMsg.hasPartNum(), "Compare hasPartNum");
-		TestUtilities.checkResult(emaPostMsgClone.partNum() == emaPostMsg.partNum(), "Compare partNum");
-		TestUtilities.checkResult(emaPostMsgClone.hasSeqNum() == emaPostMsg.hasSeqNum(), "Compare hasSeqNum");
-		TestUtilities.checkResult(emaPostMsgClone.seqNum() == emaPostMsg.seqNum(), "Compare seqNum");
-		TestUtilities.checkResult(emaPostMsgClone.hasPostId() == emaPostMsg.hasPostId(), "Compare hasPostId");
-		TestUtilities.checkResult(emaPostMsgClone.postId() == emaPostMsg.postId(), "Compare postId");
-		TestUtilities.checkResult(emaPostMsgClone.hasPostUserRights() == emaPostMsg.hasPostUserRights(), "Compare hasPostUserRights");
-		TestUtilities.checkResult(emaPostMsgClone.postUserRights() == emaPostMsg.postUserRights(), "Compare postUserRights");
-		TestUtilities.checkResult(emaPostMsgClone.hasMsgKey() == emaPostMsg.hasMsgKey(), "Compare hasMsgKey");
+
+		compareEmaPostMsgFields(emaPostMsg, emaPostMsgClone, "Post clone message");
 
 		String emaPostMsgString = emaPostMsg.toString();
 		String emaPostMsgCloneString = emaPostMsgClone.toString();
@@ -1012,11 +1036,29 @@ public class PostMsgTests extends TestCase
 		System.out.println(emaPostMsgClone);
 		
 		TestUtilities.checkResult(emaPostMsgString.equals(emaPostMsgCloneString), "emaPostMsgString.equals(emaPostMsgCloneString)");
-		
+
+		com.thomsonreuters.ema.access.PostMsg emaPostMsgClone2 = EmaFactory.createPostMsg(emaPostMsgClone);
+		compareEmaPostMsgFields(emaPostMsg, emaPostMsgClone2, "Post double-cloned message");
+		String emaPostMsgClone2String = emaPostMsgClone2.toString();
+		TestUtilities.checkResult(emaPostMsgString.equals(emaPostMsgClone2String), "double-cloned emaPostMsgString.equals(emaPostMsgClone2String)");
+
+
 		System.out.println("End EMA PostMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.PostMsg postMsg) {
+		postMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		postMsg.extendedHeader(extendedHeader);
+
+		postMsg.applyHasPermData();
+		Buffer permissionData = CodecFactory.createBuffer();
+		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
+		postMsg.permData(permissionData);
+	}
+
 	public void testPostMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testPostMsg_cloneEdit", "clone and edit ema post message");
@@ -1182,5 +1224,39 @@ public class PostMsgTests extends TestCase
 		
 		System.out.println("End EMA PostMsg Clone");
 		System.out.println();
+	}
+
+	private void compareEmaPostMsgFields(PostMsg expected, PostMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+		TestUtilities.checkResult(expected.hasSeqNum() == actual.hasSeqNum(), checkPrefix + "hasSeqNum");
+		if(expected.hasSeqNum())
+			TestUtilities.checkResult(expected.seqNum() == actual.seqNum(), checkPrefix + "seqNum");
+
+		TestUtilities.checkResult(expected.hasPartNum() == actual.hasPartNum(), checkPrefix + "hasPartNum");
+		if(expected.hasPartNum())
+			TestUtilities.checkResult(expected.partNum() == actual.partNum(), checkPrefix + "partNum");
+
+		TestUtilities.checkResult(expected.publisherIdUserId() == actual.publisherIdUserId(), checkPrefix + "publisherIdUserId");
+		TestUtilities.checkResult(expected.publisherIdUserAddress() == actual.publisherIdUserAddress(), checkPrefix + "publisherIdUserAddress");
+
+		TestUtilities.checkResult(expected.hasPostUserRights() == actual.hasPostUserRights(), checkPrefix + "hasPostUserRights");
+		if (expected.hasPostUserRights())
+			TestUtilities.checkResult(expected.postUserRights() == actual.postUserRights(), checkPrefix + "postUserRights");
+
+		TestUtilities.checkResult(expected.hasPostId() == actual.hasPostId(), checkPrefix + "hasPostId");
+		if (expected.hasPostId())
+			TestUtilities.checkResult(expected.postId() == actual.postId(), checkPrefix + "postId");
+
+		TestUtilities.checkResult(expected.solicitAck() == actual.solicitAck(), checkPrefix + "solicitAck");
+
+		TestUtilities.checkResult(expected.hasPermissionData() == actual.hasPermissionData(), checkPrefix + "hasPermissionData");
+		if(expected.hasPermissionData())
+			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
 	}
 }

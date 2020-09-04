@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* This provides handling for command-line configuration of ConsPerf. */
@@ -67,6 +67,13 @@ static void clearConsPerfConfig()
 	consPerfConfig.tlsProtocolFlags = 0;
 
 	snprintf(consPerfConfig.protocolList, sizeof(consPerfConfig.protocolList), "");
+
+	consPerfConfig.tunnelMessagingEnabled = RSSL_FALSE;
+	snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), "");
+	consPerfConfig.tunnelUseAuthentication = RSSL_FALSE;
+	consPerfConfig.tunnelDomainType = RSSL_DMT_SYSTEM;
+	consPerfConfig.guaranteedOutputTunnelBuffers = 15000;
+	consPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
 }
 
 void exitConfigError(char **argv)
@@ -335,6 +342,23 @@ void initConsPerfConfig(int argc, char **argv)
 		{
 			++iargs; consPerfConfig.tlsProtocolFlags |= RSSL_ENC_TLSV1_2;
 		}
+		else if (strcmp("-tunnel", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.tunnelMessagingEnabled = RSSL_TRUE;
+		}
+		else if (strcmp("-tunnelAuth", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.tunnelUseAuthentication = RSSL_TRUE;
+		}
+		else if (strcmp("-tunnelStreamOutputBufs", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			consPerfConfig.guaranteedOutputTunnelBuffers = atoi(argv[iargs++]);
+		}
+		else if (strcmp("-tunnelStreamBuffersUsed", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.tunnelStreamBufsUsed = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -423,12 +447,23 @@ void initConsPerfConfig(int argc, char **argv)
 		exitConfigError(argv);
 	}
 
+	if (consPerfConfig.tunnelMessagingEnabled == RSSL_TRUE && consPerfConfig.useReactor != RSSL_TRUE && consPerfConfig.useWatchlist != RSSL_TRUE)
+	{
+		printf("\nConfig error: Should add -reactor or -watchlist to create and use special tunnel streams.\n");
+		exitConfigError(argv);
+	}
+
 	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec 
 		/ consPerfConfig.ticksPerSec;
 
 	consPerfConfig._requestsPerTickRemainder = consPerfConfig.itemRequestsPerSec 
 		% consPerfConfig.ticksPerSec;
 
+	/* If service not specified for tunnel stream, use the service given for other items instead. */
+	if (consPerfConfig.tunnelMessagingEnabled == RSSL_TRUE && consPerfConfig.tunnelStreamServiceName[0] == '\0')
+	{
+		snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), consPerfConfig.serviceName);
+	}
 }
 
 
@@ -515,7 +550,12 @@ void printConsPerfConfig(FILE *file)
 		" Reactor/Watchlist Usage: %s\n"
 		"       CA store location: %s\n"
 		"      TLS Protocol flags: %i\n"
-		"        WS Protocol List: %s\n",
+		"        WS Protocol List: %s\n"
+		"          Tunnel Enabled: %s\n"
+		"   Tunnel Authentication: %s\n"
+		"   Output Tunnel Buffers: %u\n"
+		" Print Usage Tunnel Bufs: %s\n"
+		,
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
 		consPerfConfig.serviceName,
@@ -545,7 +585,11 @@ void printConsPerfConfig(FILE *file)
 		reactorWatchlistUsageString,
 		consPerfConfig.caStore,
 		consPerfConfig.tlsProtocolFlags,
-		consPerfConfig.protocolList
+		consPerfConfig.protocolList,
+		(consPerfConfig.tunnelMessagingEnabled ? "Yes" : "No"),
+		(consPerfConfig.tunnelUseAuthentication ? "Yes" : "No"),
+		consPerfConfig.guaranteedOutputTunnelBuffers,
+		(consPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No")
 	  );
 
 	fprintf(file,
@@ -609,6 +653,11 @@ void exitWithUsage()
 			"\n"
 			"  -castore                             File location of the certificate authority store.\n"
 			"  -spTLSv1.2                           Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			"\n"
+			"  -tunnel                              Causes the consumer to open a tunnel stream that exchanges basic messages. Require using -reactor or -watchlist.\n"
+			"  -tunnelAuth                          Causes the consumer to enable authentication when opening tunnel streams.\n"
+			"  -tunnelStreamOutputBufs <count>      Number of output tunnel buffers (configures guaranteedOutputBuffers in RsslTunnelStreamOpenOptions).\n"
+			"  -tunnelStreamBuffersUsed             Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
 			"\n"
 	);
 #ifdef _WIN32

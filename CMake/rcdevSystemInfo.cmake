@@ -88,9 +88,9 @@ macro(rcdev_set_new_postprefix_path)
 		# definitions cause work arounds like this
 		# Check to see if need to force GCC instead of system defined GNU
 		if (${RCDEV_HOST_COMPILER} STREQUAL "GNU" 
-			AND (  ${PROJECT_NAME} STREQUAL "esdk"
-				OR ${PROJECT_NAME} MATCHES  "^Elektron" 
-				OR ${PROJECT_NAME} STREQUAL "Elektron-SDK-BinaryPack")
+			AND (  ${PROJECT_NAME} STREQUAL "rtsdk"
+				OR ${PROJECT_NAME} MATCHES  "^rtsdk" 
+				OR ${PROJECT_NAME} STREQUAL "RTSDK-BinaryPack")
 			)
 			rcdev_get_platform_suffix(_sys_suffix gcc)
 		endif()
@@ -234,6 +234,8 @@ macro(rcdev_normalize_compiler)
 			set(_compilerVer "444")
 		elseif(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7)
 			set(_compilerVer "482")
+		elseif(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8)
+			set(_compilerVer "831")
 		endif()
 	endif()
 	if(_compilerVer)
@@ -247,13 +249,17 @@ function(rcdev_get_normalized_platform_suffix suffix)
 	if (WIN32)
 		rcdev_get_platform_suffix(_sfx)
 	else()
-		if ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE" ) AND 
-			(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6 ))
+		if ( (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE" ) AND 
+				(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6 ) )
 			rcdev_get_platform_suffix(_sfx "gcc" "rhel")
 		elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
-				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND
-				 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7 ) )
+				(RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND
+				(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7 ) )
 			rcdev_get_platform_suffix(_sfx "gcc" "centOS")
+		elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
+				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
+				 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) )
+			rcdev_get_platform_suffix(_sfx "gcc" "rhel")
 		else()
 			rcdev_get_platform_suffix(_sfx "gcc" )
 		endif()
@@ -486,6 +492,8 @@ if (UNIX)
 				set(_compilerVer "444")
 			elseif(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7)
 				set(_compilerVer "482")
+			elseif(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8)
+				set(_compilerVer "831")
 			endif()
 		endif()
 	endif()

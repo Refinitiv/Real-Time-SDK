@@ -30,6 +30,7 @@
 static void rsslUnitTests_DirectoryPacking();
 static void rsslUnitTests_LoginPacking();
 static void rsslUnitTests_WriteFailure(int fragMsg);
+static void rsslUnitTests_ProvideHttpHdr();
 
 static const RsslInt32 
 			LOGIN_STREAM_ID = 1,
@@ -202,6 +203,23 @@ TEST(RsslUnitTests_Multicast, DirectoryPacking)
 	rsslUnitTests_DirectoryPacking();
 	rsslTestUninitialize();
 }
+
+TEST(RsslUnitTests, ProvideHttpHdr)
+{
+	rsslTestInitOpts pOpts;
+
+	rsslTestClearInitOpts(&pOpts);
+	setCallbackToHttpHdr(true);
+
+	pOpts.connectionType = RSSL_CONN_TYPE_WEBSOCKET;
+
+	rsslTestInitialize(&pOpts);
+
+	rsslUnitTests_ProvideHttpHdr();
+	setCallbackToHttpHdr(false);
+	rsslTestUninitialize();
+}
+
 #endif
 
 /*These tests checks that packed buffers containing a source directory request 
@@ -711,6 +729,33 @@ static void rsslUnitTests_WriteFailure(int fragMsg)
 
 	EXPECT_EQ(ret, RSSL_RET_WRITE_FLUSH_FAILED);
 	EXPECT_EQ(pProviderChannel->state, RSSL_CH_STATE_CLOSED);
+
+	ret = rsslCloseChannel(pProviderChannel, &error);
+	EXPECT_EQ(ret, RSSL_RET_SUCCESS);
+	rsslTestFinish();
+}
+
+/*This test does the following:
+1. Opens up a consumer and server provider channel.  Server has been configured in calling function.
+2. Http header callback HttpCallbackFunction() would be called
+3. Closes the provider channel.  This should succeed.
+*/
+
+static void rsslUnitTests_ProvideHttpHdr() 
+{
+	RsslChannel* pConsumerChannel;
+	RsslChannel* pProviderChannel;
+	RsslError error;
+	RsslRet ret;
+
+	rsslTestStart();
+	pConsumerChannel = rsslTestCreateConsumerChannel();
+	pProviderChannel = rsslTestCreateProviderChannel();
+
+	rsslTestInitChannels(pConsumerChannel, pProviderChannel);
+
+	ret = rsslCloseChannel(pConsumerChannel, &error);
+	EXPECT_EQ(ret, RSSL_RET_SUCCESS);
 
 	ret = rsslCloseChannel(pProviderChannel, &error);
 	EXPECT_EQ(ret, RSSL_RET_SUCCESS);

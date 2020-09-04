@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -413,6 +412,25 @@ class ConfigReader
 					channelType = ConnectionTypes.ENCRYPTED;
 				else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 					channelType = ConnectionTypes.RELIABLE_MCAST;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( channelType != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,channelType);
+			}
+			else if ( enumType.equals("EncryptedProtocolType" ) )
+			{
+				int channelType = -1;
+
+				if(enumValue.equals("RSSL_SOCKET"))
+					channelType = ConnectionTypes.SOCKET;
+				else if(enumValue.equals("RSSL_HTTP"))
+					channelType = ConnectionTypes.HTTP;
 				else
 				{
 					errorTracker().append( "no implementation in convertEnum for enumType [" )
@@ -915,12 +933,11 @@ class ConfigReader
 		{
 			String fileName;	// eventual location of configuration file
 			final String defaultFileName = "EmaConfig.xml";
+			
+			String pathh = System.getProperty("java.class.path");
 
 			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;
-			} else if (isClasspathResource(path)) {
-				fileName = path;
-				errorTracker().append( "detected configuration file [" ).append( fileName ).append( "] in classpath").create(Severity.TRACE);
 			} else {
 				File tmp = new File(path);
 				if(!tmp.exists()) {
@@ -967,7 +984,17 @@ class ConfigReader
 			XMLConfiguration config = null;
 			try 
 			{
-				config = new XMLConfiguration(fileName);
+				if (path == null || path.isEmpty()) {
+					InputStream in = ClassLoader.class.getResourceAsStream("/".concat(defaultFileName));
+					if (in == null) {
+						config = new XMLConfiguration(defaultFileName);
+					} else {
+						config = new XMLConfiguration();
+						config.load(in);
+					}
+				} else {
+					config = new XMLConfiguration(fileName);
+				}
 			} 
 			catch (ConfigurationException e) 
 			{
@@ -1013,15 +1040,6 @@ class ConfigReader
 
 			// debugging
 			// xmlRoot.dump(0);
-		}
-
-		boolean isClasspathResource(String resourceName)
-		{
-			try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-				return in != null;
-			} catch (IOException e) {
-				return false;
-			}
 		}
 
 		void verifyAndGetDefaultConsumer()

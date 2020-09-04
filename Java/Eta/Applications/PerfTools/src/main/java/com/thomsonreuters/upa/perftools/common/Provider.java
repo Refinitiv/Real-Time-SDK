@@ -44,7 +44,7 @@ public class Provider
     /**
                                                                           * Instantiates a new provider.
                                                                           */
-                                                                         public Provider()
+    public Provider()
     {
         _refreshCount = new CountStat();
         _updateCount = new CountStat();
@@ -309,6 +309,13 @@ public class Provider
                             stats.intervalGenMsgLatencyStats().print("  GenMsgLat(usec)", "Msgs", false);
                             stats.intervalGenMsgLatencyStats().clear();
                         }
+                        
+						if (stats.tunnelStreamBufUsageStats().count() > 0)
+						{
+							stats.tunnelStreamBufUsageStats().print("  TunnelStreamBufferUsed", "Samples", false);
+							stats.tunnelStreamBufUsageStats().clear();
+						}
+                        
                         break;
                     case PROVIDER_NONINTERACTIVE:
                         if (requestCount > 0 || refreshCount > 0)

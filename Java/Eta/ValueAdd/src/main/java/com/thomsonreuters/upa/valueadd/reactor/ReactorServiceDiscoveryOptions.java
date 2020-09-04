@@ -9,7 +9,9 @@ public class ReactorServiceDiscoveryOptions
 {
 	private Buffer _username; 
 	private Buffer _password; 
-	private Buffer _clientId; 
+	private Buffer _clientId;
+	private Buffer _clientSecret;
+	private Buffer _tokenScope;
 	private int    _transport;
 	private int    _dataFormat;
 	private ReactorServiceEndpointEventCallback _reactorServiceEndpointEventCallback; 
@@ -28,6 +30,8 @@ public class ReactorServiceDiscoveryOptions
 		_username = CodecFactory.createBuffer();
 		_password = CodecFactory.createBuffer();
 		_clientId = CodecFactory.createBuffer();
+		_clientSecret = CodecFactory.createBuffer();
+		_tokenScope = CodecFactory.createBuffer();
 		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
 		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
 		_reactorServiceEndpointEventCallback = null;		
@@ -47,6 +51,8 @@ public class ReactorServiceDiscoveryOptions
 		_username.clear();
 		_password.clear();
 		_clientId.clear();
+		_clientSecret.clear();
+		_tokenScope.clear();
 		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
 		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
 		_reactorServiceEndpointEventCallback = null;		
@@ -82,7 +88,19 @@ public class ReactorServiceDiscoveryOptions
         	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientId.length());
         	_clientId.copy(byteBuffer);
         	dest.clientId().data(byteBuffer);  
-        }  		
+        }
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
+        	_clientSecret.copy(byteBuffer);
+        	dest.clientSecret().data(byteBuffer);  
+        } 
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_tokenScope.length());
+        	_tokenScope.copy(byteBuffer);
+        	dest.tokenScope().data(byteBuffer);  
+        } 
 		
 		dest._transport = _transport;
 		dest._dataFormat = _dataFormat;
@@ -146,13 +164,55 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
+     * Returns a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @return clientId.
      */		
 	public Buffer clientId()
 	{
 		return _clientId;
+	}
+	
+	/**
+     * Specifies the client secret defined for an application making a request to the token service.
+     * 
+     * @param clientSecret the client secret
+     */			
+	public void clientSecret(Buffer clientSecret)
+	{
+		assert(clientSecret != null) : "clientSecret can not be null";
+		clientSecret().data(clientSecret.data(), clientSecret.position(), clientSecret.length());
+	}
+
+    /**
+     * Returns the client secret for application making the request to EDP token service.
+     * 
+     * @return clientSecret.
+     */		
+	public Buffer clientSecret()
+	{
+		return _clientSecret;
+	}
+	
+	/**
+     * Specifies an optional token scope defined for an application making a request to the token service.
+     * 
+     * @param tokenScope the token scope
+     */			
+	public void tokenScope(Buffer tokenScope)
+	{
+		assert(tokenScope != null) : "tokenScope can not be null";
+		tokenScope().data(tokenScope.data(), tokenScope.position(), tokenScope.length());
+	}
+
+    /**
+     * Returns the token scope for application making the request to EDP token service.
+     * 
+     * @return tokenScope.
+     */		
+	public Buffer tokenScope()
+	{
+		return _tokenScope;
 	}
 	
     /**

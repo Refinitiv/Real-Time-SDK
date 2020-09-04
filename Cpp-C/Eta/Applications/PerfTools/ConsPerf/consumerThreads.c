@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 #include "consumerThreads.h"
@@ -126,6 +126,29 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Cons
 	}
 }
 
+void updateTunnelStreamBufUsageStats(ConsumerThread *pConsumerThread, const char* nameMethod)
+{
+	RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+	if (consPerfConfig.tunnelStreamBufsUsed &&
+		pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE &&
+		pTunnelStream != NULL)
+	{
+		RsslTunnelStreamInfo tunnelInfo;
+		RsslErrorInfo tunnelErrorInfo;
+
+		RsslRet retInfo = rsslTunnelStreamGetInfo(pTunnelStream, &tunnelInfo, &tunnelErrorInfo);
+		if (retInfo == RSSL_RET_SUCCESS)
+		{
+			updateValueStatistics(&pConsumerThread->stats.tunnelStreamBufUsageStats, (double)tunnelInfo.buffersUsed);
+		}
+		else
+		{
+			printf("%s: rsslTunnelStreamGetInfo returned error retInfo = %d\n", nameMethod, retInfo);
+		}
+	}
+	return;
+}
+
 RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 {
 	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE)
@@ -187,6 +210,32 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 			rsslReleaseBuffer(msgBuf, &pConsumerThread->threadRsslError);
 	}
+	else if (pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE  &&
+			pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		RsslErrorInfo rsslErrorInfo;
+		RsslRet	retval = 0;
+
+		RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+
+		RsslTunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions;
+		rsslClearTunnelStreamSubmitOptions(&rsslTunnelStreamSubmitOptions);
+		rsslTunnelStreamSubmitOptions.containerType = RSSL_DT_MSG;
+
+		retval = rsslTunnelStreamSubmit(pTunnelStream, msgBuf, &rsslTunnelStreamSubmitOptions, &rsslErrorInfo);
+
+		updateTunnelStreamBufUsageStats(pConsumerThread, "sendMessage");
+
+		if (retval != RSSL_RET_SUCCESS)
+		{
+			printf("rsslTunnelStreamSubmit() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
+			if (retval = rsslTunnelStreamReleaseBuffer(msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslTunnelStreamReleaseBuffer() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
+			}
+			return RSSL_RET_FAILURE;
+		}
+	}
 	else
 	{
 		RsslErrorInfo rsslErrorInfo;
@@ -208,7 +257,7 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 			{
 				/* rsslWrite failed, release buffer */
 				printf("rsslReactorSubmit() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
-				if (retval = rsslReactorReleaseBuffer(pConsumerThread->pReactorChannel, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				if ((retval = rsslReactorReleaseBuffer(pConsumerThread->pReactorChannel, msgBuf, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 					printf("rsslReactorReleaseBuffer() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
 
 				return RSSL_RET_FAILURE;
@@ -422,6 +471,8 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 	RsslRequestMsg requestMsg;
 	RsslUInt32 i;
 	RsslQos *pQos;
+	RsslBool useTunnel = RSSL_FALSE;
+	RsslTunnelStreamGetBufferOptions bufferTunnelOpts;
 
 	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
@@ -431,6 +482,12 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 		pQos = &pConsumerThread->pDesiredService->info.qosList[0];
 	else
 		pQos = NULL;
+
+	if (pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE &&
+		pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		useTunnel = RSSL_TRUE;
+	}
 
 	for(i = 0; i < itemBurstCount; ++i)
 	{
@@ -471,7 +528,30 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 			RsslBuffer *msgBuf;
 			RsslEncodeIterator eIter;
 
-			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
+			if (useTunnel == RSSL_TRUE)
+			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				const RsslUInt64 nIter = countStatGetTotal(&pConsumerThread->stats.requestCount);
+				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
+				bufferTunnelOpts.size = 512;
+
+				if ( (msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
+				{
+					if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					{
+						printf("sendItemRequestBurst: rsslTunnelStreamGetBuffer returned (warning) NO_BUFFERS  nIter=%llu\n", nIter);
+						pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+						return RSSL_RET_SUCCESS;
+					}
+					else
+					{
+						printf("sendItemRequestBurst: rsslTunnelStreamGetBuffer returned Error  nIter=%llu\n", nIter);
+						rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+						return pConsumerThread->threadRsslError.rsslErrorId;
+					}
+				}
+			}
+			else if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
 			{
 				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
 				{
@@ -510,17 +590,37 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 		}
 		else // VA Reactor Watchlist is enabled, submit message instead of buffer
 		{
-			RsslReactorSubmitMsgOptions submitMsgOpts;
 			RsslErrorInfo rsslErrorInfo;
-
-			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
-
-			// submit message to VA Reactor Watchlist
-			submitMsgOpts.pRsslMsg = (RsslMsg *)&requestMsg;
-			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			if (useTunnel == RSSL_TRUE)
 			{
-				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
-				return ret;
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				RsslTunnelStreamSubmitMsgOptions submitTunnelMsgOpts;
+				rsslClearTunnelStreamSubmitMsgOptions(&submitTunnelMsgOpts);
+
+				submitTunnelMsgOpts.pRsslMsg = (RsslMsg *)&requestMsg;
+				ret = rsslTunnelStreamSubmitMsg(pTunnelStream, &submitTunnelMsgOpts, &rsslErrorInfo);
+				
+				updateTunnelStreamBufUsageStats(pConsumerThread, "sendItemRequestBurst");
+
+				if (ret != RSSL_RET_SUCCESS)
+				{
+					printf("rsslTunnelStreamSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
+			}
+			else
+			{
+				RsslReactorSubmitMsgOptions submitMsgOpts;
+
+				rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+				// submit message to VA Reactor Watchlist
+				submitMsgOpts.pRsslMsg = (RsslMsg *)&requestMsg;
+				if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+				{
+					printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
 			}
 		}
 
@@ -541,6 +641,8 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 	RsslUInt32 i;
 	RsslUInt encodeStartTime;
 	RsslInt32 latencyUpdateNumber;
+	RsslBool useTunnel = RSSL_FALSE;
+	RsslTunnelStreamGetBufferOptions bufferTunnelOpts;
 
 	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
@@ -551,6 +653,11 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 	latencyUpdateNumber = (consPerfConfig.latencyPostsPerSec > 0 && rotatingQueueGetCount(&pConsumerThread->postItemQueue)) ?
 		latencyRandomArrayGetNext(pRandomArray, &pConsumerThread->randArrayIter) : -1; 
 
+	if (pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE &&
+		pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		useTunnel = RSSL_TRUE;
+	}
 
 	for(i = 0; i < itemBurstCount; ++i)
 	{
@@ -569,9 +676,31 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 		if (consPerfConfig.useWatchlist == RSSL_FALSE) // VA Reactor Watchlist not enabled
 		{
 			RsslBuffer *msgBuf;
+			RsslUInt32 requestedSize = estimateItemPostBufferLength(&pPostItem->itemInfo, pConsumerThread->pChannel->protocolType);
 
-			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-							estimateItemPostBufferLength(&pPostItem->itemInfo, pConsumerThread->pChannel->protocolType), RSSL_FALSE,
+			if (useTunnel)
+			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
+				bufferTunnelOpts.size = requestedSize;
+
+				if ((msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
+				{
+					if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					{
+						countStatAdd(&pConsumerThread->stats.postOutOfBuffersCount, itemBurstCount - i);
+						pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+						return RSSL_RET_SUCCESS;
+					}
+					else
+					{
+						rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+						return pConsumerThread->threadRsslError.rsslErrorId;
+					}
+				}
+			}
+			else if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel,
+							requestedSize, RSSL_FALSE, 
 							&pConsumerThread->threadRsslError)))
 			{
 				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
@@ -602,12 +731,9 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 		else // VA Reactor Watchlist is enabled, submit message instead of buffer
 		{
 			RsslPostMsg postMsg;
-			RsslReactorSubmitMsgOptions submitMsgOpts;
 			RsslErrorInfo rsslErrorInfo;
 			char bufferMemory[512];
 			RsslBuffer postBuffer = {512, (char*)bufferMemory};
-
-			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 
 			// create properly encoded post message
 			if ((ret = createItemPost(pConsumerThread->pChannel, &pPostItem->itemInfo, &postMsg, &postBuffer,
@@ -618,12 +744,35 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 					return ret;
 			}
 
-			// submit message to VA Reactor Watchlist
-			submitMsgOpts.pRsslMsg = (RsslMsg *)&postMsg;
-			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			if (useTunnel == RSSL_TRUE)
 			{
-				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
-				return ret;
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				RsslTunnelStreamSubmitMsgOptions submitTunnelMsgOpts;
+				rsslClearTunnelStreamSubmitMsgOptions(&submitTunnelMsgOpts);
+
+				submitTunnelMsgOpts.pRsslMsg = (RsslMsg *)&postMsg;
+				ret = rsslTunnelStreamSubmitMsg(pTunnelStream, &submitTunnelMsgOpts, &rsslErrorInfo);
+
+				updateTunnelStreamBufUsageStats(pConsumerThread, "sendPostBurst");
+
+				if (ret != RSSL_RET_SUCCESS)
+				{
+					printf("rsslTunnelStreamSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
+			}
+			else
+			{
+				RsslReactorSubmitMsgOptions submitMsgOpts;
+				rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+				// submit message to VA Reactor Watchlist
+				submitMsgOpts.pRsslMsg = (RsslMsg *)&postMsg;
+				if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+				{
+					printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
 			}
 		}
 
@@ -640,6 +789,8 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 	RsslUInt32 i;
 	RsslUInt encodeStartTime;
 	RsslInt32 latencyGenMsgNumber;
+	RsslBool useTunnel = RSSL_FALSE;
+	RsslTunnelStreamGetBufferOptions bufferTunnelOpts;
 
 	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
@@ -650,6 +801,11 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 	latencyGenMsgNumber = (consPerfConfig.latencyGenMsgsPerSec > 0 && rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue)) ?
 		latencyRandomArrayGetNext(pRandomArray, &pConsumerThread->randArrayIter) : -1; 
 
+	if (pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE &&
+		pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+	{
+		useTunnel = RSSL_TRUE;
+	}
 
 	for(i = 0; i < itemBurstCount; ++i)
 	{
@@ -671,8 +827,30 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		if (consPerfConfig.useWatchlist == RSSL_FALSE) // VA Reactor Watchlist not enabled
 		{
 			RsslBuffer *msgBuf;
-			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-							estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo, pConsumerThread->pChannel->protocolType), RSSL_FALSE,
+			RsslUInt32 requestedSize = estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo, pConsumerThread->pChannel->protocolType);
+			if (useTunnel)
+			{
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				rsslClearTunnelStreamGetBufferOptions(&bufferTunnelOpts);
+				bufferTunnelOpts.size = requestedSize;
+
+				if ((msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &bufferTunnelOpts, &pConsumerThread->threadErrorInfo)) == NULL)
+				{
+					if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					{
+						countStatAdd(&pConsumerThread->stats.genMsgOutOfBuffersCount, itemBurstCount - i);
+						pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+						return RSSL_RET_SUCCESS;
+					}
+					else
+					{
+						rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+						return pConsumerThread->threadRsslError.rsslErrorId;
+					}
+				}
+			}
+			else if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel,
+							requestedSize, RSSL_FALSE, 
 							&pConsumerThread->threadRsslError)))
 			{
 				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
@@ -702,12 +880,9 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		else // VA Reactor Watchlist is enabled, submit message instead of buffer
 		{
 			RsslGenericMsg genericMsg;
-			RsslReactorSubmitMsgOptions submitMsgOpts;
 			RsslErrorInfo rsslErrorInfo;
 			char bufferMemory[512];
 			RsslBuffer genericBuffer = {512, (char*)bufferMemory};
-
-			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 
 			// create properly encoded generic message
 			if ((ret = createItemGenMsg(pConsumerThread->pChannel, &pGenMsgItem->itemInfo, &genericMsg, &genericBuffer, encodeStartTime)) != RSSL_RET_SUCCESS)
@@ -717,12 +892,36 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 					return ret;
 			}
 
-			// submit message to VA Reactor Watchlist
-			submitMsgOpts.pRsslMsg = (RsslMsg *)&genericMsg;
-			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			if (useTunnel == RSSL_TRUE)
 			{
-				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
-				return ret;
+				RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
+				RsslTunnelStreamSubmitMsgOptions submitTunnelMsgOpts;
+				rsslClearTunnelStreamSubmitMsgOptions(&submitTunnelMsgOpts);
+
+				submitTunnelMsgOpts.pRsslMsg = (RsslMsg *)&genericMsg;
+				ret = rsslTunnelStreamSubmitMsg(pTunnelStream, &submitTunnelMsgOpts, &rsslErrorInfo);
+
+				updateTunnelStreamBufUsageStats(pConsumerThread, "sendGenMsgBurst");
+
+				if (ret != RSSL_RET_SUCCESS)
+				{
+					printf("rsslTunnelStreamSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
+			}
+			else
+			{
+				RsslReactorSubmitMsgOptions submitMsgOpts;
+
+				rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+				// submit message to VA Reactor Watchlist
+				submitMsgOpts.pRsslMsg = (RsslMsg *)&genericMsg;
+				if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+				{
+					printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					return ret;
+				}
 			}
 		}
 
@@ -1201,6 +1400,34 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet processItemMsg(RsslReactorChannel *pReactorChannel, RsslMsg *pMsg);
+
+static RsslRet initTunnel(ConsumerThread* pConsumerThread)
+{
+	if (consPerfConfig.tunnelMessagingEnabled == RSSL_TRUE)
+	{
+		pConsumerThread->tunnelMessagingEnabled = RSSL_TRUE;
+		strncpy(pConsumerThread->tunnelStreamServiceName, consPerfConfig.tunnelStreamServiceName,
+			sizeof(pConsumerThread->tunnelStreamServiceName));
+
+		perfTunnelMsgHandlerInit(&pConsumerThread->perfTunnelMsgHandler, applicationName.data,
+			consPerfConfig.tunnelDomainType, consPerfConfig.tunnelUseAuthentication, RSSL_FALSE, consPerfConfig.guaranteedOutputTunnelBuffers);
+		perfTunnelMsgHandlerAddCallbackProcessItemMsg(&pConsumerThread->perfTunnelMsgHandler, processItemMsg);
+	}
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet createTunnel(ConsumerThread* pConsumerThread)
+{
+	if (pConsumerThread->tunnelMessagingEnabled)
+	{
+		assert(pConsumerThread->pReactorChannel);
+
+		startPerfTunnelMsgHandler(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &pConsumerThread->perfTunnelMsgHandler);
+	}
+	return RSSL_RET_SUCCESS;
+}
+
 static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* postLatencyRandomArray, LatencyRandomArray* genMsgLatencyRandomArray)
 {
 	RsslChannelInfo channelInfo;
@@ -1527,6 +1754,8 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		{
 			return ret;
 		}
+
+		initTunnel(pConsumerThread);
 	}
 
 #ifdef ENABLE_XML_TRACE
@@ -1596,6 +1825,8 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 	RsslRDMService *pMsgServiceList;
 	RsslUInt32 msgServiceCount, iMsgServiceList;
 	RsslBool foundServiceName = RSSL_FALSE;
+	RsslBuffer tunnelServiceNameBuffer;
+	RsslBool runTunnelServiceUpdate = RSSL_FALSE;
 
 	serviceName.data = consPerfConfig.serviceName;
 	serviceName.length = (RsslUInt32)strlen(serviceName.data);
@@ -1615,10 +1846,22 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 		case RDM_DR_MT_REFRESH:
 			pMsgServiceList = pConsumerThread->directoryMsgCopy.refresh.serviceList;
 			msgServiceCount = pConsumerThread->directoryMsgCopy.refresh.serviceCount;
+			if (pConsumerThread->tunnelMessagingEnabled)
+			{
+				tunnelServiceNameBuffer.data = pConsumerThread->tunnelStreamServiceName;
+				tunnelServiceNameBuffer.length = (RsslUInt32)strlen(pConsumerThread->tunnelStreamServiceName);
+				runTunnelServiceUpdate = RSSL_TRUE;
+			}
 			break;
 		case RDM_DR_MT_UPDATE:
 			pMsgServiceList = pConsumerThread->directoryMsgCopy.update.serviceList;
 			msgServiceCount = pConsumerThread->directoryMsgCopy.update.serviceCount;
+			if (pConsumerThread->tunnelMessagingEnabled)
+			{
+				tunnelServiceNameBuffer.data = serviceName.data;
+				tunnelServiceNameBuffer.length = (RsslUInt32)strlen(serviceName.data);
+				runTunnelServiceUpdate = RSSL_TRUE;
+			}
 			break;
 		case RDM_DR_MT_STATUS:
 			break;
@@ -1673,6 +1916,23 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 							shutdownThreads = RSSL_TRUE;
 							return RSSL_RET_FAILURE;
 						}
+				}
+
+				if (runTunnelServiceUpdate)
+				{
+					tunnelStreamHandlerProcessServiceUpdate(&pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler,
+						&tunnelServiceNameBuffer, pService);
+
+					if (consPerfConfig.tunnelMessagingEnabled == RSSL_TRUE)
+					{
+						pConsumerThread->tunnelMessagingEnabled = RSSL_TRUE;
+						strncpy(pConsumerThread->tunnelStreamServiceName, consPerfConfig.tunnelStreamServiceName,
+							sizeof(pConsumerThread->tunnelStreamServiceName));
+						if (createTunnel(pConsumerThread) < RSSL_RET_SUCCESS)
+						{
+							return RSSL_RC_CRET_FAILURE;
+						}
+					}
 				}
 
 				break;
@@ -2381,6 +2641,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 	{
 		if(shutdownThreads == RSSL_TRUE)
 		{
+			perfTunnelMsgHandlerCloseStreams(&pConsumerThread->perfTunnelMsgHandler);
 			rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
 			rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
 			return RSSL_THREAD_RETURN();
@@ -2402,17 +2663,14 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 			if (readret < RSSL_RET_SUCCESS)
 			{
 				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
-				rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
-				rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+
 				shutdownThreads = RSSL_TRUE;
-				return RSSL_THREAD_RETURN();
+				continue;  // return RSSL_THREAD_RETURN();
 			}
 
 			if (shutdownThreads)
 			{
-				rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
-				rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
-				return RSSL_THREAD_RETURN();
+				continue;  // return RSSL_THREAD_RETURN();
 			}
 		}
 		else if (selRet == 0)
@@ -2420,7 +2678,9 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 			currentTime = rsslGetTimeNano();
 			nextTickTime += nsecPerTick;
 			
-			if (pConsumerThread->pDesiredService)
+			if ( pConsumerThread->pDesiredService
+				&& (pConsumerThread->tunnelMessagingEnabled == RSSL_FALSE
+					|| pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream) )
 			{
 				/* Send some item requests(assuming dictionaries are ready). */
 				if (rsslQueueGetElementCount(&pConsumerThread->requestQueue)
@@ -2438,10 +2698,8 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 
 					if (sendItemRequestBurst(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
 					{
-						rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
-						rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
 						shutdownThreads = RSSL_TRUE;
-						return RSSL_THREAD_RETURN();
+						continue;  // return RSSL_THREAD_RETURN();
 					}
 				}
 
@@ -2453,10 +2711,8 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 									postsPerTick + ((currentTicks < postsPerTickRemainder ) ? 1 : 0))
 								< RSSL_RET_SUCCESS)
 						{
-							rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
-							rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
 							shutdownThreads = RSSL_TRUE;
-							return RSSL_THREAD_RETURN();
+							continue;  // return RSSL_THREAD_RETURN();
 						}
 					}
 					if (rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
@@ -2465,10 +2721,8 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 									genMsgsPerTick + ((currentTicks < genMsgsPerTickRemainder ) ? 1 : 0))
 								< RSSL_RET_SUCCESS)
 						{
-							rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
-							rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
 							shutdownThreads = RSSL_TRUE;
-							return RSSL_THREAD_RETURN();
+							continue;  // return RSSL_THREAD_RETURN();
 						}
 					}
 				}
@@ -2626,6 +2880,9 @@ void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 	pConsumerThread->pReactor = NULL;
 	pConsumerThread->pReactorChannel = NULL;
 	pConsumerThread->pDesiredService = NULL;
+
+	pConsumerThread->tunnelMessagingEnabled = RSSL_FALSE;
+	pConsumerThread->tunnelStreamServiceName[0] = '\0';
 }
 
 void consumerThreadCleanup(ConsumerThread *pConsumerThread)
@@ -2920,33 +3177,15 @@ RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorC
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-/*
- * Processes all RSSL messages that aren't processed by 
- * any domain-specific callback functions.  Responses for
- * items requested by the function are handled here. 
- */
-RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+RsslRet processItemMsg(RsslReactorChannel *pReactorChannel, RsslMsg *pMsg)
 {
 	RsslRet ret = 0;
 	RsslDecodeIterator dIter;
 	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
-	RsslMsg *pMsg = pMsgEvent->pRsslMsg;
-
-	if (!pMsg)
-	{
-		/* The message is not present because an error occurred while decoding it.  Print 
-		 * the error and close the channel. If desired, the un-decoded message buffer 
-		 * is available in pMsgEvent->pRsslMsgBuffer. */
-
-		RsslErrorInfo *pError = pMsgEvent->pErrorInfo;
-		printf("defaultMsgCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
-		shutdownThreads = RSSL_TRUE;
-		return RSSL_RC_CRET_FAILURE;
-	}
 
 	/* clear decode iterator */
 	rsslClearDecodeIterator(&dIter);
-		
+
 	/* set version info */
 	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
 	rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
@@ -2954,10 +3193,34 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 	if (processDefaultMsgResp(pConsumerThread, pMsg, &dIter) < RSSL_RET_SUCCESS)
 	{
 		shutdownThreads = RSSL_TRUE;
-        return RSSL_RC_CRET_FAILURE;
+		return RSSL_RC_CRET_FAILURE;
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
+}
+
+/*
+ * Processes all RSSL messages that aren't processed by 
+ * any domain-specific callback functions.  Responses for
+ * items requested by the function are handled here. 
+ */
+RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+{
+	RsslMsg *pMsg = pMsgEvent->pRsslMsg;
+	
+	if (!pMsg)
+	{
+		/* The message is not present because an error occurred while decoding it.  Print 
+			* the error and close the channel. If desired, the un-decoded message buffer 
+			* is available in pMsgEvent->pRsslMsgBuffer. */
+	
+		RsslErrorInfo *pError = pMsgEvent->pErrorInfo;
+		printf("defaultMsgCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RC_CRET_FAILURE;
+	}
+
+	return processItemMsg(pReactorChannel, pMsg);
 }
 
 

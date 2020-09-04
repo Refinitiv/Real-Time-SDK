@@ -116,7 +116,7 @@ rtrNamedSem *_rtrShmMutexOpenInt( int isEvent/* is event or mutex? */, int isOwn
 			free(newMutex); 
 			return 0; 
 		}
-		strncpy(newMutex->name, memMapName, tempLen);
+		strcpy(newMutex->name, memMapName);
 	}
 
 	return newMutex;
@@ -702,7 +702,7 @@ rtrShmNamedPipePtr rtrShmSegCreateNamedPipe( const char *key, unsigned short nam
 		free(pipe);
 		return 0;
 	}
-	strncpy(pipe->name, namedPipeName, tempLen);
+	strcpy(pipe->name, namedPipeName);
 	pipe->fd = fd;
 
 	return pipe;
@@ -781,7 +781,7 @@ rtrShmNamedPipePtr rtrShmSegAttachNamedPipe( const char *key, unsigned short nam
 		free(pipe);
 		return 0;
 	}
-	strncpy(pipe->name, namedPipeName, tempLen);
+	strcpy(pipe->name, namedPipeName);
 	pipe->fd = fd;
 
 	return pipe;

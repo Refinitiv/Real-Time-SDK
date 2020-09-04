@@ -9,10 +9,10 @@ package com.thomsonreuters.ema.unittest;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.*;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -910,7 +910,43 @@ public class StatusMsgTests extends TestCase
 	     
 	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
-	
+
+	public void testStatusMsg_cloneForEncodeSide()
+	{
+		TestUtilities.printTestHead("testStatusMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		StatusMsg msg = EmaFactory.createStatusMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE)
+				.name("Some status")
+				.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Login accepted")
+				;
+
+		try {
+			StatusMsg cloneMessage = EmaFactory.createStatusMsg(msg);
+			TestUtilities.checkResult(true, "Clone not supported  - exception IS NOT expected: ");
+			compareEmaStatusMsgFields(msg, cloneMessage, "Status message with no payload clone");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(false, "Clone not supported  - exception IS NOT expected: " +  excp.getMessage() );
+		}
+	}
+
+	public void testStatusMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testStatusMsg_cloneMsgKeyWLScenario", "cloning for minimal ema status message");
+		StatusMsg emaMsg = EmaFactory.createStatusMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		StatusMsg emaClonedMsg = EmaFactory.createStatusMsg(emaMsg);
+
+		compareEmaStatusMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA StatusMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testStatusMsg_clone()
 	{
 		TestUtilities.printTestHead("testStatusMsg_clone", "cloning for ema status message");
@@ -982,6 +1018,8 @@ public class StatusMsgTests extends TestCase
 		statusMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		statusMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(statusMsg);
+
 		System.out.println("End UPA StatusMsg Set");
 		System.out.println();
 
@@ -1021,15 +1059,7 @@ public class StatusMsgTests extends TestCase
 		
 		com.thomsonreuters.ema.access.StatusMsg emaStatusMsgClone = EmaFactory.createStatusMsg(emaStatusMsg);
 		
-		TestUtilities.checkResult(emaStatusMsgClone.domainType() == emaStatusMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaStatusMsgClone.streamId() == emaStatusMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaStatusMsgClone.hasMsgKey() == emaStatusMsg.hasMsgKey(), "Compare hasMsgKey");
-		TestUtilities.checkResult(emaStatusMsgClone.hasState() == emaStatusMsg.hasState(), "Compare hasState");
-		TestUtilities.checkResult(emaStatusMsgClone.state().code() == emaStatusMsg.state().code(), "Compare state code");
-		TestUtilities.checkResult(emaStatusMsgClone.state().streamState() == emaStatusMsg.state().streamState(), "Compare state streamState");
-		TestUtilities.checkResult(emaStatusMsgClone.state().dataState() == emaStatusMsg.state().dataState(), "Compare state dataState");
-		TestUtilities.checkResult(emaStatusMsgClone.clearCache() == emaStatusMsg.clearCache(), "Compare state clearCache");
-		
+		compareEmaStatusMsgFields(emaStatusMsg, emaStatusMsgClone, "Status cloned message");
 		String emaStatusMsgString = emaStatusMsg.toString();
 		String emaStatusMsgCloneString = emaStatusMsgClone.toString();
 		
@@ -1037,11 +1067,34 @@ public class StatusMsgTests extends TestCase
 		System.out.println(emaStatusMsgClone);
 		
 		TestUtilities.checkResult(emaStatusMsgString.equals(emaStatusMsgCloneString), "emaStatusMsgString.equals(emaStatusMsgCloneString)");
-		
+
+		com.thomsonreuters.ema.access.StatusMsg emaStatusMsgClone2 = EmaFactory.createStatusMsg(emaStatusMsgClone);
+		compareEmaStatusMsgFields(emaStatusMsg, emaStatusMsgClone2, "Status double-cloned message");
+		String emaStatusMsgClone2String = emaStatusMsgClone2.toString();
+		TestUtilities.checkResult(emaStatusMsgString.equals(emaStatusMsgClone2String), "double-cloned emaStatusMsgString.equals(emaStatusMsgClone2String)");
+
 		System.out.println("End EMA StatusMsg clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.StatusMsg statusMsg) {
+		statusMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		statusMsg.extendedHeader(extendedHeader);
+
+		Buffer itemGroup = CodecFactory.createBuffer();
+		itemGroup.data(ByteBuffer.wrap(new byte[] {30, 40, 50, 60, 77, 77, 77, 77, 88}));
+		statusMsg.groupId(itemGroup);
+
+		statusMsg.applyHasPermData();
+		Buffer permissionData = CodecFactory.createBuffer();
+		permissionData.data(ByteBuffer.wrap(new byte[]{50, 51, 52, 53}));
+		statusMsg.permData(permissionData);
+
+		statusMsg.applyPrivateStream();
+	}
+
 	public void testStatusMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testStatusMsg_clone", "cloning for ema status message");
@@ -1147,20 +1200,13 @@ public class StatusMsgTests extends TestCase
 		statusMsgDecode.decode(decIter);
 
 		com.thomsonreuters.ema.access.StatusMsg emaStatusMsg = JUnitTestConnect.createStatusMsg();
-				
+
 		JUnitTestConnect.setRsslData(emaStatusMsg, statusMsgDecode, majorVersion, minorVersion, dictionary, null);
 		
 		com.thomsonreuters.ema.access.StatusMsg emaStatusMsgClone = EmaFactory.createStatusMsg(emaStatusMsg);
-		
-		TestUtilities.checkResult(emaStatusMsgClone.domainType() == emaStatusMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaStatusMsgClone.streamId() == emaStatusMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaStatusMsgClone.hasMsgKey() == emaStatusMsg.hasMsgKey(), "Compare hasMsgKey");
-		TestUtilities.checkResult(emaStatusMsgClone.hasState() == emaStatusMsg.hasState(), "Compare hasState");
-		TestUtilities.checkResult(emaStatusMsgClone.state().code() == emaStatusMsg.state().code(), "Compare state code");
-		TestUtilities.checkResult(emaStatusMsgClone.state().streamState() == emaStatusMsg.state().streamState(), "Compare state streamState");
-		TestUtilities.checkResult(emaStatusMsgClone.state().dataState() == emaStatusMsg.state().dataState(), "Compare state dataState");
-		TestUtilities.checkResult(emaStatusMsgClone.clearCache() == emaStatusMsg.clearCache(), "Compare state clearCache");
-		
+
+		compareEmaStatusMsgFields(emaStatusMsg, emaStatusMsgClone, "Status cloned message");
+
 		String emaStatusMsgString = emaStatusMsg.toString();
 		String emaStatusMsgCloneString = emaStatusMsgClone.toString();
 		
@@ -1172,5 +1218,38 @@ public class StatusMsgTests extends TestCase
 		System.out.println("End EMA StatusMsg clone");
 		System.out.println();
 	}
-	
+
+	private void compareEmaStatusMsgFields(StatusMsg expected, StatusMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+		TestUtilities.checkResult(expected.hasState() == actual.hasState(), checkPrefix + "hasState");
+		if(expected.hasState()) {
+			TestUtilities.checkResult(expected.state().code() == actual.state().code(), checkPrefix + "state.code");
+			TestUtilities.checkResult(expected.state().statusCode() == actual.state().statusCode(), checkPrefix + "state.statusCode");
+			TestUtilities.checkResult(expected.state().streamState() == actual.state().streamState(), checkPrefix + "state.streamState()");
+			TestUtilities.checkResult(expected.state().statusText().equals(actual.state().statusText()), checkPrefix + "state.statusText");
+		}
+
+		TestUtilities.checkResult(expected.hasPublisherId() == actual.hasPublisherId(), checkPrefix + "hasPublisherId");
+		if(expected.hasPublisherId()) {
+			TestUtilities.checkResult(expected.publisherIdUserId() == actual.publisherIdUserId(), checkPrefix + "publisherIdUserId");
+			TestUtilities.checkResult(expected.publisherIdUserAddress() == actual.publisherIdUserAddress(), checkPrefix + "publisherIdUserAddress");
+		}
+
+		TestUtilities.checkResult(expected.clearCache() == actual.clearCache(), checkPrefix + "clearCache");
+		TestUtilities.checkResult(expected.privateStream() == actual.privateStream(), checkPrefix + "privateStream");
+
+		TestUtilities.checkResult(expected.hasItemGroup() == actual.hasItemGroup(), checkPrefix + "hasItemGroup");
+		if(expected.hasItemGroup())
+			TestUtilities.checkResult(expected.itemGroup().equals(actual.itemGroup()), checkPrefix + "itemGroup");
+
+		TestUtilities.checkResult(expected.hasPermissionData() == actual.hasPermissionData(), checkPrefix + "hasPermissionData");
+		if(expected.hasPermissionData())
+			TestUtilities.checkResult(expected.permissionData().equals(actual.permissionData()), checkPrefix + "permissionData");
+	}
 }

@@ -127,11 +127,14 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     
     private static String 						_defaultAppName = "ema";
     private HttpChannelConfig 				    _tunnelingChannelCfg;
+	private EncryptionConfig _encyptionCfg;
     
     private Buffer								_clientId = CodecFactory.createBuffer();
     private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
     private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
     private boolean								_takeExclusiveSignOnControl = true;
+    private Buffer								_clientSecret = CodecFactory.createBuffer();
+    private Buffer								_tokenScope = CodecFactory.createBuffer();
 
 	EmaConfigImpl()
 	{
@@ -196,6 +199,9 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			_programmaticConfigure.clear();
 		
 		_takeExclusiveSignOnControl = true;
+		_clientId.clear();
+		_clientSecret.clear();
+		_tokenScope.clear();
 	}
 	
 	protected void usernameInt(String username)
@@ -232,6 +238,16 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	protected void clientIdInt(String clientId)
 	{
 		_clientId.data(clientId);
+	}
+	
+	protected void clientSecretInt(String clientSecret)
+	{
+		_clientSecret.data(clientSecret);
+	}
+	
+	protected void tokenScopeInt(String tokenScope)
+	{
+		_tokenScope.data(tokenScope);
 	}
 	
 	protected void tokenServiceUrlInt(String tokenServiceUrl)
@@ -837,14 +853,32 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	public HttpChannelConfig tunnelingChannelCfg()
 	{
 		if (_tunnelingChannelCfg == null)
-			_tunnelingChannelCfg = new EncryptedChannelConfig() ;
+			_tunnelingChannelCfg = new HttpChannelConfig() ;
 		
 		return _tunnelingChannelCfg;
+	}
+
+	public EncryptionConfig encryptionCfg()
+	{
+		if (_encyptionCfg == null)
+			_encyptionCfg = new EncryptionConfig() ;
+
+		return _encyptionCfg;
 	}
 	
 	Buffer clientId()
 	{
 		return _clientId;
+	}
+	
+	Buffer clientSecret()
+	{
+		return _clientSecret;
+	}
+	
+	Buffer tokenScope()
+	{
+		return _tokenScope;
 	}
 	
 	Buffer tokenServiceUrl()

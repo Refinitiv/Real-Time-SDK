@@ -72,7 +72,27 @@ typedef struct {
 	FILE* traceMsgFilePtr;		   /* Pointer to the user specified file */
 } RsslTraceOptionsInfo;
 
-	
+/** @brief Monitoring information of allocates/deallocates instances and a close call.
+ * rsslServerImpl - pool of preallocated objects are stored in the queues freeServerList/activeServerList
+ * and members:
+ * rsslServerImpl.transportInfo => an instance of RsslServerSocketChannel - pool of preallocated objects are stored in the queues freeServerSocketChannelList/activeServerSocketChannelList
+ * RsslServerSocketChannel.stream => a socket API object - monitoring close_sock API call
+ * RsslServerSocketChannel.transportInfo => a SSL server instance on encrypted connection
+ *
+ * rsslServerImpl.transportInfo => an instance of rtrShmTransServer on shared memory connection
+ *
+ * @see rsslServerImpl, RsslServerSocketChannel, rtrShmTransServer
+*/
+typedef struct {
+	RsslUInt32		countOfFreeServerList;		/* stores a current amount of elements in the queue freeServerList rsslImpl.c (rsslServerImpl) */
+	RsslUInt32		countOfActiveServerList;	/* stores a current amount of elements in the queue activeServerList rsslImpl.c (rsslServerImpl) */
+	RsslUInt32		countOfFreeServerSocketChannelList;		/* stores a current amount of elements in the queue freeServerSocketChannelList rsslSocketTransportImpl.c (RsslServerSocketChannel) */
+	RsslUInt32		countOfActiveServerSocketChannelList;	/* stores a current amount of elements in the queue activeServerSocketChannelList rsslSocketTransportImpl.c (RsslServerSocketChannel) */
+
+	RsslUInt32		numberCallsOfReleaseSSLServer;	/* stores a current number of ripcReleaseSSLServer calls for RsslServerSocketChannel::transportInfo */
+	RsslUInt32		numberCallsOfShmTransDestroy;	/* stores a current number of rtrShmTransDestroy calls for rsslServerImpl::transportInfo */
+} rsslServerCountersInfo;
+
 typedef struct {
 	RsslChannel 	Channel;			/* stores actual channel structure */
 	RsslQueueLink	link1;				/* storage for the activeChannelList qtool links */
@@ -125,6 +145,7 @@ typedef struct {
 	RsslUInt32		recvBufSize;			/* receive buffer size to use for accepted connections */
 	RsslComponentInfo	connOptsCompVer;	/* the component version string passed in by the user through the connectOpts*/
 	RsslBool		serverSharedSocket;		/* will be allowed to share socket */
+	rsslServerCountersInfo	serverCountersInfo;	/* stores amount of active and free memory instances rsslServerImpl, RsslServerSocketChannel */
 } rsslServerImpl;
 
 typedef struct {

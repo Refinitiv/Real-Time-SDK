@@ -31,7 +31,6 @@ class RestClient implements Runnable, RestCallback {
 	RestReactor _restReactor;
 	
 	private RestReactorOptions _restReactorOptions;
-	private ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 	
 	private List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList;
     
@@ -132,6 +131,7 @@ class RestClient implements Runnable, RestCallback {
 		}
 		break;	
 		case RestEventTypes.FAILED:
+		case RestEventTypes.STOPPED:
 			
 			if(reactorChannel != null)
 			{
@@ -143,14 +143,22 @@ class RestClient implements Runnable, RestCallback {
 					
 				event.errorInfo().error().text("Failed REST request from HTTP status code " + response.statusCode() + ". Text: " +  errorText);
 					
-				reactorChannel.reactor().populateErrorInfo(_errorInfo, ReactorReturnCodes.FAILURE, "RestClient.RestResponseCallback", 
+				reactorChannel.reactor().populateErrorInfo(reactorChannel.getEDPErrorInfo(), ReactorReturnCodes.FAILURE, "RestClient.RestResponseCallback", 
 							"Failed REST request with text: " + errorText);
 					
-				reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, _errorInfo);
+				reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, reactorChannel.getEDPErrorInfo());
 				
 				if(reactorChannel.state() == State.EDP_RT)
 				{
-					reactorChannel.setEDPErrorInfo(_errorInfo);
+					if(event.eventType() == RestEventTypes.STOPPED)
+					{
+						reactorChannel.sessionMgntState(SessionMgntState.STOP_QUERYING_SERVICE_DISCOVERY);
+					}
+					else
+					{
+						reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
+					}
+					
 					reactorChannel.state(State.EDP_RT_FAILED);
 				}
 				
@@ -169,14 +177,13 @@ class RestClient implements Runnable, RestCallback {
 	{
 		ReactorChannel reactorChannel = (ReactorChannel)event.resultClosure().userSpecObj();
 		
-		RestReactor.populateErrorInfo(event.errorInfo(),
+		RestReactor.populateErrorInfo(reactorChannel.getEDPErrorInfo(),
                 ReactorReturnCodes.FAILURE,
                 "RestHandler.failed", "Failed REST request for the service discovery. Text: " + errorText);
 		
-		reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, event.errorInfo());
-		
 		reactorChannel.sessionMgntState(SessionMgntState.REQ_FAILURE_FOR_SERVICE_DISCOVERY);
 		
+		reactorChannel.reactor().sendChannelWarningEvent(reactorChannel, reactorChannel.getEDPErrorInfo());
 		if (reactorChannel.state() == State.EDP_RT)
 		{
 			reactorChannel.state(State.EDP_RT_FAILED);

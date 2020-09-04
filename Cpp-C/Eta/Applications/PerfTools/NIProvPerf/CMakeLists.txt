@@ -8,8 +8,10 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketByOrderEncoder.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/marketPriceEncoder.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/perfTunnelMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/providerThreads.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c
+  ${EtaExamples_SOURCE_DIR}/PerfTools/Common/tunnelStreamHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlItemListParser.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
   )

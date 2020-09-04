@@ -1,4 +1,4 @@
-
+///*|-----------------------------------------------------------------------------
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
@@ -12,8 +12,7 @@ import java.util.List;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.*;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 
 //This class is created as a connect bridge between JUNIT test and EMA external/internal interface/classes.
@@ -83,6 +82,7 @@ public class JUnitTestConnect
 	// Channel Parameters:
 	public static final int ChannelName  = ConfigManager.ChannelName;
 	public static final int ChannelType  = ConfigManager.ChannelType;
+	public static final int EncryptedProtocolType  = ConfigManager.EncryptedProtocolType;
 	public static final int ChannelInitTimeout = ConfigManager.ChannelInitTimeout;
 	
 	// Channel: Multicast
@@ -336,6 +336,40 @@ public class JUnitTestConnect
 		((MsgImpl) msg).decode(((DataImpl)dataEncoded).encodedData(), majVer, minVer,  rsslDictionary, localFlSetDefDb);
 	}
 	
+	// used only for JUNIT tests
+	public static Buffer getRsslData(Msg msg) {
+		return ((MsgImpl)msg).encodedData();
+	}
+
+	public static void setRsslMsgKeyFlag(Msg msg, boolean hasMsgKeyFlag) {
+		int newFlags = ((MsgImpl)msg)._rsslMsg.flags();
+		int dataType = ((MsgImpl)msg)._dataType;
+		if (hasMsgKeyFlag) {
+			newFlags |= hasMsgKeyFlagValueByMessageType(dataType);
+		} else {
+			newFlags &= ~hasMsgKeyFlagValueByMessageType(dataType);
+		}
+		((MsgImpl)msg)._rsslMsg.flags(newFlags);
+	}
+
+	static int hasMsgKeyFlagValueByMessageType(int dataType) {
+		switch (dataType){
+			case DataType.DataTypes.UPDATE_MSG :
+				return UpdateMsgFlags.HAS_MSG_KEY;
+			case DataType.DataTypes.REFRESH_MSG :
+				return RefreshMsgFlags.HAS_MSG_KEY;
+			case DataType.DataTypes.STATUS_MSG :
+				return StatusMsgFlags.HAS_MSG_KEY;
+			case DataType.DataTypes.GENERIC_MSG :
+				return GenericMsgFlags.HAS_MSG_KEY;
+			case DataType.DataTypes.POST_MSG :
+				return PostMsgFlags.HAS_MSG_KEY;
+			case DataType.DataTypes.ACK_MSG :
+				return AckMsgFlags.HAS_MSG_KEY;
+			default:
+				return 0;
+		}
+	}
 	// used only for JUNIT tests
 	public static String getLastErrorText()
 	{
@@ -913,6 +947,8 @@ public class JUnitTestConnect
 
 			if (configParam == ChannelType)
 				return chanConfig.rsslConnectionType;
+			else if (configParam == EncryptedProtocolType)
+				return chanConfig.encryptedProtocolType;
 			else if (configParam == CompressionType)
 				return chanConfig.compressionType;
 			else if (configParam == GuaranteedOutputBuffers)

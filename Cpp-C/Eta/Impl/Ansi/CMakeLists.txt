@@ -53,7 +53,7 @@ else()
 	endif()
 
 	
-	rcdev_add_target(esdk libansi)
+	rcdev_add_target(rtsdk libansi)
 
 endif()
 

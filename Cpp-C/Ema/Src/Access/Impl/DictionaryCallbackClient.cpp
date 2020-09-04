@@ -867,11 +867,17 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )pDictionary;
 
 	const EmaVector< EmaString > dictionariesUsed = directory.getInfo().getDictionariesUsed().getDictionaryList();
+	const EmaVector< EmaString > dictionariesProvided = directory.getInfo().getDictionariesProvided().getDictionaryList();
 
 	Int32 streamId = 3;
 
 	for ( UInt32 idx = 0; idx < dictionariesUsed.size(); ++idx )
 	{
+		const EmaString& dictionaryUsage_Name = dictionariesUsed[idx];
+		// download the dictionary if it is included to dictionariesProvided list
+		if (dictionariesProvided.getPositionOf(dictionaryUsage_Name) < 0)
+			continue;
+
 		requestMsg.msgBase.msgKey.name.data = ( char* )dictionariesUsed[idx].c_str();
 		requestMsg.msgBase.msgKey.name.length = dictionariesUsed[idx].length();
 		requestMsg.msgBase.streamId = streamId++;

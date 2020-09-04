@@ -9,12 +9,8 @@ package com.thomsonreuters.ema.access;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.upa.transport.CompressionTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
@@ -28,6 +24,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_COMPRESSION_THRESHOLD_LZ4          = 300;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
+	final static int DEFAULT_ENCRYPTED_PROTOCOL_TYPE			= ConnectionTypes.HTTP;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
 	final static int DEFAULT_INITIALIZATION_TIMEOUT				= 5;
 	final static int DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		= 60;
@@ -223,4 +220,6 @@ abstract class ActiveConfig extends BaseConfig
 			restRequestTimeout = 0;
 	}
 }
+
+
 

@@ -7,24 +7,24 @@
 
 include(rcdevExternalUtils)
 
-if(NOT elektron-sdk-binarypack_url)
-	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-1.5.0.G1/Elektron-SDK-BinaryPack-1.5.0.G1.tar.xz")
+if(NOT rtsdk-binarypack_url)
+	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-1.5.1.L1/RTSDK-BinaryPack-1.5.1.L1.tar.xz")
 endif()
-if(NOT elektron-sdk-binarypack_hash)
+if(NOT rtsdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(elektron-sdk-binarypack_hash "MD5=c1a74713f99f1844c74342f62da3c700")
+	set(rtsdk-binarypack_hash "MD5=2559718b884c67966bf6b47923ec47c0")
 endif()
-if(NOT elektron-sdk-binarypack_version)
-	set(elektron-sdk-binarypack_version "1.5.0.1")
+if(NOT rtsdk-binarypack_version)
+	set(rtsdk-binarypack_version "1.5.1.0")
 endif()
 	
 # If the option for using the system installed 
 #  package is not defined
-if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND 
-	(NOT TARGET Elektron-SDK-BinaryPack:rsslVACache) )
-	# An external project for Elektron-SDK-BinaryPack
-	set(_EPA_NAME "elektron-sdk-binarypack")
+if( (NOT rtsdk-binarypack_USE_INSTALLED) AND 
+	(NOT TARGET RTSDK-BinaryPack:rsslVACache) )
+	# An external project for RTSDK-BinaryPack
+	set(_EPA_NAME "rtsdk-binarypack")
 
 	# Initialize the directory variables for the external project
 	# default:
@@ -38,29 +38,29 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 
 	# get the file name off the url to ensure it is
 	# downloaded with the same name
-	get_filename_component(_dl_filename "${elektron-sdk-binarypack_url}" NAME)
-	set(_DL_METHOD	 "URL           ${elektron-sdk-binarypack_url}")
+	get_filename_component(_dl_filename "${rtsdk-binarypack_url}" NAME)
+	set(_DL_METHOD	 "URL           ${rtsdk-binarypack_url}")
 
-	if(elektron-sdk-binarypack_hash)
-		list(APPEND _DL_METHOD "URL_HASH      ${elektron-sdk-binarypack_hash}")
+	if(rtsdk-binarypack_hash)
+		list(APPEND _DL_METHOD "URL_HASH      ${rtsdk-binarypack_hash}")
 	endif()
 
-	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${elektron-sdk-binarypack_download}")
+	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${rtsdk-binarypack_download}")
 
 	if (DEFINED _dl_filename)
 		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
 	endif()
 
-	# Since the elektron-sdk-binarypack is a different external beast, the default
+	# Since the rtsdk-binarypack is a different external beast, the default
 	# source and binary directories need to be overridden.  This will need to remain
-	# until the Java binaries are removed or an install is created for the esdkbp
-	set(elektron-sdk-binarypack_source "${CMAKE_CURRENT_SOURCE_DIR}/Elektron-SDK-BinaryPack")
-	set(_EPA_SOURCE_DIR "SOURCE_DIR ${elektron-sdk-binarypack_source}")
-	set(_EPA_BINARY_DIR "BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/Elektron-SDK-BinaryPack")
+	# until the Java binaries are removed or an install is created for the rtsdkbp
+	set(rtsdk-binarypack_source "${CMAKE_CURRENT_SOURCE_DIR}/RTSDK-BinaryPack")
+	set(_EPA_SOURCE_DIR "SOURCE_DIR ${rtsdk-binarypack_source}")
+	set(_EPA_BINARY_DIR "BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/RTSDK-BinaryPack")
 	
-	# There is no install step for the elektron-sdk-binarypack.  However,
+	# There is no install step for the rtsdk-binarypack.  However,
 	# if one is ever done, it should be set to this locaion
-	set(_EPA_INSTALL_DIR "INSTALL_DIR ${elektron-sdk-binarypack_install}")
+	set(_EPA_INSTALL_DIR "INSTALL_DIR ${rtsdk-binarypack_install}")
 	
 	# Append the shared args to the CMake arguments to the template variable
 	set(EXTERNAL_MODULE_PATH "${CMAKE_MODULE_PATH}")
@@ -102,8 +102,8 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 
 	# Add log defiitions if selected to be enabled and append them to the
 	# additional args variable
-	DEBUG_PRINT(elektron-sdk-binarypack_LOG_BUILD)
-	if(elektron-sdk-binarypack_LOG_BUILD)
+	DEBUG_PRINT(rtsdk-binarypack_LOG_BUILD)
+	if(rtsdk-binarypack_LOG_BUILD)
 		set(_log_args 
 						"LOG_CONFIGURE 1"
 						"LOG_BUILD 1"
@@ -122,13 +122,13 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 	# this policy is needed to supress a CMake warning about the new
 	# standard for using <project>_ROOT variable for find_package()
 	if( POLICY CMP0074 )
-		#message("Setting CMake policy CMP0074 esdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
+		#message("Setting CMake policy CMP0074 rtsdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
 		cmake_policy(SET CMP0074 NEW)
 	endif()
 	
-	set(Elektron-SDK-BinaryPack_ROOT "${elektron-sdk-binarypack_install}" CACHE PATH "")
-	set(Elektron-SDK-BinaryPack_DIR "${Elektron-SDK-BinaryPack_ROOT}" CACHE PATH "")
-	set(elektron-sdk-binarypack_find_options HINTS ${elektron-sdk-binarypack_install} CACHE INTERNAL "")
+	set(RTSDK-BinaryPack_ROOT "${rtsdk-binarypack_install}" CACHE PATH "")
+	set(RTSDK-BinaryPack_DIR "${RTSDK-BinaryPack_ROOT}" CACHE PATH "")
+	set(rtsdk-binarypack_find_options HINTS ${rtsdk-binarypack_install} CACHE INTERNAL "")
 
 	unset(_shared_arg)
 	unset(_log_args)
@@ -139,20 +139,19 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 	# this template will be at risk being currupted with old values.
 	rcdev_reset_ep_add()
 
-DEBUG_PRINT(Elektron-SDK-BinaryPack_ROOT)
-DEBUG_PRINT(Elektron-SDK-BinaryPack_CONFIG)
+DEBUG_PRINT(RTSDK-BinaryPack_ROOT)
+DEBUG_PRINT(RTSDK-BinaryPack_CONFIG)
 
 endif()
 
-if(NOT Elektron-SDK-BinaryPack_FOUND)
-	find_package(Elektron-SDK-BinaryPack REQUIRED  "${elektron-sdk-binarypack_find_options}")
+if(NOT RTSDK-BinaryPack_FOUND)
+	find_package(RTSDK-BinaryPack REQUIRED  "${rtsdk-binarypack_find_options}")
 endif()
 
-DEBUG_PRINT(Elektron-SDK-BinaryPack_FOUND)
-DEBUG_PRINT(Elektron-SDK-BinaryPack_INCLUDE_DIRS)
-DEBUG_PRINT(Elektron-SDK-BinaryPack_VERSION_STRING)
-DEBUG_PRINT(Elektron-SDK-BinaryPack::dacsLib)
-DEBUG_PRINT(Elektron-SDK-BinaryPack::ansiLib)
-DEBUG_PRINT(Elektron-SDK-BinaryPack::rsslVACache)
+DEBUG_PRINT(RTSDK-BinaryPack_FOUND)
+DEBUG_PRINT(RTSDK-BinaryPack_INCLUDE_DIRS)
+DEBUG_PRINT(RTSDK-BinaryPack_VERSION_STRING)
+DEBUG_PRINT(RTSDK-BinaryPack::dacsLib)
+DEBUG_PRINT(RTSDK-BinaryPack::rsslVACache)
 
 

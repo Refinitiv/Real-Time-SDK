@@ -1634,7 +1634,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         {
         	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
         	cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-            cOpt.tunnelingInfo().tunnelingType("encrypted"); 
+            cOpt.encryptionOptions().connectionType(chnlInfo.connectionArg.encryptedConnectionType());
             setEncryptedConfiguration(cOpt);        	           	        	
         }        
         else if (chnlInfo.shouldEnableHttp)
@@ -1644,6 +1644,43 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
             cOpt.tunnelingInfo().tunnelingType("http"); 
             setHTTPConfiguration(cOpt);
         } 
+        
+        /* Setup proxy info */
+        if (watchlistConsumerConfig.enableProxy())
+        {
+         	String proxyHostName = watchlistConsumerConfig.proxyHostname();
+            if ( proxyHostName == null)
+            {
+            	System.err.println("Error: Proxy hostname not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            }           
+            String proxyPort = watchlistConsumerConfig.proxyPort();
+            if ( proxyPort == null)
+            {
+            	System.err.println("Error: Proxy port number not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            }                             	
+
+  
+            chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxy(true);
+            chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxyHostName(proxyHostName);
+            try
+            {
+            	chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
+            }
+            catch(Exception e)
+            {
+               	System.err.println("Error: Proxy port number not provided.");  
+            	System.exit(CodecReturnCodes.FAILURE);            	
+            }
+            // credentials
+            if (chnlInfo.connectOptions.connectionList().get(0).connectOptions().tunnelingInfo().HTTPproxy())
+            {
+                setCredentials(chnlInfo.connectOptions.connectionList().get(0).connectOptions());           
+            }
+        }
+   
+        
         
         // handle basic tunnel stream configuration
         if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
@@ -1780,19 +1817,21 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     	
     	String keyFile = watchlistConsumerConfig.keyStoreFile();
     	String keyPasswd = watchlistConsumerConfig.keystorePassword();
-        if (keyFile == null)
+    	
+        if (keyFile != null && !keyFile.isEmpty())
         {
-        	System.err.println("Error: Keystore file not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystoreFile(keyFile);     		        		        		
         }                   
-        if (keyPasswd == null)
+        if (keyPasswd != null && !keyFile.isEmpty())
         {
-        	System.err.println("Error: Keystore password not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+        	options.encryptionOptions().KeystorePasswd(keyPasswd);    		        		        		
         }          
-    	    	
-    	options.tunnelingInfo().KeystoreFile(keyFile);
-        options.tunnelingInfo().KeystorePasswd(keyPasswd);   
+        
+        options.encryptionOptions().KeystoreType("JKS");
+        options.encryptionOptions().SecurityProtocol("TLS");
+        options.encryptionOptions().SecurityProvider("SunJSSE");
+        options.encryptionOptions().KeyManagerAlgorithm("SunX509");
+        options.encryptionOptions().TrustManagerAlgorithm("PKIX");
     }
 
     
@@ -1804,41 +1843,6 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         options.tunnelingInfo().SecurityProvider("SunJSSE");
         options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
         options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
-    	
-        if (watchlistConsumerConfig.enableProxy())
-        {
-         	String proxyHostName = watchlistConsumerConfig.proxyHostname();
-            if ( proxyHostName == null)
-            {
-            	System.err.println("Error: Proxy hostname not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }           
-            String proxyPort = watchlistConsumerConfig.proxyPort();
-            if ( proxyPort == null)
-            {
-            	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }                             	
-
-  
-            options.tunnelingInfo().HTTPproxy(true);
-            options.tunnelingInfo().HTTPproxyHostName(proxyHostName);
-            try
-            {
-            	options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
-            }
-            catch(Exception e)
-            {
-               	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);            	
-            }
-        }
-   
-        // credentials
-        if (options.tunnelingInfo().HTTPproxy())
-        {
-            setCredentials(options);           
-        }
     }    
     
     /*

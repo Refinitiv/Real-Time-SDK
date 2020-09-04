@@ -398,13 +398,17 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
         # old past haunts, hints will be added in case past wrongs
         # are corrected
         rcdev_get_platform_suffix(_plat_suffix)
-        if (    RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE" 
-			AND RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6 )
+        if (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE" 
+                AND RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6 )
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
         elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
-				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND
-				 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7 ) )
+                (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND
+                (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7 ) )
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" "centOS")
+        elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
+                (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
+                 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) )
+             rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
         else()
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" )
         endif()
@@ -495,8 +499,8 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
         message("Prebuilt libraries not found: ${_search_lib},${_search_dlllib} in \n\t${_hints}")
     else()
         # TODO: add all targets with correct namespace
-        #       i.e esdk::
-        # set(TARGET_NAME "esdk::${TARGET_NAME}")
+        #       i.e rtsdk::
+        # set(TARGET_NAME "rtsdk::${TARGET_NAME}")
         add_library(${TARGET_NAME} ${_WPL_LIBTYPE} IMPORTED GLOBAL)
         set_target_properties(${TARGET_NAME} PROPERTIES
                                     INTERFACE_INCLUDE_DIRECTORIES

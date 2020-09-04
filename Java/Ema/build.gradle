@@ -24,11 +24,11 @@ dependencies {
 }
 
 shadowJar {
-        baseName = 'ESDK'
+        baseName = 'RTSDK'
 }
 
 task coberturaTestFatJar (type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-        baseName = 'ESDK'
+        baseName = 'RTSDK'
 	classifier = 'coberturaTestFatJar'
 	from ('Core/build/instrumented_classes')
 	from ('../Eta/Core/build/instrumented_classes')

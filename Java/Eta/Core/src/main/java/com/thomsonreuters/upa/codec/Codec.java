@@ -4,6 +4,12 @@ import com.thomsonreuters.upa.codec.RwfDataConstants;
 import com.thomsonreuters.upa.transport.LibraryVersionInfo;
 import com.thomsonreuters.upa.transport.LibraryVersionInfoImpl;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Enumeration;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
 /**
  * Collection of interfaces to query supported RWF versions for encoder/decoder
  * as well as RWF protocol type being used by the connection.
@@ -16,16 +22,36 @@ public class Codec
 
     static
     {
-		for (Package thisPackage : Package.getPackages())
-		{
-			if (thisPackage.getName().equals("com.thomsonreuters.upa.codec"))
-			{
-		        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
-		        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
-		        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());				
-				break;
-			}
-		}    	
+        Package thisPackage = Codec.class.getPackage();
+        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
+        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());
+        try {
+            URLClassLoader cl = (URLClassLoader) Codec.class.getClassLoader();
+            Enumeration<URL> urls = cl.findResources("META-INF/MANIFEST.MF");
+            while(urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if(url.getPath().contains("upa-")){
+                    Manifest manifest = new Manifest(url.openStream());
+                    String val = manifest.getMainAttributes().getValue("Build-Date");
+                    _libVersionInfo.productDate(val);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            _libVersionInfo.productDate(null);
+        }
+
+        if (_libVersionInfo.productInternalVersion() == null) {
+            _libVersionInfo.productInternalVersion("UPA Java Edition");
+        }
+
+        if (_libVersionInfo.productVersion() == null) {
+            _libVersionInfo.productVersion("UPA Java Edition");
+        }
+
+        if (_libVersionInfo.productDate() == null) {
+            _libVersionInfo.productDate("N/A");
+        }
     }
 
     /**

@@ -13,7 +13,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTitleAttribute("RsslRmtesNewsDisplay")];
 [assembly:AssemblyDescriptionAttribute("")];
 [assembly:AssemblyConfigurationAttribute("")];
-[assembly:AssemblyCompanyAttribute("Thomson Reuters")];
+[assembly:AssemblyCompanyAttribute("Refinitiv")];
 [assembly:AssemblyProductAttribute("RsslRmtesNewsDisplay")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];

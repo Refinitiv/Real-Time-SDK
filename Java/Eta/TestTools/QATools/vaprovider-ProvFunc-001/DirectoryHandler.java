@@ -67,7 +67,7 @@ class DirectoryHandler
     private int _openWindow = 256;
 
     // vendor name
-    private static final String vendor = "Thomson Reuters";
+    private static final String vendor = "Refinitiv";
 
     // field dictionary name
     private static final String fieldDictionaryName = "RWFFld";

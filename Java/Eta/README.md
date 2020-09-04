@@ -1,13 +1,14 @@
-# Elektron Transport API (ETA) Java Edition
-This is the **Elektron Transport API (ETA)**, the high performance, low latency, foundation of the Elektron SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Elektron Transport API.  
+# Enterprise Transport API (ETA) Java Edition
 
-The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
+This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  
+
+The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 ETA Java contains open source components. The transport, decoder, encoder, and cache components are open source. 
 
-This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases) and is auto pulled by ESDK Gradle build.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
+This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -34,7 +35,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 
 - Can consume and provide:
 
-   - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
+   - Any and all OMM primitives supported on Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct 
 
    - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
 
@@ -52,7 +53,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 
    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content. Reactor also provides opportunity in-box support of RTT monitoring for consumer applications.
 
-   - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Enterprise Platform for Real-time), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules.  Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models.  When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
+   - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules.  Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models.  When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
 
 - DACS library for users to create custom locks for content publishing
 
@@ -82,8 +83,7 @@ Users can use Transport API to write consumer-based applications capable of the 
 - Make Streaming and Snapshot based subscription requests.
 - Perform Batch, Views, and Symbol List requests to capable provider applications, including ADS.
 - Pause and Resume active data streams open to the ADS.
-- Send Post Messages to capable provider applications, including ADS
-(used for making Consumer-based Publishing and Contributions).
+- Send Post Messages to capable provider applications, including ADS (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
 #### Provider Applications: Interactive
@@ -93,8 +93,7 @@ Users can use Transport API to write interactive providers capable of the follow
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
-- Receive and acknowledge Post Messages
-(used when receiving Consumer-based Publishing and Contributions).
+- Receive and acknowledge Post Messages (used when receiving Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
@@ -118,22 +117,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.5.0.1.jar               eta3.5.0.G1       The ETA - Java Edition library.  Includes
+    upa-3.5.1.0.jar               eta3.5.1.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.5.0.1.jar       eta3.5.0.G1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.5.1.0.jar       eta3.5.1.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.5.0.1.jar  eta3.5.0.G1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.5.1.0.jar  eta3.5.1.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.5.0.1.jar          eta3.5.0.G1       The ANSI decoders and encoders.
+    ansipage-3.5.1.0.jar          eta3.5.1.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/UPA/RSSL JNI Libs        eta3.5.0.G1       The JNI libraries for Reliable Multicast
+    ETAC/UPA/RSSL JNI Libs        eta3.5.1.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -161,18 +160,18 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
-    Product Name: Elektron Transport API - Java Edition
-    Release Number: 3.5.0
+    Product Name: Enterprise Transport API - Java Edition
+    Release Number: 3.5.1
     Load Number: 1
-    Load ID: etaj3.5.0.L1.all
-        Supersedes: etaj3.4.0.L1.all.rrg
+    Load ID: etaj3.5.1.L1.all
+        Supersedes: etaj3.5.0.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 

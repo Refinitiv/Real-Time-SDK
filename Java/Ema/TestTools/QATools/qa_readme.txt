@@ -8,6 +8,11 @@ List of altered code directories:
 -----------------------------------------------------------------------------------------
 Module:  Series100Consumer100
 -----------------
+Series100Consumer100-ByteBufferCloning-001
+    Alters Consumer100 to illustrate easy-to-use cloning message method on decode
+side for GenericMsg, RefreshMsg, UpdateMsg, StatusMsg
+    Consumer100 has only onRefreshMessage hander, will exit after 10 seconds.
+
 Series100Consumer100-ConsFunc-001
     Alters consumer that sleep for 1 second before requesting item, 
     calls uninitialize() right after requesting item
@@ -172,10 +177,10 @@ Series100Consumer140-ConsFunc-002
 Module:  Series100Consumer170
 -----------------------------
 Series100Consumer170-ConsFunc-001
-    Alters consumer to test Channel Information ESDK-1601 
+    Alters consumer to test Channel Information 
 
 Series100Consumer170-ConsFunc-002
-     Alters consumer to test OMMErrorClient and modifyIOCtl ESDK-3294
+     Alters consumer to test OMMErrorClient and modifyIOCtl
 
 
 Module:  Series200Consumer200
@@ -566,6 +571,8 @@ Series400Consumer450-ConsFunc-001
 
 Module:  Series100Provider100 
 -------------------------------
+Series100Provider100-ByteBufferCloning-001
+    Alters IProvider100 to supply refresh message with permissionData - ByteBuffer data type.
 
 Series100Provider100-ProvFunc-001
     Alters Interactive Provider to support two incoming consumer connections. 

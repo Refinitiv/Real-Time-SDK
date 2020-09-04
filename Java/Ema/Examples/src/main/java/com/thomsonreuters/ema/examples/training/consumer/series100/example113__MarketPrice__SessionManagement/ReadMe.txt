@@ -3,15 +3,15 @@ Summary
 
 example113__MarketPrice__SessionManagement is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud).
+and parsing OMM MarketPrice data from Refinitiv Real-Time Optimized.
 
 example113__MarketPrice__SessionManagement illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
-a connection with the cloud service and consuming data. This application requires a user name 
-(Machine ID), password, and client ID for authorization with the token service in order to an 
-access token for querying endpoints from the EDP service discovery and sending 
-login requests to the cloud service. EMA automatically refreshes the token to keep 
-session alive with the cloud service.
+a connection with a Refinitiv Real-Time Optimized service and consuming data. This 
+application requires a user name (Machine ID), password, and client ID for authorization 
+with the token service in order to an access token for querying endpoints from the 
+RDP service discovery and sending login requests to the service. EMA automatically 
+refreshes the token to keep session alive with the service.
 
 
 Detailed Description
@@ -22,7 +22,7 @@ example113__MarketPrice__SessionManagement implements the following high-level s
 including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory). 
--clientId client ID for application making the request to EDP token service, 
+-clientId client ID for application making the request to RDP token service, 
 also known as AppKey generated using an AppGenerator (mandatory). You can 
 generate and manage client IDs at the following URL:
 https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
@@ -30,7 +30,7 @@ to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
 -keyfile keystore file for creating an encrypted connection (mandatory).
 -keypasswd keystore password for creating an encrypted connection (mandatory).
-Note: please refer to README.md of ESDK Java for generating a keystore file.
+Note: please refer to README.md of RTSDK Java for generating a keystore file.
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

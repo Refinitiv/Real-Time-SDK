@@ -1,4 +1,4 @@
-if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
+if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 	set( SOURCE_FILES
   rsslConsumer.c            rsslDictionaryHandler.c        rsslDirectoryHandler.c
   rsslLoginConsumer.c       rsslMarketByOrderHandler.c     rsslMarketByPriceHandler.c
@@ -29,7 +29,7 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 							)
 	target_link_libraries( VAConsumer_shared 
 							librsslVA_shared 
-								Elektron-SDK-BinaryPack::rsslVACache_shared 
+								RTSDK-BinaryPack::rsslVACache_shared 
                             ${SYSTEM_LIBRARIES} 
 						)
 
@@ -41,7 +41,7 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 							)
 	target_link_libraries( VAConsumer 
 							librsslVA 
-								Elektron-SDK-BinaryPack::rsslVACache
+								RTSDK-BinaryPack::rsslVACache
                             ${SYSTEM_LIBRARIES}
 						)
 
@@ -86,7 +86,7 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 						)
 	endif()
 else()
-	message(STATUS "Skipping Eta Example VAConsumer Build: BUILD_ELEKTRON-SDK-BINARYPACK:${BUILD_ELEKTRON-SDK-BINARYPACK}")
+	message(STATUS "Skipping Eta Example VAConsumer Build: BUILD_RTSDK-BINARYPACK:${BUILD_RTSDK-BINARYPACK}")
 endif()
 
 

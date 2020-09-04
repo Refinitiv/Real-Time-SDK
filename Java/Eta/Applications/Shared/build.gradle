@@ -1,6 +1,6 @@
 eclipse {
         project {
-                name = 'ESDK-Eta-Shared'
+                name = 'RTSDK-Eta-Shared'
         }
 }
 

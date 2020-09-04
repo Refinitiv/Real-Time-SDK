@@ -90,6 +90,31 @@ public interface ServiceEndpointDiscoveryOption
 	ServiceEndpointDiscoveryOption clientId(String clientId);
 	
 	/**
+	 * Specifies optionally a client secret used by OAuth client to authenticate to the Authorization Server.
+	 * 
+	 * @param clientSecret specifies a client secret.
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption clientSecret(String clientSecret);
+	
+	/**
+	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
+	 * 
+	 * @param tokenScope specifies a token scope
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption tokenScope(String tokenScope);
+	
+	/**
+     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * <p>Defaults to true</p>
+     *
+     * @param takeExclusiveSignOnControl the exclusive sign on control.
+     * @return reference to this object
+     */
+	ServiceEndpointDiscoveryOption takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
+	
+	/**
 	 * Specifies a transport protocol to get endpoints according to the protocol.
 	 * 
 	 * <p>This is an optional option to limit number of endpoints.</p>
@@ -171,13 +196,4 @@ public interface ServiceEndpointDiscoveryOption
 	 * @return reference to this object
 	 */
 	ServiceEndpointDiscoveryOption proxyKRB5ConfigFile(String krb5ConfigFile);
-	
-	/**
-     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
-     * <p>Defaults to true</p>
-     *
-     * @param takeExclusiveSignOnControl the exclusive sign on control.
-     * @return reference to this object
-     */
-	ServiceEndpointDiscoveryOption takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
 }

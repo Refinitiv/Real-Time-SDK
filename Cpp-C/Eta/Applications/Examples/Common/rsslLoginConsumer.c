@@ -32,6 +32,21 @@ static const char *applicationId = "256";
 static const char *pword = "mypassword";
 /* instance id */
 static const char *instanceId = "instance1";
+/* cookie name */
+static const char *nameCookieAuthToken = "AuthToken";
+/* cookie name */
+static const char *nameCookiePosition = "AuthPosition";
+/* cookie name */
+static const char *nameCookieApplicationId = "applicationId";
+
+/* authentication token retrived from cookies*/
+static char valueCookieAuthToken[AUTH_TOKEN_LENGTH];
+
+/* position retrived from cookies*/
+static char valueCookiePosition[MAX_LOGIN_INFO_STRLEN];
+
+/* applicationId token retrived from cookies*/
+static char valueCookieApplicationId[MAX_LOGIN_INFO_STRLEN];
 
 /* user name requested by application */
 static char cmdLineUsername[MAX_LOGIN_INFO_STRLEN];
@@ -54,6 +69,9 @@ static RsslBool isClosedRecoverable = RSSL_FALSE;
 static RsslBool isSuspect = RSSL_TRUE;
 static RsslBool isProvDicDownloadSupported = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
+
+/* skip login request if cookies has all data */
+static RsslBool loginWithCookies = RSSL_FALSE;
 
 /* returns whether login stream is closed */
 RsslBool isLoginStreamClosed()
@@ -163,102 +181,109 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 	/* get a buffer for the login request */
 	msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
 
-	if (msgBuf != NULL)
+	if (!loginWithCookies)
 	{
-		/* provide login request information */
-		/* StreamId */
-		loginReqInfo.StreamId = LOGIN_STREAM_ID;
-		/* Username */
-		if (strlen(cmdLineUsername) == 0) /* no command line username */
+		if (msgBuf != NULL)
 		{
-			userNameBuf.data = userName;
-			userNameBuf.length = sizeof(userName);
-			if (rsslGetUserName(&userNameBuf) == RSSL_RET_SUCCESS)
+			/* provide login request information */
+			/* StreamId */
+			loginReqInfo.StreamId = LOGIN_STREAM_ID;
+			/* Username */
+			if (strlen(cmdLineUsername) == 0) /* no command line username */
 			{
-				snprintf(loginReqInfo.Username, 128, "%s", userName);
+				userNameBuf.data = userName;
+				userNameBuf.length = sizeof(userName);
+				if (rsslGetUserName(&userNameBuf) == RSSL_RET_SUCCESS)
+				{
+					snprintf(loginReqInfo.Username, 128, "%s", userName);
+				}
+				else
+				{
+					snprintf(loginReqInfo.Username, 128, "%s", defaultUsername);
+				}
+			}
+			else /* use command line username */
+			{
+				snprintf(loginReqInfo.Username, 128, "%s", cmdLineUsername);
+			}
+			/* If an authentication token is present, set the login request's name type to RDM_LOGIN_USER_AUTHN_TOKEN and use the authentication token */
+			if (strlen(cmdLineAuthenticationToken) != 0)
+			{
+				snprintf(loginReqInfo.AuthenticationToken, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationToken);
+				loginReqInfo.NameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+
+				if (strlen(cmdLineAuthenticationExtended) != 0)
+				{
+					snprintf(loginReqInfo.AuthenticationExtended, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationExtended);
+				}
+			}
+			/* If the application Id is present, set on the request */
+			if (strlen(cmdLineApplicationId) != 0)
+			{
+				snprintf(loginReqInfo.ApplicationId, 128, "%s", cmdLineApplicationId);
+			}
+			else /* Use default AppId */
+			{
+				snprintf(loginReqInfo.ApplicationId, 128, "%s", applicationId);
+			}
+			/* ApplicationName */
+			snprintf(loginReqInfo.ApplicationName, 128, "%s", appName);
+			/* Position */
+			if (gethostname(hostName, sizeof(hostName)) != 0)
+			{
+				snprintf(hostName, 256, "localhost");
+			}
+			hostNameBuf.data = hostName;
+			hostNameBuf.length = sizeof(hostName);
+			if (rsslHostByName(&hostNameBuf, &ipAddress) == RSSL_RET_SUCCESS)
+			{
+				rsslIPAddrUIntToString(ipAddress, positionStr);
+				strcat(positionStr, "/net");
+				snprintf(loginReqInfo.Position, 128, "%s", positionStr);
 			}
 			else
 			{
-				snprintf(loginReqInfo.Username, 128, "%s", defaultUsername);
+				snprintf(loginReqInfo.Position, 128, "localhost");
 			}
-		}
-		else /* use command line username */
-		{
-			snprintf(loginReqInfo.Username, 128, "%s", cmdLineUsername);
-		}
-		/* If an authentication token is present, set the login request's name type to RDM_LOGIN_USER_AUTHN_TOKEN and use the authentication token */
-		if(strlen(cmdLineAuthenticationToken) != 0)
-		{
-			snprintf(loginReqInfo.AuthenticationToken, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationToken);
-			loginReqInfo.NameType = RDM_LOGIN_USER_AUTHN_TOKEN;
-			
-			if(strlen(cmdLineAuthenticationExtended) != 0)
+			/* Password */
+			snprintf(loginReqInfo.Password, 128, "%s", pword);
+			/* InstanceId */
+			snprintf(loginReqInfo.InstanceId, 128, "%s", instanceId);
+			/* if provider, change role and single open from default values */
+			if (role == RSSL_PROVIDER)
 			{
-				snprintf(loginReqInfo.AuthenticationExtended, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationExtended);
+				/* this provider does not support SingleOpen behavior */
+				loginReqInfo.SingleOpen = 0;
+				/* provider role */
+				loginReqInfo.Role = RSSL_PROVIDER;
 			}
-		}
-		/* If the application Id is present, set on the request */
-		if(strlen(cmdLineApplicationId) != 0)
-		{
-			snprintf(loginReqInfo.ApplicationId, 128, "%s", cmdLineApplicationId);
-		}
-		else /* Use default AppId */
-		{
-			snprintf(loginReqInfo.ApplicationId, 128, "%s", applicationId);
-		}
-		/* ApplicationName */
-		snprintf(loginReqInfo.ApplicationName, 128, "%s", appName);
-		/* Position */
-		if (gethostname(hostName, sizeof(hostName)) != 0)
-		{
-			snprintf(hostName, 256, "localhost");
-		}
-		hostNameBuf.data = hostName;
-		hostNameBuf.length = sizeof(hostName);
-		if (rsslHostByName(&hostNameBuf, &ipAddress) == RSSL_RET_SUCCESS)
-		{
-			rsslIPAddrUIntToString(ipAddress, positionStr);
-			strcat(positionStr, "/net");
-			snprintf(loginReqInfo.Position, 128, "%s", positionStr);
+
+			/* Set RTT support for this connection */
+			loginReqInfo.RTT = RTTSupport;
+
+			/* keep default values for all others */
+
+			/* encode login request */
+			if ((ret = encodeLoginRequest(chnl, &loginReqInfo, msgBuf)) != RSSL_RET_SUCCESS)
+			{
+				rsslReleaseBuffer(msgBuf, &error);
+				printf("\nencodeLoginRequest() failed with return code: %d\n", ret);
+				return ret;
+			}
+
+			/* send login request */
+			if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+				return RSSL_RET_FAILURE;
 		}
 		else
 		{
-			snprintf(loginReqInfo.Position, 128, "localhost");
-		}
-		/* Password */
-		snprintf(loginReqInfo.Password, 128, "%s", pword);
-		/* InstanceId */
-		snprintf(loginReqInfo.InstanceId, 128, "%s", instanceId);
-		/* if provider, change role and single open from default values */
-		if (role == RSSL_PROVIDER)
-		{
-			/* this provider does not support SingleOpen behavior */
-			loginReqInfo.SingleOpen = 0;
-			/* provider role */
-			loginReqInfo.Role = RSSL_PROVIDER; 
-		}
-		
-		/* Set RTT support for this connection */
-		loginReqInfo.RTT = RTTSupport;
-
-		/* keep default values for all others */
-
-		/* encode login request */
-		if ((ret = encodeLoginRequest(chnl, &loginReqInfo, msgBuf)) != RSSL_RET_SUCCESS)
-		{
-			rsslReleaseBuffer(msgBuf, &error); 
-			printf("\nencodeLoginRequest() failed with return code: %d\n", ret);
-			return ret;
-		}
-
-		/* send login request */
-		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+			printf("rsslGetBuffer(): Failed <%s>\n", error.text);
 			return RSSL_RET_FAILURE;
+		}
 	}
-	else
+	else 
 	{
-		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
-		return RSSL_RET_FAILURE;
+		loginSuccessCallback(chnl);
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -503,4 +528,34 @@ RsslRet closeLoginStream(RsslChannel* chnl)
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+void checkCmdLoginCockies(const char* coockies)
+{
+	RsslUInt32 cookiesCnt = 0;
+	const char* ptrCoockie = coockies;
+
+	while (*ptrCoockie)
+	{
+		if (!strncmp(ptrCoockie, nameCookieAuthToken, strlen(nameCookieAuthToken)))
+		{
+			cookiesCnt++;
+			ptrCoockie = strchr(ptrCoockie, ';');
+			if (!ptrCoockie)break;
+		}
+		if (!strncmp(ptrCoockie, nameCookiePosition, strlen(nameCookiePosition)))
+		{
+			cookiesCnt++;
+			ptrCoockie = strchr(ptrCoockie, ';');
+			if (!ptrCoockie)break;
+		}
+		if (!strncmp(ptrCoockie, nameCookieApplicationId, strlen(nameCookieApplicationId)))
+		{
+			cookiesCnt++;
+			ptrCoockie = strchr(ptrCoockie, ';');
+			if (!ptrCoockie)break;
+		}
+		ptrCoockie++;
+	}
+	loginWithCookies =  (cookiesCnt >= 3 ? RSSL_TRUE : RSSL_FALSE);
 }

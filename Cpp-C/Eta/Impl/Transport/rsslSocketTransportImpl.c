@@ -125,6 +125,7 @@ static RsslUInt32			shutdownFlag =  SHUT_WR;
 static RsslMutex		ripcMutex;
 static RsslQueue			activeSocketChannelList;
 static RsslQueue			freeSocketChannelList;
+static RsslQueue			activeServerSocketChannelList;
 static RsslQueue			freeServerSocketChannelList;
 
 /* Used to tell if openSSL has been loaded */
@@ -504,6 +505,7 @@ RsslServerSocketChannel* createRsslServerSocketChannel()
     if (rsslServerSocketChannel)
     {
 		rsslInitQueueLink(&(rsslServerSocketChannel->link1));
+		rsslInitQueueLink(&(rsslServerSocketChannel->link2));
 		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
     }
 
@@ -7478,7 +7480,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	/* Create buffer pool for server */
 	if (opts->sharedPoolLock)
 	{
-	    (void) RSSL_MUTEX_INIT_ESDK(&rsslSrvrImpl->sharedBufPoolMutex);
+	    (void) RSSL_MUTEX_INIT_RTSDK(&rsslSrvrImpl->sharedBufPoolMutex);
 		rsslSrvrImpl->hasSharedBufPool = RSSL_TRUE;
 		serverPool = ipcCreatePool(poolSize, &(rsslSrvrImpl->sharedBufPoolMutex));
 	}
@@ -7535,7 +7537,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		if (opts->encryptionOpts.cipherSuite != NULL && strlen(opts->encryptionOpts.cipherSuite) != 0)
 		{
 			tempLen = (RsslInt32)(strlen(opts->encryptionOpts.cipherSuite) + 1);
-			rsslServerSocketChannel->cipherSuite = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.cipherSuite, tempLen);
+			rsslServerSocketChannel->cipherSuite = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.cipherSuite);
 			if (rsslServerSocketChannel->cipherSuite == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7549,7 +7551,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		if (opts->encryptionOpts.dhParams != NULL && strlen(opts->encryptionOpts.dhParams) != 0)
 		{
 			tempLen = (RsslInt32)(strlen(opts->encryptionOpts.dhParams) + 1);
-			rsslServerSocketChannel->dhParams = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.dhParams, tempLen);
+			rsslServerSocketChannel->dhParams = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.dhParams);
 			if (rsslServerSocketChannel->dhParams == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7563,7 +7565,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		if (opts->encryptionOpts.serverCert != NULL && strlen(opts->encryptionOpts.serverCert) != 0)
 		{
 			tempLen = (RsslInt32)(strlen(opts->encryptionOpts.serverCert) + 1);
-			rsslServerSocketChannel->serverCert = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.serverCert, tempLen);
+			rsslServerSocketChannel->serverCert = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.serverCert);
 			if (rsslServerSocketChannel->serverCert == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7577,7 +7579,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		if (opts->encryptionOpts.serverPrivateKey != NULL && strlen(opts->encryptionOpts.serverPrivateKey) != 0)
 		{
 			tempLen = (RsslInt32)(strlen(opts->encryptionOpts.serverPrivateKey) + 1);
-			rsslServerSocketChannel->serverPrivateKey = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.serverPrivateKey, tempLen);
+			rsslServerSocketChannel->serverPrivateKey = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.serverPrivateKey);
 			if (rsslServerSocketChannel->serverPrivateKey == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7591,7 +7593,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	}
 
 	tempLen = (RsslInt32)(strlen(opts->serviceName) + 1);
-	rsslServerSocketChannel->serverName = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->serviceName, tempLen);
+	rsslServerSocketChannel->serverName = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->serviceName);
 	if (rsslServerSocketChannel->serverName == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7692,6 +7694,23 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	rsslSrvrImpl->transportInfo = (void*)rsslServerSocketChannel;
 	rsslSrvrImpl->Server.portNumber = net2host_u16(ipcGetServByName(rsslServerSocketChannel->serverName));
 
+	/* put rsslServerSocketChannel to activeServerSocketChannelList */
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	rsslQueueAddLinkToBack(&activeServerSocketChannelList, &(rsslServerSocketChannel->link2));
+
+	rsslSrvrImpl->serverCountersInfo.countOfFreeServerSocketChannelList = rsslQueueGetElementCount(&freeServerSocketChannelList);
+	rsslSrvrImpl->serverCountersInfo.countOfActiveServerSocketChannelList = rsslQueueGetElementCount(&activeServerSocketChannelList);
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
 	/* this connection type is mainly used to determine between transport types */
 	rsslSrvrImpl->connectionType = RSSL_CONN_TYPE_SOCKET;
 
@@ -7785,7 +7804,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	if (opts->hostName)
 	{
 		tempLen = (RsslInt32)strlen(opts->hostName) + 1;
-		rsslSocketChannel->hostName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->hostName, tempLen);
+		rsslSocketChannel->hostName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->hostName);
 		if (rsslSocketChannel->hostName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7800,7 +7819,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	else if (opts->connectionInfo.unified.address)
 	{
 		tempLen = (RsslInt32)(strlen(opts->connectionInfo.unified.address) + 1);
-		rsslSocketChannel->hostName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.address, tempLen);
+		rsslSocketChannel->hostName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.address);
 		if (rsslSocketChannel->hostName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7816,7 +7835,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	if (opts->serviceName)
 	{
 		tempLen = (RsslInt32)(strlen(opts->serviceName) + 1);
-		rsslSocketChannel->serverName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->serviceName, tempLen);
+		rsslSocketChannel->serverName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->serviceName);
 		if (rsslSocketChannel->serverName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7831,7 +7850,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	else if (opts->connectionInfo.unified.serviceName)
 	{
 		tempLen = (RsslInt32)(strlen(opts->connectionInfo.unified.serviceName) + 1);
-		rsslSocketChannel->serverName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.serviceName, tempLen);
+		rsslSocketChannel->serverName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.serviceName);
 		if (rsslSocketChannel->serverName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7847,7 +7866,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	if ((opts->connectionInfo.unified.interfaceName && opts->connectionInfo.unified.interfaceName[0] != '\0'))
 	{
 		tempLen = (RsslInt32)(strlen(opts->connectionInfo.unified.interfaceName) + 1);
-		rsslSocketChannel->interfaceName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.interfaceName, tempLen);
+		rsslSocketChannel->interfaceName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->connectionInfo.unified.interfaceName);
 		if (rsslSocketChannel->interfaceName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -7863,7 +7882,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	if ((opts->objectName) && (opts->objectName[0] != '\0'))
 	{
 		tempLen = (RsslInt32)(strlen(opts->objectName) + 1);
-		rsslSocketChannel->objectName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->objectName, tempLen);
+		rsslSocketChannel->objectName = (char*) strcpy((char*)_rsslMalloc(tempLen), opts->objectName);
 		if (rsslSocketChannel->objectName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8129,7 +8148,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		if(opts->encryptionOpts.openSSLCAStore != NULL && (opts->encryptionOpts.openSSLCAStore[0] != '\0'))
 		{
 			tempLen = (RsslInt32)strlen(opts->encryptionOpts.openSSLCAStore) + 1;
-			rsslSocketChannel->sslCAStore = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.openSSLCAStore, tempLen);
+			rsslSocketChannel->sslCAStore = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.openSSLCAStore);
 			if (rsslSocketChannel->sslCAStore == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8232,7 +8251,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	if (opts->proxyOpts.proxyHostName && (opts->proxyOpts.proxyHostName[0] != '\0'))
 	{
 		tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyHostName) + 1);
-		rsslSocketChannel->proxyHostName = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyHostName, tempLen);
+		rsslSocketChannel->proxyHostName = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyHostName);
 		if (rsslSocketChannel->proxyHostName == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8247,7 +8266,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		if (opts->proxyOpts.proxyPort && (opts->proxyOpts.proxyPort[0] != '\0'))
 		{
 			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyPort) + 1);
-			rsslSocketChannel->proxyPort = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPort, tempLen);
+			rsslSocketChannel->proxyPort = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPort);
 			if (rsslSocketChannel->proxyPort == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8263,7 +8282,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		if (opts->proxyOpts.proxyUserName && (opts->proxyOpts.proxyUserName[0] != '\0'))
 		{
 			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyUserName) + 1);
-			rsslSocketChannel->curlOptProxyUser = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyUserName, tempLen);
+			rsslSocketChannel->curlOptProxyUser = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyUserName);
 			if (rsslSocketChannel->curlOptProxyUser == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8279,7 +8298,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		if (opts->proxyOpts.proxyPasswd && (opts->proxyOpts.proxyPasswd[0] != '\0'))
 		{
 			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyPasswd) + 1);
-			rsslSocketChannel->curlOptProxyPasswd = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPasswd, tempLen);
+			rsslSocketChannel->curlOptProxyPasswd = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPasswd);
 			if (rsslSocketChannel->curlOptProxyPasswd == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8295,7 +8314,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		if (opts->proxyOpts.proxyDomain && (opts->proxyOpts.proxyDomain[0] != '\0'))
 		{
 			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyDomain) + 1);
-			rsslSocketChannel->curlOptProxyDomain = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyDomain, tempLen);
+			rsslSocketChannel->curlOptProxyDomain = (char*)strcpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyDomain);
 			if (rsslSocketChannel->curlOptProxyDomain == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -8782,6 +8801,12 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		//set rsslSocketChannel->mutex when global lock and per-channel locks enabled
 		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 			rsslSocketChannel->mutex = &(rsslChnlImpl->chanMutex);
+
+		/*Add callback to the socket channel*/
+		rsslSocketChannel->httpCallback = rsslServerSocketChannel->httpCallback;
+
+		/*Add coockes ptr to the socket channel*/
+		rsslSocketChannel->cookies = rsslServerSocketChannel->cookies;
 
 		/* map RsslSocketChannel to RsslChannel struct */
 		_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
@@ -10785,7 +10810,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		if (!gblmutexinit)
 		{
 			RTR_ATOMIC_SET(gblmutexinit,1);
-			RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			poolMutex = &ripcMutex;
 		}
 
@@ -10796,6 +10821,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 	if (!initialized)
 	{
 		rsslInitQueue(&freeServerSocketChannelList);
+		rsslInitQueue(&activeServerSocketChannelList);
 		rsslInitQueue(&freeSocketChannelList);
 		rsslInitQueue(&activeSocketChannelList);
 
@@ -10871,6 +10897,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		transOpts.jitOpts.libcryptoName = 0;
 		transOpts.initConfig = 0;
 		transOpts.initConfigSize = 0;
+		transOpts.initCurlDebug = initOpts->initCurlDebug;
 
 		if (initOpts->initConfig && initOpts->initConfigSize)
 		{
@@ -11077,6 +11104,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 ripcinitend:
 	if (ret == RSSL_RET_FAILURE)
 	{
+		transOpts.initCurlDebug = RSSL_FALSE;
 
 		if (transOpts.initConfig)
 		{
@@ -11107,6 +11135,11 @@ ripcinitend:
 	}
 
 	return(ret);
+}
+
+RsslBool getCurlDebugMode() 
+{
+	return transOpts.initCurlDebug;
 }
 
 RsslInt32 getProtocolNumber()
@@ -11168,6 +11201,8 @@ RsslInt32 ipcCleanup()
 		int i;
 		ipcCleanRsslServerSocketChannel();
 		ipcCleanRsslSocketChannel();
+
+		transOpts.initCurlDebug = RSSL_FALSE;
 
 		if (gblInputBufs)
 			rtr_smplcDropRef(gblInputBufs);
@@ -11239,7 +11274,7 @@ RsslInt32 ipcCleanup()
 
 RsslInt32 ipcShutdownServer(RsslServerSocketChannel* rsslServerSocketChannel, RsslError *error)
 {
-	RsslInt32			ret = RSSL_RET_FAILURE;
+	RsslInt32			ret = RSSL_RET_SUCCESS;
 
 	if (IPC_NULL_PTR(rsslServerSocketChannel, "ipcShutdownServer", "server", error))
 		return RSSL_RET_FAILURE;
@@ -11253,7 +11288,7 @@ RsslInt32 ipcShutdownServer(RsslServerSocketChannel* rsslServerSocketChannel, Rs
 
 
 		/* this should only be done on the platforms this is supported on */
-		(*(transFuncs[rsslServerSocketChannel->connType].shutdownServer))((void*)rsslServerSocketChannel);
+		(*(transFuncs[rsslServerSocketChannel->connType].shutdownServer))((void*)rsslServerSocketChannel->transportInfo);
 
 	IPC_MUTEX_UNLOCK(rsslServerSocketChannel);
     }
@@ -11299,17 +11334,14 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvrImpl,
 		if (rsslSrvrSocketChannel->stream != RIPC_INVALID_SOCKET)
 		{
 			sock_close(rsslSrvrSocketChannel->stream);
-			rsslSrvrSocketChannel->stream = RIPC_INVALID_SOCKET;
 
-			if (rsslSrvrSocketChannel->state != RSSL_CH_STATE_INACTIVE)
-				rsslSrvrSocketChannel->state = RSSL_CH_STATE_INACTIVE;
+			ipcCloseActiveSrvr(rsslSrvrSocketChannel);
 		}
 
-		rsslSrvrSocketChannel->transportInfo = NULL;
-		retVal = ipcSrvrDropRef(rsslSrvrSocketChannel, error);
-	}
+		ipcShutdownServer(rsslSrvrSocketChannel, error);
 
-	_rsslCleanServer(rsslSrvrImpl);
+		ipcSrvrDropRef(rsslSrvrSocketChannel, error);
+	}
 
 	return retVal;
 }
@@ -11411,7 +11443,7 @@ RsslInt32 ripcSetDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void) RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void) RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit,1);
 		}
 
@@ -11448,7 +11480,7 @@ RsslInt32 rwsDbgFuncs(
 	{
 		if (!gblmutexinit)
 		{
-			(void)RSSL_MUTEX_INIT_ESDK(&ripcMutex);
+			(void)RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
 			RTR_ATOMIC_SET(gblmutexinit, 1);
 		}
 
@@ -11729,9 +11761,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 			rsslServerSocketChannel->dhParams = 0;
 		}
 
-		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
+		if (rsslQueueLinkInAList(&(rsslServerSocketChannel->link2)))
+		{
+			rsslQueueRemoveLink(&activeServerSocketChannelList, &(rsslServerSocketChannel->link2));
+		}
 
 		rsslQueueAddLinkToBack(&freeServerSocketChannelList, &(rsslServerSocketChannel->link1));
+
+		rsslClearRsslServerSocketChannel(rsslServerSocketChannel);
 
 		if (multiThread)
 		{
@@ -12044,3 +12081,31 @@ void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
 		rsslSocketChannel->state = RSSL_CH_STATE_INACTIVE;
 }
 
+// Collects info from the non-rsslImpl counters
+// rsslSocketTransportImpl
+// countOfFreeServerSocketChannelList, countOfActiveServerSocketChannelList
+// numberCallsOfReleaseSSLServer - ripcssutils
+// numberCallsOfShmTransDestroy - shmemtrans
+void ipcGetOfServerSocketChannelCounters(rsslServerCountersInfo* serverCountersInfo)
+{
+	RsslInt32 ripcGetCountShmTransDestroy();
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	serverCountersInfo->countOfActiveServerSocketChannelList = rsslQueueGetElementCount(&activeServerSocketChannelList);
+	serverCountersInfo->countOfFreeServerSocketChannelList = rsslQueueGetElementCount(&freeServerSocketChannelList);
+	serverCountersInfo->numberCallsOfReleaseSSLServer = ripcGetCountReleaseSSLServer();
+	serverCountersInfo->numberCallsOfShmTransDestroy = ripcGetCountShmTransDestroy();
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
+	return;
+}

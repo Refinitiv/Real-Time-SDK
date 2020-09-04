@@ -2865,7 +2865,7 @@
 /**
  * @defgroup RsslRmtesGroup RMTES Decoder Reference Group
  *
- * @brief The RMTES(Reuters Multilingual Text Encoding Standard) Decoder can be used to decode RMTES content into UTF8 or UCS2 Unicode strings for display or machine parsing purposes.
+ * @brief The RMTES Decoder can be used to decode RMTES content into UTF8 or UCS2 Unicode strings for display or machine parsing purposes.
  *
  * The RMTES Decoding functionality is defined in @header "rtr/rsslRmtes.h".
  *
@@ -5190,7 +5190,7 @@
  *
  *	The Post Message allows OMM Consumer applications to push and contribute content to upstream components.
  *	The post message payload can contain another OMM message, OMM container, or other opaque content.  
- *  This information can be applied to an Enterprise Platform
+ *      This information can be applied to a Refinitiv Real-Time Distribution System
  *	cache or routed further upstream to the source of data. Once received, the upstream
  *	components can republish data to downstream consumers. Post messages can be routed
  *	along a specific item stream, referred to as on-stream posting, or along a user’s
@@ -5368,11 +5368,11 @@
  *  To use RsslGenericMsg functionality include @header "rtr/rsslGenericMsg.h"
  *
  *	The Generic Message allows applications to bidirectionally message without any implied interaction 
- *  semantics (e.g. no Request/Response paradigm). Once a
+ *      semantics (e.g. no Request/Response paradigm). Once a
  *	stream is established via an RsslRequestMsg-RsslRefreshMsg/RsslStatusMsg interaction, this message can
  *	be sent from consumer to provider as well as from provider to consumer, and can
  *	also be leveraged by non-interactive provider applications. Generic messages are
- *	transient and are typically not cached by any Enterprise Platform components.
+ *	transient and are typically not cached by any Refinitiv Real-Time Distribution System components.
  *	The \ref RsslGenericMsg::msgBase::msgKey does not need to match the msgKey information
  *	associated with the stream the RsslGenericMsg is flowing on. This allows for
  *	the key information to be used independently of the stream. Any specific message
@@ -5747,14 +5747,14 @@
  
 
 /**
- *	@defgroup RSSLWFDomain Reuters Domain Models
- *	@brief The Reuters Domain Model Package contains the enumerations and data structures used with Refinitiv provided domain message models. 
- *	This content is available through the Thomson Reuters Enterprise Platform, EleKtron, Reuters Data Feed Direct, and various other sources. 
+ *	@defgroup RSSLWFDomain Refinitiv Domain Models
+ *	@brief The Refinitiv Domain Model Package contains the enumerations and data structures used with Refinitiv provided domain message models. 
+ *	This content is available through the Refinitiv Real-Time Distribution System, Refinitiv Real-Time, Refinitiv Data Feed Direct, and various other sources. 
  *	@{
  *	
- *  @section TheRSSLWFDomainHelpers Reuters Domain Model Helper and Utility functions
- *  @defgroup RSSLWFDomainHelpers Reuters Domain Model Helper and Utility functions
- *  @brief Detailed information about the Reuters Domain Model Helper and Utility functions
+ *  @section TheRSSLWFDomainHelpers Refinitiv Domain Model Helper and Utility functions
+ *  @defgroup RSSLWFDomainHelpers Refinitiv Domain Model Helper and Utility functions
+ *  @brief Detailed information about the Refinitiv Domain Model Helper and Utility functions
  *  @{
  * 
  *  @}

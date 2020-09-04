@@ -66,6 +66,7 @@ void rsslTestUninitialize();
 // Call when finishing a single test.
 #define rsslTestFinish() { rssl_test_finish(); }
 
+void setCallbackToHttpHdr(RsslBool setPtr);
 
 /*** Connections ***/
 RsslChannel *rsslTestCreateConsumerChannel();

@@ -18,12 +18,12 @@
 #define Ema_Release_Minor		@Ema_VERSION_MINOR@
 #define Ema_Product_Major		@Ema_VERSION_PATCH@	
 #define Ema_Product_Minor		@Ema_VERSION_TWEAK@
-#define PRODNAME			"Elektron Message API EMA "
+#define PRODNAME			"Enterprise Message API (EMA) "
 #define PRODVERNAME			"@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@Ema_VERSION_TWEAK@"
 #define COMPANYNAME			"Refinitiv"
-#define COPYRIGHTYEAR			"@esdk_year@"
-#define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
-#define DDATE				"@esdk_timestamp@ " COPYRIGHTYEAR
+#define COPYRIGHTYEAR			"@rtsdk_year@"
+#define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@rtsdk_INTERNAL_RELEASE_TWEAK@"
+#define DDATE				"@rtsdk_timestamp@ " COPYRIGHTYEAR
 
 #ifdef __EMA_STATIC_BUILD__
 	#define EMA_LINK_TYPE "Static"

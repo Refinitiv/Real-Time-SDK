@@ -20,6 +20,12 @@ class RestConnectOptions {
 	private String _proxyKrb5ConfigFile;
 	private ReactorOptions _reactorOptions;
 
+	// Temporary redirect flags/locations
+    private boolean _authRedirect = false;           
+    private String _authRedirectLocation = null;
+    private boolean _discoveryRedirect = false;
+    private String _discoveryRedirectLocation = null;
+	
     public RestConnectOptions(ReactorOptions options)
     {    	
     	/* This member variable is set only once and it must not be cleared. */
@@ -40,6 +46,11 @@ class RestConnectOptions {
 		_proxyDomain = null;
 		_proxyLocalHostName = "localhost";
 		_proxyKrb5ConfigFile = "krb5.conf";
+		
+		_authRedirect = false;
+		_authRedirectLocation = null;
+		_discoveryRedirect = false;
+		_discoveryRedirectLocation = null;
 	}
 	
 	final static  int convertToPortNumber(Buffer proxyPort)
@@ -224,4 +235,41 @@ class RestConnectOptions {
     {
     	return _proxyKrb5ConfigFile;
     }
+    
+    public boolean authRedirect() {
+    	return _authRedirect;
+    }
+    
+    public void authRedirect(boolean value) {
+    	_authRedirect = value;
+    }
+    
+    public String authRedirectLocation() {
+    	return _authRedirectLocation;
+    }
+    
+    public void authRedirectLocation(String value) {
+    	_authRedirectLocation = value;
+    }
+    
+    public boolean  discoveryRedirect() {
+    	return _discoveryRedirect;
+    }
+    
+    public void discoveryRedirect(boolean value) {
+    	_discoveryRedirect = value;
+    }
+    
+    public String discoveryRedirectLocation() {
+    	return _discoveryRedirectLocation;
+    }
+    
+    public void discoveryRedirectLocation(String value) {
+    	_discoveryRedirectLocation = value;
+    }
+
+    public ReactorOptions reactorOptions() {
+    	return _reactorOptions;
+    }
+    
 }

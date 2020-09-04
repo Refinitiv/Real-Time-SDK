@@ -1,14 +1,14 @@
-# Elektron Transport API (ETA) C Edition
+# Enterprise Transport API (ETA) C Edition
 
-This is the **Elektron Transport API (ETA)**, the high performance, low latency, foundation of the Elektron SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Elektron Transport API.  
+This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  
 
-The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
+The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Refinitiv Real-Time Distribution System and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 ETA contains open source components. The transport, decoder and encoder components are open source. The reliable multicast transport and VA cache component are closed source.
 
-This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Elektron-SDK/releases) and is auto pulled by ESDK build via CMake.
+ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
-This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
+This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake.
 
 Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 
@@ -27,9 +27,9 @@ In addtion, HTML documentation is available in Cpp-C/Eta/Docs. For addtional doc
 
 # ETA Features and Functionality
 
-The Elektron Transport API, formerly known as Ultra Performance API (UPA) is the foundation of the Elektron SDK, offering the highest throughput most tunability, and lowest latency of any API in the SDK.  
+The Enterprise Transport API, formerly known as Ultra Performance API (UPA) is the foundation of the Refinitiv Real-Time SDK, offering the highest throughput most tunability, and lowest latency of any API in the SDK.  
 
-The Elektron Transport API fully supports all OMM constructs and messages. 
+The Enterprise Transport API fully supports all OMM constructs and messages. 
 
 #### A List of Transport API Features
 
@@ -39,14 +39,14 @@ The Elektron Transport API fully supports all OMM constructs and messages.
 
 - Can consume and provide:
 
-    - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
+    - Any and all OMM primitives supported on Refinitiv Real-Time, Refinitiv Real-Time Distribution Systems and Direct Exchange Feeds.
     - All Domain Models, including those defined by Refinitiv as well as other user-defined models.
 
 - Consists of:
 
     - A transport-level API allowing for connectivity using TCP sockets, HTTP, HTTPS, websockets, reliable and unreliable UDP multicast, and Shared Memory.
 
-    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, Reuters Wire Format (RWF).  Websocket transport also supports JSON data format which must adhere to Refinitiv [Websocket protocol specification](https://docs-developers.refinitiv.com/1581115893686/14977/).
+    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, Refinitiv Wire Format (RWF).  Websocket transport also supports JSON data format which must adhere to Refinitiv [Websocket protocol specification](https://docs-developers.refinitiv.com/1581115893686/14977/).
     
     - RMTES Support: Several structures and functions can be used to process RMTES content and convert to several Unicode formats for interpretation. 
     
@@ -58,7 +58,7 @@ The Elektron Transport API fully supports all OMM constructs and messages.
 
     - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content.
 
-    - The Administration Domain Model Representations are RDM specific representations of the OMM administrative domain models. This Value Added Component contains structures that represent the messages within the Login, Source Directory, and Dictionary domains. This component also handles all encoding and decoding functionality for these domain models, so the application needs only to manipulate the message's structure members to send or receive this content. This not only significantly reduces the amount of code an application needs to interact with OMM devices (i.e., Enterprise Platform for Real-time), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the UPA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
+    - The Administration Domain Model Representations are RDM specific representations of the OMM administrative domain models. This Value Added Component contains structures that represent the messages within the Login, Source Directory, and Dictionary domains. This component also handles all encoding and decoding functionality for these domain models, so the application needs only to manipulate the message's structure members to send or receive this content. This not only significantly reduces the amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the UPA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
     
     - Auto-conversion of JSON to RWF or vice versa by Reactor for Websocket Transport: Reactor does automatic conversion of JSON data from a Websocket connection, to RWF, and presents RWF to application layer. Please view documentation section for further details. 
 
@@ -139,11 +139,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.5.0.G1     
-    librsslVA.lib             eta3.5.0.G1
-    librsslVACache.lib        eta3.5.0.G1
-    libansi.lib               eta3.5.0.G1
-    libdacs.lib               eta3.5.0.G1
+    librssl.lib*              eta3.5.1.L1     
+    librsslVA.lib             eta3.5.1.L1
+    librsslVACache.lib        eta3.5.1.L1
+    libansi.lib               eta3.5.1.L1
+    libdacs.lib               eta3.5.1.L1
 
     *librssl.lib includes JsonConverter
 
@@ -151,27 +151,27 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.5.0.G1
-    librssl.lib               eta3.5.0.G1
-    librssl.pdb               eta3.5.0.G1
-    librsslVA.dll             eta3.5.0.G1
-    librsslVA.lib             eta3.5.0.G1
-    librsslVA.pdb             eta3.5.0.G1
-    librsslVACache.dll        eta3.5.0.G1
-    librsslVACache.lib        eta3.5.0.G1
-    librsslVACache.pdb        eta3.5.0.G1
-    librsslJsonConverter.dll  eta3.5.0.G1
-    librsslJsonConverter.lib  eta3.5.0.G1
-    librsslJsonConverter.pdb  eta3.5.0.G1
+    librssl.dll               eta3.5.1.L1
+    librssl.lib               eta3.5.1.L1
+    librssl.pdb               eta3.5.1.L1
+    librsslVA.dll             eta3.5.1.L1
+    librsslVA.lib             eta3.5.1.L1
+    librsslVA.pdb             eta3.5.1.L1
+    librsslVACache.dll        eta3.5.1.L1
+    librsslVACache.lib        eta3.5.1.L1
+    librsslVACache.pdb        eta3.5.1.L1
+    librsslJsonConverter.dll  eta3.5.1.L1
+    librsslJsonConverter.lib  eta3.5.1.L1
+    librsslJsonConverter.pdb  eta3.5.1.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
 In addition, several versions of a shared library can co-exist on the machine. This allows for easy upgrade of functionality by deploying a newer shared library. It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.5.0.G1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
+To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.5.1.L1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
 
-The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.5.0.G1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.5.0.G1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.5.0.G1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
+The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.5.1.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.5.1.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.5.1.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
 
 	./LinuxSoLink
     
@@ -180,22 +180,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.5.0.G1
-    librsslVA.a                        eta3.5.0.G1
-    librsslVACache.a                   eta3.5.0.G1
-    libansi.lib                        eta3.5.0.G1
-    libdacs.lib                        eta3.5.0.G1
+    librssl.a                          eta3.5.1.L1
+    librsslVA.a                        eta3.5.1.L1
+    librsslVACache.a                   eta3.5.1.L1
+    libansi.lib                        eta3.5.1.L1
+    libdacs.lib                        eta3.5.1.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.5.0.0                 librssl.so.12                   eta3.5.0.G1
-    librsslVA.so.3.5.0.0               librsslVA.so.15                 eta3.5.0.G1
-    librsslJsonConverter.so.3.5.0.0    librsslJsonConverter.so.1       eta3.5.0.G1
+    librssl.so.3.5.1.0                 librssl.so.13                   eta3.5.1.L1
+    librsslVA.so.3.3.5.1.              librsslVA.so.16                 eta3.5.1.L1
+    librsslJsonConverter.so.3.5.1.0    librsslJsonConverter.so.2       eta3.5.1.L1
 
-    librsslVACache.so.3.5.0.0          librsslVACache.so.3             eta3.5.0.G1
-    librsslRelMcast.so.3.5.0.0         librsslRelMcast.so.1            eta3.5.0.G1
+    librsslVACache.so.3.5.1.0          librsslVACache.so.3             eta3.5.1.L1
+    librsslRelMcast.so.3.5.1.0         librsslRelMcast.so.1            eta3.5.1.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -210,30 +210,33 @@ The Transport API provides a helpful script that will create soft links for the 
  
 - When using watchlist, the encDataBody member of an RsslRequestMsg is only used for retrieving data related to batch requests, view requests, and symbol list behaviour requests. No other payload is stored or forwarded for standard streams. The extendedHeader of an RsslRequestMsg is not used. When requesting with private streams, the encDataBody member of the RsslRequestMsg is stored and transmitted with the request.
 
-- ETA can not download dictionary from Enterprise Platform over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
+- ETA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
 - With certain Visual Studio compiler versions, input string issues generated by the compiler result in rsslJCTest.exe to fail in some test scenarios. Unit tests will be fixed in a future release.
+
+- The ServerSharedSocket feature which permits multiple provider applications to reuse a port for load balancing is available only with certain patch levels on Linux 6. So, applications that intend to use this feature on Linux 6 must rebuild the RTSDK library (librssl) natively on a Linux 6 platform with the appropriate patch level that supports this feature.
+
             
 # Reference Information
 
     I-COS Questionnaire: 6211
     Refinitiv Item Number: N/A
-    Product Name: Elektron Transport API - C Edition
-    Release Number: 3.5.0
+    Product Name: Enterprise Transport API - C Edition
+    Release Number: 3.5.1
     Load Number: 1
-    Windows Load ID: eta3.5.0.L1.win
-        Supersedes: eta3.4.0.L1.win.rrg
-    Linux Load ID: eta3.5.0.L1.linux
-        Supersedes: eta3.4.0.L1.linux.rrg
+    Windows Load ID: eta3.5.1.L1.win
+        Supersedes: eta3.5.0.L1.win.rrg
+    Linux Load ID: eta3.5.1.L1.linux
+        Supersedes: eta3.5.0.L1.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.42_TREP_20.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.44_TREP_20.71 for RWF and Marketfeed Record Templates
 
 # Security
 

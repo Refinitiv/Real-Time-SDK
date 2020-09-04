@@ -3,17 +3,17 @@ Summary
 
 450__MarketPrice__QueryServiceDiscovery is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud).
+and parsing OMM MarketPrice data from Refinitiv Real-Time Optimized.
 
 450__MarketPrice__QueryServiceDiscovery illustrates how to query endpoints from
 EDP-RT service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the cloud service and consuming data. This application
+for establishing a connection with the Refinitiv Real-Time service and consuming data. This application
 requires a machine ID and a password for authorization with the token service in order
 to an access token for querying endpoints from the EDP service discovery and sending
-login requests to the cloud service. EMA automatically refreshes the token to keep
-session alive with the cloud service. 
+login requests to the service. EMA automatically refreshes the token to keep
+session alive with the service. 
 
 
 Detailed Description
@@ -25,9 +25,9 @@ including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory).
 -clientId client ID to perform authorization with the token service (mandatory).
- You can generate and manage client Ids at the following URL:
- https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
- to access this page).
+ You can generate and manage client Ids by using the Eikon App Key Generator.
+ This is found by visiting my.Refinitiv.com, launching Eikon, and
+ searching for "App Key Generator". Eikon login is required to generate clientID.
 - location location to get an endpoint from EDP-RT service discovery. Now, it is either
 "us-east" by default or "eu-west" (optional).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).

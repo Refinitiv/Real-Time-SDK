@@ -1104,7 +1104,7 @@ void initYieldCurveItemFields(RsslYieldCurveItem* ycItem)
 	snprintf(tenors->TENORS, MAX_CRV_NAME_STRLEN, "10Y");
 
 
-	snprintf(ycItem->CRV_ALGTHM, MAX_CRV_NAME_STRLEN, "Thomson Reuters UPA VA Yield Curve Provider");
+	snprintf(ycItem->CRV_ALGTHM, MAX_CRV_NAME_STRLEN, "Refinitiv UPA VA Yield Curve Provider");
 	snprintf(ycItem->CRV_TYPE, MAX_CRV_NAME_STRLEN, "Swap");
 	snprintf(ycItem->CRV_STYPE, MAX_CRV_NAME_STRLEN, "Standard");
 	snprintf(ycItem->CITIES, MAX_CRV_NAME_STRLEN, "US");

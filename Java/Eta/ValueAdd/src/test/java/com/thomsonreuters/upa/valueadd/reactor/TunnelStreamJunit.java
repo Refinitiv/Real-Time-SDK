@@ -61,7 +61,6 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import org.mockito.InjectMocks;
 
 /** Tests related to TunnelStreams. */
 @RunWith(value = Parameterized.class)

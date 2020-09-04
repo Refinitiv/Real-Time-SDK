@@ -71,3 +71,4 @@ class ReliableMcastChannelConfig extends ChannelConfig
 		disconnectOnGap = false;
 	}
 }
+

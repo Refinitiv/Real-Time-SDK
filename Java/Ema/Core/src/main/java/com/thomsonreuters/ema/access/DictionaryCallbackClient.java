@@ -413,6 +413,9 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		List<String> dictionariesUsed = directory.service().info().dictionariesUsedList();
 		for (String dictName : dictionariesUsed)
 		{
+			if(!directory.service().info().dictionariesProvidedList().contains(dictName)){
+				continue;
+			}
 			msgKey.name().data(dictName);
 			rsslRequestMsg.streamId(streamId++);
 

@@ -21,6 +21,7 @@ class ConnectOptionsImpl implements ConnectOptions
     private UnifiedNetworkInfoImpl _unified = new UnifiedNetworkInfoImpl();
     private SegmentedNetworkInfoImpl _segmented = new SegmentedNetworkInfoImpl();
     private TunnelingInfoImpl _tunneling = new TunnelingInfoImpl();
+    private EncryptionOptionsImpl _encryptionOpts = new EncryptionOptionsImpl();
     private CredentialsInfoImpl _credentials = new CredentialsInfoImpl();
     private int _networkType;
     private TcpOptsImpl _tcpOpts = new TcpOptsImpl();
@@ -77,6 +78,7 @@ class ConnectOptionsImpl implements ConnectOptions
         _seqMCastOpts.maxMsgSize(3000);
         _seqMCastOpts.instanceId(0);
         _tunneling.clear();
+        _encryptionOpts.clear();
         _credentials.clear();
     }
 
@@ -116,7 +118,7 @@ class ConnectOptionsImpl implements ConnectOptions
         destOptsImpl._sysSendBufSize = _sysSendBufSize;
         destOptsImpl._sysRecvBufSize = _sysRecvBufSize;
         _seqMCastOpts.copy(destOptsImpl._seqMCastOpts);
-
+        _encryptionOpts.copy(destOptsImpl._encryptionOpts);
 
         return TransportReturnCodes.SUCCESS;
     }
@@ -336,6 +338,12 @@ class ConnectOptionsImpl implements ConnectOptions
     public CredentialsInfo credentialsInfo()
     {
         return _credentials;
+    }
+    
+    @Override
+    public EncryptionOptions encryptionOptions()
+    {
+        return _encryptionOpts;
     }
 
     @Override

@@ -57,6 +57,10 @@ public class ConsPerfConfig
 	private boolean _primeJVM;				/* At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items. */
 	private boolean _useReactor;            /* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 	private boolean _useWatchlist;          /* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
+	private boolean _useTunnel;          	/* Use the VA Reactor tunnel stream instead of the UPA Channel for sending and receiving. */
+	private boolean _tunnelAuth;            /* Use to request authentication when opening a tunnel stream. */
+	private int _tunnelStreamOutputBuffers;	/* Tunnel Stream Guaranteed Output Buffers. */
+	private boolean _tunnelStreamBufsUsed;  /* Control whether to print tunnel Stream buffers usage. */
 	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
 
     {
@@ -94,6 +98,10 @@ public class ConsPerfConfig
         CommandLine.addOption("primeJVM", false, "At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items");
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
         CommandLine.addOption("watchlist", false, "Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("tunnel", false, "Use the VA Reactor tunnel stream instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("tunnelAuth", false, "If set, consumer to request authentication when opening a tunnel stream");
+        CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
+        CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
         CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
     }
 	
@@ -136,7 +144,11 @@ public class ConsPerfConfig
     	_primeJVM = CommandLine.booleanValue("primeJVM");
     	_useReactor = CommandLine.booleanValue("reactor");
         _useWatchlist = CommandLine.booleanValue("watchlist");
+        _useTunnel = CommandLine.booleanValue("tunnel");
+        _tunnelAuth = CommandLine.booleanValue("tunnelAuth");
         _busyRead = CommandLine.booleanValue("busyRead");
+        _tunnelStreamOutputBuffers = CommandLine.intValue("tunnelStreamOutputBufs");
+        _tunnelStreamBufsUsed = CommandLine.booleanValue("tunnelStreamBuffersUsed");
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -272,6 +284,13 @@ public class ConsPerfConfig
 			System.out.println(CommandLine.optionHelpString());
 			System.exit(-1);
 		}
+		
+		if(_useTunnel && !_useReactor)
+		{
+			System.err.println("Config error: The -reactor must be set in order to send and receive messages via tunnel stream.\n");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
 
 		_requestsPerTick = _itemRequestsPerSec / _ticksPerSec;
 
@@ -299,37 +318,41 @@ public class ConsPerfConfig
 	    }
 
 		_configString = "--- TEST INPUTS ---\n\n" +
-				"       Steady State Time: " + _steadyStateTime + " sec\n" + 
-				"         Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
-				"                Hostname: " + _hostName + "\n" +
-				"                    Port: " + _portNo + "\n" +
-				"                 Service: " + _serviceName + "\n" +
-				"            Thread Count: " + _threadCount + "\n" +
-				"          Output Buffers: " + _guaranteedOutputBuffers + "\n" +
-				"           Input Buffers: " + _numInputBuffers + "\n" +
-				"        Send Buffer Size: " + _sendBufSize + ((_sendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
-				"        Recv Buffer Size: " + _recvBufSize + ((_recvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
-				"         High Water Mark: " + _highWaterMark + ((_highWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
-				"          Interface Name: " + (_interfaceName.length() > 0 ? _interfaceName : "(use default)") + "\n" +
-				"             Tcp_NoDelay: " + (_tcpNoDelay ? "Yes" : "No") + "\n" +
-				"                Username: " + (_username.length() > 0 ? _username : "(use system login name)") + "\n" +
-				"              Item Count: " + _itemRequestCount + "\n" +
-				"       Common Item Count: " + _commonItemCount + "\n" +
-				"            Request Rate: " + _itemRequestsPerSec + "\n" +
-				"       Request Snapshots: " + (_requestSnapshots ? "Yes" : "No") + "\n" +
-				"            Posting Rate: " + _postsPerSec + "\n" +
-				"    Latency Posting Rate: " + _latencyPostsPerSec + "\n" +
-				"        Generic Msg Rate: " + _genMsgsPerSec + "\n" +
-				"Generic Msg Latency Rate: " + _latencyGenMsgsPerSec + "\n" +
-				"               Item File: " + _itemFilename + "\n" +
-				"               Data File: " + _msgFilename + "\n" +
-				"            Summary File: " + _summaryFilename + "\n" +
-				"              Stats File: " + _statsFilename + "\n" +
-				"        Latency Log File: " + (_latencyLogFilename.length() > 0 ? _latencyLogFilename : "(none)") + "\n" +
-				"               Tick Rate: " + _ticksPerSec + "\n" +
-				"               Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
-                " Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
-                "               Busy Read: " + (_busyRead ? "Yes" : "No") + "\n";
+            "          Steady State Time: " + _steadyStateTime + " sec\n" + 
+            "            Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
+            "                   Hostname: " + _hostName + "\n" +
+            "                       Port: " + _portNo + "\n" +
+            "                    Service: " + _serviceName + "\n" +
+            "               Thread Count: " + _threadCount + "\n" +
+            "             Output Buffers: " + _guaranteedOutputBuffers + "\n" +
+            "              Input Buffers: " + _numInputBuffers + "\n" +
+            "           Send Buffer Size: " + _sendBufSize + ((_sendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+            "           Recv Buffer Size: " + _recvBufSize + ((_recvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+            "            High Water Mark: " + _highWaterMark + ((_highWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
+            "             Interface Name: " + (_interfaceName.length() > 0 ? _interfaceName : "(use default)") + "\n" +
+            "                Tcp_NoDelay: " + (_tcpNoDelay ? "Yes" : "No") + "\n" +
+            "                   Username: " + (_username.length() > 0 ? _username : "(use system login name)") + "\n" +
+            "                 Item Count: " + _itemRequestCount + "\n" +
+            "          Common Item Count: " + _commonItemCount + "\n" +
+            "               Request Rate: " + _itemRequestsPerSec + "\n" +
+            "          Request Snapshots: " + (_requestSnapshots ? "Yes" : "No") + "\n" +
+            "               Posting Rate: " + _postsPerSec + "\n" +
+            "       Latency Posting Rate: " + _latencyPostsPerSec + "\n" +
+            "           Generic Msg Rate: " + _genMsgsPerSec + "\n" +
+            "   Generic Msg Latency Rate: " + _latencyGenMsgsPerSec + "\n" +
+            "                  Item File: " + _itemFilename + "\n" +
+            "                  Data File: " + _msgFilename + "\n" +
+            "               Summary File: " + _summaryFilename + "\n" +
+            "                 Stats File: " + _statsFilename + "\n" +
+            "           Latency Log File: " + (_latencyLogFilename.length() > 0 ? _latencyLogFilename : "(none)") + "\n" +
+            "                  Tick Rate: " + _ticksPerSec + "\n" +
+	        "                  Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
+            "    Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
+            "              Tunnel Stream: " + (_useTunnel ? "Yes" : "No") + "\n" +
+            "      Tunnel Authentication: " + (_tunnelAuth ? "Yes" : "No") + "\n" +
+            "TunnelStream Output Buffers: " + _tunnelStreamOutputBuffers + "\n" +
+            "Print TunnelStream Bufs Used: " + (_tunnelStreamBufsUsed ? "Yes" : "No") + "\n" +
+            "                  Busy Read: " + (_busyRead ? "Yes" : "No") + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -504,6 +527,26 @@ public class ConsPerfConfig
 	public int guaranteedOutputBuffers()
 	{
 		return _guaranteedOutputBuffers;
+	}
+	
+	/**
+	 *  TunnelStream Guaranteed Output Buffers.
+	 *
+	 * @return the int
+	 */
+	public int tunnelStreamGuaranteedOutputBuffers()
+	{
+		return _tunnelStreamOutputBuffers;
+	}
+	
+	/**
+	 *  Control to print TunnelStream Usage Buffers.
+	 *
+	 * @return the boolean
+	 */
+	public boolean tunnelStreamBufsUsed()
+	{
+		return _tunnelStreamBufsUsed;
 	}
 	
 	/**
@@ -704,6 +747,26 @@ public class ConsPerfConfig
     public boolean useWatchlist()
     {
         return _useWatchlist;
+    }
+    
+    /**
+     *  Use the VA Reactor tunnel stream instead of the UPA Channel for sending and receiving.
+     *
+     * @return true, if successful
+     */
+    public boolean useTunnel()
+    {
+        return _useTunnel;
+    }
+    
+    /**
+     *  Use to request authentication when opening a tunnel stream.
+     *
+     * @return true, if successful
+     */
+    public boolean tunnelAuth()
+    {
+        return _tunnelAuth;
     }
     
     /**

@@ -32,9 +32,6 @@
 #include <sys/poll.h>
 #endif
 
- /*  debug curl - set to 0 is off, set to 1 will print debug msgs */
-unsigned char curlDebug = 0;
-
 #include "rtr/rsslSocketTransportImpl.h"
 #include "rtr/ripcflip.h"
 #include "rtr/ripcutils.h"
@@ -243,7 +240,7 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_OPENSOCKETFUNCTION, rsslCurlOpenSocketCallback);
 	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SOCKOPTDATA, rsslSocketChannel);
 	
-	if(curlDebug)
+	if(getCurlDebugMode())
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_VERBOSE, 1L);
 
     (*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_CONNECT_ONLY, 1L);
@@ -667,14 +664,7 @@ int ipcIsConnected(RsslSocket fd, void *transport)
 
 int ipcServerShutdown(void *transport)
 {
-	RsslServerSocketChannel *rsslServerSocketChannel = (RsslServerSocketChannel *)transport;
-
-	if (rsslServerSocketChannel->stream != RIPC_INVALID_SOCKET)
-	{
-		sock_close(rsslServerSocketChannel->stream);
-		ipcCloseActiveSrvr(rsslServerSocketChannel);
-	}
-
+	// Do nothing as the server socket is closed and the ipcCloseActiveSrvr() method in the rsslSocketCloseServer() method.
 	return 1;
 }
 

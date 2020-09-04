@@ -15,6 +15,7 @@
 #include "rtr/rsslCurlJIT.h"
 #include "rtr/ripcutils.h"
 #include "rtr/ripcflip.h"
+#include "xmlDump.h"
 
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
@@ -950,7 +951,7 @@ RsslRestClient* rsslCreateRestClient(RsslCreateRestClientOptions *pRestClientOpt
 		RsslUInt32 i;
 		RsslRestBufferImpl* pRestBufferImpl;
 
-		(void)RSSL_MUTEX_INIT_ESDK(&rsslRestClientImpl->headersPoolMutex);
+		(void)RSSL_MUTEX_INIT_RTSDK(&rsslRestClientImpl->headersPoolMutex);
 
 		for (i = 0; i < rsslRestClientImpl->numberOfBuffers; i++)
 		{
@@ -1721,7 +1722,7 @@ void _rsslAllocateAndConvertBufferForUrlData(RsslBuffer* inputBuffer, RsslUInt32
 	}
 	else
 	{
-		strncpy((*buffer)->data + (*bufferIndex) + 1, value, valueLength);
+		strcpy((*buffer)->data + (*bufferIndex) + 1, value);
 		(*bufferIndex) = (*bufferIndex) + valueLength;
 	}
 }
@@ -2295,3 +2296,116 @@ Fail:
 	return RSSL_RET_BUFFER_TOO_SMALL;
 }
 
+RsslRet rsslRestRequestDump(FILE* outputStream, RsslRestRequestArgs* pRestRequest, RsslError* pError)
+{
+	RsslQueueLink* pLink = NULL;
+	RsslQueue* httpHeaders = NULL;
+	RsslRestHeader* httpHeaderData = NULL;
+	FILE* pOutputStream = outputStream;
+	RsslUInt32 n = 0, nameLength = 0;
+	const RsslBuffer rssl_rest_password_text = { (rtrUInt32)strlen("password="), "password=" };
+	const RsslBuffer rssl_rest_new_password_text = { (rtrUInt32)strlen("newPassword="), "newPassword=" };
+	const RsslBuffer rssl_rest_client_secret_text = { (rtrUInt32)strlen("client_secret ="), "client_secret =" };
+	const char endSymbol = '&';
+	const char *httpMethod[6] = {"UNKNOWN", "GET", "POST", "PUT", "DELETE", "PATCH"}; // from RsslRestHttpMethod
+
+	if (!pRestRequest)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestRequestDump() failed because REST request argument is empty.",
+			__FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
+	if (!pOutputStream)
+		pOutputStream = stdout;
+
+	fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
+
+	xmlDumpTimestamp(pOutputStream);
+
+	fprintf(pOutputStream, "URL: %s\n", pRestRequest->url.data);
+	fprintf(pOutputStream, "HTTP method %s\n", httpMethod[(RsslInt32)pRestRequest->httpMethod]);
+	fprintf(pOutputStream, "HTTP header data: \n");
+
+	httpHeaders = &(pRestRequest->httpHeaders);
+	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+	{
+		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
+		fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+	}
+
+	fprintf(pOutputStream, "HTTP body data: ");
+
+	/* Cut off all confident information: username, newPassword, client_secret */
+	for (n = 0; n < pRestRequest->httpBody.length; n++)
+	{
+		if ((strncmp(pRestRequest->httpBody.data + n, rssl_rest_password_text.data, nameLength = rssl_rest_password_text.length) == 0) ||
+			(strncmp((pRestRequest->httpBody.data) + n, rssl_rest_new_password_text.data, nameLength = rssl_rest_new_password_text.length) == 0) ||
+			(strncmp((pRestRequest->httpBody.data) + n, rssl_rest_client_secret_text.data, nameLength = rssl_rest_client_secret_text.length) == 0))
+		{
+			n += nameLength;
+			while (n++, pRestRequest->httpBody.data[n] != endSymbol);
+		}
+		else
+		{
+			fprintf(pOutputStream, "%c", pRestRequest->httpBody.data[n]);
+		}
+	}
+	fprintf(pOutputStream, "\n");
+
+	if (pRestRequest->networkArgs.interfaceName.length > 0)
+		fprintf(pOutputStream, "Interface name: %s\n", pRestRequest->networkArgs.interfaceName.data);	
+	if (pRestRequest->networkArgs.proxyArgs.proxyDomain.length > 0)
+		fprintf(pOutputStream, "Proxy domain name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyDomain.data);
+	if (pRestRequest->networkArgs.proxyArgs.proxyHostName.length > 0)
+		fprintf(pOutputStream, "Proxy host name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyHostName.data);
+	if (pRestRequest->networkArgs.proxyArgs.proxyPort.length > 0 )
+		fprintf(pOutputStream, "Proxy port: %s\n", pRestRequest->networkArgs.proxyArgs.proxyPort.data);
+
+	fprintf(pOutputStream, "Request timeout: %d\n", pRestRequest->requestTimeOut);
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet rsslRestResponseDump(FILE* outputStream, RsslRestResponse* pRestResponse,  RsslError* pError)
+{
+	RsslQueueLink *pLink = NULL;
+	RsslQueue *httpHeaders = NULL;
+	RsslRestHeader *httpHeaderData = NULL;
+	RsslInt32 n = 0;
+	FILE *pOutputStream = outputStream;
+
+	if (!pRestResponse)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestResponseDump() failed because REST response arguments is empty.",
+			__FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
+	if (!pOutputStream)
+		pOutputStream = stdout;
+
+	fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
+
+	xmlDumpTimestamp(pOutputStream);
+
+	fprintf(pOutputStream, "HTTP header data:\n");
+
+	httpHeaders = &(pRestResponse->headers);
+	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+	{
+		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
+		fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+	}
+	fprintf(pOutputStream, "HTTP body data: %s\n", pRestResponse->dataBody.data);
+	fprintf(pOutputStream, "Protocol version: %s\n", pRestResponse->protocolVersion.data);
+	fprintf(pOutputStream, "HTTP status code: %d\n", pRestResponse->statusCode);
+
+	return RSSL_RET_SUCCESS;
+}

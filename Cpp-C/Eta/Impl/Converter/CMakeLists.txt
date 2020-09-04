@@ -1,6 +1,6 @@
 
 project(rwfJsonConverter 
-			VERSION ${esdk_VERSION_MAJOR}.${librsslJsonConverter_VERSION_MINOR}.${librsslJsonConverter_VERSION_PATCH}.${librsslJsonConverter_VERSION_TWEAK}
+			VERSION ${rtsdk_INTERNAL_API_VERSION_MAJOR}.${rtsdk_VERSION_MINOR}.${rtsdk_VERSION_PATCH}.${rtsdk_VERSION_TWEAK}
         )
 
 DEBUG_PRINT(Eta_VERSION)

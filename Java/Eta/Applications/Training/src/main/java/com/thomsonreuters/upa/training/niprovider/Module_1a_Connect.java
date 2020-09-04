@@ -29,8 +29,8 @@
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM NIProvider applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components,
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
  * The first step of any UPA NIP application is to establish network 
@@ -50,7 +50,7 @@
  * (runs with specified set of parameters, all parameters are optional)
  *
  * Pressing the CTRL+C buttons terminates the program.
- * 
+ *
  */
 
 package com.thomsonreuters.upa.training.niprovider;
@@ -62,6 +62,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.thomsonreuters.upa.codec.Codec;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelInfo;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -205,6 +206,9 @@ public class Module_1a_Connect
             System.exit(TransportReturnCodes.FAILURE);
         }
 
+        int channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+        System.out.printf("Channel IPC descriptor = %d\n", channelFDValue);
+
         /* Connection was successful, add socketId to I/O notification mechanism and initialize connection */
         /* Typical FD_SET use, this may vary depending on the I/O notification mechanism the application is using */
         opMask |= SelectionKey.OP_READ;
@@ -289,7 +293,7 @@ public class Module_1a_Connect
                          ***************************************************************************/
                         if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                         {
-                            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                            System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), channelFDValue, error.text());
                             closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
                         }
 
@@ -314,7 +318,9 @@ public class Module_1a_Connect
                                      * to InitChannel are required to complete it.
                                      */
                                     opMask = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
-                                    System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                    final int oldChannelFDValue = channelFDValue;
+                                    channelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                    System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", channelFDValue, oldChannelFDValue);
 
                                     /* File descriptor has changed, unregister old and register new */
 
@@ -340,7 +346,7 @@ public class Module_1a_Connect
                                 }
                                 else
                                 {
-                                    System.out.printf("Channel init in progress...\n");
+                                    System.out.printf("Channel %d in progress...\n", channelFDValue);
                                 }
                             }
                                 break;
@@ -351,7 +357,7 @@ public class Module_1a_Connect
                              */
                             case TransportReturnCodes.SUCCESS:
                             {
-                                System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+                                System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", channelFDValue);
 
                                 /*********************************************************
                                  * Connection is now active. The Channel can be
@@ -375,8 +381,17 @@ public class Module_1a_Connect
                                 }
 
                                 /* Print out basic channel info */
-                                System.out.printf("\nChannel Info:\n" + "Max Fragment Size:         %d\n" + "Max Output Buffers:        %d\n" + "Input Buffers:             %d\n" + "Send/Receive Buffer Sizes: %d/%d\n" + "Ping Timeout:              %d\n", channelInfo.maxFragmentSize(),
-                                                  channelInfo.maxOutputBuffers(), channelInfo.numInputBuffers(), channelInfo.sysSendBufSize(), channelInfo.sysRecvBufSize(), channelInfo.pingTimeout());
+                                System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+                                        channelFDValue,
+                                        channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
+                                        channelInfo.maxOutputBuffers(), /* This is the maximum number of output buffers available to the channel. */
+                                        channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
+                                        channelInfo.numInputBuffers(), /*  This is the number of input buffers available to the channel. */
+                                        channelInfo.sysSendBufSize(), /*  This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
+                                        channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
+                                        channelInfo.pingTimeout()); /* This is the value of the negotiated ping timeout */
+
+                                System.out.printf("Connected component version: ");
                                 int count = channelInfo.componentInfo().size();
                                 if (count == 0)
                                     System.out.printf("(No component info)");
@@ -393,7 +408,7 @@ public class Module_1a_Connect
                                 break;
                             default:
                             {
-                                System.out.printf("Unexpected return value\n");
+                                System.out.printf("Bad return value fd=%d <%d>\n", channelFDValue, retCode);
                                 closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
                             }
                                 break;
@@ -416,7 +431,7 @@ public class Module_1a_Connect
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
     {
-
+        boolean isClosedAndClean = true;
         try
         {
             selector.close();
@@ -436,9 +451,8 @@ public class Module_1a_Connect
          * Calling CloseChannel terminates the connection to the ADH.
          *********************************************************/
 
-        if ((channel != null) && channel.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        if ((channel != null)) {
+            isClosedAndClean = channel.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /*********************************************************
@@ -453,6 +467,12 @@ public class Module_1a_Connect
          */
         Transport.uninitialize();
 
+        if (isClosedAndClean) {
+            System.out.println("NIProvider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with CloseChannel. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -460,7 +480,7 @@ public class Module_1a_Connect
             System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
 
     }
 

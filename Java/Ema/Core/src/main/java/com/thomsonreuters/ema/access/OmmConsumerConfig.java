@@ -102,6 +102,31 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig clientId(String clientId);
 	
 	/**
+	 * Specifies optionally a client secret used by OAuth client to authenticate to the Authorization Server.
+	 * 
+	 * @param clientSecret specifies a client secret.
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig clientSecret(String clientSecret);
+	
+	/**
+	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
+	 * 
+	 * @param tokenScope specifies a token scope
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig tokenScope(String tokenScope);
+	
+	/**
+     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * <p>Defaults to true</p>
+     *
+     * @param takeExclusiveSignOnControl the exclusive sign on control.
+     * @return reference to this object
+     */
+	public OmmConsumerConfig takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
+	
+	/**
 	 * Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
 	 * <p>Defaults to "https://api.refinitiv.com/auth/oauth2/v1/token".</p>
 	 * @param tokenServiceUrl specifies an URL for token service.
@@ -116,15 +141,6 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl);
-	
-	/**
-     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
-     * <p>Defaults to true</p>
-     *
-     * @param takeExclusiveSignOnControl the exclusive sign on control.
-     * @return reference to this object
-     */
-	public OmmConsumerConfig takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
 
 	/**
 	 * Specifies a hostname and port. Overrides prior value.

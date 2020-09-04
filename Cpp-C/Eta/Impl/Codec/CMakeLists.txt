@@ -436,7 +436,7 @@ else()
 
 	DEBUG_PRINT(librssl_tmp)
 
-	rcdev_add_target(esdk librssl librssl_shared)
+	rcdev_add_target(rtsdk librssl librssl_shared)
 
 
 endif()

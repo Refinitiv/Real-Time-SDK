@@ -160,9 +160,9 @@ RTR_C_ALWAYS_INLINE rsslChannelImpl *_rsslCreateChannel()
 
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	{
-	  (void) RSSL_MUTEX_INIT_ESDK( &chnl->chanMutex );
+	  (void) RSSL_MUTEX_INIT_RTSDK( &chnl->chanMutex );
 	}
-	(void) RSSL_MUTEX_INIT_ESDK( &chnl->traceMutex );
+	(void) RSSL_MUTEX_INIT_RTSDK( &chnl->traceMutex );
 
 	// Allocate hash table for handling fragmentation
 	rsslHashTableInit(&(chnl->assemblyBuffers), 65535, UInt32_key_hash, checkFragID, RSSL_TRUE, &rsslErrorInfo);
@@ -198,7 +198,7 @@ RTR_C_ALWAYS_INLINE rsslServerImpl* _rsslCreateServer()
 
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	{
-	  (void) RSSL_MUTEX_INIT_ESDK( &srvr->srvrMutex );
+	  (void) RSSL_MUTEX_INIT_RTSDK( &srvr->srvrMutex );
 	}
 	
 	srvr->hasSharedBufPool = RSSL_FALSE;
@@ -254,7 +254,10 @@ rsslServerImpl *_rsslNewServer()
 				printf("removing from freeServerList \n");
 		}
 	}
-	
+
+	srvr->serverCountersInfo.countOfFreeServerList = rsslQueueGetElementCount(&freeServerList);
+	srvr->serverCountersInfo.countOfActiveServerList = rsslQueueGetElementCount(&activeServerList);
+
 	mutexFuncs.staticMutexUnlock();
 	return srvr;
 }
@@ -343,24 +346,7 @@ void RTR_FASTCALL _rsslReleaseChannel(rsslChannelImpl *chnl)
 /* releases server to freeList */
 void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr)
 {
-	RsslError error;
-	
-	if (srvr->transportInfo)
-	{
-		if (srvr->connectionType == RSSL_CONN_TYPE_UNIDIR_SHMEM)
-		{
-			/* we may still hold a buffer here, make sure to release it back to shmem */
-			/* the variables will be set to null in CleanServer */
-			rtrShmTransDestroy(srvr->transportInfo, &error);
-		}
-		else 
-		{	/* This is used to release all socket connection types */
-			ipcShutdownServer(srvr->transportInfo, &error);
-			ipcSrvrDropRef(srvr->transportInfo, &error);
-		}	
-
-		srvr->transportInfo = NULL;
-	}
+	rsslServerCountersInfo* countersInfo = &srvr->serverCountersInfo;
 
 	/* server always owns component version string when present */
 	if ((srvr->componentVer.componentVersion.length) && (srvr->componentVer.componentVersion.data))
@@ -374,6 +360,7 @@ void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr)
 	}
 
 	_rsslCleanServer(srvr);
+
 	mutexFuncs.staticMutexLock();
 	if (rsslQueueLinkInAList(&(srvr->link1)))
 	{
@@ -385,7 +372,14 @@ void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr)
 	rsslQueueAddLinkToBack(&freeServerList, &(srvr->link1));
 	if (memoryDebug)
 		printf("adding to freeServerList\n");
+	
+	{
+		countersInfo->countOfFreeServerList = rsslQueueGetElementCount(&freeServerList);
+		countersInfo->countOfActiveServerList = rsslQueueGetElementCount(&activeServerList);
+	}
 	mutexFuncs.staticMutexUnlock();
+
+	ipcGetOfServerSocketChannelCounters(countersInfo);
 }
 
 /* cleans up the channel list */
@@ -999,7 +993,7 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 		case RSSL_CONN_TYPE_SEQ_MCAST:
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 Elektron Direct Feed connection type (%d) is currently not supported for a server\n", __FILE__, __LINE__, opts->connectionType);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 Sequenced Multicast connection type (%d) is currently not supported for a server\n", __FILE__, __LINE__, opts->connectionType);
 			_rsslReleaseServer(rsslSrvrImpl);
 			return NULL;
 		}
@@ -1040,8 +1034,14 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 	rsslQueueAddLinkToBack(&activeServerList,  &(rsslSrvrImpl->link1));
 	if (memoryDebug)
 		printf("adding to activeServerList\n");
+
+	rsslSrvrImpl->serverCountersInfo.countOfFreeServerList = rsslQueueGetElementCount(&freeServerList);
+	rsslSrvrImpl->serverCountersInfo.countOfActiveServerList = rsslQueueGetElementCount(&activeServerList);
+
 	mutexFuncs.staticMutexUnlock();
-	
+
+	ipcGetOfServerSocketChannelCounters(&(rsslSrvrImpl->serverCountersInfo));
+
 	return (&(rsslSrvrImpl->Server));
 }
 
@@ -1117,7 +1117,7 @@ RsslRet rsslCloseServer(RsslServer *srvr, RsslError *error)
 	
 
 	/* map the RsslServer to the ripcServer */
-	rsslSrvrImpl = (rsslServerImpl*)srvr; 
+	rsslSrvrImpl = (rsslServerImpl*)srvr;
 
 	srvr->state = RSSL_CH_STATE_INACTIVE;
 	

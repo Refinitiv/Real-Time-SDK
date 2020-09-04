@@ -586,6 +586,8 @@ struct _RsslReactorImpl
 	void				*userSpecPtr; /* Users's closure for callback functions */
 	RsslErrorInfo		*pJsonErrorInfo; /* Place holder for JSON error messages */
 	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
+	RsslBool			restEnableLog;	/* Enable REST interaction debug messages */
+	FILE				*restLogOutputStream;	/* Set output stream for REST debug message (by default is stdout) */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)

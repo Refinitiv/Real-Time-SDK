@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020 Refinitiv. All rights reserved.
 */
 
 /* consumerThreads.h
@@ -19,6 +19,7 @@ extern "C" {
 #include "consPerfConfig.h"
 #include "itemEncoder.h"
 #include "latencyRandomArray.h"
+#include "perfTunnelMsgHandler.h"
 #include "statistics.h"
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslMessagePackage.h"
@@ -104,6 +105,7 @@ typedef struct {
 	RsslBool		imageTimeRecorded;			/* Stats thread sets this once it has recorded/printed
 												 * this consumer's image retrieval time. */
 	ValueStatistics intervalUpdateDecodeTimeStats;
+	ValueStatistics tunnelStreamBufUsageStats;	/* Tunnel Buffer Usage statistics. */
 } ConsumerStats;
 
 RTR_C_INLINE void consumerStatsInit(ConsumerStats *stats)
@@ -133,6 +135,7 @@ RTR_C_INLINE void consumerStatsInit(ConsumerStats *stats)
 	clearValueStatistics(&stats->genMsgLatencyStats);
 	stats->imageTimeRecorded = RSSL_FALSE;
 	clearValueStatistics(&stats->intervalUpdateDecodeTimeStats);
+	clearValueStatistics(&stats->tunnelStreamBufUsageStats);
 }
 
 /* Keeps track of which dictionaries the consumer has. */
@@ -197,6 +200,11 @@ typedef struct {
 	RotatingQueue           genMsgItemQueue;            /* Generic message item queue. */
 
 	rjConverterSession		rjcSess;
+
+	/* Service information for tunnel stream. */
+	RsslBool				tunnelMessagingEnabled;		/* Whether to create tunnel for sending messages. */
+	char					tunnelStreamServiceName[128];	/* Service name requested by application. */
+	PerfTunnelMsgHandler	perfTunnelMsgHandler;		/* The handler for exchanging messages through a tunnel stream.  */
 } ConsumerThread;
 
 /* Shorthand for consumerThread's RsslError struct. */

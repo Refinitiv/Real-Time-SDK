@@ -53,7 +53,7 @@ typedef enum
 	RSSL_DT_BUFFER				= 16,	/*!< (16) Buffer type, represents a raw byte buffer type with a char* and an \ref RsslUInt32 length.  See \ref RsslBufferGroup for more information. <BR>*/
 	RSSL_DT_ASCII_STRING		= 17,	/*!< (17) ASCII String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is an ASCII string and should only contain characters that are valid within the ASCII specification.  See \ref RsslBufferGroup for more information. <BR>*/
 	RSSL_DT_UTF8_STRING			= 18,	/*!< (18) UTF8 String, uses the \ref RsslBuffer type for encoding and decoding. This enum indicates that the content is a UTF8 string and should only contain characters that are valid within the UTF8 encoding standard.  See \ref RsslBufferGroup for more information. <BR>*/
-	RSSL_DT_RMTES_STRING		= 19,	/*!< (19) RMTES String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is a Reuters Multilingual Text Encoding Standard string and should only contain characters that are valid within the RMTES encoding standard.  See \ref RsslBufferGroup and \ref RsslRmtesGroup for more information. <BR>*/
+	RSSL_DT_RMTES_STRING		= 19,	/*!< (19) RMTES String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is a Refinitiv Multilingual Text Encoding Standard string and should only contain characters that are valid within the RMTES encoding standard.  See \ref RsslBufferGroup and \ref RsslRmtesGroup for more information. <BR>*/
 
 
 	RSSL_DT_BASE_PRIMITIVE_MAX	= 63,	/*!< Maximum allowed value for primitive types - used for internal UPA range checking <BR>*/

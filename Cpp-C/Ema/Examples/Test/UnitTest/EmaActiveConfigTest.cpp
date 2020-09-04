@@ -460,6 +460,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_TRUE(baseConfig.libSslName.empty());
 	EXPECT_TRUE(baseConfig.libCryptoName.empty());
 	EXPECT_TRUE(baseConfig.traceStr.empty());
+	EXPECT_TRUE(baseConfig.restLogFileName.empty());
 
 	EXPECT_EQ(baseConfig.tokenReissueRatio, DEFAULT_TOKEN_REISSUE_RATIO);
 	EXPECT_EQ(baseConfig.defaultServiceIDForConverter, DEFAULT_SERVICE_ID_FOR_CONVERTER);
@@ -468,6 +469,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.catchUnknownJsonFids, DEFAULT_CATCH_UNKNOWN_JSON_FIDS);
 	EXPECT_EQ(baseConfig.closeChannelFromFailure, DEFAULT_CLOSE_CHANNEL_FROM_FAILURE);
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
+	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 }
 
 TEST_F(EmaActiveConfigTest, BaseConfigTest)
@@ -561,6 +563,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.libSslName = "sdhgf4sdh";
 	baseConfig.libCryptoName = "sdh3gfjsdh";
 	baseConfig.traceStr = "sdhgfjs2dh";
+	baseConfig.restLogFileName = "dfgdgfewr3cd";
 
 	baseConfig.tokenReissueRatio = 23.15;
 	baseConfig.defaultServiceIDForConverter = 23;
@@ -569,6 +572,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.catchUnknownJsonFids = false;
 	baseConfig.closeChannelFromFailure = false;
 	baseConfig.outputBufferSize = 23;
+	baseConfig.restEnableLog = true;
 
 	// Tests clear method
 	baseConfig.clear();

@@ -19,6 +19,8 @@ void closeLoginChnlStream(RsslChannel* chnl);
 static void closeLoginStream(RsslInt32 streamId);
 RsslLoginRequestInfo* findLoginReqInfo(RsslChannel* chnl);
 RsslRet sendRTTLoginMsg(RsslChannel* chnl);
+RsslBool checkLoginCockies(const char* coockies);
+RsslRet sendCoockiesLoginResponse(RsslChannel* chnl);
 
 #ifdef __cplusplus
 };

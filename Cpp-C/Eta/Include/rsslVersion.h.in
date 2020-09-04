@@ -28,15 +28,15 @@
 #define RSSL_Product_Major     @Eta_VERSION_PATCH@ 	// Release patch number
 #define RSSL_Product_Minor     @Eta_VERSION_TWEAK@   	// Release tweak number
 
-#define RSSL_Year				"@esdk_year@"
+#define RSSL_Year				"@rtsdk_year@"
 #define RSSL_CompanyName		" Refinitiv"
 #define RSSL_Version			RSSL_Release_Major,RSSL_Release_Minor,RSSL_Product_Major,RSSL_Product_Minor
 #define RSSL_VersionString		MKSTR(RSSL_Release_Major) "." MKSTR(RSSL_Release_Minor) "." MKSTR(RSSL_Product_Major) "." MKSTR(RSSL_Product_Minor) " (" BLDTYPE ")"
 #define RSSL_LegalCopyRight		"Copyright (C) " RSSL_Year RSSL_CompanyName ", All Rights Reserved. "
-#define RSSL_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
+#define RSSL_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@rtsdk_INTERNAL_RELEASE_TWEAK@"
 #define RSSL_InternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
-#define RSSL_ReleaseType		"@esdk_RELEASE_TYPE@"
-#define RSSL_ProdName			"Elektron Transport API (ETA) C Edition"
+#define RSSL_ReleaseType		"@rtsdk_RELEASE_TYPE@"
+#define RSSL_ProdName			"Enterprise Transport API (ETA) C Edition"
 #define RSSL_Package			" PACKAGE " RSSL_ExternalName " " RSSL_ReleaseType
 #define RSSL_InterfaceVersion	"@librssl_SO_VERSION@"
 
@@ -45,7 +45,7 @@ static char rsslVersion[]   = " VERSION " RSSL_InternalName;
 static char rsslWhat[]      = "@(#)rsslVersion.h" RSSL_InternalName;
 static char rsslWhere[]     = "s.rsslVersion.h";
 static char rsslPackage[]   = RSSL_Package;
-static char rsslDeltaDate[] = " @esdk_timestamp@ " RSSL_Year;
+static char rsslDeltaDate[] = " @rtsdk_timestamp@ " RSSL_Year;
 static char rsslComponentVersionStart[] = RSSL_ExternalName ".";
 static char rsslComponentVersionEnd[] = "." RSSL_ReleaseType;
 static char rsslInterfaceVersion[] = RSSL_InterfaceVersion;

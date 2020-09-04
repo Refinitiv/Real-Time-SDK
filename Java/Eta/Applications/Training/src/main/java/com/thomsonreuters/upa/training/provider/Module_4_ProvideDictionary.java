@@ -221,7 +221,7 @@
  * (runs with specified set of parameters, all parameters are optional)
  *
  * Pressing the CTRL+C buttons terminates the program.
- * 
+ *
  ************************************************************************
  * UPA Interactive Provider Training Module 4: Provide Necessary Dictionaries
  ************************************************************************
@@ -318,6 +318,7 @@ import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.training.common.TrainingModuleUtils;
 import com.thomsonreuters.upa.transport.AcceptOptions;
 import com.thomsonreuters.upa.transport.BindOptions;
 import com.thomsonreuters.upa.transport.Channel;
@@ -351,6 +352,9 @@ public class Module_4_ProvideDictionary
     public static String loginRequestInfo_Password;
     public static String loginRequestInfo_InstanceId;
     public static String loginRequestInfo_Role;
+
+    public static int upaServerFDValue;
+    public static int clientChannelFDValue;
 
     public static int sourceDirectoryRequestInfo_StreamId;
     public static String sourceDirectoryRequestInfo_ServiceName;
@@ -612,7 +616,8 @@ public class Module_4_ProvideDictionary
             System.exit(TransportReturnCodes.FAILURE);
         }
 
-        System.out.printf("Server bound on port %d\n", upaSrvr.portNumber());
+        upaServerFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(upaSrvr.selectableChannel());
+        System.out.printf("Server IPC descriptor = %d bound on port %d\n", upaServerFDValue, upaSrvr.portNumber());
 
         opMask |= SelectionKey.OP_ACCEPT;
 
@@ -675,13 +680,14 @@ public class Module_4_ProvideDictionary
                     /* An OMM Provider application can begin the connection accepting or rejecting process by using the Accept function */
                     if ((channel = upaSrvr.accept(acceptOpts, error)) == null)
                     {
-                        System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                        System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                         Transport.uninitialize();
                     }
                     else
                     {
                         /* For this simple training app, the interactive provider only supports one client session from the consumer. */
-                        System.out.printf("New client on channel!\n");
+                        clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                        System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", upaServerFDValue, clientChannelFDValue);
                         /*set clientAccepted to be TRUE and exit the while Main Loop #1*/
                         clientAccepted = true;
                     }
@@ -753,7 +759,7 @@ public class Module_4_ProvideDictionary
                      */
                     if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                     {
-                        System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                        System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                         closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                     }
 
@@ -777,7 +783,9 @@ public class Module_4_ProvideDictionary
                                  * to InitChannel are required to complete it.
                                  */
                                 opMask = SelectionKey.OP_READ;
-                                System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                final int oldChannelFDValue = clientChannelFDValue;
+                                    clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                    System.out.printf("\nChannel In Progress - New FD: %d   Old FD: %d\n", clientChannelFDValue, oldChannelFDValue);
                                 try
                                 {
                                     key = inProgInfo.oldSelectableChannel().keyFor(selector);
@@ -800,7 +808,7 @@ public class Module_4_ProvideDictionary
                             }
                             else
                             {
-                                System.out.printf("Channel init in progress...\n");
+                                System.out.printf("Channel %d in progress...\n", clientChannelFDValue);
                             }
                         }
                             break;
@@ -810,7 +818,7 @@ public class Module_4_ProvideDictionary
                          */
                         case TransportReturnCodes.SUCCESS:
                         {
-                            System.out.printf("Channel is now active!  Reading and writing can begin!\n");
+                            System.out.printf("Channel on fd %d is now active - reading and writing can begin.\n", clientChannelFDValue);
 
                             /*********************************************************
                              * Connection is now active. The Channel can be used
@@ -827,12 +835,13 @@ public class Module_4_ProvideDictionary
                             /* Populate information from channel */
                             if ((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
                             {
-                                System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                                System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                                 closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
 
                             /* Print out basic channel info */
-                            System.out.printf("\nChannel Info:\n" + "Max Fragment Size:         %d\n" + "Max Output Buffers:        %d, %d  Guaranteed\n" + "Input Buffers:             %d\n" + "Send/Receive Buffer Sizes: %d/%d\n" + "Ping Timeout:              %d\n",
+                            System.out.printf("\nChannel %d active. Channel Info:\n" + "Max Fragment Size:           %d\n" + "Output Buffers:              %d Max, %d  Guaranteed\n" + "Input Buffers:               %d\n" + "Send/Receive Buffer Sizes:   %d/%d\n" + "Ping Timeout:                %d\n",
+                                              clientChannelFDValue,
                                               channelInfo.maxFragmentSize(), /*  This is the max fragment size before fragmentation and reassembly is necessary. */
                                               channelInfo.maxOutputBuffers(), /* This is the maximum number of output buffers available to the channel. */
                                               channelInfo.guaranteedOutputBuffers(), /*  This is the guaranteed number of output buffers available to the channel. */
@@ -840,6 +849,8 @@ public class Module_4_ProvideDictionary
                                               channelInfo.sysSendBufSize(), /*  This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
                                               channelInfo.sysRecvBufSize(), /*  This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
                                               channelInfo.pingTimeout()); /* This is the value of the negotiated ping timeout */
+
+                            System.out.printf("Connected component version: ");
                             int count = channelInfo.componentInfo().size();
                             if (count == 0)
                                 System.out.printf("(No component info)");
@@ -890,7 +901,7 @@ public class Module_4_ProvideDictionary
                             break;
                         default: /* Error handling */
                         {
-                            System.out.printf("Unexpected init return code: %d\n", retCode);
+                            System.out.printf("Bad return value fd=%d: <%s>\n", clientChannelFDValue, TransportReturnCodes.toString(retCode));
                             closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                         }
                             break;
@@ -1008,7 +1019,7 @@ public class Module_4_ProvideDictionary
                              ******************************************/
                             if ((retCode = msg.decode(decodeIter)) != CodecReturnCodes.SUCCESS)
                             {
-                                System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                                System.out.printf("msg.decode(): Error (%d) (errno: %d) on SessionData fd=%d. Size: %d\n", error.errorId(), error.sysError(), clientChannelFDValue, msgBuf.length());
                                 closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
 
@@ -1108,7 +1119,9 @@ public class Module_4_ProvideDictionary
                                 /* Switch to a new channel if required */
                                 case TransportReturnCodes.READ_FD_CHANGE:
                                     opMask = SelectionKey.OP_READ;
-                                    System.out.printf("Channel switch, NEW: %d OLD %d\n", channel.selectableChannel(), channel.oldSelectableChannel());
+                                    final int oldChannelFDValue = clientChannelFDValue;
+                                    clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
+                                    System.out.printf("\nRead message. FD change - New FD: %d   Old FD: %d\n", clientChannelFDValue, oldChannelFDValue);
                                     try
                                     {
                                         key = channel.selectableChannel().keyFor(selector);
@@ -1134,18 +1147,18 @@ public class Module_4_ProvideDictionary
                                     /* Nothing to read */
                                     break;
                                 case TransportReturnCodes.READ_IN_PROGRESS:
-                                    /* Reading from multiple threads */
                                     break;
                                 case TransportReturnCodes.INIT_NOT_INITIALIZED:
                                 case TransportReturnCodes.FAILURE:
-                                    System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
+                                    System.out.printf("Error (%d) (errno: %d) fd=%d <%s>\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                                     closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     break;
                                 default:
                                 {
                                     if (retCode < 0)
                                     {
-                                        System.out.printf("Unexpected return code\n");
+                                        System.out.printf("Error (%d) (errno: %d) encountered with ChannelRead fd=%d. Error Text: %s\n",
+                                                error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                                         closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                 }
@@ -1179,7 +1192,8 @@ public class Module_4_ProvideDictionary
                             case TransportReturnCodes.FAILURE: /* fall through to default. */
                             default: /* Error handling */
                             {
-                                System.out.printf("Error (%d) (errno: %d): %s", error.errorId(), error.sysError(), error.text());
+                                System.out.printf("Error (%d) (errno: %d) encountered with ping() on fd=%d with code %d\n. Error text: %s\n",
+                                        error.errorId(), error.sysError(), clientChannelFDValue, retCode, error.text());
                                 /* Connection should be closed, return failure */
                                 /* Closes channel/connection, cleans up and exits the application. */
                                 closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
@@ -1271,6 +1285,7 @@ public class Module_4_ProvideDictionary
      */
     public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
     {
+        boolean isClosedAndClean = true;
         Error error = TransportFactory.createError();
 
         try
@@ -1299,9 +1314,8 @@ public class Module_4_ProvideDictionary
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
-        if ((server != null) && server.close(error) < TransportReturnCodes.SUCCESS)
-        {
-            System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+        if ((server != null)) {
+            isClosedAndClean = server.close(error) >= TransportReturnCodes.SUCCESS;
         }
 
         /* when users are done, they should unload dictionaries to clean up memory */
@@ -1319,6 +1333,13 @@ public class Module_4_ProvideDictionary
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
+
+        if (isClosedAndClean) {
+            System.out.println("Provider application has closed channel and has cleaned up successfully.");
+        } else {
+            System.out.printf("Error (%d) (errno: %d) encountered with Close Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
+        }
+
         /* For applications that do not exit due to errors/exceptions such as:
          * Exits the application if the run-time has expired.
          */
@@ -1328,7 +1349,7 @@ public class Module_4_ProvideDictionary
         }
 
         /* End application */
-        System.exit(code);
+        System.exit(0);
     }
 
     /**
@@ -1642,7 +1663,7 @@ public class Module_4_ProvideDictionary
                 case TransportReturnCodes.FAILURE:
                 default:
                 {
-                    System.out.printf("Error (%d) (errno: %d): %s\n", error.errorId(), error.sysError(), error.text());
+                    System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                     channel.releaseBuffer(msgBuf, error);
                     return TransportReturnCodes.FAILURE;
                 }
@@ -1922,7 +1943,7 @@ public class Module_4_ProvideDictionary
             hostName = "localhost";
         }
 
-        stateText = hostName;
+        stateText += hostName;
 
         refreshMsg.state().text().data(stateText);
         /* provide login response information */
@@ -2258,15 +2279,6 @@ public class Module_4_ProvideDictionary
                 statusMsg.state().code(StateCodes.TOO_MANY_ITEMS);
 
                 String stateText = "Login request rejected for stream id " + streamId + " - max request count reached";
-                String hostName = null;
-
-                if ((hostName = InetAddress.getLocalHost().getHostName()) != null)
-                {
-                    hostName = "localhost";
-                }
-
-                stateText = hostName;
-
                 statusMsg.state().text().data(stateText);
             }
                 break;
@@ -2276,15 +2288,6 @@ public class Module_4_ProvideDictionary
                 statusMsg.state().code(StateCodes.USAGE_ERROR);
 
                 String stateText = "Login request rejected for stream id " + streamId + " - request does not contain user name";
-                String hostName = null;
-
-                if ((hostName = InetAddress.getLocalHost().getHostName()) != null)
-                {
-                    hostName = "localhost";
-                }
-
-                stateText = hostName;
-
                 statusMsg.state().text().data(stateText);
             }
                 break;

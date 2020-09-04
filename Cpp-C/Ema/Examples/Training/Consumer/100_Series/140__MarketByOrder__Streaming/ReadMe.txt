@@ -3,7 +3,7 @@ Summary
 
 140__MarketByOrder__Streaming is an example of an OMM Consumer application
 that demonstrates basic usage of the EMA library to access and parse OMM 
-MarketByOrder data from the Reuters Data Feed Direct (RDF-D), directly from 
+MarketByOrder data from the Refinitiv Data Feed Direct, directly from 
 an OMM Provider application, or from an Advanced Distribution Server.
 
 140__MarketByOrder__Streaming illustrates how to open and process a

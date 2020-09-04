@@ -11,80 +11,79 @@ import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = UpdateMsgImpl.class.getCanonicalName() + ".UpdateMsgImpl(UpdateMsg other)";
 	UpdateMsgImpl()
 	{
 		super(DataTypes.UPDATE_MSG, null);
 	}
 	
-	UpdateMsgImpl(UpdateMsg other)
-	{
-		super(DataTypes.UPDATE_MSG, new EmaObjectManager());
-		
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.UpdateMsgImpl.UpdateMsgImpl(UpdateMsg other)");
-		
-		// Set the decoded values from the clone buffer to the encoder
-		
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.UpdateMsgImpl.UpdateMsgImpl(UpdateMsg other)");
-		
-		if (hasMsgKey() || other.hasMsgKey())
-		{
-			if (hasName())
-				name(name());
+	UpdateMsgImpl(UpdateMsg other) {
+		super((MsgImpl) other, CLONE_CONSTRUCTOR_NAME);
 
-			if (hasNameType())
-				nameType(nameType());
+		if (other.hasMsgKey()) {
+			if (other.hasName())
+				name(other.name());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-			if (hasId())
-				id(id());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasFilter())
-				filter(filter());
+			if (other.hasId())
+				id(other.id());
 
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
-		}	
+			if (other.hasFilter())
+				filter(other.filter());
+
+			if (other.attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
+		}
 
 		domainType(domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
 
 		if (other.hasSeqNum())
-			seqNum(seqNum());
+			seqNum(other.seqNum());
 
-		if (other.hasPermissionData())
-			permissionData(permissionData());
+		if (other.hasPermissionData()) {
+			((com.thomsonreuters.upa.codec.UpdateMsg) _rsslMsg).permData(CodecFactory.createBuffer());
+			permissionData(other.permissionData());
+		}
 
 		if (other.hasConflated())
-			conflated(conflatedCount(), conflatedTime());
+			conflated(other.conflatedCount(), other.conflatedTime());
 
 		if (other.hasPublisherId())
 			publisherId(publisherIdUserId(), publisherIdUserAddress());
 
-		updateTypeNum(updateTypeNum());
+		updateTypeNum(other.updateTypeNum());
 
-		doNotCache(doNotCache());
+		doNotCache(other.doNotCache());
 
-		doNotConflate(doNotConflate());
+		doNotConflate(other.doNotConflate());
 
-		doNotRipple(doNotRipple());
-		
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		doNotRipple(other.doNotRipple());
+
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 
 	UpdateMsgImpl(EmaObjectManager objManager)
@@ -442,7 +441,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -499,6 +498,8 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 

@@ -10,17 +10,11 @@ package com.thomsonreuters.ema.unittest;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.*;
 import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.JUnitTestConnect;
-import com.thomsonreuters.ema.access.OmmQos;
-import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
+import com.thomsonreuters.upa.codec.*;
 
 import junit.framework.TestCase;
 
@@ -618,7 +612,40 @@ public class ReqMsgTests extends TestCase
 	     
 	     System.out.println("\ttestReqMsg_EncodeUPAReqMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherReqMsg_EMADecode passed");
 	}
-	
+
+	public void testRequestMsg_cloneIsNotSupportedFromTheEncodeSide()
+	{
+		TestUtilities.printTestHead("testRequestMsg_cloneIsNotSupportedFromTheEncodeSide", "cloning is not supported on encode side");
+		ReqMsg msg = EmaFactory.createReqMsg()
+				.domainType(EmaRdm.MMT_MARKET_PRICE);
+
+		try {
+			ReqMsg cloneMessage = EmaFactory.createReqMsg(msg);
+			TestUtilities.checkResult(false, "Clone not supported  - exception expected: ");
+		} catch ( OmmException excp ) {
+			TestUtilities.checkResult(true, "Clone not supported  - exception expected: " +  excp.getMessage() );
+			TestUtilities.checkResult(excp.getMessage().startsWith("Failed to clone empty encoded buffer"), "Clone not supported - exception text validated");
+		}
+	}
+
+	public void testReqMsg_cloneMsgKeyWLScenario()
+	{
+		TestUtilities.printTestHead("testReqMsg_cloneMsgKeyWLScenario", "cloning for minimal ema req message");
+		ReqMsg emaMsg = EmaFactory.createReqMsg();
+		emaMsg.payload(TestMsgUtilities.createFiledListBodySample());
+
+		JUnitTestConnect.getRsslData(emaMsg);
+		/** @see com.thomsonreuters.upa.valueadd.reactor.WlItemHandler#callbackUser(String, com.thomsonreuters.upa.codec.Msg, MsgBase, WlRequest, ReactorErrorInfo) */
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, true);
+		ReqMsg emaClonedMsg = EmaFactory.createReqMsg(emaMsg);
+
+		compareEmaReqMsgFields(emaMsg, emaClonedMsg, "check clone for minimal message");
+		JUnitTestConnect.setRsslMsgKeyFlag(emaMsg, false);
+
+		System.out.println("End EMA ReqMsg Clone msgKey");
+		System.out.println();
+	}
+
 	public void testRequestMsg_clone()
 	{
 		TestUtilities.printTestHead("testRequestMsg_clone", "cloning for ema request message");
@@ -677,6 +704,8 @@ public class ReqMsgTests extends TestCase
 		requestMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 		requestMsg.encodedDataBody(fieldListBuf);
 
+		setMoreFields(requestMsg);
+
 		System.out.println("End UPA RequestMsg Set");
 		System.out.println();
 
@@ -714,18 +743,8 @@ public class ReqMsgTests extends TestCase
 		
 		com.thomsonreuters.ema.access.ReqMsg emaRequestMsgClone = EmaFactory.createReqMsg(emaRequestMsg);
 		
-		TestUtilities.checkResult(emaRequestMsgClone.domainType() == emaRequestMsg.domainType(), "Compare domainType");
-		TestUtilities.checkResult(emaRequestMsgClone.streamId() == emaRequestMsg.streamId(), "Compare streamId");
-		TestUtilities.checkResult(emaRequestMsgClone.hasPriority() == emaRequestMsg.hasMsgKey(), "Compare hasPriority");
-		TestUtilities.checkResult(emaRequestMsgClone.priorityClass() == emaRequestMsg.priorityClass(), "Compare priorityClass");
-		TestUtilities.checkResult(emaRequestMsgClone.priorityCount() == emaRequestMsg.priorityCount(), "Compare priorityCount");
+		compareEmaReqMsgFields(emaRequestMsg, emaRequestMsgClone, "Request clone message");
 
-		TestUtilities.checkResult(emaRequestMsgClone.hasQos() == emaRequestMsg.hasQos(), "Compare hasQos");
-		TestUtilities.checkResult(emaRequestMsgClone.qosTimeliness() == emaRequestMsg.qosTimeliness(), "Compare qosTimeliness");
-		TestUtilities.checkResult(emaRequestMsgClone.qosRate() == emaRequestMsg.qosRate(), "Compare qosRate");
-		
-		TestUtilities.checkResult(emaRequestMsgClone.hasMsgKey() == emaRequestMsg.hasMsgKey(), "Compare hasMsgKey");
-		
 		String emaRequestMsgString = emaRequestMsg.toString();
 		String emaRequestMsgCloneString = emaRequestMsgClone.toString();
 		
@@ -733,11 +752,25 @@ public class ReqMsgTests extends TestCase
 		System.out.println(emaRequestMsgClone);
 		
 		TestUtilities.checkResult(emaRequestMsgString.equals(emaRequestMsgCloneString), "emaRequestMsgString.equals(emaRequestMsgCloneString)");
-		
+
+		com.thomsonreuters.ema.access.ReqMsg emaRequestMsgClone2 = EmaFactory.createReqMsg(emaRequestMsgClone);
+		compareEmaReqMsgFields(emaRequestMsg, emaRequestMsgClone2, "Request double-cloned message");
+		String emaRequestMsgClone2String = emaRequestMsgClone2.toString();
+		TestUtilities.checkResult(emaRequestMsgString.equals(emaRequestMsgClone2String), "double-cloned emaRequestMsgString.equals(emaRequestMsgClone2String)");
+
 		System.out.println("End EMA RequestMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void setMoreFields(com.thomsonreuters.upa.codec.RequestMsg requestMsg) {
+		requestMsg.applyHasExtendedHdr();
+		Buffer extendedHeader = CodecFactory.createBuffer();
+		extendedHeader.data(ByteBuffer.wrap(new byte[] {5, -6, 7, -8}));
+		requestMsg.extendedHeader(extendedHeader);
+
+		requestMsg.applyPrivateStream();
+	}
+
 	public void testRequestMsg_cloneEdit()
 	{
 		TestUtilities.printTestHead("testRequestMsg_cloneEdit", "clone and edit ema request message");
@@ -887,5 +920,27 @@ public class ReqMsgTests extends TestCase
 		System.out.println("End EMA RequestMsg Clone");
 		System.out.println();
 	}
-	
+
+	private void compareEmaReqMsgFields(com.thomsonreuters.ema.access.ReqMsg expected, com.thomsonreuters.ema.access.ReqMsg actual, String checkPrefix) {
+		TestMsgUtilities.compareMsgFields(expected, actual, checkPrefix + " base message");
+		checkPrefix = checkPrefix + " compare: ";
+
+		TestUtilities.checkResult(expected.hasServiceName() == actual.hasServiceName(), checkPrefix + "hasServiceName");
+		if(expected.hasServiceName())
+			TestUtilities.checkResult(expected.serviceName().equals(actual.serviceName()), checkPrefix + "serviceId" + "exp=" +actual.serviceName() + " act="+expected.serviceName());
+
+		TestUtilities.checkResult(expected.privateStream() == actual.privateStream(), checkPrefix + "privateStream");
+
+		TestUtilities.checkResult(expected.hasQos() == actual.hasQos(), checkPrefix + "hasQos");
+		if(expected.hasQos()) {
+			TestUtilities.checkResult(expected.qosRate() == actual.qosRate(), checkPrefix + "qosRate");
+			TestUtilities.checkResult(expected.qosTimeliness() == actual.qosTimeliness(), checkPrefix + "qosTimeliness");
+		}
+
+		TestUtilities.checkResult(expected.hasPriority() == actual.hasPriority(), checkPrefix + "hasPriority");
+		if(expected.hasPriority()) {
+			TestUtilities.checkResult(expected.priorityClass() == actual.priorityClass(), checkPrefix + "priorityClass");
+			TestUtilities.checkResult(expected.priorityCount() == actual.priorityCount(), checkPrefix + "priorityCount");
+		}
+	}
 }

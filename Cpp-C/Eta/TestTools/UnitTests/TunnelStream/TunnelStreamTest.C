@@ -263,7 +263,7 @@ void tunnelStreamMsgExchangeTest(bool authenticate, bool enableWatchlist)
 	tsGetBufferOptions.size = (RsslUInt32)strlen(sampleString);
 	ASSERT_TRUE((pBuffer = rsslTunnelStreamGetBuffer(pConsTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
 	pBuffer->length = (RsslUInt32)strlen(sampleString);
-	strncpy(pBuffer->data, sampleString, pBuffer->length);
+	strcpy(pBuffer->data, sampleString);
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamSubmit(pConsTunnelStream, pBuffer, &tsSubmitOpts, &errorInfo));
 	consumerReactor.dispatch(0);
 		
@@ -285,7 +285,7 @@ void tunnelStreamMsgExchangeTest(bool authenticate, bool enableWatchlist)
 	tsGetBufferOptions.size = (RsslUInt32)strlen(sampleString);
 	ASSERT_TRUE((pBuffer = rsslTunnelStreamGetBuffer(pProvTunnelStream, &tsGetBufferOptions, &errorInfo)) != NULL);
 	pBuffer->length = (RsslUInt32)strlen(sampleString);
-	strncpy(pBuffer->data, sampleString, pBuffer->length);
+	strcpy(pBuffer->data, sampleString);
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslTunnelStreamSubmit(pProvTunnelStream, pBuffer, &tsSubmitOpts, &errorInfo));
 	providerReactor.dispatch(0);
 		

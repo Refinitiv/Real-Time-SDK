@@ -1,36 +1,90 @@
-This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+This is the change log of the Refinitiv Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-There are three types of ESDK releases that append a letter directly followed by a number to the version number. 
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and fixes prior to RTSDK-1.5.1.L1, may refer to ESDK or Elektron.
 
-"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub. 
-"G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. 
-"E" releases (E-Loads) are emergency ESDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+There are three types of RTSDK releases that append a letter directly followed by a number to the version number.
+
+"L" releases (e.g., 1.2.0.L1) are full RTSDK releases that are uploaded to MyRefinitiv (formerly Customer Zone), Developer Community and GitHub.
+"G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub.
+"E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.5.0.G1 aka EMA 3.5.0.G1 and ETA 3.5.0.G1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, and, openJDK 1.11. 
-
+This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance. Included in this release are rebranding changes.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 06708565] [ESDK-1650] rsslDoubleToReal conversion  function doesn't work as expected
-- [Case Number: 07697024 and GitHub # 141] [ESDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance
-- [Case Number: 08453636] [ESDK-3844] Network outage related race condition between oauth2 token renewal and login to infra
-- [GitHub #117] [ESDK-3854] Support Posting in EMAJ Providers
-- [GitHub #137] [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB
-- [Case Number: 08600487] [ESDK-3909] EMA Java indexOutOfBoundsException
+- [Case Number: 07012810] - [ESDK-2553] - recvWindowSize (from ETA Java ValueAdd TunnelStream ClassOfService) default value doesn't work as described in the document 
+- [Case Number: 08431393] - [ESDK-3835] - EMA ADS connection recovery failure 
+- [Case Number: 08873087] - [ESDK-4083] - Reactor prematurely enters CHANNEL_READY on reconnect
+- [Case Number: 09046247] - [ESDK-4178] - Cloning issue with update message when name is included 
+- [GitHub #57] - [ESDK-1558] - EMAJ: ema.access.DateTimeStringFormatImpl Observation 
+- [GitHub #69, GitHub #126] - [ESDK-1633] - Allow EmaConfig.xml to be loaded from jar's resource 
+- [GitHub #128] - [ESDK-3831] - IndexOutOfBoundsException when trying to access Cloned RefreshMsg EMA Java 1.4 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 1.5.1.L1 (Sept 4, 2020)
+--------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance. Included in this release are rebranding changes.
+
+EMA Java 3.5.1.L1 Issues Resolved
+---------------------------------
+- [ESDK-475] - EMAJ value add fails to decode message using the DirectoryMsg.decode() method
+- [ESDK-1558] - EMAJ: ema.access.DateTimeStringFormatImpl Observation [GitHub #57]
+- [ESDK-1633] - Allow EmaConfig.xml to be loaded from jar's resource [GitHub #69, GitHub #126]
+- [ESDK-3205] - RDP examples have no text error says could not open keystore file when identify wrong path/file.
+- [ESDK-3831] - IndexOutOfBoundsException when trying to access Cloned RefreshMsg EMA Java 1.4 [GitHub #128]
+- [ESDK-3835] - EMA ADS connection recovery failure [Case Number: 08431393]
+- [ESDK-4092] - EMAJ must check both DictionaryUsed and DictionaryProvided to download dictionary from network
+- [ESDK-4178] - Cloning issue with update message when name is included [Case Number: 09046247]
+
+ETA Java 3.5.1.L1 Issues Resolved
+---------------------------------
+- [ESDK-5] - [Training Examples] Request is for all Training examples to close all open streams and clean up connection upon runtime expiration
+- [ESDK-152] - [ Java Training Examples, Cosmetic text changes request ] Consumers show some unnecessary and inconsistent (with C-Edition) text
+- [ESDK-307] - ETAJ value add fails to decode message using the DirectoryMsg.decode() method
+- [ESDK-310] - No command line in training javadoc
+- [ESDK-767] - Example and Training code print statements contain mis-spelling of the word "Received"
+- [ESDK-2553] - recvWindowSize (from ETA Java ValueAdd TunnelStream ClassOfService) default value doesn't work as described in the document [Case Number: 07012810]
+- [ESDK-3270] - Enhance the Reactor for applications to specify the password for OAuth via the callback method
+- [ESDK-3310] - Provides centralize location to keep the OAuth tokens to share between multiple connections using the same OAuth credential
+- [ESDK-3473] - ReactorChannel event (Unknown channel event type -3) causing reactor to shutdown
+- [ESDK-3773] - Enhance ETAJ Performance tools to support Tunnelstreams
+- [ESDK-3865] - ETAJ Client Side Encryption: Add in host name validation, limit TLS version to 1.2, and enable SNI matching in ETAJ
+- [ESDK-4083] - Reactor prematurely enters CHANNEL_READY on reconnect [Case Number: 08873087]
+
+Both ETA Java and EMA Java 3.5.1.L1 Issues Resolved
+---------------------------------------------------
+- [ESDK-3646] - VS2019 Support for JNI
+- [ESDK-3672] - Add DACSLock code snippet for ETA/EMA Java into documentation
+- [ESDK-3811] - Inefficient java package metadata extract by loop over Package.getPackages() [GitHub #130]
+- [ESDK-3828] - Integrate rsslReactorQueryServiceDiscovery() method with centralized token management to reuse token when using same credentials
+- [ESDK-3866] - ESDKJ Client Side Encryption: Set default Certificate Authority keystore location in Java so a jks file isn't required
+- [ESDK-3867] - ESDKJ Client Side Encryption: Split out encryption and HTTP(S) functionality
+- [ESDK-3991] - Provide the ability to configure the takeExclusiveSignOnControl parameter for the password grant type
+- [ESDK-4070] - Support a configurable debug parameters to show REST interactions (that do not print credentials)
+- [ESDK-4082] - Add tokenScope as a configuration for EDP connectivity
+- [ESDK-4090] - Rebranding: Change code references to "Thomson Reuters" in unit tests, examples, etc.
+- [ESDK-4165] - Rebranding: Change references in READMEs, Code Comments,
+
+--------------------------------------------
 ESDK Java Release 1.5.0.G1 (Jun 30, 2020)
 --------------------------------------------
+
+New Features Added
+------------------
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, and, openJDK 1.11.
 
 EMA Java 3.5.0.G1 Issues Resolved
 ---------------------------------

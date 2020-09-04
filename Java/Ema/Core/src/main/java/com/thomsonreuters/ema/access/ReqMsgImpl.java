@@ -22,6 +22,7 @@ import com.thomsonreuters.upa.codec.QosTimeliness;
 
 class ReqMsgImpl extends MsgImpl implements ReqMsg
 {
+	private final static String CLONE_CONSTRUCTOR_NAME = ReqMsgImpl.class.getCanonicalName() + ".ReqMsgImpl(ReqMsg other)";
 	private final static String TICKBYTICK_NAME = "TickByTick";
 	private final static String JUSTINTIMECONFLATEDRATE_NAME = "JustInTimeConflatedrate";
 	private final static String BESTCONFLATEDRATE_NAME = "BestConflatedRate";
@@ -55,47 +56,45 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
     
     ReqMsgImpl(ReqMsg other)
 	{
-		super(DataTypes.REQ_MSG, new EmaObjectManager());
-		
-		_objManager.initialize();
-		
-		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.ReqMsgImpl.ReqMsgImpl(ReqMsg other)");
+		super((MsgImpl) other, CLONE_CONSTRUCTOR_NAME);
 
-		// Set the decoded values from the clone buffer to the encoder
-		if(!hasMsgKey() && other.hasMsgKey())
-			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.ReqMsgImpl.ReqMsgImpl(ReqMsg other)");
-
-		if (hasMsgKey() || other.hasMsgKey())
+		if (other.hasMsgKey())
 		{
-			if (hasName())
-				name(name());
+			if (other.hasName())
+				name(other.name());
 
-			if (hasNameType())
-				nameType(nameType());
+			if (other.hasNameType())
+				nameType(other.nameType());
 
-			if (hasServiceId())
-				serviceId(serviceId());
+			if (other.hasServiceId())
+				serviceId(other.serviceId());
 
-			if (hasId())
-				id(id());
+			if (other.hasId())
+				id(other.id());
 
-			if (hasFilter())
-				filter(filter());
+			if (other.hasFilter())
+				filter(other.filter());
 
-			if(attrib().dataType() != DataTypes.NO_DATA)
-				attrib(attrib().data());
+			if(attrib().dataType() != DataTypes.NO_DATA) {
+				_rsslMsg.msgKey().encodedAttrib(CodecFactory.createBuffer());
+				attrib(other.attrib().data());
+				decodeAttribPayload();
+			}
 		}
-		domainType(domainType());
+		domainType(other.domainType());
 
-		if (hasExtendedHeader())
-			extendedHeader(extendedHeader());
+		if (other.hasExtendedHeader()) {
+			_rsslMsg.extendedHeader(CodecFactory.createBuffer());
+			extendedHeader(other.extendedHeader());
+		}
 
 		if (other.hasServiceName())
 			serviceName(other.serviceName());
 
-		payload(other.payload().data());
-		
-		decodeCloneAttribPayload((MsgImpl)other);
+		if (other.payload().dataType() != DataTypes.NO_DATA) {
+			_rsslMsg.encodedDataBody(CodecFactory.createBuffer());
+			payload(other.payload().data());
+		}
 	}
 
     @Override
@@ -222,7 +221,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 
 			indent++;
 			Utilities.addIndent(_toString, indent);
-			Utilities.asHexString(_toString, extendedHeader()).append("\"");
+			Utilities.asHexString(_toString, extendedHeader());
 			indent--;
 
 			Utilities.addIndent(_toString, indent, true).append("ExtendedHeaderEnd");
@@ -743,6 +742,8 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 

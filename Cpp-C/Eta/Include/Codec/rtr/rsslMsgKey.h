@@ -36,7 +36,7 @@ extern "C" {
 typedef struct {
 	RsslUInt16		flags;				 /*!< @brief Flag values used to indicate optional member presence. The available options are defined by values present in \ref RsslMsgKeyFlags. */
 	RsslUInt16		serviceId;			 /*!< @brief The serviceId is a two-byte unsigned integer used to identify a specific service.   */
-	RsslUInt8		nameType;			 /*!< @brief Name Type. This indicates the type of the name member, examples are ‘User Name’ or ‘RIC’ (Reuters Instrument Code). */
+	RsslUInt8		nameType;			 /*!< @brief Name Type. This indicates the type of the name member, examples are ‘User Name’ or ‘RIC’ (Refinitiv Instrument Code). */
 	RsslBuffer		name;				 /*!< @brief Name associated with the contents of the item stream. */
 	RsslUInt32		filter;			  	 /*!< @brief Filter specification, used to request or indicate which filter entries are present with a filter list payload.  */
 	RsslInt32		identifier;			 /*!< @brief User specified numeric identifier. Usage of this is defined on a per-domain model basis. */

@@ -44,6 +44,9 @@ static char keyFile[128];
 static char cipherSuite[128];
 static char libsslName[255];
 static char libcryptoName[255];
+static char cookiesData[4096];
+
+static RsslBuffer cookieBuff = { 0 };
 static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 1200;
 static time_t rsslProviderRuntime = 0;
@@ -53,7 +56,9 @@ RsslBool showTransportDetails = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslBool jsonEnumExpand = RSSL_FALSE;
 static RsslBool supportRTT = RSSL_FALSE;
+static RsslBool httpHdrEnable = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
+static RsslBool loginWithCookies = RSSL_FALSE;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
@@ -91,6 +96,8 @@ void exitWithUsage()
 	printf("\tWebSocket connection arguments:\n");
 	printf("\t   -pl white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols );
 	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
+	printf(" -httpHdr If specified, http header will be accesible on the provider side\n");
+	printf(" -httpCookie with ';' delineated list of cookies data\n");
 	printf(" -rtt if specified, support the round trip latency measurement\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
@@ -216,6 +223,17 @@ int main(int argc, char **argv)
 		else if (strcmp("-rtt", argv[iargs]) == 0)
 		{
 			supportRTT = RSSL_TRUE;
+		}
+		else if (strcmp("-httpHdr", argv[iargs]) == 0)
+		{
+			httpHdrEnable = RSSL_TRUE;	
+		}
+		else if (0 == strcmp("-httpCookie", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			snprintf(cookiesData, 4096, "%s", argv[iargs]);
+			cookieBuff.data = cookiesData;
+			cookieBuff.length = (rtrUInt32)strlen(cookiesData);
 		}
 		else
 		{
@@ -499,6 +517,20 @@ static void readFromChannel(RsslChannel* chnl)
 							}
 						}
 					}
+
+					/* If cookies data is fine then send an authentication response */
+					if (loginWithCookies)
+					{
+						loginWithCookies = RSSL_FALSE;
+
+						if (sendCoockiesLoginResponse(chnl) != RSSL_RET_SUCCESS)
+						{
+							printf("\nCookies login response was not send. fd="SOCKET_PRINT_TYPE" <%s>\n",
+								chnl->socketId, error.text);
+							removeClientSessionForChannel(chnl);
+							break;
+						}
+					}
 				}
 				break;
 
@@ -585,6 +617,55 @@ static void readFromChannel(RsslChannel* chnl)
 	}
 }
 
+static void HttpCallbackFunction(RsslHttpMessage* httpMess, RsslError* error)
+{
+	RsslHttpHdrData *data = NULL;
+	RsslQueueLink *pLink = NULL;
+	RsslQueue *httpHeaders = &(httpMess->headers);
+	RsslQueue *cookeis = &(httpMess->cookies);
+
+	if (error->rsslErrorId) 
+	{
+		printf("Http header error %s \n", error->text);
+	}
+
+	if (httpHeaders->count)
+	{
+		RsslInt32 n = 0;
+
+		printf("HTTP header data: \n");
+
+		for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			printf("%s\n", data->name.data);
+		}
+	}
+	else
+	{
+		printf("Failed to get http headers. \n");
+	}
+
+	if (cookeis->count)
+	{
+
+		printf("HTTP cookies data: \n");
+
+		for (pLink = rsslQueuePeekFront(cookeis); pLink; pLink = rsslQueuePeekNext(cookeis, pLink))
+		{
+			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
+			loginWithCookies = checkLoginCockies(data->name.data);
+			printf("%s ", data->name.data);
+		}
+		printf("\n");
+	}
+	else
+	{
+		printf("Http cookies is empty. \n");
+	}
+}
+
+
 /*
  * Binds RSSL server and returns the server to the caller.
  * portno - The port number of the server
@@ -598,6 +679,16 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	sopts.guaranteedOutputBuffers = 500;
 	sopts.serviceName = portno;
 	sopts.wsOpts.protocols = protocolList;
+	
+	if (httpHdrEnable)
+	{
+		sopts.wsOpts.httpCallback = HttpCallbackFunction;
+		if (cookieBuff.length)
+		{
+			sopts.wsOpts.cookies.cookie = &cookieBuff;
+			sopts.wsOpts.cookies.numberOfCookies = 1;
+		}
+	}
 	sopts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	sopts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	sopts.protocolType = RSSL_RWF_PROTOCOL_TYPE;

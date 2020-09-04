@@ -169,7 +169,7 @@ if( (NOT cjson_USE_INSTALLED) AND
 	# this policy is needed to suppress a CMake warning about the new
 	# standard for using <project>_ROOT variable for find_package()
 	if( POLICY CMP0074 )
-		#message("Setting CMake policy CMP0074 esdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
+		#message("Setting CMake policy CMP0074 rtsdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
 		cmake_policy(SET CMP0074 NEW)
 	endif()
 

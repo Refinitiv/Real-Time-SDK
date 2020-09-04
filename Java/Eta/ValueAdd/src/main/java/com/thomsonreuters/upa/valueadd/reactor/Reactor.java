@@ -69,7 +69,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
@@ -1081,7 +1080,7 @@ public class Reactor
     	
       	try
     	{
-      		if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE )
+      		if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST)
       		{
       			return ReactorReturnCodes.SUCCESS;
       		}
@@ -1114,13 +1113,21 @@ public class Reactor
 				return errorInfo.code();
 			}
     	
-            if (isBlocking && reactorChannel.applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+            if ( isBlocking )
             {
-            	return errorInfo.code();
+            	if(reactorChannel.applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+            	{
+            		return errorInfo.code();
+            	}
+            	else
+            	{
+            		reactorChannel.state(State.EDP_RT_DONE);
+            	}
             }
             else
             {
-            	reactorChannel.state(State.EDP_RT_DONE);
+            	/* Waits for a service discovery response for non-blocking request. */
+            	reactorChannel.state(State.EDP_RT);
             }
     	}
     	else
@@ -1303,6 +1310,8 @@ public class Reactor
     	    	authOptions.username(options.userName().toString());
     	    	authOptions.password(options.password().toString());
     	    	authOptions.clientId(options.clientId().toString());
+    	    	authOptions.clientSecret(options.clientSecret().toString());
+    	    	authOptions.tokenScope(options.tokenScope().toString());
     	    	
     	    	connOptions.applyServiceDiscoveryOptions(options);
     			
@@ -1341,7 +1350,7 @@ public class Reactor
      * Submit OAuth credential renewal with password or password change.
      * 
      * @param renewalOptions The {@link ReactorOAuthCredentialRenewalOptions} to configure OAuth credential renewal options.
-     * @param oAuthCredentialRenewal The {@ReactorOAuthCredentialRenewal} to configure credential renewal information.
+     * @param oAuthCredentialRenewal The {@link ReactorOAuthCredentialRenewal} to configure credential renewal information.
      * @param errorInfo error structure to be populated in the event of failure
      * @return {@link ReactorReturnCodes} indicating success or failure
      */
@@ -1540,7 +1549,7 @@ public class Reactor
     
     void loginReissue(ReactorChannel reactorChannel, String authToken, ReactorErrorInfo errorInfo)
     {
-		if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+		if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN || reactorChannel.state() == State.EDP_RT)
 			return;
 
 		LoginRequest loginRequest = null;		
@@ -1725,7 +1734,7 @@ public class Reactor
         ReactorErrorInfo errorInfoTemp;
         ReactorAuthTokenEventCallback callback = reactorChannel.reactorAuthTokenEventCallback();
 
-        if (callback != null)
+        if (callback != null && reactorChannel.enableSessionManagement())
         {
     		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
     		reactorAuthTokenEvent.reactorChannel(reactorChannel);
@@ -1824,6 +1833,14 @@ public class Reactor
                     + retval + " is not a valid ReactorCallbackReturnCodes. This caused the Reactor to shutdown.");
             shutdown(errorInfo);
             return ReactorReturnCodes.FAILURE;
+        }
+
+        if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+        {
+            if (reactorChannel.role().type() == ReactorRoleTypes.CONSUMER) {
+                ((ConsumerRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
+                ((ConsumerRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
+            }
         }
 
         if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN || eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)

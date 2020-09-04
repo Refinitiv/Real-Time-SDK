@@ -92,7 +92,7 @@ public class ReactorOAuthCredentialRenewal
     /**
      * Sets password to authorize with the token service. Mandatory
      *
-     * @param password the password associated with the user name
+     * @param newPassword the password associated with the user name
      */
     public void newPassword(Buffer newPassword)
     {
