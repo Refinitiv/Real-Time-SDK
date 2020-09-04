@@ -147,6 +147,8 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
+- The ServerSharedSocket feature which permits multiple provider applications to reuse a port for load balancing is available only with certain patch levels on Linux 6. So, applications that intend to use this feature on Linux 6 must rebuild the RTSDK library (librssl) natively on a Linux 6 platform with the appropriate patch level that supports this feature. 
+
 # Reference Information
 
     I-COS Questionnaire: 6032

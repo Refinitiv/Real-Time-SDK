@@ -955,7 +955,7 @@ typedef struct {
 	RsslBool		forceCompression;		/*!< @brief Lets the server force the client to use compression */
 	RsslBool		serverBlocking;			/*!< @brief If RSSL_TRUE, the server will be allowed to block. */
 	RsslBool		channelsBlocking;		/*!< @brief If RSSL_TRUE, the channels will be allowed to block. */
-	RsslBool		serverSharedSocket;		/*!< @brief If RSSL_TRUE, the server will be allowed to share socket. */
+	RsslBool		serverSharedSocket;		/*!< @brief If RSSL_TRUE, the server will be allowed to share socket. Please note that this feature is available only with certain patch levels on Linux 6. So, applications that intend to use this feature on Linux 6 must rebuild the RTSDK library (librssl) natively on a Linux 6 platform with the appropriate patch level that supports this feature.*/
 	RsslBool		tcp_nodelay;			/*!< @deprecated DEPRECATED: Only used with connectionType of SOCKET.  If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslBindOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types */
 	RsslBool		serverToClientPings;	/*!< @brief If RSSL_TRUE, pings will be sent from server side to client side */
 	RsslBool		clientToServerPings;	/*!< @brief If RSSL_TRUE, pings will be sent from client side to server side */
