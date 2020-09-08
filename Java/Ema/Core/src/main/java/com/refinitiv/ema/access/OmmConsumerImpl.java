@@ -14,6 +14,7 @@ import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
 import com.refinitiv.ema.access.ConfigManager.ConfigElement;
 import com.refinitiv.ema.access.OmmException.ExceptionType;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
+import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.WritePriorities;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -535,8 +536,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 					channelInformation.componentInfo(rci.channelInfo().componentInfo().get(0).componentVersion().toString());
 				}
 			}
-			channelInformation.channelState(reactorChannel.channel().state());
 			if (reactorChannel.channel() != null) {
+				channelInformation.channelState(reactorChannel.channel().state());
 				channelInformation.connectionType(reactorChannel.channel().connectionType());
 				channelInformation.protocolType(reactorChannel.channel().protocolType());
 				channelInformation.majorVersion(reactorChannel.channel().majorVersion());
@@ -544,6 +545,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 				channelInformation.pingTimeout(reactorChannel.channel().pingTimeout());
 			}
 			else {
+				channelInformation.channelState(ChannelState.INACTIVE);
 				channelInformation.connectionType(-1);
 				channelInformation.protocolType(-1);
 				channelInformation.majorVersion(0);
