@@ -377,54 +377,45 @@ class WlStream extends VaNode
     int sendMsg(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-     
-        if ( msg.msgClass() == MsgClasses.REQUEST)
-        {         
-			if (_requestsWithViewCount > 0 )
+
+		if (msg.msgClass() == MsgClasses.REQUEST)
+		{
+			if (_requestsWithViewCount > 0 && _requestsWithViewCount == _userRequestList.size() &&
+					_watchlist._loginHandler._loginRefresh.features().checkHasSupportViewRequests() &&
+					_watchlist._loginHandler._loginRefresh.features().supportViewRequests() == 1)
 			{
-				if (_requestsWithViewCount == _userRequestList.size() && 
-						_watchlist._loginHandler._loginRefresh.features().checkHasSupportViewRequests() &&
-						_watchlist._loginHandler._loginRefresh.features().supportViewRequests() == 1)
-				{			
-					if (_pendingViewChange && (_refreshState != RefreshStates.REFRESH_VIEW_PENDING) )
-					{						
-						_viewSubsetContained = false;
-						if(_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
-							_viewSubsetContained = true;			
-						_aggregateView.viewHandler().aggregateViewMerge( _aggregateView);
-				
-						msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
-			   	
-						_viewByteBuffer.clear();
-						_viewBuffer.data(_viewByteBuffer);
-						_eIter.clear();
-						_eIter.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());			       
-						_aggregateView.viewHandler().encodeViewRequest(_eIter, _aggregateView);
-						msg.containerType(DataTypes.ELEMENT_LIST);
-						msg.encodedDataBody(_viewBuffer);
-					}
-					else
-					{
-						// until viewRefresh is applied		
-						// add to waiting request list
-						handler().addPendingRequest(null);
-						
-						return ReactorReturnCodes.SUCCESS;
-					}
+				if (_pendingViewChange && (_refreshState != RefreshStates.REFRESH_VIEW_PENDING))
+				{
+					_viewSubsetContained = false;
+					if (_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
+						_viewSubsetContained = true;
+					_aggregateView.viewHandler().aggregateViewMerge(_aggregateView);
+
+					msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
+
+					_viewByteBuffer.clear();
+					_viewBuffer.data(_viewByteBuffer);
+					_eIter.clear();
+					_eIter.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+					_aggregateView.viewHandler().encodeViewRequest(_eIter, _aggregateView);
+					msg.containerType(DataTypes.ELEMENT_LIST);
+					msg.encodedDataBody(_viewBuffer);
 				}
 				else
 				{
-					msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
-					_viewBuffer.clear();
-					msg.encodedDataBody(_viewBuffer);
-					msg.containerType(DataTypes.NO_DATA);
-					_aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
-					_pendingViewChange = true;
-					_viewSubsetContained = false;
+					// until viewRefresh is applied		
+					// add to waiting request list
+					handler().addPendingRequest(null);
+
+					return ReactorReturnCodes.SUCCESS;
 				}
 			}
-        }
-                
+			else
+			{
+				removeViewFromMsg(msg);
+			}
+		}
+
         // encode into buffer and send out
         if (isChannelUp()) // channel is up
         {
@@ -516,8 +507,21 @@ class WlStream extends VaNode
         
         return ret;
     }
-    
-   
+
+    private void removeViewFromMsg(Msg msg)
+    {
+        msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
+        _viewBuffer.clear();
+        msg.encodedDataBody(_viewBuffer);
+        msg.containerType(DataTypes.NO_DATA);
+        if(_aggregateView != null && _aggregateView.viewHandler() != null)
+        {
+            _aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
+        }
+        _pendingViewChange = true;
+        _viewSubsetContained = false;
+    }
+
     /* Update the applicable post tables after successfully sending a post message. */
     int updatePostTables(PostMsg postMsg, ReactorErrorInfo errorInfo)
     {
