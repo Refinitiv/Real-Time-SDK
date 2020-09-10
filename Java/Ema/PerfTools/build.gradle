@@ -16,7 +16,7 @@ dependencies {
 	compile project(':Ema:Core')
 }
 
-mainClassName = 'com.thomsonreuters.ema.perftools.emajconsperf.emajConsPerf'
+mainClassName = 'com.rtsdk.ema.perftools.emajconsperf.emajConsPerf'
 
 def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms2048m -Xmx2048m"
 def APP_ARGS
@@ -52,7 +52,7 @@ task runEMAPerfConsumer(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-    main = 'com.thomsonreuters.ema.perftools.emajconsperf.emajConsPerf'
+    main = 'com.rtsdk.ema.perftools.emajconsperf.emajConsPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 

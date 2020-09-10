@@ -10,7 +10,7 @@ dependencies {
 	compile project(':Eta:Applications:Shared')
 }
 
-mainClassName = 'com.thomsonreuters.upa.training.provider.Module_1a_Connect'
+mainClassName = 'com.rtsdk.eta.training.provider.Module_1a_Connect'
 
 task copyDictionary( type: Copy ) {
 	from '../../../etc'
@@ -50,7 +50,7 @@ task runprovidermod1a(type: JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1a Example'
 
-    main = 'com.thomsonreuters.upa.training.provider.Module_1a_Connect'
+    main = 'com.rtsdk.eta.training.provider.Module_1a_Connect'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -58,7 +58,7 @@ task runprovidermod1b(type: JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1b Example'
 
-    main = 'com.thomsonreuters.upa.training.provider.Module_1b_Ping'
+    main = 'com.rtsdk.eta.training.provider.Module_1b_Ping'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -66,7 +66,7 @@ task runprovidermod1c(type: JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1c Example'
 
-    main = 'com.thomsonreuters.upa.training.provider.Module_1c_ReadWrite'
+    main = 'com.rtsdk.eta.training.provider.Module_1c_ReadWrite'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -74,7 +74,7 @@ task runprovidermod2(type: JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 2 Example'
 
-    main = 'com.thomsonreuters.upa.training.provider.Module_2_Login'
+    main = 'com.rtsdk.eta.training.provider.Module_2_Login'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -82,7 +82,7 @@ task runprovidermod3(type: JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 3 Example'
 
-    main = 'com.thomsonreuters.upa.training.provider.Module_3_ProvideDirectory'
+    main = 'com.rtsdk.eta.training.provider.Module_3_ProvideDirectory'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -91,7 +91,7 @@ task runprovidermod4(type: JavaExec) {
     description 'Run ETA Training Interactive Provider Module 4 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.provider.Module_4_ProvideDictionary'
+    main = 'com.rtsdk.eta.training.provider.Module_4_ProvideDictionary'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -100,7 +100,7 @@ task runprovidermod5(type: JavaExec) {
     description 'Run ETA Training Interactive Provider Module 5 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.provider.Module_5_HandleItemRequest'
+    main = 'com.rtsdk.eta.training.provider.Module_5_HandleItemRequest'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -108,7 +108,7 @@ task runniprovidermod1a(type: JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1a Example'
 
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_1a_Connect'
+    main = 'com.rtsdk.eta.training.niprovider.Module_1a_Connect'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -116,7 +116,7 @@ task runniprovidermod1b(type: JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1b Example'
 
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_1b_Ping'
+    main = 'com.rtsdk.eta.training.niprovider.Module_1b_Ping'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -124,7 +124,7 @@ task runniprovidermod1c(type: JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1c Example'
 
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_1c_ReadWrite'
+    main = 'com.rtsdk.eta.training.niprovider.Module_1c_ReadWrite'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -132,7 +132,7 @@ task runniprovidermod2(type: JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 2 Example'
 
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_2_Login'
+    main = 'com.rtsdk.eta.training.niprovider.Module_2_Login'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -140,7 +140,7 @@ task runniprovidermod3(type: JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 3 Example'
 
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_3_ProvideDirectory'
+    main = 'com.rtsdk.eta.training.niprovider.Module_3_ProvideDirectory'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -149,7 +149,7 @@ task runniprovidermod4(type: JavaExec) {
     description 'Run ETA Training Non Interactive Provider Module 4 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_4_Dictionary'
+    main = 'com.rtsdk.eta.training.niprovider.Module_4_Dictionary'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -158,7 +158,7 @@ task runniprovidermod5(type: JavaExec) {
     description 'Run ETA Training Non Interactive Provider Module 5 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.niprovider.Module_5_ProvideContent'
+    main = 'com.rtsdk.eta.training.niprovider.Module_5_ProvideContent'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -166,7 +166,7 @@ task runconsumermod1a(type: JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1a Example'
 
-    main = 'com.thomsonreuters.upa.training.consumer.Module_1a_Connect'
+    main = 'com.rtsdk.eta.training.consumer.Module_1a_Connect'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -174,7 +174,7 @@ task runconsumermod1b(type: JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1b Example'
 
-    main = 'com.thomsonreuters.upa.training.consumer.Module_1b_Ping'
+    main = 'com.rtsdk.eta.training.consumer.Module_1b_Ping'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -182,7 +182,7 @@ task runconsumermod1c(type: JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1c Example'
 
-    main = 'com.thomsonreuters.upa.training.consumer.Module_1c_ReadWrite'
+    main = 'com.rtsdk.eta.training.consumer.Module_1c_ReadWrite'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -190,7 +190,7 @@ task runconsumermod2(type: JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 2 Example'
 
-    main = 'com.thomsonreuters.upa.training.consumer.Module_2_Login'
+    main = 'com.rtsdk.eta.training.consumer.Module_2_Login'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -198,7 +198,7 @@ task runconsumermod3(type: JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 3 Example'
 
-    main = 'com.thomsonreuters.upa.training.consumer.Module_3_Directory'
+    main = 'com.rtsdk.eta.training.consumer.Module_3_Directory'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -207,7 +207,7 @@ task runconsumermod4(type: JavaExec) {
     description 'Run ETA Training Consumer Module 4 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.consumer.Module_4_Dictionary'
+    main = 'com.rtsdk.eta.training.consumer.Module_4_Dictionary'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -216,7 +216,7 @@ task runconsumermod5(type: JavaExec) {
     description 'Run ETA Training Consumer Module 5 Example'
 
     dependsOn 'copyDictionary'
-    main = 'com.thomsonreuters.upa.training.consumer.Module_5_ItemRequest'
+    main = 'com.rtsdk.eta.training.consumer.Module_5_ItemRequest'
     classpath = sourceSets.main.runtimeClasspath
 }
 

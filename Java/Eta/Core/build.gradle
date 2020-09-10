@@ -4,8 +4,8 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.thomsonreuters.upa"
-archivesBaseName = "upa"
+group = "com.rtsdk.eta"
+archivesBaseName = "eta"
 version "$SpecificationVersion"
 
 uploadArchives { 
@@ -35,7 +35,7 @@ uploadArchives {
 
                 developers {
                     developer {
-                        organization 'Thomson Reuters'
+                        organization 'Refinitiv'
                     }
                 }
 
@@ -95,11 +95,11 @@ jar {
 
     from ('impl') 
     {
-        include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
+        include 'com/rtsdk/proxy/authentication/kerberos/login.conf'
     }
 
     destinationDir = file("../Libs/")
-        baseName = 'upa'
+        baseName = 'eta'
 }
 
 javadoc {

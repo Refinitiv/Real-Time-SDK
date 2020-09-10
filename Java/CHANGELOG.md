@@ -75,7 +75,7 @@ Both ETA Java and EMA Java 3.5.1.L1 Issues Resolved
 - [ESDK-3991] - Provide the ability to configure the takeExclusiveSignOnControl parameter for the password grant type
 - [ESDK-4070] - Support a configurable debug parameters to show REST interactions (that do not print credentials)
 - [ESDK-4082] - Add tokenScope as a configuration for EDP connectivity
-- [ESDK-4090] - Rebranding: Change code references to "Thomson Reuters" in unit tests, examples, etc.
+- [ESDK-4090] - Rebranding: Change code references to new product and company name in unit tests, examples, etc.
 - [ESDK-4165] - Rebranding: Change references in READMEs, Code Comments,
 
 --------------------------------------------

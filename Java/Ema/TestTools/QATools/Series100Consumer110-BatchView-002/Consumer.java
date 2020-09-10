@@ -7,27 +7,27 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 //This QATools send batch request with 50 items in one batch 
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
+package com.rtsdk.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.OmmArray;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.access.Data;
+import com.rtsdk.ema.access.DataType;
+import com.rtsdk.ema.access.DataType.DataTypes;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldEntry;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
+import com.rtsdk.ema.access.ElementList;
+import com.rtsdk.ema.rdm.EmaRdm;
 
 class AppClient implements OmmConsumerClient
 {

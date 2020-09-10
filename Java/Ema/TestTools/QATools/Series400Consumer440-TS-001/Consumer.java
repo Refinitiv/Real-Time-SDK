@@ -6,29 +6,29 @@
 ///*|----------------------------------------------------------------------------------------------------
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example440__System__TunnelStream;
+package com.rtsdk.ema.examples.training.consumer.series400.example440__System__TunnelStream;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.ClassOfService;
-import com.thomsonreuters.ema.access.CosAuthentication;
-import com.thomsonreuters.ema.access.CosDataIntegrity;
-import com.thomsonreuters.ema.access.CosFlowControl;
-import com.thomsonreuters.ema.access.CosGuarantee;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.TunnelStreamRequest;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmState;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.ClassOfService;
+import com.rtsdk.ema.access.CosAuthentication;
+import com.rtsdk.ema.access.CosDataIntegrity;
+import com.rtsdk.ema.access.CosFlowControl;
+import com.rtsdk.ema.access.CosGuarantee;
+import com.rtsdk.ema.access.ElementList;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ReqMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.TunnelStreamRequest;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
+import com.rtsdk.ema.access.OmmState;
 
 class AppClient implements OmmConsumerClient
 {

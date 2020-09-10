@@ -5,10 +5,10 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming;
+package com.rtsdk.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming;
 
-import com.thomsonreuters.ema.access.*;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.*;
+import com.rtsdk.ema.rdm.EmaRdm;
 
 import java.nio.ByteBuffer;
 

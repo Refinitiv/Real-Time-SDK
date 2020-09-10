@@ -1,36 +1,36 @@
-package com.thomsonreuters.upa.valueadd.examples.consumer;
+package com.rtsdk.eta.valueadd.examples.consumer;
 
 // APIQA:
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
+import com.rtsdk.eta.codec.Buffer;
+import com.rtsdk.eta.codec.CodecFactory;
 // END APIQA: 
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.DataTypes;
 //APIQA:
-import com.thomsonreuters.upa.codec.GenericMsg;
-import com.thomsonreuters.upa.codec.MsgClasses;
+import com.rtsdk.eta.codec.GenericMsg;
+import com.rtsdk.eta.codec.MsgClasses;
 //END APIQA: 
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.ClassesOfService;
+import com.rtsdk.eta.codec.State;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.rdm.ClassesOfService;
 //APIQA:
-//import com.thomsonreuters.upa.transport.TransportBuffer;
+//import com.rtsdk.eta.transport.TransportBuffer;
 //END APIQA: 
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamOpenOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
+import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
+import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamMsgEvent;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamOpenOptions;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEvent;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.rtsdk.eta.valueadd.reactor.TunnelStreamInfo;
 
 /**
  * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives

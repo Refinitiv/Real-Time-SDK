@@ -1,28 +1,28 @@
-package com.thomsonreuters.upa.examples.common;
+package com.rtsdk.eta.examples.common;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.Dictionary;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataDictionary;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.DecodeIterator;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.Msg;
+import com.rtsdk.eta.codec.MsgClasses;
+import com.rtsdk.eta.codec.RefreshMsg;
+import com.rtsdk.eta.codec.State;
+import com.rtsdk.eta.codec.StatusMsg;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.rdm.Dictionary;
+import com.rtsdk.eta.transport.Channel;
+import com.rtsdk.eta.transport.Error;
+import com.rtsdk.eta.transport.TransportBuffer;
+import com.rtsdk.eta.transport.TransportFactory;
+import com.rtsdk.eta.transport.TransportReturnCodes;
+import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
+import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
 //APIQA: Adding for writing the string to files. 
 import java.io.BufferedWriter;
@@ -92,7 +92,7 @@ public class DictionaryHandler
      */
     public void loadDictionary()
     {
-        com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();
+        com.rtsdk.eta.transport.Error error = TransportFactory.createError();
 
         dictionary.clear();
 // APIQA: Clearing dictionary object
@@ -316,7 +316,7 @@ public class DictionaryHandler
      * 
      * Updates dictionary download states after full dictionary is received.
      */
-    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
+    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.rtsdk.eta.transport.Error error)
     {
         int ret = dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)

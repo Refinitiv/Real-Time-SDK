@@ -1,4 +1,4 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-MarketPriceHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/examples/consumer
+MarketPriceHandler.java,Applications/Examples/src/main/java/com/rtsdk/eta/examples/consumer

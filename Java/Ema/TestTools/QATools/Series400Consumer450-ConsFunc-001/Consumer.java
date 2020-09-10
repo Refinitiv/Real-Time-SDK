@@ -5,31 +5,31 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example450__MarketPrice__QueryServiceDiscovery;
+package com.rtsdk.ema.examples.training.consumer.series400.example450__MarketPrice__QueryServiceDiscovery;
 
-import com.thomsonreuters.ema.access.Msg;
+import com.rtsdk.ema.access.Msg;
 
 import java.util.List;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscovery;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryClient;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryEvent;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryOption;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryResp;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.ElementList;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.Map;
+import com.rtsdk.ema.access.MapEntry;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ServiceEndpointDiscovery;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerConfig;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
+import com.rtsdk.ema.access.ServiceEndpointDiscoveryClient;
+import com.rtsdk.ema.access.ServiceEndpointDiscoveryEvent;
+import com.rtsdk.ema.access.ServiceEndpointDiscoveryOption;
+import com.rtsdk.ema.access.ServiceEndpointDiscoveryResp;
 
 class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 {

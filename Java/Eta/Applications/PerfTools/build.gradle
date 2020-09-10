@@ -13,7 +13,7 @@ dependencies {
 	compile project(':Eta:Applications:Shared')
 }
 
-mainClassName = 'com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf'
+mainClassName = 'com.rtsdk.eta.perftools.upajprovperf.upajProvPerf'
 
 task copyDictionary( type: Copy ) {
 	from '../../../etc'
@@ -67,7 +67,7 @@ task runETAPerfProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf'
+    main = 'com.rtsdk.eta.perftools.upajprovperf.upajProvPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -87,7 +87,7 @@ task runETAPerfConsumer(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf'
+    main = 'com.rtsdk.eta.perftools.upajconsperf.upajConsPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -107,7 +107,7 @@ task runETAPerfNIProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-	main = 'com.thomsonreuters.upa.perftools.upajniprovperf.upajNIProvPerf'
+	main = 'com.rtsdk.eta.perftools.upajniprovperf.upajNIProvPerf'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -124,7 +124,7 @@ task runETAPerfTransport(type: JavaExec) {
     // - uncomment and add to APP_ARGS to specify the command line options
     // APP_ARGS="-msgRate 1000 -runTime 60"
 
-	main = 'com.thomsonreuters.upa.perftools.upajtransportperf.upajTransportPerf'
+	main = 'com.rtsdk.eta.perftools.upajtransportperf.upajTransportPerf'
 	classpath = sourceSets.main.runtimeClasspath
 }
 

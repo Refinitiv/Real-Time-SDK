@@ -1,16 +1,16 @@
 //APIQA
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.shared.CommandLine;
-import com.thomsonreuters.upa.transport.ConnectOptions;
-import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
-import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig;
-import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
+import com.rtsdk.eta.codec.Codec;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.shared.CommandLine;
+import com.rtsdk.eta.transport.ConnectOptions;
+import com.rtsdk.eta.valueadd.examples.common.ConnectionArg;
+import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig;
+import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
 
 /**
  * <p>

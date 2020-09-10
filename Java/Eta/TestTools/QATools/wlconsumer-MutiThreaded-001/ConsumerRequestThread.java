@@ -1,20 +1,20 @@
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.rtsdk.eta.codec.Buffer;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.rdm.DomainTypes;
+import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
+import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
+import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
+import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>

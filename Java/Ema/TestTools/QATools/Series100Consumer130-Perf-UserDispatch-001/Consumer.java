@@ -5,24 +5,24 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example130__MarketPrice__UserDisp;
+package com.rtsdk.ema.examples.training.consumer.series100.example130__MarketPrice__UserDisp;
 
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.rtsdk.ema.access.FieldEntry;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ReqMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.access.DataType;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerConfig.OperationModel;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
 
 //APIQA
 class DispatchThread extends Thread

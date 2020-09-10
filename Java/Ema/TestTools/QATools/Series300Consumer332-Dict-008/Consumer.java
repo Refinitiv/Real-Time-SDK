@@ -5,27 +5,27 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series300.example332__Dictionary__Streaming;
+package com.rtsdk.ema.examples.training.consumer.series300.example332__Dictionary__Streaming;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.rdm.DataDictionary;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ReqMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.access.Data;
+import com.rtsdk.ema.access.DataType;
+import com.rtsdk.ema.access.DataType.DataTypes;
+import com.rtsdk.ema.rdm.DataDictionary;
+import com.rtsdk.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldEntry;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
@@ -105,22 +105,22 @@ class AppClient implements OmmConsumerClient
 			{
 				System.out.println(dataDictionary);
 				//API QA
-				com.thomsonreuters.ema.rdm.DictionaryEntry entry22 = dataDictionary.entry(22);
-				com.thomsonreuters.ema.rdm.DictionaryEntry entry25 = dataDictionary.entry(25);
+				com.rtsdk.ema.rdm.DictionaryEntry entry22 = dataDictionary.entry(22);
+				com.rtsdk.ema.rdm.DictionaryEntry entry25 = dataDictionary.entry(25);
 				System.out.println("QA Prints entry22 : " + entry22.acronym());
 				System.out.println("QA Prints entry25 : " + entry25.acronym());
 				if (entry22==entry25) 
 					System.out.println("Test 1 : QA Prints check entry1 and entry2 are equal ");
-				com.thomsonreuters.ema.rdm.DictionaryEntry entryBID = dataDictionary.entry("BID");
-				com.thomsonreuters.ema.rdm.DictionaryEntry entryASK = dataDictionary.entry("ASK");
+				com.rtsdk.ema.rdm.DictionaryEntry entryBID = dataDictionary.entry("BID");
+				com.rtsdk.ema.rdm.DictionaryEntry entryASK = dataDictionary.entry("ASK");
 				System.out.println("QA Prints entryBID fid : " + entryBID.fid());
 				System.out.println("QA Prints entryASK fid : " + entryASK.fid());
 				if (entryBID==entryASK) 
 					System.out.println("Test 2 : QA Prints check entryBID and entryASK are equal ");
 				
-				com.thomsonreuters.ema.rdm.DictionaryEntry entry30 = EmaFactory.createDictionaryEntry();
+				com.rtsdk.ema.rdm.DictionaryEntry entry30 = EmaFactory.createDictionaryEntry();
 				dataDictionary.entry(30, entry30);
-				com.thomsonreuters.ema.rdm.DictionaryEntry entry31 = EmaFactory.createDictionaryEntry();
+				com.rtsdk.ema.rdm.DictionaryEntry entry31 = EmaFactory.createDictionaryEntry();
 				dataDictionary.entry(31, entry31);
 				System.out.println("QA Prints entry30 fname : " + entry30.acronym());	
 				System.out.println("QA Prints entry31 fname : " + entry31.acronym());	
@@ -129,9 +129,9 @@ class AppClient implements OmmConsumerClient
 				else
 					System.out.println("Test 3 : QA Prints check entry30 and entry31 are NOT equal ");
 				
-				com.thomsonreuters.ema.rdm.DictionaryEntry entryBIDSIZE = EmaFactory.createDictionaryEntry();
+				com.rtsdk.ema.rdm.DictionaryEntry entryBIDSIZE = EmaFactory.createDictionaryEntry();
 				dataDictionary.entry("BIDSIZE", entryBIDSIZE);
-				com.thomsonreuters.ema.rdm.DictionaryEntry entryASKSIZE = EmaFactory.createDictionaryEntry();
+				com.rtsdk.ema.rdm.DictionaryEntry entryASKSIZE = EmaFactory.createDictionaryEntry();
 				dataDictionary.entry("ASKSIZE", entryASKSIZE);
 				System.out.println("QA Prints entryBIDSIZE fid : " + entryBIDSIZE.fid());	
 				System.out.println("QA Prints entryASKSIZE fid : " + entryASKSIZE.fid());	
@@ -145,7 +145,7 @@ class AppClient implements OmmConsumerClient
 					System.out.println("Test 5 Error Case : Trying to use entry owned by API (entry22)...");
 					dataDictionary.entry(22,entry22);
 				}
-				catch (com.thomsonreuters.ema.access.OmmException ex)
+				catch (com.rtsdk.ema.access.OmmException ex)
 				{
 					System.out.println("QA Prints Exception Type : " + ex.exceptionTypeAsString());
 					System.out.println("QA Prints Exception Message : " + ex.getMessage());
@@ -153,10 +153,10 @@ class AppClient implements OmmConsumerClient
 				try
 				{
 					System.out.println("Test 6 Error Case : Trying to use entry which is null (entryNull)...");
-					com.thomsonreuters.ema.rdm.DictionaryEntry entryNull = null;
+					com.rtsdk.ema.rdm.DictionaryEntry entryNull = null;
 					dataDictionary.entry(25,entryNull);
 				}
-				catch (com.thomsonreuters.ema.access.OmmException ex)
+				catch (com.rtsdk.ema.access.OmmException ex)
 				{
 					//ex.printStackTrace();
 					System.out.println("QA Prints Exception Type : " + ex.exceptionTypeAsString());
@@ -167,7 +167,7 @@ class AppClient implements OmmConsumerClient
 					System.out.println("Test 7 Error Case : Trying to use entry owned by API (entry25)...");
 					dataDictionary.entry("BID",entry22);
 				}
-				catch (com.thomsonreuters.ema.access.OmmException ex)
+				catch (com.rtsdk.ema.access.OmmException ex)
 				{
 					System.out.println("QA Prints Exception Type : " + ex.exceptionTypeAsString());
 					System.out.println("QA Prints Exception Message : " + ex.getMessage());
@@ -175,10 +175,10 @@ class AppClient implements OmmConsumerClient
 				try
 				{
 					System.out.println("Test 8 Error Case : Trying to use entry which is null (entryNull)...");
-					com.thomsonreuters.ema.rdm.DictionaryEntry entryNull = null;
+					com.rtsdk.ema.rdm.DictionaryEntry entryNull = null;
 					dataDictionary.entry("ASK",entryNull);
 				}
-				catch (com.thomsonreuters.ema.access.OmmException ex)
+				catch (com.rtsdk.ema.access.OmmException ex)
 				{
 					//ex.printStackTrace();
 					System.out.println("QA Prints Exception Type : " + ex.exceptionTypeAsString());

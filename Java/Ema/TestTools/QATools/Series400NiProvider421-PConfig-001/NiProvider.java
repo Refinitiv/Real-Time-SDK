@@ -5,20 +5,20 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.niprovider.series400.example421__MarketPrice__ProgrammaticConfig;
+package com.rtsdk.ema.examples.training.niprovider.series400.example421__MarketPrice__ProgrammaticConfig;
 
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmNiProviderConfig;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.Series;
+import com.rtsdk.ema.access.ElementList;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.Map;
+import com.rtsdk.ema.access.MapEntry;
+import com.rtsdk.ema.access.OmmArray;
+import com.rtsdk.ema.access.OmmException;
+import com.rtsdk.ema.access.OmmNiProviderConfig;
+import com.rtsdk.ema.access.OmmProvider;
+import com.rtsdk.ema.access.OmmReal;
+import com.rtsdk.ema.access.OmmState;
+import com.rtsdk.ema.access.Series;
 
 public class NiProvider {
 

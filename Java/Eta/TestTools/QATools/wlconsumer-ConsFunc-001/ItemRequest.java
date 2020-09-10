@@ -1,29 +1,29 @@
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.Array;
-import com.thomsonreuters.upa.codec.ArrayEntry;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataTypes;
-import com.thomsonreuters.upa.codec.ElementEntry;
-import com.thomsonreuters.upa.codec.ElementList;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Int;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.RequestMsg;
-import com.thomsonreuters.upa.codec.RequestMsgFlags;
-import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRequestFlags;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.ElementNames;
-import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
-import com.thomsonreuters.upa.rdm.SymbolList;
-import com.thomsonreuters.upa.rdm.ViewTypes;
+import com.rtsdk.eta.codec.Array;
+import com.rtsdk.eta.codec.ArrayEntry;
+import com.rtsdk.eta.codec.Buffer;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataTypes;
+import com.rtsdk.eta.codec.ElementEntry;
+import com.rtsdk.eta.codec.ElementList;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.Int;
+import com.rtsdk.eta.codec.MsgClasses;
+import com.rtsdk.eta.codec.Qos;
+import com.rtsdk.eta.codec.RequestMsg;
+import com.rtsdk.eta.codec.RequestMsgFlags;
+import com.rtsdk.eta.codec.UInt;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRequestFlags;
+import com.rtsdk.eta.rdm.DomainTypes;
+import com.rtsdk.eta.rdm.ElementNames;
+import com.rtsdk.eta.rdm.InstrumentNameTypes;
+import com.rtsdk.eta.rdm.SymbolList;
+import com.rtsdk.eta.rdm.ViewTypes;
 
 public class ItemRequest
 {

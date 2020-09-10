@@ -1,2 +1,2 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/consumer/series300/example341__MarketPrice__OffStreamPost
+Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series300/example341__MarketPrice__OffStreamPost

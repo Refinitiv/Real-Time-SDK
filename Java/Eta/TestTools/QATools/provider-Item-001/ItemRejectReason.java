@@ -1,4 +1,4 @@
-package com.thomsonreuters.upa.shared.provider;
+package com.rtsdk.eta.shared.provider;
 
 /**
  *  Reasons an item request is rejected.

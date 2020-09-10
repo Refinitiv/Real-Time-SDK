@@ -1,9 +1,9 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-package com.thomsonreuters.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
+package com.rtsdk.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
 
-import com.thomsonreuters.ema.access.*;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.rdm.*;
+import com.rtsdk.ema.access.*;
+import com.rtsdk.ema.access.DataType.DataTypes;
+import com.rtsdk.ema.rdm.*;
 
 class AppClient implements OmmConsumerClient
 {

@@ -1,5 +1,5 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-Consumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/examples/consumer
-LoginHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/examples/common
+Consumer.java,Applications/Examples/src/main/java/com/rtsdk/eta/examples/consumer
+LoginHandler.java,Applications/Examples/src/main/java/com/rtsdk/eta/examples/common

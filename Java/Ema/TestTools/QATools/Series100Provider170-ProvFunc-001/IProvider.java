@@ -5,33 +5,33 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.iprovider.series100.example170__MarketPrice__ConnectedClientInfo;
+package com.rtsdk.ema.examples.training.iprovider.series100.example170__MarketPrice__ConnectedClientInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thomsonreuters.ema.access.ChannelInformation;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmIProviderConfig;
-import com.thomsonreuters.ema.access.OmmInvalidUsageException;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.OmmProviderClient;
-import com.thomsonreuters.ema.access.OmmProviderErrorClient;
-import com.thomsonreuters.ema.access.OmmProviderEvent;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.OmmIProviderConfig.OperationModel;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.ChannelInformation;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.OmmConsumerConfig;
+import com.rtsdk.ema.access.OmmException;
+import com.rtsdk.ema.access.OmmIProviderConfig;
+import com.rtsdk.ema.access.OmmInvalidUsageException;
+import com.rtsdk.ema.access.OmmProvider;
+import com.rtsdk.ema.access.OmmProviderClient;
+import com.rtsdk.ema.access.OmmProviderErrorClient;
+import com.rtsdk.ema.access.OmmProviderEvent;
+import com.rtsdk.ema.access.OmmReal;
+import com.rtsdk.ema.access.OmmState;
+import com.rtsdk.ema.access.PostMsg;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ReqMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.OmmIProviderConfig.OperationModel;
+import com.rtsdk.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {

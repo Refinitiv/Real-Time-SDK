@@ -1,29 +1,29 @@
-package com.thomsonreuters.upa.shared.provider;
+package com.rtsdk.eta.shared.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Enum;
-import com.thomsonreuters.upa.codec.FieldEntry;
-import com.thomsonreuters.upa.codec.FieldList;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.Real;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRefresh;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceUpdate;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataDictionary;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.DecodeIterator;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.Enum;
+import com.rtsdk.eta.codec.FieldEntry;
+import com.rtsdk.eta.codec.FieldList;
+import com.rtsdk.eta.codec.QosRates;
+import com.rtsdk.eta.codec.QosTimeliness;
+import com.rtsdk.eta.codec.Real;
+import com.rtsdk.eta.codec.StateCodes;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.codec.UInt;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRefresh;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceUpdate;
+import com.rtsdk.eta.transport.Channel;
+import com.rtsdk.eta.transport.Error;
+import com.rtsdk.eta.transport.TransportBuffer;
 
 /**
  * This handles storage of all market price items.

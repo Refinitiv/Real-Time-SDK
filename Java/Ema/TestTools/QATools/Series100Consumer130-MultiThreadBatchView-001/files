@@ -1,4 +1,4 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/consumer/series100/example130__MarketPrice__UserDisp
+Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series100/example130__MarketPrice__UserDisp
 1k.xml,Src/examples
 build.gradle,Examples

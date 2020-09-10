@@ -1,2 +1,2 @@
 #file,location
-NiProvider.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/niprovider/series100/example100__MarketPrice__Streaming
+NiProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/niprovider/series100/example100__MarketPrice__Streaming

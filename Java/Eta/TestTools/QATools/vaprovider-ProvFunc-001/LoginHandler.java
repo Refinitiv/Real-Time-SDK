@@ -1,27 +1,27 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.rtsdk.eta.valueadd.examples.provider;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.shared.LoginRejectReason;
-import com.thomsonreuters.upa.shared.LoginRequestInfo;
-import com.thomsonreuters.upa.shared.LoginRequestInfoList;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.StateCodes;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.shared.LoginRejectReason;
+import com.rtsdk.eta.shared.LoginRequestInfo;
+import com.rtsdk.eta.shared.LoginRequestInfoList;
+import com.rtsdk.eta.rdm.Login;
+import com.rtsdk.eta.transport.Channel;
+import com.rtsdk.eta.transport.TransportBuffer;
+import com.rtsdk.eta.transport.TransportReturnCodes;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginStatus;
+import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
+import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
+import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
  * This is the implementation of processing of login requests and login status

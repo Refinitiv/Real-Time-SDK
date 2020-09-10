@@ -5,29 +5,29 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series200.example200__MarketPrice__Streaming;
+package com.rtsdk.ema.examples.training.consumer.series200.example200__MarketPrice__Streaming;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.OmmDate;
-import com.thomsonreuters.ema.access.OmmDateTime;
-import com.thomsonreuters.ema.access.OmmTime;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.DateTimeStringFormat;
-import com.thomsonreuters.ema.access.DateTimeStringFormat.DateTimeStringFormatTypes;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.rtsdk.ema.access.Msg;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.access.Data;
+import com.rtsdk.ema.access.OmmDate;
+import com.rtsdk.ema.access.OmmDateTime;
+import com.rtsdk.ema.access.OmmTime;
+import com.rtsdk.ema.access.DataType;
+import com.rtsdk.ema.access.DateTimeStringFormat;
+import com.rtsdk.ema.access.DateTimeStringFormat.DateTimeStringFormatTypes;
+import com.rtsdk.ema.access.DataType.DataTypes;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.FieldEntry;
+import com.rtsdk.ema.access.FieldList;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
 
 
 class AppClient implements OmmConsumerClient

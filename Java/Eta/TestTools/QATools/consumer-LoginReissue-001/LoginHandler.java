@@ -1,27 +1,27 @@
-package com.thomsonreuters.upa.examples.common;
+package com.rtsdk.eta.examples.common;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.shared.ConsumerLoginState;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.DecodeIterator;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.Msg;
+import com.rtsdk.eta.codec.MsgClasses;
+import com.rtsdk.eta.codec.State;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.rdm.Login;
+import com.rtsdk.eta.shared.ConsumerLoginState;
+import com.rtsdk.eta.transport.Error;
+import com.rtsdk.eta.transport.TransportBuffer;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginClose;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequest;
 // APIQA:
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 // END APIQA
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginStatus;
 
 /**
  * This is the Login handler for the UPA Consumer and NIProvider application. It
@@ -135,8 +135,8 @@ public class LoginHandler
     }
 
     /**
-     * Login Role. Constant from {@link com.thomsonreuters.upa.rdm.Login.RoleTypes}.
-     * Default login role is {@link com.thomsonreuters.upa.rdm.Login.RoleTypes#CONS}
+     * Login Role. Constant from {@link com.rtsdk.eta.rdm.Login.RoleTypes}.
+     * Default login role is {@link com.rtsdk.eta.rdm.Login.RoleTypes#CONS}
      * 
      * @param role
      */

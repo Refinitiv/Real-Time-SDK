@@ -1,8 +1,8 @@
-package com.thomsonreuters.upa.valueadd.examples.consumer;
+package com.rtsdk.eta.valueadd.examples.consumer;
 
-import com.thomsonreuters.upa.valueadd.examples.common.CommandLineParser;
-import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
-import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArgsParser;
+import com.rtsdk.eta.valueadd.examples.common.CommandLineParser;
+import com.rtsdk.eta.valueadd.examples.common.ConnectionArg;
+import com.rtsdk.eta.valueadd.examples.common.ConnectionArgsParser;
 
 import java.util.List;
 

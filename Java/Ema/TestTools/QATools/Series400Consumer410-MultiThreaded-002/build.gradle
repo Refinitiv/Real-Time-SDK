@@ -11,10 +11,10 @@ dependencies {
 	compile project(':Ema:Core')
 }
 
-mainClassName = 'com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
+mainClassName = 'com.rtsdk.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
 
 task createExtraRunApp(type: CreateStartScripts) {
-	mainClassName = 'com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
+	mainClassName = 'com.rtsdk.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
 	classpath = startScripts.classpath
 	outputDir = startScripts.outputDir
 	applicationName = 'iprovider100'

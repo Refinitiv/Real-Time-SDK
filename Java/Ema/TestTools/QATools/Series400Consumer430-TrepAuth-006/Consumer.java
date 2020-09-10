@@ -7,27 +7,27 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example430__MarketPrice__TrepAuthentication;
+package com.rtsdk.ema.examples.training.consumer.series400.example430__MarketPrice__TrepAuthentication;
 
-import com.thomsonreuters.ema.access.Msg;
+import com.rtsdk.ema.access.Msg;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.domain.login.Login.LoginRefresh;
-import com.thomsonreuters.ema.domain.login.Login.LoginReq;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.rtsdk.ema.access.AckMsg;
+import com.rtsdk.ema.access.GenericMsg;
+import com.rtsdk.ema.access.OmmConsumerConfig;
+import com.rtsdk.ema.access.RefreshMsg;
+import com.rtsdk.ema.access.ReqMsg;
+import com.rtsdk.ema.access.StatusMsg;
+import com.rtsdk.ema.access.UpdateMsg;
+import com.rtsdk.ema.domain.login.Login.LoginRefresh;
+import com.rtsdk.ema.domain.login.Login.LoginReq;
+import com.rtsdk.ema.rdm.EmaRdm;
+import com.rtsdk.ema.access.EmaFactory;
+import com.rtsdk.ema.access.OmmConsumer;
+import com.rtsdk.ema.access.OmmConsumerClient;
+import com.rtsdk.ema.access.OmmConsumerEvent;
+import com.rtsdk.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {

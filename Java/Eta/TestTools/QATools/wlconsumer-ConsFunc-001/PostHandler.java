@@ -1,43 +1,43 @@
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
 
 //APIQA
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
-import com.thomsonreuters.upa.codec.DictionaryEntry;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.FieldEntry;
-import com.thomsonreuters.upa.codec.FieldList;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.PostMsg;
-import com.thomsonreuters.upa.codec.PostMsgFlags;
-import com.thomsonreuters.upa.codec.PostUserRights;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.Real;
-import com.thomsonreuters.upa.codec.RealHints;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StatusMsgFlags;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRefresh;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceUpdate;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.rtsdk.eta.codec.Buffer;
+import com.rtsdk.eta.codec.Codec;
+import com.rtsdk.eta.codec.CodecFactory;
+import com.rtsdk.eta.codec.CodecReturnCodes;
+import com.rtsdk.eta.codec.DataDictionary;
+import com.rtsdk.eta.codec.DataStates;
+import com.rtsdk.eta.codec.DataTypes;
+import com.rtsdk.eta.codec.DictionaryEntry;
+import com.rtsdk.eta.codec.EncodeIterator;
+import com.rtsdk.eta.codec.FieldEntry;
+import com.rtsdk.eta.codec.FieldList;
+import com.rtsdk.eta.codec.MsgClasses;
+import com.rtsdk.eta.codec.PostMsg;
+import com.rtsdk.eta.codec.PostMsgFlags;
+import com.rtsdk.eta.codec.PostUserRights;
+import com.rtsdk.eta.codec.QosRates;
+import com.rtsdk.eta.codec.QosTimeliness;
+import com.rtsdk.eta.codec.Real;
+import com.rtsdk.eta.codec.RealHints;
+import com.rtsdk.eta.codec.StateCodes;
+import com.rtsdk.eta.codec.StatusMsg;
+import com.rtsdk.eta.codec.StatusMsgFlags;
+import com.rtsdk.eta.codec.StreamStates;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRefresh;
+import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceUpdate;
+import com.rtsdk.eta.rdm.DomainTypes;
+import com.rtsdk.eta.rdm.InstrumentNameTypes;
+import com.rtsdk.eta.transport.TransportReturnCodes;
+import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
+import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
+import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
+import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
  * This is the post handler for the UPA Value Add consumer application.
