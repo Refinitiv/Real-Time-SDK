@@ -20,10 +20,10 @@ Login::LoginStatus::LoginStatus()
 	{
 		_pLoginStatusImpl = new LoginStatusImpl();
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!_pLoginStatusImpl)
+	catch (std::bad_alloc&)
+	{
 		throwMeeException("Failed to allocate memory for LoginStatusImpl in Login::LoginStatus::LoginStatus().");
+	}
 }
 
 Login::LoginStatus::LoginStatus(const LoginStatus& other)
@@ -32,10 +32,10 @@ Login::LoginStatus::LoginStatus(const LoginStatus& other)
 	{
 		_pLoginStatusImpl = new LoginStatusImpl(*other._pLoginStatusImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!_pLoginStatusImpl)
+	catch (std::bad_alloc&)
+	{
 		throwMeeException("Failed to allocate memory for LoginStatusImpl in Login::LoginStatus::LoginStatus(const LoginStatus&).");
+	}
 }
 
 Login::LoginStatus::LoginStatus(const StatusMsg& statusMsg)
@@ -44,10 +44,10 @@ Login::LoginStatus::LoginStatus(const StatusMsg& statusMsg)
 	{
 	    _pLoginStatusImpl = new LoginStatusImpl(statusMsg);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!_pLoginStatusImpl)
+	catch (std::bad_alloc&)
+	{
 		throwMeeException("Failed to allocate memory for LoginStatusImpl in Login::LoginStatus::LoginStatus(const ElementList&).");
+	}
 }
 
 Login::LoginStatus::~LoginStatus()

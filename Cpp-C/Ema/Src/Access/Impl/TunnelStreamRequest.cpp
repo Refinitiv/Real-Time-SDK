@@ -471,14 +471,13 @@ TunnelStreamRequest::TunnelStreamRequest( const TunnelStreamRequest& other ) :
 {
 	if ( other._pImpl )
 	{
-		try {
-			_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
-		} catch ( std::bad_alloc& ) {}
-
-		if ( !_pImpl )
+		try
 		{
-			const char* text = "Failed to allocate memory in TunnelStreamRequest( const TunnelStreamRequest& ).";
-			throwMeeException( text );
+			_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
+		}
+		catch ( std::bad_alloc& )
+		{
+			throwMeeException("Failed to allocate memory in TunnelStreamRequest( const TunnelStreamRequest& ).");
 		}
 	}
 }
@@ -509,14 +508,13 @@ TunnelStreamRequest& TunnelStreamRequest::operator=( const TunnelStreamRequest& 
 			*_pImpl = *other._pImpl;
 		else
 		{
-			try {
-				_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
-			} catch ( std::bad_alloc& ) {}
-
-			if ( !_pImpl )
+			try
 			{
-				const char* text = "Failed to allocate memory in TunnelStreamRequest::operator=( const TunnelStreamRequest& ).";
-				throwMeeException( text );
+				_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
+			}
+			catch ( std::bad_alloc& )
+			{
+				throwMeeException("Failed to allocate memory in TunnelStreamRequest::operator=( const TunnelStreamRequest& ).");
 			}
 		}
 	}
@@ -626,12 +624,10 @@ TunnelStreamRequest& TunnelStreamRequest::loginReqMsg( const ReqMsg& loginReqMsg
 	{
 		try {
 			_pImpl = new TunnelStreamLoginReqMsgImpl();
-		} catch ( std::bad_alloc& ) {}
-
-		if ( !_pImpl )
+		}
+		catch ( std::bad_alloc& )
 		{
-			const char* text = "Failed to allocate memory in TunnelStreamRequest::loginReqMsg( const ReqMsg& ).";
-			throwMeeException( text );
+			throwMeeException("Failed to allocate memory in TunnelStreamRequest::loginReqMsg( const ReqMsg& ).");
 		}
 	}
 

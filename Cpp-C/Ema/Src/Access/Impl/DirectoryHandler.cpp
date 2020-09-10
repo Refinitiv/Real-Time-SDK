@@ -376,18 +376,16 @@ void DirectoryHandler::notifyOnClose(RsslMsg* pRsslMsg, ItemInfo* itemInfo)
 
 DirectoryHandler* DirectoryHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 {
-	DirectoryHandler* directoryHandler = 0;
-
 	try
 	{
-		directoryHandler = new DirectoryHandler(ommServerBaseImpl);
+		return new DirectoryHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!directoryHandler)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl->handleMee("Failed to allocate memory in DirectoryHandler::create()");
+	}
 
-	return directoryHandler;
+	return NULL;
 }
 
 void DirectoryHandler::destroy(DirectoryHandler*& directoryHandler)

@@ -758,18 +758,16 @@ void MarketItemHandler::sendRejectMessage(RsslReactorChannel* reactorChannel, Rs
 
 MarketItemHandler* MarketItemHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 {
-	MarketItemHandler* marketItemHandler = 0;
-
 	try
 	{
-		marketItemHandler = new MarketItemHandler(ommServerBaseImpl);
+		return new MarketItemHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!marketItemHandler)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl->handleMee("Failed to allocate memory in MarketItemHandler::create()");
+	}
 
-	return marketItemHandler;
+	return NULL;
 }
 
 void MarketItemHandler::destroy(MarketItemHandler*& marketItemHandler)

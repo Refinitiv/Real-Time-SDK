@@ -21,10 +21,10 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenService
 	{
 		_pImpl = new ServiceEndpointDiscoveryImpl(this, tokenServiceURL, serviceDiscoveryURL);
 	}
-	catch (std::bad_alloc) {}
-
-	if (!_pImpl)
+	catch (std::bad_alloc)
+	{
 		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+	}
 }
 
 ServiceEndpointDiscovery::~ServiceEndpointDiscovery()

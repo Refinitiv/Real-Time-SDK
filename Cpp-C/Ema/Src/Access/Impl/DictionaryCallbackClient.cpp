@@ -60,18 +60,16 @@ Int32 Dictionary::getFldStreamId() const
 
 LocalDictionary* LocalDictionary::create( OmmCommonImpl& ommBaseImpl, BaseConfig& baseConfig )
 {
-	LocalDictionary* pDictionary = 0;
-
 	try
 	{
-		pDictionary = new LocalDictionary( ommBaseImpl, baseConfig );
+		return new LocalDictionary( ommBaseImpl, baseConfig );
 	}
-	catch ( std::bad_alloc& ) {}
+	catch ( std::bad_alloc& )
+	{
+		ommBaseImpl.handleMee("Failed to create LocalDictionary");
+	}
 
-	if ( !pDictionary )
-		ommBaseImpl.handleMee( "Failed to create LocalDictionary" );
-
-	return pDictionary;
+	return NULL;
 }
 
 void LocalDictionary::destroy( LocalDictionary*& pDictionary )
@@ -174,18 +172,16 @@ bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName,
 
 ChannelDictionary* ChannelDictionary::create( OmmBaseImpl& ommBaseImpl )
 {
-	ChannelDictionary* pDictionary = 0;
-
 	try
 	{
-		pDictionary = new ChannelDictionary( ommBaseImpl );
+		return new ChannelDictionary( ommBaseImpl );
 	}
-	catch ( std::bad_alloc& ) {}
+	catch ( std::bad_alloc& )
+	{
+		ommBaseImpl.handleMee("Failed to create ChannelDictionary");
+	}
 
-	if ( !pDictionary )
-		ommBaseImpl.handleMee( "Failed to create ChannelDictionary" );
-
-	return pDictionary;
+	return NULL;
 }
 
 void ChannelDictionary::destroy( ChannelDictionary*& pDictionary )
@@ -705,18 +701,16 @@ DictionaryCallbackClient::~DictionaryCallbackClient()
 
 DictionaryCallbackClient* DictionaryCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 {
-	DictionaryCallbackClient* pClient = 0;
-
 	try
 	{
-		pClient = new DictionaryCallbackClient( ommBaseImpl );
+		return new DictionaryCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc& ) {}
+	catch ( std::bad_alloc& )
+	{
+		ommBaseImpl.handleMee("Failed to create DictionaryCallbackClient");
+	}
 
-	if ( !pClient )
-		ommBaseImpl.handleMee( "Failed to create DictionaryCallbackClient" );
-
-	return pClient;
+	return NULL;
 }
 
 void DictionaryCallbackClient::destroy( DictionaryCallbackClient*& pClient )
@@ -1596,18 +1590,16 @@ DictionaryItem::~DictionaryItem()
 
 DictionaryItem* DictionaryItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure )
 {
-	DictionaryItem* pItem = 0;
-
 	try
 	{
-		pItem = new DictionaryItem( ommBaseImpl, ommConsClient, closure );
+		return new DictionaryItem( ommBaseImpl, ommConsClient, closure );
 	}
-	catch ( std::bad_alloc& ) {}
+	catch ( std::bad_alloc& )
+	{
+		ommBaseImpl.handleMee("Failed to create DictionaryItem");
+	}
 
-	if ( !pItem )
-		ommBaseImpl.handleMee( "Failed to create DictionaryItem" );
-
-	return pItem;
+	return NULL;
 }
 
 bool DictionaryItem::isRemoved()
@@ -1854,12 +1846,10 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( DictionaryItem& dictionaryItem
 			{
 				free( msgBuf.data );
 
-				try
-				{
-					msgBuf.length = msgBuf.length * 2;
-					msgBuf.data = (char*)malloc(sizeof(char) * msgBuf.length);
-				}
-				catch (std::bad_alloc&)
+				msgBuf.length = msgBuf.length * 2;
+				msgBuf.data = (char*)malloc(sizeof(char) * msgBuf.length);
+
+				if (msgBuf.data == NULL)
 				{
 					dictionaryItem.getImpl().handleMee("Failed to allocate memory in DictionaryCallbackClient::encodeDataDictionaryResp()");
 					return RSSL_RET_FAILURE;
@@ -1900,18 +1890,16 @@ NiProviderDictionaryItem::~NiProviderDictionaryItem()
 
 NiProviderDictionaryItem* NiProviderDictionaryItem::create(OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure)
 {
-	NiProviderDictionaryItem* pItem = 0;
-
 	try
 	{
-		pItem = new NiProviderDictionaryItem(ommBaseImpl, ommProvClient, &static_cast<OmmNiProviderImpl&>(ommBaseImpl).getItemWatchList() ,closure);
+		return new NiProviderDictionaryItem(ommBaseImpl, ommProvClient, &static_cast<OmmNiProviderImpl&>(ommBaseImpl).getItemWatchList() ,closure);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!pItem)
+	catch (std::bad_alloc&)
+	{
 		ommBaseImpl.handleMee("Failed to create NiProviderDictionaryItem");
+	}
 
-	return pItem;
+	return NULL;
 }
 
 bool NiProviderDictionaryItem::modify( const ReqMsg& reqMsg )
@@ -1934,18 +1922,16 @@ IProviderDictionaryItem::~IProviderDictionaryItem()
 
 IProviderDictionaryItem* IProviderDictionaryItem::create(OmmServerBaseImpl& ommServerBaseImpl, OmmProviderClient& ommProvClient, void* closure)
 {
-	IProviderDictionaryItem* pItem = 0;
-
 	try
 	{
-		pItem = new IProviderDictionaryItem( ommServerBaseImpl, ommProvClient, &static_cast<OmmIProviderImpl&>(ommServerBaseImpl).getItemWatchList(), closure );
+		return new IProviderDictionaryItem( ommServerBaseImpl, ommProvClient, &static_cast<OmmIProviderImpl&>(ommServerBaseImpl).getItemWatchList(), closure );
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!pItem)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl.handleMee("Failed to create IProviderDictionaryItem");
+	}
 
-	return pItem;
+	return NULL;
 }
 
 bool IProviderDictionaryItem::modify(const ReqMsg& reqMsg)

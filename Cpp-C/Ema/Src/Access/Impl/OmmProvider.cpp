@@ -32,10 +32,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
 			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ) );
 		}
-		catch ( std::bad_alloc& ) {}
-
-		if ( !_pImpl )
+		catch ( std::bad_alloc& )
+		{
 			throwMeeException( "Failed to allocate memory in OmmProvider( const OmmProviderConfig& )." );
+		}
 	}
 }
 
@@ -50,10 +50,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, closure);
 		}
-		catch (std::bad_alloc&) {}
-
-		if (!_pImpl)
+		catch (std::bad_alloc&)
+		{
 			throwMeeException("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig&, OmmProviderClient& client ).");
+		}
 	}
 	else
 	{
@@ -62,10 +62,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 			static_cast<const OmmIProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, closure);
 		}
-		catch (std::bad_alloc&) {}
-
-		if (!_pImpl)
+		catch (std::bad_alloc&)
+		{
 			throwMeeException("Failed to allocate memory in OmmProvider( const OmmProviderConfig&, OmmProviderClient& client ).");
+		}
 	}
 }
 
@@ -82,10 +82,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClien
 			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ), errorClient);
 		}
-		catch ( std::bad_alloc& ) {}
-
-		if ( !_pImpl )
+		catch ( std::bad_alloc& )
+		{
 			errorClient.onMemoryExhaustion( "Failed to allocate memory in OmmProvider( const OmmProviderConfig& , OmmProviderErrorClient& )." );
+		}
 	}
 }
 
@@ -100,10 +100,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, errorClient, closure);
 		}
-		catch (std::bad_alloc&) {}
-
-		if (!_pImpl)
+		catch (std::bad_alloc&)
+		{
 			errorClient.onMemoryExhaustion("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig& , OmmProviderErrorClient& ).");
+		}
 	}
 	else
 	{
@@ -112,10 +112,10 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 			static_cast<const OmmIProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, errorClient, closure);
 		}
-		catch (std::bad_alloc&) {}
-
-		if (!_pImpl)
+		catch (std::bad_alloc&)
+		{
 			errorClient.onMemoryExhaustion("Failed to allocate memory in OmmProvider( const OmmProviderConfig& , OmmProviderErrorClient& ).");
+		}
 	}
 }
 

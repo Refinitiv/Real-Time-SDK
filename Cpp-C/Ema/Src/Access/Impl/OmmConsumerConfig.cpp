@@ -17,10 +17,10 @@ OmmConsumerConfig::OmmConsumerConfig() :
 	try {
 		_pImpl = new OmmConsumerConfigImpl(EmaString());
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !_pImpl )
+	catch ( std::bad_alloc& )
+	{
 		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
+	}
 }
 
 OmmConsumerConfig::OmmConsumerConfig(const EmaString & path) :
@@ -29,10 +29,10 @@ OmmConsumerConfig::OmmConsumerConfig(const EmaString & path) :
 	try {
 		_pImpl = new OmmConsumerConfigImpl(path);
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !_pImpl )
+	catch ( std::bad_alloc& )
+	{
 		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
+	}
 }
 
 OmmConsumerConfig::~OmmConsumerConfig()

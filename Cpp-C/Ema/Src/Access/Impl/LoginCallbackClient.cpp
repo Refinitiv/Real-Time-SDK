@@ -28,18 +28,16 @@ const EmaString NiProviderLoginItem::_clientName( "NiProviderLoginItem" );
 
 Login* Login::create( OmmBaseImpl& ommBaseImpl )
 {
-	Login* pLogin = 0;
-
 	try
 	{
-		pLogin = new Login();
+		return new Login();
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pLogin )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create Login." );
+	}
 
-	return pLogin;
+	return NULL;
 }
 
 void Login::destroy( Login*& pLogin )
@@ -748,18 +746,16 @@ LoginCallbackClient::~LoginCallbackClient()
 
 LoginCallbackClient* LoginCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 {
-	LoginCallbackClient* pClient = 0;
-
 	try
 	{
-		pClient = new LoginCallbackClient( ommBaseImpl );
+		return new LoginCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pClient )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create LoginCallbackClient" );
+	}
 
-	return pClient;
+	return NULL;
 }
 
 void LoginCallbackClient::destroy( LoginCallbackClient*& pClient )
@@ -1638,18 +1634,16 @@ const EmaString& LoginCallbackClient::getLoginFailureMessage()
 
 LoginItem* LoginItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const LoginList& loginList )
 {
-	LoginItem* pItem = 0;
-
 	try
 	{
-		pItem = new LoginItem( ommBaseImpl, ommConsClient, closure, loginList );
+		return new LoginItem( ommBaseImpl, ommConsClient, closure, loginList );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create LoginItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 LoginItem::LoginItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const LoginList& loginList ) :
@@ -1932,18 +1926,16 @@ void LoginCallbackClient::handleLoginItemCallback( void* args )
 
 NiProviderLoginItem* NiProviderLoginItem::create( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, const LoginList& loginList )
 {
-	NiProviderLoginItem* pItem = 0;
-
 	try
 	{
-		pItem = new NiProviderLoginItem( ommBaseImpl, ommProvClient, closure, loginList );
+		return new NiProviderLoginItem( ommBaseImpl, ommProvClient, closure, loginList );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create NiProviderLoginItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 NiProviderLoginItem::NiProviderLoginItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, const LoginList& loginList ) :

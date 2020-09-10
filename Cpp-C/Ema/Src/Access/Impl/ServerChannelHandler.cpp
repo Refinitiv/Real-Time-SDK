@@ -313,18 +313,16 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 
 ServerChannelHandler* ServerChannelHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 {
-	ServerChannelHandler* serverChannelHandler = 0;
-
 	try
 	{
-		serverChannelHandler = new ServerChannelHandler(ommServerBaseImpl);
+		return new ServerChannelHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!serverChannelHandler)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl->handleMee("Failed to create ServerChannelHandler");
+	}
 
-	return serverChannelHandler;
+	return NULL;
 }
 
 void ServerChannelHandler::destroy(ServerChannelHandler*& serverChannelHandler)

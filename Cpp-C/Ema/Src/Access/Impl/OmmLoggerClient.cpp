@@ -41,20 +41,15 @@ OmmLoggerClient::~OmmLoggerClient()
 
 OmmLoggerClient* OmmLoggerClient::create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName )
 {
-	OmmLoggerClient* pClient = 0;
-
 	try {
-		pClient = new OmmLoggerClient( loggerType, includeDate, severity, fileName );
+		return new OmmLoggerClient( loggerType, includeDate, severity, fileName );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pClient )
+	catch ( std::bad_alloc& )
 	{
-		const char* temp = "Failed to create OmmLoggerClient.";
-		throwMeeException( temp );
+		throwMeeException("Failed to create OmmLoggerClient.");
 	}
 
-	return pClient;
+	return NULL;
 }
 
 void OmmLoggerClient::destroy( OmmLoggerClient*& pClient )

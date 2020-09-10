@@ -348,10 +348,10 @@ void LoginStatusImpl::encode(StatusMsg& statusMsg) const
 		{
 			_pElementList = new ElementList();
 		}
-		catch (std::bad_alloc&) {}
-
-		if (!_pElementList)
+		catch (std::bad_alloc&)
+		{
 			throwMeeException("Failed to allocate memory for ElementList in LoginStatusImpl::encode().");
+		}
 	}
 	else
 	{

@@ -25,24 +25,20 @@ const EmaString ChannelCallbackClient::_clientName( "ChannelCallbackClient" );
 
 Channel* Channel::create( OmmBaseImpl& ommBaseImpl, const EmaString& name , RsslReactor* pRsslReactor )
 {
-	Channel* pChannel = 0;
-
 	try
 	{
-		pChannel = new Channel( name, pRsslReactor );
+		return new Channel( name, pRsslReactor );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pChannel )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to create Channel.";
-		if ( OmmLoggerClient::ErrorEnum >= ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommBaseImpl.getOmmLoggerClient().log( "Channel", OmmLoggerClient::ErrorEnum, temp );
+		if (OmmLoggerClient::ErrorEnum >= ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			ommBaseImpl.getOmmLoggerClient().log("Channel", OmmLoggerClient::ErrorEnum, temp);
 
-		throwMeeException( temp );
+		throwMeeException(temp);
 	}
 
-	return pChannel;
+	return NULL;
 }
 
 void Channel::destroy( Channel*& pChannel )
@@ -336,24 +332,20 @@ ChannelCallbackClient::~ChannelCallbackClient()
 
 ChannelCallbackClient* ChannelCallbackClient::create( OmmBaseImpl& ommBaseImpl, RsslReactor* pRsslReactor )
 {
-	ChannelCallbackClient* pClient = 0;
-
 	try
 	{
-		pClient = new ChannelCallbackClient( ommBaseImpl, pRsslReactor );
+		return new ChannelCallbackClient( ommBaseImpl, pRsslReactor );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pClient )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to create ChannelCallbackClient";
-		if ( OmmLoggerClient::ErrorEnum >= ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+		if (OmmLoggerClient::ErrorEnum >= ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
 
-		throwMeeException( temp );
+		throwMeeException(temp);
 	}
 
-	return pClient;
+	return NULL;
 }
 
 void ChannelCallbackClient::destroy( ChannelCallbackClient*& pClient )
@@ -525,15 +517,13 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	{
 		reactorConnectInfo = new RsslReactorConnectInfo[activeConfigChannelSet.size()];
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !reactorConnectInfo )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to allocate memory in ChannelCallbackClient::initialize()";
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
 
-		throwMeeException( temp );
+		throwMeeException(temp);
 		return;
 	}
 

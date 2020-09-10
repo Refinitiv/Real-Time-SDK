@@ -18,10 +18,10 @@ OmmIProviderConfig::OmmIProviderConfig() :
 	try {
 		_pImpl = new OmmIProviderConfigImpl( EmaString() );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !_pImpl )
+	catch ( std::bad_alloc& )
+	{
 		throwMeeException( "Failed to allocate memory for OmmIProviderConfigImpl in OmmIProviderConfig()" );
+	}
 }
 
 OmmIProviderConfig::OmmIProviderConfig( const EmaString & path ) :
@@ -30,10 +30,10 @@ OmmIProviderConfig::OmmIProviderConfig( const EmaString & path ) :
 	try {
 		_pImpl = new OmmIProviderConfigImpl( path );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !_pImpl )
+	catch ( std::bad_alloc& )
+	{
 		throwMeeException( "Failed to allocate memory for OmmIProviderConfigImpl in OmmIProviderConfig()" );
+	}
 }
 
 OmmIProviderConfig::~OmmIProviderConfig()

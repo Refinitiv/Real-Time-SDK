@@ -350,18 +350,16 @@ const EmaString& State::toString() const
 
 Directory* Directory::create( OmmCommonImpl& ommCommonImpl )
 {
-	Directory* pDirectory = 0;
-
 	try
 	{
-		pDirectory = new Directory();
+		return new Directory();
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pDirectory )
+	catch ( std::bad_alloc& )
+	{
 		ommCommonImpl.handleMee("Failed to create Directory.");
+	}
 
-	return pDirectory;
+	return NULL;
 }
 
 void Directory::destroy( Directory*& pDirectory )
@@ -517,15 +515,11 @@ DirectoryCallbackClient::~DirectoryCallbackClient()
 
 DirectoryCallbackClient* DirectoryCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 {
-	DirectoryCallbackClient* pClient = 0;
-
 	try
 	{
-		pClient = new DirectoryCallbackClient( ommBaseImpl );
+		return new DirectoryCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pClient )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to create DirectoryCallbackClient";
 		if ( OmmLoggerClient::ErrorEnum >= ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -534,7 +528,7 @@ DirectoryCallbackClient* DirectoryCallbackClient::create( OmmBaseImpl& ommBaseIm
 		throwMeeException( temp );
 	}
 
-	return pClient;
+	return NULL;
 }
 
 void DirectoryCallbackClient::destroy( DirectoryCallbackClient*& pClient )
@@ -1307,17 +1301,16 @@ DirectoryItem::~DirectoryItem()
 
 DirectoryItem* DirectoryItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel* channel )
 {
-	DirectoryItem* pItem = 0;
 	try
 	{
-		pItem = new DirectoryItem( ommBaseImpl, ommConsClient, closure, channel );
+		return new DirectoryItem( ommBaseImpl, ommConsClient, closure, channel );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create DirectoryItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 const Directory* DirectoryItem::getDirectory()

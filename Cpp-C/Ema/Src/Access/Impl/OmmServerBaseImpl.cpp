@@ -376,15 +376,11 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		{
 			try
 			{
-				socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
-				newServerConfig = socketServerConfig;
+				newServerConfig = socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
 			}
-			catch (std::bad_alloc&) {}
-
-			if (!socketServerConfig)
+			catch (std::bad_alloc&)
 			{
-				const char* temp = "Failed to allocate memory for SocketServerConfig.";
-				throwMeeException(temp);
+				throwMeeException("Failed to allocate memory for SocketServerConfig.");
 				return 0;
 			}
 
@@ -435,15 +431,11 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			{
 				try
 				{
-					socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
-					newServerConfig = socketServerConfig;
+					newServerConfig = socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
 				}
-				catch (std::bad_alloc) {}
-
-				if (!socketServerConfig)
+				catch (std::bad_alloc)
 				{
-					const char* temp = "Failed to allocate memory for SocketServerConfig.";
-					throwMeeException(temp);
+					throwMeeException("Failed to allocate memory for SocketServerConfig.");
 					return 0;
 				}
 			}

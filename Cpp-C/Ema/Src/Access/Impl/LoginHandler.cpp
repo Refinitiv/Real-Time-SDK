@@ -604,20 +604,16 @@ void LoginHandler::sendLoginReject(RsslReactorChannel* reactorChannel, RsslInt32
 
 LoginHandler* LoginHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 {
-	LoginHandler* loginHandler = 0;
-
 	try
 	{
-		loginHandler = new LoginHandler(ommServerBaseImpl);
+		return new LoginHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!loginHandler)
+	catch (std::bad_alloc&)
 	{
 		ommServerBaseImpl->handleMee("Failed to allocate memory in LoginHandler::create()");
 	}
 
-	return loginHandler;
+	return NULL;
 }
 
 void LoginHandler::destroy(LoginHandler*& loginHandler)

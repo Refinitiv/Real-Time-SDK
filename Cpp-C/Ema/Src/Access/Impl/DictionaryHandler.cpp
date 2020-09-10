@@ -1227,18 +1227,16 @@ bool DictionaryHandler::UInt64Equal_To::operator()(const UInt64& x, const UInt64
 
 DictionaryHandler* DictionaryHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 {
-	DictionaryHandler* dictionaryHandler = 0;
-
 	try
 	{
-		dictionaryHandler = new DictionaryHandler(ommServerBaseImpl);
+		return new DictionaryHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!dictionaryHandler)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl->handleMee("Failed to allocate memory in DictionaryHandler::create()");
+	}
 
-	return dictionaryHandler;
+	return NULL;
 }
 
 void DictionaryHandler::destroy(DictionaryHandler*& dictionaryHandler)

@@ -401,17 +401,15 @@ bool ProviderItem::modify( const ReqMsg& reqMsg )
 
 SingleItem* SingleItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem )
 {
-	SingleItem* pItem = 0;
-
 	try {
-		pItem = new SingleItem( ommBaseImpl, ommConsClient, closure, pParentItem );
+		return new SingleItem( ommBaseImpl, ommConsClient, closure, pParentItem );
 	}
-	catch( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create SingleItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 SingleItem::SingleItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
@@ -820,18 +818,16 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName )
 
 NiProviderSingleItem* NiProviderSingleItem::create( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, Item* pParentItem )
 {
-	NiProviderSingleItem* pItem = 0;
-
 	try
 	{
-		pItem = new NiProviderSingleItem( ommBaseImpl, ommProvClient, &static_cast<OmmNiProviderImpl&>(ommBaseImpl).getItemWatchList(), closure, pParentItem );
+		return new NiProviderSingleItem( ommBaseImpl, ommProvClient, &static_cast<OmmNiProviderImpl&>(ommBaseImpl).getItemWatchList(), closure, pParentItem );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create NiProviderSingleItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 NiProviderSingleItem::NiProviderSingleItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, ItemWatchList* pItemWatchList, void* closure, Item* ) :
@@ -1135,18 +1131,16 @@ void NiProviderSingleItem::scheduleItemClosedRecoverableStatus(const EmaString& 
 
 IProviderSingleItem* IProviderSingleItem::create( OmmServerBaseImpl& ommServerBaseImpl,  OmmProviderClient& ommProvClient, void* closure, Item* pParentItem )
 {
-	IProviderSingleItem* pItem = 0;
-
 	try
 	{
-		pItem = new IProviderSingleItem(ommServerBaseImpl, ommProvClient, &static_cast<OmmIProviderImpl&>(ommServerBaseImpl).getItemWatchList(), closure, pParentItem);
+		return new IProviderSingleItem(ommServerBaseImpl, ommProvClient, &static_cast<OmmIProviderImpl&>(ommServerBaseImpl).getItemWatchList(), closure, pParentItem);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!pItem)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseImpl.handleMee("Failed to create IProviderSingleItem");
+	}
 
-	return pItem;
+	return NULL;
 }
 
 IProviderSingleItem::IProviderSingleItem( OmmServerBaseImpl& ommServerBaseImpl, OmmProviderClient& ommProvClient, ItemWatchList* pItemWatchList, void* closure, Item* ) :
@@ -1646,17 +1640,15 @@ ClosedStatusInfo::~ClosedStatusInfo()
 
 BatchItem* BatchItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure )
 {
-	BatchItem* pItem = 0;
-
 	try {
-		pItem = new BatchItem( ommBaseImpl, ommConsClient, closure );
+		return new BatchItem( ommBaseImpl, ommConsClient, closure );
 	}
-	catch( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create BatchItem." );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 BatchItem::BatchItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure ) :
@@ -1759,17 +1751,15 @@ void BatchItem::decreaseItemCount()
 
 TunnelItem* TunnelItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure )
 {
-	TunnelItem* pItem = 0;
-
 	try {
-		pItem = new TunnelItem( ommBaseImpl, ommConsClient, closure );
+		return new TunnelItem( ommBaseImpl, ommConsClient, closure );
 	}
-	catch( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create TunnelItem." );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 TunnelItem::TunnelItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure ) :
@@ -2305,17 +2295,15 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 SubItem* SubItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent )
 {
-	SubItem* pItem = 0;
-
 	try {
-		pItem = new SubItem( ommBaseImpl, ommConsClient, closure, parent );
+		return new SubItem( ommBaseImpl, ommConsClient, closure, parent );
 	}
-	catch( std::bad_alloc& ) {}
-
-	if ( !pItem )
+	catch( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create SubItem" );
+	}
 
-	return pItem;
+	return NULL;
 }
 
 SubItem::SubItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent ) :
@@ -2453,17 +2441,15 @@ void SubItem::remove()
 
 ItemList* ItemList::create(OmmCommonImpl& ommCommonImpl)
 {
-	ItemList* pItemList = 0;
-
 	try {
-		pItemList = new ItemList(ommCommonImpl);
+		return new ItemList(ommCommonImpl);
 	}
-	catch( std::bad_alloc& ) {}
-
-	if ( !pItemList )
+	catch( std::bad_alloc& )
+	{
 		ommCommonImpl.handleMee("Failed to create ItemList");
+	}
 
-	return pItemList;
+	return NULL;
 }
 
 void ItemList::destroy( ItemList*& pItemList )
@@ -2588,32 +2574,28 @@ ItemCallbackClient::~ItemCallbackClient()
 
 ItemCallbackClient* ItemCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 {
-	ItemCallbackClient* pClient = 0;
-
 	try {
-		pClient = new ItemCallbackClient( ommBaseImpl );
+		return new ItemCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc& ) {}
-
-	if ( !pClient )
+	catch ( std::bad_alloc& )
+	{
 		ommBaseImpl.handleMee( "Failed to create ItemCallbackClient" );
+	}
 
-	return pClient;
+	return NULL;
 }
 
 ItemCallbackClient* ItemCallbackClient::create(OmmServerBaseImpl& ommServerBaseImpl)
 {
-	ItemCallbackClient* pClient = 0;
-
 	try {
-		pClient = new ItemCallbackClient(ommServerBaseImpl);
+		return new ItemCallbackClient(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc&) {}
+	catch (std::bad_alloc&)
+	{
+		ommServerBaseImpl.handleMee( "Failed to create ItemCallbackClient" );
+	}
 
-	if (!pClient)
-		ommServerBaseImpl.handleMee("Failed to create ItemCallbackClient");
-
-	return pClient;
+	return NULL;
 }
 
 void ItemCallbackClient::destroy( ItemCallbackClient*& pClient )

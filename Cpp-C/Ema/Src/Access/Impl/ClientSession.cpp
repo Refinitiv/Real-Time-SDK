@@ -59,17 +59,15 @@ ClientSession::~ClientSession()
 
 ClientSession* ClientSession::create(OmmServerBaseImpl* ommServerBaseimpl)
 {
-	ClientSession* pClientSession = 0;
-
 	try {
-		pClientSession = new ClientSession(ommServerBaseimpl);
+		return new ClientSession(ommServerBaseimpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!pClientSession)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseimpl->handleMee("Failed to create ClientSession");
+	}
 
-	return pClientSession;
+	return NULL;
 }
 
 void ClientSession::destroy(ClientSession*& pClientSession)

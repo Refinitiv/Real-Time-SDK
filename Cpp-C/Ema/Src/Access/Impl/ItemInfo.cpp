@@ -54,17 +54,15 @@ ItemInfo::~ItemInfo()
 
 ItemInfo* ItemInfo::create(OmmServerBaseImpl& ommServerBaseimpl)
 {
-	ItemInfo* pItemInfo = 0;
-
 	try {
-		pItemInfo = new ItemInfo(ommServerBaseimpl);
+		return new ItemInfo(ommServerBaseimpl);
 	}
-	catch (std::bad_alloc&) {}
-
-	if (!pItemInfo)
+	catch (std::bad_alloc&)
+	{
 		ommServerBaseimpl.handleMee("Failed to create ItemInfo");
+	}
 
-	return pItemInfo;
+	return NULL;
 }
 
 void ItemInfo::destroy(ItemInfo*& itemInfo)
