@@ -36,7 +36,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
     private boolean _isEntryDestroyed = true;
     private PayloadCacheImpl _cacheInstance = null;
-    private long _upaCacheEntryRef = 0;
+    private long _etaCacheEntryRef = 0;
     private short _dataType = DataTypes.UNKNOWN;
     private int _majorVer = 0;
     private int _minorVer = 0;
@@ -53,20 +53,20 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
     private Buffer _traceBuffer = null;
     private PayloadCursorImpl _traceCursor = null;
 
-    public PayloadEntryImpl(PayloadCache cacheInstance, long upaCacheEntryRef)
+    public PayloadEntryImpl(PayloadCache cacheInstance, long etaCacheEntryRef)
     {
         _cacheInstance = (PayloadCacheImpl)cacheInstance;
-        _upaCacheEntryRef = upaCacheEntryRef;
+        _etaCacheEntryRef = etaCacheEntryRef;
 
         _isEntryDestroyed = false;
     }
 
     public static PayloadEntry create(PayloadCache cacheInstance, CacheError error)
     {
-        long upaCacheEntryRef = ((PayloadCacheImpl)cacheInstance).createCacheEntry(error);
-        if (upaCacheEntryRef != 0)
+        long etaCacheEntryRef = ((PayloadCacheImpl)cacheInstance).createCacheEntry(error);
+        if (etaCacheEntryRef != 0)
         {
-            PayloadEntryImpl entry = new PayloadEntryImpl(cacheInstance, upaCacheEntryRef);
+            PayloadEntryImpl entry = new PayloadEntryImpl(cacheInstance, etaCacheEntryRef);
 
             ((PayloadCacheImpl)cacheInstance).addCacheEntry(entry);
             return entry;
@@ -81,7 +81,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
         if (_isEntryDestroyed)
             return;
 
-        upaDestroyEntry(_upaCacheEntryRef);
+        etaDestroyEntry(_etaCacheEntryRef);
 
         _cacheInstance.removeCacheEntry(this);
 
@@ -96,7 +96,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
         _dataType = DataTypes.UNKNOWN;
 
-        upaClearEntry(_upaCacheEntryRef);
+        etaClearEntry(_etaCacheEntryRef);
     }
 
     @Override
@@ -136,7 +136,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
         _majorVer = dIter.majorVersion();
         _minorVer = dIter.minorVersion();
-        int ret = upaApply(_upaCacheEntryRef, applyBuffer._upaBufferCPtr, dataLen, _majorVer, _minorVer, error);
+        int ret = etaApply(_etaCacheEntryRef, applyBuffer._upaBufferCPtr, dataLen, _majorVer, _minorVer, error);
 
         if (ret < CodecReturnCodes.SUCCESS && ret == error.errorId()) // is error, not warning
         {
@@ -195,9 +195,9 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
         // may need to consider how to handle rwf version difference between eIter and eIter from apply function
 
-        int ret = upaRetrieve(_upaCacheEntryRef, retrieveBuffer._upaBufferCPtr, fragmentSize,
+        int ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._upaBufferCPtr, fragmentSize,
                               eIter.majorVersion(), eIter.minorVersion(),
-                              cursorUsed, (cursorUsed != null ? cursorUsed.getUPACursorRef() : 0), error);
+                              cursorUsed, (cursorUsed != null ? cursorUsed.getETACursorRef() : 0), error);
 
         if (ret < CodecReturnCodes.SUCCESS)
         {
@@ -246,9 +246,9 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
             while (!_traceCursor.isComplete())
             {
                 retrieveBuffer.clear();
-                ret = upaRetrieve(_upaCacheEntryRef, retrieveBuffer._upaBufferCPtr, TRACE_BUF_SIZE,
+                ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._upaBufferCPtr, TRACE_BUF_SIZE,
                                   _majorVer, _minorVer,
-                                  _traceCursor, _traceCursor.getUPACursorRef(), null);
+                                  _traceCursor, _traceCursor.getETACursorRef(), null);
 
                 if (ret < CodecReturnCodes.SUCCESS)
                 {
@@ -356,14 +356,14 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 	
     /* **** native methods ************************************************************/
 
-    public native void upaClearEntry(long entryRef);
+    public native void etaClearEntry(long entryRef);
 
-    public native void upaDestroyEntry(long entryRef);
+    public native void etaDestroyEntry(long entryRef);
 
-    public native int upaApply(long upaEntryRef, long upaApplyBufRef, int dataLen,
+    public native int etaApply(long etaEntryRef, long etaApplyBufRef, int dataLen,
                                int majorVersion, int minorVersion, CacheError error);
  
-    public native int upaRetrieve(long upaEntryRef, long upaRetrieveBufRef, int upaRetrieveBufLen,
+    public native int etaRetrieve(long etaEntryRef, long etaRetrieveBufRef, int etaRetrieveBufLen,
                                   int majorVersion, int minorVersion,
-                                  PayloadCursorImpl cursor, long upaCursorRef, CacheError error);
+                                  PayloadCursorImpl cursor, long etaCursorRef, CacheError error);
 }

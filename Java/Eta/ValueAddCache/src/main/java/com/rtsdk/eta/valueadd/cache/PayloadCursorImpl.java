@@ -11,7 +11,7 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
 {
     private boolean _isCursorDestroyed = true;
     boolean _isComplete = false;
-    long _upaCursorRef = 0;
+    long _etaCursorRef = 0;
 
     private static VaIteratableQueue _activeCacheCursorPool = new VaIteratableQueue();
     private static VaIteratableQueue _freeCacheCursorPool = new VaIteratableQueue();
@@ -19,9 +19,9 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
 
     public PayloadCursorImpl()
     {
-        _upaCursorRef = upaCreateCursor();
-        if (_upaCursorRef == 0)
-            throw new UnsupportedOperationException("PayloadCursorImpl constructor: cannot create upa cursor, PayloadCursor not created.");
+        _etaCursorRef = etaCreateCursor();
+        if (_etaCursorRef == 0)
+            throw new UnsupportedOperationException("PayloadCursorImpl constructor: cannot create eta cursor, PayloadCursor not created.");
 
         _isCursorDestroyed = false;
     }
@@ -69,7 +69,7 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
             return;
 
         _isComplete = false;
-        upaClearCursor(_upaCursorRef);
+        etaClearCursor(_etaCursorRef);
     }
 
     @Override
@@ -86,9 +86,9 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
         return _isCursorDestroyed;
     }
 
-    public long getUPACursorRef()
+    public long getETACursorRef()
     {
-        return _upaCursorRef;
+        return _etaCursorRef;
     }
 
     public void setComplete(boolean isComplete)
@@ -102,19 +102,19 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
         _globalCursorLock.lock();
 
         while ((cursor = (PayloadCursorImpl)_freeCacheCursorPool.poll()) != null)
-            cursor.upaDestroyCursor(cursor._upaCursorRef);
+            cursor.etaDestroyCursor(cursor._etaCursorRef);
 
         while ((cursor = (PayloadCursorImpl)_activeCacheCursorPool.poll()) != null)
-            cursor.upaDestroyCursor(cursor._upaCursorRef);
+            cursor.etaDestroyCursor(cursor._etaCursorRef);
 
         _globalCursorLock.unlock();
     }
 
     /* **** native methods ************************************************************/
 
-    public native long upaCreateCursor();
+    public native long etaCreateCursor();
 
-    public native void upaDestroyCursor(long cursorRef);
+    public native void etaDestroyCursor(long cursorRef);
 
-    public native void upaClearCursor(long cursorRef);
+    public native void etaClearCursor(long cursorRef);
 }

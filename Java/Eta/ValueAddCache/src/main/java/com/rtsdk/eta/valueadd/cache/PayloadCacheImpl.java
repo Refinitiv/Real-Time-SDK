@@ -26,15 +26,15 @@ import com.rtsdk.eta.codec.StreamStates;
 
 class PayloadCacheImpl extends VaNode implements PayloadCache
 {
-    class KeyUPADictRefMap extends VaNode
+    class KeyETADictRefMap extends VaNode
     {
         String _dictKey = null;
-        long _upaDictRef = 0;
+        long _etaDictRef = 0;
 
-        KeyUPADictRefMap(String dictKey, long upaDictRef)
+        KeyETADictRefMap(String dictKey, long etaDictRef)
         {
             _dictKey = new String(dictKey);
-            _upaDictRef = upaDictRef;
+            _etaDictRef = etaDictRef;
         }
     }
 
@@ -44,7 +44,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
     private final static int MAX_BUFFER_ARRAY_POS = 20;
     private final static int MAX_FIXED_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * MAX_BUFFER_ARRAY_POS;
 
-    // flag to indicate is UPA JNI cache is initialized and UPA JNI library is loaded
+    // flag to indicate is ETA JNI cache is initialized and ETA JNI library is loaded
     private static boolean _cacheInitialized = false;
     private static VaIteratableQueue _globalDictDbList = null;
     private static Lock _globalDictLock = new ReentrantLock();
@@ -56,7 +56,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
     private List<PayloadEntry> _appCacheEntryList = null;
     private String _dictKey = null;
     private boolean _dictKeyCleared = false;
-    private long _upaCacheRef = 0;
+    private long _etaCacheRef = 0;
     private CacheDictLoadingHelper _dictLoadingHelper = null;
     private VaIteratableQueue[] _retrieveJNIBufferArray = new VaIteratableQueue[MAX_BUFFER_ARRAY_SIZE];
     private VaIteratableQueue[] _applyJNIBufferArray = new VaIteratableQueue[MAX_BUFFER_ARRAY_SIZE];
@@ -68,9 +68,9 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         System.loadLibrary("rsslVACacheJNI");
     }
 
-    public PayloadCacheImpl(long upaCacheInstance, PayloadCacheConfigOptions configOptions)
+    public PayloadCacheImpl(long etaCacheInstance, PayloadCacheConfigOptions configOptions)
     {
-        _upaCacheRef = upaCacheInstance;
+        _etaCacheRef = etaCacheInstance;
         _cacheEntryList = new VaIteratableQueue();
 
         _globalCacheLock.lock();
@@ -86,20 +86,20 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
     {
         _globalCacheLock.lock();
 
-        // initialize UPA JNI
+        // initialize ETA JNI
         if (!_cacheInitialized)
         {
-            if (upaInitializeJNICache() == CodecReturnCodes.FAILURE)
-                throw new UnsupportedOperationException("PayloadCacheImpl: JNI upaInitializeJNICache() failed.");
+            if (etaInitializeJNICache() == CodecReturnCodes.FAILURE)
+                throw new UnsupportedOperationException("PayloadCacheImpl: JNI etaInitializeJNICache() failed.");
 
             // set flag to indicate initialization is completed
             _cacheInitialized = true;
         }
         _globalCacheLock.unlock();
 
-        long upaCacheInstance = upaCreateCache(configOptions.maxItems(), error);
-        if (upaCacheInstance != 0)
-            return new PayloadCacheImpl(upaCacheInstance, configOptions);
+        long etaCacheInstance = etaCreateCache(configOptions.maxItems(), error);
+        if (etaCacheInstance != 0)
+            return new PayloadCacheImpl(etaCacheInstance, configOptions);
 
         return null;
     }
@@ -110,12 +110,12 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         if (_isCacheDestroyed)
             return;
 
-        if (_upaCacheRef != 0)
+        if (_etaCacheRef != 0)
         {
             destroyPayloadEntries();
-            upaDestroyCache(_upaCacheRef);
+            etaDestroyCache(_etaCacheRef);
 
-            // release all memory from upac
+            // release all memory from etac
             CacheJNIBuffer buffer = null;
             VaIteratableQueue flexLenBufList = null;
             for (int pos = 0; pos <= _maxRetrieveJNIBufferArrayPos; ++pos)
@@ -125,7 +125,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                 while (flexLenBufList.hasNext())
                 {
                     buffer = (CacheJNIBuffer)flexLenBufList.next();
-                    upaFreeRsslBuffer(buffer._upaBufferCPtr);
+                    etaFreeRsslBuffer(buffer._upaBufferCPtr);
                 }
             }
 
@@ -136,7 +136,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                 while (flexLenBufList.hasNext())
                 {
                     buffer = (CacheJNIBuffer)flexLenBufList.next();
-                    upaFreeRsslBuffer(buffer._upaBufferCPtr);
+                    etaFreeRsslBuffer(buffer._upaBufferCPtr);
                 }
             }
         }
@@ -147,7 +147,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         {
             uninitialize();
 
-            upaUninitializeJNICache();
+            etaUninitializeJNICache();
             _cacheInitialized = false;
 
         }
@@ -214,27 +214,27 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                                      "PayloadCacheImpl.bindDictionary error: unable to get encoded dictionary buffer.");
 
         int bindRet = CodecReturnCodes.FAILURE;
-        long upaDictDbRef = 0;
-        KeyUPADictRefMap globalDictDb = getDictDb(dictionaryKey);
+        long etaDictDbRef = 0;
+        KeyETADictRefMap globalDictDb = getDictDb(dictionaryKey);
         if (globalDictDb == null) // need create one
         {
             // find none, create one
-            upaDictDbRef = upaCreateFIDDictionary(dictionaryKey);
+            etaDictDbRef = etaCreateFIDDictionary(dictionaryKey);
 
-            if (upaDictDbRef == 0)
+            if (etaDictDbRef == 0)
                 return populateErrorInfo((CacheErrorImpl)error, CodecReturnCodes.FAILURE,
-                                         "PayloadCacheImpl.bindDictionary error: unable to create upa dictonary with dictionaryKey.");
+                                         "PayloadCacheImpl.bindDictionary error: unable to create eta dictonary with dictionaryKey.");
 
             // first time bind
-            bindRet = upaLoadDictionaryFromBuffer(upaDictDbRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
+            bindRet = etaLoadDictionaryFromBuffer(etaDictDbRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
                                                   _dictLoadingHelper._dictEncodedBufWrap.length(), error);
 
-            upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
 
             if (bindRet < CodecReturnCodes.SUCCESS)
                 return bindRet;
 
-            globalDictDb = new KeyUPADictRefMap(dictionaryKey, upaDictDbRef);
+            globalDictDb = new KeyETADictRefMap(dictionaryKey, etaDictDbRef);
             _globalDictLock.lock();
             _globalDictDbList.add(globalDictDb);
             _globalDictLock.unlock();
@@ -242,18 +242,18 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         else
         {
             // could be first time load (loaded by other cache first) or reload
-            bindRet = upaLoadDictionaryFromBuffer(globalDictDb._upaDictRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
+            bindRet = etaLoadDictionaryFromBuffer(globalDictDb._etaDictRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
                                                   _dictLoadingHelper._dictEncodedBufWrap.length(), error);
 
-            upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
 
             if (bindRet < CodecReturnCodes.SUCCESS)
                 return bindRet;
 
-            upaDictDbRef = globalDictDb._upaDictRef;
+            etaDictDbRef = globalDictDb._etaDictRef;
         }
 
-        bindRet = upaSetFidDbWithCache(_upaCacheRef, upaDictDbRef, dictionaryKey, error);
+        bindRet = etaSetFidDbWithCache(_etaCacheRef, etaDictDbRef, dictionaryKey, error);
         if (bindRet < CodecReturnCodes.SUCCESS)
             return bindRet;
 
@@ -298,13 +298,13 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                 return CodecReturnCodes.SUCCESS;
         }
 
-        KeyUPADictRefMap globalDictDb = getDictDb(dictionaryKey);
+        KeyETADictRefMap globalDictDb = getDictDb(dictionaryKey);
         // the shared dictionary is not available
         if (globalDictDb == null)
             return populateErrorInfo((CacheErrorImpl)error, CodecReturnCodes.INVALID_ARGUMENT,
                                      "PayloadCacheImpl.bindSharedDictionaryKey error: the shared dictionary is not available, dictionary not bind.");
 
-        int bindRet = upaSetFidDbWithCache(_upaCacheRef, globalDictDb._upaDictRef, dictionaryKey, error);
+        int bindRet = etaSetFidDbWithCache(_etaCacheRef, globalDictDb._etaDictRef, dictionaryKey, error);
 
         if (bindRet < CodecReturnCodes.SUCCESS)
             return bindRet;
@@ -367,20 +367,20 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         return returnCode;
     }
 
-    private KeyUPADictRefMap getDictDb(String dictionaryKey)
+    private KeyETADictRefMap getDictDb(String dictionaryKey)
     {
-        KeyUPADictRefMap dictKeyUpaDict = null;
+        KeyETADictRefMap dictKeyEtaDict = null;
 
         _globalDictLock.lock();
 
         _globalDictDbList.rewind();
         while (_globalDictDbList.hasNext())
         {
-            dictKeyUpaDict = (KeyUPADictRefMap)_globalDictDbList.next();
-            if (dictKeyUpaDict._dictKey.equals(dictionaryKey))
+            dictKeyEtaDict = (KeyETADictRefMap)_globalDictDbList.next();
+            if (dictKeyEtaDict._dictKey.equals(dictionaryKey))
             {
                 _globalDictLock.unlock();
-                return dictKeyUpaDict;
+                return dictKeyEtaDict;
             }
         }
 
@@ -393,9 +393,9 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         int dictSize = dict.numberOfEntries() * 50;
         _dictLoadingHelper._dictMinFidInt.value(dict.minFid());
 
-        // get memory for holding dict bytes from upac, then release the memory after binding.
-        long upaBufferRef = upaCreateRsslBuffer(_dictLoadingHelper._dictEncodedBuf, dictSize, null);
-        if (upaBufferRef == 0)
+        // get memory for holding dict bytes from etac, then release the memory after binding.
+        long etaBufferRef = etaCreateRsslBuffer(_dictLoadingHelper._dictEncodedBuf, dictSize, null);
+        if (etaBufferRef == 0)
             return false;
         else
             _dictLoadingHelper._dictEncodedBufWrap.data(_dictLoadingHelper._dictEncodedBuf._data);
@@ -428,7 +428,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                                                                       Codec.majorVersion(), Codec.minorVersion());
             if (_dictLoadingHelper._dictMsg.encodeInit(_dictLoadingHelper._dictEncodeIter, 0) == CodecReturnCodes.FAILURE)
             {
-                upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
                 return false;
             }
             int ret = dict.encodeFieldDictionary(_dictLoadingHelper._dictEncodeIter, _dictLoadingHelper._dictMinFidInt,
@@ -436,24 +436,24 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
 
             if (ret == CodecReturnCodes.DICT_PART_ENCODED)
             {
-                upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
                 dictSize = dictSize + DICT_INCREASE_SIZE;
-                upaBufferRef = upaCreateRsslBuffer(_dictLoadingHelper._dictEncodedBuf, dictSize, null);
-                if (upaBufferRef == 0)
+                etaBufferRef = etaCreateRsslBuffer(_dictLoadingHelper._dictEncodedBuf, dictSize, null);
+                if (etaBufferRef == 0)
                     return false;
                 else
                     _dictLoadingHelper._dictEncodedBufWrap.data(_dictLoadingHelper._dictEncodedBuf._data);
             }
             else if (ret == CodecReturnCodes.FAILURE)
             {
-                upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
                 return false;
             }
             else
             {
                 if (_dictLoadingHelper._dictMsg.encodeComplete(_dictLoadingHelper._dictEncodeIter, true) == CodecReturnCodes.FAILURE)
                 {
-                    upaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                    etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
                     return false;
                 }
                 return true;
@@ -466,8 +466,8 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         // need to let all global dictionary db go
         _globalDictLock.lock();
 
-        KeyUPADictRefMap one = null;
-        while ((one = (KeyUPADictRefMap)_globalDictDbList.poll()) != null)
+        KeyETADictRefMap one = null;
+        while ((one = (KeyETADictRefMap)_globalDictDbList.poll()) != null)
             one._dictKey = null;
 
         _globalDictLock.unlock();
@@ -488,13 +488,13 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             next.applyDestroy();
         }
 
-        upaDestroyAllEntries(_upaCacheRef);
+        etaDestroyAllEntries(_etaCacheRef);
     }
 
     private void initializePooling()
     {
         CacheJNIBuffer one = null;
-        long upaBufferRef = 0;
+        long etaBufferRef = 0;
 
         for (int pos = 0; pos < MAX_BUFFER_ARRAY_SIZE; ++pos)
         {
@@ -505,36 +505,36 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         for (int pos = 0; pos <= _maxRetrieveJNIBufferArrayPos; ++pos)
         {
             one = new CacheJNIBuffer();
-            upaBufferRef = upaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), null);
-            if (upaBufferRef != 0)
+            etaBufferRef = etaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), null);
+            if (etaBufferRef != 0)
                 _retrieveJNIBufferArray[pos].add(one);
         }
 
         for (int pos = 0; pos <= _maxApplyJNIBufferArrayPos; ++pos)
         {
             one = new CacheJNIBuffer();
-            upaBufferRef = upaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), null);
-            if (upaBufferRef != 0)
+            etaBufferRef = etaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), null);
+            if (etaBufferRef != 0)
                 _applyJNIBufferArray[pos].add(one);
         }
     }
 
     public long createCacheEntry(CacheError error)
     {
-        if (_isCacheDestroyed || _upaCacheRef == 0)
+        if (_isCacheDestroyed || _etaCacheRef == 0)
         {
             populateErrorInfo((CacheErrorImpl)error, CodecReturnCodes.FAILURE,
                               "PayloadCacheImpl.createCacheEntry error: use invalid cache instance to create cache entry.");
             return 0;
         }
 
-        long upaCacheEntryInstance = upaCreateCacheEntry(_upaCacheRef, error);
-        return upaCacheEntryInstance;
+        long etaCacheEntryInstance = etaCreateCacheEntry(_etaCacheRef, error);
+        return etaCacheEntryInstance;
     }
 
     public void addCacheEntry(PayloadEntryImpl entry)
     {
-        if (_isCacheDestroyed || _upaCacheRef == 0)
+        if (_isCacheDestroyed || _etaCacheRef == 0)
             return;
 
         _cacheEntryList.add(entry);
@@ -542,7 +542,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
 
     public void removeCacheEntry(PayloadEntryImpl entry)
     {
-        if (_isCacheDestroyed || _upaCacheRef == 0)
+        if (_isCacheDestroyed || _etaCacheRef == 0)
             return;
 
         _cacheEntryList.remove(entry);
@@ -551,7 +551,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
     public CacheJNIBuffer acquireCacheRetrieveJNIBuffer(int length, CacheError error)
     {
         CacheJNIBuffer one = null;
-        long upaBufferRef = 0;
+        long etaBufferRef = 0;
 
         int pos = length / DEFAULT_BUFFER_SIZE;
         if (pos < MAX_BUFFER_ARRAY_POS)
@@ -559,8 +559,8 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             if ((one = (CacheJNIBuffer)_retrieveJNIBufferArray[pos].poll()) == null)
             {
                 one = new CacheJNIBuffer();
-                upaBufferRef = upaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), error);
-                if (upaBufferRef != 0)
+                etaBufferRef = etaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), error);
+                if (etaBufferRef != 0)
                 {
                     if (_maxRetrieveJNIBufferArrayPos < pos)
                         _maxRetrieveJNIBufferArrayPos = pos;
@@ -594,8 +594,8 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             }
 
             one = new CacheJNIBuffer();
-            upaBufferRef = upaCreateRsslBuffer(one, length, error);
-            if (upaBufferRef == 0)
+            etaBufferRef = etaCreateRsslBuffer(one, length, error);
+            if (etaBufferRef == 0)
                 return null;
             else
                 return one;
@@ -616,7 +616,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
     public CacheJNIBuffer acquireCacheApplyJNIBuffer(int length, CacheError error)
     {
         CacheJNIBuffer one = null;
-        long upaBufferRef = 0;
+        long etaBufferRef = 0;
 
         int pos = length / DEFAULT_BUFFER_SIZE;
         if (pos < MAX_BUFFER_ARRAY_POS)
@@ -624,8 +624,8 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             if ((one = (CacheJNIBuffer)_applyJNIBufferArray[pos].poll()) == null)
             {
                 one = new CacheJNIBuffer();
-                upaBufferRef = upaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), error);
-                if (upaBufferRef != 0)
+                etaBufferRef = etaCreateRsslBuffer(one, DEFAULT_BUFFER_SIZE * (pos + 1), error);
+                if (etaBufferRef != 0)
                 {
                     if (_maxApplyJNIBufferArrayPos < pos)
                         _maxApplyJNIBufferArrayPos = pos;
@@ -659,8 +659,8 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             }
 
             one = new CacheJNIBuffer();
-            upaBufferRef = upaCreateRsslBuffer(one, length, error);
-            if (upaBufferRef == 0)
+            etaBufferRef = etaCreateRsslBuffer(one, length, error);
+            if (etaBufferRef == 0)
                 return null;
             else
                 return one;
@@ -680,25 +680,25 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
 
     /* **** native methods ************************************************************/
 
-    public native static int upaInitializeJNICache();
+    public native static int etaInitializeJNICache();
 
-    public native static int upaUninitializeJNICache();
+    public native static int etaUninitializeJNICache();
 
-    public native static long upaCreateCache(int cacheConfigOption, CacheError error);
+    public native static long etaCreateCache(int cacheConfigOption, CacheError error);
 
-    public native void upaDestroyCache(long upaCacheRef);
+    public native void etaDestroyCache(long etaCacheRef);
 
-    public native long upaCreateFIDDictionary(String dictKey);
+    public native long etaCreateFIDDictionary(String dictKey);
 
-    public native int upaLoadDictionaryFromBuffer(long upaDictRef, long upaDictWriteBufRef, int dictDataLength, CacheError error);
+    public native int etaLoadDictionaryFromBuffer(long etaDictRef, long etaDictWriteBufRef, int dictDataLength, CacheError error);
 
-    public native int upaSetFidDbWithCache(long upaCacheRef, long upaDictRef, String dictKey, CacheError error);
+    public native int etaSetFidDbWithCache(long etaCacheRef, long etaDictRef, String dictKey, CacheError error);
 
-    public native long upaCreateCacheEntry(long upaCacheRef, CacheError error);
+    public native long etaCreateCacheEntry(long etaCacheRef, CacheError error);
 
-    public native void upaDestroyAllEntries(long upaCacheInstance);
+    public native void etaDestroyAllEntries(long etaCacheInstance);
 
-    public native long upaCreateRsslBuffer(CacheJNIBuffer retrieveBuffer, long length, CacheError error);
+    public native long etaCreateRsslBuffer(CacheJNIBuffer retrieveBuffer, long length, CacheError error);
 
-    public native int upaFreeRsslBuffer(long upaRsslbufferRef);
+    public native int etaFreeRsslBuffer(long etaRsslbufferRef);
 }

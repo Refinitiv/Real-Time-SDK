@@ -1,5 +1,5 @@
 /**
- * This package contains the UPA Value Add Cache.
+ * This package contains the ETA Value Add Cache.
  * The Value Add Payload Cache component provides a facility for storing
  * OMM containers (the data payload of OMM messages). Typical use of a 
  * payload cache is to store the current image of OMM data streams, where
