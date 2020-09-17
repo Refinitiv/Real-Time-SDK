@@ -5,7 +5,7 @@ apply plugin: 'signing'
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
 group = "com.rtsdk.eta.valueadd.cache"
-archivesBaseName = "upaValueAddCache"
+archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
 uploadArchives {
@@ -85,7 +85,7 @@ jar {
 	}
 
         destinationDir = file("../Libs/")
-        baseName = 'upaValueAddCache'
+        baseName = 'etaValueAddCache'
 }
 
 javadoc {
