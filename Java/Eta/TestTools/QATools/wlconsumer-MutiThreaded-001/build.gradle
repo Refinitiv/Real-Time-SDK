@@ -13,9 +13,9 @@ dependencies {
 	compile project(':Eta:Applications:Shared')
 	compile project(':Eta:Applications:PerfTools').sourceSets.main.output
 	compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
-	// Adding dependency on the jdacsUpalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
-	compile fileTree(dir: '../../Libs', include: 'jdacsUpalib.jar')
+	// Adding dependency on the jdacsEtalib.jar
+	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
+	compile fileTree(dir: '../../Libs', include: 'jdacsEtalib.jar')
 }
 
 mainClassName = 'com.rtsdk.eta.examples.provider.Provider'

@@ -11,8 +11,8 @@ dependencies {
 	compile project(':Eta:ValueAdd')
 	compile project(':Eta:ValueAddCache')
 	compile project(':Eta:Applications:Shared')
-	// Adding dependency on the jdacsUpalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
+	// Adding dependency on the jdacsEtalib.jar
+	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
 }
 
 mainClassName = 'com.rtsdk.eta.examples.provider.Provider'
