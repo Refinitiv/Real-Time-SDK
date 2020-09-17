@@ -1,6 +1,6 @@
 package com.rtsdk.eta.examples.authlock;
 
-import com.rtsdk.upa.dacs.*;
+import com.refinitiv.eta.dacs.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
