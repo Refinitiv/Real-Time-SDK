@@ -2907,7 +2907,10 @@ protected:
 	virtual void TearDown()
 	{
 		RsslError err;
-		rsslCloseServer(pServer, &err);
+		if (pServer != NULL)
+		{
+			rsslCloseServer(pServer, &err);
+		}
 		rsslUninitialize();
 		pServer = NULL;
 	}
@@ -2918,10 +2921,11 @@ protected:
 
 		bindOpts.serviceName = (char*)"15000";
 		bindOpts.protocolType = TEST_PROTOCOL_TYPE;  /* These tests are just sending a pre-set string across the wire, so protocol type should not be RWF */
+		memset(&err, 0, sizeof(RsslError));
 
 		pServer = rsslBind(&bindOpts, &err);
 
-		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(pServer, (RsslServer*)NULL) << "Server creation failed! " << err.text;
 		ASSERT_NE(pServer->socketId, 0) << "The server socket should be not Null";
 	}
 
@@ -2950,6 +2954,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitVa
 	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -2968,6 +2973,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOpts
 	rsslClearBindOpts(&bindOpts);
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -2987,6 +2993,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalse)
 	bindOpts.serverSharedSocket = RSSL_FALSE;
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 #if defined(_WIN32)
@@ -3006,6 +3013,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOnWhenSetTrue)
 	bindOpts.serverSharedSocket = RSSL_TRUE;
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket permits sharing
 #if defined(_WIN32)
@@ -3025,6 +3033,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenDefaultInitVa
 	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
@@ -3037,6 +3046,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenClearBindOpts
 	rsslClearBindOpts(&bindOpts);
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");
@@ -3050,6 +3060,7 @@ TEST_F(BindSharedServerSocketOpt, ServerSharedSocketShouldBeOffWhenSetFalseLUP)
 	bindOpts.serverSharedSocket = RSSL_FALSE;
 
 	runRsslBind(bindOpts);
+	ASSERT_NE(pServer, (RsslServer*)NULL);
 
 	// Tests the socket options: the server socket does not permit sharing
 	testSocketOpt(SO_REUSEADDR, true, "SO_REUSEADDR");

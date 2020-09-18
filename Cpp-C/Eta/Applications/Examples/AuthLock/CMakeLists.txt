@@ -10,8 +10,10 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
 									${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
 									${RCDEV_TYPE_CHECK_FLAG}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>)
+	target_link_libraries( authlock RTSDK-BinaryPack::dacsLib legacy_stdio_definitions.lib )
+	else()
+		target_link_libraries( authlock RTSDK-BinaryPack::dacsLib )
 	endif()
-	target_link_libraries( authlock RTSDK-BinaryPack::dacsLib )
 else()
 	message(STATUS "Skipping Eta Example Authlock Build: BUILD_RTSDK-BINARYPACK:${BUILD_RTSDK-BINARYPACK}")
 endif()
