@@ -7,14 +7,14 @@
 
 #include "ConsumerResultValidation.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
-ResultValidation::ResultValidation(const thomsonreuters::ema::access::EmaString& itemName)
+ResultValidation::ResultValidation(const rtsdk::ema::access::EmaString& itemName)
 {
 	_itemName = itemName;
 }
 
-bool ResultValidation::closureValidate(const thomsonreuters::ema::access::EmaString& receivedItemName)
+bool ResultValidation::closureValidate(const rtsdk::ema::access::EmaString& receivedItemName)
 {
 	bool result = (receivedItemName == _itemName) ? true : false;
 	if (result)

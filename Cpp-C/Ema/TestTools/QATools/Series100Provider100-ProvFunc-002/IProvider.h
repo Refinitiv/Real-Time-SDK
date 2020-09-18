@@ -53,33 +53,33 @@ public:
 
 	ReqInfo(){}
 
-	void setHandle( thomsonreuters::ema::access::UInt64 handle )
+	void setHandle( rtsdk::ema::access::UInt64 handle )
 	{
 		_handle = handle;
 	}
 
-	thomsonreuters::ema::access::UInt64 getHandle()
+	rtsdk::ema::access::UInt64 getHandle()
 	{
 		return _handle;
 	}
 
 private:
-	thomsonreuters::ema::access::UInt64 _handle;
+	rtsdk::ema::access::UInt64 _handle;
 };
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void processLoginRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
-	void processMarketPriceRequest( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void processMarketPriceRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
-	void processInvalidItemRequest( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void processInvalidItemRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
 protected:
 
-	void onReqMsg( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 };
 
 #endif // __ema_iprovider_h_

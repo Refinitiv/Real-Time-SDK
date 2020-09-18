@@ -47,25 +47,25 @@ void sleep(int millisecs)
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processAppDomainRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processAppDomainRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processAppDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processAppDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
     //APIQA
-	void processLoginDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-	void processMarketPriceRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-	void processDirectoryDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processDirectoryDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
    //END APIQA
 protected:
 
-	void onReqMsg(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onReqMsg(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void onGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
 };
 

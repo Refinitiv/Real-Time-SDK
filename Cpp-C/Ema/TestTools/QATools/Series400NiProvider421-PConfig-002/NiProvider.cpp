@@ -7,7 +7,7 @@
 
 #include "NiProvider.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 void createProgrammaticConfig( Map& configMap )

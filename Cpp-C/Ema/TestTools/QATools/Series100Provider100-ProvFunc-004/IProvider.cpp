@@ -10,8 +10,8 @@
 #include "IProvider.h"
 #include <cstring>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 using namespace std;
 UInt64 itemHandle = 0;
 //APIQA

@@ -34,7 +34,7 @@
 class AppThread
 {
 public:
-	AppThread(thomsonreuters::ema::access::OmmConsumer*);
+	AppThread(rtsdk::ema::access::OmmConsumer*);
 
 	virtual ~AppThread();
 
@@ -45,7 +45,7 @@ public:
 	virtual void run();
 
 protected:
-	thomsonreuters::ema::access::OmmConsumer* _ommConsumer;
+	rtsdk::ema::access::OmmConsumer* _ommConsumer;
 	bool _running;
 
 #ifdef WIN32
@@ -65,25 +65,25 @@ class ConsumerThread : public AppThread
 {
 public :
 
-	ConsumerThread(thomsonreuters::ema::access::OmmConsumer*, 
-					thomsonreuters::ema::access::OmmConsumerClient* client);
+	ConsumerThread(rtsdk::ema::access::OmmConsumer*, 
+					rtsdk::ema::access::OmmConsumerClient* client);
 
 	virtual ~ConsumerThread();
 
 	void run();
 
-	void openItem(const thomsonreuters::ema::access::EmaString& item, 
-				const thomsonreuters::ema::access::EmaString& serviceName,
+	void openItem(const rtsdk::ema::access::EmaString& item, 
+				const rtsdk::ema::access::EmaString& serviceName,
 	            unsigned int mode);
 
 	void sendRequest();
 
 protected :
-	thomsonreuters::ema::access::EmaString _itemNamePrefix;
-	thomsonreuters::ema::access::EmaString _serviceName;
+	rtsdk::ema::access::EmaString _itemNamePrefix;
+	rtsdk::ema::access::EmaString _serviceName;
 	unsigned int   _mode;
-	thomsonreuters::ema::access::ReqMsg _reqMsg;
-	thomsonreuters::ema::access::OmmConsumerClient* _client;
+	rtsdk::ema::access::ReqMsg _reqMsg;
+	rtsdk::ema::access::OmmConsumerClient* _client;
 };
 
 #endif // __ema_consumerthread_h_

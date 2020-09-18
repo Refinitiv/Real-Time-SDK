@@ -35,11 +35,11 @@ class ConsumerManager
 {
 public :
 
-	ConsumerManager( const thomsonreuters::ema::access::EmaString& host, const thomsonreuters::ema::access::EmaString& username );
+	ConsumerManager( const rtsdk::ema::access::EmaString& host, const rtsdk::ema::access::EmaString& username );
 
 	virtual ~ConsumerManager();
 
-	thomsonreuters::ema::access::OmmConsumer& getOmmConsumer();
+	rtsdk::ema::access::OmmConsumer& getOmmConsumer();
 
 	void start();
 
@@ -51,7 +51,7 @@ protected :
 
 	bool running;
 
-	thomsonreuters::ema::access::OmmConsumer* ommConsumer;
+	rtsdk::ema::access::OmmConsumer* ommConsumer;
 
 #ifdef WIN32
 	static unsigned __stdcall ThreadFunc( void* pArguments );

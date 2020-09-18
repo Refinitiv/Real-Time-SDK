@@ -30,36 +30,36 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processMarketPriceRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processInvalidItemRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
 protected:
 
-	void onReqMsg( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
 };
 //API QA
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public thomsonreuters::ema::access::OmmProviderErrorClient
+class AppErrorClient : public rtsdk::ema::access::OmmProviderErrorClient
 {
 public:
 
-	void onInvalidHandle(thomsonreuters::ema::access::UInt64, const thomsonreuters::ema::access::EmaString&);
+	void onInvalidHandle(rtsdk::ema::access::UInt64, const rtsdk::ema::access::EmaString&);
 
-	void onInaccessibleLogFile(const thomsonreuters::ema::access::EmaString&, const thomsonreuters::ema::access::EmaString&);
+	void onInaccessibleLogFile(const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString&);
 
-	void onSystemError(thomsonreuters::ema::access::Int64, void*, const thomsonreuters::ema::access::EmaString&);
+	void onSystemError(rtsdk::ema::access::Int64, void*, const rtsdk::ema::access::EmaString&);
 
-	void onMemoryExhaustion(const thomsonreuters::ema::access::EmaString&);
+	void onMemoryExhaustion(const rtsdk::ema::access::EmaString&);
 
-	void onInvalidUsage(const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32);
+	void onInvalidUsage(const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32);
 };
 //END API QA
 #endif // __ema_iprovider_h_

@@ -9,8 +9,8 @@
 #include "ConsumerMutex.h"
 #include "ConsumerResultValidation.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace rtsdk::ema::access;
+using namespace rtsdk::ema::rdm;
 
 void sleep(int millisecs)
 {
@@ -25,7 +25,7 @@ void sleep(int millisecs)
 }
 static Mutex _userLock;
 
-AppThread::AppThread(thomsonreuters::ema::access::OmmConsumer* ommConsumer) :
+AppThread::AppThread(rtsdk::ema::access::OmmConsumer* ommConsumer) :
 	_running(false),
 	_ommConsumer(ommConsumer)
 {
@@ -96,8 +96,8 @@ void  AppThread::stop()
 	_running = false;
 }
 
-ConsumerThread::ConsumerThread(thomsonreuters::ema::access::OmmConsumer* ommConsumer,
-	thomsonreuters::ema::access::OmmConsumerClient* client) :
+ConsumerThread::ConsumerThread(rtsdk::ema::access::OmmConsumer* ommConsumer,
+	rtsdk::ema::access::OmmConsumerClient* client) :
 AppThread(ommConsumer),
  _reqMsg(),
 _client(client)
@@ -108,8 +108,8 @@ ConsumerThread::~ConsumerThread()
 {
 }
 
-void ConsumerThread::openItem(const thomsonreuters::ema::access::EmaString& item, 
-							 const thomsonreuters::ema::access::EmaString& serviceName,
+void ConsumerThread::openItem(const rtsdk::ema::access::EmaString& item, 
+							 const rtsdk::ema::access::EmaString& serviceName,
 	                         unsigned int mode)
 {
 	_itemNamePrefix = item;

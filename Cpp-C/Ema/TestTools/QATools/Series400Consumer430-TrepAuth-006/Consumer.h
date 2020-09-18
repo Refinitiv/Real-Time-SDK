@@ -21,7 +21,7 @@
 
 #include "Ema.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 
 
 void sleep(int millisecs)
@@ -51,18 +51,18 @@ UInt64 getCurrentTime()
 	return msec;
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public rtsdk::ema::access::OmmConsumerClient
 {
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
 };
 
-class AppLoginClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppLoginClient : public rtsdk::ema::access::OmmConsumerClient
 {
 public:
 	AppLoginClient();
@@ -70,11 +70,11 @@ public:
 	UInt64 _handle;
 	UInt64 _TTReissue;
 protected:
-	void onRefreshMsg(const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent&);
+	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
 
-	void onUpdateMsg(const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent&);
+	void onUpdateMsg(const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
 
-	void onStatusMsg(const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent&);
+	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
 };
 
 

@@ -18,7 +18,7 @@
 
 #include "Ema.h"
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public :
 
@@ -26,12 +26,12 @@ public :
         virtual ~AppClient();
 
         bool isConnectionUp() const;
-		void decode(const thomsonreuters::ema::access::Msg&, bool complete = false);    // print content of passed in Msg to screen
+		void decode(const rtsdk::ema::access::Msg&, bool complete = false);    // print content of passed in Msg to screen
 
 protected :
 
-        void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
-        void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+        void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+        void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
         bool  _bConnectionUp;
 };

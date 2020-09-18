@@ -46,23 +46,23 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processMarketPriceRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void processInvalidItemRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void decode(const thomsonreuters::ema::access::Msg&, bool complete = false);
+	void decode(const rtsdk::ema::access::Msg&, bool complete = false);
 
 protected:
 
-	void onReqMsg( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
-	void onPostMsg(const thomsonreuters::ema::access::PostMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
+	void onPostMsg(const rtsdk::ema::access::PostMsg&, const rtsdk::ema::access::OmmProviderEvent& );
 
 };
 

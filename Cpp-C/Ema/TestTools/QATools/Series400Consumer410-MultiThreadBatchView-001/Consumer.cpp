@@ -9,7 +9,7 @@
 #include "ConsumerThread.h"
 #include "ConsumerResultValidation.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace rtsdk::ema::access;
 using namespace std;
 
 extern void sleep(int millisecs);

@@ -41,24 +41,24 @@ public:
 
 	}
 
-	thomsonreuters::ema::rdm::DataDictionary _dataDictionary;
+	rtsdk::ema::rdm::DataDictionary _dataDictionary;
 	bool 									 _fldComplete;
 	bool 									 _enumComplete;
 };
 
 //END APIQA
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public rtsdk::ema::access::OmmProviderClient
 {
 public:
 
     //APIQA
-	void decode(const thomsonreuters::ema::access::Msg&, DataDictionaryCache*, bool complete = false);  
+	void decode(const rtsdk::ema::access::Msg&, DataDictionaryCache*, bool complete = false);  
 
 protected:
 
-	void onRefreshMsg(const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 
-	void onStatusMsg(const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmProviderEvent&);
 };
 
 
