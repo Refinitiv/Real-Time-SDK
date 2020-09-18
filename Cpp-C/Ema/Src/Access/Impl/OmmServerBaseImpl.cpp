@@ -438,7 +438,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 					socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
 					newServerConfig = socketServerConfig;
 				}
-				catch (std::bad_alloc) {}
+				catch (std::bad_alloc&) {}
 
 				if (!socketServerConfig)
 				{

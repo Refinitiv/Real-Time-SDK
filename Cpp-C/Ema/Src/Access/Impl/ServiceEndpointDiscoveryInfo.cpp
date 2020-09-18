@@ -24,7 +24,7 @@ _toString(0,256)
 		_pDataFormatList = new EmaVector<EmaString>(2);
 		_pLocationList = new EmaVector<EmaString>(2);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		// it's safe to delete nullptr
 		delete _pDataFormatList;
