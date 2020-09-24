@@ -47,9 +47,9 @@
 #include "../Common/AppUtil.h"
 #include "../Common/ThreadBinding.h"
 
-#define		BASECONSUMER_NAME "Consumer_"
-#define		CONSUMER_NAME_WSJSON "Consumer_WSJSON_"
-#define		CONSUMER_NAME_WSRWF "Consumer_WSRWF_"
+#define		BASECONSUMER_NAME "Perf_Consumer_"
+#define		CONSUMER_NAME_WSJSON "Perf_Consumer_WSJSON_"
+#define		CONSUMER_NAME_WSRWF "Perf_Consumer_WSRWF_"
 
 class EmaCppConsPerf;
 class ConsumerThread;

@@ -19,7 +19,7 @@ Detailed Description
 180__MarketPrice__Websocket implements the following high-level steps:
 
 + Instantiates and modifies an OmmIProviderConfig object:
-  - Sets the Provider Name to "Provider_1" to use websocket connection
+  - Sets the Provider Name to "Provider_2" to use websocket connection
 + Instantiates an OmmProvider object which:
   - listens on the port from the EmaConfig.xml file
   - specifies the websocket connection type and websocket sub protocols from the EmaConfig.xml file

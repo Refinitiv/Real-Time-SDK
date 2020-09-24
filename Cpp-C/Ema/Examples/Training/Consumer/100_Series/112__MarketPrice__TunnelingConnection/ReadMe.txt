@@ -30,7 +30,7 @@ including:
 + Instantiates an AppClient object to receive and process item messages
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the tunneling configurations
-  - Sets the consumer name to "Consumer_3"
+  - Sets the consumer name to "Consumer_4"
   - Loads configuration information for the specified consumer name
     from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 
