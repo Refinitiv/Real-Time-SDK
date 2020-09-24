@@ -1,3 +1,3 @@
 #file,location
-NiProvider.cpp,Examples/Training/NiProvider/100_Series/100__MarketPrice__Streaming
-NiProvider.h,Examples/Training/NiProvider/100_Series/100__MarketPrice__Streaming
+NiProvider.cpp,Examples/Training/NiProvider/100_Series/100_MP_Streaming
+NiProvider.h,Examples/Training/NiProvider/100_Series/100_MP_Streaming
