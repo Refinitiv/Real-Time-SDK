@@ -48,63 +48,63 @@ public class FieldListTests extends TestCase
 		super(name);
 	}
 
-	public void testFieldList_EncodeUPA_DecodeEMA_DecodeAll()
+	public void testFieldList_EncodeETA_DecodeEMA_DecodeAll()
 	{
-		TestUtilities.printTestHead("testFieldList_EncodeUPA_DecodeEMA_DecodeAll", "Encode FieldList with UPA and Decode FieldList with EMA");
+		TestUtilities.printTestHead("testFieldList_EncodeETA_DecodeEMA_DecodeAll", "Encode FieldList with ETA and Decode FieldList with EMA");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode FieldList with UPA.
+		// Encode FieldList with ETA.
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		// Decode FieldList with EMA.
 		com.rtsdk.ema.access.FieldList fl = JUnitTestConnect.createFieldList();
 		JUnitTestConnect.setRsslData(fl, buf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
-		TestUtilities.EmaDecode_UPAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
+		TestUtilities.EmaDecode_ETAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
 
-		System.out.println("\ntestFieldList_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestFieldList_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 	
 
-    public void testFieldList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA()
+    public void testFieldList_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA()
     {
-        TestUtilities.printTestHead("testFieldList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA", "Encode FieldList with UPA, Decode FieldList with EMA, Encode FieldList with EMA, Decode FieldList with UPA");
+        TestUtilities.printTestHead("testFieldList_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA", "Encode FieldList with ETA, Decode FieldList with EMA, Encode FieldList with EMA, Decode FieldList with ETA");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(1024));
 
         // load dictionary
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-        // Encode FieldList with UPA.
+        // Encode FieldList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -113,7 +113,7 @@ public class FieldListTests extends TestCase
         com.rtsdk.ema.access.FieldList fl = JUnitTestConnect.createFieldList();
         JUnitTestConnect.setRsslData(fl, buf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
-        TestUtilities.EmaDecode_UPAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
         
         // Copy decoded entries into a different FieldList with EMA
         com.rtsdk.ema.access.FieldList flCopy = EmaFactory.createFieldList();
@@ -134,26 +134,26 @@ public class FieldListTests extends TestCase
         // compare with original
         assertEquals(flDecCopy.size(), fl.size());
         
-        TestUtilities.EmaDecode_UPAFieldListAll(flDecCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(flDecCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
 
-        System.out.println("\ntestFieldList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeEMA passed");
+        System.out.println("\ntestFieldList_EncodeETA_DecodeEMA_EncodeEMA_DecodeEMA passed");
     }
     
-    public void testFieldList_EncodeUPAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
+    public void testFieldList_EncodeETAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
     {
-        TestUtilities.printTestHead("testFieldList_EncodeUPAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with UPA for primitive types, Encode it to another FieldList.");
+        TestUtilities.printTestHead("testFieldList_EncodeETAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with ETA for primitive types, Encode it to another FieldList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(15000));
 
-        // Encode FieldList with UPA.
+        // Encode FieldList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFieldListAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFieldListAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -162,7 +162,7 @@ public class FieldListTests extends TestCase
         com.rtsdk.ema.access.FieldList fl = JUnitTestConnect.createFieldList();
         JUnitTestConnect.setRsslData(fl, buf, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(fl, EncodingTypeFlags.PRIMITIVE_TYPES);
         
         // Copy decoded entries into a different FieldList with EMA     
         com.rtsdk.ema.access.FieldList flCopy = EmaFactory.createFieldList();
@@ -181,26 +181,26 @@ public class FieldListTests extends TestCase
         
         JUnitTestConnect.setRsslData(flDecCopy, flCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFieldListAll(flDecCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(flDecCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
 
-        System.out.println("\testFieldList_EncodeUPAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
+        System.out.println("\testFieldList_EncodeETAFLWithPrimitiveTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
     }
     
-    public void testFieldList_EncodeUPAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
+    public void testFieldList_EncodeETAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
     {
-        TestUtilities.printTestHead("testFieldList_EncodeUPAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with UPA for container types, Encode it to another FieldList.");
+        TestUtilities.printTestHead("testFieldList_EncodeETAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with ETA for container types, Encode it to another FieldList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(15000));
 
-        // Encode FieldList with UPA.
+        // Encode FieldList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFieldListAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFieldListAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -209,7 +209,7 @@ public class FieldListTests extends TestCase
         com.rtsdk.ema.access.FieldList fl = JUnitTestConnect.createFieldList();
         JUnitTestConnect.setRsslData(fl, buf, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFieldListAll(fl, EncodingTypeFlags.CONTAINER_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(fl, EncodingTypeFlags.CONTAINER_TYPES);
         
         // Copy decoded entries into a different FieldList with EMA     
         com.rtsdk.ema.access.FieldList flCopy = EmaFactory.createFieldList();
@@ -228,26 +228,26 @@ public class FieldListTests extends TestCase
         
         JUnitTestConnect.setRsslData(flDecCopy, flCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFieldListAll(flDecCopy, EncodingTypeFlags.CONTAINER_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(flDecCopy, EncodingTypeFlags.CONTAINER_TYPES);
 
-        System.out.println("\ntestFieldList_EncodeUPAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
+        System.out.println("\ntestFieldList_EncodeETAFLWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
     }
     
-    public void testFieldList_EncodeUPAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
+    public void testFieldList_EncodeETAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode() 
     {
-        TestUtilities.printTestHead("testFieldList_EncodeUPAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with UPA for message types, Encode it to another FieldList.");
+        TestUtilities.printTestHead("testFieldList_EncodeETAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode FieldList with ETA for message types, Encode it to another FieldList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(4096));
 
-        // Encode FieldList with UPA.
+        // Encode FieldList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFieldListAll for message types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFieldListAll for message types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -273,9 +273,9 @@ public class FieldListTests extends TestCase
         
         JUnitTestConnect.setRsslData(flDecCopy, flCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFieldListAll(flDecCopy, EncodingTypeFlags.MESSAGE_TYPES);
+        TestUtilities.EmaDecode_ETAFieldListAll(flDecCopy, EncodingTypeFlags.MESSAGE_TYPES);
 
-        System.out.println("\ntestFieldList_EncodeUPAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
+        System.out.println("\ntestFieldList_EncodeETAFLWithMsgTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
     }
     
 	public void testFieldList_EncodeEMA_EmptyEncode()
@@ -303,7 +303,7 @@ public class FieldListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		//EMA Encode FieldList
 		FieldList flEnc = EmaFactory.createFieldList();
@@ -1127,7 +1127,7 @@ public class FieldListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		FieldList flEnc = EmaFactory.createFieldList();
 		flEnc.info( dictionary.infoDictionaryId(), 65 );
@@ -1300,7 +1300,7 @@ public class FieldListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		FieldList flEnc= EmaFactory.createFieldList();;
 		flEnc.info( dictionary.infoDictionaryId(), 65 );
@@ -1474,7 +1474,7 @@ public class FieldListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 	FieldList flEnc = EmaFactory.createFieldList();
 	flEnc.info( dictionary.infoDictionaryId(), 65 );
@@ -1675,11 +1675,11 @@ public void testFieldList_DecodeErrorFieldList()
 		Buffer rsslBuf = CodecFactory.createBuffer();
 		rsslBuf.data(ByteBuffer.allocate(1000));
 
-		TestUtilities.upa_EncodeErrorFieldList( rsslBuf );
+		TestUtilities.eta_EncodeErrorFieldList( rsslBuf );
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		FieldList fl = JUnitTestConnect.createFieldList();
 		JUnitTestConnect.setRsslData(fl, rsslBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
@@ -1811,27 +1811,27 @@ public void testFieldList_DecodeErrorFieldList()
 
 		try { 
 	
-			// Create a UPA Buffer to encode into
+			// Create a ETA Buffer to encode into
 			com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 			buf.data(ByteBuffer.allocate(1024));
 	
 			// load dictionary
 			com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 					.createDataDictionary();
-			TestUtilities.upa_encodeDictionaryMsg(dictionary);
+			TestUtilities.eta_encodeDictionaryMsg(dictionary);
 	
-			// Encode FieldList with UPA.
+			// Encode FieldList with ETA.
 			int retVal;
-			System.out.println("Begin UPA FieldList Encoding");
-			if ((retVal = TestUtilities.upa_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+			System.out.println("Begin ETA FieldList Encoding");
+			if ((retVal = TestUtilities.eta_EncodeFieldListAll(buf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 			{
 				System.out.println("Error encoding field list.");
 				System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-						+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+						+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 						+ CodecReturnCodes.info(retVal));
 				return;
 			}
-			System.out.println("End UPA FieldList Encoding");
+			System.out.println("End ETA FieldList Encoding");
 			System.out.println();
 			
 			com.rtsdk.ema.access.FieldList fl = JUnitTestConnect.createFieldList();

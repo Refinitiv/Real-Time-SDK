@@ -109,7 +109,7 @@ public final class TestUtilities extends TestCase
 	
 	static
 	{
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 	}
 	
 	private TestUtilities()
@@ -129,7 +129,7 @@ public final class TestUtilities extends TestCase
 		System.out.println(_strBuilder.toString());
 	}
 
-	public static void upa_EncodeErrorFieldList( Buffer rsslBuf )
+	public static void eta_EncodeErrorFieldList( Buffer rsslBuf )
 	{
 		com.rtsdk.eta.codec.FieldList rsslFL= CodecFactory.createFieldList();
 		com.rtsdk.eta.codec.EncodeIterator iter = CodecFactory.createEncodeIterator();
@@ -183,7 +183,7 @@ public final class TestUtilities extends TestCase
 		rsslFL.encodeComplete(iter, true);
 	}
 
-	public static void upa_EncodeErrorElementList( Buffer rsslBuf )
+	public static void eta_EncodeErrorElementList( Buffer rsslBuf )
 	{
 		com.rtsdk.eta.codec.ElementList rsslFL= CodecFactory.createElementList();
 		com.rtsdk.eta.codec.EncodeIterator iter = CodecFactory.createEncodeIterator();
@@ -240,9 +240,9 @@ public final class TestUtilities extends TestCase
 		rsslFL.encodeComplete(iter, true);
 	}
 	
-	// Encode (with UPA) a basic field list with several primitives embedded in it
+	// Encode (with ETA) a basic field list with several primitives embedded in it
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeFieldListAll(com.rtsdk.eta.codec.Buffer upaBuf, int encodeOption)
+	public static int eta_EncodeFieldListAll(com.rtsdk.eta.codec.Buffer etaBuf, int encodeOption)
 	{
 		// used to store and check return values
 		int retVal;
@@ -255,16 +255,16 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
-		if ((retVal = upa_EncodeFieldListAll(encodeIter, encodeOption)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = eta_EncodeFieldListAll(encodeIter, encodeOption)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with upa_EncodeFieldListAll(encodeIter, dictionary). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with eta_EncodeFieldListAll(encodeIter, dictionary). "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -272,24 +272,24 @@ public final class TestUtilities extends TestCase
 		return CodecReturnCodes.SUCCESS;
 	}
 	
-	private static int upa_EncodeFieldListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeFlag)
+	private static int eta_EncodeFieldListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeFlag)
 	{
 		int retVal;
 		
 		// create and initialize field list structure
-		com.rtsdk.eta.codec.FieldList upaFieldList = CodecFactory.createFieldList();
+		com.rtsdk.eta.codec.FieldList etaFieldList = CodecFactory.createFieldList();
 
 		// populate field list structure prior to call to EncodeFieldListInit
 		// NOTE: some of the fieldId, dictionaryId and fieldListNum values used here do not correspond to actual id values
 
 		// indicate that standard data will be encoded and that dictionaryId and fieldListNum are included
-		upaFieldList.flags(FieldListFlags.HAS_STANDARD_DATA | FieldListFlags.HAS_FIELD_LIST_INFO);
+		etaFieldList.flags(FieldListFlags.HAS_STANDARD_DATA | FieldListFlags.HAS_FIELD_LIST_INFO);
 		// populate dictionaryId and fieldListNum with info needed to cross-reference fieldIds and cache
-		upaFieldList.dictionaryId(dictionary.infoDictionaryId()); 
-		upaFieldList.fieldListNum(65);
+		etaFieldList.dictionaryId(dictionary.infoDictionaryId()); 
+		etaFieldList.fieldListNum(65);
 
 		// begin encoding of field list - assumes that encodeIter is already populated with buffer and version information
-		if ((retVal = upaFieldList.encodeInit(encodeIter, null, 0)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaFieldList.encodeInit(encodeIter, null, 0)) < CodecReturnCodes.SUCCESS)
 		{
 			// print out message with return value string, value, and text
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldListInit.  "
@@ -304,7 +304,7 @@ public final class TestUtilities extends TestCase
 
 			boolean success = true;
 			
-			System.out.println("\tUPA FieldList Header Encoded");
+			System.out.println("\tETA FieldList Header Encoded");
 			
 		    if ( (encodeFlag & EncodingTypeFlags.PRIMITIVE_TYPES) != 0 )
 		    {
@@ -342,7 +342,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.UINT);
 				if ((retVal = fieldEntry.encode(encodeIter, uInt)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal));
 					return retVal;
 				}
@@ -353,7 +353,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.DATE);
 				if ((retVal = fieldEntry.encode(encodeIter, date)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -364,7 +364,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.UINT);
 				if ((retVal = fieldEntry.encode(encodeIter, uInt)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -377,9 +377,9 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.UINT);
 	
 				// assuming encUInt is a Buffer with length and data properly populated
-				if ((retVal = upa_getPreEncodedUIntBuffer(encUInt, uInt)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_getPreEncodedUIntBuffer(encUInt, uInt)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_getPreEncodedUIntBuffer.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_getPreEncodedUIntBuffer.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -388,7 +388,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.encodedData(encUInt);
 				if ((retVal = fieldEntry.encode(encodeIter)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 	
 					return retVal;
@@ -405,7 +405,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.REAL);
 				if ((retVal = fieldEntry.encodeBlank(encodeIter)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -417,7 +417,7 @@ public final class TestUtilities extends TestCase
 				real.value(227, RealHints.EXPONENT_2);
 				if ((retVal = fieldEntry.encode(encodeIter, real)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -429,7 +429,7 @@ public final class TestUtilities extends TestCase
 				real.value(22801, RealHints.EXPONENT_4);
 				if ((retVal = fieldEntry.encode(encodeIter, real)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -443,7 +443,7 @@ public final class TestUtilities extends TestCase
 				time.second(24);
 				if ((retVal = fieldEntry.encode(encodeIter, time)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -454,7 +454,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.INT);
 				if ((retVal = fieldEntry.encode(encodeIter, Int)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -465,7 +465,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.FLOAT);
 				if ((retVal = fieldEntry.encode(encodeIter, Float)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -476,7 +476,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.DOUBLE);
 				if ((retVal = fieldEntry.encode(encodeIter, Double)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -493,7 +493,7 @@ public final class TestUtilities extends TestCase
 				DATETIME.second(24);
 				if ((retVal = fieldEntry.encode(encodeIter, DATETIME)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -511,7 +511,7 @@ public final class TestUtilities extends TestCase
 				qos.timeInfo(0);
 				if ((retVal = fieldEntry.encode(encodeIter, qos)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -529,7 +529,7 @@ public final class TestUtilities extends TestCase
 				state.text().data("Succeeded");
 				if ((retVal = fieldEntry.encode(encodeIter, state)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -541,7 +541,7 @@ public final class TestUtilities extends TestCase
 				buffer.data("ABCDEFGH");
 				if ((retVal = fieldEntry.encode(encodeIter, buffer)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -553,7 +553,7 @@ public final class TestUtilities extends TestCase
 				enumValue.value(29);
 				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -572,7 +572,7 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntryInit.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntryInit.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
@@ -588,7 +588,7 @@ public final class TestUtilities extends TestCase
 						// error condition - switch our success value to false so we can roll back
 						success = false;
 						// print out message with return value string, value, and text
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
@@ -613,7 +613,7 @@ public final class TestUtilities extends TestCase
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 						System.out.print(uInt1.toLong());
@@ -623,7 +623,7 @@ public final class TestUtilities extends TestCase
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 						System.out.print(" " + uInt2.toLong());
@@ -633,7 +633,7 @@ public final class TestUtilities extends TestCase
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 						System.out.print(" " + uInt3.toLong());
@@ -643,7 +643,7 @@ public final class TestUtilities extends TestCase
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 						System.out.print(" " + uInt4.toLong());
@@ -655,7 +655,7 @@ public final class TestUtilities extends TestCase
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayEntry.  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 						System.out.println(" <Preencoded> ]");
@@ -671,7 +671,7 @@ public final class TestUtilities extends TestCase
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayComplete.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeArrayComplete.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				
@@ -679,7 +679,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntryComplete.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntryComplete.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -689,7 +689,7 @@ public final class TestUtilities extends TestCase
 				fieldEntry.dataType(com.rtsdk.eta.codec.DataTypes.ENUM);
 				if ((retVal = fieldEntry.encodeBlank(encodeIter)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -701,7 +701,7 @@ public final class TestUtilities extends TestCase
 				enumValue.value(2999);
 				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -713,7 +713,7 @@ public final class TestUtilities extends TestCase
 				enumValue.value(0);
 				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -725,7 +725,7 @@ public final class TestUtilities extends TestCase
 				enumValue.value(2);
 				if ((retVal = fieldEntry.encode(encodeIter, enumValue)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -743,16 +743,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -761,7 +761,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -774,16 +774,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -792,7 +792,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -805,16 +805,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -823,7 +823,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -836,16 +836,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -854,7 +854,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -867,16 +867,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -885,7 +885,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -898,16 +898,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -916,7 +916,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -932,16 +932,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -950,7 +950,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -963,16 +963,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeUpdateMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeUpdateMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -981,7 +981,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -994,16 +994,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeStatusMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeStatusMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -1012,7 +1012,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -1025,16 +1025,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeGenericMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeGenericMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -1043,7 +1043,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -1056,16 +1056,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodePostMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodePostMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -1074,7 +1074,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -1087,16 +1087,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeAckMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeAckMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -1105,7 +1105,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -1118,16 +1118,16 @@ public final class TestUtilities extends TestCase
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					// print out message with return value string, value, and text
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeInit().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 				else
 				{
-					if ( (retVal = upa_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+					if ( (retVal = eta_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRequestMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRequestMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -1136,7 +1136,7 @@ public final class TestUtilities extends TestCase
 				// If any array encoding failed, success is false.
 				if ((retVal = fieldEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 				{
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldEntry.encodeComplete().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					return retVal;
 				}
@@ -1146,21 +1146,21 @@ public final class TestUtilities extends TestCase
 		// Complete fieldList encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeFieldListInit.
-		if ((retVal = upaFieldList.encodeComplete(encodeIter, true)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaFieldList.encodeComplete(encodeIter, true)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldList.encodeCompelte().  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FieldList.encodeCompelte().  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
-		System.out.println("\tUPA FieldList Encoding Complete");
+		System.out.println("\tETA FieldList Encoding Complete");
 		
 		return CodecReturnCodes.SUCCESS;
 	}
 	
-	// Encode (with UPA) a basic array with several primitives embedded in it
+	// Encode (with ETA) a basic array with several primitives embedded in it
     // We pass in the buffer to this method with the total length available.
-    public static int upa_EncodeArrayAll(com.rtsdk.eta.codec.Buffer upaBuf)
+    public static int eta_EncodeArrayAll(com.rtsdk.eta.codec.Buffer etaBuf)
     {
         // used to store and check return values
         int retVal;
@@ -1173,16 +1173,16 @@ public final class TestUtilities extends TestCase
         encodeIter.clear();
     
         // Associate buffer and iterator and set proper protocol version information on iterator.
-        if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
                             + " Error Text: " + CodecReturnCodes.info(retVal)); 
             return retVal;
         }
 
-        if ((retVal = upa_EncodeArrayAll(encodeIter)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = eta_EncodeArrayAll(encodeIter)) < CodecReturnCodes.SUCCESS)
         {
-            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with upa_EncodeFieldListAll(encodeIter, dictionary). "
+            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with eta_EncodeFieldListAll(encodeIter, dictionary). "
                             + " Error Text: " + CodecReturnCodes.info(retVal)); 
             return retVal;
         }
@@ -1190,7 +1190,7 @@ public final class TestUtilities extends TestCase
         return CodecReturnCodes.SUCCESS;
     }
 	
-	private static int upa_EncodeArrayAll(EncodeIterator encodeIter)
+	private static int eta_EncodeArrayAll(EncodeIterator encodeIter)
     {
         int retVal;
         boolean success = true;
@@ -1276,9 +1276,9 @@ public final class TestUtilities extends TestCase
         return 0;
     }
 
-    // Encode (with UPA) a basic element list with several primitives embedded in it
+    // Encode (with ETA) a basic element list with several primitives embedded in it
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeElementListAll(com.rtsdk.eta.codec.Buffer upaBuf, int encodingFlag)
+	public static int eta_EncodeElementListAll(com.rtsdk.eta.codec.Buffer etaBuf, int encodingFlag)
 	{
         // used to store and check return values
         int retVal;
@@ -1291,16 +1291,16 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-		if ((retVal = upa_EncodeElementListAll(encodeIter, encodingFlag)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = eta_EncodeElementListAll(encodeIter, encodingFlag)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with upa_EncodeElementListAll(encodeIter). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with eta_EncodeElementListAll(encodeIter). "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -1308,7 +1308,7 @@ public final class TestUtilities extends TestCase
         return CodecReturnCodes.SUCCESS;
 	}
 
-	public static int upa_EncodeElementListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeFlag)
+	public static int eta_EncodeElementListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeFlag)
 	{
 		int retVal;
 		boolean success = true;
@@ -1317,18 +1317,18 @@ public final class TestUtilities extends TestCase
 		com.rtsdk.eta.codec.ElementEntry elemEntry = CodecFactory.createElementEntry();
 		
 		// create and initialize element list structure
-		com.rtsdk.eta.codec.ElementList upaElementList = CodecFactory.createElementList();
+		com.rtsdk.eta.codec.ElementList etaElementList = CodecFactory.createElementList();
 		
 		// populate element list structure prior to call to EncodeElementListInit
 
 		// indicate that standard data will be encoded and that elementListNum is included
-		upaElementList.flags(ElementListFlags.HAS_STANDARD_DATA | ElementListFlags.HAS_ELEMENT_LIST_INFO);
+		etaElementList.flags(ElementListFlags.HAS_STANDARD_DATA | ElementListFlags.HAS_ELEMENT_LIST_INFO);
 		
 		// populate elementListNum with info needed to cache
-		upaElementList.elementListNum(7);
+		etaElementList.elementListNum(7);
 		
 		// begin encoding of element list - assumes that encodeIter is already populated with buffer and version information
-		if ((retVal = upaElementList.encodeInit(encodeIter, null, 0)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaElementList.encodeInit(encodeIter, null, 0)) < CodecReturnCodes.SUCCESS)
 		{
 			// print out message with return value string, value, and text
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeElementListInit.  "
@@ -1417,16 +1417,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1435,7 +1435,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1448,16 +1448,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1466,7 +1466,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1479,16 +1479,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1497,7 +1497,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1510,16 +1510,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1528,7 +1528,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1541,16 +1541,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1559,7 +1559,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1572,16 +1572,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1590,7 +1590,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1606,16 +1606,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1624,7 +1624,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1637,16 +1637,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeUpdateMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeUpdateMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1655,7 +1655,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1668,16 +1668,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeStatusMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeStatusMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1686,7 +1686,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1699,16 +1699,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeGenericMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeGenericMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1717,7 +1717,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1730,16 +1730,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodePostMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodePostMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1748,7 +1748,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1761,16 +1761,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeAckMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeAckMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1779,7 +1779,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1792,16 +1792,16 @@ public final class TestUtilities extends TestCase
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeInit().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
 			{
-				if ( (retVal = upa_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRequestMsgAll().  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRequestMsgAll().  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			}
@@ -1810,7 +1810,7 @@ public final class TestUtilities extends TestCase
 			// If any array encoding failed, success is false.
 			if ((retVal = elemEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with ElementEntry.encodeComplete().  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
@@ -1819,22 +1819,22 @@ public final class TestUtilities extends TestCase
 		// Complete elementList encoding.
 		// If success parameter is true, this will finalize encoding.
 		// If success parameter is false, this will roll back encoding prior to EncodeElementListInit.
-		if ((retVal = upaElementList.encodeComplete(encodeIter, true)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaElementList.encodeComplete(encodeIter, true)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeElementListComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeElementListComplete.  "
 				+ "Error Text: " + CodecReturnCodes.info(retVal));
 			return retVal;
 		}
 		
-		System.out.println("\tUPA ElementList Encoding Complete");
+		System.out.println("\tETA ElementList Encoding Complete");
 		
 		return CodecReturnCodes.SUCCESS;
 	}
 
 
-	// Encode (with UPA) a map (key is UInt) with field lists
+	// Encode (with ETA) a map (key is UInt) with field lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyUIntAll(com.rtsdk.eta.codec.Buffer upaBuf, int containerType)
+	public static int eta_EncodeMapKeyUIntAll(com.rtsdk.eta.codec.Buffer etaBuf, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -1847,18 +1847,18 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		// It is assumed that upaBuf.data() points to sufficient memory and upaBuf.length()
-		// indicates number of bytes available in upaBuf.data().
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		// It is assumed that etaBuf.data() points to sufficient memory and etaBuf.length()
+		// indicates number of bytes available in etaBuf.data().
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-		if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, containerType)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, containerType)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with upa_EncodeFieldListAll(encodeIter, dictionary). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with eta_EncodeFieldListAll(encodeIter, dictionary). "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -1866,36 +1866,36 @@ public final class TestUtilities extends TestCase
 		return CodecReturnCodes.SUCCESS;
 	}
 		
-	public static int upa_EncodeMapKeyUIntAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeMapKeyUIntAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success = true;
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(containerType);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.UINT);
+		etaMap.containerType(containerType);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.UINT);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -1923,12 +1923,12 @@ public final class TestUtilities extends TestCase
 					{
 						System.out.println("\tEncoding Summary Data");
 
-						if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding field list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -1936,11 +1936,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -1952,7 +1952,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
@@ -1961,12 +1961,12 @@ public final class TestUtilities extends TestCase
 						
 						// Now encode nested container using its own specific encode methods.
 						// Clear, then begin encoding of field list - using same encIterator as map.
-						if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding field list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -1975,7 +1975,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -1990,20 +1990,20 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Map Entry (key: 2) from pre-encoded buffer");
 	
 					// assuming encUInt Buffer contains the pre-encoded key with length and data properly populated
-					if ((retVal = upa_getPreEncodedUIntBuffer(encUInt, entryKey)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_getPreEncodedUIntBuffer(encUInt, entryKey)) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 	
 					// assuming encFieldList Buffer contains the pre-encoded payload with data and length populated
-					if ((retVal = upa_getPreEncodedFieldListBuffer(encFieldList)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_getPreEncodedFieldListBuffer(encFieldList)) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedFieldListBuffer.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedFieldListBuffer.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 	
@@ -2016,7 +2016,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2028,12 +2028,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding element list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2041,11 +2041,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2057,19 +2057,19 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
 						
-						if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding element list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2078,7 +2078,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2092,19 +2092,19 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
 						
-						if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding element list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2113,7 +2113,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2126,12 +2126,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding filter list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2139,11 +2139,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2155,18 +2155,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding filter list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2175,7 +2175,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2189,18 +2189,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding filter list.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2209,7 +2209,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2221,12 +2221,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding series.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2234,11 +2234,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2250,18 +2250,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding series.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2270,7 +2270,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2284,18 +2284,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding series.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2304,7 +2304,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2316,12 +2316,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding vector.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2329,11 +2329,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2345,18 +2345,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding vector.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeVectorAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeVectorAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2365,7 +2365,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2379,18 +2379,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding vector.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeVectorAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeVectorAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2399,7 +2399,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2411,12 +2411,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding map.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2424,11 +2424,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2440,18 +2440,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding map.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2460,7 +2460,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2474,18 +2474,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding map.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2494,7 +2494,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2506,12 +2506,12 @@ public final class TestUtilities extends TestCase
 				{
 					{
 						System.out.println("\tEncoding Summary Data");
-						if ((retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding msg.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 
@@ -2519,11 +2519,11 @@ public final class TestUtilities extends TestCase
 						System.out.println();
 					}
 					// complete encoding of summary data.  If any field list encoding failed, success is false.
-					if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2535,18 +2535,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding map.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2555,7 +2555,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -2569,18 +2569,18 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back.
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					else
 					{
 						System.out.println("\tEncoding Map Entry (key: " + entryKey.toLong() + ")");
-						if ((retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+						if ((retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 						{
 							// error condition - switch our success value to false so we can roll back
 							success = false;
 							System.out.println("Error encoding map.");
-							System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+							System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 									+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 						}
 					}
@@ -2589,7 +2589,7 @@ public final class TestUtilities extends TestCase
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 				}
@@ -2612,7 +2612,7 @@ public final class TestUtilities extends TestCase
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 	
@@ -2623,21 +2623,21 @@ public final class TestUtilities extends TestCase
 			// Complete map encoding.
 			// If success parameter is true, this will finalize encoding.  
 			// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-			if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+			if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
 			
-	        System.out.println("\tUPA Map Encoding Complete");
+	        System.out.println("\tETA Map Encoding Complete");
 	        
 	        return CodecReturnCodes.SUCCESS;
 		}
 	
-		// Encode (with UPA) a map (key is Int) with field lists
+		// Encode (with ETA) a map (key is Int) with field lists
 		// We pass in the buffer to this method with the total length available.
-		public static int upa_EncodeMapKeyIntWithEmptyFLs(com.rtsdk.eta.codec.Buffer upaBuf)
+		public static int eta_EncodeMapKeyIntWithEmptyFLs(com.rtsdk.eta.codec.Buffer etaBuf)
 		{
 			// use this to store and check return codes
 			int retVal;
@@ -2651,39 +2651,39 @@ public final class TestUtilities extends TestCase
 			encodeIter.clear();
 		
 			// Associate buffer and iterator and set proper protocol version information on iterator.
-			// It is assumed that upaBuf.data() points to sufficient memory and upaBuf.length()
-			// indicates number of bytes available in upaBuf.data().
-			if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+			// It is assumed that etaBuf.data() points to sufficient memory and etaBuf.length()
+			// indicates number of bytes available in etaBuf.data().
+			if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 								+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
 
 			//  create and initialize map structure
-			com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+			com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 			// populate map structure prior to call to EncodeMapInit
 			// NOTE: the key names used may not correspond to actual name values
 
 			// indicate that summary data, a key field id, and a total count hint will be encoded
-			upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+			etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 			// populate maps keyPrimitiveType and containerType
-			upaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-			upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
+			etaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
 			// populate total count hint with approximate expected entry count
-			upaMap.totalCountHint(1);
-			upaMap.keyFieldId(3426);
+			etaMap.totalCountHint(1);
+			etaMap.keyFieldId(3426);
 
 			// Begin encoding of map - assumes that encodeIter is already populated with
 			// buffer and version information, store return value to determine success or failure.
 			// Expect summary data of approx. 256 bytes, no set definition data.
-			if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+			if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
 				// print out message with return value string, value, and text
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -2712,12 +2712,12 @@ public final class TestUtilities extends TestCase
 
 					// Now encode nested container using its own specific encode methods.
 					// Begin encoding of field list - using same encIterator as map list.
-					if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
 						System.out.println("Error encoding field list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -2725,11 +2725,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 				}
 				// complete encoding of summary data.  If any field list encoding failed, success is false.
-				if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+				if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -2741,7 +2741,7 @@ public final class TestUtilities extends TestCase
 				{
 					// error condition - switch our success value to false so we can roll back.
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -2749,7 +2749,7 @@ public final class TestUtilities extends TestCase
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -2759,23 +2759,23 @@ public final class TestUtilities extends TestCase
 			// Complete map encoding.
 			// If success parameter is true, this will finalize encoding.  
 			// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-			if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+			if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 			{
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				return retVal;
 			}
 			
-	        System.out.println("\tUPA Map Encoding Complete");
+	        System.out.println("\tETA Map Encoding Complete");
 			}
 	        
 	        return CodecReturnCodes.SUCCESS;
 		}
 
 
-	// Encode (with UPA) a map (key is Int) with field lists
+	// Encode (with ETA) a map (key is Int) with field lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyIntWithFLs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyIntWithFLs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -2789,39 +2789,39 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		// It is assumed that upaBuf.data() points to sufficient memory and upaBuf.length()
-		// indicates number of bytes available in upaBuf.data().
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		// It is assumed that etaBuf.data() points to sufficient memory and etaBuf.length()
+		// indicates number of bytes available in etaBuf.data().
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -2850,12 +2850,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of field list - using same encIterator as map list.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -2863,11 +2863,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any field list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -2879,7 +2879,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -2889,12 +2889,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -2903,7 +2903,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -2918,7 +2918,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -2928,12 +2928,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -2942,7 +2942,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -2964,7 +2964,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -2975,21 +2975,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is AsciiString) with field lists
+	// Encode (with ETA) a map (key is AsciiString) with field lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyAsciiStringWithFLs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyAsciiStringWithFLs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3003,39 +3003,39 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		// It is assumed that upaBuf.data() points to sufficient memory and upaBuf.length()
-		// indicates number of bytes available in upaBuf.data().
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		// It is assumed that etaBuf.data() points to sufficient memory and etaBuf.length()
+		// indicates number of bytes available in etaBuf.data().
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.ASCII_STRING);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.ASCII_STRING);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -3064,12 +3064,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of field list - using same encIterator as map list.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -3077,11 +3077,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any field list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3093,7 +3093,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3103,12 +3103,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3117,7 +3117,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3132,7 +3132,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3142,12 +3142,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3156,7 +3156,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3178,7 +3178,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3189,21 +3189,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is Buffer) with field lists
+	// Encode (with ETA) a map (key is Buffer) with field lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyBufferWithFLs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyBufferWithFLs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3217,39 +3217,39 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		// It is assumed that upaBuf.data() points to sufficient memory and upaBuf.length()
-		// indicates number of bytes available in upaBuf.data().
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		// It is assumed that etaBuf.data() points to sufficient memory and etaBuf.length()
+		// indicates number of bytes available in etaBuf.data().
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.BUFFER);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.BUFFER);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -3278,12 +3278,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of field list - using same encIterator as map list.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -3291,11 +3291,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any field list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3307,7 +3307,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3317,12 +3317,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3331,7 +3331,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3346,7 +3346,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3356,12 +3356,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of field list - using same encIterator as map.
-				if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeFieldListAll(encodeIter, dictionary).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeFieldListAll(encodeIter, dictionary).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3370,7 +3370,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3392,7 +3392,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3403,21 +3403,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is UInt) with element lists
+	// Encode (with ETA) a map (key is UInt) with element lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyUIntWithELs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyUIntWithELs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3431,37 +3431,37 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.UINT);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.UINT);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -3490,12 +3490,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of element list - using same encIterator as map list.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -3503,11 +3503,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any element list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3519,7 +3519,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3529,12 +3529,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3543,7 +3543,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3559,20 +3559,20 @@ public final class TestUtilities extends TestCase
 			System.out.println("\tEncoding Map Entry (key: 2) from pre-encoded buffer");
 
 			// assuming encUInt Buffer contains the pre-encoded key with length and data properly populated
-			if ((retVal = upa_getPreEncodedUIntBuffer(encUInt, entryKeyUInt)) < CodecReturnCodes.SUCCESS)
+			if ((retVal = eta_getPreEncodedUIntBuffer(encUInt, entryKeyUInt)) < CodecReturnCodes.SUCCESS)
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
 			// assuming encElementList Buffer contains the pre-encoded payload with data and length populated
-			if ((retVal = upa_getPreEncodedElementListBuffer(encElementList)) < CodecReturnCodes.SUCCESS)
+			if ((retVal = eta_getPreEncodedElementListBuffer(encElementList)) < CodecReturnCodes.SUCCESS)
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_getPreEncodedElementListBuffer.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_getPreEncodedElementListBuffer.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3585,7 +3585,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3607,7 +3607,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3618,21 +3618,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is Int) with element lists
+	// Encode (with ETA) a map (key is Int) with element lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyIntWithELs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyIntWithELs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3646,37 +3646,37 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.INT);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -3705,12 +3705,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of element list - using same encIterator as map list.
-				if ((retVal = upa_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -3718,11 +3718,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any element list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3734,7 +3734,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3744,12 +3744,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter,EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3758,7 +3758,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3774,20 +3774,20 @@ public final class TestUtilities extends TestCase
 			System.out.println("\tEncoding Map Entry (key: 2) from pre-encoded buffer");
 
 			// assuming encInt Buffer contains the pre-encoded key with length and data properly populated
-			if ((retVal = upa_getPreEncodedIntBuffer(encInt, entryKeyInt)) < CodecReturnCodes.SUCCESS)
+			if ((retVal = eta_getPreEncodedIntBuffer(encInt, entryKeyInt)) < CodecReturnCodes.SUCCESS)
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with getPreEncodedUIntBuffer.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
 			// assuming encElementList Buffer contains the pre-encoded payload with data and length populated
-			if ((retVal = upa_getPreEncodedElementListBuffer(encElementList)) < CodecReturnCodes.SUCCESS)
+			if ((retVal = eta_getPreEncodedElementListBuffer(encElementList)) < CodecReturnCodes.SUCCESS)
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_getPreEncodedElementListBuffer.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_getPreEncodedElementListBuffer.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3800,7 +3800,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3822,7 +3822,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3833,21 +3833,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is Buffer) with element lists
+	// Encode (with ETA) a map (key is Buffer) with element lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyBufferWithELs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyBufferWithELs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -3861,37 +3861,37 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.BUFFER);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.BUFFER);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -3920,12 +3920,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of element list - using same encIterator as map list.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -3933,11 +3933,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any element list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3949,7 +3949,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3959,12 +3959,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -3973,7 +3973,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -3988,7 +3988,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -3998,12 +3998,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter)).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter)).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -4012,7 +4012,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4034,7 +4034,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4045,21 +4045,21 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 
-	// Encode (with UPA) a map (key is AsciiString) with element lists
+	// Encode (with ETA) a map (key is AsciiString) with element lists
 	// We pass in the buffer to this method with the total length available.
-	public static int upa_EncodeMapKeyAsciiStringWithELs(com.rtsdk.eta.codec.Buffer upaBuf)
+	public static int eta_EncodeMapKeyAsciiStringWithELs(com.rtsdk.eta.codec.Buffer etaBuf)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -4073,37 +4073,37 @@ public final class TestUtilities extends TestCase
 		encodeIter.clear();
 	
 		// Associate buffer and iterator and set proper protocol version information on iterator.
-		if ((retVal = encodeIter.setBufferAndRWFVersion(upaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = encodeIter.setBufferAndRWFVersion(etaBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
 							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 
 		//  create and initialize map structure
-		com.rtsdk.eta.codec.Map upaMap = CodecFactory.createMap();
+		com.rtsdk.eta.codec.Map etaMap = CodecFactory.createMap();
 
 		// populate map structure prior to call to EncodeMapInit
 		// NOTE: the key names used may not correspond to actual name values
 
 		// indicate that summary data, a key field id, and a total count hint will be encoded
-		upaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
+		etaMap.flags(MapFlags.HAS_SUMMARY_DATA | MapFlags.HAS_KEY_FIELD_ID | MapFlags.HAS_TOTAL_COUNT_HINT);
 		// populate maps keyPrimitiveType and containerType
-		upaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-		upaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.ASCII_STRING);
+		etaMap.containerType(com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+		etaMap.keyPrimitiveType(com.rtsdk.eta.codec.DataTypes.ASCII_STRING);
 		// populate total count hint with approximate expected entry count
-		upaMap.totalCountHint(3);
-		upaMap.keyFieldId(3426);
+		etaMap.totalCountHint(3);
+		etaMap.keyFieldId(3426);
 
 		// Begin encoding of map - assumes that encodeIter is already populated with
 		// buffer and version information, store return value to determine success or failure.
 		// Expect summary data of approx. 256 bytes, no set definition data.
-		if ((retVal = upaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaMap.encodeInit(encodeIter, 256, 0 )) < CodecReturnCodes.SUCCESS)
 		{
 			// error condition - switch our success value to false so we can roll back
 			success = false;
 			// print out message with return value string, value, and text
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapInit.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 		}
 		else
@@ -4132,12 +4132,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Begin encoding of element list - using same encIterator as map list.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 
@@ -4145,11 +4145,11 @@ public final class TestUtilities extends TestCase
 				System.out.println();
 			}
 			// complete encoding of summary data.  If any element list encoding failed, success is false.
-			if ((retVal = upaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+			if ((retVal = etaMap.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapSummaryDataComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4161,7 +4161,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -4171,12 +4171,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding element list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -4185,7 +4185,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4200,7 +4200,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back.
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryInit.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 			else
@@ -4210,12 +4210,12 @@ public final class TestUtilities extends TestCase
 
 				// Now encode nested container using its own specific encode methods.
 				// Clear, then begin encoding of element list - using same encIterator as map.
-				if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+				if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 				{
 					// error condition - switch our success value to false so we can roll back
 					success = false;
 					System.out.println("Error encoding field list.");
-					System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with upa_EncodeElementListAll(encodeIter)).  "
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + " (" + retVal + ") encountered with eta_EncodeElementListAll(encodeIter)).  "
 							+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 				}
 			
@@ -4224,7 +4224,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntryComplete.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4246,7 +4246,7 @@ public final class TestUtilities extends TestCase
 			{
 				// error condition - switch our success value to false so we can roll back
 				success = false;
-				System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
+				System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapEntry.  "
 						+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			}
 
@@ -4257,19 +4257,19 @@ public final class TestUtilities extends TestCase
 		// Complete map encoding.
 		// If success parameter is true, this will finalize encoding.  
 		// If success parameter is false, this will roll back encoding prior to EncodeMapInit.
-		if ((retVal = upaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
+		if ((retVal = etaMap.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS) 
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeMapComplete.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
 		
-        System.out.println("\tUPA Map Encoding Complete");
+        System.out.println("\tETA Map Encoding Complete");
         
         return CodecReturnCodes.SUCCESS;
 	}
 	
-	public static int upa_EncodeRequestMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeRequestMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal = 0;
@@ -4277,7 +4277,7 @@ public final class TestUtilities extends TestCase
 		
 		System.out.println();
 		
-		System.out.println("Begin UPA RequestMsg Set");
+		System.out.println("Begin ETA RequestMsg Set");
 		com.rtsdk.eta.codec.RequestMsg requestMsg = (com.rtsdk.eta.codec.RequestMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		requestMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REQUEST);
 		
@@ -4337,11 +4337,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4350,16 +4350,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4368,16 +4368,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4386,11 +4386,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4399,16 +4399,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4417,16 +4417,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4435,11 +4435,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4448,16 +4448,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4466,16 +4466,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4484,11 +4484,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4497,16 +4497,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4515,16 +4515,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4533,11 +4533,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4546,16 +4546,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4564,16 +4564,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4582,11 +4582,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4595,16 +4595,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4613,16 +4613,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4631,11 +4631,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4644,16 +4644,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4662,16 +4662,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4690,13 +4690,13 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA RequestMsg Set");
+		System.out.println("End ETA RequestMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeRefreshMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeRefreshMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
@@ -4704,7 +4704,7 @@ public final class TestUtilities extends TestCase
 		
 		System.out.println();
 		
-		 System.out.println("Begin UPA RefreshMsg Set");
+		 System.out.println("Begin ETA RefreshMsg Set");
 		com.rtsdk.eta.codec.RefreshMsg refreshMsg = (com.rtsdk.eta.codec.RefreshMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		refreshMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REFRESH);
 		
@@ -4779,11 +4779,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4792,16 +4792,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4810,16 +4810,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4828,11 +4828,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4841,16 +4841,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4859,16 +4859,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4877,11 +4877,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4890,16 +4890,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4908,16 +4908,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4926,11 +4926,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4939,16 +4939,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4957,16 +4957,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4975,11 +4975,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -4988,16 +4988,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5006,16 +5006,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5024,11 +5024,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5037,16 +5037,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5055,16 +5055,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5073,11 +5073,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5086,16 +5086,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5104,16 +5104,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5132,22 +5132,22 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA RefreshMsg Set");
+		System.out.println("End ETA RefreshMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeUpdateMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeUpdateMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success;
 		
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		System.out.println();
 		
-		System.out.println("Begin UPA UpdateMsg Set");
+		System.out.println("Begin ETA UpdateMsg Set");
 		com.rtsdk.eta.codec.UpdateMsg updateMsg = (com.rtsdk.eta.codec.UpdateMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		updateMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.UPDATE);
 		
@@ -5212,11 +5212,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5225,16 +5225,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5243,16 +5243,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5261,11 +5261,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5274,16 +5274,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5292,16 +5292,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5310,11 +5310,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5323,16 +5323,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5341,16 +5341,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5359,11 +5359,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5372,16 +5372,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5390,16 +5390,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5408,11 +5408,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5421,16 +5421,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5439,16 +5439,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5457,11 +5457,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5470,16 +5470,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5488,16 +5488,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5506,11 +5506,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5519,16 +5519,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5537,16 +5537,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5565,19 +5565,19 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA UpdateMsg Set");
+		System.out.println("End ETA UpdateMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeGenericMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeGenericMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success;
 		
-		System.out.println("Begin UPA GenericMsg Set");
+		System.out.println("Begin ETA GenericMsg Set");
 		com.rtsdk.eta.codec.GenericMsg genericMsg = (com.rtsdk.eta.codec.GenericMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		genericMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.GENERIC);
 		
@@ -5640,11 +5640,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5653,16 +5653,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5671,16 +5671,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5689,11 +5689,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5702,16 +5702,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5720,16 +5720,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5738,11 +5738,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5751,16 +5751,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5769,16 +5769,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5787,11 +5787,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5800,16 +5800,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5818,16 +5818,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5836,11 +5836,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5849,16 +5849,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5867,16 +5867,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5885,11 +5885,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5898,16 +5898,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5916,16 +5916,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5934,11 +5934,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5947,16 +5947,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5965,16 +5965,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -5993,27 +5993,27 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA GenericMsg Set");
+		System.out.println("End ETA GenericMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodePostMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodePostMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success;
 		
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer fieldListBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         fieldListBuf.data(ByteBuffer.allocate(4048));
 
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return retVal;
 		}
@@ -6022,7 +6022,7 @@ public final class TestUtilities extends TestCase
 		
 		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
 		
-		System.out.println("Begin UPA PostMsg Set");
+		System.out.println("Begin ETA PostMsg Set");
 		com.rtsdk.eta.codec.PostMsg postMsg = (com.rtsdk.eta.codec.PostMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		postMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.POST);
 		
@@ -6089,11 +6089,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6102,16 +6102,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6120,16 +6120,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6138,11 +6138,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6151,16 +6151,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6169,16 +6169,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6187,11 +6187,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6200,16 +6200,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6218,16 +6218,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6236,11 +6236,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6249,16 +6249,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6267,16 +6267,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6285,11 +6285,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6298,16 +6298,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6316,16 +6316,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6334,11 +6334,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6347,16 +6347,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6365,16 +6365,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6383,11 +6383,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6396,16 +6396,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6414,16 +6414,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6442,19 +6442,19 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA PostMsg Set");
+		System.out.println("End ETA PostMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeAckMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeAckMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success;
 		
-		System.out.println("Begin UPA AckMsg Set");
+		System.out.println("Begin ETA AckMsg Set");
 		com.rtsdk.eta.codec.AckMsg ackMsg = (com.rtsdk.eta.codec.AckMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		ackMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.ACK);
 		
@@ -6515,11 +6515,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6528,16 +6528,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6546,16 +6546,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6564,11 +6564,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6577,16 +6577,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6595,16 +6595,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6613,11 +6613,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6626,16 +6626,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6644,16 +6644,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6662,11 +6662,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6675,16 +6675,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6693,16 +6693,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6711,11 +6711,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6724,16 +6724,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6742,16 +6742,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6760,11 +6760,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6773,16 +6773,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6791,16 +6791,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6809,11 +6809,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6822,16 +6822,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6840,16 +6840,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6868,19 +6868,19 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA AckMsg Set");
+		System.out.println("End ETA AckMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeStatusMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
+	public static int eta_EncodeStatusMsgAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType)
 	{
 		// use this to store and check return codes
 		int retVal;
 		boolean success;
 		
-		System.out.println("Begin UPA StatusMsg Set");
+		System.out.println("Begin ETA StatusMsg Set");
 		com.rtsdk.eta.codec.StatusMsg statusMsg = (com.rtsdk.eta.codec.StatusMsg) com.rtsdk.eta.codec.CodecFactory
 				.createMsg();
 		statusMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.STATUS);
@@ -6944,11 +6944,11 @@ public final class TestUtilities extends TestCase
 		{
 		case com.rtsdk.eta.codec.DataTypes.FIELD_LIST:
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6957,16 +6957,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6975,16 +6975,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -6993,11 +6993,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7006,16 +7006,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7024,16 +7024,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7042,11 +7042,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7055,16 +7055,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7073,16 +7073,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7091,11 +7091,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7104,16 +7104,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7122,16 +7122,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7140,11 +7140,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7153,16 +7153,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7171,16 +7171,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7189,11 +7189,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7202,16 +7202,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7220,16 +7220,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7238,11 +7238,11 @@ public final class TestUtilities extends TestCase
 			
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7251,16 +7251,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeKeyAttribComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7269,16 +7269,16 @@ public final class TestUtilities extends TestCase
 			{
 				 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with encodeExtendedHeaderComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
 			}
 			
-			if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+			if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
             {
                 // error condition - switch our success value to false so we can roll back
                 success = false;
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7297,13 +7297,13 @@ public final class TestUtilities extends TestCase
 			return retVal;
 		}
 		
-		System.out.println("End UPA StatusMsg Set");
+		System.out.println("End ETA StatusMsg Set");
 		System.out.println();
 		
 		return retVal;
 	}
 	
-	public static int upa_EncodeFilterListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeOption)
+	public static int eta_EncodeFilterListAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int encodeOption)
 	{
 		int retVal;
 		boolean success;
@@ -7312,10 +7312,10 @@ public final class TestUtilities extends TestCase
 			return CodecReturnCodes.INVALID_ARGUMENT;
 		
 		// create and initialize filter list structure
-		com.rtsdk.eta.codec.FilterList upaFilterList = CodecFactory.createFilterList();
+		com.rtsdk.eta.codec.FilterList etaFilterList = CodecFactory.createFilterList();
 		
-		upaFilterList.applyHasTotalCountHint();
-		upaFilterList.applyHasPerEntryPermData();
+		etaFilterList.applyHasTotalCountHint();
+		etaFilterList.applyHasPerEntryPermData();
 		
 		com.rtsdk.eta.codec.FilterEntry filterEntry = CodecFactory.createFilterEntry();
 		
@@ -7330,10 +7330,10 @@ public final class TestUtilities extends TestCase
 		
 		if ( totalCountHint != 0 )
 		{
-			upaFilterList.totalCountHint(totalCountHint);
+			etaFilterList.totalCountHint(totalCountHint);
 			
 			// begin encoding of filter list - assumes that encodeIter is already populated with buffer and version information
-	        if ((retVal = upaFilterList.encodeInit(encodeIter) ) < CodecReturnCodes.SUCCESS)
+	        if ((retVal = etaFilterList.encodeInit(encodeIter) ) < CodecReturnCodes.SUCCESS)
 	        {
 	            // print out message with return value string, value, and text
 	            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterList.encodeInit().  "
@@ -7361,16 +7361,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7378,7 +7378,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7399,16 +7399,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7416,7 +7416,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7437,16 +7437,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7454,7 +7454,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7475,16 +7475,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7492,7 +7492,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7513,16 +7513,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7530,7 +7530,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7551,16 +7551,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
-                if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
+                if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
             }
@@ -7568,7 +7568,7 @@ public final class TestUtilities extends TestCase
             // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7593,16 +7593,16 @@ public final class TestUtilities extends TestCase
                 // error condition - switch our success value to false so we can roll back
                 success = false;
                 // print out message with return value string, value, and text
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
             }
             else
             {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7611,7 +7611,7 @@ public final class TestUtilities extends TestCase
 	        // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7631,16 +7631,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeUpdateMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeUpdateMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeUpdateMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7649,7 +7649,7 @@ public final class TestUtilities extends TestCase
 	        // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7669,16 +7669,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeStatusMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeStatusMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7687,7 +7687,7 @@ public final class TestUtilities extends TestCase
 	        // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7707,16 +7707,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeGenericMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeGenericMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7725,7 +7725,7 @@ public final class TestUtilities extends TestCase
 	        // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7745,16 +7745,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodePostMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodePostMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodePostMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7763,7 +7763,7 @@ public final class TestUtilities extends TestCase
 	        // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7783,16 +7783,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeAckMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeAckMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeAckMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7801,7 +7801,7 @@ public final class TestUtilities extends TestCase
 	     // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
@@ -7821,16 +7821,16 @@ public final class TestUtilities extends TestCase
                // error condition - switch our success value to false so we can roll back
                success = false;
                // print out message with return value string, value, and text
-               System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
+               System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeInit().  "
                        + "Error Text: " + CodecReturnCodes.info(retVal));
            }
            else
            {
 		        // Encode primitive types to FieldList of RefreshMsg
-		        if ( ( retVal = upa_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
+		        if ( ( retVal = eta_EncodeRequestMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST )) < CodecReturnCodes.SUCCESS )
 		        {
 		        	// print out message with return value string, value, and text
-		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRequestMsgAll().  "
+		            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRequestMsgAll().  "
 		                    + "Error Text: " + CodecReturnCodes.info(retVal));
 		            return retVal;
 		        }
@@ -7839,14 +7839,14 @@ public final class TestUtilities extends TestCase
 	     // Complete encoding of complex filter entry.
             if ((retVal = filterEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
 		}
 		
 		// Complete encoding of FilterList.
-		if ((retVal = upaFilterList.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaFilterList.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
 	    {
 	        // print out message with return value string, value, and text
 	        System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with FilterList.encodeComplete().  "
@@ -7857,7 +7857,7 @@ public final class TestUtilities extends TestCase
 		return 0;
 	}
 	
-	public static int upa_EncodeSeriesAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType )
+	public static int eta_EncodeSeriesAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType )
 	{
 		int retVal;
 		boolean success;
@@ -7866,19 +7866,19 @@ public final class TestUtilities extends TestCase
 			return CodecReturnCodes.INVALID_ARGUMENT;
 		
 		// create and initialize series structure
-		com.rtsdk.eta.codec.Series upaSeries = CodecFactory.createSeries();
+		com.rtsdk.eta.codec.Series etaSeries = CodecFactory.createSeries();
 		
 		int totalCountHint = 2; // Add two series entry
 		
-		upaSeries.containerType(containerType);
+		etaSeries.containerType(containerType);
 		
-		upaSeries.applyHasTotalCountHint();
-		upaSeries.totalCountHint(totalCountHint);
+		etaSeries.applyHasTotalCountHint();
+		etaSeries.totalCountHint(totalCountHint);
 		
-		upaSeries.applyHasSummaryData();
+		etaSeries.applyHasSummaryData();
 		
 		// begin encoding of series - assumes that encodeIter is already populated with buffer and version information
-        if ((retVal = upaSeries.encodeInit(encodeIter, 0, 0) ) < CodecReturnCodes.SUCCESS)
+        if ((retVal = etaSeries.encodeInit(encodeIter, 0, 0) ) < CodecReturnCodes.SUCCESS)
         {
             // print out message with return value string, value, and text
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeInit().  "
@@ -7904,11 +7904,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding field list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -7916,11 +7916,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -7936,16 +7936,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeFieldListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFieldListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -7958,11 +7958,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding element list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -7970,11 +7970,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -7990,16 +7990,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeElementListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeElementListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8012,11 +8012,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding filter list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8024,11 +8024,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8044,16 +8044,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeFilterListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFilterListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8066,11 +8066,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding series list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8078,11 +8078,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8098,16 +8098,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeSeriesAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeSeriesAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8120,11 +8120,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding vector.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8132,11 +8132,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8152,16 +8152,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeVectorAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeVectorAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8174,11 +8174,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding map.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8186,11 +8186,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8206,16 +8206,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8228,11 +8228,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding msg.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8240,11 +8240,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any series encoding failed, success is false.
-					if ((retVal = upaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaSeries.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8260,16 +8260,16 @@ public final class TestUtilities extends TestCase
 		                // error condition - switch our success value to false so we can roll back
 		                success = false;
 		                // print out message with return value string, value, and text
-		                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
+		                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeInit().  "
 		                        + "Error Text: " + CodecReturnCodes.info(retVal));
 		                break;
 		         }
 				
-				if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8281,14 +8281,14 @@ public final class TestUtilities extends TestCase
 			 // Complete encoding of complex series entry.
             if ((retVal = seriesEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with SeriesEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
 		}
 		
 		// Complete encoding of series.
-		if ((retVal = upaSeries.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaSeries.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
 	    {
 	        // print out message with return value string, value, and text
 	        System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Series.encodeComplete().  "
@@ -8299,7 +8299,7 @@ public final class TestUtilities extends TestCase
 		return 0;
 	}
 
-	public static int upa_EncodeVectorAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType )
+	public static int eta_EncodeVectorAll(com.rtsdk.eta.codec.EncodeIterator encodeIter, int containerType )
 	{
 		int retVal;
 		boolean success;
@@ -8308,19 +8308,19 @@ public final class TestUtilities extends TestCase
 			return CodecReturnCodes.INVALID_ARGUMENT;
 		
 		// create and initialize vector structure
-		com.rtsdk.eta.codec.Vector upaVector = CodecFactory.createVector();
+		com.rtsdk.eta.codec.Vector etaVector = CodecFactory.createVector();
 		
 		int totalCountHint = 2; // Add three filter entry
 	
-		upaVector.containerType(containerType);
+		etaVector.containerType(containerType);
 		
-		upaVector.applyHasTotalCountHint();
-		upaVector.totalCountHint(totalCountHint);
+		etaVector.applyHasTotalCountHint();
+		etaVector.totalCountHint(totalCountHint);
 		
-		upaVector.applyHasSummaryData();
+		etaVector.applyHasSummaryData();
 		
 		// begin encoding of vector - assumes that encodeIter is already populated with buffer and version information
-        if ((retVal = upaVector.encodeInit(encodeIter, 0, 0) ) < CodecReturnCodes.SUCCESS)
+        if ((retVal = etaVector.encodeInit(encodeIter, 0, 0) ) < CodecReturnCodes.SUCCESS)
         {
             // print out message with return value string, value, and text
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeInit().  "
@@ -8346,11 +8346,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding field list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8358,11 +8358,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8382,16 +8382,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeFieldListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFieldListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFieldListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFieldListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8404,11 +8404,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding element list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8416,11 +8416,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8440,16 +8440,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeElementListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeElementListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeElementListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeElementListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8462,11 +8462,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeFilterListAll(encodeIter, EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding filter list.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8474,11 +8474,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8498,16 +8498,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeFilterListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeFilterListAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeFilterListAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeFilterListAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8520,11 +8520,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding series.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8532,11 +8532,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8556,16 +8556,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeSeriesAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeSeriesAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeSeriesAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeSeriesAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8578,11 +8578,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding vector.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8590,11 +8590,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8614,16 +8614,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeVectorAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeVectorAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeVectorAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeVectorAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8636,11 +8636,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding vector.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8648,11 +8648,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8672,16 +8672,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeMapKeyUIntAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeMapKeyUIntAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8694,11 +8694,11 @@ public final class TestUtilities extends TestCase
 					System.out.println("\tEncoding Summary Data");
 					success = true;
 
-					if ((retVal = upa_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+					if ((retVal = eta_EncodeRefreshMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 					{
 						success = false;
 						System.out.println("Error encoding msg.");
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeRefreshMsgAll().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeRefreshMsgAll().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 
@@ -8706,11 +8706,11 @@ public final class TestUtilities extends TestCase
 					System.out.println();
 					
 					// complete encoding of summary data.  If any vector encoding failed, success is false.
-					if ((retVal = upaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
+					if ((retVal = etaVector.encodeSummaryDataComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)	
 					{
 						// error condition - switch our success value to false so we can roll back
 						success = false;
-						System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
+						System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeSummaryDataComplete().  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 					}
 					
@@ -8730,16 +8730,16 @@ public final class TestUtilities extends TestCase
 	                // error condition - switch our success value to false so we can roll back
 	                success = false;
 	                // print out message with return value string, value, and text
-	                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
+	                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeInit().  "
 	                        + "Error Text: " + CodecReturnCodes.info(retVal));
 	                break;
 	            }
 				
-				if ( (retVal = upa_EncodeRefreshMsgAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
+				if ( (retVal = eta_EncodeRefreshMsgAll(encodeIter, argument )) < CodecReturnCodes.SUCCESS)
                 {
                     // error condition - switch our success value to false so we can roll back
                     success = false;
-                    System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with upa_EncodeMapKeyUIntAll().  "
+                    System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with eta_EncodeMapKeyUIntAll().  "
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
@@ -8751,14 +8751,14 @@ public final class TestUtilities extends TestCase
 			 // Complete encoding of complex vector entry.
             if ((retVal = vectorEntry.encodeComplete(encodeIter, success)) < CodecReturnCodes.SUCCESS)
             {
-                System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeComplete().  "
+                System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with VectorEntry.encodeComplete().  "
                         + "Error Text: " + CodecReturnCodes.info(retVal));
                 return retVal;
             }
 		}
 		
 		// Complete encoding vector.
-		if ((retVal = upaVector.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
+		if ((retVal = etaVector.encodeComplete(encodeIter, true) ) < CodecReturnCodes.SUCCESS)
 	    {
 	        // print out message with return value string, value, and text
 	        System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with Vector.encodeComplete().  "
@@ -8769,7 +8769,7 @@ public final class TestUtilities extends TestCase
 		return 0;
 	}
 
-    public static void upa_encodeDictionaryMsg(com.rtsdk.eta.codec.DataDictionary dictionary)
+    public static void eta_encodeDictionaryMsg(com.rtsdk.eta.codec.DataDictionary dictionary)
     {
     	com.rtsdk.eta.codec.Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(12300));
@@ -8826,8 +8826,8 @@ public final class TestUtilities extends TestCase
 
     
 	// This method returns a preencoded buffer containing an encoded UInt type.
-	// Assuming encUInt is a upa Buffer with length and data properly populated.
-	private static int upa_getPreEncodedUIntBuffer(com.rtsdk.eta.codec.Buffer encUInt, com.rtsdk.eta.codec.UInt uInt)
+	// Assuming encUInt is a ETA Buffer with length and data properly populated.
+	private static int eta_getPreEncodedUIntBuffer(com.rtsdk.eta.codec.Buffer encUInt, com.rtsdk.eta.codec.UInt uInt)
 	{
 		int retVal;  //used to store and check the return value from the method calls
 
@@ -8843,7 +8843,7 @@ public final class TestUtilities extends TestCase
 		// indicates number of bytes available in encUInt.data()
 		if ((retVal = encodeIter.setBufferAndRWFVersion(encUInt, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 
 			return retVal;
@@ -8851,7 +8851,7 @@ public final class TestUtilities extends TestCase
 
 		if ((retVal = uInt.encode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeUInt.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeUInt.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -8860,8 +8860,8 @@ public final class TestUtilities extends TestCase
 	}
 
 	// This method returns a preencoded buffer containing an encoded Int type.
-	// Assuming encInt is a upa Buffer with length and data properly populated.
-	private static int upa_getPreEncodedIntBuffer(com.rtsdk.eta.codec.Buffer encInt, com.rtsdk.eta.codec.Int Int)
+	// Assuming encInt is a ETA Buffer with length and data properly populated.
+	private static int eta_getPreEncodedIntBuffer(com.rtsdk.eta.codec.Buffer encInt, com.rtsdk.eta.codec.Int Int)
 	{
 		int retVal;  //used to store and check the return value from the method calls
 
@@ -8877,7 +8877,7 @@ public final class TestUtilities extends TestCase
 		// indicates number of bytes available in encInt.data()
 		if ((retVal = encodeIter.setBufferAndRWFVersion(encInt, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 
 			return retVal;
@@ -8885,7 +8885,7 @@ public final class TestUtilities extends TestCase
 
 		if ((retVal = Int.encode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeInt.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeInt.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -8894,8 +8894,8 @@ public final class TestUtilities extends TestCase
 	}
 
 //	// This method returns a preencoded buffer containing an encoded Buffer type.
-//	// Assuming encBuffer is a upa Buffer with length and data properly populated.
-//	private static int upa_getPreEncodedBufferBuffer(com.rtsdk.eta.codec.Buffer encBuffer, com.rtsdk.eta.codec.Buffer buffer)
+//	// Assuming encBuffer is a ETA Buffer with length and data properly populated.
+//	private static int eta_getPreEncodedBufferBuffer(com.rtsdk.eta.codec.Buffer encBuffer, com.rtsdk.eta.codec.Buffer buffer)
 //	{
 //		int retVal;  //used to store and check the return value from the method calls
 //
@@ -8911,7 +8911,7 @@ public final class TestUtilities extends TestCase
 //		// indicates number of bytes available in encBuffer.data()
 //		if ((retVal = encodeIter.setBufferAndRWFVersion(encBuffer, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 //		{
-//			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
+//			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
 //					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 //
 //			return retVal;
@@ -8919,7 +8919,7 @@ public final class TestUtilities extends TestCase
 //
 //		if ((retVal = buffer.encode(encodeIter)) < CodecReturnCodes.SUCCESS)
 //		{
-//			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeBuffer.  "
+//			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with EncodeBuffer.  "
 //								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 //			return retVal;
 //		}
@@ -8928,8 +8928,8 @@ public final class TestUtilities extends TestCase
 //	}
 
 	// This method returns a preencoded buffer containing an encoded UInt type.
-	// Assuming encUInt is a upa Buffer with length and data properly populated.
-	private static int upa_getPreEncodedFieldListBuffer(com.rtsdk.eta.codec.Buffer encFieldList)
+	// Assuming encUInt is a ETA Buffer with length and data properly populated.
+	private static int eta_getPreEncodedFieldListBuffer(com.rtsdk.eta.codec.Buffer encFieldList)
 	{
 		int retVal;  //used to store and check the return value from the method calls
 
@@ -8945,15 +8945,15 @@ public final class TestUtilities extends TestCase
 		// indicates number of bytes available in encFieldList.data()
 		if ((retVal = encodeIter.setBufferAndRWFVersion(encFieldList, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 
 			return retVal;
 		}
 
-		if ((retVal = upa_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = eta_EncodeFieldListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with upa_EncodeFieldListAll.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with eta_EncodeFieldListAll.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -8962,8 +8962,8 @@ public final class TestUtilities extends TestCase
 	}
 
 	// This method returns a preencoded buffer containing an encoded UInt type.
-	// Assuming encUInt is a upa Buffer with length and data properly populated.
-	private static int upa_getPreEncodedElementListBuffer(com.rtsdk.eta.codec.Buffer encElementList)
+	// Assuming encUInt is a ETA Buffer with length and data properly populated.
+	private static int eta_getPreEncodedElementListBuffer(com.rtsdk.eta.codec.Buffer encElementList)
 	{
 		int retVal;  //used to store and check the return value from the method calls
 
@@ -8979,15 +8979,15 @@ public final class TestUtilities extends TestCase
 		// indicates number of bytes available in encFieldList.data()
 		if ((retVal = encodeIter.setBufferAndRWFVersion(encElementList, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with setBufferAndRWFVersion.  "
 					+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 
 			return retVal;
 		}
 
-		if ((retVal = upa_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = eta_EncodeElementListAll(encodeIter, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("UPA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with upa_EncodeElementListAll.  "
+			System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ")" + " encountered with eta_EncodeElementListAll.  "
 								+ "Error Text: " + CodecReturnCodes.info(retVal)); 
 			return retVal;
 		}
@@ -8997,7 +8997,7 @@ public final class TestUtilities extends TestCase
 
 	
 	
-	public static void EmaDecode_UPAFieldListAll(com.rtsdk.ema.access.FieldList fl, int encodeOption)
+	public static void EmaDecode_ETAFieldListAll(com.rtsdk.ema.access.FieldList fl, int encodeOption)
 	{
         checkResult(fl.hasInfo());
         checkResult(fl.infoDictionaryId(), dictionary.infoDictionaryId());
@@ -9341,7 +9341,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 	        checkResult(fieldEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 	        checkResult(fieldEntry1.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAFieldListAll(fieldEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES );
+	        EmaDecode_ETAFieldListAll(fieldEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES );
 	        
 	        // check field entry which contains ElementList
 	        checkResult(iter.hasNext());
@@ -9351,7 +9351,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 	        checkResult(fieldEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 	        checkResult(fieldEntry2.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAElementListAll(fieldEntry2.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES );
+	        EmaDecode_ETAElementListAll(fieldEntry2.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES );
 	        
 	        // check field entry which contains FilterList
 	        checkResult(iter.hasNext());
@@ -9361,7 +9361,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry3.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 	        checkResult(fieldEntry3.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 	        checkResult(fieldEntry3.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAFilterListAll(fieldEntry3.filterList(), EncodingTypeFlags.MESSAGE_TYPES );
+	        EmaDecode_ETAFilterListAll(fieldEntry3.filterList(), EncodingTypeFlags.MESSAGE_TYPES );
 	        
 	        // check field entry which contains Series
 	        checkResult(iter.hasNext());
@@ -9371,7 +9371,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry4.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 	        checkResult(fieldEntry4.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 	        checkResult(fieldEntry4.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPASeriesAll(fieldEntry4.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST );
+	        EmaDecode_ETASeriesAll(fieldEntry4.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST );
 	        
 	        // check field entry which contains Vector
 	        checkResult(iter.hasNext());
@@ -9381,7 +9381,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry5.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 	        checkResult(fieldEntry5.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 	        checkResult(fieldEntry5.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAVectorAll(fieldEntry5.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST );
+	        EmaDecode_ETAVectorAll(fieldEntry5.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST );
 	        
 	        // check field entry which contains Map
 	        checkResult(iter.hasNext());
@@ -9391,7 +9391,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry6.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 	        checkResult(fieldEntry6.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 	        checkResult(fieldEntry6.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAMapKeyUIntAll(fieldEntry6.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST );
+	        EmaDecode_ETAMapKeyUIntAll(fieldEntry6.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST );
 	        
 	        if ( encodeOption == EncodingTypeFlags.CONTAINER_TYPES )
 	        	checkResult(!iter.hasNext()); //final forth() - no more field entries
@@ -9407,7 +9407,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 	        checkResult(fieldEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 	        checkResult(fieldEntry1.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPARefreshMsgAll(fieldEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETARefreshMsgAll(fieldEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry2 = iter.next();
@@ -9416,7 +9416,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.UPDATE_MSG);
 	        checkResult(fieldEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.UPDATE_MSG);
 	        checkResult(fieldEntry2.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAUpdateMsgAll(fieldEntry2.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAUpdateMsgAll(fieldEntry2.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry3 = iter.next();
@@ -9425,7 +9425,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry3.loadType(), com.rtsdk.ema.access.DataType.DataTypes.STATUS_MSG);
 	        checkResult(fieldEntry3.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.STATUS_MSG);
 	        checkResult(fieldEntry3.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAStatusMsgAll(fieldEntry3.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAStatusMsgAll(fieldEntry3.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry4 = iter.next();
@@ -9434,7 +9434,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry4.loadType(), com.rtsdk.ema.access.DataType.DataTypes.GENERIC_MSG);
 	        checkResult(fieldEntry4.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.GENERIC_MSG);
 	        checkResult(fieldEntry4.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAGenericMsgAll(fieldEntry4.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAGenericMsgAll(fieldEntry4.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry5 = iter.next();
@@ -9443,7 +9443,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry5.loadType(), com.rtsdk.ema.access.DataType.DataTypes.POST_MSG);
 	        checkResult(fieldEntry5.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.POST_MSG);
 	        checkResult(fieldEntry5.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAPostMsgAll(fieldEntry5.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAPostMsgAll(fieldEntry5.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry6 = iter.next();
@@ -9452,7 +9452,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry6.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ACK_MSG);
 	        checkResult(fieldEntry6.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ACK_MSG);
 	        checkResult(fieldEntry6.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPAAckMsgAll(fieldEntry6.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAAckMsgAll(fieldEntry6.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(iter.hasNext());
 	        com.rtsdk.ema.access.FieldEntry fieldEntry7 = iter.next();
@@ -9461,13 +9461,13 @@ public final class TestUtilities extends TestCase
 	        checkResult(fieldEntry7.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REQ_MSG);
 	        checkResult(fieldEntry7.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REQ_MSG);
 	        checkResult(fieldEntry7.code(), Data.DataCode.NO_CODE);
-	        EmaDecode_UPARequestMsgAll(fieldEntry7.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETARequestMsgAll(fieldEntry7.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	    
 	        checkResult(!iter.hasNext()); //final forth() - no more field entries
        	}
 	}
 	
-    public static void EmaDecode_UPAArrayAll(OmmArray array)
+    public static void EmaDecode_ETAArrayAll(OmmArray array)
     {
         checkResult(array.dataType(), com.rtsdk.ema.access.DataType.DataTypes.ARRAY);
         checkResult(array.hasFixedWidth());
@@ -9533,7 +9533,7 @@ public final class TestUtilities extends TestCase
         checkResult(byteArray4String.equals("BUFFER 4"));
     }
 	
-	public static void EmaDecode_UPAElementListAll(com.rtsdk.ema.access.ElementList el, int encodeOption)
+	public static void EmaDecode_ETAElementListAll(com.rtsdk.ema.access.ElementList el, int encodeOption)
 	{
         checkResult(el.hasInfo());
         checkResult(el.infoElementListNum(), 7);
@@ -9622,42 +9622,42 @@ public final class TestUtilities extends TestCase
  			checkResult(ee7.name(), "Element - FieldList");
  			checkResult(ee7.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
         	checkResult(ee7.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-        	EmaDecode_UPAFieldListAll(ee7.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+        	EmaDecode_ETAFieldListAll(ee7.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
  		
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee8 = elIter.next();
  			checkResult(ee8.name(), "Element - ElementList");
  			checkResult(ee8.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
  			checkResult(ee8.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
- 			EmaDecode_UPAElementListAll(ee8.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+ 			EmaDecode_ETAElementListAll(ee8.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
      		
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee9 = elIter.next();
  			checkResult(ee9.name(), "Element - FilterList");
  			checkResult(ee9.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
  			checkResult(ee9.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
- 			EmaDecode_UPAFilterListAll(ee9.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+ 			EmaDecode_ETAFilterListAll(ee9.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee10 = elIter.next();
  			checkResult(ee10.name(), "Element - Series");
  			checkResult(ee10.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
  			checkResult(ee10.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
- 			EmaDecode_UPASeriesAll(ee10.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+ 			EmaDecode_ETASeriesAll(ee10.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	        
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee11 = elIter.next();
  			checkResult(ee11.name(), "Element - Vector");
  			checkResult(ee11.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
  			checkResult(ee11.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
- 			EmaDecode_UPAVectorAll(ee11.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAVectorAll(ee11.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			 			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee12 = elIter.next();
  			checkResult(ee12.name(), "Element - Map");
  			checkResult(ee12.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
  			checkResult(ee12.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
- 			EmaDecode_UPAMapKeyUIntAll(ee12.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAMapKeyUIntAll(ee12.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			 if ( encodeOption == EncodingTypeFlags.CONTAINER_TYPES )
  	        	checkResult(!elIter.hasNext()); //final forth() - no more element entries
@@ -9670,55 +9670,55 @@ public final class TestUtilities extends TestCase
  			checkResult(ee15.name(), "Element - Msg");
  			checkResult(ee15.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
  			checkResult(ee15.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
- 			EmaDecode_UPARefreshMsgAll(ee15.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETARefreshMsgAll(ee15.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee16 = elIter.next();
  			checkResult(ee16.name(), "Element - Msg");
  			checkResult(ee16.loadType(), com.rtsdk.ema.access.DataType.DataTypes.UPDATE_MSG);
  			checkResult(ee16.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.UPDATE_MSG);
- 			EmaDecode_UPAUpdateMsgAll(ee16.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAUpdateMsgAll(ee16.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee17 = elIter.next();
  			checkResult(ee17.name(), "Element - Msg");
  			checkResult(ee17.loadType(), com.rtsdk.ema.access.DataType.DataTypes.STATUS_MSG);
  			checkResult(ee17.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.STATUS_MSG);
- 			EmaDecode_UPAStatusMsgAll(ee17.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAStatusMsgAll(ee17.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee18 = elIter.next();
  			checkResult(ee18.name(), "Element - Msg");
  			checkResult(ee18.loadType(), com.rtsdk.ema.access.DataType.DataTypes.GENERIC_MSG);
  			checkResult(ee18.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.GENERIC_MSG);
- 			EmaDecode_UPAGenericMsgAll(ee18.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAGenericMsgAll(ee18.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee19 = elIter.next();
  			checkResult(ee19.name(), "Element - Msg");
  			checkResult(ee19.loadType(), com.rtsdk.ema.access.DataType.DataTypes.POST_MSG);
  			checkResult(ee19.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.POST_MSG);
- 			EmaDecode_UPAPostMsgAll(ee19.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAPostMsgAll(ee19.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee20 = elIter.next();
  			checkResult(ee20.name(), "Element - Msg");
  			checkResult(ee20.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ACK_MSG);
  			checkResult(ee20.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ACK_MSG);
- 			EmaDecode_UPAAckMsgAll(ee20.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETAAckMsgAll(ee20.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(elIter.hasNext());
  			com.rtsdk.ema.access.ElementEntry ee21 = elIter.next();
  			checkResult(ee21.name(), "Element - Msg");
  			checkResult(ee21.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REQ_MSG);
  			checkResult(ee21.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REQ_MSG);
- 			EmaDecode_UPARequestMsgAll(ee21.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+ 			EmaDecode_ETARequestMsgAll(ee21.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
  			
  			checkResult(!elIter.hasNext());
        	}
 	}
 	
-	public static void EmaDecode_UPAFilterListAll(com.rtsdk.ema.access.FilterList filterList, int encodeOption)
+	public static void EmaDecode_ETAFilterListAll(com.rtsdk.ema.access.FilterList filterList, int encodeOption)
 	{
 		checkResult(filterList.hasTotalCountHint());
 		
@@ -9746,7 +9746,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry1.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry1.hasPermissionData());
 	        checkResult(filterEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAFieldListAll(filterEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+	        EmaDecode_ETAFieldListAll(filterEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry2 = filterIter.next();
@@ -9757,7 +9757,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry2.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry2.hasPermissionData());
 	        checkResult(filterEntry2.permissionData().equals(ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAElementListAll(filterEntry2.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+	        EmaDecode_ETAElementListAll(filterEntry2.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry3 = filterIter.next();
@@ -9768,7 +9768,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry3.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry3.hasPermissionData());
 	        checkResult(filterEntry3.permissionData().equals(ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAFilterListAll(filterEntry3.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+	        EmaDecode_ETAFilterListAll(filterEntry3.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry4 = filterIter.next();
@@ -9779,7 +9779,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry4.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry4.hasPermissionData());
 	        checkResult(filterEntry4.permissionData().equals(ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPASeriesAll(filterEntry4.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETASeriesAll(filterEntry4.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry5 = filterIter.next();
@@ -9790,7 +9790,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry5.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry5.hasPermissionData());
 	        checkResult(filterEntry5.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAVectorAll(filterEntry5.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	        EmaDecode_ETAVectorAll(filterEntry5.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry6 = filterIter.next();
@@ -9801,7 +9801,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry6.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry6.hasPermissionData());
 	        checkResult(filterEntry6.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAMapKeyUIntAll(filterEntry6.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	        EmaDecode_ETAMapKeyUIntAll(filterEntry6.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	        
 	        if ( encodeOption == EncodingTypeFlags.CONTAINER_TYPES )
  	        	checkResult(!filterIter.hasNext()); //final forth() - no more filter entries
@@ -9818,7 +9818,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry7.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry7.hasPermissionData());
 	        checkResult(filterEntry7.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPARefreshMsgAll(filterEntry7.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETARefreshMsgAll(filterEntry7.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
      		com.rtsdk.ema.access.FilterEntry filterEntry8 = filterIter.next();
@@ -9829,7 +9829,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry8.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry8.hasPermissionData());
 	        checkResult(filterEntry8.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAUpdateMsgAll(filterEntry8.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAUpdateMsgAll(filterEntry8.updateMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
      		com.rtsdk.ema.access.FilterEntry filterEntry9 = filterIter.next();
@@ -9840,7 +9840,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry9.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry9.hasPermissionData());
 	        checkResult(filterEntry9.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAStatusMsgAll(filterEntry9.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAStatusMsgAll(filterEntry9.statusMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
      		com.rtsdk.ema.access.FilterEntry filterEntry10 = filterIter.next();
@@ -9851,7 +9851,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry10.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry10.hasPermissionData());
 	        checkResult(filterEntry10.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAGenericMsgAll(filterEntry10.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAGenericMsgAll(filterEntry10.genericMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
      		com.rtsdk.ema.access.FilterEntry filterEntry11 = filterIter.next();
@@ -9862,7 +9862,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry11.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry11.hasPermissionData());
 	        checkResult(filterEntry11.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAPostMsgAll(filterEntry11.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAPostMsgAll(filterEntry11.postMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
      		com.rtsdk.ema.access.FilterEntry filterEntry12 = filterIter.next();
@@ -9873,7 +9873,7 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry12.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry12.hasPermissionData());
 	        checkResult(filterEntry12.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPAAckMsgAll(filterEntry12.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETAAckMsgAll(filterEntry12.ackMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(filterIter.hasNext());
 	        com.rtsdk.ema.access.FilterEntry filterEntry13 = filterIter.next();
@@ -9884,13 +9884,13 @@ public final class TestUtilities extends TestCase
 	        checkResult(filterEntry13.action(), com.rtsdk.ema.access.FilterEntry.FilterAction.SET);
 	        checkResult(filterEntry13.hasPermissionData());
 	        checkResult(filterEntry13.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
-	        EmaDecode_UPARequestMsgAll(filterEntry13.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	        EmaDecode_ETARequestMsgAll(filterEntry13.reqMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	        
 	        checkResult(!filterIter.hasNext());
     	}
 	}
 	
-	public static void EmaDecode_UPASeriesAll(com.rtsdk.ema.access.Series series, int containerType)
+	public static void EmaDecode_ETASeriesAll(com.rtsdk.ema.access.Series series, int containerType)
 	{
 		checkResult(series.hasTotalCountHint());
 		
@@ -9907,7 +9907,7 @@ public final class TestUtilities extends TestCase
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(series.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(series.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -9915,21 +9915,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(seriesEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(seriesEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(seriesEntry2.fieldList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFieldListAll(seriesEntry2.fieldList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(series.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(series.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -9937,21 +9937,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(seriesEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(seriesEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(seriesEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAElementListAll(seriesEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(series.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(series.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -9959,21 +9959,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(seriesEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(seriesEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(seriesEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(seriesEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(series.summaryData().series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETASeriesAll(series.summaryData().series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -9981,21 +9981,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(seriesEntry1.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETASeriesAll(seriesEntry1.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(seriesEntry2.series(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETASeriesAll(seriesEntry2.series(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(series.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAVectorAll(series.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -10003,21 +10003,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(seriesEntry1.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAVectorAll(seriesEntry1.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(seriesEntry2.vector(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETAVectorAll(seriesEntry2.vector(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(series.summaryData().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAMapKeyUIntAll(series.summaryData().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 						
 			checkResult(seriesIter.hasNext());
@@ -10025,21 +10025,21 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(seriesEntry1.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAMapKeyUIntAll(seriesEntry1.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(seriesEntry2.map(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETAMapKeyUIntAll(seriesEntry2.map(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 		{
 			// Check summary data
 			checkResult(series.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(series.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(series.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(seriesIter.hasNext());
@@ -10047,14 +10047,14 @@ public final class TestUtilities extends TestCase
 			
 			checkResult(seriesEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(seriesEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(seriesEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(seriesEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(seriesIter.hasNext());
 			com.rtsdk.ema.access.SeriesEntry seriesEntry2 = seriesIter.next();
 			
 			checkResult(seriesEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(seriesEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(seriesEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETARefreshMsgAll(seriesEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
 		default:
@@ -10062,7 +10062,7 @@ public final class TestUtilities extends TestCase
 		}
 	}
 	
-	public static void EmaDecode_UPAVectorAll(com.rtsdk.ema.access.Vector vector, int containerType)
+	public static void EmaDecode_ETAVectorAll(com.rtsdk.ema.access.Vector vector, int containerType)
 	{
 		checkResult(vector.hasTotalCountHint());
 		
@@ -10079,7 +10079,7 @@ public final class TestUtilities extends TestCase
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(vector.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(vector.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10091,7 +10091,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(vectorEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(vectorEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10102,14 +10102,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(vectorEntry2.fieldList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFieldListAll(vectorEntry2.fieldList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}		
 		break;
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(vector.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(vector.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10121,7 +10121,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(vectorEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(vectorEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10132,14 +10132,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(vectorEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAElementListAll(vectorEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(vector.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(vector.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10151,7 +10151,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(vectorEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(vectorEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10162,14 +10162,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(vectorEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(vectorEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(vector.summaryData().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETASeriesAll(vector.summaryData().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10181,7 +10181,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(vectorEntry1.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETASeriesAll(vectorEntry1.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10192,14 +10192,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(vectorEntry2.series(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETASeriesAll(vectorEntry2.series(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(vector.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAVectorAll(vector.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			//
 						
 			checkResult(vectorIter.hasNext());
@@ -10211,7 +10211,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(vectorEntry1.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAVectorAll(vectorEntry1.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10222,14 +10222,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(vectorEntry2.vector(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETAVectorAll(vectorEntry2.vector(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(vector.summaryData().map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAMapKeyUIntAll(vector.summaryData().map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10241,7 +10241,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(vectorEntry1.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAMapKeyUIntAll(vectorEntry1.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10252,14 +10252,14 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(vectorEntry2.map(), com.rtsdk.eta.codec.DataTypes.MSG);
+			EmaDecode_ETAMapKeyUIntAll(vectorEntry2.map(), com.rtsdk.eta.codec.DataTypes.MSG);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 		{
 			// Check summary data
 			checkResult(vector.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(vector.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(vector.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(vectorIter.hasNext());
@@ -10271,7 +10271,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry1.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(vectorEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(vectorEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(vectorEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(vectorIter.hasNext());
 			com.rtsdk.ema.access.VectorEntry vectorEntry2 = vectorIter.next();
@@ -10282,7 +10282,7 @@ public final class TestUtilities extends TestCase
 			checkResult(vectorEntry2.permissionData().equals( ByteBuffer.wrap("PermissionData".getBytes()) ));
 			checkResult(vectorEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(vectorEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(vectorEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETARefreshMsgAll(vectorEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
 		default:
@@ -10290,7 +10290,7 @@ public final class TestUtilities extends TestCase
 		}
 	}
 	
-	public static void EmaDecode_UPAMapKeyUIntAll(com.rtsdk.ema.access.Map map, int containerType)
+	public static void EmaDecode_ETAMapKeyUIntAll(com.rtsdk.ema.access.Map map, int containerType)
 	{
 		checkResult(map.hasTotalCountHint());
 		
@@ -10311,7 +10311,7 @@ public final class TestUtilities extends TestCase
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(map.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(map.summaryData().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10321,7 +10321,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(mapEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(mapEntry1.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10330,14 +10330,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FIELD_LIST);
-			EmaDecode_UPAFieldListAll(mapEntry2.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAFieldListAll(mapEntry2.fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(map.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(map.summaryData().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10347,7 +10347,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(mapEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+			EmaDecode_ETAElementListAll(mapEntry1.elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10356,14 +10356,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.ELEMENT_LIST);
-			EmaDecode_UPAElementListAll(mapEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAElementListAll(mapEntry2.elementList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.FILTER_LIST:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(map.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(map.summaryData().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10373,7 +10373,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(mapEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(mapEntry1.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10382,14 +10382,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.FILTER_LIST);
-			EmaDecode_UPAFilterListAll(mapEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+			EmaDecode_ETAFilterListAll(mapEntry2.filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.SERIES:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(map.summaryData().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETASeriesAll(map.summaryData().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10399,7 +10399,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(mapEntry1.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETASeriesAll(mapEntry1.series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10408,14 +10408,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.SERIES);
-			EmaDecode_UPASeriesAll(mapEntry2.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETASeriesAll(mapEntry2.series(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.VECTOR:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(map.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAVectorAll(map.summaryData().vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10425,7 +10425,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(mapEntry1.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAVectorAll(mapEntry1.vector(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10434,14 +10434,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.VECTOR);
-			EmaDecode_UPAVectorAll(mapEntry2.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAVectorAll(mapEntry2.vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MAP:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(map.summaryData().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAMapKeyUIntAll(map.summaryData().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10451,7 +10451,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(mapEntry1.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETAMapKeyUIntAll(mapEntry1.map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10460,14 +10460,14 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.MAP);
-			EmaDecode_UPAMapKeyUIntAll(mapEntry2.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETAMapKeyUIntAll(mapEntry2.map(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
 		case com.rtsdk.eta.codec.DataTypes.MSG:
 		{
 			//Check Summary data
 			checkResult(map.summaryData().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(map.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(map.summaryData().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			//
 			
 			checkResult(mapIter.hasNext());
@@ -10477,7 +10477,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry1.key().uintValue(), 1 ); 
 			checkResult(mapEntry1.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(mapEntry1.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(mapEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+			EmaDecode_ETARefreshMsgAll(mapEntry1.refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 			
 			checkResult(mapIter.hasNext());
 			com.rtsdk.ema.access.MapEntry mapEntry2 = mapIter.next();
@@ -10486,7 +10486,7 @@ public final class TestUtilities extends TestCase
 			checkResult(mapEntry2.key().uintValue(), 2 ); 
 			checkResult(mapEntry2.loadType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
 			checkResult(mapEntry2.load().dataType(), com.rtsdk.ema.access.DataType.DataTypes.REFRESH_MSG);
-			EmaDecode_UPARefreshMsgAll(mapEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+			EmaDecode_ETARefreshMsgAll(mapEntry2.refreshMsg(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 		}	
 		break;
 		default:
@@ -11160,7 +11160,7 @@ public final class TestUtilities extends TestCase
 		checkResult( true, "Map contains FieldList - exception not expected" );
 	}
 	
-	public static void EmaDecode_UPARequestMsgAll(ReqMsg reqMsg, int containerType)
+	public static void EmaDecode_ETARequestMsgAll(ReqMsg reqMsg, int containerType)
 	{
 		System.out.println("Begin EMA ReqMsg Decoding");
 		System.out.println(reqMsg);
@@ -11224,9 +11224,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( reqMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( reqMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( reqMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( reqMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11243,9 +11243,9 @@ public final class TestUtilities extends TestCase
 				
 				System.out.println(extendedBufferEl);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( reqMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( reqMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( reqMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( reqMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11260,9 +11260,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( reqMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( reqMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( reqMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( reqMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -11277,9 +11277,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( reqMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( reqMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( reqMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( reqMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11294,9 +11294,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( reqMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( reqMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( reqMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( reqMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -11311,9 +11311,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( reqMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( reqMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( reqMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( reqMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11328,9 +11328,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( reqMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( reqMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( reqMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( reqMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -11342,7 +11342,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPARefreshMsgAll(RefreshMsg refreshMsg, int containerType)
+	public static void EmaDecode_ETARefreshMsgAll(RefreshMsg refreshMsg, int containerType)
 	{
 		System.out.println("Begin EMA RefreshMsg Decoding");
 		System.out.println(refreshMsg);
@@ -11417,9 +11417,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( refreshMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( refreshMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( refreshMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( refreshMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11436,9 +11436,9 @@ public final class TestUtilities extends TestCase
 				
 				System.out.println(extendedBufferEl);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( refreshMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( refreshMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( refreshMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( refreshMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11453,9 +11453,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( refreshMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( refreshMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( refreshMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( refreshMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -11470,9 +11470,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( refreshMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( refreshMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( refreshMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( refreshMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11487,9 +11487,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( refreshMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( refreshMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( refreshMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( refreshMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -11504,9 +11504,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( refreshMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( refreshMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( refreshMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( refreshMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11521,9 +11521,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( refreshMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( refreshMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( refreshMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( refreshMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -11543,7 +11543,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPAUpdateMsgAll(UpdateMsg updateMsg, int containerType)
+	public static void EmaDecode_ETAUpdateMsgAll(UpdateMsg updateMsg, int containerType)
 	{
 		System.out.println("Begin EMA UpdateMsg Decoding");
 		System.out.println();
@@ -11614,9 +11614,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( updateMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( updateMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( updateMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( updateMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11633,9 +11633,9 @@ public final class TestUtilities extends TestCase
 				
 				System.out.println(extendedBufferEl);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( updateMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( updateMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( updateMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( updateMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11650,9 +11650,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( updateMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( updateMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( updateMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( updateMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -11667,9 +11667,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( updateMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( updateMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( updateMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( updateMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11684,9 +11684,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( updateMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( updateMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( updateMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( updateMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -11701,9 +11701,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( updateMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( updateMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( updateMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( updateMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11718,9 +11718,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( updateMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( updateMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( updateMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( updateMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -11732,7 +11732,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPAStatusMsgAll(StatusMsg statusMsg, int containerType)
+	public static void EmaDecode_ETAStatusMsgAll(StatusMsg statusMsg, int containerType)
 	{
 		System.out.println("Begin EMA StatusMsg Decoding");
 		System.out.println();
@@ -11791,9 +11791,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( statusMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( statusMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( statusMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( statusMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11810,9 +11810,9 @@ public final class TestUtilities extends TestCase
 				
 				System.out.println(extendedBufferEl);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( statusMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( statusMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( statusMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( statusMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -11827,9 +11827,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( statusMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( statusMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( statusMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( statusMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -11844,9 +11844,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( statusMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( statusMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( statusMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( statusMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11861,9 +11861,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( statusMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( statusMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( statusMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( statusMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -11878,9 +11878,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( statusMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( statusMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( statusMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( statusMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -11895,9 +11895,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( statusMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( statusMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( statusMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( statusMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -11922,7 +11922,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPAGenericMsgAll(GenericMsg genericMsg, int containerType)
+	public static void EmaDecode_ETAGenericMsgAll(GenericMsg genericMsg, int containerType)
 	{
 		System.out.println("Begin EMA GenericMsg Decoding");
 		System.out.println();
@@ -11985,9 +11985,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( genericMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( genericMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( genericMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( genericMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12002,9 +12002,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.ElementList extendedBufferEl = JUnitTestConnect.createElementList();
 				JUnitTestConnect.setRsslData(extendedBufferEl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( genericMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( genericMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( genericMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( genericMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12019,9 +12019,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( genericMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( genericMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( genericMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( genericMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -12036,9 +12036,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( genericMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( genericMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( genericMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( genericMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12053,9 +12053,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( genericMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( genericMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( genericMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( genericMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -12070,9 +12070,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( genericMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( genericMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( genericMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( genericMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12087,9 +12087,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( genericMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( genericMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( genericMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( genericMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -12101,7 +12101,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPAPostMsgAll(PostMsg postMsg, int containerType)
+	public static void EmaDecode_ETAPostMsgAll(PostMsg postMsg, int containerType)
 	{
 		System.out.println("Begin EMA PostMsg Decoding");
 		System.out.println();
@@ -12172,9 +12172,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( postMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( postMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( postMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( postMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12189,9 +12189,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.ElementList extendedBufferEl = JUnitTestConnect.createElementList();
 				JUnitTestConnect.setRsslData(extendedBufferEl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( postMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( postMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( postMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( postMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12206,9 +12206,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( postMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( postMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( postMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( postMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -12223,9 +12223,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( postMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( postMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( postMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( postMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12240,9 +12240,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( postMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( postMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( postMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( postMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -12257,9 +12257,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( postMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( postMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( postMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( postMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12274,9 +12274,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( postMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( postMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( postMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( postMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}
@@ -12288,7 +12288,7 @@ public final class TestUtilities extends TestCase
 		System.out.println();
 	}
 	
-	public static void EmaDecode_UPAAckMsgAll(AckMsg ackMsg, int containerType)
+	public static void EmaDecode_ETAAckMsgAll(AckMsg ackMsg, int containerType)
 	{
 		System.out.println("Begin EMA AckMsg Decoding");
 		System.out.println();
@@ -12348,9 +12348,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFl = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( ackMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFieldListAll( ackMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( ackMsg.attrib().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFieldListAll( ackMsg.payload().fieldList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12365,9 +12365,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.ElementList extendedBufferEl = JUnitTestConnect.createElementList();
 				JUnitTestConnect.setRsslData(extendedBufferEl, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( ackMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAElementListAll( ackMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( extendedBufferEl, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( ackMsg.attrib().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAElementListAll( ackMsg.payload().elementList(), EncodingTypeFlags.PRIMITIVE_TYPES);
 				
 				break;
 			}	
@@ -12382,9 +12382,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAFilterListAll( ackMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
-				EmaDecode_UPAFilterListAll( ackMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAFilterListAll( ackMsg.attrib().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
+				EmaDecode_ETAFilterListAll( ackMsg.payload().filterList(), EncodingTypeFlags.MESSAGE_TYPES);
 				
 				break;
 			}
@@ -12399,9 +12399,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPASeriesAll( ackMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPASeriesAll( ackMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETASeriesAll( ackMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETASeriesAll( ackMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12416,9 +12416,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAVectorAll( ackMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-				EmaDecode_UPAVectorAll( ackMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAVectorAll( ackMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+				EmaDecode_ETAVectorAll( ackMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 				
 				break;
 			}	
@@ -12433,9 +12433,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPAMapKeyUIntAll( ackMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPAMapKeyUIntAll( ackMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETAMapKeyUIntAll( ackMsg.attrib().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAMapKeyUIntAll( ackMsg.payload().map(),  com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}	
@@ -12450,9 +12450,9 @@ public final class TestUtilities extends TestCase
 				com.rtsdk.ema.access.FieldList extendedBufferFieldList = JUnitTestConnect.createFieldList();
 				JUnitTestConnect.setRsslData(extendedBufferFieldList, extendedBuffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 				
-				EmaDecode_UPAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
-				EmaDecode_UPARefreshMsgAll( ackMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-				EmaDecode_UPARefreshMsgAll( ackMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETAFieldListAll( extendedBufferFieldList, EncodingTypeFlags.PRIMITIVE_TYPES);
+				EmaDecode_ETARefreshMsgAll( ackMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+				EmaDecode_ETARefreshMsgAll( ackMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 				
 				break;
 			}

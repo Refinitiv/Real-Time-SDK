@@ -80,7 +80,7 @@ public class ArrayTests
 		testArrayBuffer_EncodeDecode(false);
 		testArrayBuffer_EncodeDecode(true);
 
-        testArray_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA();
+        testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA();
 	}
 	
 	void testArrayAscii_Decode()
@@ -2098,7 +2098,7 @@ public class ArrayTests
 		buf.data(ByteBuffer.allocate(1000));
 		JUnitTestConnect.setRsslData(buf, encArray);
 		
-		// Now do UPA decoding of OmmArray of Ints
+		// Now do ETA decoding of OmmArray of Ints
 		Array array = CodecFactory.createArray();
 		ArrayEntry arEntry = CodecFactory.createArrayEntry();
 		Int intValue = CodecFactory.createInt();
@@ -2363,21 +2363,21 @@ public class ArrayTests
 		}
 	}
 	
-   void testArray_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA()
+   void testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA()
    {
-       TestUtilities.printTestHead("testArray_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA", "Encode Array with UPA, Decode Array with EMA, Encode Array with EMA, Decode Array with UPA");
+       TestUtilities.printTestHead("testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA", "Encode Array with ETA, Decode Array with EMA, Encode Array with EMA, Decode Array with ETA");
        
-       // Create a UPA Buffer to encode into
+       // Create a ETA Buffer to encode into
        com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
        buf.data(ByteBuffer.allocate(1024));
        
-       // Encode Array with UPA.
+       // Encode Array with ETA.
        int retVal;
-       if ((retVal = TestUtilities.upa_EncodeArrayAll(buf)) < CodecReturnCodes.SUCCESS)
+       if ((retVal = TestUtilities.eta_EncodeArrayAll(buf)) < CodecReturnCodes.SUCCESS)
        {
            System.out.println("Error encoding array.");
            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                   + ") encountered with TestUtilities.upa_EncodeArrayAll.  " + "Error Text: "
+                   + ") encountered with TestUtilities.eta_EncodeArrayAll.  " + "Error Text: "
                    + CodecReturnCodes.info(retVal));
            return;
        }
@@ -2386,7 +2386,7 @@ public class ArrayTests
        OmmArray array = JUnitTestConnect.createOmmArray();
        JUnitTestConnect.setRsslData(array, buf, Codec.majorVersion(), Codec.minorVersion(), null, null);
 
-       TestUtilities.EmaDecode_UPAArrayAll(array);
+       TestUtilities.EmaDecode_ETAArrayAll(array);
        
        // Copy decoded entries into a different Array with EMA
        OmmArray arrayCopy = EmaFactory.createOmmArray();
@@ -2406,8 +2406,8 @@ public class ArrayTests
        JUnitTestConnect.setRsslData(arrayDecCopy, arrayCopy, Codec.majorVersion(), Codec.minorVersion(), null, null);
        
        // compare with original
-       TestUtilities.EmaDecode_UPAArrayAll(arrayDecCopy);
+       TestUtilities.EmaDecode_ETAArrayAll(arrayDecCopy);
        
-       System.out.println("\ntestArray_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA passed");
+       System.out.println("\ntestArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA passed");
    }
 }
