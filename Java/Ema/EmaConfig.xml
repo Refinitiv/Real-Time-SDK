@@ -32,27 +32,52 @@
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
-
 		<Consumer>
 			<Name value="Consumer_3"/>
-
 			<!-- Channel set to "RSSL_ENCRYPTED"														-->
-			<Channel value="Channel_4"/>
+			<Channel value="Channel_3"/>
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
-
 		<Consumer>
-			<!-- Name is mandatory																		-->
-			<Name value="Consumer_RTT"/>
-			<Channel value="Channel_1"/>
+			<Name value="Consumer_4"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<Channel value="Channel_4"/>
+
 			<Dictionary value="Dictionary_1"/>
-			<XmlTraceToStdout value="1"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+
+		<!-- Consumer with enabled RTT feature -->
+		<Consumer>
+			<Name value="Consumer_7"/>
+			<Channel value="Channel_1"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
 			<EnableRtt value="1"/>
 		</Consumer>
 
+		<!-- Performance tools consumers -->
+		<Consumer>
+			<Name value="Perf_Consumer_1"/>
+			<Channel value="Perf_Channel_1"/>
+			<Dictionary value="Dictionary_1"/>
+			<MaxDispatchCountApiThread value="6500"/>
+			<MaxDispatchCountUserThread value="6500"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Perf_Consumer_2"/>
+			<Channel value="Perf_Channel_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<MaxDispatchCountApiThread value="6500"/>
+			<MaxDispatchCountUserThread value="6500"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -64,12 +89,13 @@
 	<!-- first provider on the NiProviderList is a DefaultNiProvider if this parameter is not specified	-->
 	<DefaultNiProvider value="Provider_1"/>
 	<NiProviderList>
+		<!-- Regular providers -->
 		<NiProvider>
 			<!-- Name is mandatory																		-->
 			<Name value="Provider_1"/>
 
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14003"					-->
-			<Channel value="Channel_3"/>
+			<Channel value="Channel_7"/>
 
 			<!-- Directory is optional.																	-->
 			<!-- the EMA provides hardcoded directory containing a single service named "NI_PUB".		-->
@@ -88,23 +114,49 @@
 		<NiProvider>
 			<Name value="Provider_2"/>
 
-			<Channel value="Channel_3"/>
+			<Channel value="Channel_6"/>
 
 			<Directory value="Directory_2"/>
 
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
+		<NiProvider>
+			<Name value="Provider_3"/>
 
+			<Channel value="Channel_6"/>
+
+			<Directory value="Directory_3"/>
+		</NiProvider>
 		<NiProvider>
 			<Name value="Provider_4"/>
 
-			<Channel value="Channel_11"/>
+			<Channel value="Channel_7"/>
 
 			<Directory value="Directory_1"/>
 
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 
+		<!-- Performance tools NIProviders -->
+		<NiProvider>
+			<Name value="Perf_Provider_1"/>
+
+			<Channel value="Perf_Channel_2"/>
+
+			<Directory value="Directory_1"/>
+
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
+
+		<NiProvider>
+			<Name value="Perf_Provider_2"/>
+
+			<Channel value="Perf_Channel_2"/>
+
+			<Directory value="Directory_2"/>
+
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -141,7 +193,6 @@
 			<PipePort value="9009" />
 
 			<RefreshFirstRequired value="1" />
-			<EnforceAckIDValidation value="0"/>
 
         </IProvider>
     </IProviderList>
@@ -177,11 +228,32 @@
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
+			<Host value="localhost"/>
 			<Port value="14002"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_4"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- EMA discovers a host and a port from EDP-RT service discovery for the specified location
+				 when both of them are not set and the session management is enable. -->
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_7"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
@@ -190,34 +262,46 @@
 			<Port value="14003"/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_4"/>
-			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-			<CompressionType value="CompressionType::None"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
-			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
-			<ObjectName value=""/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_5"/>
+			<Name value="Channel_8"/>
 			<ChannelType value="ChannelType::RSSL_HTTP"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
-			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
+			<Host value="localhost"/>
+			<Port value="14003"/>
 			<ObjectName value=""/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_11"/>
+			<Name value="Channel_9"/>
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
-			<Port value="14002"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
 			<!-- ObjectName is optional: defaulted to ""												-->
 			<ObjectName value=""/>
+		</Channel>
+
+		<!--Performance Tools Channels -->
+		<Channel>
+			<Name value="Perf_Channel_1"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<NumInputBuffers value="2048"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Perf_Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="100000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="0"/>
+			<DirectWrite value="1"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
@@ -257,7 +341,7 @@
 
 				<InfoFilter>
 					<!-- optional value; if not specified EMA will assign it							-->
-					<ServiceId value="11"/>
+					<ServiceId value="0"/>
 
 					<!-- optional value																	-->
 					<Vendor value="company name"/>
@@ -279,15 +363,15 @@
 					<!-- EMA will populate the Service::InfoFilter::DictionariesProvided element		-->
 					<!-- with the respective <>ItemName values											-->
 					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_1"/>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
-						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
 
 					<!-- list of dictionary names specified in the DictionaryGroup						-->
 					<!-- EMA will populate the Service::InfoFilter::DictionariesUsed element			-->
 					<!-- with the respective <>ItemName values											-->
 					<DictionariesUsed>
-						<DictionariesUsedEntry value="Dictionary_3"/>
+						<DictionariesUsedEntry value="Dictionary_1"/>
 					</DictionariesUsed>
 
 					<!-- list of QoS values supported by this service									-->
@@ -348,10 +432,10 @@
 				<Name value="NI_PUB"/>
 				<InfoFilter>
 					<DictionariesProvided>
-						<DictionariesProvidedEntry value="Dictionary_3"/>
+						<DictionariesProvidedEntry value="Dictionary_1"/>
 					</DictionariesProvided>
 					<DictionariesUsed>
-						<DictionariesUsedEntry value="Dictionary_3"/>
+						<DictionariesUsedEntry value="Dictionary_2"/>
 					</DictionariesUsed>
 
 					<Vendor value="company name"/>
@@ -434,8 +518,53 @@
 
 		</Directory>
 
-	</DirectoryList>
+		<!-- Performance tools directory -->
+		<Directory>
+			<Name value="Directory_3"/>
+			<Service>
+				<Name value="DF_1"/>
+				<InfoFilter>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+						<DictionariesProvidedEntry value="Dictionary_4"/>
+					</DictionariesProvided>
 
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+						<DictionariesUsedEntry value="Dictionary_4"/>
+					</DictionariesUsed>
+
+					<Vendor value="company name"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+					</Capabilities>
+
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+						<QoSEntry>
+							<Timeliness value="100"/>
+							<Rate value="100"/>
+						</QoSEntry>
+					</QoS>
+
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
+		</Directory>
+	</DirectoryList>
 </DirectoryGroup>
 
 <DictionaryGroup>
