@@ -25,14 +25,23 @@ task copyDictionary( type: Copy ) {
 	into '.'
 }
 
+task copyEmaConfig(type: Copy) {
+	from '../EmaConfig.xml'
+	into '.'
+}
+
 task deleteDictionary( type: Delete ) {
 	delete "$projectDir/RDMFieldDictionary"
 	delete "$projectDir/RDMFieldDictionary_large"
 	delete "$projectDir/enumtype.def"
 }
 
-run.dependsOn copyDictionary
-clean.dependsOn deleteDictionary
+task deleteEmaConfig( type: Delete ) {
+	delete "$projectDir/EmaConfig.xml"
+}
+
+run.dependsOn copyDictionary, copyEmaConfig
+clean.dependsOn deleteDictionary, deleteEmaConfig
 
 tasks.withType ( JavaExec ) {
 	// to enable the logger comment out the line below
@@ -79,7 +88,7 @@ fileTree('.') {
 
 		description 'This task runs the ' + TaskDescription
 
-		dependsOn copyDictionary
+		dependsOn copyDictionary, copyEmaConfig
 
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath

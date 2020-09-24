@@ -32,6 +32,7 @@ import com.rtsdk.ema.perftools.common.XmlItemInfoList;
 public class ConsumerThread implements Runnable, OmmConsumerClient
 {
     private static final int LATENCY_RANDOM_ARRAY_SET_COUNT = 20;
+    private static final String DEFAULT_PERF_CONSUMER_CONFIG_NAME = "Perf_Consumer_1";
     
     protected ConsumerThreadInfo _consThreadInfo; /* thread information */
     protected ConsPerfConfig _consPerfConfig; /* configuration information */
@@ -169,7 +170,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	{
 		try
 		{
-			_ommConfig = EmaFactory.createOmmConsumerConfig();
+			_ommConfig = EmaFactory.createOmmConsumerConfig().consumerName(DEFAULT_PERF_CONSUMER_CONFIG_NAME);
 			// A blank user name is an invalid input to OmmConsumerConfig.username and will trigger an invalid usage exception.
 			if(_consPerfConfig.username().length() != 0)
 				_ommConfig.username(_consPerfConfig.username());

@@ -48,16 +48,16 @@ Cons113 -username <machine ID> -password <machine ID password> -clientId <client
 + Instantiates an AppClient object to receive and process item messages
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the user credential
-  - Sets the consumer name to "Consumer_3"
-  - The Consumer_3 uses the Channel_3 channel name for using the RSSL_ENCRYPTED
-	channel type and the RSSL_SOCKET encrypted protocol type for both
-	Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
-	are needed to run this example.
-  - or sets the consumer name to "Consumer_4" in case of the WebSocket transport protocol
-  - The Consumer_4 uses the Channel_11 channel name for using the RSSL_ENCRYPTED
-	channel type and the RSSL_WEBSOCKET encrypted protocol type for both
-	Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
-	are needed to run this example.
+  - Sets the consumer name to "Consumer_4"
+  - The Consumer_4 uses the Channel_4 channel name for using the RSSL_ENCRYPTED
+		channel type and the RSSL_SOCKET encrypted protocol type for both
+		Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
+		are needed to run this example.
+  - or sets the consumer name to "Consumer_5" in case of the WebSocket transport protocol
+  - The Consumer_5 uses the Channel_5 channel name for using the RSSL_ENCRYPTED
+		channel type and the RSSL_WEBSOCKET encrypted protocol type for both
+		Linux and Windows platforms. Both the shared version of libcurl and the openssl libraries
+		are needed to run this example.
   - Loads configuration information for the specified consumer name
     from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 

@@ -141,12 +141,12 @@ int main( int argc, char* argv[] )
 		}
 
 		// use the "Consumer_3" to select EncryptedProtocolType::RSSL_SOCKET predefined in EmaConfig.xml
-		EmaString consumerName = "Consumer_3";
+		EmaString consumerName = "Consumer_4";
 
 		if (connectWebSocket)
 		{
 			// use the "Consumer_4" to select EncryptedProtocolType::RSSL_WEBSOCKET predefined in EmaConfig.xml
-			consumerName.set( "Consumer_4" );
+			consumerName.set( "Consumer_5" );
 		}
 
 		OmmConsumer consumer( config.consumerName( consumerName ) );

@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_2" ).operationModel( OmmConsumerConfig::UserDispatchEnum ) );
+		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_6" ).operationModel( OmmConsumerConfig::UserDispatchEnum ) );
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
 		unsigned long long startTime = getCurrentTime();
 		while (startTime + 60000 > getCurrentTime())

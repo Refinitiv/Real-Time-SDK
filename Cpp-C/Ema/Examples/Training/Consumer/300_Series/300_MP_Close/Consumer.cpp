@@ -107,7 +107,7 @@ int main()
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_2" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		client.setOmmConsumer( consumer );
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
