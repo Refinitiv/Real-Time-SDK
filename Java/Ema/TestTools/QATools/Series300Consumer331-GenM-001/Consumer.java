@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.consumer.series300.example331__Directory__Streaming;
+package com.rtsdk.ema.examples.training.consumer.series300.ex331_Directory_Streaming;
 
 import com.rtsdk.ema.access.FilterEntry;
 import com.rtsdk.ema.access.FilterList;

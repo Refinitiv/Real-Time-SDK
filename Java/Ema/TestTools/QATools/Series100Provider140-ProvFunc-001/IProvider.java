@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.example140__MarketByOrder__Streaming;
+package com.rtsdk.ema.examples.training.iprovider.series100.ex140_MBO_Streaming;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming;
+package com.rtsdk.ema.examples.training.iprovider.series100.ex100_MP_Streaming;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

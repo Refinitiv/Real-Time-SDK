@@ -6,7 +6,7 @@
 ///*|-----------------------------------------------------------------------------
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.niprovider.series300.example350__Dictionary__Streaming;
+package com.rtsdk.ema.examples.training.niprovider.series300.ex350_Dictionary_Streaming;
 
 import com.rtsdk.ema.access.EmaFactory;
 import com.rtsdk.ema.access.FieldList;

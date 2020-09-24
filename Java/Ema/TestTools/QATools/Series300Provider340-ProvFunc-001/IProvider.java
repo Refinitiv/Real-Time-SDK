@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series300.example340__MarketPrice__Posting;
+package com.rtsdk.ema.examples.training.iprovider.series300.ex340_MP_Posting;
 
 import com.rtsdk.ema.access.AckMsg;
 import com.rtsdk.ema.access.ElementList;

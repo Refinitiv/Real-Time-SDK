@@ -6,7 +6,7 @@
 ///*|----------------------------------------------------------------------------------------------------
 
 //APIQA
-package com.rtsdk.ema.examples.training.consumer.series400.example410__MarketPrice__HorizontalScaling;
+package com.rtsdk.ema.examples.training.consumer.series400.ex410_MP_HorizontalScaling;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;

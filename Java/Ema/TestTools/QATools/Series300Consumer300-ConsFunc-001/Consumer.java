@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.consumer.series300.example300__MarketPrice__Close;
+package com.rtsdk.ema.examples.training.consumer.series300.ex300_MP_Close;
 
 import com.rtsdk.ema.access.Msg;
 

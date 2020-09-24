@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series300.example341__MarketPrice__OffStreamPost;
+package com.rtsdk.ema.examples.training.consumer.series300.ex341_MP_OffStreamPost;
 
 import com.rtsdk.ema.access.Msg;
 import com.rtsdk.ema.access.AckMsg;

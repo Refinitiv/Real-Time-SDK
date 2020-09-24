@@ -8,7 +8,7 @@
 
 // APIQA new example code based on customer issue
 
-package com.rtsdk.ema.examples.training.consumer.series300.example332__Dictionary__Streaming;
+package com.rtsdk.ema.examples.training.consumer.series300.ex332_Dictionary_Streaming;
 
 import com.rtsdk.ema.access.Msg;
 import com.rtsdk.ema.access.AckMsg;

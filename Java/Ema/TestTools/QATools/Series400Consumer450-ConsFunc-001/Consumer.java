@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series400.example450__MarketPrice__QueryServiceDiscovery;
+package com.rtsdk.ema.examples.training.consumer.series400.ex450_MP_QueryServiceDiscovery;
 
 import com.rtsdk.ema.access.Msg;
 

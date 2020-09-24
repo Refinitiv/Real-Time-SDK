@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 //APIQA
-package com.rtsdk.ema.examples.training.consumer.series400.example410__MarketPrice__HorizontalScaling;
+package com.rtsdk.ema.examples.training.consumer.series400.ex410_MP_HorizontalScaling;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

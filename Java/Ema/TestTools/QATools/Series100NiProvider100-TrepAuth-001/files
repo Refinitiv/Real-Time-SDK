@@ -2,4 +2,4 @@
 ,Src/main/java/interface/com/rtsdk/ema/access
 ,Src/main/java/impl/com/rtsdk/ema/access
 EmaConfig.xml,Src/examples
-NiProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/niprovider/series100/example100__MarketPrice__Streaming
+NiProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/niprovider/series100/ex100_MP_Streaming

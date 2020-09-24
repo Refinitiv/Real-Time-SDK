@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.example170__MarketPrice__ConnectedClientInfo;
+package com.rtsdk.ema.examples.training.iprovider.series100.ex170_MP_ConnectedClientInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

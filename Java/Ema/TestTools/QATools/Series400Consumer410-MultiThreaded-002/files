@@ -1,5 +1,5 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series400/example410__MarketPrice__HorizontalScaling
+Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series400/ex410_MP_HorizontalScaling
 ,Src/perftools
 20k.xml,Examples/
 build.gradle,Examples

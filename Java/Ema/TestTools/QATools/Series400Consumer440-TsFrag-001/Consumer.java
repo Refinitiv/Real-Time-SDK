@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.consumer.series400.example440__System__TunnelStream;
+package com.rtsdk.ema.examples.training.consumer.series400.ex440_System_TunnelStrm;
 
 import com.rtsdk.ema.access.Msg;
 // APIQA:

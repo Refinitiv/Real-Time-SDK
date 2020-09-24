@@ -1,5 +1,5 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-package com.rtsdk.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
+package com.rtsdk.ema.examples.training.consumer.series100.ex110_MP_FileCfg;
 
 import com.rtsdk.ema.access.*;
 import com.rtsdk.ema.access.DataType.DataTypes;

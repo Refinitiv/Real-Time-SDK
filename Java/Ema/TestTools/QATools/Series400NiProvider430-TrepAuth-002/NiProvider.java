@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.niprovider.series400.example430__MarketPrice__TrepAuthentication;
+package com.rtsdk.ema.examples.training.niprovider.series400.ex430_MP_Authentication;
 
 import java.nio.ByteBuffer;
 

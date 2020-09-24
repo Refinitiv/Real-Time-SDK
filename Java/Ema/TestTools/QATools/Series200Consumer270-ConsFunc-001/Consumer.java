@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series200.example270__SymbolList;
+package com.rtsdk.ema.examples.training.consumer.series200.ex270_SymbolList;
 
 import com.rtsdk.ema.access.Map;
 import com.rtsdk.ema.access.MapEntry;

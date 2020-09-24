@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series300.example331__Directory__Streaming;
+package com.rtsdk.ema.examples.training.consumer.series300.ex331_Directory_Streaming;
 
 import com.rtsdk.ema.access.FilterEntry;
 import com.rtsdk.ema.access.FilterList;

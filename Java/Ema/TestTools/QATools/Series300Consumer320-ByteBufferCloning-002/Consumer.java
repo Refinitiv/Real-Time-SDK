@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series300.example320__Custom__GenericMsg;
+package com.rtsdk.ema.examples.training.consumer.series300.ex320_Custom_GenericMsg;
 
 import com.rtsdk.ema.access.DataType.DataTypes;
 import com.rtsdk.ema.access.Data;

@@ -1,6 +1,6 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.niprovider.series100.example100__MarketPrice__Streaming;
+package com.rtsdk.ema.examples.training.niprovider.series100.ex100_MP_Streaming;
 
 import com.rtsdk.ema.access.EmaFactory;
 import com.rtsdk.ema.access.FieldList;

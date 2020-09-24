@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series400.example421__MarketPrice__ProgrammaticConfig;
+package com.rtsdk.ema.examples.training.consumer.series400.ex421_MP_ProgrammaticCfg;
 
 import com.rtsdk.ema.access.Msg;
 import com.rtsdk.ema.access.AckMsg;

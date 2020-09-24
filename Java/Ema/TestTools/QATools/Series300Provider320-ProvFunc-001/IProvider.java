@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.iprovider.series300.example320__Custom__GenericMsg;
+package com.rtsdk.ema.examples.training.iprovider.series300.ex320_Custom_GenericMsg;
 
 import com.rtsdk.ema.access.EmaFactory;
 import com.rtsdk.ema.access.FieldList;

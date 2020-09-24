@@ -1,4 +1,4 @@
-package com.rtsdk.ema.examples.training.niprovider.series400.example421__MarketPrice__ProgrammaticConfig;
+package com.rtsdk.ema.examples.training.niprovider.series400.ex421_MP_ProgrammaticCfg;
 
 //APIQA
 import com.rtsdk.ema.access.EmaFactory;

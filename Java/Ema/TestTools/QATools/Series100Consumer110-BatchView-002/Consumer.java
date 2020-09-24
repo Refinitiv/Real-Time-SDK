@@ -7,7 +7,7 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 //This QATools send batch request with 50 items in one batch 
 
-package com.rtsdk.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
+package com.rtsdk.ema.examples.training.consumer.series100.ex110_MP_FileCfg;
 
 import com.rtsdk.ema.access.Msg;
 import com.rtsdk.ema.access.AckMsg;

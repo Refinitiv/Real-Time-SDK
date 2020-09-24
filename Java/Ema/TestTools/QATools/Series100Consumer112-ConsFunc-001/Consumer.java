@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series100.example112__MarketPrice__TunnelingConnection;
+package com.rtsdk.ema.examples.training.consumer.series100.ex112_MP_TunnelingConnection;
 
 
 import com.rtsdk.ema.access.AckMsg;

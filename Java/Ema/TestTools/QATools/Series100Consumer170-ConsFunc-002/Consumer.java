@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series100.example170__MarketPrice__ChannelInfo;
+package com.rtsdk.ema.examples.training.consumer.series100.ex170_MP_ChannelInfo;
 
 import com.rtsdk.ema.access.Msg;
 

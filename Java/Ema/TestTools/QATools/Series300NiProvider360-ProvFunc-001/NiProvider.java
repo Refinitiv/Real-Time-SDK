@@ -1,5 +1,5 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-package com.rtsdk.ema.examples.training.niprovider.series300.example360__MarketPrice__ConnectionRecovery;
+package com.rtsdk.ema.examples.training.niprovider.series300.ex360_MP_ConnectionRecovery;
 
 import com.rtsdk.ema.access.ChannelInformation;
 import com.rtsdk.ema.access.EmaFactory;

@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.niprovider.series400.example430__MarketPrice__TrepAuthentication;
+package com.rtsdk.ema.examples.training.niprovider.series400.ex430_MP_Authentication;
 
 import java.nio.ByteBuffer;
 

@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.niprovider.series200.example201__MarketPrice__TunnelingConnection;
+package com.rtsdk.ema.examples.training.niprovider.series200.ex201_MP_TunnelingConnection;
 
 import com.rtsdk.ema.access.EmaFactory;
 import com.rtsdk.ema.access.FieldList;

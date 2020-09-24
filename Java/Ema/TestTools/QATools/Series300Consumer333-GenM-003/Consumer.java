@@ -7,7 +7,7 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.consumer.series300.example333__Login__Streaming__DomainRepresentation;
+package com.rtsdk.ema.examples.training.consumer.series300.ex333_Login_Streaming_DomainRep;
 
 import com.rtsdk.ema.access.AckMsg;
 import com.rtsdk.ema.access.Data;

@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.example161__Login__AcceptDeny__DomainRepresentation;
+package com.rtsdk.ema.examples.training.iprovider.series100.ex161_Login_AcceptDeny_DomainRep;
 
 import com.rtsdk.ema.access.EmaFactory;
 import com.rtsdk.ema.access.GenericMsg;
