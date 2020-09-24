@@ -273,7 +273,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -333,7 +333,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -407,7 +407,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -459,7 +459,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -511,7 +511,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -563,7 +563,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -615,7 +615,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -667,7 +667,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -719,7 +719,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -771,7 +771,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -823,7 +823,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -875,7 +875,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -936,7 +936,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -988,7 +988,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -1040,7 +1040,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -1096,7 +1096,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -1148,7 +1148,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -1209,7 +1209,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			Map mapEnc = EmaFactory.createMap();
@@ -1267,13 +1267,13 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		try {
 			com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 			buf.data(ByteBuffer.allocate(1024));
 
-			TestUtilities.upa_EncodeMapKeyIntWithEmptyFLs(buf);
+			TestUtilities.eta_EncodeMapKeyIntWithEmptyFLs(buf);
 			
 			//Now do EMA decoding of Map
 			Map mapDec = JUnitTestConnect.createMap();
@@ -1311,7 +1311,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -1413,7 +1413,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -1488,7 +1488,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -1575,7 +1575,7 @@ public class MapTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -1847,11 +1847,11 @@ public class MapTests extends TestCase
 	}
 
 	
-	public void testMapWithKeyUInt_ContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll()
+	public void testMapWithKeyUInt_ContainsFieldLists_EncodeETA_decodeEMA_DecodeAll()
 	{
-		TestUtilities.printTestHead("testMapContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll","Encode Map (key is UInt) that contains FieldLists with UPA and Decode Map with EMA");
+		TestUtilities.printTestHead("testMapContainsFieldLists_EncodeETA_decodeEMA_DecodeAll","Encode Map (key is UInt) that contains FieldLists with ETA and Decode Map with EMA");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
@@ -1859,20 +1859,20 @@ public class MapTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode Map with UPA.
+		// Encode Map with ETA.
 		int retVal;
-		System.out.println("Begin UPA Map Encoding");
-		if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(buf, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA Map Encoding");
+		if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(buf, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding map.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeMapKeyUIntWithFLs.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeMapKeyUIntWithFLs.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA Map Encoding");
+		System.out.println("End ETA Map Encoding");
 		System.out.println();
 
 		// Decode Map with EMA.
@@ -1890,7 +1890,7 @@ public class MapTests extends TestCase
 		{
 		case DataType.DataTypes.FIELD_LIST:
 			com.rtsdk.ema.access.FieldList fl = map.summaryData().fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 			break;
 
 		default:
@@ -1907,7 +1907,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check reseting iteration to start of map
@@ -1921,7 +1921,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check second map entry
@@ -1933,7 +1933,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me2.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me2.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check third map entry
@@ -1946,35 +1946,35 @@ public class MapTests extends TestCase
 
 		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 
-		System.out.println("\ntestMapContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestMapContainsFieldLists_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 
-	public void testMapWithKeyInt_ContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll()
+	public void testMapWithKeyInt_ContainsFieldLists_EncodeETA_decodeEMA_DecodeAll()
 	{
-		System.out.println("testMapKeyIntContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll");
-		System.out.println("Encode Map (key is Int) that contains FieldLists with UPA and Decode Map with EMA\n");
+		System.out.println("testMapKeyIntContainsFieldLists_EncodeETA_decodeEMA_DecodeAll");
+		System.out.println("Encode Map (key is Int) that contains FieldLists with ETA and Decode Map with EMA\n");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode Map with UPA.
+		// Encode Map with ETA.
 		int retVal;
-		System.out.println("Begin UPA Map Encoding");
-		if ((retVal = TestUtilities.upa_EncodeMapKeyIntWithFLs(buf)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA Map Encoding");
+		if ((retVal = TestUtilities.eta_EncodeMapKeyIntWithFLs(buf)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding map.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeMapKeyIntWithFLs.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeMapKeyIntWithFLs.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA Map Encoding");
+		System.out.println("End ETA Map Encoding");
 		System.out.println();
 
 		// Decode Map with EMA.
@@ -1992,7 +1992,7 @@ public class MapTests extends TestCase
 		{
 		case DataType.DataTypes.FIELD_LIST:
 			com.rtsdk.ema.access.FieldList fl = map.summaryData().fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 			break;
 
 		default:
@@ -2010,7 +2010,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check reseting iteration to start of map
@@ -2024,7 +2024,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check second map entry
@@ -2036,7 +2036,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me2.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me2.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check third map entry
@@ -2049,36 +2049,36 @@ public class MapTests extends TestCase
 
 		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 
-		System.out.println("\ntestMapKeyIntContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestMapKeyIntContainsFieldLists_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 
-	public void testMapWithKeyAsciiString_ContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll()
+	public void testMapWithKeyAsciiString_ContainsFieldLists_EncodeETA_decodeEMA_DecodeAll()
 	{
-		System.out.println("testMapKeyAsciiStringContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll");
+		System.out.println("testMapKeyAsciiStringContainsFieldLists_EncodeETA_decodeEMA_DecodeAll");
 		System.out
-				.println("Encode Map (key is AsciiString) that contains FieldLists with UPA and Decode Map with EMA\n");
+				.println("Encode Map (key is AsciiString) that contains FieldLists with ETA and Decode Map with EMA\n");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode Map with UPA.
+		// Encode Map with ETA.
 		int retVal;
-		System.out.println("Begin UPA Map Encoding");
-		if ((retVal = TestUtilities.upa_EncodeMapKeyAsciiStringWithFLs(buf)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA Map Encoding");
+		if ((retVal = TestUtilities.eta_EncodeMapKeyAsciiStringWithFLs(buf)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding map.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeMapKeyAsciiStringWithFLs.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeMapKeyAsciiStringWithFLs.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA Map Encoding");
+		System.out.println("End ETA Map Encoding");
 		System.out.println();
 
 		// Decode Map with EMA.
@@ -2096,7 +2096,7 @@ public class MapTests extends TestCase
 		{
 		case DataType.DataTypes.FIELD_LIST:
 			com.rtsdk.ema.access.FieldList fl = map.summaryData().fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 			break;
 
 		default:
@@ -2114,7 +2114,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check reseting iteration to start of map
@@ -2128,7 +2128,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check second map entry
@@ -2140,7 +2140,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me2.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me2.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check third map entry
@@ -2153,35 +2153,35 @@ public class MapTests extends TestCase
 
 		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 
-		System.out.println("\ntestMapKeyAsciiStringContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestMapKeyAsciiStringContainsFieldLists_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 
-	public void testMapWithKeyBuffer_ContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll()
+	public void testMapWithKeyBuffer_ContainsFieldLists_EncodeETA_decodeEMA_DecodeAll()
 	{
-		System.out.println("testMapKeyBufferContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll");
-		System.out.println("Encode Map (key is Buffer) that contains FieldLists with UPA and Decode Map with EMA\n");
+		System.out.println("testMapKeyBufferContainsFieldLists_EncodeETA_decodeEMA_DecodeAll");
+		System.out.println("Encode Map (key is Buffer) that contains FieldLists with ETA and Decode Map with EMA\n");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode Map with UPA.
+		// Encode Map with ETA.
 		int retVal;
-		System.out.println("Begin UPA Map Encoding");
-		if ((retVal = TestUtilities.upa_EncodeMapKeyBufferWithFLs(buf)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA Map Encoding");
+		if ((retVal = TestUtilities.eta_EncodeMapKeyBufferWithFLs(buf)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding map.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeMapKeyBufferWithFLs.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeMapKeyBufferWithFLs.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA Map Encoding");
+		System.out.println("End ETA Map Encoding");
 		System.out.println();
 
 		// Decode Map with EMA.
@@ -2199,7 +2199,7 @@ public class MapTests extends TestCase
 		{
 		case DataType.DataTypes.FIELD_LIST:
 			com.rtsdk.ema.access.FieldList fl = map.summaryData().fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 			break;
 
 		default:
@@ -2222,7 +2222,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check reseting iteration to start of map
@@ -2237,7 +2237,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me1.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me1.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check second map entry
@@ -2253,7 +2253,7 @@ public class MapTests extends TestCase
 		TestUtilities.checkResult(me2.load().dataType(), DataType.DataTypes.FIELD_LIST);
 		{
 			com.rtsdk.ema.access.FieldList fl = me2.fieldList();
-			TestUtilities.EmaDecode_UPAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+			TestUtilities.EmaDecode_ETAFieldListAll(fl, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 		}
 
 		// check third map entry
@@ -2270,35 +2270,35 @@ public class MapTests extends TestCase
 
 		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 
-		System.out.println("\ntestMapKeyBufferContainsFieldLists_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestMapKeyBufferContainsFieldLists_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 
-//	public void testMapWithKeyUInt_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll()
+//	public void testMapWithKeyUInt_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll()
 //	{
-//		System.out.println("testMapKeyUIntContainsElementLists_EncodeUPA_decodeEMA_DecodeAll");
-//		System.out.println("Encode Map (key is UInt) that contains ElementLists with UPA and Decode Map with EMA\n");
+//		System.out.println("testMapKeyUIntContainsElementLists_EncodeETA_decodeEMA_DecodeAll");
+//		System.out.println("Encode Map (key is UInt) that contains ElementLists with ETA and Decode Map with EMA\n");
 //
-//		// Create a UPA Buffer to encode into
+//		// Create a ETA Buffer to encode into
 //		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 //		buf.data(ByteBuffer.allocate(1024));
 //
 //		// load dictionary
 //		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 //				.createDataDictionary();
-//		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+//		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 //
-//		// Encode Map with UPA.
+//		// Encode Map with ETA.
 //		int retVal;
-//		System.out.println("Begin UPA Map Encoding");
-//		if ((retVal = TestUtilities.upa_EncodeMapKeyUIntWithELs(buf)) < CodecReturnCodes.SUCCESS)
+//		System.out.println("Begin ETA Map Encoding");
+//		if ((retVal = TestUtilities.eta_EncodeMapKeyUIntWithELs(buf)) < CodecReturnCodes.SUCCESS)
 //		{
 //			System.out.println("Error encoding map.");
 //			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-//					+ ") encountered with TestUtilities.upa_EncodeMapAll.  " + "Error Text: "
+//					+ ") encountered with TestUtilities.eta_EncodeMapAll.  " + "Error Text: "
 //					+ CodecReturnCodes.info(retVal));
 //			return;
 //		}
-//		System.out.println("End UPA Map Encoding");
+//		System.out.println("End ETA Map Encoding");
 //		System.out.println();
 //
 //		// Decode Map with EMA.
@@ -2373,35 +2373,35 @@ public class MapTests extends TestCase
 //
 //		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 //
-//		System.out.println("\ntestMapKeyUIntContainsElementLists_EncodeUPA_decodeEMA_DecodeAll passed");
+//		System.out.println("\ntestMapKeyUIntContainsElementLists_EncodeETA_decodeEMA_DecodeAll passed");
 //	}
 //
-//	public void testMapWithKeyInt_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll()
+//	public void testMapWithKeyInt_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll()
 //	{
-//		System.out.println("testMapKeyntContainsElementLists_EncodeUPA_decodeEMA_DecodeAll");
-//		System.out.println("Encode Map (key is Int) that contains ElementLists with UPA and Decode Map with EMA\n");
+//		System.out.println("testMapKeyntContainsElementLists_EncodeETA_decodeEMA_DecodeAll");
+//		System.out.println("Encode Map (key is Int) that contains ElementLists with ETA and Decode Map with EMA\n");
 //
-//		// Create a UPA Buffer to encode into
+//		// Create a ETA Buffer to encode into
 //		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 //		buf.data(ByteBuffer.allocate(1024));
 //
 //		// load dictionary
 //		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 //				.createDataDictionary();
-//		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+//		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 //
-//		// Encode Map with UPA.
+//		// Encode Map with ETA.
 //		int retVal;
-//		System.out.println("Begin UPA Map Encoding");
-//		if ((retVal = TestUtilities.upa_EncodeMapKeyIntWithELs(buf)) < CodecReturnCodes.SUCCESS)
+//		System.out.println("Begin ETA Map Encoding");
+//		if ((retVal = TestUtilities.eta_EncodeMapKeyIntWithELs(buf)) < CodecReturnCodes.SUCCESS)
 //		{
 //			System.out.println("Error encoding map.");
 //			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-//					+ ") encountered with TestUtilities.upa_EncodeMapKeyIntWithELs.  " + "Error Text: "
+//					+ ") encountered with TestUtilities.eta_EncodeMapKeyIntWithELs.  " + "Error Text: "
 //					+ CodecReturnCodes.info(retVal));
 //			return;
 //		}
-//		System.out.println("End UPA Map Encoding");
+//		System.out.println("End ETA Map Encoding");
 //		System.out.println();
 //
 //		// Decode Map with EMA.
@@ -2476,35 +2476,35 @@ public class MapTests extends TestCase
 //
 //		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 //
-//		System.out.println("\ntestMapKeyntContainsElementLists_EncodeUPA_decodeEMA_DecodeAll passed");
+//		System.out.println("\ntestMapKeyntContainsElementLists_EncodeETA_decodeEMA_DecodeAll passed");
 //	}
 //
-//	public void testMapWithKeyBuffer_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll()
+//	public void testMapWithKeyBuffer_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll()
 //	{
-//		System.out.println("testMapWithKeyBuffer_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll");
-//		System.out.println("Encode Map (key is Buffer) that contains ElementLists with UPA and Decode Map with EMA\n");
+//		System.out.println("testMapWithKeyBuffer_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll");
+//		System.out.println("Encode Map (key is Buffer) that contains ElementLists with ETA and Decode Map with EMA\n");
 //
-//		// Create a UPA Buffer to encode into
+//		// Create a ETA Buffer to encode into
 //		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 //		buf.data(ByteBuffer.allocate(1024));
 //
 //		// load dictionary
 //		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 //				.createDataDictionary();
-//		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+//		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 //
-//		// Encode Map with UPA.
+//		// Encode Map with ETA.
 //		int retVal;
-//		System.out.println("Begin UPA Map Encoding");
-//		if ((retVal = TestUtilities.upa_EncodeMapKeyBufferWithELs(buf)) < CodecReturnCodes.SUCCESS)
+//		System.out.println("Begin ETA Map Encoding");
+//		if ((retVal = TestUtilities.eta_EncodeMapKeyBufferWithELs(buf)) < CodecReturnCodes.SUCCESS)
 //		{
 //			System.out.println("Error encoding map.");
 //			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-//					+ ") encountered with TestUtilities.upa_EncodeMapKeyBufferWithELs.  " + "Error Text: "
+//					+ ") encountered with TestUtilities.eta_EncodeMapKeyBufferWithELs.  " + "Error Text: "
 //					+ CodecReturnCodes.info(retVal));
 //			return;
 //		}
-//		System.out.println("End UPA Map Encoding");
+//		System.out.println("End ETA Map Encoding");
 //		System.out.println();
 //
 //		// Decode Map with EMA.
@@ -2591,36 +2591,36 @@ public class MapTests extends TestCase
 //
 //		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 //
-//		System.out.println("\ntestMapWithKeyBuffer_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll passed");
+//		System.out.println("\ntestMapWithKeyBuffer_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll passed");
 //	}
 //
-//	public void testMapWithKeyAsciiString_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll()
+//	public void testMapWithKeyAsciiString_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll()
 //	{
-//		System.out.println("testMapWithKeyAsciiString_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll");
+//		System.out.println("testMapWithKeyAsciiString_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll");
 //		System.out.println(
-//				"Encode Map (key is AsciiString) that contains ElementLists with UPA and Decode Map with EMA\n");
+//				"Encode Map (key is AsciiString) that contains ElementLists with ETA and Decode Map with EMA\n");
 //
-//		// Create a UPA Buffer to encode into
+//		// Create a ETA Buffer to encode into
 //		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 //		buf.data(ByteBuffer.allocate(1024));
 //
 //		// load dictionary
 //		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 //				.createDataDictionary();
-//		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+//		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 //
-//		// Encode Map with UPA.
+//		// Encode Map with ETA.
 //		int retVal;
-//		System.out.println("Begin UPA Map Encoding");
-//		if ((retVal = TestUtilities.upa_EncodeMapKeyAsciiStringWithELs(buf)) < CodecReturnCodes.SUCCESS)
+//		System.out.println("Begin ETA Map Encoding");
+//		if ((retVal = TestUtilities.eta_EncodeMapKeyAsciiStringWithELs(buf)) < CodecReturnCodes.SUCCESS)
 //		{
 //			System.out.println("Error encoding map.");
 //			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-//					+ ") encountered with TestUtilities.upa_EncodeMapKeyBufferWithELs.  " + "Error Text: "
+//					+ ") encountered with TestUtilities.eta_EncodeMapKeyBufferWithELs.  " + "Error Text: "
 //					+ CodecReturnCodes.info(retVal));
 //			return;
 //		}
-//		System.out.println("End UPA Map Encoding");
+//		System.out.println("End ETA Map Encoding");
 //		System.out.println();
 //
 //		// Decode Map with EMA.
@@ -2694,16 +2694,16 @@ public class MapTests extends TestCase
 //
 //		TestUtilities.checkResult(!mapIter.hasNext()); // finalhasNext() - no more map entries
 //
-//		System.out.println("\ntestMapWithKeyAsciiString_ContainsElementLists_EncodeUPA_decodeEMA_DecodeAll passed");
+//		System.out.println("\ntestMapWithKeyAsciiString_ContainsElementLists_EncodeETA_decodeEMA_DecodeAll passed");
 //	}
 	
-	public void testMap_EncodeUPAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for FieldList type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for FieldList type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(8192));
        
@@ -2722,12 +2722,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-       // Encode Map with UPA.
-       if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+       // Encode Map with ETA.
+       if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
        {
            System.out.println("Error encoding field list.");
            System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                   + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                   + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                    + CodecReturnCodes.info(retVal));
            return;
        }
@@ -2755,18 +2755,18 @@ public class MapTests extends TestCase
        
        JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
        
-       TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+       TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 
-       System.out.println("\testMap_EncodeUPAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+       System.out.println("\testMap_EncodeETAMapWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for ElementList type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for ElementList type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(8192));
       
@@ -2785,12 +2785,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -2817,18 +2817,18 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 
-      System.out.println("\testMap_EncodeUPAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for FilterList type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for FilterList type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(32000));
       
@@ -2847,12 +2847,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -2879,18 +2879,18 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
 
-      System.out.println("\testMap_EncodeUPAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for Series type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for Series type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(14000));
       
@@ -2909,12 +2909,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -2941,18 +2941,18 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
 
-      System.out.println("\testMap_EncodeUPAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for Vector type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for Vector type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(14000));
       
@@ -2971,12 +2971,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -3003,18 +3003,18 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
 
-      System.out.println("\testMap_EncodeUPAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for Map type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for Map type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(8192));
       
@@ -3033,12 +3033,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -3065,18 +3065,18 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.MAP);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.MAP);
 
-      System.out.println("\testMap_EncodeUPAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithMapType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	
-	public void testMap_EncodeUPAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	public void testMap_EncodeETAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	{
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testMap_EncodeUPAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for RefreshMsg type, Encode it to another Map.");
+		 TestUtilities.printTestHead("testMap_EncodeETAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for RefreshMsg type, Encode it to another Map.");
 
-		 // Create a UPA Buffer to encode into
+		 // Create a ETA Buffer to encode into
 		 com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		 buf.data(ByteBuffer.allocate(8192));
       
@@ -3095,12 +3095,12 @@ public class MapTests extends TestCase
 			return;
 		}
 
-      // Encode Map with UPA.
-      if ((retVal = TestUtilities.upa_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
+      // Encode Map with ETA.
+      if ((retVal = TestUtilities.eta_EncodeMapKeyUIntAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
       {
           System.out.println("Error encoding field list.");
           System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                  + ") encountered with TestUtilities.upa_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
+                  + ") encountered with TestUtilities.eta_EncodeMapKeyUIntAll for container types.  " + "Error Text: "
                   + CodecReturnCodes.info(retVal));
           return;
       }
@@ -3127,8 +3127,8 @@ public class MapTests extends TestCase
       com.rtsdk.ema.access.Map decMapCopy = JUnitTestConnect.createMap();
       JUnitTestConnect.setRsslData(decMapCopy, mapCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
       
-      TestUtilities.EmaDecode_UPAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.MSG);
+      TestUtilities.EmaDecode_ETAMapKeyUIntAll(decMapCopy, com.rtsdk.eta.codec.DataTypes.MSG);
 
-      System.out.println("\testMap_EncodeUPAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+      System.out.println("\testMap_EncodeETAMapWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 }

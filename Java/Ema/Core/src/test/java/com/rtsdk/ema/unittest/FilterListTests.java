@@ -187,7 +187,7 @@ public class FilterListTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -250,13 +250,13 @@ public class FilterListTests extends TestCase
 		}
 	}
 	
-	 public void testFilterList_EncodeUPAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode() 
+	 public void testFilterList_EncodeETAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testFilterList_EncodeUPAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode", "Encode FilterList with UPA for container types, Encode it to another FilterList.");
+		 TestUtilities.printTestHead("testFilterList_EncodeETAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode", "Encode FilterList with ETA for container types, Encode it to another FilterList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(20000));
         
@@ -275,12 +275,12 @@ public class FilterListTests extends TestCase
 			return;
 		}
 
-        // Encode FilterList with UPA.
-        if ((retVal = TestUtilities.upa_EncodeFilterListAll(encodeIter, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
+        // Encode FilterList with ETA.
+        if ((retVal = TestUtilities.eta_EncodeFilterListAll(encodeIter, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFilterListAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFilterListAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -306,18 +306,18 @@ public class FilterListTests extends TestCase
         
         JUnitTestConnect.setRsslData(filterListDecCopy, filterListCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFilterListAll(filterListDecCopy, EncodingTypeFlags.CONTAINER_TYPES);
+        TestUtilities.EmaDecode_ETAFilterListAll(filterListDecCopy, EncodingTypeFlags.CONTAINER_TYPES);
 
-        System.out.println("\ntestFilterList_EncodeUPAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode passed");
+        System.out.println("\ntestFilterList_EncodeETAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode passed");
 	 }
 	 
-	 public void testFilterList_EncodeUPAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode() 
+	 public void testFilterList_EncodeETAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testFilterList_EncodeUPAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode", "Encode FilterList with UPA for message types, Encode it to another FilterList.");
+		 TestUtilities.printTestHead("testFilterList_EncodeETAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode", "Encode FilterList with ETA for message types, Encode it to another FilterList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(8192));
         
@@ -336,12 +336,12 @@ public class FilterListTests extends TestCase
 			return;
 		}
 
-        // Encode FilterList with UPA.
-        if ((retVal = TestUtilities.upa_EncodeFilterListAll(encodeIter, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+        // Encode FilterList with ETA.
+        if ((retVal = TestUtilities.eta_EncodeFilterListAll(encodeIter, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeFilterListAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeFilterListAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -367,9 +367,9 @@ public class FilterListTests extends TestCase
         
         JUnitTestConnect.setRsslData(filterListDecCopy, filterListCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAFilterListAll(filterListCopy, EncodingTypeFlags.MESSAGE_TYPES);
+        TestUtilities.EmaDecode_ETAFilterListAll(filterListCopy, EncodingTypeFlags.MESSAGE_TYPES);
 
-        System.out.println("\testFilterList_EncodeUPAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode passed");
+        System.out.println("\testFilterList_EncodeETAFilterListWithMsgTypes_EncodeEMA_ToAnotherFilterList_EMADecode passed");
 	 }
 	 
 }

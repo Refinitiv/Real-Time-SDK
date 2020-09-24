@@ -247,7 +247,7 @@ public class VectorTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -357,13 +357,13 @@ public class VectorTests extends TestCase
 		}
 	}
 	
-	 public void testVector_EncodeUPAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for FieldList, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for FieldList, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(8096));
         
@@ -382,12 +382,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -413,18 +413,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 
-        System.out.println("\testVector_EncodeUPAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithFieldList_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for ElementList, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for ElementList, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(8096));
         
@@ -443,12 +443,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -474,18 +474,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 
-        System.out.println("\testVector_EncodeUPAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithElementList_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for FilterList, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for FilterList, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(16000));
         
@@ -504,12 +504,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -535,18 +535,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
 
-        System.out.println("\testVector_EncodeUPAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithFilterList_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for Series, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for Series, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14000));
         
@@ -565,12 +565,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -596,18 +596,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
 
-        System.out.println("\testVector_EncodeUPAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithSeries_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for Vector, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for Vector, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14000));
         
@@ -626,12 +626,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -657,18 +657,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
 
-        System.out.println("\testVector_EncodeUPAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithVector_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for Map, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for Map, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14000));
         
@@ -687,12 +687,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -718,18 +718,18 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.MAP);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.MAP);
 
-        System.out.println("\testVector_EncodeUPAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithMap_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
-	 public void testVector_EncodeUPAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode() 
+	 public void testVector_EncodeETAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testVector_EncodeUPAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with UPA for RefreshMsg, Encode it to another Vector.");
+		 TestUtilities.printTestHead("testVector_EncodeETAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode", "Encode Vector with ETA for RefreshMsg, Encode it to another Vector.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14000));
         
@@ -748,12 +748,12 @@ public class VectorTests extends TestCase
 			return;
 		}
 
-        // Encode Vector with UPA.
-        if ((retVal = TestUtilities.upa_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
+        // Encode Vector with ETA.
+        if ((retVal = TestUtilities.eta_EncodeVectorAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeVectorAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeVectorAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -779,9 +779,9 @@ public class VectorTests extends TestCase
         com.rtsdk.ema.access.Vector DecVectorCopy = JUnitTestConnect.createVector();
         JUnitTestConnect.setRsslData(DecVectorCopy, vectorCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.MSG);
+        TestUtilities.EmaDecode_ETAVectorAll(DecVectorCopy, com.rtsdk.eta.codec.DataTypes.MSG);
 
-        System.out.println("\testVector_EncodeUPAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode passed");
+        System.out.println("\testVector_EncodeETAVectorWithRefreshMsg_EncodeEMA_ToAnotherVector_EMADecode passed");
 	 }
 	 
 }

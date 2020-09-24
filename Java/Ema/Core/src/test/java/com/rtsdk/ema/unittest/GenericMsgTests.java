@@ -30,30 +30,30 @@ public class GenericMsgTests extends TestCase
 	
 	public void testGenericMsg_Decode()
 	{
-		TestUtilities.printTestHead("testGenericMsg_Decode", "upa encoding ema decoding");
+		TestUtilities.printTestHead("testGenericMsg_Decode", "eta encoding ema decoding");
 		
 		com.rtsdk.eta.codec.Buffer fieldListBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
 		
-	    System.out.println("Begin UPA GenericMsg Set");
+	    System.out.println("Begin ETA GenericMsg Set");
 		com.rtsdk.eta.codec.GenericMsg genericMsg = (com.rtsdk.eta.codec.GenericMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		genericMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.GENERIC);
 		
@@ -96,10 +96,10 @@ public class GenericMsgTests extends TestCase
 		genericMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		genericMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA GenericMsg Set");
+		System.out.println("End ETA GenericMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+		System.out.println("Begin ETA GenericMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -117,7 +117,7 @@ public class GenericMsgTests extends TestCase
 		
 		genericMsg.encode(encIter);
 
-	    System.out.println("End UPA GenericMsg Buffer Encoding");
+	    System.out.println("End ETA GenericMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA GenericMsg Decoding");
@@ -176,30 +176,30 @@ public class GenericMsgTests extends TestCase
 
 	public void testGenericMsg_toString()
 	{
-		TestUtilities.printTestHead("testGenericMsg_toString", "upa encoding ema toString");
+		TestUtilities.printTestHead("testGenericMsg_toString", "eta encoding ema toString");
 		
 		com.rtsdk.eta.codec.Buffer fieldListBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
 		
-	    System.out.println("Begin UPA GenericMsg Set");
+	    System.out.println("Begin ETA GenericMsg Set");
 		com.rtsdk.eta.codec.GenericMsg genericMsg = (com.rtsdk.eta.codec.GenericMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		genericMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.GENERIC);
 		
@@ -242,10 +242,10 @@ public class GenericMsgTests extends TestCase
 		genericMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		genericMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA GenericMsg Set");
+		System.out.println("End ETA GenericMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+		System.out.println("Begin ETA GenericMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -263,7 +263,7 @@ public class GenericMsgTests extends TestCase
 		
 		genericMsg.encode(encIter);
 
-	    System.out.println("End UPA GenericMsg Buffer Encoding");
+	    System.out.println("End ETA GenericMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA GenericMsg toString");
@@ -285,7 +285,7 @@ public class GenericMsgTests extends TestCase
 		TestUtilities.printTestHead("testGenericMsg_EncodeDecode", "ema encoding ema decoding");
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 	    com.rtsdk.ema.access.FieldList fl = EmaFactory.createFieldList();
 	    
@@ -459,13 +459,13 @@ public class GenericMsgTests extends TestCase
 		System.out.println();
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for FieldList as attrib, extended header and payload. Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for FieldList as attrib, extended header and payload. Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -484,9 +484,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -495,7 +495,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	     TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -512,19 +512,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAFieldListAll(decCopyGenericMsg.attrib().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
-	     TestUtilities.EmaDecode_UPAFieldListAll(decCopyGenericMsg.payload().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAFieldListAll(decCopyGenericMsg.attrib().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAFieldListAll(decCopyGenericMsg.payload().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for ElementList as attrib, extended header and payload, Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for ElementList as attrib, extended header and payload, Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -543,9 +543,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -554,7 +554,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	     TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -571,19 +571,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAElementListAll(decCopyGenericMsg.attrib().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
-	     TestUtilities.EmaDecode_UPAElementListAll(decCopyGenericMsg.payload().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAElementListAll(decCopyGenericMsg.attrib().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAElementListAll(decCopyGenericMsg.payload().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for FilterList as attrib, payload, Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for FilterList as attrib, payload, Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -602,9 +602,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -613,7 +613,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
+	    TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -630,19 +630,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAFilterListAll(decCopyGenericMsg.attrib().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
-	     TestUtilities.EmaDecode_UPAFilterListAll(decCopyGenericMsg.payload().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
+	     TestUtilities.EmaDecode_ETAFilterListAll(decCopyGenericMsg.attrib().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
+	     TestUtilities.EmaDecode_ETAFilterListAll(decCopyGenericMsg.payload().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for Series as attrib, payload, Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for Series as attrib, payload, Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(10240));
         
@@ -661,9 +661,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -672,7 +672,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.SERIES);
+	    TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.SERIES);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -689,19 +689,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPASeriesAll(decCopyGenericMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPASeriesAll(decCopyGenericMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETASeriesAll(decCopyGenericMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETASeriesAll(decCopyGenericMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for Vector as attrib, payload, Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for Vector as attrib, payload, Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(10240));
         
@@ -720,9 +720,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -731,7 +731,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.VECTOR);
+	    TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.VECTOR);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -748,19 +748,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAVectorAll(decCopyGenericMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-	     TestUtilities.EmaDecode_UPAVectorAll(decCopyGenericMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAVectorAll(decCopyGenericMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAVectorAll(decCopyGenericMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for Map as attrib, payload, Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for Map as attrib, payload, Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -779,9 +779,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -790,7 +790,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.MAP);
+	    TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.MAP);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -807,19 +807,19 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAMapKeyUIntAll(decCopyGenericMsg.attrib().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPAMapKeyUIntAll(decCopyGenericMsg.payload().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAMapKeyUIntAll(decCopyGenericMsg.attrib().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAMapKeyUIntAll(decCopyGenericMsg.payload().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 	
-	public void testGenericMsg_EncodeUPAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
+	public void testGenericMsg_EncodeETAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testGenericMsg_EncodeUPAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with UPA for RefreshMsg as attrib, payload. Encode it to another GenericMsg.");
+		TestUtilities.printTestHead("testGenericMsg_EncodeETAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode", "Encode GenericMsg with ETA for RefreshMsg as attrib, payload. Encode it to another GenericMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -838,9 +838,9 @@ public class GenericMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeGenericMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeGenericMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeGenericMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -849,7 +849,7 @@ public class GenericMsgTests extends TestCase
 	     com.rtsdk.ema.access.GenericMsg genericMsg = JUnitTestConnect.createGenericMsg();
 	     JUnitTestConnect.setRsslData(genericMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.MSG);
+	    TestUtilities.EmaDecode_ETAGenericMsgAll(genericMsg, com.rtsdk.eta.codec.DataTypes.MSG);
 	
 	     com.rtsdk.ema.access.GenericMsg copyGenericMsg = EmaFactory.createGenericMsg();
 	     
@@ -866,10 +866,10 @@ public class GenericMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyGenericMsg.extendedHeader().equals(genericMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyGenericMsg.permissionData().equals(genericMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyGenericMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyGenericMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETARefreshMsgAll(decCopyGenericMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETARefreshMsgAll(decCopyGenericMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	     System.out.println("\ttestGenericMsg_EncodeETAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
 	}
 
 	public void testGenericMsgMsg_cloneIsNotSupportedFromTheEncodeSide()
@@ -913,24 +913,24 @@ public class GenericMsgTests extends TestCase
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
 		
-	    System.out.println("Begin UPA GenericMsg Set");
+	    System.out.println("Begin ETA GenericMsg Set");
 		com.rtsdk.eta.codec.GenericMsg genericMsg = (com.rtsdk.eta.codec.GenericMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		genericMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.GENERIC);
 		
@@ -975,10 +975,10 @@ public class GenericMsgTests extends TestCase
 
 		setMoreFields(genericMsg);
 
-		System.out.println("End UPA GenericMsg Set");
+		System.out.println("End ETA GenericMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+		System.out.println("Begin ETA GenericMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -996,7 +996,7 @@ public class GenericMsgTests extends TestCase
 		
 		genericMsg.encode(encIter);
 
-	    System.out.println("End UPA GenericMsg Buffer Encoding");
+	    System.out.println("End ETA GenericMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA GenericMsg Clone");
@@ -1052,24 +1052,24 @@ public class GenericMsgTests extends TestCase
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
 		
-	    System.out.println("Begin UPA GenericMsg Set");
+	    System.out.println("Begin ETA GenericMsg Set");
 		com.rtsdk.eta.codec.GenericMsg genericMsg = (com.rtsdk.eta.codec.GenericMsg)com.rtsdk.eta.codec.CodecFactory.createMsg();
 		genericMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.GENERIC);
 		
@@ -1112,10 +1112,10 @@ public class GenericMsgTests extends TestCase
 		genericMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		genericMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA GenericMsg Set");
+		System.out.println("End ETA GenericMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+		System.out.println("Begin ETA GenericMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -1133,7 +1133,7 @@ public class GenericMsgTests extends TestCase
 		
 		genericMsg.encode(encIter);
 
-	    System.out.println("End UPA GenericMsg Buffer Encoding");
+	    System.out.println("End ETA GenericMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA GenericMsg Clone");

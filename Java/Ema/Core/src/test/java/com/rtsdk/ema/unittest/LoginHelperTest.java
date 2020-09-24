@@ -147,7 +147,7 @@ public class LoginHelperTest {
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 						.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
         ReqMsg decReqMsg = JUnitTestConnect.createReqMsg();
         
@@ -380,7 +380,7 @@ public class LoginHelperTest {
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
         ReqMsg encReqMsg = EmaFactory.createReqMsg();
 
@@ -471,7 +471,7 @@ public class LoginHelperTest {
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
         ReqMsg encReqMsg = EmaFactory.createReqMsg();
 
@@ -546,7 +546,7 @@ public class LoginHelperTest {
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
         ReqMsg encReqMsg = EmaFactory.createReqMsg();
 
@@ -693,7 +693,7 @@ public class LoginHelperTest {
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 						.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
         RefreshMsg decRefreshMsg = JUnitTestConnect.createRefreshMsg();
         
@@ -834,7 +834,7 @@ public class LoginHelperTest {
 
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
         
         RefreshMsg encRefreshMsg = EmaFactory.createRefreshMsg();
 
@@ -938,7 +938,7 @@ public class LoginHelperTest {
 
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
         
         RefreshMsg encRefreshMsg = EmaFactory.createRefreshMsg();
 
@@ -1153,7 +1153,7 @@ public class LoginHelperTest {
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
         RefreshMsg encRefreshMsg = EmaFactory.createRefreshMsg();
 
@@ -1192,7 +1192,7 @@ public class LoginHelperTest {
         
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                         .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
         
         StatusMsg decStatusMsg = JUnitTestConnect.createStatusMsg();
         
@@ -1239,7 +1239,7 @@ public class LoginHelperTest {
 
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
         StatusMsg encStatusMsg = EmaFactory.createStatusMsg();
 
@@ -1280,7 +1280,7 @@ public class LoginHelperTest {
 
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
         StatusMsg encStatusMsg = EmaFactory.createStatusMsg();
 

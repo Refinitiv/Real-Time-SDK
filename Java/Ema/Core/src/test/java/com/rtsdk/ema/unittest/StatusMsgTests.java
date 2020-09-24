@@ -28,31 +28,31 @@ public class StatusMsgTests extends TestCase
 	
 	public void testStatusMsg_Decode()
 	{
-		TestUtilities.printTestHead("testStatusMsg_Decode", "upa encoding ema decoding");
+		TestUtilities.printTestHead("testStatusMsg_Decode", "eta encoding ema decoding");
 
 		com.rtsdk.eta.codec.Buffer fieldListBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
 
-		System.out.println("Begin UPA StatusMsg Set");
+		System.out.println("Begin ETA StatusMsg Set");
 		com.rtsdk.eta.codec.StatusMsg statusMsg = (com.rtsdk.eta.codec.StatusMsg) com.rtsdk.eta.codec.CodecFactory
 				.createMsg();
 		statusMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REFRESH);
@@ -97,10 +97,10 @@ public class StatusMsgTests extends TestCase
 		statusMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		statusMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA StatusMsg Set");
+		System.out.println("End ETA StatusMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA StatusMsg Buffer Encoding");
+		System.out.println("Begin ETA StatusMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -119,7 +119,7 @@ public class StatusMsgTests extends TestCase
 
 		statusMsg.encode(encIter);
 
-		System.out.println("End UPA StatusMsg Buffer Encoding");
+		System.out.println("End ETA StatusMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA StatusMsg Decoding");
@@ -191,31 +191,31 @@ public class StatusMsgTests extends TestCase
 
 	public void testStatusMsg_toString()
 	{
-		TestUtilities.printTestHead("testStatusMsg_toString", "upa encoding ema toString");
+		TestUtilities.printTestHead("testStatusMsg_toString", "eta encoding ema toString");
 
 		com.rtsdk.eta.codec.Buffer fieldListBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		fieldListBuf.data(ByteBuffer.allocate(1024));
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
 
-		System.out.println("Begin UPA StatusMsg Set");
+		System.out.println("Begin ETA StatusMsg Set");
 		com.rtsdk.eta.codec.StatusMsg statusMsg = (com.rtsdk.eta.codec.StatusMsg) com.rtsdk.eta.codec.CodecFactory
 				.createMsg();
 		statusMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REFRESH);
@@ -260,10 +260,10 @@ public class StatusMsgTests extends TestCase
 		statusMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		statusMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA StatusMsg Set");
+		System.out.println("End ETA StatusMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA StatusMsg Buffer Encoding");
+		System.out.println("Begin ETA StatusMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -282,7 +282,7 @@ public class StatusMsgTests extends TestCase
 
 		statusMsg.encode(encIter);
 
-		System.out.println("End UPA StatusMsg Buffer Encoding");
+		System.out.println("End ETA StatusMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA StatusMsg toString");
@@ -303,7 +303,7 @@ public class StatusMsgTests extends TestCase
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		com.rtsdk.ema.access.FieldList fl = EmaFactory.createFieldList();
 
@@ -498,13 +498,13 @@ public class StatusMsgTests extends TestCase
 		System.out.println();
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode", "Encode StatusMsg with UPA for FieldList as attrib, extended header and payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode", "Encode StatusMsg with ETA for FieldList as attrib, extended header and payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -523,9 +523,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -534,7 +534,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	     TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -551,19 +551,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAFieldListAll(decCopyStatusMsg.attrib().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
-	     TestUtilities.EmaDecode_UPAFieldListAll(decCopyStatusMsg.payload().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAFieldListAll(decCopyStatusMsg.attrib().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAFieldListAll(decCopyStatusMsg.payload().fieldList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithFieldListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherUpdateMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for ElementList as attrib, extended header and payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for ElementList as attrib, extended header and payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -582,9 +582,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -593,7 +593,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	     TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -610,19 +610,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAElementListAll(decCopyStatusMsg.attrib().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
-	     TestUtilities.EmaDecode_UPAElementListAll(decCopyStatusMsg.payload().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAElementListAll(decCopyStatusMsg.attrib().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+	     TestUtilities.EmaDecode_ETAElementListAll(decCopyStatusMsg.payload().elementList(), TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithElementListTypeAsAttrib_ExtendedHeader_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for FilterList as attrib, payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for FilterList as attrib, payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -641,9 +641,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -652,7 +652,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
+	    TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -669,19 +669,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAFilterListAll(decCopyStatusMsg.attrib().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
-	     TestUtilities.EmaDecode_UPAFilterListAll(decCopyStatusMsg.payload().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
+	     TestUtilities.EmaDecode_ETAFilterListAll(decCopyStatusMsg.attrib().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
+	     TestUtilities.EmaDecode_ETAFilterListAll(decCopyStatusMsg.payload().filterList(), TestUtilities.EncodingTypeFlags.MESSAGE_TYPES);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithFilterListTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for Series as attrib, payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for Series as attrib, payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(14000));
         
@@ -700,9 +700,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -711,7 +711,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.SERIES);
+	    TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.SERIES);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -728,19 +728,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPASeriesAll(decCopyStatusMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPASeriesAll(decCopyStatusMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETASeriesAll(decCopyStatusMsg.attrib().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETASeriesAll(decCopyStatusMsg.payload().series(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithSeriesTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for Vector as attrib, payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for Vector as attrib, payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(14000));
         
@@ -759,9 +759,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -770,7 +770,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.VECTOR);
+	    TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.VECTOR);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -787,19 +787,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAVectorAll(decCopyStatusMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
-	     TestUtilities.EmaDecode_UPAVectorAll(decCopyStatusMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAVectorAll(decCopyStatusMsg.attrib().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+	     TestUtilities.EmaDecode_ETAVectorAll(decCopyStatusMsg.payload().vector(), com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithVectorTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for Map as attrib, payload, Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for Map as attrib, payload, Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -818,9 +818,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -829,7 +829,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.MAP);
+	    TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.MAP);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -846,19 +846,19 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPAMapKeyUIntAll(decCopyStatusMsg.attrib().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPAMapKeyUIntAll(decCopyStatusMsg.payload().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAMapKeyUIntAll(decCopyStatusMsg.attrib().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETAMapKeyUIntAll(decCopyStatusMsg.payload().map(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETARefreshWithMapTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 	
-	public void testStatusMsg_EncodeUPAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
+	public void testStatusMsg_EncodeETAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode()
 	{ 
 	    int retVal;
 		 
-		TestUtilities.printTestHead("testStatusMsg_EncodeUPAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with UPA for RefreshMsg as attrib, payload. Encode it to another StatusMsg.");
+		TestUtilities.printTestHead("testStatusMsg_EncodeETAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode", "Encode StatusMsg with ETA for RefreshMsg as attrib, payload. Encode it to another StatusMsg.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buffer = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buffer.data(ByteBuffer.allocate(8192));
         
@@ -877,9 +877,9 @@ public class StatusMsgTests extends TestCase
 			return;
 		}
 		
-		if ( ( retVal = TestUtilities.upa_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
+		if ( ( retVal = TestUtilities.eta_EncodeStatusMsgAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
 		{
-			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.upa_EncodeStatusMsgAll(). "
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with TestUtilities.eta_EncodeStatusMsgAll(). "
 					+ " Error Text: " + CodecReturnCodes.info(retVal)); 
 			return;
 		}
@@ -888,7 +888,7 @@ public class StatusMsgTests extends TestCase
 	     com.rtsdk.ema.access.StatusMsg statusMsg = JUnitTestConnect.createStatusMsg();
 	     JUnitTestConnect.setRsslData(statusMsg, buffer, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 	     
-	    TestUtilities.EmaDecode_UPAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.MSG);
+	    TestUtilities.EmaDecode_ETAStatusMsgAll(statusMsg, com.rtsdk.eta.codec.DataTypes.MSG);
 	
 	     com.rtsdk.ema.access.StatusMsg copyStatusMsg = EmaFactory.createStatusMsg();
 	     
@@ -905,10 +905,10 @@ public class StatusMsgTests extends TestCase
 	     // Check result
 	     TestUtilities.checkResult(decCopyStatusMsg.extendedHeader().equals(statusMsg.extendedHeader()));
 	     TestUtilities.checkResult(decCopyStatusMsg.permissionData().equals(statusMsg.permissionData()));
-	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyStatusMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
-	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyStatusMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETARefreshMsgAll(decCopyStatusMsg.attrib().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+	     TestUtilities.EmaDecode_ETARefreshMsgAll(decCopyStatusMsg.payload().refreshMsg(), com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 	     
-	     System.out.println("\ttestStatusMsg_EncodeUPAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
+	     System.out.println("\ttestStatusMsg_EncodeETAStatusMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherStatusMsg_EMADecode passed");
 	}
 
 	public void testStatusMsg_cloneForEncodeSide()
@@ -956,24 +956,24 @@ public class StatusMsgTests extends TestCase
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
 
-		System.out.println("Begin UPA StatusMsg Set");
+		System.out.println("Begin ETA StatusMsg Set");
 		com.rtsdk.eta.codec.StatusMsg statusMsg = (com.rtsdk.eta.codec.StatusMsg) com.rtsdk.eta.codec.CodecFactory
 				.createMsg();
 		statusMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REFRESH);
@@ -1020,10 +1020,10 @@ public class StatusMsgTests extends TestCase
 
 		setMoreFields(statusMsg);
 
-		System.out.println("End UPA StatusMsg Set");
+		System.out.println("End ETA StatusMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA StatusMsg Buffer Encoding");
+		System.out.println("Begin ETA StatusMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -1042,7 +1042,7 @@ public class StatusMsgTests extends TestCase
 
 		statusMsg.encode(encIter);
 
-		System.out.println("End UPA StatusMsg Buffer Encoding");
+		System.out.println("End ETA StatusMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA StatusMsg clone");
@@ -1104,24 +1104,24 @@ public class StatusMsgTests extends TestCase
 
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		int retVal;
-		System.out.println("Begin UPA FieldList Encoding");
-		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		System.out.println("Begin ETA FieldList Encoding");
+		if ((retVal = TestUtilities.eta_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding field list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeFieldListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
-		System.out.println("End UPA FieldList Encoding");
+		System.out.println("End ETA FieldList Encoding");
 		System.out.println();
 
 		fieldListBuf.data(fieldListBuf.data(), 0, fieldListBuf.length());
 
-		System.out.println("Begin UPA StatusMsg Set");
+		System.out.println("Begin ETA StatusMsg Set");
 		com.rtsdk.eta.codec.StatusMsg statusMsg = (com.rtsdk.eta.codec.StatusMsg) com.rtsdk.eta.codec.CodecFactory
 				.createMsg();
 		statusMsg.msgClass(com.rtsdk.eta.codec.MsgClasses.REFRESH);
@@ -1166,10 +1166,10 @@ public class StatusMsgTests extends TestCase
 		statusMsg.containerType(com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 		statusMsg.encodedDataBody(fieldListBuf);
 
-		System.out.println("End UPA StatusMsg Set");
+		System.out.println("End ETA StatusMsg Set");
 		System.out.println();
 
-		System.out.println("Begin UPA StatusMsg Buffer Encoding");
+		System.out.println("Begin ETA StatusMsg Buffer Encoding");
 
 		com.rtsdk.eta.codec.Buffer msgBuf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		msgBuf.data(ByteBuffer.allocate(2048));
@@ -1188,7 +1188,7 @@ public class StatusMsgTests extends TestCase
 
 		statusMsg.encode(encIter);
 
-		System.out.println("End UPA StatusMsg Buffer Encoding");
+		System.out.println("End ETA StatusMsg Buffer Encoding");
 		System.out.println();
 
 		System.out.println("Begin EMA StatusMsg clone");

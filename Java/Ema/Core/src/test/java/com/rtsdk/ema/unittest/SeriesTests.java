@@ -240,7 +240,7 @@ public class SeriesTests extends TestCase
 		
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		try {
 			//EMA Encoding
@@ -320,13 +320,13 @@ public class SeriesTests extends TestCase
 		}
 	}
 	
-	 public void testSeries_EncodeUPASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for FieldList type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for FieldList type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(5120));
         
@@ -345,12 +345,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FIELD_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -380,18 +380,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.FIELD_LIST);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithFieldListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for ElementList type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for ElementList type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(5120));
         
@@ -410,12 +410,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -445,18 +445,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.ELEMENT_LIST);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithElementListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for FilterList type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for FilterList type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(18000));
         
@@ -475,12 +475,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.FILTER_LIST)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -510,18 +510,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.FILTER_LIST);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithFilterListType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for Series type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for Series type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(18000));
         
@@ -540,12 +540,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.SERIES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -575,18 +575,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.SERIES);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithSeriesType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for Vector type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for Vector type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(18000));
         
@@ -605,12 +605,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.VECTOR)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -640,18 +640,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.VECTOR);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithVectorType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with UPA for Vector type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Map with ETA for Vector type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14000));
         
@@ -670,12 +670,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MAP)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -705,18 +705,18 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.MAP);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.MAP);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithMapType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
-	 public void testSeries_EncodeUPASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode() 
+	 public void testSeries_EncodeETASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode() 
 	 {
 		 int retVal;
 		 
-		 TestUtilities.printTestHead("testSeries_EncodeUPASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with UPA for RefreshMsg type, Encode it to another Series.");
+		 TestUtilities.printTestHead("testSeries_EncodeETASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode", "Encode Series with ETA for RefreshMsg type, Encode it to another Series.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(8192));
         
@@ -735,12 +735,12 @@ public class SeriesTests extends TestCase
 			return;
 		}
 
-        // Encode Series with UPA.
-        if ((retVal = TestUtilities.upa_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
+        // Encode Series with ETA.
+        if ((retVal = TestUtilities.eta_EncodeSeriesAll(encodeIter, com.rtsdk.eta.codec.DataTypes.MSG)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeSeriesAll for container types.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeSeriesAll for container types.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -766,9 +766,9 @@ public class SeriesTests extends TestCase
         com.rtsdk.ema.access.Series decSeriesCopy = JUnitTestConnect.createSeries();
         JUnitTestConnect.setRsslData(decSeriesCopy, seriesCopy, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
         
-        TestUtilities.EmaDecode_UPASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.MSG);
+        TestUtilities.EmaDecode_ETASeriesAll(decSeriesCopy, com.rtsdk.eta.codec.DataTypes.MSG);
 
-        System.out.println("\testSeries_EncodeUPASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode passed");
+        System.out.println("\testSeries_EncodeETASeriesWithRefreshMsgType_EncodeEMA_ToAnotherSeries_EMADecode passed");
 	 }
 	 
 	 

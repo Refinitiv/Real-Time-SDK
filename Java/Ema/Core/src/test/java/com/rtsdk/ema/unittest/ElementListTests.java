@@ -55,7 +55,7 @@ public class ElementListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
            ElementList batch = EmaFactory.createElementList();
            OmmArray array = EmaFactory.createOmmArray();
@@ -88,63 +88,63 @@ public class ElementListTests extends TestCase
   		System.out.println("\ntestElementList_ReEncodeEMAWithBigBuffer passed");
 	}
 
-	public void testElementList_EncodeUPA_decodeEMA_DecodeAll()
+	public void testElementList_EncodeETA_decodeEMA_DecodeAll()
 	{
-		TestUtilities.printTestHead("testElementListt_EncodeUPA_decodeEMA_DecodeAll", "Encode ElementList with UPA and Decode ElementList with EMA");
+		TestUtilities.printTestHead("testElementListt_EncodeETA_decodeEMA_DecodeAll", "Encode ElementList with ETA and Decode ElementList with EMA");
 
-		// Create a UPA Buffer to encode into
+		// Create a ETA Buffer to encode into
 		com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 		buf.data(ByteBuffer.allocate(1024));
 
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-		// Encode ElementList with UPA.
-		System.out.println("Begin UPA ElementList Encoding");
+		// Encode ElementList with ETA.
+		System.out.println("Begin ETA ElementList Encoding");
 		int retVal;
-		if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 		{
 			System.out.println("Error encoding element list.");
 			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-					+ ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+					+ ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
 					+ CodecReturnCodes.info(retVal));
 			return;
 		}
 
-		System.out.println("End UPA ElementList Encoding");
+		System.out.println("End ETA ElementList Encoding");
 		System.out.println();
 
 		// Decode ElementList with EMA.
 		com.rtsdk.ema.access.ElementList el = JUnitTestConnect.createElementList();
 		JUnitTestConnect.setRsslData(el, buf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
-		TestUtilities.EmaDecode_UPAElementListAll(el,TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+		TestUtilities.EmaDecode_ETAElementListAll(el,TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 
-		System.out.println("\ntestElementList_EncodeUPA_decodeEMA_DecodeAll passed");
+		System.out.println("\ntestElementList_EncodeETA_decodeEMA_DecodeAll passed");
 	}
 
-    public void testElementList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA()
+    public void testElementList_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA()
     {
-        TestUtilities.printTestHead("testElementList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeUPA", "Encode ElementList with UPA, Decode ElementList with EMA, Encode ElementList with EMA, Decode ElementList with UPA");
+        TestUtilities.printTestHead("testElementList_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA", "Encode ElementList with ETA, Decode ElementList with EMA, Encode ElementList with EMA, Decode ElementList with ETA");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(4048));
 
         // load dictionary
         com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-        TestUtilities.upa_encodeDictionaryMsg(dictionary);
+        TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
-        // Encode ElementList with UPA.
+        // Encode ElementList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding field list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -153,7 +153,7 @@ public class ElementListTests extends TestCase
         com.rtsdk.ema.access.ElementList el = JUnitTestConnect.createElementList();
         JUnitTestConnect.setRsslData(el, buf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
 
-        TestUtilities.EmaDecode_UPAElementListAll(el, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAElementListAll(el, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
         
         // Copy decoded entries into a different ElementList with EMA
         com.rtsdk.ema.access.ElementList elCopy = EmaFactory.createElementList();
@@ -176,26 +176,26 @@ public class ElementListTests extends TestCase
         // compare with original
         assertEquals(elDecCopy.size(), el.size());
         
-        TestUtilities.EmaDecode_UPAElementListAll(elDecCopy, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAElementListAll(elDecCopy, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES);
 
-        System.out.println("\ntestElementList_EncodeUPA_DecodeEMA_EncodeEMA_DecodeEMA passed");
+        System.out.println("\ntestElementList_EncodeETA_DecodeEMA_EncodeEMA_DecodeEMA passed");
     }
     
-    public void testElementList_EncodeUPAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
+    public void testElementList_EncodeETAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
     {
-        TestUtilities.printTestHead("testElementList_EncodeUPAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode", "Encode ElementList with UPA for primitive types, Encode it to another ElementList.");
+        TestUtilities.printTestHead("testElementList_EncodeETAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode", "Encode ElementList with ETA for primitive types, Encode it to another ElementList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(9216));
 
-        // Encode ElementList with UPA.
+        // Encode ElementList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding element list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -218,26 +218,26 @@ public class ElementListTests extends TestCase
         // compare with original
         assertEquals(elCopy.size(), el.size());
         
-        TestUtilities.EmaDecode_UPAElementListAll(elCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
+        TestUtilities.EmaDecode_ETAElementListAll(elCopy, EncodingTypeFlags.PRIMITIVE_TYPES);
 
-        System.out.println("\ntestElementList_EncodeUPAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode passed");
+        System.out.println("\ntestElementList_EncodeETAELWithPrimitiveTypes_EncodeEMA_ToAnotherElementList_EMADecode passed");
     }
     
-    public void testElementList_EncodeUPAELWithContainerTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
+    public void testElementList_EncodeETAELWithContainerTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
     {
-        TestUtilities.printTestHead("testElementList_EncodeUPAELWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode ElementList with UPA for container types, Encode it to another ElementList.");
+        TestUtilities.printTestHead("testElementList_EncodeETAELWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode", "Encode ElementList with ETA for container types, Encode it to another ElementList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(14240));
 
-        // Encode ElementList with UPA.
+        // Encode ElementList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.CONTAINER_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding element list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -260,26 +260,26 @@ public class ElementListTests extends TestCase
         // compare with original
         assertEquals(elCopy.size(), el.size());
         
-        TestUtilities.EmaDecode_UPAElementListAll(elCopy, EncodingTypeFlags.CONTAINER_TYPES);
+        TestUtilities.EmaDecode_ETAElementListAll(elCopy, EncodingTypeFlags.CONTAINER_TYPES);
 
-        System.out.println("\ntestElementList_EncodeUPAELWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
+        System.out.println("\ntestElementList_EncodeETAELWithContainerTypes_EncodeEMA_ToAnotherFieldList_EMADecode passed");
     }
     
-    public void testElementList_EncodeUPAELWithMsgTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
+    public void testElementList_EncodeETAELWithMsgTypes_EncodeEMA_ToAnotherElementList_EMADecode() 
     {
-        TestUtilities.printTestHead("testElementList_EncodeUPAELWithMsgType_EncodeEMA_ToAnotherElementList_EMADecod", "Encode ElementList with UPA for msg type, Encode it to another ElementList.");
+        TestUtilities.printTestHead("testElementList_EncodeETAELWithMsgType_EncodeEMA_ToAnotherElementList_EMADecod", "Encode ElementList with ETA for msg type, Encode it to another ElementList.");
 
-        // Create a UPA Buffer to encode into
+        // Create a ETA Buffer to encode into
         com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(8048));
 
-        // Encode ElementList with UPA.
+        // Encode ElementList with ETA.
         int retVal;
-        if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
+        if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.MESSAGE_TYPES)) < CodecReturnCodes.SUCCESS)
         {
             System.out.println("Error encoding element list.");
             System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-                    + ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+                    + ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
                     + CodecReturnCodes.info(retVal));
             return;
         }
@@ -302,9 +302,9 @@ public class ElementListTests extends TestCase
         // compare with original
         assertEquals(elCopy.size(), el.size());
         
-        TestUtilities.EmaDecode_UPAElementListAll(elCopy, EncodingTypeFlags.MESSAGE_TYPES);
+        TestUtilities.EmaDecode_ETAElementListAll(elCopy, EncodingTypeFlags.MESSAGE_TYPES);
 
-        System.out.println("\ntestElementList_EncodeUPAELWithMsgType_EncodeEMA_ToAnotherElementList_EMADecode passed");
+        System.out.println("\ntestElementList_EncodeETAELWithMsgType_EncodeEMA_ToAnotherElementList_EMADecode passed");
     }
     
 	public void testElementList_EncodeEMA_EmptyEncode()
@@ -1086,7 +1086,7 @@ public class ElementListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
 		ElementList elEnc = EmaFactory.createElementList();
 		elEnc.info( 9999 );
@@ -1252,7 +1252,7 @@ public class ElementListTests extends TestCase
 		// load dictionary
 		com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
 				.createDataDictionary();
-		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
 		ElementList elEnc= EmaFactory.createElementList();
 		elEnc.info( 65 );
@@ -1603,11 +1603,11 @@ public class ElementListTests extends TestCase
             Buffer rsslBuf = CodecFactory.createBuffer();
             rsslBuf.data(ByteBuffer.allocate(1000));
 
-            TestUtilities.upa_EncodeErrorElementList( rsslBuf );
+            TestUtilities.eta_EncodeErrorElementList( rsslBuf );
 
             com.rtsdk.eta.codec.DataDictionary dictionary = com.rtsdk.eta.codec.CodecFactory
                 .createDataDictionary();
-            TestUtilities.upa_encodeDictionaryMsg(dictionary);
+            TestUtilities.eta_encodeDictionaryMsg(dictionary);
 
             ElementList el = JUnitTestConnect.createElementList();
             JUnitTestConnect.setRsslData(el, rsslBuf, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
@@ -1723,22 +1723,22 @@ public class ElementListTests extends TestCase
 
 		try { 
 	
-			// Create a UPA Buffer to encode into
+			// Create a ETA Buffer to encode into
 			com.rtsdk.eta.codec.Buffer buf = com.rtsdk.eta.codec.CodecFactory.createBuffer();
 			buf.data(ByteBuffer.allocate(1024));
 	
-			// Encode ElementList with UPA.
+			// Encode ElementList with ETA.
 			int retVal;
-			System.out.println("Begin UPA ElementList Encoding");
-			if ((retVal = TestUtilities.upa_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+			System.out.println("Begin ETA ElementList Encoding");
+			if ((retVal = TestUtilities.eta_EncodeElementListAll(buf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
 			{
 				System.out.println("Error encoding element list.");
 				System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
-						+ ") encountered with TestUtilities.upa_EncodeElementListAll.  " + "Error Text: "
+						+ ") encountered with TestUtilities.eta_EncodeElementListAll.  " + "Error Text: "
 						+ CodecReturnCodes.info(retVal));
 				return;
 			}
-			System.out.println("End UPA ElementList Encoding");
+			System.out.println("End ETA ElementList Encoding");
 			System.out.println();
 			
 			com.rtsdk.ema.access.ElementList el = JUnitTestConnect.createElementList();
