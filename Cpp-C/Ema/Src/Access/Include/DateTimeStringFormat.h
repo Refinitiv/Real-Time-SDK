@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_DateTimeStringFormat_h
-#define __thomsonreuters_ema_access_DateTimeStringFormat_h
+#ifndef __rtsdk_ema_access_DateTimeStringFormat_h
+#define __rtsdk_ema_access_DateTimeStringFormat_h
 
 /**
 	@class rtsdk::ema::access::DateTimeStringFormat "Access/Include/DateTimeStringFormat.h"
@@ -90,4 +90,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DateTimeStringFormat_h
+#endif // __rtsdk_ema_access_DateTimeStringFormat_h

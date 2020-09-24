@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ComplexType_h
-#define __thomsonreuters_ema_access_ComplexType_h
+#ifndef __rtsdk_ema_access_ComplexType_h
+#define __rtsdk_ema_access_ComplexType_h
 
 /**
 	@class rtsdk::ema::access::ComplexType ComplexType.h "Access/Include/ComplexType.h"
@@ -57,4 +57,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_ComplexType_h
+#endif // __rtsdk_ema_access_ComplexType_h

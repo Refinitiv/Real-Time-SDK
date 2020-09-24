@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBufferU16Int_h
-#define __thomsonreuters_ema_access_EmaBufferU16Int_h
+#ifndef __rtsdk_ema_access_EmaBufferU16Int_h
+#define __rtsdk_ema_access_EmaBufferU16Int_h
 
 #include "EmaBufferU16.h"
 
@@ -38,4 +38,4 @@ public :
 
 }
 
-#endif //__thomsonreuters_ema_access_EmaBufferU16Int_h
+#endif //__rtsdk_ema_access_EmaBufferU16Int_h

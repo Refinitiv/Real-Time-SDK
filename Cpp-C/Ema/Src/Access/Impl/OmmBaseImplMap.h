@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_OmmBaseImplMap_h
-#define __thomsonreuters_ema_access_OmmBaseImplMap_h
+#ifndef __rtsdk_ema_access_OmmBaseImplMap_h
+#define __rtsdk_ema_access_OmmBaseImplMap_h
 
 #include "EmaVector.h"
 #include "Mutex.h"
@@ -232,5 +232,5 @@ template <class T> struct sigaction OmmBaseImplMap<T>::_oldSigAction;
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmBaseImplMap_h
+#endif // __rtsdk_ema_access_OmmBaseImplMap_h
 

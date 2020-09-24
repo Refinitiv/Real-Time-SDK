@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmTime_h
-#define __thomsonreuters_ema_access_OmmTime_h
+#ifndef __rtsdk_ema_access_OmmTime_h
+#define __rtsdk_ema_access_OmmTime_h
 
 /**
 	@class rtsdk::ema::access::OmmTime OmmTime.h "Access/Include/OmmTime.h"
@@ -152,4 +152,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmTime_h
+#endif // __rtsdk_ema_access_OmmTime_h

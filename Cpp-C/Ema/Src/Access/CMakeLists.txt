@@ -41,11 +41,11 @@ else()
             Impl/ActiveConfig.cpp Impl/ActiveConfig.h
             # Impl/C....
             Impl/ChannelCallbackClient.cpp Impl/ChannelCallbackClient.h
-            Impl/ChannelInformation.cpp
-            Impl/ChannelStatistics.cpp
+            Impl/ChannelInformation.cpp Impl/ChannelInfoImpl.h
+            Impl/ChannelStatistics.cpp Impl/ChannelStatsImpl.h
             Impl/ClientSession.cpp Impl/ClientSession.h
             Impl/ComplexType.cpp Impl/ConfigErrorHandling.h
-	    Impl/ConumerSessionInfo.cpp
+	    Impl/ConsumerSessionInfo.cpp
             # Impl/D....
             Impl/Data.cpp Impl/DataType.cpp
             Impl/DateTimeStringFormat.cpp

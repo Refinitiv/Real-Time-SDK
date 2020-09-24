@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterListEncoder_h
-#define __thomsonreuters_ema_access_FilterListEncoder_h
+#ifndef __rtsdk_ema_access_FilterListEncoder_h
+#define __rtsdk_ema_access_FilterListEncoder_h
 
 #include "FilterEntry.h"
 #include "Encoder.h"
@@ -95,4 +95,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterListEncoder_h
+#endif // __rtsdk_ema_access_FilterListEncoder_h

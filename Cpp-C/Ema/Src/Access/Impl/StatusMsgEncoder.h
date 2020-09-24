@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_StatusMsgEncoder_h
-#define __thomsonreuters_ema_access_StatusMsgEncoder_h
+#ifndef __rtsdk_ema_access_StatusMsgEncoder_h
+#define __rtsdk_ema_access_StatusMsgEncoder_h
 
 #include "MsgEncoder.h"
 #include "StatusMsg.h"
@@ -130,4 +130,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_StatusMsgEncoder_h
+#endif // __rtsdk_ema_access_StatusMsgEncoder_h

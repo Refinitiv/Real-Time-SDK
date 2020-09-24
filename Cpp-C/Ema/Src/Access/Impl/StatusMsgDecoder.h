@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_StatusMsgDecoder_h
-#define __thomsonreuters_ema_access_StatusMsgDecoder_h
+#ifndef __rtsdk_ema_access_StatusMsgDecoder_h
+#define __rtsdk_ema_access_StatusMsgDecoder_h
 
 #include "EmaPool.h"
 #include "MsgDecoder.h"
@@ -150,4 +150,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_RespMsgDecoder_h
+#endif // __rtsdk_ema_access_RespMsgDecoder_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Decoder_h
-#define __thomsonreuters_ema_access_Decoder_h
+#ifndef __rtsdk_ema_access_Decoder_h
+#define __rtsdk_ema_access_Decoder_h
 
 #include "OmmError.h"
 #include "rtr/rsslMsg.h"
@@ -89,4 +89,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_Decoder_h
+#endif // __rtsdk_ema_access_Decoder_h

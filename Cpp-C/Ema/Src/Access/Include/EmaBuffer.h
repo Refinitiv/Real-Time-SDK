@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBuffer_h
-#define __thomsonreuters_ema_access_EmaBuffer_h
+#ifndef __rtsdk_ema_access_EmaBuffer_h
+#define __rtsdk_ema_access_EmaBuffer_h
 
 /**
 	@class rtsdk::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
@@ -185,4 +185,4 @@ EmaBuffer operator+( EmaBuffer buff_1, const EmaBuffer& buff_2 );
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaBuffer_h
+#endif // __rtsdk_ema_access_EmaBuffer_h

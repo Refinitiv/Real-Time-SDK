@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Series_h
-#define __thomsonreuters_ema_access_Series_h
+#ifndef __rtsdk_ema_access_Series_h
+#define __rtsdk_ema_access_Series_h
 
 /**
 	@class rtsdk::ema::access::Series Series.h "Access/Include/Series.h"
@@ -270,4 +270,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Series_h
+#endif // __rtsdk_ema_access_Series_h

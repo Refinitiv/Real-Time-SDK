@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaString_h
-#define __thomsonreuters_ema_access_EmaString_h
+#ifndef __rtsdk_ema_access_EmaString_h
+#define __rtsdk_ema_access_EmaString_h
 
 /**
 	@class rtsdk::ema::access::EmaString EmaString.h "Access/Include/EmaString.h"
@@ -446,4 +446,4 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_EmaString_h
+#endif //__rtsdk_ema_access_EmaString_h

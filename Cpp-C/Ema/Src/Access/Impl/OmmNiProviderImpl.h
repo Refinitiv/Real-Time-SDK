@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNiProviderImpl_h
-#define __thomsonreuters_ema_access_OmmNiProviderImpl_h
+#ifndef __rtsdk_ema_access_OmmNiProviderImpl_h
+#define __rtsdk_ema_access_OmmNiProviderImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmNiProviderActiveConfig.h"
@@ -209,4 +209,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNiProviderImpl_h
+#endif // __rtsdk_ema_access_OmmNiProviderImpl_h

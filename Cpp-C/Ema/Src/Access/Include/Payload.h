@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Payload_h
-#define __thomsonreuters_ema_access_Payload_h
+#ifndef __rtsdk_ema_access_Payload_h
+#define __rtsdk_ema_access_Payload_h
 
 /**
 	@class rtsdk::ema::access::Payload Payload.h "Access/Include/Payload.h"
@@ -245,4 +245,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Payload_h
+#endif // __rtsdk_ema_access_Payload_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_OmmIProviderImpl_h
-#define __thomsonreuters_ema_access_OmmIProviderImpl_h
+#ifndef __rtsdk_ema_access_OmmIProviderImpl_h
+#define __rtsdk_ema_access_OmmIProviderImpl_h
 
 #include "OmmServerBaseImpl.h"
 #include "OmmProviderImpl.h"
@@ -117,4 +117,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmIProviderImpl_h
+#endif // __rtsdk_ema_access_OmmIProviderImpl_h

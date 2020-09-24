@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmAsciiDecoder_h
-#define __thomsonreuters_ema_access_OmmAsciiDecoder_h
+#ifndef __rtsdk_ema_access_OmmAsciiDecoder_h
+#define __rtsdk_ema_access_OmmAsciiDecoder_h
 
 #include "Decoder.h"
 #include "EmaStringInt.h"
@@ -64,4 +64,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_OmmAsciiDecoder_h
+#endif //__rtsdk_ema_access_OmmAsciiDecoder_h

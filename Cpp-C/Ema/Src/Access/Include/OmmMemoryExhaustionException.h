@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
-#define __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
+#ifndef __rtsdk_ema_access_OmmMemoryExhaustionException_h
+#define __rtsdk_ema_access_OmmMemoryExhaustionException_h
 
 /**
 	@class rtsdk::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
@@ -74,4 +74,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
+#endif // __rtsdk_ema_access_OmmMemoryExhaustionException_h

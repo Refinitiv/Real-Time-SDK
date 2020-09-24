@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Encoder_h
-#define __thomsonreuters_ema_access_Encoder_h
+#ifndef __rtsdk_ema_access_Encoder_h
+#define __rtsdk_ema_access_Encoder_h
 
 #include "Data.h"
 #include "rtr/rsslDataTypeEnums.h"
@@ -75,4 +75,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_Encoder_h
+#endif // __rtsdk_ema_access_Encoder_h

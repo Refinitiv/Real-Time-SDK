@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ElementListEncoder_h
-#define __thomsonreuters_ema_access_ElementListEncoder_h
+#ifndef __rtsdk_ema_access_ElementListEncoder_h
+#define __rtsdk_ema_access_ElementListEncoder_h
 
 #include "Encoder.h"
 #include "OmmReal.h"
@@ -197,4 +197,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_ElementListEncoder_h
+#endif // __rtsdk_ema_access_ElementListEncoder_h

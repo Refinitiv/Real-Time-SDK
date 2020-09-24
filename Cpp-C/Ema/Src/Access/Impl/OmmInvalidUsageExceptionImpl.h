@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
+#ifndef __rtsdk_ema_access_OmmInvalidUsageExceptionImpl_h
+#define __rtsdk_ema_access_OmmInvalidUsageExceptionImpl_h
 
 #include "OmmInvalidUsageException.h"
 
@@ -41,4 +41,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
+#endif // __rtsdk_ema_access_OmmInvalidUsageExceptionImpl_h

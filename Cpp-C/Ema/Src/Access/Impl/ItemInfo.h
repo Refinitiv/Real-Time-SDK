@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_ItemInfo_h
-#define __thomsonreuters_ema_access_ItemInfo_h
+#ifndef __rtsdk_ema_access_ItemInfo_h
+#define __rtsdk_ema_access_ItemInfo_h
 
 #include "EmaString.h"
 #include "EmaBuffer.h"
@@ -142,4 +142,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ItemInfo_h
+#endif // __rtsdk_ema_access_ItemInfo_h

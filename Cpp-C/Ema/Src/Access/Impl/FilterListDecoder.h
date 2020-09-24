@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterListDecoder_h
-#define __thomsonreuters_ema_access_FilterListDecoder_h
+#ifndef __rtsdk_ema_access_FilterListDecoder_h
+#define __rtsdk_ema_access_FilterListDecoder_h
 
 #include "FilterEntry.h"
 #include "Decoder.h"
@@ -119,4 +119,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterListDecoder_h
+#endif // __rtsdk_ema_access_FilterListDecoder_h

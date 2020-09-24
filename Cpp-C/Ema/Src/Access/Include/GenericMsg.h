@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_GenericMsg_h
-#define __thomsonreuters_ema_access_GenericMsg_h
+#ifndef __rtsdk_ema_access_GenericMsg_h
+#define __rtsdk_ema_access_GenericMsg_h
 
 /**
 	@class rtsdk::ema::access::GenericMsg GenericMsg.h "Access/Include/GenericMsg.h"

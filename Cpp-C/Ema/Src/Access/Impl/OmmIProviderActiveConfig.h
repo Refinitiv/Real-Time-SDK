@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_OmmIProviderActiveConfig_h
-#define __thomsonreuters_ema_access_OmmIProviderActiveConfig_h
+#ifndef __rtsdk_ema_access_OmmIProviderActiveConfig_h
+#define __rtsdk_ema_access_OmmIProviderActiveConfig_h
 
 #include "ActiveConfig.h"
 #include "OmmIProviderConfig.h"
@@ -68,4 +68,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmIProviderActiveConfig_h
+#endif // __rtsdk_ema_access_OmmIProviderActiveConfig_h

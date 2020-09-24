@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaVector_h
-#define __thomsonreuters_ema_access_EmaVector_h
+#ifndef __rtsdk_ema_access_EmaVector_h
+#define __rtsdk_ema_access_EmaVector_h
 
 #include "EmaString.h"
 #include "OmmOutOfRangeException.h"
@@ -375,4 +375,4 @@ bool EmaVector< T >::empty() const
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaVector_h
+#endif // __rtsdk_ema_access_EmaVector_h

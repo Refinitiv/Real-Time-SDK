@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
-#define __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
+#ifndef __rtsdk_ema_rdm_EnumTypeTableImpl_h
+#define __rtsdk_ema_rdm_EnumTypeTableImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
@@ -57,5 +57,5 @@ private:
 
 }
 
-#endif //  __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
+#endif //  __rtsdk_ema_rdm_EnumTypeTableImpl_h
 

@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_DictionaryEntry_h
-#define __thomsonreuters_ema_rdm_DictionaryEntry_h
+#ifndef __rtsdk_ema_rdm_DictionaryEntry_h
+#define __rtsdk_ema_rdm_DictionaryEntry_h
 
 /**
 * A data dictionary entry, containing field information and an enumeration table reference if present.
@@ -186,5 +186,5 @@ private:
 
 }
 
-#endif //  __thomsonreuters_ema_rdm_DictionaryEntry_h
+#endif //  __rtsdk_ema_rdm_DictionaryEntry_h
 

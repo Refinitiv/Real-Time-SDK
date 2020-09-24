@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Utilities_h
-#define __thomsonreuters_ema_access_Utilities_h
+#ifndef __rtsdk_ema_access_Utilities_h
+#define __rtsdk_ema_access_Utilities_h
 
 #include <stdlib.h>
 #ifdef WIN32
@@ -97,4 +97,4 @@ int emaProblemReport( void* pContext, const char* sourceFile, unsigned int line,
 					 const char* message, char* reportBuffer, unsigned int reportBufferLen );
 
 
-#endif // __thomsonreuters_ema_access_Utilities_h
+#endif // __rtsdk_ema_access_Utilities_h

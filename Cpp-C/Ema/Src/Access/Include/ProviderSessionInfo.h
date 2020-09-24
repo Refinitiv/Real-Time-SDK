@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ProviderSessionInfo_h
-#define __thomsonreuters_ema_access_ProviderSessionInfo_h
+#ifndef __rtsdk_ema_access_ProviderSessionInfo_h
+#define __rtsdk_ema_access_ProviderSessionInfo_h
 
  /**
 	 @class rtsdk::ema::access::ProviderSessionInfo ProviderSessionInfo.h "Access/Include/ProviderSessionInfo.h"
@@ -72,5 +72,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ProviderSessionInfo_h
+#endif // __rtsdk_ema_access_ProviderSessionInfo_h
 

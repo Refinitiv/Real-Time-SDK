@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Attrib_h
-#define __thomsonreuters_ema_access_Attrib_h
+#ifndef __rtsdk_ema_access_Attrib_h
+#define __rtsdk_ema_access_Attrib_h
 
 /**
 	@class rtsdk::ema::access::Attrib Attrib.h "Access/Include/Attrib.h"
@@ -249,4 +249,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Attrib_h
+#endif // __rtsdk_ema_access_Attrib_h

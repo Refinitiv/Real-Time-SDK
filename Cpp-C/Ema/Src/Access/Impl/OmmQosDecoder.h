@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmQosDecoder_h
-#define __thomsonreuters_ema_access_OmmQosDecoder_h
+#ifndef __rtsdk_ema_access_OmmQosDecoder_h
+#define __rtsdk_ema_access_OmmQosDecoder_h
 
 #include "Decoder.h"
 #include "EmaBufferInt.h"
@@ -71,4 +71,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_OmmQosDecoder_h
+#endif //__rtsdk_ema_access_OmmQosDecoder_h

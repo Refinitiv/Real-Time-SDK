@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmIProviderConfig_h
-#define __thomsonreuters_ema_access_OmmIProviderConfig_h
+#ifndef __rtsdk_ema_access_OmmIProviderConfig_h
+#define __rtsdk_ema_access_OmmIProviderConfig_h
 
 /**
 	@class rtsdk::ema::access::OmmIProviderConfig OmmIProviderConfig.h "Access/Include/OmmIProviderConfig.h"
@@ -210,4 +210,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmIProviderConfig_h
+#endif // __rtsdk_ema_access_OmmIProviderConfig_h

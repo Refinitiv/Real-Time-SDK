@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerErrorClient_h
-#define __thomsonreuters_ema_access_OmmConsumerErrorClient_h
+#ifndef __rtsdk_ema_access_OmmConsumerErrorClient_h
+#define __rtsdk_ema_access_OmmConsumerErrorClient_h
 
 /**
 	@class rtsdk::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
@@ -121,4 +121,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerErrorClient_h
+#endif // __rtsdk_ema_access_OmmConsumerErrorClient_h

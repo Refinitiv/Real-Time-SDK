@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ServiceEndpointDiscoveryInfo_h
-#define __thomsonreuters_ema_access_ServiceEndpointDiscoveryInfo_h
+#ifndef __rtsdk_ema_access_ServiceEndpointDiscoveryInfo_h
+#define __rtsdk_ema_access_ServiceEndpointDiscoveryInfo_h
 
 /**
 	@class rtsdk::ema::access::ServiceEndpointDiscoveryInfo ServiceEndpointDiscoveryInfo.h "Access/Include/ServiceEndpointDiscoveryInfo.h"
@@ -104,4 +104,4 @@ private:
 }
 
 }
-#endif // #ifndef __thomsonreuters_ema_access_ServiceEndpointDiscoveryInfo_h
+#endif // #ifndef __rtsdk_ema_access_ServiceEndpointDiscoveryInfo_h

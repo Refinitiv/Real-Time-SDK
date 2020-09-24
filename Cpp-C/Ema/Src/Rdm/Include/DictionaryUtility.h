@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_DictionaryUtility_h
-#define __thomsonreuters_ema_rdm_DictionaryUtility_h
+#ifndef __rtsdk_ema_rdm_DictionaryUtility_h
+#define __rtsdk_ema_rdm_DictionaryUtility_h
 
 #include "Access/Include/Common.h"
 #include "Access/Include/FieldList.h"
@@ -59,4 +59,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_DictionaryUtility_h
+#endif // __rtsdk_ema_rdm_DictionaryUtility_h

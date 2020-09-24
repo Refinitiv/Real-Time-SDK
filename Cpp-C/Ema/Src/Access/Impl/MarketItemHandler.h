@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_MarketItemHandler_h
-#define __thomsonreuters_ema_access_MarketItemHandler_h
+#ifndef __rtsdk_ema_access_MarketItemHandler_h
+#define __rtsdk_ema_access_MarketItemHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "HashTable.h"
@@ -64,4 +64,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_MarketItemHandler_h
+#endif // __rtsdk_ema_access_MarketItemHandler_h

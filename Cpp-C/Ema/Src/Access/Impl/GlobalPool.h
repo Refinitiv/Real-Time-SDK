@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_GlobalPool_h
-#define __thomsonreuters_ema_access_GlobalPool_h
+#ifndef __rtsdk_ema_access_GlobalPool_h
+#define __rtsdk_ema_access_GlobalPool_h
 
 #include "OmmArrayDecoder.h"
 #include "ElementListDecoder.h"
@@ -109,4 +109,4 @@ public :
 
 extern rtsdk::ema::access::GlobalPool g_pool;
 
-#endif // __thomsonreuters_ema_access_GlobalPool_h
+#endif // __rtsdk_ema_access_GlobalPool_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmSystemException_h
-#define __thomsonreuters_ema_access_OmmSystemException_h
+#ifndef __rtsdk_ema_access_OmmSystemException_h
+#define __rtsdk_ema_access_OmmSystemException_h
 
 /**
 	@class rtsdk::ema::access::OmmSystemException OmmSystemException.h "Access/Include/OmmSystemException.h"
@@ -78,4 +78,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmSystemException_h
+#endif // __rtsdk_ema_access_OmmSystemException_h

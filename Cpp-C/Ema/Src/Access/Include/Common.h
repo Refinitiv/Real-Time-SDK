@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Common_h_
-#define __thomsonreuters_ema_access_Common_h_
+#ifndef __rtsdk_ema_access_Common_h_
+#define __rtsdk_ema_access_Common_h_
 
 /**
 	@file Common.h "Access/Include/Common.h"
@@ -136,4 +136,4 @@ typedef double  Double;
     Please see EMA Developer Guide for more details.
 */
 
-#endif // __thomsonreuters_ema_access_Common_h_
+#endif // __rtsdk_ema_access_Common_h_

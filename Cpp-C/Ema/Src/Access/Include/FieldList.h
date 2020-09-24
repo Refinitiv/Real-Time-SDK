@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FieldList_h
-#define __thomsonreuters_ema_access_FieldList_h
+#ifndef __rtsdk_ema_access_FieldList_h
+#define __rtsdk_ema_access_FieldList_h
 
 /**
 	@class rtsdk::ema::access::FieldList FieldList.h "Access/Include/FieldList.h"
@@ -706,4 +706,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FieldList_h
+#endif // __rtsdk_ema_access_FieldList_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ommProviderErrorClient_h
-#define __thomsonreuters_ema_access_ommProviderErrorClient_h
+#ifndef __rtsdk_ema_access_ommProviderErrorClient_h
+#define __rtsdk_ema_access_ommProviderErrorClient_h
 
 /**
 	@class rtsdk::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
@@ -121,4 +121,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ommProviderErrorClient_h
+#endif // __rtsdk_ema_access_ommProviderErrorClient_h

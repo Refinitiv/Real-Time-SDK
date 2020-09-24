@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmJsonConverterException_h
-#define __thomsonreuters_ema_access_OmmJsonConverterException_h
+#ifndef __rtsdk_ema_access_OmmJsonConverterException_h
+#define __rtsdk_ema_access_OmmJsonConverterException_h
 
  /**
 	 @class rtsdk::ema::access::OmmJsonConverterException OmmJsonConverterException.h "Access/Include/OmmJsonConverterException.h"
@@ -125,5 +125,5 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmJsonConverterException_h
+#endif // __rtsdk_ema_access_OmmJsonConverterException_h
 

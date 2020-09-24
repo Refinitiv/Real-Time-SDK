@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelStatsImpl_h
-#define __thomsonreuters_ema_access_ChannelStatsImpl_h
+#ifndef __rtsdk_ema_access_ChannelStatsImpl_h
+#define __rtsdk_ema_access_ChannelStatsImpl_h
 
 #include "ItemCallbackClient.h"
 #include "OmmBaseImplMap.h"

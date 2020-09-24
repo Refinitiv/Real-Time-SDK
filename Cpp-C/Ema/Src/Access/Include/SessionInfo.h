@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_SessionInfo_h
-#define __thomsonreuters_ema_access_SessionInfo_h
+#ifndef __rtsdk_ema_access_SessionInfo_h
+#define __rtsdk_ema_access_SessionInfo_h
 
  /**
 	 @class rtsdk::ema::access::SessionInfo SessionInfo.h "Access/Include/SessionInfo.h"
@@ -42,4 +42,4 @@ public:
 
 }
 
-#endif // __thomsonreuters_ema_access_SessionInfo_h
+#endif // __rtsdk_ema_access_SessionInfo_h

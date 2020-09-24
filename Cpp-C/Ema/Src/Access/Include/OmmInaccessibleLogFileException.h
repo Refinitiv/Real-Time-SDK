@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInaccessibleLogFileException_h
-#define __thomsonreuters_ema_access_OmmInaccessibleLogFileException_h
+#ifndef __rtsdk_ema_access_OmmInaccessibleLogFileException_h
+#define __rtsdk_ema_access_OmmInaccessibleLogFileException_h
 
 /**
 	@class rtsdk::ema::access::OmmInaccessibleLogFileException OmmInaccessibleLogFileException.h "Access/Include/OmmInaccessibleLogFileException.h"
@@ -82,4 +82,4 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#endif // __rtsdk_ema_access_OmmInvalidHandleException_h

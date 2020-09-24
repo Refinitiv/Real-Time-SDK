@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmUtf8_h
-#define __thomsonreuters_ema_access_OmmUtf8_h
+#ifndef __rtsdk_ema_access_OmmUtf8_h
+#define __rtsdk_ema_access_OmmUtf8_h
 
 /**
 	@class rtsdk::ema::access::OmmUtf8 OmmUtf8.h "Access/Include/OmmUtf8.h"
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmUtf8_h
+#endif // __rtsdk_ema_access_OmmUtf8_h

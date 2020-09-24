@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_StatusMsg_h
-#define __thomsonreuters_ema_access_StatusMsg_h
+#ifndef __rtsdk_ema_access_StatusMsg_h
+#define __rtsdk_ema_access_StatusMsg_h
 
 /**
 	@class rtsdk::ema::access::StatusMsg StatusMsg.h "Access/Include/StatusMsg.h"
@@ -339,4 +339,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_StatusMsg_h
+#endif // __rtsdk_ema_access_StatusMsg_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmReal_h
-#define __thomsonreuters_ema_access_OmmReal_h
+#ifndef __rtsdk_ema_access_OmmReal_h
+#define __rtsdk_ema_access_OmmReal_h
 
 /**
 	@class rtsdk::ema::access::OmmReal OmmReal.h "Access/Include/OmmReal.h"
@@ -217,4 +217,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_OmmReal_h
+#endif //__rtsdk_ema_access_OmmReal_h

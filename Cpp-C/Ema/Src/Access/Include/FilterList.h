@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterList_h
-#define __thomsonreuters_ema_access_FilterList_h
+#ifndef __rtsdk_ema_access_FilterList_h
+#define __rtsdk_ema_access_FilterList_h
 
 /**
 	@class rtsdk::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
@@ -272,4 +272,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterList_h
+#endif // __rtsdk_ema_access_FilterList_h

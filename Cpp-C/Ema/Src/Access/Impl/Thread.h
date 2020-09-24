@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_thread_h
-#define __thomsonreuters_ema_access_thread_h
+#ifndef __rtsdk_ema_access_thread_h
+#define __rtsdk_ema_access_thread_h
 
 #include "Common.h"
 
@@ -101,4 +101,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_thread_h
+#endif // __rtsdk_ema_access_thread_h

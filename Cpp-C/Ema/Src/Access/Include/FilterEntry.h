@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterEntry_h
-#define __thomsonreuters_ema_access_FilterEntry_h
+#ifndef __rtsdk_ema_access_FilterEntry_h
+#define __rtsdk_ema_access_FilterEntry_h
 
 /**
 	@class rtsdk::ema::access::FilterEntry FilterEntry.h "Access/Include/FilterEntry.h"
@@ -271,4 +271,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterEntry_h
+#endif // __rtsdk_ema_access_FilterEntry_h

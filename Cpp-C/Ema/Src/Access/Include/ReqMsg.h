@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ReqMsg_h
-#define __thomsonreuters_ema_access_ReqMsg_h
+#ifndef __rtsdk_ema_access_ReqMsg_h
+#define __rtsdk_ema_access_ReqMsg_h
 
 /**
 	@class rtsdk::ema::access::ReqMsg ReqMsg.h "Access/Include/ReqMsg.h"
@@ -371,4 +371,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_ReqMsg_h
+#endif // __rtsdk_ema_access_ReqMsg_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_TunnelStreamRequest_h
-#define __thomsonreuters_ema_access_TunnelStreamRequest_h
+#ifndef __rtsdk_ema_access_TunnelStreamRequest_h
+#define __rtsdk_ema_access_TunnelStreamRequest_h
 
 #include "EmaString.h"
 
@@ -764,4 +764,4 @@ private :
 
 };
 
-#endif // __thomsonreuters_ema_access_TunnelStreamRequest_h
+#endif // __rtsdk_ema_access_TunnelStreamRequest_h

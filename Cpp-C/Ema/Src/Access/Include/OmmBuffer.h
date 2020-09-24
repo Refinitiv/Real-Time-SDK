@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmBuffer_h
-#define __thomsonreuters_ema_access_OmmBuffer_h
+#ifndef __rtsdk_ema_access_OmmBuffer_h
+#define __rtsdk_ema_access_OmmBuffer_h
 
 /**
 	@class rtsdk::ema::access::OmmBuffer OmmBuffer.h "Access/Include/OmmBuffer.h"
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmBuffer_h
+#endif // __rtsdk_ema_access_OmmBuffer_h

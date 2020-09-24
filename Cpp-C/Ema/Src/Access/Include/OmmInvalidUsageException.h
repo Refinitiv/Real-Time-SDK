@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidUsageException_h
-#define __thomsonreuters_ema_access_OmmInvalidUsageException_h
+#ifndef __rtsdk_ema_access_OmmInvalidUsageException_h
+#define __rtsdk_ema_access_OmmInvalidUsageException_h
 
 /**
 	@class rtsdk::ema::access::OmmInvalidUsageException OmmInvalidUsageException.h "Access/Include/OmmInvalidUsageException.h"
@@ -145,4 +145,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidUsageException_h
+#endif // __rtsdk_ema_access_OmmInvalidUsageException_h

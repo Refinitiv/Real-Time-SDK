@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_mutex_h
-#define __thomsonreuters_ema_access_mutex_h
+#ifndef __rtsdk_ema_access_mutex_h
+#define __rtsdk_ema_access_mutex_h
 
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -82,4 +82,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_mutex_h
+#endif // __rtsdk_ema_access_mutex_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelStatistics_h
-#define __thomsonreuters_ema_access_ChannelStatistics_h
+#ifndef __rtsdk_ema_access_ChannelStatistics_h
+#define __rtsdk_ema_access_ChannelStatistics_h
 
 /**
    @class rtsdk::ema::access::ChannelStatistics ChannelStatistics.h "Access/Include/ChannelStatistics.h"
@@ -100,5 +100,5 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_ChannelStatistics_h
+#endif //__rtsdk_ema_access_ChannelStatistics_h
 
