@@ -1,3 +1,3 @@
 #file,location
-Consumer.cpp,Examples/Training/Consumer/100_Series/140__MarketByOrder__Streaming
-Consumer.h,Examples/Training/Consumer/100_Series/140__MarketByOrder__Streaming
+Consumer.cpp,Examples/Training/Consumer/100_Series/140_MBO_Streaming
+Consumer.h,Examples/Training/Consumer/100_Series/140_MBO_Streaming
