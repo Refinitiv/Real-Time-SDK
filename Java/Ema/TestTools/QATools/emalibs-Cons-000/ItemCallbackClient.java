@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.access;
+package com.refinitiv.ema.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,71 +13,71 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.rtsdk.ema.access.DirectoryServiceStore.ServiceIdInteger;
-import com.rtsdk.ema.access.OmmLoggerClient.Severity;
-import com.rtsdk.ema.access.OmmState.StreamState;
-import com.rtsdk.eta.codec.AckMsgFlags;
-import com.rtsdk.eta.codec.Buffer;
-import com.rtsdk.eta.codec.CloseMsg;
-import com.rtsdk.eta.codec.Codec;
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.CopyMsgFlags;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DataTypes;
-import com.rtsdk.eta.codec.DecodeIterator;
-import com.rtsdk.eta.codec.Msg;
-import com.rtsdk.eta.codec.MsgClasses;
-import com.rtsdk.eta.codec.MsgKey;
-import com.rtsdk.eta.codec.MsgKeyFlags;
-import com.rtsdk.eta.codec.QosRates;
-import com.rtsdk.eta.codec.QosTimeliness;
-import com.rtsdk.eta.codec.RefreshMsg;
-import com.rtsdk.eta.codec.RefreshMsgFlags;
-import com.rtsdk.eta.codec.RequestMsg;
-import com.rtsdk.eta.codec.RequestMsgFlags;
-import com.rtsdk.eta.codec.StateCodes;
-import com.rtsdk.eta.codec.StatusMsg;
-import com.rtsdk.eta.codec.StatusMsgFlags;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.rdm.DomainTypes;
-import com.rtsdk.eta.rdm.InstrumentNameTypes;
-import com.rtsdk.eta.transport.TransportBuffer;
-import com.rtsdk.eta.valueadd.common.VaNode;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsg;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequest;
-import com.rtsdk.eta.valueadd.reactor.DefaultMsgCallback;
-import com.rtsdk.eta.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannelEvent;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannelEventTypes;
-import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.valueadd.reactor.ReactorMsgEvent;
-import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
-import com.rtsdk.eta.valueadd.reactor.TunnelStream;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamMsgEvent;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamOpenOptions;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamQueueMsgCallback;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamQueueMsgEvent;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEvent;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.rtsdk.eta.codec.DataDictionary;
+import com.refinitiv.ema.access.DirectoryServiceStore.ServiceIdInteger;
+import com.refinitiv.ema.access.OmmLoggerClient.Severity;
+import com.refinitiv.ema.access.OmmState.StreamState;
+import com.refinitiv.eta.codec.AckMsgFlags;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CloseMsg;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.CopyMsgFlags;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.MsgKey;
+import com.refinitiv.eta.codec.MsgKeyFlags;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.RefreshMsgFlags;
+import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.codec.RequestMsgFlags;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StatusMsgFlags;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.InstrumentNameTypes;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.common.VaNode;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.reactor.DefaultMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStream;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamOpenOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamQueueMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamQueueMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.refinitiv.eta.codec.DataDictionary;
 
 interface CallbackRsslMsgPool
 {
-	com.rtsdk.eta.codec.RequestMsg rsslRequestMsg();
+	com.refinitiv.eta.codec.RequestMsg rsslRequestMsg();
 	
-	com.rtsdk.eta.codec.RefreshMsg rsslRefreshMsg();
+	com.refinitiv.eta.codec.RefreshMsg rsslRefreshMsg();
 	
-	com.rtsdk.eta.codec.StatusMsg rsslStatusMsg();
+	com.refinitiv.eta.codec.StatusMsg rsslStatusMsg();
 	
-	com.rtsdk.eta.codec.CloseMsg rsslCloseMsg();
+	com.refinitiv.eta.codec.CloseMsg rsslCloseMsg();
 }
 
 class CallbackClient<T> implements CallbackRsslMsgPool
@@ -123,7 +123,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		}
 	}
 	
-	public com.rtsdk.eta.codec.RequestMsg rsslRequestMsg()
+	public com.refinitiv.eta.codec.RequestMsg rsslRequestMsg()
 	{
 		if (_rsslRequestMsg == null)
 			_rsslRequestMsg = (RequestMsg)CodecFactory.createMsg();
@@ -134,7 +134,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		return _rsslRequestMsg;
 	}
 	
-	public com.rtsdk.eta.codec.RefreshMsg rsslRefreshMsg()
+	public com.refinitiv.eta.codec.RefreshMsg rsslRefreshMsg()
 	{
 		if (_rsslRefreshMsg == null)
 			_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
@@ -145,7 +145,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		return _rsslRefreshMsg;
 	}
 	
-	public com.rtsdk.eta.codec.StatusMsg rsslStatusMsg()
+	public com.refinitiv.eta.codec.StatusMsg rsslStatusMsg()
 	{
 		if (_rsslStatusMsg == null)
 			_rsslStatusMsg = (StatusMsg)CodecFactory.createMsg();
@@ -156,7 +156,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		return _rsslStatusMsg;
 	}
 	
-	public com.rtsdk.eta.codec.CloseMsg rsslCloseMsg()
+	public com.refinitiv.eta.codec.CloseMsg rsslCloseMsg()
 	{
 		if (_rsslCloseMsg == null)
 			_rsslCloseMsg = (CloseMsg)CodecFactory.createMsg();
@@ -167,7 +167,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		return _rsslCloseMsg;
 	}
 	
-	void notifyOnAllMsg(com.rtsdk.ema.access.Msg msg) {}
+	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg) {}
     void notifyOnRefreshMsg() {}
 	void notifyOnUpdateMsg() {}
 	void notifyOnStatusMsg() {}
@@ -782,7 +782,7 @@ class TunnelItem<T> extends Item<T> {
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.RefreshMsg refreshMsg)
+	boolean submit(com.refinitiv.ema.access.RefreshMsg refreshMsg)
 	{
 		StringBuilder temp = _baseImpl.strBuilder();
 		temp.append("Invalid attempt to submit RefreshMsg on tunnel stream.");
@@ -812,7 +812,7 @@ class TunnelItem<T> extends Item<T> {
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.StatusMsg statusMsg)
+	boolean submit(com.refinitiv.ema.access.StatusMsg statusMsg)
 	{
 		StringBuilder temp = _baseImpl.strBuilder();
 		temp.append("Invalid attempt to submit StatusMsg on tunnel stream.");
@@ -969,7 +969,7 @@ class SubItem<T> extends Item<T>
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.RefreshMsg refreshMsg)
+	boolean submit(com.refinitiv.ema.access.RefreshMsg refreshMsg)
 	{
 		refreshMsg.streamId(_streamId);
 		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) refreshMsg);
@@ -983,7 +983,7 @@ class SubItem<T> extends Item<T>
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.StatusMsg statusMsg)
+	boolean submit(com.refinitiv.ema.access.StatusMsg statusMsg)
 	{
 		statusMsg.streamId(_streamId);
 		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) statusMsg);
@@ -1095,7 +1095,7 @@ TunnelStreamStatusEventCallback
 		{
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
-				com.rtsdk.eta.transport.Error error = tunnelStreamStatusEvent.errorInfo().error();
+				com.refinitiv.eta.transport.Error error = tunnelStreamStatusEvent.errorInfo().error();
 
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append(
@@ -1188,7 +1188,7 @@ TunnelStreamStatusEventCallback
 		{
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
-				com.rtsdk.eta.transport.Error error = tunnelStreamQueueMsgEvent.errorInfo().error();
+				com.refinitiv.eta.transport.Error error = tunnelStreamQueueMsgEvent.errorInfo().error();
 
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append(
@@ -1244,7 +1244,7 @@ TunnelStreamStatusEventCallback
 		{
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
-				com.rtsdk.eta.transport.Error error = tunnelStreamMsgEvent.errorInfo().error();
+				com.refinitiv.eta.transport.Error error = tunnelStreamMsgEvent.errorInfo().error();
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append(
 						"Received a tunnel stream message event without the userSpecObject in ItemCallbackClient.defaultMsgCallback")
@@ -1406,8 +1406,8 @@ TunnelStreamStatusEventCallback
 		notifyOnAllMsg(_statusMsg);
 		notifyOnStatusMsg();
 
-		if (((com.rtsdk.eta.codec.StatusMsg) rsslMsg).checkHasState()
-				&& ((com.rtsdk.eta.codec.StatusMsg) rsslMsg).state().streamState() != StreamStates.OPEN)
+		if (((com.refinitiv.eta.codec.StatusMsg) rsslMsg).checkHasState()
+				&& ((com.refinitiv.eta.codec.StatusMsg) rsslMsg).state().streamState() != StreamStates.OPEN)
 			_eventImpl._item.remove();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -1420,10 +1420,10 @@ TunnelStreamStatusEventCallback
 		notifyOnAllMsg(_refreshMsg);
 		notifyOnRefreshMsg();
 
-		int rsslStreamState = ((com.rtsdk.eta.codec.RefreshMsg) rsslMsg).state().streamState();
+		int rsslStreamState = ((com.refinitiv.eta.codec.RefreshMsg) rsslMsg).state().streamState();
 		if (rsslStreamState == StreamStates.NON_STREAMING)
 		{
-			if (((com.rtsdk.eta.codec.RefreshMsg) rsslMsg).checkRefreshComplete())
+			if (((com.refinitiv.eta.codec.RefreshMsg) rsslMsg).checkRefreshComplete())
 				_eventImpl._item.remove();
 		} else if (rsslStreamState != StreamStates.OPEN)
 		{
@@ -1452,7 +1452,7 @@ TunnelStreamStatusEventCallback
 		ChannelInfo channelInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
         if (msg == null)
         {
-        	com.rtsdk.eta.transport.Error error = event.errorInfo().error();
+        	com.refinitiv.eta.transport.Error error = event.errorInfo().error();
         	
         	if (_baseImpl.loggerClient().isErrorEnabled())
         	{
@@ -1762,10 +1762,10 @@ TunnelStreamStatusEventCallback
 		notifyOnAllMsg(_refreshMsg);
 		notifyOnRefreshMsg();
 		
-		int rsslStreamState = ((com.rtsdk.eta.codec.RefreshMsg)rsslMsg).state().streamState();
+		int rsslStreamState = ((com.refinitiv.eta.codec.RefreshMsg)rsslMsg).state().streamState();
 		if (rsslStreamState == StreamStates.NON_STREAMING)
 		{
-			if (((com.rtsdk.eta.codec.RefreshMsg)rsslMsg).checkRefreshComplete())
+			if (((com.refinitiv.eta.codec.RefreshMsg)rsslMsg).checkRefreshComplete())
 				_eventImpl._item.remove();
 		}
 		else if (rsslStreamState != StreamStates.OPEN)
@@ -1842,8 +1842,8 @@ TunnelStreamStatusEventCallback
 		notifyOnAllMsg(_statusMsg);
 		notifyOnStatusMsg();
 
-		if (((com.rtsdk.eta.codec.StatusMsg)rsslMsg).checkHasState() &&  
-				((com.rtsdk.eta.codec.StatusMsg)rsslMsg).state().streamState() != StreamStates.OPEN) 
+		if (((com.refinitiv.eta.codec.StatusMsg)rsslMsg).checkHasState() &&  
+				((com.refinitiv.eta.codec.StatusMsg)rsslMsg).state().streamState() != StreamStates.OPEN) 
 			_eventImpl._item.remove();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -1924,7 +1924,7 @@ TunnelStreamStatusEventCallback
 	{
 		if (parentHandle == 0)
 		{
-			com.rtsdk.eta.codec.RequestMsg requestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
+			com.refinitiv.eta.codec.RequestMsg requestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
 
 			switch (requestMsg.domainType())
 			{
@@ -2232,7 +2232,7 @@ TunnelStreamStatusEventCallback
 		return item.itemId();
 	}
 	
-	void reissue(com.rtsdk.ema.access.ReqMsg reqMsg, long handle)
+	void reissue(com.refinitiv.ema.access.ReqMsg reqMsg, long handle)
 	{
 		Item<T> item = _itemMap.get(_longObjHolder.value(handle));
 		if (item == null || item._closedStatusClient != null)
@@ -2260,7 +2260,7 @@ TunnelStreamStatusEventCallback
 			item.close();
 	}
 	
-	void submit(com.rtsdk.ema.access.RefreshMsg refreshMsg, long handle)
+	void submit(com.refinitiv.ema.access.RefreshMsg refreshMsg, long handle)
 	{
 		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
@@ -2281,7 +2281,7 @@ TunnelStreamStatusEventCallback
 		found.submit( refreshMsg );
 	}
 	
-	void submit(com.rtsdk.ema.access.UpdateMsg updateMsg, long handle)
+	void submit(com.refinitiv.ema.access.UpdateMsg updateMsg, long handle)
 	{
 		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
@@ -2302,7 +2302,7 @@ TunnelStreamStatusEventCallback
 		found.submit( updateMsg );
 	}
 	
-	void submit(com.rtsdk.ema.access.StatusMsg statusMsg, long handle)
+	void submit(com.refinitiv.ema.access.StatusMsg statusMsg, long handle)
 	{
 		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
@@ -2323,7 +2323,7 @@ TunnelStreamStatusEventCallback
 		found.submit(statusMsg);
 	}
 
-	void submit(com.rtsdk.ema.access.PostMsg postMsg, long handle)
+	void submit(com.refinitiv.ema.access.PostMsg postMsg, long handle)
 	{
 		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
@@ -2344,7 +2344,7 @@ TunnelStreamStatusEventCallback
 		found.submit( postMsg );
 	}
 
-	void submit(com.rtsdk.ema.access.GenericMsg genericMsg, long handle)
+	void submit(com.refinitiv.ema.access.GenericMsg genericMsg, long handle)
 	{
 		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
@@ -2509,7 +2509,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 	}
 	
 	@Override
-	void notifyOnAllMsg(com.rtsdk.ema.access.Msg msg)
+	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg)
 	{
 		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
 	}
@@ -2560,7 +2560,7 @@ class ItemCallbackClientProvider extends ItemCallbackClient<OmmProviderClient>
 	}
 	
 	@Override
-	void notifyOnAllMsg(com.rtsdk.ema.access.Msg msg)
+	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg)
 	{
 		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
 	}
@@ -2681,25 +2681,25 @@ abstract class Item<T> extends VaNode
 		return _streamId;
 	}
 	
-	abstract boolean open(com.rtsdk.ema.access.ReqMsg reqMsg);
-	abstract boolean modify(com.rtsdk.ema.access.ReqMsg reqMsg);
-	boolean submit(com.rtsdk.ema.access.RefreshMsg refreshMsg)
+	abstract boolean open(com.refinitiv.ema.access.ReqMsg reqMsg);
+	abstract boolean modify(com.refinitiv.ema.access.ReqMsg reqMsg);
+	boolean submit(com.refinitiv.ema.access.RefreshMsg refreshMsg)
 	{
 		return false;
 	}
-	boolean submit(com.rtsdk.ema.access.UpdateMsg updateMsg)
+	boolean submit(com.refinitiv.ema.access.UpdateMsg updateMsg)
 	{
 		return false;
 	}
-	boolean submit(com.rtsdk.ema.access.StatusMsg statusMsg)
+	boolean submit(com.refinitiv.ema.access.StatusMsg statusMsg)
 	{
 		return false;
 	}
-	boolean submit(com.rtsdk.ema.access.PostMsg postMsg)
+	boolean submit(com.refinitiv.ema.access.PostMsg postMsg)
 	{
 		return false;
 	}
-	boolean submit(com.rtsdk.ema.access.GenericMsg genericMsg)
+	boolean submit(com.refinitiv.ema.access.GenericMsg genericMsg)
 	{
 		return false;
 	}
@@ -2747,7 +2747,7 @@ class SingleItem<T> extends Item<T>
 	}
 
 	@Override
-	boolean open(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean open(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		Directory directory = null;
 
@@ -2813,37 +2813,37 @@ class SingleItem<T> extends Item<T>
 	}
 	
 	@Override
-	boolean modify(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean modify(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		return rsslSubmit(((ReqMsgImpl) reqMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.PostMsg postMsg)
+	boolean submit(com.refinitiv.ema.access.PostMsg postMsg)
 	{
 		return rsslSubmit(((PostMsgImpl) postMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.GenericMsg genericMsg)
+	boolean submit(com.refinitiv.ema.access.GenericMsg genericMsg)
 	{
 		return rsslSubmit(((GenericMsgImpl) genericMsg).rsslMsg());
 	}
 	
 	@Override
-	boolean submit(com.rtsdk.ema.access.RefreshMsg refreshMsg) 
+	boolean submit(com.refinitiv.ema.access.RefreshMsg refreshMsg) 
 	{
 		return rsslSubmit( ((RefreshMsgImpl)refreshMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.UpdateMsg updateMsg)
+	boolean submit(com.refinitiv.ema.access.UpdateMsg updateMsg)
 	{
 		return rsslSubmit( ((UpdateMsgImpl)updateMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.StatusMsg statusMsg)
+	boolean submit(com.refinitiv.ema.access.StatusMsg statusMsg)
 	{
 		return rsslSubmit(((StatusMsgImpl)statusMsg).rsslMsg());
 	}
@@ -2876,7 +2876,7 @@ class SingleItem<T> extends Item<T>
 		}
 	}
 
-	boolean rsslSubmit(com.rtsdk.eta.codec.RequestMsg rsslRequestMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -2952,7 +2952,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -2979,7 +2979,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 
-	boolean rsslSubmit(com.rtsdk.eta.codec.CloseMsg rsslCloseMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.CloseMsg rsslCloseMsg)
 	{	
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3007,7 +3007,7 @@ class SingleItem<T> extends Item<T>
 			
 			if (_baseImpl.loggerClient().isErrorEnabled())
 	    	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
 	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3036,7 +3036,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 
-	boolean rsslSubmit(com.rtsdk.eta.codec.PostMsg rsslPostMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.PostMsg rsslPostMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3055,7 +3055,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3084,7 +3084,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 	
-	boolean rsslSubmit(com.rtsdk.eta.codec.GenericMsg rsslGenericMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.GenericMsg rsslGenericMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3104,7 +3104,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3133,7 +3133,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 	
-	boolean rsslSubmit(com.rtsdk.eta.codec.RefreshMsg rsslRefreshMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.RefreshMsg rsslRefreshMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3152,7 +3152,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3181,7 +3181,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 	
-	boolean rsslSubmit(com.rtsdk.eta.codec.UpdateMsg rsslUpdateMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.UpdateMsg rsslUpdateMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3200,7 +3200,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3229,7 +3229,7 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 	
-	boolean rsslSubmit(com.rtsdk.eta.codec.StatusMsg rsslStatusMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.StatusMsg rsslStatusMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3248,7 +3248,7 @@ class SingleItem<T> extends Item<T>
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3311,7 +3311,7 @@ interface ProviderItem
 	
 	TimeoutEvent reqTimeoutEvent();
 	
-	boolean processInitialResp(com.rtsdk.eta.codec.RefreshMsg refreshMsg);
+	boolean processInitialResp(com.refinitiv.eta.codec.RefreshMsg refreshMsg);
 	
 	ItemWatchList itemWatchList();
 	
@@ -3374,7 +3374,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	}
 
 	@Override
-	boolean open(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean open(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		ReqMsgImpl reqMsgImpl = ((ReqMsgImpl)reqMsg);
 		
@@ -3453,7 +3453,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	}
 
 	@Override
-	boolean modify(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean modify(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		ReqMsgImpl reqMsgImpl = (ReqMsgImpl)reqMsg;
 		
@@ -3560,7 +3560,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 		_itemWatchList.removeItem(this);
 	}
 
-	boolean rsslSubmit(com.rtsdk.eta.codec.RequestMsg rsslRequestMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.RequestMsg rsslRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -3595,7 +3595,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: rsslChannel.submit() failed in IProviderSingleItem.submit(RequestMsg)")
 	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3635,7 +3635,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 		return _reqTimeoutEvent;
 	}
 	
-	boolean rsslSubmit(com.rtsdk.eta.codec.CloseMsg rsslCloseMsg)
+	boolean rsslSubmit(com.refinitiv.eta.codec.CloseMsg rsslCloseMsg)
 	{	
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.clear();
@@ -3653,7 +3653,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 			
 			if (_baseImpl.loggerClient().isErrorEnabled())
 	    	{
-				com.rtsdk.eta.transport.Error error = rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
 				
 	        	temp.append("Internal error: ReactorChannel.submit() failed in IProviderSingleItem.submit(CloseMsg)")
 	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
@@ -3773,13 +3773,13 @@ class BatchItem<T> extends SingleItem<T>
 	}
 
 	@Override
-	boolean open(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean open(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		return super.open(reqMsg);
 	}
 	
 	@Override
-	boolean modify(com.rtsdk.ema.access.ReqMsg reqMsg)
+	boolean modify(com.refinitiv.ema.access.ReqMsg reqMsg)
 	{
 		StringBuilder temp = _baseImpl.strBuilder();
 		temp.append("Invalid attempt to modify batch stream. ").append("Instance name='")
@@ -3796,7 +3796,7 @@ class BatchItem<T> extends SingleItem<T>
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.PostMsg postMsg)
+	boolean submit(com.refinitiv.ema.access.PostMsg postMsg)
 	{
 		StringBuilder temp = _baseImpl.strBuilder();
 		temp.append("Invalid attempt to submit PostMsg on batch stream. ").append("Instance name='")
@@ -3813,7 +3813,7 @@ class BatchItem<T> extends SingleItem<T>
 	}
 
 	@Override
-	boolean submit(com.rtsdk.ema.access.GenericMsg genericMsg)
+	boolean submit(com.refinitiv.ema.access.GenericMsg genericMsg)
 	{
 		StringBuilder temp = _baseImpl.strBuilder();
 		temp.append("Invalid attempt to submit GenericMsg on batch stream. ").append("Instance name='")
@@ -3919,7 +3919,7 @@ class ClosedStatusClient<T> implements TimeoutClient
 	private Item<T> 		_item;
 	private boolean 	_isPrivateStream; 
 	private CallbackClient<T> _client;
-	private com.rtsdk.eta.codec.State		_rsslState = CodecFactory.createState();
+	private com.refinitiv.eta.codec.State		_rsslState = CodecFactory.createState();
 	
 	ClosedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{

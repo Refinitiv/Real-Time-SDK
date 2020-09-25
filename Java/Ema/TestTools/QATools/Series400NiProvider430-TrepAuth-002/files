@@ -1,5 +1,5 @@
 #file,location
-,Src/main/java/interface/com/rtsdk/ema/access
-,Src/main/java/impl/com/rtsdk/ema/access
+,Src/main/java/interface/com/refinitiv/ema/access
+,Src/main/java/impl/com/refinitiv/ema/access
 EmaConfig.xml,Src/examples
-NiProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/niprovider/series400/example430__MarketPrice__TrepAuthentication
+NiProvider.java,Examples/src/main/java/com/refinitiv/ema/examples/training/niprovider/series400/ex430_MP_Authentication

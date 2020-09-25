@@ -5,30 +5,30 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series100.example140__MarketByOrder__Streaming;
+package com.refinitiv.ema.examples.training.consumer.series100.ex140_MBO_Streaming;
 
-import com.rtsdk.ema.access.Msg;
+import com.refinitiv.ema.access.Msg;
 
 import java.nio.ByteBuffer;
 
-import com.rtsdk.ema.access.AckMsg;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.access.UpdateMsg;
-import com.rtsdk.ema.access.DataType;
-import com.rtsdk.ema.access.DataType.DataTypes;
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.EmaUtility;
-import com.rtsdk.ema.access.FieldEntry;
-import com.rtsdk.ema.access.FieldList;
-import com.rtsdk.ema.access.Map;
-import com.rtsdk.ema.access.MapEntry;
-import com.rtsdk.ema.access.OmmConsumer;
-import com.rtsdk.ema.access.OmmConsumerClient;
-import com.rtsdk.ema.access.OmmConsumerEvent;
-import com.rtsdk.ema.access.OmmException;
-import com.rtsdk.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.EmaUtility;
+import com.refinitiv.ema.access.FieldEntry;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmConsumerClient
 {

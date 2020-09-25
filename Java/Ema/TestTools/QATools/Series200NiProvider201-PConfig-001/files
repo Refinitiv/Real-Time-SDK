@@ -1,2 +1,2 @@
 #file,location
-NiProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/niprovider/series200/example201__MarketPrice__TunnelingConnection
+NiProvider.java,Examples/src/main/java/com/refinitiv/ema/examples/training/niprovider/series200/ex201_MP_TunnelingConnection

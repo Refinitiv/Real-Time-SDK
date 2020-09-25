@@ -7,33 +7,33 @@
 
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.rtsdk.ema.examples.training.consumer.series400.example440__System__TunnelStream;
+package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunnelStrm;
 
-import com.rtsdk.ema.access.Msg;
+import com.refinitiv.ema.access.Msg;
 // APIQA:
 import java.nio.ByteBuffer;
 // END APIQA:
-import com.rtsdk.ema.access.AckMsg;
-import com.rtsdk.ema.access.ClassOfService;
-import com.rtsdk.ema.access.CosAuthentication;
-import com.rtsdk.ema.access.CosDataIntegrity;
-import com.rtsdk.ema.access.CosFlowControl;
-import com.rtsdk.ema.access.CosGuarantee;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.access.TunnelStreamRequest;
-import com.rtsdk.ema.access.UpdateMsg;
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.OmmConsumer;
-import com.rtsdk.ema.access.OmmConsumerClient;
-import com.rtsdk.ema.access.OmmConsumerEvent;
-import com.rtsdk.ema.access.OmmException;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.ClassOfService;
+import com.refinitiv.ema.access.CosAuthentication;
+import com.refinitiv.ema.access.CosDataIntegrity;
+import com.refinitiv.ema.access.CosFlowControl;
+import com.refinitiv.ema.access.CosGuarantee;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.TunnelStreamRequest;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 // APIQA:
-import com.rtsdk.ema.access.OmmOpaque;
+import com.refinitiv.ema.access.OmmOpaque;
 // END APIQA:
-import com.rtsdk.ema.access.OmmState;
-import com.rtsdk.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmConsumerClient
 {

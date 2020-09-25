@@ -1,2 +1,2 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series100/example113__MarketPrice__SessionManagement
+Consumer.java,Examples/src/main/java/com/refinitiv/ema/examples/training/consumer/series100/ex113_MP_SessionMgmt

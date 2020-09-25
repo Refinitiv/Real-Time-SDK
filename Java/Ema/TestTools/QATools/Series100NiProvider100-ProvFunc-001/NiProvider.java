@@ -5,15 +5,15 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.niprovider.series100.example100__MarketPrice__Streaming;
+package com.refinitiv.ema.examples.training.niprovider.series100.ex100_MP_Streaming;
 
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.FieldList;
-import com.rtsdk.ema.access.OmmException;
-import com.rtsdk.ema.access.OmmNiProviderConfig;
-import com.rtsdk.ema.access.OmmProvider;
-import com.rtsdk.ema.access.OmmReal;
-import com.rtsdk.ema.access.OmmState;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmNiProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
 
 public class NiProvider {
 

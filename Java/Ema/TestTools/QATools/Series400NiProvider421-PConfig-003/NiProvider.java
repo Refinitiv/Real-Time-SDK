@@ -1,26 +1,26 @@
-package com.rtsdk.ema.examples.training.niprovider.series400.example421__MarketPrice__ProgrammaticConfig;
+package com.refinitiv.ema.examples.training.niprovider.series400.ex421_MP_ProgrammaticCfg;
 
 //APIQA
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.FieldList;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.Msg;
-import com.rtsdk.ema.access.OmmException;
-import com.rtsdk.ema.access.OmmNiProviderConfig;
-import com.rtsdk.ema.access.OmmProvider;
-import com.rtsdk.ema.access.OmmProviderClient;
-import com.rtsdk.ema.access.OmmProviderEvent;
-import com.rtsdk.ema.access.OmmReal;
-import com.rtsdk.ema.access.OmmState;
-import com.rtsdk.ema.access.PostMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.ReqMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.access.ElementList;
-import com.rtsdk.ema.access.Map;
-import com.rtsdk.ema.access.MapEntry;
-import com.rtsdk.ema.access.OmmArray;
-import com.rtsdk.ema.access.Series;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmNiProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmProviderClient;
+import com.refinitiv.ema.access.OmmProviderEvent;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.OmmArray;
+import com.refinitiv.ema.access.Series;
 
 
 

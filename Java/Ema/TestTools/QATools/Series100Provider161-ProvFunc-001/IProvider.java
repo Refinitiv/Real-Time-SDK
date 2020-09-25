@@ -5,23 +5,23 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.example161__Login__AcceptDeny__DomainRepresentation;
+package com.refinitiv.ema.examples.training.iprovider.series100.ex161_Login_AcceptDeny_DomainRep;
 
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.Msg;
-import com.rtsdk.ema.access.OmmException;
-import com.rtsdk.ema.access.OmmIProviderConfig;
-import com.rtsdk.ema.access.OmmProvider;
-import com.rtsdk.ema.access.OmmProviderClient;
-import com.rtsdk.ema.access.OmmProviderEvent;
-import com.rtsdk.ema.access.OmmState;
-import com.rtsdk.ema.access.PostMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.ReqMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.domain.login.Login;
-import com.rtsdk.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmIProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmProviderClient;
+import com.refinitiv.ema.access.OmmProviderEvent;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.domain.login.Login;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {	

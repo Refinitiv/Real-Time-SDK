@@ -5,9 +5,9 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series100.example102__MarketPrice__Snapshot;
+package com.refinitiv.ema.examples.training.consumer.series100.ex102_MP_Snapshot;
 
-import com.rtsdk.ema.access.*;
+import com.refinitiv.ema.access.*;
 
 import java.util.Iterator;
 
