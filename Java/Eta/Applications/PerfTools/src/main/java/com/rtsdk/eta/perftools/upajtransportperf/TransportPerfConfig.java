@@ -346,7 +346,7 @@ public class TransportPerfConfig
         
         if (_recvBufSize < 0)
         {
-            System.err.println("Config error: Recieve Buffer Size cannot be less than 0.");
+            System.err.println("Config error: Receive Buffer Size cannot be less than 0.");
             System.out.println(CommandLine.optionHelpString());
             System.exit(-1);
         }

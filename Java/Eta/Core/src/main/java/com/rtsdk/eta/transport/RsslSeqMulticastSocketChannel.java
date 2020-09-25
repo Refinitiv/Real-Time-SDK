@@ -316,7 +316,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
             error.channel(this);
             error.errorId(TransportReturnCodes.FAILURE);
             error.sysError(0);
-            error.text("Number format exception for recieve address port number on connect()");
+            error.text("Number format exception for receive address port number on connect()");
 
             _state = ChannelState.CLOSED;
 

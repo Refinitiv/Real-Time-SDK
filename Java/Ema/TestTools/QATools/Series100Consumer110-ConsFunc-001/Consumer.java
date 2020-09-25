@@ -411,7 +411,7 @@ public class Consumer
                     Thread.sleep(1600);
                     System.out.println("PAUSE NOW h2");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(true).initialImage(false), h2);
-                    System.out.println("STOP recieve updates");
+                    System.out.println("STOP receive updates");
                     Thread.sleep(1600);
                     System.out.println("RESUME  NOW h1");
 
@@ -433,7 +433,7 @@ public class Consumer
                     Thread.sleep(1600);
                     System.out.println("PAUSE NOW h2");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(true).initialImage(false), h2);
-                    System.out.println("STOP recieve updates");
+                    System.out.println("STOP receive updates");
                     Thread.sleep(1600);
                     System.out.println("RESUME  NOW h1");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(false).initialImage(true), h1);

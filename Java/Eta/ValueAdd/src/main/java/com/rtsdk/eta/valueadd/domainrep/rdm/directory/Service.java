@@ -3402,7 +3402,7 @@ public interface Service
             stringBuf.append(tab);
             stringBuf.append(tab);
             stringBuf.append(tab);
-            stringBuf.append("Gap Recieve Address:Port: ");
+            stringBuf.append("Gap Receive Address:Port: ");
             stringBuf.append(seqMcastInfo.gapRecoveryServer.address().data().array());
             stringBuf.append(":");
             stringBuf.append(seqMcastInfo.gapRecoveryServer.port());

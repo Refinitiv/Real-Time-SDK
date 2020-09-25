@@ -1891,11 +1891,11 @@ public class Module_5_ProvideContent
                 /* get Username */
                 if (key != null)
                 {
-                    System.out.printf("\nRecieved Login Response for Username: %s\n", key.name().toString());
+                    System.out.printf("\nReceived Login Response for Username: %s\n", key.name().toString());
                 }
                 else
                 {
-                    System.out.printf("\nRecieved Login Response for Username: Unknown\n");
+                    System.out.printf("\nReceived Login Response for Username: Unknown\n");
                 }
 
                 /* get state information */

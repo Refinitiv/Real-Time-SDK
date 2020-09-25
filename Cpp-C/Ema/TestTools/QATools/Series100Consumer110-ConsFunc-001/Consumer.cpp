@@ -309,7 +309,7 @@ int main( int argc, char* argv[] )
 			sleep(1600);
 			cout << "PAUSE NOW h2" << endl;
 			consumer->reissue( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N").pause(true).initialImage(false),h2);
-			cout << "STOP recieve updates" << endl;
+			cout << "STOP receive updates" << endl;
 			sleep(1600);
 			cout << "RESUME  NOW h1" << endl;
 			
@@ -332,7 +332,7 @@ int main( int argc, char* argv[] )
 			sleep(1600);
 			cout << "PAUSE NOW h2" << endl;
 			consumer->reissue( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N").pause(true).initialImage(false),h2);
-			cout << "STOP recieve updates" << endl;
+			cout << "STOP receive updates" << endl;
 			sleep(1600);
 			cout << "RESUME  NOW h1" << endl;
 			
