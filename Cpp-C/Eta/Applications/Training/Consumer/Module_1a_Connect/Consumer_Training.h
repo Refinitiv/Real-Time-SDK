@@ -6,25 +6,25 @@
 */
 
 /*
- * This is the UPA Consumer Training series of the UPA Training Suite
+ * This is the ETA Consumer Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Consumer using the UPA Transport layer.
+ * training how to build a ETA OMM Consumer using the ETA Transport layer.
  *
- * Main h header file for the UPA Consumer Training application. It is a 
+ * Main h header file for the ETA Consumer Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA Consumer Training Module 1a: Establish network communication
+ * ETA Consumer Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
- * In this module, the application initializes the UPA Transport and 
+ * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
  * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
- * The first step of any UPA consumer application is to establish a 
+ * The first step of any ETA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
  * with which to interact). An OMM consumer typically creates an outbound 
  * connection to the well-known hostname and port of a server (Interactive 
@@ -34,8 +34,8 @@
  *
  */
 
-#ifndef _TR_UPA_CONSUMER_TRAINING_H
-#define _TR_UPA_CONSUMER_TRAINING_H
+#ifndef _ETA_CONSUMER_TRAINING_H
+#define _ETA_CONSUMER_TRAINING_H
 
 #ifdef _WIN32
 #ifdef _WIN64
@@ -56,16 +56,16 @@ extern "C" {
 
 /* channel management information */
 typedef struct {
-	RsslChannel* upaChannel;
-	RsslChannelInfo upaChannelInfo; /* UPA Channel Info returned by rsslGetChannelInfo call */
-} UpaChannelManagementInfo;
+	RsslChannel* etaChannel;
+	RsslChannelInfo etaChannelInfo; /* ETA Channel Info returned by rsslGetChannelInfo call */
+} EtaChannelManagementInfo;
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code);
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code);
 
 #ifdef __cplusplus
 };

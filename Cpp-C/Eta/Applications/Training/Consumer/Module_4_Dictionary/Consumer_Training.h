@@ -6,25 +6,25 @@
 */
 
 /*
- * This is the UPA Consumer Training series of the UPA Training Suite
+ * This is the ETA Consumer Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Consumer using the UPA Transport layer.
+ * training how to build a ETA OMM Consumer using the ETA Transport layer.
  *
- * Main h header file for the UPA Consumer Training application. It is a 
+ * Main h header file for the ETA Consumer Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA Consumer Training Module 1a: Establish network communication
+ * ETA Consumer Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
- * In this module, the application initializes the UPA Transport and 
+ * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
  * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
- * The first step of any UPA consumer application is to establish a 
+ * The first step of any ETA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
  * with which to interact). An OMM consumer typically creates an outbound 
  * connection to the well-known hostname and port of a server (Interactive 
@@ -34,7 +34,7 @@
  * 
  *
  ************************************************************************
- * UPA Consumer Training Module 1b: Ping (heartbeat) Management
+ * ETA Consumer Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * Ping or heartbeat messages indicate the continued presence of an application. 
@@ -58,7 +58,7 @@
  *
  *
  ************************************************************************
- * UPA Consumer Training Module 1c: Reading and Writing Data
+ * ETA Consumer Training Module 1c: Reading and Writing Data
  ************************************************************************
  * Summary:
  * When channel initialization is complete, the state of the channel 
@@ -69,28 +69,28 @@
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to receive data from the connection. The 
  * arrival of this information is often announced by the I/O notification 
- * mechanism that the RsslChannel.socketId is registered with. The UPA 
+ * mechanism that the RsslChannel.socketId is registered with. The ETA 
  * Transport reads information from the network as a byte stream, after 
  * which it determines RsslBuffer boundaries and returns each buffer one by 
  * one.
  * 
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
+ * involves a several step process. Because the ETA Transport provides 
  * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
+ * from the ETA Transport buffer pool. This can be the guaranteed output 
  * buffer pool associated with an RsslChannel. After a buffer is acquired, 
  * the user can populate the RsslBuffer.data and set the RsslBuffer.length 
  * to the number of bytes referred to by data. If queued information cannot 
  * be passed to the network, a function is provided to allow the application 
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able 
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write. 
  * 
  *
  ************************************************************************
- * UPA Consumer Training Module 2: Log in
+ * ETA Consumer Training Module 2: Log in
  ************************************************************************
  * Summary:
  * Applications authenticate using the Login domain model. An OMM consumer must 
@@ -112,12 +112,12 @@
  * and the use of Dynamic Views. The consumer application can use this 
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package. 
  * 
  *
  ************************************************************************
- * UPA Consumer Training Module 3: Obtain Source Directory
+ * ETA Consumer Training Module 3: Obtain Source Directory
  ************************************************************************
  * Summary:
  * The Source Directory domain model conveys information about all available 
@@ -140,12 +140,12 @@
  * The Source Directory Group filter conveys item group status information, 
  * including information about group states, as well as the merging of groups. 
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  *
  ************************************************************************
- * UPA Consumer Training Module 4: Obtain Dictionary Information
+ * ETA Consumer Training Module 4: Obtain Dictionary Information
  ************************************************************************
  * Summary:
  * Consumer applications often require a dictionary for encoding or decoding 
@@ -167,54 +167,21 @@
  * information from a local file or download the information from the
  * provider if available.
  * 
- * - If loading from a file, UPA offers several utility functions to load and 
+ * - If loading from a file, ETA offers several utility functions to load and 
  *   manage a properly-formatted field dictionary.
  * - If downloading information, the application issues a request using the 
  *   Dictionary domain model. The provider application should respond with a 
- *   dictionary response, typically broken into a multi-part message. UPA 
+ *   dictionary response, typically broken into a multi-part message. ETA 
  *   offers several utility functions for encoding and decoding of the
  *   Dictionary domain content.
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
- * Data Package.
- *
- *
- ************************************************************************
- * UPA Consumer Training Module 5: Issue Item Requests 
- ************************************************************************
- * Summary:
- * After the consumer application successfully logs in and obtains Source 
- * Directory and Dictionary information, it can request additional content. 
- * When issuing the request, the consuming application specifies the serviceId 
- * of the desired service along with a streamId. Requests can be sent for any 
- * domain using the formats defined in that domain model specification. In this 
- * simple example, we show how to make a Market Price level I data Item request 
- * to obtain the data from a provider.
- * 
- * Detailed Descriptions:
- * The Market Price domain provides access to Level I market information such as 
- * trades, indicative quotes, and top-of-book quotes. All information is sent as 
- * an RsslFieldList. Field-value pairs contained in the field list include information 
- * related to that item (i.e., net change, bid, ask, volume, high, low, or last price).
- *
- * A Market Price request message is encoded and sent by OMM consumer applications. The 
- * request specifies the name and attributes of an item in which the consumer is 
- * interested. If a consumer wishes to receive updates, it can make a "streaming"
- * request by setting the RSSL_RQMF_STREAMING flag. If the flag is not set, the consumer 
- * is requesting a "snapshot," and the refresh should end the request.
- *
- * Market Price data is conveyed as an RsslFieldList, where each RsslFieldEntry 
- * corresponds to a piece of information and its current value. The field list should be 
- * decoded using its associated Field Dictionary, indicated by the dictionaryId present 
- * in the field list.
- * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  */
 
-#ifndef _TR_UPA_CONSUMER_TRAINING_H
-#define _TR_UPA_CONSUMER_TRAINING_H
+#ifndef _ETA_CONSUMER_TRAINING_H
+#define _ETA_CONSUMER_TRAINING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -227,7 +194,6 @@ extern "C" {
 #define SRCDIR_STREAM_ID 2
 #define FIELD_DICTIONARY_STREAM_ID 3
 #define ENUM_TYPE_DICTIONARY_STREAM_ID 4
-#define MARKETPRICE_ITEM_STREAM_ID 5
 
 #ifdef _WIN32
 #ifdef _WIN64
@@ -245,9 +211,9 @@ typedef struct {
 	RsslUInt32	pingTimeoutClient; /* client ping timeout */
 	time_t		nextReceivePingTime; /* time client should receive next message/ping from server */
 	time_t		nextSendPingTime; /* time to send next ping from client */
-	time_t		currentTime; /* current time from system clock */
+	time_t		currentTime;	/* current time from system clock */
 	RsslBool	receivedServerMsg; /* flag for server message received */
-} UpaPingManagementInfo;
+} EtaPingManagementInfo;
 
 /* source directory service discovery information */
 typedef struct {
@@ -256,14 +222,14 @@ typedef struct {
 	RsslBool	serviceNameFound; /* service name found flag */
 
 	/* Capabilities provide the information about supported domain types */
-	/* Our training UPA Consumer app only cares about if dictionary (RSSL_DMT_DICTIONARY) and
+	/* Our training ETA Consumer app only cares about if dictionary (RSSL_DMT_DICTIONARY) and
 	 * market price (RSSL_DMT_MARKET_PRICE) RsslDomainTypes are supported
 	 */
-	RsslBool	upalDMTDictionarySupported;
-	RsslBool	upaDMTMarketPriceSupported;
+	RsslBool	etalDMTDictionarySupported;
+	RsslBool	etaDMTMarketPriceSupported;
 	
 	/* DictionariesProvided provide the dictionaries that are available for downloading */ 
-	/* Our training UPA Consumer app only cares about RDMFieldDictionary and enumtype.def */
+	/* Our training ETA Consumer app only cares about RDMFieldDictionary and enumtype.def */
 	RsslBool	RDMFieldDictionaryProvided;
 	RsslBool	enumtypeProvided;
 
@@ -276,7 +242,7 @@ typedef struct {
 	 */
 	RsslQos		QoS[5];
 
-} UpaServiceDiscoveryInfo;
+} EtaServiceDiscoveryInfo;
 
 /* dictionaries loaded information */
 typedef struct {
@@ -292,51 +258,43 @@ typedef struct {
 	/* if it is the first part message of a enum table refresh flag */
 	RsslBool	enumTypeDictionaryFirstPart;
 
-} UpaDictionariesLoadedInfo;
-
-/* market price item information */
-typedef struct {
-	RsslInt32	streamId;
-	char		itemName[128];
-	RsslState	itemState;
-} UpaMarketPriceItemInfo;
+} EtaDictionariesLoadedInfo;
 
 /* channel management information */
 typedef struct {
-	RsslChannel* upaChannel;
-	RsslChannelInfo upaChannelInfo; /* UPA Channel Info returned by rsslGetChannelInfo call */
-	UpaPingManagementInfo pingManagementInfo;
-	UpaServiceDiscoveryInfo serviceDiscoveryInfo;
-	UpaDictionariesLoadedInfo dictionariesLoadedInfo;
-	UpaMarketPriceItemInfo marketPriceItemInfo;
-} UpaChannelManagementInfo;
+	RsslChannel* etaChannel;
+	RsslChannelInfo etaChannelInfo; /* ETA Channel Info returned by rsslGetChannelInfo call */
+	EtaPingManagementInfo pingManagementInfo;
+	EtaServiceDiscoveryInfo serviceDiscoveryInfo;
+	EtaDictionariesLoadedInfo dictionariesLoadedInfo;
+} EtaChannelManagementInfo;
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  * dataDictionary -  the dictionaries that need to be unloaded to clean up memory
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code, RsslDataDictionary* dataDictionary);
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code, RsslDataDictionary* dataDictionary);
 
 /* 
- * Initializes the ping times for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Initializes the ping times for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-void initPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+void initPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /* 
- * Processing ping management handler for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Processing ping management handler for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-RsslRet processPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet processPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Sends a message buffer to a channel.  
- * upaChannel - The channel to send the message buffer to
+ * etaChannel - The channel to send the message buffer to
  * msgBuf - The msgBuf to be sent
  */
-RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
+RsslRet sendMessage(RsslChannel* etaChannel, RsslBuffer* msgBuf);
 
 /* 
  * Send Login request message to a channel. This consists of getting a message buffer, setting the login request 
@@ -344,9 +302,9 @@ RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
  * encoded and sent by OMM consumer and OMM non-interactive provider applications. This message registers a user 
  * with the system. After receiving a successful Login response, applications can then begin consuming or providing 
  * additional content. An OMM provider can use the Login request information to authenticate users with DACS.
- * upaChannelInfo - The channel management information including the channel to send the Login request message buffer to
+ * etaChannelInfo - The channel management information including the channel to send the Login request message buffer to
  */
-RsslRet sendLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet sendLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Processes a login response. This consists of decoding the response.
@@ -360,9 +318,9 @@ RsslRet processLoginResponse(RsslMsg* msg, RsslDecodeIterator* decodeIter);
  * A Login close message is encoded and sent by OMM consumer applications. This message allows a consumer to log out 
  * of the system. Closing a Login stream is equivalent to a 'Close All' type of message, where all open streams are 
  * closed (thus all other streams associated with the user are closed).
- * upaChannelInfo - The channel management information including the channel to send the Login close message buffer to
+ * etaChannelInfo - The channel management information including the channel to send the Login close message buffer to
  */
-RsslRet closeLoginStream(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet closeLoginStream(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /* 
  * Send Source Directory request message to a channel. This consists of getting a message buffer, setting the source 
@@ -370,17 +328,17 @@ RsslRet closeLoginStream(UpaChannelManagementInfo *upaChannelManagementInfo);
  * the server. A Source Directory request message is encoded and sent by OMM consumer applications. The Source Directory 
  * domain model conveys information about all available services in the system. An OMM consumer typically requests a 
  * Source Directory to retrieve information about available services and their capabilities.
- * upaChannelInfo - The channel management information including the channel to send the Source Directory request message buffer to
+ * etaChannelInfo - The channel management information including the channel to send the Source Directory request message buffer to
  */
-RsslRet sendSourceDirectoryRequest(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet sendSourceDirectoryRequest(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Processes a source directory response. This consists of decoding the response.
- * upaChannelInfo - The channel management information including the source directory service discovery information that is populated
+ * etaChannelInfo - The channel management information including the source directory service discovery information that is populated
  * msg - The partially decoded message
  * decodeIter - The decode iterator
  */
-RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
+RsslRet processSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
 
 /* 
  * Send a Dictionary request message to a channel. This consists of getting a message buffer, setting the dictionary
@@ -390,63 +348,26 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
  * as to how to encode or decode specific pieces of information. Content that uses the RsslFieldList type requires the 
  * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it could also be a user-defined or 
  * modified field dictionary).
- * upaChannelInfo - The channel management information including the channel to send the Dictionary request message buffer to and
+ * etaChannelInfo - The channel management information including the channel to send the Dictionary request message buffer to and
  *					the obtained source directory service discovery information that is used for sending Dictionary Request
  * dictionaryName - The name of the dictionary to request
  */
-RsslRet sendDictionaryRequest(UpaChannelManagementInfo *upaChannelManagementInfo, const char* dictionaryName);
+RsslRet sendDictionaryRequest(EtaChannelManagementInfo *etaChannelManagementInfo, const char* dictionaryName);
 
 /*
  * Processes a dictionary response. This consists of decoding the response.
- * upaChannelInfo - The channel management information including the dictionaries loaded information that is populated/updated
+ * etaChannelInfo - The channel management information including the dictionaries loaded information that is populated/updated
  * msg - The partially decoded message
  * decodeIter - The decode iterator
  * dataDictionary - the dictionary used for decoding the field entry data
  */
-RsslRet processDictionaryResponse(UpaChannelManagementInfo *upaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter, RsslDataDictionary* dataDictionary);
+RsslRet processDictionaryResponse(EtaChannelManagementInfo *etaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter, RsslDataDictionary* dataDictionary);
 
 /* 
- * Send just 1 Market Price item request message to a channel. This consists of getting a message buffer, encoding the 
- * Market Price item request, and sending the item request to the server. A Market Price request message is encoded and 
- * sent by OMM consumer applications. The request specifies the name and attributes of an item in which the consumer is interested.
- * upaChannelInfo - The channel management information including the channel to send the item request message buffer to and
- *					the obtained source directory service discovery information that is used for sending Market Price Item Request and
- *					the market price item information
- */
-RsslRet sendMarketPriceItemRequest(UpaChannelManagementInfo *upaChannelManagementInfo);
-
-/*
- * Processes a market price response. This consists of extracting the key, printing out the item name contained in the key,
- * decoding the field list and field entry data.
- * upaChannelInfo - The channel management information including the dictionaries loaded information that is populated/updated
- * msg - The partially decoded message
- * decodeIter - The decode iterator
- * marketPriceItemInfo - The market price item information for updates
- * dataDictionary - the dictionary used for decoding the field entry data
- */
-RsslRet processMarketPriceItemResponse(UpaChannelManagementInfo *upaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter, RsslDataDictionary* dataDictionary);
-
-/*
- * Decodes into the MarketPrice Payload field list structure. Inside the MarketPrice Payload field list structure, 
- * decodes the field entry data in list and prints out the field entry data with help of the dictionary. 
- * Returns success if decoding succeeds or failure if decoding fails.
- * fieldList - The field list data
- * decodeIter - The decode iterator
- * dataDictionary - the dictionary used for decoding the field entry data
- */
-RsslRet decodeMarketPricePayload(RsslFieldList* fieldList, RsslDecodeIterator* decodeIter, RsslDataDictionary* dataDictionary);
-
-/*
- * Close the Market Price item stream. A Market Price item close message is encoded and sent by OMM consumer applications. 
- * upaChannelInfo - The channel management information including the channel to send the Market Price item close message buffer to
- */
-RsslRet closeMarketPriceItemStream(UpaChannelManagementInfo *upaChannelManagementInfo);
-
-/* 
- * upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
+ * etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
  * Also, it simplifies the example codes and make the codes more readable.
  */
-RsslBuffer* upaGetBuffer(RsslChannel *upaChannel, RsslUInt32 size, RsslError *rsslError);
+RsslBuffer* etaGetBuffer(RsslChannel *etaChannel, RsslUInt32 size, RsslError *rsslError);
 
 #ifdef __cplusplus
 };
