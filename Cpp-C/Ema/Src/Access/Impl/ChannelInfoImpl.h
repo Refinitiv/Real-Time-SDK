@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelInfoImpl_h
-#define __thomsonreuters_ema_access_ChannelInfoImpl_h
+#ifndef __refinitiv_ema_access_ChannelInfoImpl_h
+#define __refinitiv_ema_access_ChannelInfoImpl_h
 
 #include "ItemCallbackClient.h"
 #include "OmmBaseImplMap.h"

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaUnitTestConnect_h
-#define __thomsonreuters_ema_access__EmaUnitTestConnect_h
+#ifndef __refinitiv_ema_access_EmaUnitTestConnect_h
+#define __refinitiv_ema_access__EmaUnitTestConnect_h
 
 #include "RmtesBufferImpl.h"
 #include "RmtesBuffer.h"
@@ -29,4 +29,4 @@ namespace rtsdk {
 		}
 	}
 }
-#endif // __thomsonreuters_ema_access_EmaUnitTestConnect_h
+#endif // __refinitiv_ema_access_EmaUnitTestConnect_h

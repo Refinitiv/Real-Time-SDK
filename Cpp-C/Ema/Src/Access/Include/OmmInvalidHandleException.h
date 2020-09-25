@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidHandleException_h
-#define __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#ifndef __refinitiv_ema_access_OmmInvalidHandleException_h
+#define __refinitiv_ema_access_OmmInvalidHandleException_h
 
 /**
 	@class rtsdk::ema::access::OmmInvalidHandleException OmmInvalidHandleException.h "Access/Include/OmmInvalidHandleException.h"
@@ -87,4 +87,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#endif // __refinitiv_ema_access_OmmInvalidHandleException_h

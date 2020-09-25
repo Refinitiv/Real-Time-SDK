@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmOutOfRangeException_h
-#define __thomsonreuters_ema_access_OmmOutOfRangeException_h
+#ifndef __refinitiv_ema_access_OmmOutOfRangeException_h
+#define __refinitiv_ema_access_OmmOutOfRangeException_h
 
 /**
 	@class rtsdk::ema::access::OmmOutOfRangeException OmmOutOfRangeException.h "Access/Include/OmmOutOfRangeException.h"
@@ -71,4 +71,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmOutOfRangeException_h
+#endif // __refinitiv_ema_access_OmmOutOfRangeException_h

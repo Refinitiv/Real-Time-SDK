@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNiProviderConfig_h
-#define __thomsonreuters_ema_access_OmmNiProviderConfig_h
+#ifndef __refinitiv_ema_access_OmmNiProviderConfig_h
+#define __refinitiv_ema_access_OmmNiProviderConfig_h
 
 /**
 	@class rtsdk::ema::access::OmmNiProviderConfig OmmNiProviderConfig.h "Access/Include/OmmNiProviderConfig.h"
@@ -297,4 +297,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNiProviderConfig_h
+#endif // __refinitiv_ema_access_OmmNiProviderConfig_h

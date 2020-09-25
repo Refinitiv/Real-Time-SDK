@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_PostMsgEncoder_h
-#define __thomsonreuters_ema_access_PostMsgEncoder_h
+#ifndef __refinitiv_ema_access_PostMsgEncoder_h
+#define __refinitiv_ema_access_PostMsgEncoder_h
 
 #include "MsgEncoder.h"
 
@@ -102,4 +102,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_PostMsgEncoder_h
+#endif // __refinitiv_ema_access_PostMsgEncoder_h

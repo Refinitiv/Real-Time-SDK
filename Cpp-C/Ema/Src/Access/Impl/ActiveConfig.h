@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ActiveConfig_h
-#define __thomsonreuters_ema_access_ActiveConfig_h
+#ifndef __refinitiv_ema_access_ActiveConfig_h
+#define __refinitiv_ema_access_ActiveConfig_h
 
 #include "OmmLoggerClient.h"
 #include "DictionaryCallbackClient.h"
@@ -598,4 +598,4 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_ActiveConfig_h
+#endif // __refinitiv_ema_access_ActiveConfig_h

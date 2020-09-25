@@ -5,8 +5,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_rdm_EnumTypeTable_h
-#define __thomsonreuters_ema_rdm_EnumTypeTable_h
+#ifndef __refinitiv_ema_rdm_EnumTypeTable_h
+#define __refinitiv_ema_rdm_EnumTypeTable_h
 
 /**
 * A table of enumerated types.  A field that uses this table will contain a value
@@ -80,4 +80,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_EnumTypeTable_h
+#endif // __refinitiv_ema_rdm_EnumTypeTable_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidHandleExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmInvalidHandleExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmInvalidHandleExceptionImpl_h
+#define __refinitiv_ema_access_OmmInvalidHandleExceptionImpl_h
 
 #include "OmmInvalidHandleException.h"
 
@@ -42,4 +42,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidHandleExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmInvalidHandleExceptionImpl_h

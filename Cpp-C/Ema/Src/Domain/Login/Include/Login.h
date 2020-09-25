@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_domain_Login_h
-#define __thomsonreuters_ema_domain_Login_h
+#ifndef __refinitiv_ema_domain_Login_h
+#define __refinitiv_ema_domain_Login_h
 
 namespace rtsdk {
 
@@ -908,4 +908,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_domain_Login_h
+#endif // __refinitiv_ema_domain_Login_h

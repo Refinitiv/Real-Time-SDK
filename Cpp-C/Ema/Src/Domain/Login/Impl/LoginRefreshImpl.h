@@ -16,8 +16,8 @@
 #include "OmmState.h"
 #include "OmmStateDecoder.h"
 
-#ifndef __thomsonreuters_ema_domain_LoginRefreshImpl_h
-#define __thomsonreuters_ema_domain_LoginRefreshImpl_h
+#ifndef __refinitiv_ema_domain_LoginRefreshImpl_h
+#define __refinitiv_ema_domain_LoginRefreshImpl_h
 
 namespace rtsdk {
 
@@ -278,5 +278,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_domain_LoginRefreshImpl_h
+#endif // __refinitiv_ema_domain_LoginRefreshImpl_h
 

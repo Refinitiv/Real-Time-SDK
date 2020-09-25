@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_EmaRdm_h
-#define __thomsonreuters_ema_rdm_EmaRdm_h
+#ifndef __refinitiv_ema_rdm_EmaRdm_h
+#define __refinitiv_ema_rdm_EmaRdm_h
 
 /**
 	@file EmaRdm.h "Rdm/Include/EmaRdm.h"
@@ -407,4 +407,4 @@ static const  rtsdk::ema::access::EmaString ENAME_DATA_STREAMS( ":DataStreams", 
 
 }
 
-#endif // __thomsonreuters_ema_rdm_EmaRdm_h
+#endif // __refinitiv_ema_rdm_EmaRdm_h

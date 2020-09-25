@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerConfig_h
-#define __thomsonreuters_ema_access_OmmConsumerConfig_h
+#ifndef __refinitiv_ema_access_OmmConsumerConfig_h
+#define __refinitiv_ema_access_OmmConsumerConfig_h
 
 /**
 	@class rtsdk::ema::access::OmmConsumerConfig OmmConsumerConfig.h "Access/Include/OmmConsumerConfig.h"
@@ -292,4 +292,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerConfig_h
+#endif // __refinitiv_ema_access_OmmConsumerConfig_h

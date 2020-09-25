@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmUInt_h
-#define __thomsonreuters_ema_access_OmmUInt_h
+#ifndef __refinitiv_ema_access_OmmUInt_h
+#define __refinitiv_ema_access_OmmUInt_h
 
 /**
 	@class rtsdk::ema::access::OmmUInt OmmUInt.h "Access/Include/OmmUInt.h"
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmUInt_h
+#endif // __refinitiv_ema_access_OmmUInt_h

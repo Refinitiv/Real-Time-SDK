@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_vector_h
-#define __thomsonreuters_ema_access_vector_h
+#ifndef __refinitiv_ema_access_vector_h
+#define __refinitiv_ema_access_vector_h
 
 /**
 	@class rtsdk::ema::access::Vector Vector.h "Access/Include/Vector.h"
@@ -278,4 +278,4 @@ private :
 
 }
 
-#endif //  __thomsonreuters_ema_access_vector_h
+#endif //  __refinitiv_ema_access_vector_h

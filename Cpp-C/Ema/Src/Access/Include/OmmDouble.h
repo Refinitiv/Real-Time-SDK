@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmDouble_h
-#define __thomsonreuters_ema_access_OmmDouble_h
+#ifndef __refinitiv_ema_access_OmmDouble_h
+#define __refinitiv_ema_access_OmmDouble_h
 
 /**
 	@class rtsdk::ema::access::OmmDouble OmmDouble.h "Access/Include/OmmDouble.h"
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmDouble_h
+#endif // __refinitiv_ema_access_OmmDouble_h

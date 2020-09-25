@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_GetTime_h
-#define __thomsonreuters_ema_access_GetTime_h
+#ifndef __refinitiv_ema_access_GetTime_h
+#define __refinitiv_ema_access_GetTime_h
 
 /**
 	@class rtsdk::ema::access::GetTime GetTime.h "Access/Include/GetTime.h"
@@ -125,5 +125,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_GetTime_h
+#endif // __refinitiv_ema_access_GetTime_h
 

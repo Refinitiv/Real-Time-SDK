@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_MfFieldType_h
-#define __thomsonreuters_ema_rdm_MfFieldType_h
+#ifndef __refinitiv_ema_rdm_MfFieldType_h
+#define __refinitiv_ema_rdm_MfFieldType_h
 
 #include "Access/Include/Common.h"
 
@@ -68,5 +68,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_MfFieldType_h
+#endif // __refinitiv_ema_rdm_MfFieldType_h
 

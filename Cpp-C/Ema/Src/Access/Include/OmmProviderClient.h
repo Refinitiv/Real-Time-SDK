@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ommProviderClient_h
-#define __thomsonreuters_ema_access_ommProviderClient_h
+#ifndef __refinitiv_ema_access_ommProviderClient_h
+#define __refinitiv_ema_access_ommProviderClient_h
 
 /**
 	@class rtsdk::ema::access::OmmProviderClient OmmProviderClient.h "Access/Include/OmmProviderClient.h"
@@ -160,4 +160,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_ommProviderClient_h
+#endif //__refinitiv_ema_access_ommProviderClient_h

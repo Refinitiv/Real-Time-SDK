@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ElementListSetDef_h
-#define __thomsonreuters_ema_access_ElementListSetDef_h
+#ifndef __refinitiv_ema_access_ElementListSetDef_h
+#define __refinitiv_ema_access_ElementListSetDef_h
 
 #include "EmaPool.h"
 
@@ -57,4 +57,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_ElementListSetDef_h
+#endif // __refinitiv_ema_access_ElementListSetDef_h

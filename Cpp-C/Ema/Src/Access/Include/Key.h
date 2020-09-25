@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_key_h
-#define __thomsonreuters_ema_access_key_h
+#ifndef __refinitiv_ema_access_key_h
+#define __refinitiv_ema_access_key_h
 
 /**
 	@class rtsdk::ema::access::Key Key.h "Access/Include/Key.h"
@@ -223,4 +223,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_key_h
+#endif // __refinitiv_ema_access_key_h

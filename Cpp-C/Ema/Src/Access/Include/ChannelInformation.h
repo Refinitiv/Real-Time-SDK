@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelInformation_h
-#define __thomsonreuters_ema_access_ChannelInformation_h
+#ifndef __refinitiv_ema_access_ChannelInformation_h
+#define __refinitiv_ema_access_ChannelInformation_h
 
 /**
    @class rtsdk::ema::access::ChannelInformation ChannelInformation.h "Access/Include/ChannelInformation.h"
@@ -393,5 +393,5 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_ChannelInformation_h
+#endif //__refinitiv_ema_access_ChannelInformation_h
 

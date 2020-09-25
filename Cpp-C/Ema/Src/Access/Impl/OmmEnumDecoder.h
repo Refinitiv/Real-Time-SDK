@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmEnumDecoder_h
-#define __thomsonreuters_ema_access_OmmEnumDecoder_h
+#ifndef __refinitiv_ema_access_OmmEnumDecoder_h
+#define __refinitiv_ema_access_OmmEnumDecoder_h
 
 #include "Decoder.h"
 #include "EmaBufferInt.h"
@@ -65,4 +65,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_OmmEnumDecoder_h
+#endif //__refinitiv_ema_access_OmmEnumDecoder_h

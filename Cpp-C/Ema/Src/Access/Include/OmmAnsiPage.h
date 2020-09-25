@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmAnsiPage_h
-#define __thomsonreuters_ema_access_OmmAnsiPage_h
+#ifndef __refinitiv_ema_access_OmmAnsiPage_h
+#define __refinitiv_ema_access_OmmAnsiPage_h
 
 /**
 	@class rtsdk::ema::access::OmmAnsiPage OmmAnsiPage.h "Access/Include/OmmAnsiPage.h"
@@ -166,4 +166,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmAnsiPage_h
+#endif // __refinitiv_ema_access_OmmAnsiPage_h

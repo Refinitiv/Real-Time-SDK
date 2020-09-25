@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_Ema_h
-#define __thomsonreuters_ema_Ema_h
+#ifndef __refinitiv_ema_Ema_h
+#define __refinitiv_ema_Ema_h
 
 /**
 	@file Ema.h "Ema.h"
@@ -135,4 +135,4 @@
 
 #include "Access/Include/GetTime.h"
 
-#endif // __thomsonreuters_ema_Ema_h
+#endif // __refinitiv_ema_Ema_h

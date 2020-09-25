@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBufferU16_h
-#define __thomsonreuters_ema_access_EmaBufferU16_h
+#ifndef __refinitiv_ema_access_EmaBufferU16_h
+#define __refinitiv_ema_access_EmaBufferU16_h
 
 /**
 	@class rtsdk::ema::access::EmaBufferU16 EmaBufferU16.h "Access/Include/Include/EmaBufferU16.h"
@@ -171,4 +171,4 @@ EmaBufferU16 operator+( EmaBufferU16 buff_1, const EmaBufferU16& buff_2 );
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaBufferU16_h
+#endif // __refinitiv_ema_access_EmaBufferU16_h

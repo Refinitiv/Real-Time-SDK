@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_VectorDecoder_h
-#define __thomsonreuters_ema_access_VectorDecoder_h
+#ifndef __refinitiv_ema_access_VectorDecoder_h
+#define __refinitiv_ema_access_VectorDecoder_h
 
 #include "Decoder.h"
 #include "VectorEntry.h"
@@ -133,4 +133,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_VectorDecoder_h
+#endif // __refinitiv_ema_access_VectorDecoder_h

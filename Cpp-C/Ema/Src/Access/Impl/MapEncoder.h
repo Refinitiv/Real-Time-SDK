@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_MapEncoder_h
-#define __thomsonreuters_ema_access_MapEncoder_h
+#ifndef __refinitiv_ema_access_MapEncoder_h
+#define __refinitiv_ema_access_MapEncoder_h
 
 #include "Encoder.h"
 #include "ComplexType.h"
@@ -216,4 +216,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_MapEncoder_h
+#endif // __refinitiv_ema_access_MapEncoder_h

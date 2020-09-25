@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_UpdateMsg_h
-#define __thomsonreuters_ema_access_UpdateMsg_h
+#ifndef __refinitiv_ema_access_UpdateMsg_h
+#define __refinitiv_ema_access_UpdateMsg_h
 
 /**
 	@class rtsdk::ema::access::UpdateMsg UpdateMsg.h "Access/Include/UpdateMsg.h"
@@ -352,4 +352,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_UpdateMsg_h
+#endif // __refinitiv_ema_access_UpdateMsg_h

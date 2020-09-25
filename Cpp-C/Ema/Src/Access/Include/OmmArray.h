@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmArray_h
-#define __thomsonreuters_ema_access_OmmArray_h
+#ifndef __refinitiv_ema_access_OmmArray_h
+#define __refinitiv_ema_access_OmmArray_h
 
 /**
 	@class rtsdk::ema::access::OmmArray OmmArray.h "Access/Include/OmmArray.h"
@@ -458,4 +458,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmArray_h
+#endif // __refinitiv_ema_access_OmmArray_h

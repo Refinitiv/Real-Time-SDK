@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidConfigurationException_h
-#define __thomsonreuters_ema_access_OmmInvalidConfigurationException_h
+#ifndef __refinitiv_ema_access_OmmInvalidConfigurationException_h
+#define __refinitiv_ema_access_OmmInvalidConfigurationException_h
 
 /**
 	@class rtsdk::ema::access::OmmInvalidConfigurationException OmmInvalidConfigurationException.h "Access/Include/OmmInvalidConfigurationException.h"

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerEvent_h
-#define __thomsonreuters_ema_access_OmmConsumerEvent_h
+#ifndef __refinitiv_ema_access_OmmConsumerEvent_h
+#define __refinitiv_ema_access_OmmConsumerEvent_h
 
 /**
 	@class rtsdk::ema::access::OmmConsumerEvent OmmConsumerEvent.h "Access/Include/OmmConsumerEvent.h"
@@ -101,4 +101,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerEvent_h
+#endif // __refinitiv_ema_access_OmmConsumerEvent_h

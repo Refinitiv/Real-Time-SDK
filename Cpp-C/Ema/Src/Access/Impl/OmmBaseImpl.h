@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmBaseImpl_h
-#define __thomsonreuters_ema_access_OmmBaseImpl_h
+#ifndef __refinitiv_ema_access_OmmBaseImpl_h
+#define __refinitiv_ema_access_OmmBaseImpl_h
 
 #ifdef WIN32
 #define USING_SELECT
@@ -270,4 +270,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmBaseImpl_h
+#endif // __refinitiv_ema_access_OmmBaseImpl_h

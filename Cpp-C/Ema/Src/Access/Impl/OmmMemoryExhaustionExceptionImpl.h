@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmMemoryExhaustionExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmMemoryExhaustionExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmMemoryExhaustionExceptionImpl_h
+#define __refinitiv_ema_access_OmmMemoryExhaustionExceptionImpl_h
 
 #include "OmmMemoryExhaustionException.h"
 
@@ -39,4 +39,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmMemoryExhaustionExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmMemoryExhaustionExceptionImpl_h

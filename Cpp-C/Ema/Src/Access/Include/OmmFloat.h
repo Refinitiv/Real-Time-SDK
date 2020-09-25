@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmFloat_h
-#define __thomsonreuters_ema_access_OmmFloat_h
+#ifndef __refinitiv_ema_access_OmmFloat_h
+#define __refinitiv_ema_access_OmmFloat_h
 
 /**
 	@class rtsdk::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmFloat_h
+#endif // __refinitiv_ema_access_OmmFloat_h

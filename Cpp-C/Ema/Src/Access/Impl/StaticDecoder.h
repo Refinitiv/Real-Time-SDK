@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_StaticDecoder_h
-#define __thomsonreuters_ema_access_StaticDecoder_h
+#ifndef __refinitiv_ema_access_StaticDecoder_h
+#define __refinitiv_ema_access_StaticDecoder_h
 
 #include "Data.h"
 #include "OmmError.h"
@@ -75,4 +75,4 @@ public :
 
 }
 
-#endif // __thomsonreuters_ema_access_StaticDecoder_h
+#endif // __refinitiv_ema_access_StaticDecoder_h

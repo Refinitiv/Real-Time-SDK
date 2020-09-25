@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Summary_h
-#define __thomsonreuters_ema_access_Summary_h
+#ifndef __refinitiv_ema_access_Summary_h
+#define __refinitiv_ema_access_Summary_h
 
 /**
 	@class rtsdk::ema::access::SummaryData SummaryData.h "Access/Include/SummaryData.h"
@@ -242,4 +242,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Summary_h
+#endif // __refinitiv_ema_access_Summary_h

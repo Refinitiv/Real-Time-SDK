@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_AckMsgEncoder_h
-#define __thomsonreuters_ema_access_AckMsgEncoder_h
+#ifndef __refinitiv_ema_access_AckMsgEncoder_h
+#define __refinitiv_ema_access_AckMsgEncoder_h
 
 #include "MsgEncoder.h"
 #include "AckMsg.h"
@@ -94,4 +94,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_AckMsgEncoder_h
+#endif // __refinitiv_ema_access_AckMsgEncoder_h

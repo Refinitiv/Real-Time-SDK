@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerActiveConfig_h
-#define __thomsonreuters_ema_access_OmmConsumerActiveConfig_h
+#ifndef __refinitiv_ema_access_OmmConsumerActiveConfig_h
+#define __refinitiv_ema_access_OmmConsumerActiveConfig_h
 
 #include "OmmConsumerConfig.h"
 #include "ActiveConfig.h"
@@ -37,4 +37,4 @@ public :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerActiveConfig_h
+#endif // __refinitiv_ema_access_OmmConsumerActiveConfig_h

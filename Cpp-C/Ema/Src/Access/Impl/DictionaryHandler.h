@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_DictionaryHandler_h
-#define __thomsonreuters_ema_access_DictionaryHandler_h
+#ifndef __refinitiv_ema_access_DictionaryHandler_h
+#define __refinitiv_ema_access_DictionaryHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "DictionaryCallbackClient.h"
@@ -162,5 +162,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DictionaryHandler_h
+#endif // __refinitiv_ema_access_DictionaryHandler_h
 

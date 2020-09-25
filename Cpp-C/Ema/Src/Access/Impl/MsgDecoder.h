@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_MsgDecoder_h
-#define __thomsonreuters_ema_access_MsgDecoder_h
+#ifndef __refinitiv_ema_access_MsgDecoder_h
+#define __refinitiv_ema_access_MsgDecoder_h
 
 #include "Decoder.h"
 #include "NoDataImpl.h"
@@ -117,4 +117,4 @@ protected :
 
 }
 
-#endif //__thomsonreuters_ema_access_MsgDecoder_h
+#endif //__refinitiv_ema_access_MsgDecoder_h

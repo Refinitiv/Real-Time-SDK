@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_AckMsg_h
-#define __thomsonreuters_ema_access_AckMsg_h
+#ifndef __refinitiv_ema_access_AckMsg_h
+#define __refinitiv_ema_access_AckMsg_h
 
 /**
 	@class rtsdk::ema::access::AckMsg AckMsg.h "Access/Include/AckMsg.h"
@@ -329,4 +329,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_AckMsg_h
+#endif // __refinitiv_ema_access_AckMsg_h
