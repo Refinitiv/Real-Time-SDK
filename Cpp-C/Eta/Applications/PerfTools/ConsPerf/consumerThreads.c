@@ -46,7 +46,7 @@ static const RsslInt32
 			ENUM_TYPE_DICTIONARY_STREAM_ID = 4,
 			ITEM_STREAM_ID_START = 5;
 
-static RsslBuffer applicationName = { 12, (char*)"upacConsPerf" } ;
+static RsslBuffer applicationName = { 12, (char*)"ConsPerf" } ;
 
 RsslPostUserInfo postUserInfo;
 
@@ -1760,7 +1760,7 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 
 #ifdef ENABLE_XML_TRACE
 	rsslClearTraceOptions(&traceOptions);
-	traceOptions.traceMsgFileName = "upacConsPerf";
+	traceOptions.traceMsgFileName = "ConsPerf";
 	traceOptions.traceMsgMaxFileSize = 1000000000;
 	traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
 	rsslIoctl(pConsumerThread->pChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);

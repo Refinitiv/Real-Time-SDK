@@ -6,7 +6,7 @@
 */
 
 /*
- * This is the tunnel stream handler for the UPA Value Add consumer and provider applications.
+ * This is the tunnel stream handler for the ETA Value Add consumer and provider applications.
  * It handles operations related to opening a tunnel stream and receiving status events for it.
  * This handler is used by the PerfTunnelMsgHandler.
  */

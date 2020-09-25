@@ -9,7 +9,7 @@ import com.rtsdk.eta.transport.TransportBuffer;
 import com.rtsdk.eta.valueadd.domainrep.rdm.login.*;
 
 /**
- * This is the Login handler for the UPA Consumer and NIProvider application. It
+ * This is the Login handler for the ETA Consumer and NIProvider application. It
  * provides methods for encoding and sending of login request, as well as
  * processing of responses (refresh, status, update, close). Methods are also
  * provided to allow setting of application name, user name and role, to be used

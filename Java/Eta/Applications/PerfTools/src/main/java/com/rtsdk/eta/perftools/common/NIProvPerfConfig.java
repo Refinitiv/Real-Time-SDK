@@ -36,10 +36,10 @@ public class NIProvPerfConfig
 	private static int	_maxFragmentSize;			/* Maximum Fragment Size. */
 	private static int _sendBufSize;				/* System Send Buffer Size. */
 	private static int _recvBufSize;				/* System Receive Buffer Size. */
-	private static int _highWaterMark;				/* sets the point which will cause UPA to automatically flush */
+	private static int _highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	private static int _itemPublishCount;			/* Number of items to publish non-interactively. See -itemCount. */
 	private static int _commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
-    private static boolean _useReactor;             /* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+    private static boolean _useReactor;             /* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
 
 	static
     {
@@ -58,14 +58,14 @@ public class NIProvPerfConfig
         CommandLine.addOption("u", "", "Unicast port for reliable multicast");
     	CommandLine.addOption("uname", "", "Username to use in login request");
     	CommandLine.addOption("tcpDelay", false, "Turns off tcp_nodelay in ConnectOptions, enabling Nagle's");
-    	CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in UPA connection)");
+    	CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in ETA connection)");
     	CommandLine.addOption("maxFragmentSize", 6144, "Maximum Fragment Size");
     	CommandLine.addOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in ConnectOptions)");
     	CommandLine.addOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in ConnectOptions)");
-    	CommandLine.addOption("highWaterMark", 0, "Sets the point that causes UPA to automatically flush");
+    	CommandLine.addOption("highWaterMark", 0, "Sets the point that causes ETA to automatically flush");
     	CommandLine.addOption("itemCount", 100000, "Number of items to publish non-interactively");
     	CommandLine.addOption("commonItemCount", 0, "Number of items common to all providers, if using multiple connections");
-        CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
 
     	// ProviderPerfConfig
     	CommandLine.addOption("threads", DEFAULT_THREAD_COUNT, "Number of non-interactive provider threads to create");
@@ -115,7 +115,7 @@ public class NIProvPerfConfig
 
         /* Overwrite programName here since ProviderPerfConfig and
          * NIProvPerfConfig share same CommandLine. */
-    	CommandLine.programName("upajNIProvPerf");    	
+    	CommandLine.programName("NIProvPerf");    	
         ProviderPerfConfig.itemFilename(CommandLine.value("itemFile"));
         ProviderPerfConfig.msgFilename(CommandLine.value("msgFile"));
         _summaryFilename = CommandLine.value("summaryFile");
@@ -543,7 +543,7 @@ public class NIProvPerfConfig
 	}
 
 	/**
-	 *  The point that causes UPA to automatically flush.
+	 *  The point that causes ETA to automatically flush.
 	 *
 	 * @return the int
 	 */
@@ -663,7 +663,7 @@ public class NIProvPerfConfig
 	}
 
     /**
-     *  Use the VA Reactor instead of the UPA Channel for sending and receiving.
+     *  Use the VA Reactor instead of the ETA Channel for sending and receiving.
      *
      * @return true, if successful
      */

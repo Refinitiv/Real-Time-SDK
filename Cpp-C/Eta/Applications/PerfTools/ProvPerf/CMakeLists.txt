@@ -1,7 +1,7 @@
 
 set( SOURCE_FILES
         dictionaryProvider.c              loginProvider.c
-        provPerfConfig.c                  upacProvPerf.c 
+        provPerfConfig.c                  ProvPerf.c 
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c
@@ -17,7 +17,7 @@ set( SOURCE_FILES
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
 
 		dictionaryProvider.h              loginProvider.h
-        provPerfConfig.h                  upacProvPerf.h 
+        provPerfConfig.h                  ProvPerf.h 
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
         ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.h

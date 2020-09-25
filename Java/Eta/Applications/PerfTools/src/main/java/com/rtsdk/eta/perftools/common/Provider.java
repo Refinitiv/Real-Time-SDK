@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.rtsdk.eta.perftools.upajniprovperf.NIProviderThread;
-import com.rtsdk.eta.perftools.upajprovperf.IProviderThread;
+import com.rtsdk.eta.perftools.niprovperf.NIProviderThread;
+import com.rtsdk.eta.perftools.provperf.IProviderThread;
 
 /**
  * Maintains the provider application instance. Has logic for keeping track of

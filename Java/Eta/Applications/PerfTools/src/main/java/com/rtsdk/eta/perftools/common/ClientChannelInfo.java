@@ -12,7 +12,7 @@ import com.rtsdk.eta.valueadd.reactor.TunnelStream;
  */
 public class ClientChannelInfo
 {
-    public Channel                      channel;                // The UPA Channel associated with this info.
+    public Channel                      channel;                // The ETA Channel associated with this info.
     public Object                       userSpec;               // Reference to user-specified data associated with this channel.
     public boolean                      needFlush;              // Whether this channel needs to have data flushed.
     public boolean                      needRead;               // Whether this channel has additional data to read.
@@ -22,7 +22,7 @@ public class ClientChannelInfo
     public long                         nextReceivePingTime;    // Time before which this channel should receive a ping.
     public long                         nextSendPingTime;       // Time before which a ping should be sent for this channel.
     public Queue<ClientChannelInfo>     parentQueue;            // Reference back to the list this channel is an element of.
-    public ReactorChannel               reactorChannel;         // Use the VA Reactor instead of the UPA Channel for sending and receiving.
+    public ReactorChannel               reactorChannel;         // Use the VA Reactor instead of the ETA Channel for sending and receiving.
     public boolean                      tunnelStreamOpenSent;   // flag to track if we already made a tunnel stream open request.
     public TunnelStream                 tunnelStream;           // The tunnel stream for this client's channel.
 }

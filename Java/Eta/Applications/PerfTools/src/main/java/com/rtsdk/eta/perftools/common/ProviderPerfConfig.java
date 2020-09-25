@@ -51,13 +51,13 @@ public class ProviderPerfConfig
     private static int                 _writeStatsInterval;          // Controls how often statistics are written 
     private static boolean             _displayStats;                // Controls whether stats appear on the screen
     private static boolean             _directWrite;                 // direct write enabled
-    private static boolean             _useReactor;                  // Use the VA Reactor instead of the UPA Channel for sending and receiving.
+    private static boolean             _useReactor;                  // Use the VA Reactor instead of the ETA Channel for sending and receiving.
     private static int                 _tunnelStreamOutputBuffers;   // Tunnel Stream Guaranteed Output Buffers.
     private static boolean             _tunnelStreamBufsUsed;        // Control whether to print tunnel Stream buffers usage.
 
     static
     {
-        CommandLine.programName("upajProvPerf");
+        CommandLine.programName("ProvPerf");
         CommandLine.addOption("p", "14002", "Port number to connect to");
         CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in BindOptions)");
         CommandLine.addOption("maxOutputBufs", 0, "Number of max output buffers, optional(configures maxOutputBuffers in BindOptions), value is recalculated by API to match expression: 5 < \"-outputBufs\" <= \"-maxOutputBufs\"");
@@ -65,14 +65,14 @@ public class ProviderPerfConfig
         CommandLine.addOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in BindOptions)");
         CommandLine.addOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in BindOptions)");
         CommandLine.addOption("tcpDelay", false, "Turns off tcp_nodelay in BindOptions, enabling Nagle's");
-        CommandLine.addOption("highWaterMark", 0, "Sets the point that causes UPA to automatically flush");
+        CommandLine.addOption("highWaterMark", 0, "Sets the point that causes ETA to automatically flush");
         CommandLine.addOption("if", "", "Name of network interface to use");
         CommandLine.addOption("tickRate", 1000, "Ticks per second");
         CommandLine.addOption("updateRate", 100000, "Update rate per second");
         CommandLine.addOption("latencyUpdateRate", 10, "Latency update rate per second (can specify \"all\" to send latency in every update");
         CommandLine.addOption("genericMsgRate", 0, "Generic Msg rate per second");
         CommandLine.addOption("genericMsgLatencyRate", 0, "Latency Generic Msg rate per second (can specify \"all\" to send latency in every generic msg");
-        CommandLine.addOption("maxPackCount", 1, "Maximum number of messages packed in a buffer(when count > 1, upa PackBuffer() is used");
+        CommandLine.addOption("maxPackCount", 1, "Maximum number of messages packed in a buffer(when count > 1, eta PackBuffer() is used");
         CommandLine.addOption("packBufSize", 6000, "If packing, sets size of buffer to use");
         CommandLine.addOption("refreshBurstSize", 10, "Number of refreshes to send in a burst(controls granularity of time-checking)");
         CommandLine.addOption("directWrite", false, "Sets direct socket write flag when using channel.write()");
@@ -88,7 +88,7 @@ public class ProviderPerfConfig
         CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
         CommandLine.addOption("runTime", 360, "Runtime of the application, in seconds");
         CommandLine.addOption("threads", 1, "Number of provider threads to create");
-        CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
         CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
         CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
     }
@@ -554,7 +554,7 @@ public class ProviderPerfConfig
     }
 
     /**
-     *  Sets the point that causes UPA to automatically flush.
+     *  Sets the point that causes ETA to automatically flush.
      *
      * @return the int
      */
@@ -879,7 +879,7 @@ public class ProviderPerfConfig
 	}
 	
     /**
-     *  Use the VA Reactor instead of the UPA Channel for sending and receiving.
+     *  Use the VA Reactor instead of the ETA Channel for sending and receiving.
      *
      * @return true, if successful
      */

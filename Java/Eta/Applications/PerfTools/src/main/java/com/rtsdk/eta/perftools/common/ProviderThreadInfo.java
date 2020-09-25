@@ -11,7 +11,7 @@ import com.rtsdk.eta.transport.Channel;
 public class ProviderThreadInfo
 {
 	private long				_threadId;					/* ID saved from thread creation. */
-	private Channel				_channel;					/* UPA Channel. */
+	private Channel				_channel;					/* ETA Channel. */
 	private TimeRecordQueue		_genMsgLatencyRecords;		/* Queue of timestamp information(for generic messages), collected periodically by the main thread. */
 
 	private int					_itemListUniqueIndex;		/* Index into the item list at which item
@@ -54,7 +54,7 @@ public class ProviderThreadInfo
 	}
 
 	/**
-	 *  UPA Channel.
+	 *  ETA Channel.
 	 *
 	 * @return the channel
 	 */
@@ -64,7 +64,7 @@ public class ProviderThreadInfo
 	}
     
 	/**
-	 *  UPA Channel.
+	 *  ETA Channel.
 	 *
 	 * @param value the value
 	 */

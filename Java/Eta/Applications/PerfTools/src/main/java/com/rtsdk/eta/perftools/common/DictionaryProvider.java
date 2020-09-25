@@ -32,7 +32,7 @@ import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
 import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
- * Provides sending of the upajprovperf's dictionary, if requested.
+ * Provides sending of the provperf's dictionary, if requested.
  */
 public class DictionaryProvider
 {
@@ -75,9 +75,9 @@ public class DictionaryProvider
     private DictionaryStatus        _dictionaryStatus;
     private ChannelInfo             _chnlInfo;
 
-    private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
-    private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
-    private ReactorChannelInfo    _reactorChnlInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the ETA Channel for sending and receiving
+    private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the ETA Channel for sending and receiving
+    private ReactorChannelInfo    _reactorChnlInfo; // Use the VA Reactor instead of the ETA Channel for sending and receiving
     
     /**
      * Instantiates a new dictionary provider.

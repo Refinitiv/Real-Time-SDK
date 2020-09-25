@@ -34,7 +34,7 @@ public class ProviderSession
     private XmlMsgData _xmlMsgData;                             // Msgs from XML
     private int _unexpectedCloseCount;                          // Count of unexpected close messages received
     private ProviderThread _providerThread;                     // Provider thread of this session.
-    private ReactorErrorInfo _errorInfo;                        // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorErrorInfo _errorInfo;                        // Use the VA Reactor instead of the ETA Channel for sending and receiving
 
     /**
      * Instantiates a new provider session.
@@ -412,11 +412,11 @@ public class ProviderSession
     {
         TransportBuffer msgBuf = null;
         
-        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use ETA Channel for sending and receiving
         {
             msgBuf = _clientChannelInfo.channel.getBuffer(length, false, error);
         }
-        else // use UPA VA Reactor for sending and receiving
+        else // use ETA VA Reactor for sending and receiving
         {
             msgBuf = _clientChannelInfo.reactorChannel.getBuffer(length, false, _errorInfo);
         }
@@ -426,11 +426,11 @@ public class ProviderSession
     
     private void releaseTempBuffer(TransportBuffer msgBuf, Error error)
     {
-        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use ETA Channel for sending and receiving
         {
             _clientChannelInfo.channel.releaseBuffer(msgBuf, error);
         }
-        else // use UPA VA Reactor for sending and receiving
+        else // use ETA VA Reactor for sending and receiving
         {
             _clientChannelInfo.reactorChannel.releaseBuffer(msgBuf, _errorInfo);
         }

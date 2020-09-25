@@ -14,7 +14,7 @@ import com.rtsdk.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.rtsdk.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * The directory handler for the upajProvPerf and upajNIProvPerf. Configures a
+ * The directory handler for the ProvPerf and NIProvPerf. Configures a
  * single service and provides encoding and sending of a directory message.
  */
 public class DirectoryProvider

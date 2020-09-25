@@ -1,6 +1,6 @@
 
 set( SOURCE_FILES
-  niProvPerfConfig.c              upacNIProvPerf.c
+  niProvPerfConfig.c              NIProvPerf.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/directoryProvider.c

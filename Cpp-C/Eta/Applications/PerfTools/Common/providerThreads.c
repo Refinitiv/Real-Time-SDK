@@ -407,12 +407,12 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 
 	perfTunnelMsgHandlerInit(&pSession->perfTunnelMsgHandler, NULL, 0, RSSL_FALSE, RSSL_TRUE, provPerfConfig.guaranteedOutputTunnelBuffers);
 
-	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use ETA Channel
 	{
 		pSession->pChannelInfo = channelHandlerAddChannel(&pProvThread->channelHandler, pChannel, 
 				(void*)pSession, RSSL_TRUE );
 	}
-	else // use UPA VA Reactor
+	else // use ETA VA Reactor
 	{
 		pSession->pChannelInfo = (ChannelInfo*)malloc(sizeof(ChannelInfo));
 		clearChannelInfo(pSession->pChannelInfo);
@@ -1062,7 +1062,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 		useTunnel = RSSL_TRUE;
 	}
 
-	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use ETA Channel
 	{
 		pMsgBuffer = 0;
 
@@ -1181,7 +1181,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 			}
 		}
 	}
-	else // use UPA VA Reactor
+	else // use ETA VA Reactor
 	{
 		RsslErrorInfo errorInfo;
 		RsslReactorSubmitOptions submitOpts;
@@ -1251,7 +1251,7 @@ static RsslRet getNewBuffer(ProviderThread *pProvThread, ProviderSession *pSessi
 	assert(!pSession->pWritingBuffer);
 	assert(length);
 
-	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use ETA Channel
 	{
 		RsslBool packedBuffer = providerThreadConfig.totalBuffersPerPack > 1 ? RSSL_TRUE : RSSL_FALSE;
 
@@ -1287,7 +1287,7 @@ static RsslRet getNewBuffer(ProviderThread *pProvThread, ProviderSession *pSessi
 			return errorInfo.rsslError.rsslErrorId;
 		}
 	}
-	else // use UPA VA Reactor
+	else // use ETA VA Reactor
 	{
 		RsslErrorInfo errorInfo;
 		pSession->pWritingBuffer = rsslReactorGetBuffer(pSession->pChannelInfo->pReactorChannel, length, providerThreadConfig.totalBuffersPerPack > 1 ? RSSL_TRUE : RSSL_FALSE , &errorInfo);
@@ -1410,7 +1410,7 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 		/* Pack the buffer and continue using it. */
 		++pSession->packedBufferCount;
 
-		if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+		if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use ETA Channel
 		{
 			RsslBuffer *pMsgBuffer = 0;
 
@@ -1458,7 +1458,7 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 
 			pSession->remaingPackedBufferLength = pSession->pWritingBuffer->length;
 		}
-		else // use UPA VA Reactor
+		else // use ETA VA Reactor
 		{
 			RsslErrorInfo errorInfo;
 			pSession->pWritingBuffer = rsslReactorPackBuffer(pSession->pChannelInfo->pReactorChannel, pSession->pWritingBuffer, &errorInfo);
@@ -1707,7 +1707,7 @@ void providerThreadSendMsgBurst(ProviderThread *pProvThread, RsslUInt64 stopTime
 				default:
 					printf("Failure while writing message bursts: %s\n",
 							rsslRetCodeToString(ret));
-					if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+					if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use ETA Channel
 					{
 						providerThreadCloseChannel(pProvThread, pChannelInfo); /* Failed to send an update. Remove this client */
 					}

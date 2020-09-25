@@ -24,10 +24,10 @@ import com.rtsdk.eta.transport.WriteArgs;
 import com.rtsdk.eta.transport.WritePriorities;
 import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
 import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.perftools.upajprovperf.IProviderThread;
+import com.rtsdk.eta.perftools.provperf.IProviderThread;
 
 /**
- * Performs the associated with setting up and using UPA Channels, such as
+ * Performs the associated with setting up and using ETA Channels, such as
  * initializing channels, reading, flushing, and checking ping timeouts.
  */
 public class ChannelHandler
@@ -45,7 +45,7 @@ public class ChannelHandler
     private InProgInfo _inProgInfo;
     private WriteArgs _writeArgs;
     
-    private ReactorErrorInfo _errorInfo; // Used for when application uses VA Reactor instead of UPA Channel.
+    private ReactorErrorInfo _errorInfo; // Used for when application uses VA Reactor instead of ETA Channel.
     
 	private Lock _channelLock = new ReentrantLock();
     
@@ -99,13 +99,13 @@ public class ChannelHandler
      */
     public void closeChannel(ClientChannelInfo clientChannelInfo, Error error)
     {
-        if (clientChannelInfo.reactorChannel == null) // use UPA Channel
+        if (clientChannelInfo.reactorChannel == null) // use ETA Channel
         {
             _providerThread.processInactiveChannel(this, clientChannelInfo, error);
             clientChannelInfo.channel.close(_error);
             clientChannelInfo.parentQueue.remove(clientChannelInfo);
         }
-        else // use UPA VA Reactor
+        else // use ETA VA Reactor
         {
             clientChannelInfo.reactorChannel.close(_errorInfo);
             clientChannelInfo.parentQueue.remove(clientChannelInfo);
@@ -171,7 +171,7 @@ public class ChannelHandler
                 if (clientChannelInfo.channel.state() == ChannelState.ACTIVE)
                 {
                     //
-                    // Channel is still open, but UPA write() tried to flush
+                    // Channel is still open, but ETA write() tried to flush
                     // internally and failed. Return positive value so the
                     // caller knows there's bytes to flush.
                     //
@@ -214,7 +214,7 @@ public class ChannelHandler
 
         _readArgs.clear();
 
-        // Read until upa read() indicates that no more bytes are available in
+        // Read until eta read() indicates that no more bytes are available in
         // the queue.
         do
         {
@@ -349,7 +349,7 @@ public class ChannelHandler
         			}
         			else if (ret == TransportReturnCodes.SUCCESS)
         			{
-        				// UPA flush() returned 0 instead of a higher
+        				// ETA flush() returned 0 instead of a higher
         				// value, so there's no more data to flush.
         				flushDone(channelInfo);
         			}
@@ -534,8 +534,8 @@ public class ChannelHandler
     }
 
     /**
-     * Requests that the ChannelHandler begin calling upa flush() for a channel.
-     * Used when a call to upa write() indicates there is still data to be
+     * Requests that the ChannelHandler begin calling eta flush() for a channel.
+     * Used when a call to eta write() indicates there is still data to be
      * written to the network.
      *
      * @param clientChannelInfo the client channel info

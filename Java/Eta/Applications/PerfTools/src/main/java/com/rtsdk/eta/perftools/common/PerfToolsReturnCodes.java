@@ -1,7 +1,7 @@
 package com.rtsdk.eta.perftools.common;
 
 /**
- * Return codes used by upaj performance applications.
+ * Return codes used by etaj performance applications.
  */
 public class PerfToolsReturnCodes
 {
