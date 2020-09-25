@@ -1,3 +1,3 @@
 #file,location
-IProvider.java,Examples/src/main/java/com/rtsdk/ema/examples/training/iprovider/series100/ex140_MBO_Streaming
+IProvider.java,Examples/src/main/java/com/refinitiv/ema/examples/training/iprovider/series100/ex140_MBO_Streaming
 xmlKeyList,Examples

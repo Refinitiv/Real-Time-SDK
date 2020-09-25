@@ -1,2 +1,2 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series400/ex450_MP_QueryServiceDiscovery
+Consumer.java,Examples/src/main/java/com/refinitiv/ema/examples/training/consumer/series400/ex450_MP_QueryServiceDiscovery

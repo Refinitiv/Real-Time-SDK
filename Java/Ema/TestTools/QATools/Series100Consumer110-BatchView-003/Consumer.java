@@ -7,22 +7,22 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 //QATools modify to send multiple item request 
 
-package com.rtsdk.ema.examples.training.consumer.series100.ex110_MP_FileCfg;
+package com.refinitiv.ema.examples.training.consumer.series100.ex110_MP_FileCfg;
 
-import com.rtsdk.ema.access.Msg;
-import com.rtsdk.ema.access.AckMsg;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.ReqMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.access.UpdateMsg;
-import com.rtsdk.ema.access.OmmConsumerConfig.OperationModel;
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.OmmConsumer;
-import com.rtsdk.ema.access.OmmConsumerClient;
-import com.rtsdk.ema.access.OmmConsumerConfig;
-import com.rtsdk.ema.access.OmmConsumerEvent;
-import com.rtsdk.ema.access.OmmException;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {

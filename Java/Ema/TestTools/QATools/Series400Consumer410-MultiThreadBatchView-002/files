@@ -1,4 +1,4 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series400/ex410_MP_HorizontalScaling
-tor_500.txt,Examples/src/main/java/com/rtsdk/ema/examples/training/consumer/series400/ex410_MP_HorizontalScaling
+Consumer.java,Examples/src/main/java/com/refinitiv/ema/examples/training/consumer/series400/ex410_MP_HorizontalScaling
+tor_500.txt,Examples/src/main/java/com/refinitiv/ema/examples/training/consumer/series400/ex410_MP_HorizontalScaling
 tor_500.txt,Src/examples/

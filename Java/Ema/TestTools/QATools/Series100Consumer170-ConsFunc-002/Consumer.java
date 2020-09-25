@@ -5,22 +5,22 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.consumer.series100.ex170_MP_ChannelInfo;
+package com.refinitiv.ema.examples.training.consumer.series100.ex170_MP_ChannelInfo;
 
-import com.rtsdk.ema.access.Msg;
+import com.refinitiv.ema.access.Msg;
 
-import com.rtsdk.ema.access.AckMsg;
-import com.rtsdk.ema.access.ChannelInformation;
-import com.rtsdk.ema.access.GenericMsg;
-import com.rtsdk.ema.access.RefreshMsg;
-import com.rtsdk.ema.access.StatusMsg;
-import com.rtsdk.ema.access.UpdateMsg;
-import com.rtsdk.ema.access.OmmConsumerErrorClient;
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.OmmConsumer;
-import com.rtsdk.ema.access.OmmConsumerClient;
-import com.rtsdk.ema.access.OmmConsumerEvent;
-import com.rtsdk.ema.access.OmmException;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.ChannelInformation;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.OmmConsumerErrorClient;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {

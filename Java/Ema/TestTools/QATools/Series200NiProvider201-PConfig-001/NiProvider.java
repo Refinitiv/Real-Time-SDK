@@ -5,20 +5,20 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.niprovider.series200.ex201_MP_TunnelingConnection;
+package com.refinitiv.ema.examples.training.niprovider.series200.ex201_MP_TunnelingConnection;
 
-import com.rtsdk.ema.access.ElementList;
-import com.rtsdk.ema.access.EmaFactory;
-import com.rtsdk.ema.access.FieldList;
-import com.rtsdk.ema.access.Map;
-import com.rtsdk.ema.access.MapEntry;
-import com.rtsdk.ema.access.OmmArray;
-import com.rtsdk.ema.access.OmmException;
-import com.rtsdk.ema.access.OmmNiProviderConfig;
-import com.rtsdk.ema.access.OmmProvider;
-import com.rtsdk.ema.access.OmmReal;
-import com.rtsdk.ema.access.OmmState;
-import com.rtsdk.ema.access.Series;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.OmmArray;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmNiProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.Series;
 
 public class NiProvider {
 

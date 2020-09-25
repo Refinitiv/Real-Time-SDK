@@ -5,10 +5,10 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.rtsdk.ema.examples.training.iprovider.series100.ex100_MP_Streaming;
+package com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming;
 
-import com.rtsdk.ema.access.*;
-import com.rtsdk.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 import java.nio.ByteBuffer;
 
