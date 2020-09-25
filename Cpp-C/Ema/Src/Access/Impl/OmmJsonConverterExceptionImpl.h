@@ -16,7 +16,7 @@
 
 #include "rtr/rsslReactorChannel.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

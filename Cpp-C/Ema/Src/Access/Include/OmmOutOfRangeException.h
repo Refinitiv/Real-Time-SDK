@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmOutOfRangeException_h
 
 /**
-	@class rtsdk::ema::access::OmmOutOfRangeException OmmOutOfRangeException.h "Access/Include/OmmOutOfRangeException.h"
+	@class refinitiv::ema::access::OmmOutOfRangeException OmmOutOfRangeException.h "Access/Include/OmmOutOfRangeException.h"
 	@brief OmmOutOfRangeException is thrown when a passed in method argument is out of range.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

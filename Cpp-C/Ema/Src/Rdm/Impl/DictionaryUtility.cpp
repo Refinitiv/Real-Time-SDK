@@ -11,8 +11,8 @@
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 DictionaryUtility::DictionaryUtility()
 {
@@ -23,15 +23,15 @@ DictionaryUtility::~DictionaryUtility()
 {
 }
 
-const DataDictionary& DictionaryUtility::dataDictionary(const rtsdk::ema::access::FieldList& fieldList)
+const DataDictionary& DictionaryUtility::dataDictionary(const refinitiv::ema::access::FieldList& fieldList)
 {
 	if (!fieldList.hasDecoder())
 	{
 		throwIueException( "Failed to extract DataDictionary from the passed in FieldList", OmmInvalidUsageException::InvalidArgumentEnum );
 	}
 
-	Decoder& decoder = const_cast<rtsdk::ema::access::FieldList&>(fieldList).getDecoder();
+	Decoder& decoder = const_cast<refinitiv::ema::access::FieldList&>(fieldList).getDecoder();
 
-	return static_cast<rtsdk::ema::access::FieldListDecoder&>(decoder).getDataDictionary();
+	return static_cast<refinitiv::ema::access::FieldListDecoder&>(decoder).getDataDictionary();
 }
 

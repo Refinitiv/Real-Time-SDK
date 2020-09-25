@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ServiceDiscoveryClient_h
 
 /**
-	@class rtsdk::ema::access::ServiceEndpointDiscoveryClient ServiceEndpointDiscoveryClient.h "Access/Include/ServiceEndpointDiscoveryClient.h"
+	@class refinitiv::ema::access::ServiceEndpointDiscoveryClient ServiceEndpointDiscoveryClient.h "Access/Include/ServiceEndpointDiscoveryClient.h"
 	@brief ServiceEndpointDiscoveryClient class provides callback interfaces to pass received responses.
 
 	Application needs to implement an application client class inheriting from ServiceEndpointDiscoveryClient.
@@ -48,7 +48,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

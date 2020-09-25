@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_DateTimeStringFormat_h
 
 /**
-	@class rtsdk::ema::access::DateTimeStringFormat "Access/Include/DateTimeStringFormat.h"
+	@class refinitiv::ema::access::DateTimeStringFormat "Access/Include/DateTimeStringFormat.h"
 	@brief DateTimeStringFormat is an interface to string conversion methods for OmmDate, OmmTime & OmmDateTime.
 
 	\remark DateTimeStringFormat is single threaded.
@@ -28,7 +28,7 @@
 #include "Access/Include/OmmTime.h"
 #include "Access/Include/OmmDateTime.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

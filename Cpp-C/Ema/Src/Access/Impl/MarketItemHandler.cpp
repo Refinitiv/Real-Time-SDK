@@ -19,7 +19,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 const EmaString MarketItemHandler::_clientName("MarketItemHandler");
 

@@ -13,9 +13,9 @@
 #include "rtr/rsslTransport.h"
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
-class rtsdk::ema::access::CastingOperatorContext
+class refinitiv::ema::access::CastingOperatorContext
 {
 public :
 

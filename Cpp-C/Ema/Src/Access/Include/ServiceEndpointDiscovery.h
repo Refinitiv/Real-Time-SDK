@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ServiceEndpointDiscovery_h
 
 /**
-	@class rtsdk::ema::access::ServiceEndpointDiscovery ServiceEndpointDiscovery.h "Access/Include/ServiceEndpointDiscovery.h"
+	@class refinitiv::ema::access::ServiceEndpointDiscovery ServiceEndpointDiscovery.h "Access/Include/ServiceEndpointDiscovery.h"
 	@brief ServiceEndpointDiscovery class provides the functionality to query endpoints from EDP-RT service discovery.
 
 	Application interacts with the service discovery through the ServiceEndpointDiscovery interface methods. The results of
@@ -45,7 +45,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

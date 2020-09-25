@@ -9,7 +9,7 @@
 #include "OmmNiProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmNiProviderConfigImpl::OmmNiProviderConfigImpl( const EmaString & path ) :
 	EmaConfigImpl( path ),

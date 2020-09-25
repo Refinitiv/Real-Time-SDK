@@ -14,7 +14,7 @@
 #include "EmaStringInt.h"
 #include "rtr/rsslRmtes.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

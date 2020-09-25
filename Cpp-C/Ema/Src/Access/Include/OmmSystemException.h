@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmSystemException_h
 
 /**
-	@class rtsdk::ema::access::OmmSystemException OmmSystemException.h "Access/Include/OmmSystemException.h"
+	@class refinitiv::ema::access::OmmSystemException OmmSystemException.h "Access/Include/OmmSystemException.h"
 	@brief OmmSystemException represents exceptions thrown by operating system.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

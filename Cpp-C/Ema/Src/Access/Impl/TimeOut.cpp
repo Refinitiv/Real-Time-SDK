@@ -10,7 +10,7 @@
 #include "TimeOut.h"
 #include "Utilities.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #ifdef WIN32
 TimeOutTimeType TimeOut::frequency = { 0, 0 };

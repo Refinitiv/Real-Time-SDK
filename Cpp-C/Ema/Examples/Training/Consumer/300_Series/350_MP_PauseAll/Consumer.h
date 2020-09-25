@@ -30,29 +30,29 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 
 	AppClient();
 
-	void decode( const rtsdk::ema::access::FieldList& );				// print content of passed in FieldList to screen
+	void decode( const refinitiv::ema::access::FieldList& );				// print content of passed in FieldList to screen
 
-	void setOmmConsumer( rtsdk::ema::access::OmmConsumer&, rtsdk::ema::access::UInt64 );
+	void setOmmConsumer( refinitiv::ema::access::OmmConsumer&, refinitiv::ema::access::UInt64 );
 
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	rtsdk::ema::access::OmmConsumer* _pOmmConsumer;
+	refinitiv::ema::access::OmmConsumer* _pOmmConsumer;
 
-	rtsdk::ema::access::UInt64 _updateNumber;
+	refinitiv::ema::access::UInt64 _updateNumber;
 
-	rtsdk::ema::access::UInt64 _loginHandle;
+	refinitiv::ema::access::UInt64 _loginHandle;
 };
 
 #endif // __ema_consumer_h_

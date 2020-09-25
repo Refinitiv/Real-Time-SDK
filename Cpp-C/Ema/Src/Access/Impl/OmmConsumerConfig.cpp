@@ -9,7 +9,7 @@
 #include "OmmConsumerConfig.h"
 #include "OmmConsumerConfigImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmConsumerConfig::OmmConsumerConfig() :
 	_pImpl( 0 )

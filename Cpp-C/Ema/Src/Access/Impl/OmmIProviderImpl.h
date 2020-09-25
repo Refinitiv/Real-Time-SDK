@@ -14,7 +14,7 @@
 #include "OmmIProviderActiveConfig.h"
 #include "DirectoryServiceStore.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

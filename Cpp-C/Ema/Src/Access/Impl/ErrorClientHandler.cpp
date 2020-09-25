@@ -11,7 +11,7 @@
 #include "ProviderSessionInfo.h"
 #include "ChannelInfoImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ErrorClientHandler::ErrorClientHandler( OmmConsumerErrorClient& client ) :
 	_pConsumerErrorClient( &client ),

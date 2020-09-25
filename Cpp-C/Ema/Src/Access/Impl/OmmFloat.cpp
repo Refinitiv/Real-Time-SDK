@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmFloat::OmmFloat() :
  _pDecoder( new ( _space ) OmmFloatDecoder() )

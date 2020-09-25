@@ -12,7 +12,7 @@
 #include "EmaPool.h"
 #include "rtr/rsslIterators.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

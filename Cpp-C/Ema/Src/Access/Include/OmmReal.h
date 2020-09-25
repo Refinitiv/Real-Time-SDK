@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmReal_h
 
 /**
-	@class rtsdk::ema::access::OmmReal OmmReal.h "Access/Include/OmmReal.h"
+	@class refinitiv::ema::access::OmmReal OmmReal.h "Access/Include/OmmReal.h"
 	@brief OmmReal represents Real number in Omm.
 
 	OmmReal encapsulates magnitude type and mantissa information.
@@ -60,7 +60,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

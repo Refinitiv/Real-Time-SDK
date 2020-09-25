@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_GetTime_h
 
 /**
-	@class rtsdk::ema::access::GetTime GetTime.h "Access/Include/GetTime.h"
+	@class refinitiv::ema::access::GetTime GetTime.h "Access/Include/GetTime.h"
 	@brief GetTime class encapsulates functionality for efficiently obtaining relative time in various standard units of time.
 
 	Interface for efficiently obtaining relative time in various standard units of time.
@@ -34,7 +34,7 @@
 
 #include "Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

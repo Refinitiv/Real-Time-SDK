@@ -23,7 +23,7 @@
 #include "OmmProviderEvent.h"
 #include "EmaVector.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

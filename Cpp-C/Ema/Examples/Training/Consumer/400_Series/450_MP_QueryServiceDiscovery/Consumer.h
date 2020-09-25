@@ -31,22 +31,22 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient, public rtsdk::ema::access::ServiceEndpointDiscoveryClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient, public refinitiv::ema::access::ServiceEndpointDiscoveryClient
 {
 
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onSuccess( const rtsdk::ema::access::ServiceEndpointDiscoveryResp& serviceEndpointResp, 
-		const rtsdk::ema::access::ServiceEndpointDiscoveryEvent& event );
+	void onSuccess( const refinitiv::ema::access::ServiceEndpointDiscoveryResp& serviceEndpointResp, 
+		const refinitiv::ema::access::ServiceEndpointDiscoveryEvent& event );
 
-	void onError( const rtsdk::ema::access::EmaString& statusText, 
-			const rtsdk::ema::access::ServiceEndpointDiscoveryEvent& event );
+	void onError( const refinitiv::ema::access::EmaString& statusText, 
+			const refinitiv::ema::access::ServiceEndpointDiscoveryEvent& event );
 };
 
 #endif // __ema_consumer_h_

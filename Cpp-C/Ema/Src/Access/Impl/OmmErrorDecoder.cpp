@@ -9,7 +9,7 @@
 #include "OmmErrorDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmErrorDecoder::OmmErrorDecoder() :
  _pRsslBuffer( 0 ),

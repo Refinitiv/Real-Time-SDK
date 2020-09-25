@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmFloat_h
 
 /**
-	@class rtsdk::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
+	@class refinitiv::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
 	@brief OmmFloat represents float value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

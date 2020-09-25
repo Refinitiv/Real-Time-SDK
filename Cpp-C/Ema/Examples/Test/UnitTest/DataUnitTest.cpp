@@ -9,7 +9,7 @@
 #include "TestUtilities.h"
 #include "Access/Impl/DirectoryServiceStore.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 extern void testHeader(const EmaString& title)

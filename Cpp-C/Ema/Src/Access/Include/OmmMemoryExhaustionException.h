@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmMemoryExhaustionException_h
 
 /**
-	@class rtsdk::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
+	@class refinitiv::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
 	@brief OmmMemoryExhaustionException represents out of memory exceptions.
 
 	OmmMemoryExhaustionException are thrown when malloc() returns a null pointer,
@@ -25,7 +25,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

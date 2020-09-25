@@ -53,33 +53,33 @@ public:
 
 	ReqInfo(){}
 
-	void setHandle( rtsdk::ema::access::UInt64 handle )
+	void setHandle( refinitiv::ema::access::UInt64 handle )
 	{
 		_handle = handle;
 	}
 
-	rtsdk::ema::access::UInt64 getHandle()
+	refinitiv::ema::access::UInt64 getHandle()
 	{
 		return _handle;
 	}
 
 private:
-	rtsdk::ema::access::UInt64 _handle;
+	refinitiv::ema::access::UInt64 _handle;
 };
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void processLoginRequest( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
-	void processMarketPriceRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void processMarketPriceRequest( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
-	void processInvalidItemRequest( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void processInvalidItemRequest( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
 protected:
 
-	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 };
 
 #endif // __ema_iprovider_h_

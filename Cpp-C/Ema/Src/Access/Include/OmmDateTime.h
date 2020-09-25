@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmDateTime_h
 
 /**
-	@class rtsdk::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
+	@class refinitiv::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
 	@brief OmmDateTime represents DateTime info in Omm.
 	
 	OmmDateTime encapsulates year, month, day, hour, minute, second, millisecond,
@@ -52,7 +52,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

@@ -13,7 +13,7 @@
 #include "EmaBufferInt.h"
 #include "RmtesBuffer.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

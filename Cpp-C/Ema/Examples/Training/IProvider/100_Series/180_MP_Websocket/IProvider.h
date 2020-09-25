@@ -34,36 +34,36 @@ unsigned long long getCurrentTime()
 	return msec;
 }
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processInvalidItemRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 protected:
 
-	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 };
 
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public rtsdk::ema::access::OmmProviderErrorClient
+class AppErrorClient : public refinitiv::ema::access::OmmProviderErrorClient
 {
 public:
 
-	void onInaccessibleLogFile( const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString& );
+	void onInaccessibleLogFile( const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString& );
 
-	void onSystemError( rtsdk::ema::access::Int64, void*, const rtsdk::ema::access::EmaString& );
+	void onSystemError( refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString& );
 
-	void onMemoryExhaustion( const rtsdk::ema::access::EmaString& );
+	void onMemoryExhaustion( const refinitiv::ema::access::EmaString& );
 
-	void onInvalidUsage( const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32 );
+	void onInvalidUsage( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
 
-	void onJsonConverter( const rtsdk::ema::access::EmaString& text, rtsdk::ema::access::Int32 errorCode,
-		const rtsdk::ema::access::ProviderSessionInfo& sessionInfo );
+	void onJsonConverter( const refinitiv::ema::access::EmaString& text, refinitiv::ema::access::Int32 errorCode,
+		const refinitiv::ema::access::ProviderSessionInfo& sessionInfo );
 };
 
 #endif // __ema_iprovider_h_

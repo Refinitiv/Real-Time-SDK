@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_RmtesBuffer_h
 
 /**
-	@class rtsdk::ema::access::RmtesBuffer RmtesBuffer.h "Access/Include/RmtesBuffer.h"
+	@class refinitiv::ema::access::RmtesBuffer RmtesBuffer.h "Access/Include/RmtesBuffer.h"
 	@brief RmtesBuffer represents RMTES data.
 
 	RmtesBuffer stores and applies RMTES data.
@@ -37,7 +37,7 @@
 
 
 
-namespace rtsdk{
+namespace refinitiv{
 
 namespace ema {
 

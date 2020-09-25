@@ -19,8 +19,8 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString LoginCallbackClient::_clientName( "LoginCallbackClient" );
 const EmaString LoginItem::_clientName( "LoginItem" );

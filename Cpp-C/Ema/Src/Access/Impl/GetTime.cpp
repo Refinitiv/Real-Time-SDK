@@ -8,7 +8,7 @@
 
 #include "GetTime.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #ifdef WIN32 
 #include <Windows.h>

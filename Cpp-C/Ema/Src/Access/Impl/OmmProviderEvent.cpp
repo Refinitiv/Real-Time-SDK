@@ -12,7 +12,7 @@
 #include "ChannelInfoImpl.h"
 #include "ChannelStatsImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmProviderEvent::OmmProviderEvent() :
 	_handle( 0 ),

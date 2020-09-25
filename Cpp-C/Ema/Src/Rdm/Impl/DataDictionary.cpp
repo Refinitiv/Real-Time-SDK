@@ -12,8 +12,8 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 DataDictionary::DataDictionary() :
 _pImpl(0)
@@ -153,17 +153,17 @@ const DictionaryEntry& DataDictionary::getEntry(Int16 fieldId) const
 	return _pImpl->getEntry(fieldId);
 }
 
-bool DataDictionary::hasEntry(const rtsdk::ema::access::EmaString& fieldName) const
+bool DataDictionary::hasEntry(const refinitiv::ema::access::EmaString& fieldName) const
 {
 	return _pImpl->hasEntry(fieldName);
 }
 
-void DataDictionary::getEntry(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
+void DataDictionary::getEntry(const refinitiv::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
 {
 	_pImpl->getEntry(fieldName, entry);
 }
 
-const DictionaryEntry& DataDictionary::getEntry(const rtsdk::ema::access::EmaString& fieldName) const
+const DictionaryEntry& DataDictionary::getEntry(const refinitiv::ema::access::EmaString& fieldName) const
 {
 	return _pImpl->getEntry(fieldName);
 }

@@ -13,7 +13,7 @@
 #include <string.h>
 #include <new>
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

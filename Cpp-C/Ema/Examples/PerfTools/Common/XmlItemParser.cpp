@@ -14,7 +14,7 @@
 
 using namespace std;
 using namespace perftool::common;
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 XmlItemParser::XmlItemParser() :
  _count(0),
@@ -213,7 +213,7 @@ XmlItemParser::~XmlItemParser()
 {
 	if(_pXmlItemList)
 	{
-		for( rtsdk::ema::access::UInt64 i = 0; i <_pXmlItemList->size(); i++)
+		for( refinitiv::ema::access::UInt64 i = 0; i <_pXmlItemList->size(); i++)
 		{
 			if( (*_pXmlItemList)[i] )
 			{

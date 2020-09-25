@@ -9,7 +9,7 @@
 #include "Thread.h"
 #include "Utilities.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 Thread::Thread() :
  _isStopping( false ),

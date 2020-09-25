@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_SeriesEntry_h
 
 /**
-	@class rtsdk::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
+	@class refinitiv::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
 	@brief SeriesEntry represents an entry of Series.
 
 	SeriesEntry associates entry's data and its data type.
@@ -57,7 +57,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

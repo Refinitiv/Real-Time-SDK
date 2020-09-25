@@ -12,7 +12,7 @@
 #include "Decoder.h"
 #include "NoDataImpl.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

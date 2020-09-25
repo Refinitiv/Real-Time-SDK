@@ -18,7 +18,7 @@
 
 #include "DataDictionaryImpl.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -82,7 +82,7 @@ public :
 
 	const EmaString& getEnumDisplay(UInt16 enumValue) const;
 
-    const rtsdk::ema::rdm::DataDictionary& getDataDictionary();
+    const refinitiv::ema::rdm::DataDictionary& getDataDictionary();
 
 private :
 
@@ -128,7 +128,7 @@ private :
 
 	bool						_atEnd;
 
-	rtsdk::ema::rdm::DataDictionary*				_pDataDictionary;
+	refinitiv::ema::rdm::DataDictionary*				_pDataDictionary;
 };
 
 class FieldListDecoderPool : public DecoderPool< FieldListDecoder >

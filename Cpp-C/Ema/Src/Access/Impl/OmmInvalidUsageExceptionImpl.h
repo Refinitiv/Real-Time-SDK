@@ -11,7 +11,7 @@
 
 #include "OmmInvalidUsageException.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

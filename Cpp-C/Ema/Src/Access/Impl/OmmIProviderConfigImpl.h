@@ -12,7 +12,7 @@
 #include "OmmIProviderConfig.h"
 #include "EmaConfigImpl.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

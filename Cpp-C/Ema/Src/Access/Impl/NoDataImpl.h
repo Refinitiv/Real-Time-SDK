@@ -15,7 +15,7 @@
 
 #define MAX_NODATA		20
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

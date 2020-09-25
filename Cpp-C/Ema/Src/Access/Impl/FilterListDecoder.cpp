@@ -10,7 +10,7 @@
 #include "StaticDecoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 FilterListDecoder::FilterListDecoder() :
  _rsslFilterList(),

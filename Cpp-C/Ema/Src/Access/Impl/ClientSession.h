@@ -16,7 +16,7 @@
 #include "EmaVector.h"
 #include "rtr/rsslReactor.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

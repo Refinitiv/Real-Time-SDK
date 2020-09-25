@@ -8,7 +8,7 @@
 
 #include "OmmSystemExceptionImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmSystemExceptionImpl::OmmSystemExceptionImpl()
 {

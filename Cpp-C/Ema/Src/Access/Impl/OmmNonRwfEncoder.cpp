@@ -10,7 +10,7 @@
 #include "rtr/rsslDataUtils.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmNonRwfEncoder::OmmNonRwfEncoder()
 {

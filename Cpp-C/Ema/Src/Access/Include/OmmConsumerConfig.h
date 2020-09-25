@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmConsumerConfig_h
 
 /**
-	@class rtsdk::ema::access::OmmConsumerConfig OmmConsumerConfig.h "Access/Include/OmmConsumerConfig.h"
+	@class refinitiv::ema::access::OmmConsumerConfig OmmConsumerConfig.h "Access/Include/OmmConsumerConfig.h"
 	@brief OmmConsumerConfig is used to modify configuration and behavior of OmmConsumer.
 
 	OmmConsumerConfig provides a default basic OmmConsumer configuration.
@@ -29,7 +29,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

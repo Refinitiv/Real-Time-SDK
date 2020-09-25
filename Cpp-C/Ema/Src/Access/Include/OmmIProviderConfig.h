@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmIProviderConfig_h
 
 /**
-	@class rtsdk::ema::access::OmmIProviderConfig OmmIProviderConfig.h "Access/Include/OmmIProviderConfig.h"
+	@class refinitiv::ema::access::OmmIProviderConfig OmmIProviderConfig.h "Access/Include/OmmIProviderConfig.h"
 	@brief OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.
 
 	OmmIProviderConfig provides a default basic Interactive OmmProvider configuration.
@@ -31,7 +31,7 @@
 #include "Access/Include/EmaString.h"
 #include "Access/Include/OmmProviderConfig.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

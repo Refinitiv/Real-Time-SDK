@@ -21,7 +21,7 @@
 
 #include "Ema.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 void sleep(int millisecs)
 {
@@ -50,7 +50,7 @@ UInt64 getCurrentTime()
 	return msec;
 }
 
-class AppLoginClient : public rtsdk::ema::access::OmmProviderClient
+class AppLoginClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 	AppLoginClient();
@@ -58,11 +58,11 @@ public:
 	UInt64 _handle;
 	UInt64 _TTReissue;
 protected:
-	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onRefreshMsg(const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onUpdateMsg(const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onUpdateMsg(const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onStatusMsg(const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 };
 
 

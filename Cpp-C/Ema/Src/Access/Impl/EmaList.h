@@ -12,7 +12,7 @@
 #include "Common.h"
 #include "Utilities.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

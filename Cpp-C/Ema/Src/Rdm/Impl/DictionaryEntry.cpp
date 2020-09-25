@@ -13,7 +13,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::rdm;
 
 DictionaryEntry::DictionaryEntry()
 {
@@ -59,59 +59,59 @@ DictionaryEntry& DictionaryEntry::operator=(const DictionaryEntry& other)
 	return *this;
 }
 
-const rtsdk::ema::access::EmaString& DictionaryEntry::getAcronym() const
+const refinitiv::ema::access::EmaString& DictionaryEntry::getAcronym() const
 {
 	return _pImpl->getAcronym();
 }
 
-const rtsdk::ema::access::EmaString& DictionaryEntry::getDDEAcronym() const
+const refinitiv::ema::access::EmaString& DictionaryEntry::getDDEAcronym() const
 {
 	return _pImpl->getDDEAcronym();
 }
 
-rtsdk::ema::access::Int16 DictionaryEntry::getFid() const
+refinitiv::ema::access::Int16 DictionaryEntry::getFid() const
 {
 	return _pImpl->getFid();
 }
 
-rtsdk::ema::access::Int16 DictionaryEntry::getRippleToField() const
+refinitiv::ema::access::Int16 DictionaryEntry::getRippleToField() const
 {
 	return _pImpl->getRippleToField();
 }
 
 
-rtsdk::ema::access::Int8 DictionaryEntry::getFieldType() const
+refinitiv::ema::access::Int8 DictionaryEntry::getFieldType() const
 {
 	return _pImpl->getFieldType();
 }
 
-rtsdk::ema::access::UInt16 DictionaryEntry::getLength() const
+refinitiv::ema::access::UInt16 DictionaryEntry::getLength() const
 {
 	return _pImpl->getLength();
 }
 
-rtsdk::ema::access::UInt8 DictionaryEntry::getEnumLength() const
+refinitiv::ema::access::UInt8 DictionaryEntry::getEnumLength() const
 {
 	return _pImpl->getEnumLength();
 }
 
 
-rtsdk::ema::access::UInt8 DictionaryEntry::getRwfType() const
+refinitiv::ema::access::UInt8 DictionaryEntry::getRwfType() const
 {
 	return _pImpl->getRwfType();
 }
 
-rtsdk::ema::access::UInt32 DictionaryEntry::getRwfLength() const
+refinitiv::ema::access::UInt32 DictionaryEntry::getRwfLength() const
 {
 	return _pImpl->getRwfLength();
 }
 
-bool DictionaryEntry::hasEnumType(rtsdk::ema::access::UInt16 value) const
+bool DictionaryEntry::hasEnumType(refinitiv::ema::access::UInt16 value) const
 {
 	return _pImpl->hasEnumType(value);
 }
 
-const EnumType& DictionaryEntry::getEnumType(rtsdk::ema::access::UInt16 value) const
+const EnumType& DictionaryEntry::getEnumType(refinitiv::ema::access::UInt16 value) const
 {
 	return _pImpl->getEnumEntry(value);
 }
@@ -126,7 +126,7 @@ const EnumTypeTable& DictionaryEntry::getEnumTypeTable() const
 	return _pImpl->getEnumTypeTable();
 }
 
-const rtsdk::ema::access::EmaString& DictionaryEntry::toString() const
+const refinitiv::ema::access::EmaString& DictionaryEntry::toString() const
 {
 	return _pImpl->toString();
 }

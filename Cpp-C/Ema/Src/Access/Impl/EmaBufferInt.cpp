@@ -11,7 +11,7 @@
 #include "Utilities.h"
 #include <stdlib.h>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 EmaBufferInt::EmaBufferInt() :
  EmaBuffer()

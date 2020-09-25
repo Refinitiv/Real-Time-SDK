@@ -11,7 +11,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 RmtesBuffer::RmtesBuffer() :
  _pImpl( new ( _space ) RmtesBufferImpl() )

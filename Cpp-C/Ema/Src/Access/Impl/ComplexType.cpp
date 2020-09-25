@@ -8,7 +8,7 @@
 
 #include "ComplexType.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ComplexType::ComplexType()
 {

@@ -13,8 +13,8 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum );
 
@@ -59,7 +59,7 @@ FieldListDecoder::~FieldListDecoder()
 	}
 }
 
-const rtsdk::ema::rdm::DataDictionary& FieldListDecoder::getDataDictionary()
+const refinitiv::ema::rdm::DataDictionary& FieldListDecoder::getDataDictionary()
 {
 	return *_pDataDictionary;
 }

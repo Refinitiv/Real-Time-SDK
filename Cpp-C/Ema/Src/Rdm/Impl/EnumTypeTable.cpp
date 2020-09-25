@@ -1,7 +1,7 @@
 #include "EnumTypeTable.h"
 #include "EnumTypeTableImpl.h"
 
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::rdm;
 
 EnumTypeTable::EnumTypeTable()
 {
@@ -25,17 +25,17 @@ EnumTypeTable& EnumTypeTable::operator=(const EnumTypeTable& other)
 	return *this;
 }
 
-const rtsdk::ema::access::EmaVector<EnumType>& EnumTypeTable::getEnumTypes() const
+const refinitiv::ema::access::EmaVector<EnumType>& EnumTypeTable::getEnumTypes() const
 {
 	return _pImpl->getEnumTypes();
 }
 
-const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& EnumTypeTable::getFidReferences() const
+const refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>& EnumTypeTable::getFidReferences() const
 {
 	return _pImpl->getFidReferences();
 }
 
-const rtsdk::ema::access::EmaString& EnumTypeTable::toString() const
+const refinitiv::ema::access::EmaString& EnumTypeTable::toString() const
 {
 	return _pImpl->toString();
 }

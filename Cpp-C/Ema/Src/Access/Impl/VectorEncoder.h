@@ -15,7 +15,7 @@
 #include "VectorEntry.h"
 #include "rtr/rsslVector.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

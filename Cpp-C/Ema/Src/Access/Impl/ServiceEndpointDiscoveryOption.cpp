@@ -8,7 +8,7 @@
 
 #include "ServiceEndpointDiscoveryOption.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryOption::ServiceEndpointDiscoveryOption()
 {

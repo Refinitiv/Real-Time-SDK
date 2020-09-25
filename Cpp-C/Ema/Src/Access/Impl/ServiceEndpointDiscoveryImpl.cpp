@@ -11,7 +11,7 @@
 #include "Utilities.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery *pServiceEndpointDiscovery, const EmaString& tokenServiceURL, 
 																const EmaString& serviceDiscoveryURL) :

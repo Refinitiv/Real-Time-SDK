@@ -12,7 +12,7 @@
 #include "ActiveConfig.h"
 #include "OmmIProviderConfig.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

@@ -11,7 +11,7 @@
 
 #include "EmaBuffer.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	
 namespace ema {
 

@@ -33,10 +33,10 @@
 #define DEFAULT_IPROV_NAME							  EmaString("EmaIProvider")
 #define DEFAULT_NIPROV_NAME							  EmaString("EmaNiProvider")
 
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::rdm;
 
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

@@ -15,7 +15,7 @@
 
 #include "rtr/rsslReactorChannel.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -23,29 +23,29 @@ namespace rtsdk {
 	}
 }
 
-void throwIueException( const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32 );
+void throwIueException( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
 
-void throwIueException( const char*, rtsdk::ema::access::Int32 );
+void throwIueException( const char*, refinitiv::ema::access::Int32 );
 
-void throwIceException( const rtsdk::ema::access::EmaString& );
+void throwIceException( const refinitiv::ema::access::EmaString& );
 
-void throwOorException( const rtsdk::ema::access::EmaString& );
+void throwOorException( const refinitiv::ema::access::EmaString& );
 
-void throwSeException( rtsdk::ema::access::Int64 , void* , const char* );
+void throwSeException( refinitiv::ema::access::Int64 , void* , const char* );
 
-void throwSeException( rtsdk::ema::access::Int64 , void* , const rtsdk::ema::access::EmaString& );
+void throwSeException( refinitiv::ema::access::Int64 , void* , const refinitiv::ema::access::EmaString& );
 
-void throwIheException( rtsdk::ema::access::UInt64 , const rtsdk::ema::access::EmaString& );
+void throwIheException( refinitiv::ema::access::UInt64 , const refinitiv::ema::access::EmaString& );
 
-void throwIheException( rtsdk::ema::access::UInt64 , const char* );
+void throwIheException( refinitiv::ema::access::UInt64 , const char* );
 
 void throwMeeException( const char* );
 
-void throwLfiException( const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString& );
+void throwLfiException( const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString& );
 
-void throwDtuException( rtsdk::ema::access::UInt16 , const rtsdk::ema::access::EmaString& );
+void throwDtuException( refinitiv::ema::access::UInt16 , const refinitiv::ema::access::EmaString& );
 
-void throwJConverterException(const char* text, rtsdk::ema::access::Int32 errorCode,
-	RsslReactorChannel* reactorChannel, rtsdk::ema::access::ClientSession* clientSession, rtsdk::ema::access::OmmProvider* provider);
+void throwJConverterException(const char* text, refinitiv::ema::access::Int32 errorCode,
+	RsslReactorChannel* reactorChannel, refinitiv::ema::access::ClientSession* clientSession, refinitiv::ema::access::OmmProvider* provider);
 
 #endif // __refinitiv_ema_access_ExceptionTranlsator_h

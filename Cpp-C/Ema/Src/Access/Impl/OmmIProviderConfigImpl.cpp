@@ -10,7 +10,7 @@
 #include "OmmServerBaseImpl.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmIProviderConfigImpl::OmmIProviderConfigImpl( const EmaString & path ) :
 	EmaConfigServerImpl( path ),

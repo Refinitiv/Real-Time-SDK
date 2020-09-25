@@ -14,7 +14,7 @@
 #include "EmaBuffer.h"
 #include "rtr/rsslMsg.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

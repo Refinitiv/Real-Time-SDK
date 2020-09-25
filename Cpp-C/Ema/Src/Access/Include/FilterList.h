@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_FilterList_h
 
 /**
-	@class rtsdk::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
+	@class refinitiv::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
 	@brief FilterList is a heterogeneous container of complex data type entries.
 
 	FilterList entries are identified by Filter Id. For the source directory information,
@@ -120,7 +120,7 @@
 #include "Access/Include/ComplexType.h"
 #include "Access/Include/FilterEntry.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

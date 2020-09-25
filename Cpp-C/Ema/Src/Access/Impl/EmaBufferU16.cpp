@@ -16,7 +16,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 EmaBufferU16::EmaBufferU16() :
  _pBuffer( 0 ),
@@ -236,7 +236,7 @@ EmaBufferU16& EmaBufferU16::operator +=( UInt16 u16 )
 	return *this;
 }
 
-EmaBufferU16 rtsdk::ema::access::operator +( EmaBufferU16 lhs, const EmaBufferU16& rhs )
+EmaBufferU16 refinitiv::ema::access::operator +( EmaBufferU16 lhs, const EmaBufferU16& rhs )
 {
 	lhs += rhs;
 	return lhs;

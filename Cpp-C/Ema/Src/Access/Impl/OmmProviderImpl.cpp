@@ -8,7 +8,7 @@
 
 #include "OmmProviderImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmProviderImpl::OmmProviderImpl(OmmProvider* ommProvider) :
 	_pOmmProvider(ommProvider)

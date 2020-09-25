@@ -24,8 +24,8 @@
 #define DEFAULT_ENUM_TABLE_ENTRY_SIZE 1024
 #define DEFAULT_ENCODE_ITERATOR_BUFFER_SIZE 4096
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 DataDictionaryImpl::DataDictionaryImpl(bool ownRsslDataDictionary) :
 	_loadedFieldDictionary(false),
@@ -269,7 +269,7 @@ const EmaVector<DictionaryEntry>& DataDictionaryImpl::getEntries() const
 	return *_pDictionaryEntryList;
 }
 
-const rtsdk::ema::access::EmaVector<EnumTypeTable>& DataDictionaryImpl::getEnumTables() const
+const refinitiv::ema::access::EmaVector<EnumTypeTable>& DataDictionaryImpl::getEnumTables() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -310,14 +310,14 @@ const rtsdk::ema::access::EmaVector<EnumTypeTable>& DataDictionaryImpl::getEnumT
 	return *_pEnumTypeTableList;
 }
 
-rtsdk::ema::access::Int32 DataDictionaryImpl::getInfoDictionaryId() const
+refinitiv::ema::access::Int32 DataDictionaryImpl::getInfoDictionaryId() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
 	return _pRsslDataDictionary->info_DictionaryId;
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldVersion() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getFieldVersion() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -326,14 +326,14 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldVersion() const
 	return _stringInfoFieldVersion.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumRecordTemplateVersion() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getEnumRecordTemplateVersion() const
 {
 	_stringInfoEnumRTVersion.setInt(_pRsslDataDictionary->infoEnum_RT_Version.data, _pRsslDataDictionary->infoEnum_RT_Version.length,
 		_pRsslDataDictionary->infoEnum_RT_Version.length > 0 ? true : false);
 	return _stringInfoEnumRTVersion.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDisplayTemplateVersion() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getEnumDisplayTemplateVersion() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -342,7 +342,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDisplayTemplateV
 	return _stringInfoEnumDTVersion.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldFilename() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getFieldFilename() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -351,7 +351,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldFilename() cons
 	return _stringInfoFieldFilename.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldDescription() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getFieldDescription() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -360,7 +360,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldDescription() c
 	return _stringInfoFieldDesc.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldBuild() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getFieldBuild() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -369,7 +369,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldBuild() const
 	return _stringInfoFieldBuild.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldDate() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getFieldDate() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -378,7 +378,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getFieldDate() const
 	return _stringInfoFieldDate.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumFilename() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getEnumFilename() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -387,7 +387,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumFilename() const
 	return _stringInfoEnumFilename;
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDescription() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getEnumDescription() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -396,7 +396,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDescription() co
 	return _stringInfoEnumDesc.toString();
 }
 
-const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDate() const
+const refinitiv::ema::access::EmaString& DataDictionaryImpl::getEnumDate() const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -406,7 +406,7 @@ const rtsdk::ema::access::EmaString& DataDictionaryImpl::getEnumDate() const
 	return _stringInfoEnumDate.toString();
 }
 
-bool DataDictionaryImpl::hasEntry(rtsdk::ema::access::Int32 fieldId) const
+bool DataDictionaryImpl::hasEntry(refinitiv::ema::access::Int32 fieldId) const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -460,7 +460,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(Int32 fieldId) const
 	return _dictionaryEntry;
 }
 
-bool DataDictionaryImpl::hasEntry(const rtsdk::ema::access::EmaString& fieldName) const
+bool DataDictionaryImpl::hasEntry(const refinitiv::ema::access::EmaString& fieldName) const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -474,7 +474,7 @@ bool DataDictionaryImpl::hasEntry(const rtsdk::ema::access::EmaString& fieldName
 	return pNameToIdMap != 0 ? pNameToIdMap->find(fieldName) != 0 : false;
 }
 
-void DataDictionaryImpl::getEntryInt(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
+void DataDictionaryImpl::getEntryInt(const refinitiv::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
 {
 	if ( !_loadedFieldDictionary )
 	{
@@ -485,7 +485,7 @@ void DataDictionaryImpl::getEntryInt(const rtsdk::ema::access::EmaString& fieldN
 
 	if ( pNameToIdMap )
 	{
-		rtsdk::ema::access::Int16* pFid = fieldNameToIdMap()->find(fieldName);
+		refinitiv::ema::access::Int16* pFid = fieldNameToIdMap()->find(fieldName);
 
 		if ( pFid )
 		{
@@ -498,7 +498,7 @@ void DataDictionaryImpl::getEntryInt(const rtsdk::ema::access::EmaString& fieldN
 	throwIueException( errorText, OmmInvalidUsageException::InvalidArgumentEnum );
 }
 
-void DataDictionaryImpl::getEntry(const rtsdk::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
+void DataDictionaryImpl::getEntry(const refinitiv::ema::access::EmaString& fieldName, DictionaryEntry& entry) const
 {
 	if (!entry._pImpl->isManagedByUser())
 	{
@@ -510,7 +510,7 @@ void DataDictionaryImpl::getEntry(const rtsdk::ema::access::EmaString& fieldName
 	getEntryInt(fieldName, entry);
 }
 
-const DictionaryEntry& DataDictionaryImpl::getEntry(const rtsdk::ema::access::EmaString& fieldName) const
+const DictionaryEntry& DataDictionaryImpl::getEntry(const refinitiv::ema::access::EmaString& fieldName) const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -518,7 +518,7 @@ const DictionaryEntry& DataDictionaryImpl::getEntry(const rtsdk::ema::access::Em
 	return _dictionaryEntry;
 }
 
-bool DataDictionaryImpl::hasEnumType(rtsdk::ema::access::Int32 fieldId, rtsdk::ema::access::Int32 value) const
+bool DataDictionaryImpl::hasEnumType(refinitiv::ema::access::Int32 fieldId, refinitiv::ema::access::Int32 value) const
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -568,7 +568,7 @@ const EnumType& DataDictionaryImpl::getEnumType(Int32 fieldId, Int32 value) cons
 	return _enumType;
 }
 
-void DataDictionaryImpl::loadFieldDictionary(const rtsdk::ema::access::EmaString& filename)
+void DataDictionaryImpl::loadFieldDictionary(const refinitiv::ema::access::EmaString& filename)
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -576,7 +576,7 @@ void DataDictionaryImpl::loadFieldDictionary(const rtsdk::ema::access::EmaString
 	{
 		if (rsslLoadFieldDictionary(filename.c_str(), _pRsslDataDictionary, &_errorText) < RSSL_RET_SUCCESS)
 		{
-			rtsdk::ema::access::EmaString errorText, workingDir;
+			refinitiv::ema::access::EmaString errorText, workingDir;
 			getCurrentDir(workingDir);
 			errorText.set("Unable to load field dictionary from file named ").append(filename).append(CR)
 				.append("Current working directory ").append(workingDir).append(CR)
@@ -595,7 +595,7 @@ void DataDictionaryImpl::loadFieldDictionary(const rtsdk::ema::access::EmaString
 	}
 }
 
-void DataDictionaryImpl::loadEnumTypeDictionary(const rtsdk::ema::access::EmaString& filename)
+void DataDictionaryImpl::loadEnumTypeDictionary(const refinitiv::ema::access::EmaString& filename)
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -603,7 +603,7 @@ void DataDictionaryImpl::loadEnumTypeDictionary(const rtsdk::ema::access::EmaStr
 	{
 		if (rsslLoadEnumTypeDictionary(filename.c_str(), _pRsslDataDictionary, &_errorText) < RSSL_RET_SUCCESS)
 		{
-			rtsdk::ema::access::EmaString errorText, workingDir;
+			refinitiv::ema::access::EmaString errorText, workingDir;
 			getCurrentDir(workingDir);
 			errorText.set("Unable to load enumerated type definition from file named ").append(filename).append(CR)
 				.append("Current working directory ").append(workingDir).append(CR)
@@ -622,8 +622,8 @@ void DataDictionaryImpl::loadEnumTypeDictionary(const rtsdk::ema::access::EmaStr
 	}
 }
 
-void DataDictionaryImpl::encodeFieldDictionary(rtsdk::ema::access::Series& series,
-	rtsdk::ema::access::UInt32 verbosity)
+void DataDictionaryImpl::encodeFieldDictionary(refinitiv::ema::access::Series& series,
+	refinitiv::ema::access::UInt32 verbosity)
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -650,7 +650,7 @@ void DataDictionaryImpl::encodeFieldDictionary(rtsdk::ema::access::Series& serie
 		pEncodeIterator->reallocate(fieldDictionarySize);
 	}
 
-	rtsdk::ema::access::Int32 minFid = _pRsslDataDictionary->minFid;
+	refinitiv::ema::access::Int32 minFid = _pRsslDataDictionary->minFid;
 	RsslRet ret;
 
 	while ((ret = rsslEncodeFieldDictionary(&pEncodeIterator->_rsslEncIter, _pRsslDataDictionary, &minFid,
@@ -662,7 +662,7 @@ void DataDictionaryImpl::encodeFieldDictionary(rtsdk::ema::access::Series& serie
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
-		rtsdk::ema::access::EmaString errorText("Failed to encode the field dictionary information");
+		refinitiv::ema::access::EmaString errorText("Failed to encode the field dictionary information");
 		errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
 		throwIueException( errorText, ret );
@@ -733,7 +733,7 @@ bool DataDictionaryImpl::encodeFieldDictionary(Series& series, Int32& currentFid
 		return false;
 	}
 
-	rtsdk::ema::access::EmaString errorText("Failed to encode the field dictionary information with fragmentation size ");
+	refinitiv::ema::access::EmaString errorText("Failed to encode the field dictionary information with fragmentation size ");
 	errorText.append(fieldDictionarySize).append(CR).append("Reason='").append(_errorText.data).append("'");
 
 	throwIueException( errorText, ret );
@@ -818,7 +818,7 @@ void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosi
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
-		rtsdk::ema::access::EmaString errorText("Failed to encode the enumerated type definition");
+		refinitiv::ema::access::EmaString errorText("Failed to encode the enumerated type definition");
 		errorText.append(CR).append("Reason='").append(_errorText.data).append("'");
 
 		throwIueException( errorText, ret );
@@ -829,8 +829,8 @@ void DataDictionaryImpl::encodeEnumTypeDictionary(Series& series, UInt32 verbosi
 	seriesEncoder._containerComplete = true;
 }
 
-bool DataDictionaryImpl::encodeEnumTypeDictionary(rtsdk::ema::access::Series& series, rtsdk::ema::access::Int32& currenCount,
-	rtsdk::ema::access::UInt32 verbosity, rtsdk::ema::access::UInt32 fragmentationSize)
+bool DataDictionaryImpl::encodeEnumTypeDictionary(refinitiv::ema::access::Series& series, refinitiv::ema::access::Int32& currenCount,
+	refinitiv::ema::access::UInt32 verbosity, refinitiv::ema::access::UInt32 fragmentationSize)
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -889,7 +889,7 @@ bool DataDictionaryImpl::encodeEnumTypeDictionary(rtsdk::ema::access::Series& se
 		return false;
 	}
 	
-	rtsdk::ema::access::EmaString errorText("Failed to set encode enumeration types definition with fragmentation size ");
+	refinitiv::ema::access::EmaString errorText("Failed to set encode enumeration types definition with fragmentation size ");
 	errorText.append(enumTypeDictionarySize).append(CR).append("Reason='").append(_errorText.data).append("'");
 
 	throwIueException( errorText, ret );
@@ -937,7 +937,7 @@ void DataDictionaryImpl::decodeEnumTypeDictionary(const Series& series, UInt32 v
 	}
 }
 
-rtsdk::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(const rtsdk::ema::access::Series& series)
+refinitiv::ema::access::UInt32 DataDictionaryImpl::extractDictionaryType(const refinitiv::ema::access::Series& series)
 {
 	MutexLocker lock(_dataAccessMutex);
 
@@ -1007,7 +1007,7 @@ void DataDictionaryImpl::throwIueForQueryOnly()
 	throwIueException( "This DataDictionary instance is used for query data dictionary information only", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
-const rtsdk::ema::access::EmaString&  DataDictionaryImpl::toString() const
+const refinitiv::ema::access::EmaString&  DataDictionaryImpl::toString() const
 {	  
 	MutexLocker lock(_dataAccessMutex);
 

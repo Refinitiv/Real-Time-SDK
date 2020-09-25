@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ConsumerSessionInfo_h
 
  /**
-	 @class rtsdk::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
+	 @class refinitiv::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
 	 @brief ConsumerSessionInfo provides session information for OmmConsumer when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -20,7 +20,7 @@
 
 #include "Access/Include/SessionInfo.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_vector_h
 
 /**
-	@class rtsdk::ema::access::Vector Vector.h "Access/Include/Vector.h"
+	@class refinitiv::ema::access::Vector Vector.h "Access/Include/Vector.h"
 	@brief Vector is a homogeneous container of complex data type entries.
 
 	Vector entries are identified by index.
@@ -109,7 +109,7 @@
 #include "Access/Include/VectorEntry.h"
 #include "Access/Include/SummaryData.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

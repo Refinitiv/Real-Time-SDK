@@ -15,7 +15,7 @@
 
 #include <new>
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

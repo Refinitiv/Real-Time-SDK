@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmConsumer_h
 
 /**
-	@class rtsdk::ema::access::OmmConsumer OmmConsumer.h "Access/Include/OmmConsumer.h"
+	@class refinitiv::ema::access::OmmConsumer OmmConsumer.h "Access/Include/OmmConsumer.h"
 	@brief OmmConsumer class encapsulates functionality of an Omm consuming type application.
 
 	OmmConsumer provides interfaces to open, modify and close items. It establishes and maintains
@@ -117,7 +117,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

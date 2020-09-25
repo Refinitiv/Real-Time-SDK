@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_Payload_h
 
 /**
-	@class rtsdk::ema::access::Payload Payload.h "Access/Include/Payload.h"
+	@class refinitiv::ema::access::Payload Payload.h "Access/Include/Payload.h"
 	@brief Payload conveys the data part of item image.
 
 	Payload contains objects of complex type.
@@ -74,7 +74,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

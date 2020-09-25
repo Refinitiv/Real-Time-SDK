@@ -15,7 +15,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #define EMASTRING_SIZE sizeof( EmaStringInt )
 

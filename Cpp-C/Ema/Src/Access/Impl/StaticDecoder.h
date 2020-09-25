@@ -14,7 +14,7 @@
 #include "rtr/rsslMsg.h"
 #include "rtr/rsslDataDictionary.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

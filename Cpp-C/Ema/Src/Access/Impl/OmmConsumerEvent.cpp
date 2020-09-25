@@ -12,7 +12,7 @@
 #include "ChannelInfoImpl.h"
 #include "ChannelStatsImpl.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmConsumerEvent::OmmConsumerEvent() :
 	_handle( 0 ),

@@ -10,8 +10,8 @@
 #include "LoginStatusImpl.h"
 #include <new>
 
-using namespace rtsdk::ema::domain::login;
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::domain::login;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 Login::LoginStatus::LoginStatus()

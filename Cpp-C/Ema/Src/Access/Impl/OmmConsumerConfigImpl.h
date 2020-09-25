@@ -18,7 +18,7 @@
 #include "ExceptionTranslator.h"
 #include "ProgrammaticConfigure.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

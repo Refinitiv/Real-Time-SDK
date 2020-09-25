@@ -8,7 +8,7 @@
 
 #include "OmmConsumerActiveConfig.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #define DEFAULT_USER_DISPATCH OmmConsumerConfig::ApiDispatchEnum
 static const EmaString DEFAULT_CONSUMER_SERVICE_NAME( "14002" );

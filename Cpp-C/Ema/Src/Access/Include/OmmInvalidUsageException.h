@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmInvalidUsageException_h
 
 /**
-	@class rtsdk::ema::access::OmmInvalidUsageException OmmInvalidUsageException.h "Access/Include/OmmInvalidUsageException.h"
+	@class refinitiv::ema::access::OmmInvalidUsageException OmmInvalidUsageException.h "Access/Include/OmmInvalidUsageException.h"
 	@brief OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

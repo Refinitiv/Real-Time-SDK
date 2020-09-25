@@ -18,7 +18,7 @@
 #include "rtr/rsslReactor.h"
 #include "Mutex.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

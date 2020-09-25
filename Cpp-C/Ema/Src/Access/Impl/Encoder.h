@@ -13,7 +13,7 @@
 #include "rtr/rsslDataTypeEnums.h"
 #include "EncodeIterator.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -50,7 +50,7 @@ public :
 
 protected :
 
-	friend class rtsdk::ema::rdm::DataDictionaryImpl;
+	friend class refinitiv::ema::rdm::DataDictionaryImpl;
 
 	Encoder();
 

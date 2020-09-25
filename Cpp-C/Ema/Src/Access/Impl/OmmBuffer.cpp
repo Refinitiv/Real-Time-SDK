@@ -13,7 +13,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmBuffer::OmmBuffer() :
  _pDecoder( new ( _space ) OmmBufferDecoder() )

@@ -11,7 +11,7 @@
 
 #include "EmaString.h"
 
-rtsdk::ema::access::EmaString AsciiValues[] = {
+refinitiv::ema::access::EmaString AsciiValues[] = {
 	"CapabilitiesEntry",
 	"Channel",
 	"ChannelSet",
@@ -66,7 +66,7 @@ rtsdk::ema::access::EmaString AsciiValues[] = {
 	"RestLogFileName",
 };
 
-rtsdk::ema::access::EmaString EnumeratedValues[] = {
+refinitiv::ema::access::EmaString EnumeratedValues[] = {
 	"ChannelType",
 	"CompressionType",
 	"EncryptedProtocolType",
@@ -79,7 +79,7 @@ rtsdk::ema::access::EmaString EnumeratedValues[] = {
 	"StreamState",
 };
 
-rtsdk::ema::access::EmaString Int64Values[] = {
+refinitiv::ema::access::EmaString Int64Values[] = {
 	"DictionaryID",
 	"DispatchTimeoutApiThread",
 	"PipePort",
@@ -92,7 +92,7 @@ rtsdk::ema::access::EmaString Int64Values[] = {
 	"MaxEventsInPool",
 };
 
-rtsdk::ema::access::EmaString UInt64Values[] = {
+refinitiv::ema::access::EmaString UInt64Values[] = {
 	"AcceptDirMessageWithoutMinFilters",
 	"AcceptingConsumerStatus",
 	"AcceptingRequests",
@@ -175,11 +175,11 @@ rtsdk::ema::access::EmaString UInt64Values[] = {
 	"MaxFragmentSize",
 };
 
-rtsdk::ema::access::EmaString DoubleValues[] = {
+refinitiv::ema::access::EmaString DoubleValues[] = {
 	"TokenReissueRatio",
 };
 
-rtsdk::ema::access::EmaString NodesThatRequireName[] = {
+refinitiv::ema::access::EmaString NodesThatRequireName[] = {
 	"Channel",
 	"Consumer",
 	"Dictionary",

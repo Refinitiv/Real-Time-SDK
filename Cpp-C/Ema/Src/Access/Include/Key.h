@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_key_h
 
 /**
-	@class rtsdk::ema::access::Key Key.h "Access/Include/Key.h"
+	@class refinitiv::ema::access::Key Key.h "Access/Include/Key.h"
 	@brief Key conveys MapEntry key information.
 
 	Key contains objects of primitive type (e.g. they are not complex type)
@@ -69,7 +69,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

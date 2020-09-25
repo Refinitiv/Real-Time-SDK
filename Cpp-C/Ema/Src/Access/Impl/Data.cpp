@@ -8,7 +8,7 @@
 
 #include "Data.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 const EmaString ReqMsgString( "ReqMsg" );
 const EmaString RefreshMsgString( "RefreshMsg" );

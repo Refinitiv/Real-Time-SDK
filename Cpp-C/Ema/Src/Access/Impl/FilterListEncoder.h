@@ -15,7 +15,7 @@
 #include "EmaPool.h"
 #include "rtr/rsslFilterList.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

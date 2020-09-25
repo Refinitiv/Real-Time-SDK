@@ -13,7 +13,7 @@
 #include <EmaVector.h>
 #include <EnumType.h>
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -26,15 +26,15 @@ public:
 	EnumTypeTableImpl();
 	virtual ~EnumTypeTableImpl();
 
-	const rtsdk::ema::access::EmaVector<EnumType>& getEnumTypes() const;
+	const refinitiv::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
-	const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& getFidReferences() const;
+	const refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>& getFidReferences() const;
 
 	RsslEnumTypeTable* getRsslEnumTypeTable() const;
 
 	void rsslEnumTypeTable(RsslEnumTypeTable*);
 
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 
@@ -42,11 +42,11 @@ private:
 
 	mutable bool 										_refreshEnumTypeList;
 
-	mutable rtsdk::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
-	mutable rtsdk::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
+	mutable refinitiv::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
 
-	mutable rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>*    _pFidsList;
+	mutable refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>*    _pFidsList;
 
 	EnumTypeTableImpl(RsslEnumTypeTable*);
 };

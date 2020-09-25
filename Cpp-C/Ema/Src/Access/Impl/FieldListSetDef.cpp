@@ -11,7 +11,7 @@
 
 #define FL_SET_DEF_SIZE 12000
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 FieldListSetDef::FieldListSetDef()
 {

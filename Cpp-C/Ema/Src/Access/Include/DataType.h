@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_DataType_h
 
 /**
-	\class rtsdk::ema::access::DataType DataType.h "Access/DataType.h"
+	\class refinitiv::ema::access::DataType DataType.h "Access/DataType.h"
 	\brief DataType class provides enumeration representing Omm data types.
 
 	DataType::DataTypeEnum is a numeric and symbolic representation of Omm data type.
@@ -33,7 +33,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	
 namespace ema {
 

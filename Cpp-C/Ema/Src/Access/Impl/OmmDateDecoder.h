@@ -13,7 +13,7 @@
 #include "EmaBufferInt.h"
 #include "DateTimeStringFormat.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

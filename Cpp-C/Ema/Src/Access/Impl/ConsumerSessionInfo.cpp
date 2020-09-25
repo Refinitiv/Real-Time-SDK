@@ -8,7 +8,7 @@
 
 #include "Access/Include/ConsumerSessionInfo.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ConsumerSessionInfo::ConsumerSessionInfo()
 {

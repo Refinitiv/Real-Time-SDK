@@ -14,7 +14,7 @@
 	@brief Common.h file provides definitions of common variable types used in EMA.
 */
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

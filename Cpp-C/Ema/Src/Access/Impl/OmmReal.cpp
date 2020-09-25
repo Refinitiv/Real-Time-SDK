@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 const EmaString ExponentNeg14String( "Power of -14. Stringeration value is 0" );
 const EmaString ExponentNeg13String( "Power of -13" );

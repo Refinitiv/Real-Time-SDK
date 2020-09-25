@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmConsumerErrorClient_h
 
 /**
-	@class rtsdk::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
+	@class refinitiv::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
 	@brief OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.
 
 	By default OmmConsumer class throws exceptions if a usage error occurs. Specifying OmmConsumerErrorClient
@@ -33,7 +33,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

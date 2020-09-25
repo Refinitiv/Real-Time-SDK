@@ -16,7 +16,7 @@
 #include  <sys/types.h>
 #endif
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 Pipe::Pipe() :
  _initialized( false )

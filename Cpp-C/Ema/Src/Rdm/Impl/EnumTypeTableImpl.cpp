@@ -1,8 +1,8 @@
 #include "EnumTypeTableImpl.h"
 #include "EnumTypeImpl.h"
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 EnumTypeTableImpl::EnumTypeTableImpl() :
 _pEnumTypeList(0),
@@ -44,7 +44,7 @@ void EnumTypeTableImpl::rsslEnumTypeTable(RsslEnumTypeTable* enumTypeTable)
 	_pEnumTypeTable = enumTypeTable;
 }
 
-const rtsdk::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEnumTypes() const
+const refinitiv::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEnumTypes() const
 {
 	if (_pEnumTypeList == 0)
 	{
@@ -74,7 +74,7 @@ const rtsdk::ema::access::EmaVector<EnumType>& EnumTypeTableImpl::getEnumTypes()
 	return *_pEnumTypeList;
 }
 
-const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& EnumTypeTableImpl::getFidReferences() const
+const refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>& EnumTypeTableImpl::getFidReferences() const
 {
 	if (_pFidsList == 0)
 	{
@@ -93,7 +93,7 @@ const rtsdk::ema::access::EmaVector<rtsdk::ema::access::Int16>& EnumTypeTableImp
 	return *_pFidsList;
 }
 
-const rtsdk::ema::access::EmaString& EnumTypeTableImpl::toString() const
+const refinitiv::ema::access::EmaString& EnumTypeTableImpl::toString() const
 {
 	_stringToString.set(0, 256);
 

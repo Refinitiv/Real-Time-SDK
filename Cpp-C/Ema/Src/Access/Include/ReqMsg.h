@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ReqMsg_h
 
 /**
-	@class rtsdk::ema::access::ReqMsg ReqMsg.h "Access/Include/ReqMsg.h"
+	@class refinitiv::ema::access::ReqMsg ReqMsg.h "Access/Include/ReqMsg.h"
 	@brief ReqMsg allows consumer application to express its interest in an item.
 
 	Among other attributes, ReqMsg conveys item's name, service, domain type, and
@@ -49,7 +49,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

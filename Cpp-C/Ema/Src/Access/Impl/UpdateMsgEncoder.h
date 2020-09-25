@@ -12,7 +12,7 @@
 #include "MsgEncoder.h"
 #include "UpdateMsg.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

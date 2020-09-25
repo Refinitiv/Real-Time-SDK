@@ -9,7 +9,7 @@
 #include "OmmXmlDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmXmlDecoder::OmmXmlDecoder() :
  _rsslBuffer(),

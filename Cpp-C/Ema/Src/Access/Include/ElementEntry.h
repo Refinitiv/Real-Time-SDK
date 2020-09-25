@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ElementEntry_h
 
 /**
-	@class rtsdk::ema::access::ElementEntry ElementEntry.h "Access/Include/ElementEntry.h"
+	@class refinitiv::ema::access::ElementEntry ElementEntry.h "Access/Include/ElementEntry.h"
 	@brief ElementEntry represents an entry of ElementList.
 
 	ElementEntry associates entry's name, data and its data type.
@@ -59,7 +59,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	
 namespace ema {
 

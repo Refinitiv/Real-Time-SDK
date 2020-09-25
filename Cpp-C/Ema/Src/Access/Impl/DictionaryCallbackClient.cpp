@@ -26,8 +26,8 @@
 #define MAX_DICTIONARY_BUFFER_SIZE 448000
 #define DEFAULT_DICTIONARY_RESP_HEADER_SIZE 20480
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString DictionaryCallbackClient::_clientName( "DictionaryCallbackClient" );
 const EmaString DictionaryCallbackClient::_rwfFldName("RWFFld");

@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmQos_h
 
 /**
-	@class rtsdk::ema::access::Qos Qos.h "Access/Include/Qos.h"
+	@class refinitiv::ema::access::Qos Qos.h "Access/Include/Qos.h"
 	@brief OmmQos represents Quality Of Service information in Omm.
 
 	\remark OmmQos is a read only class.
@@ -24,7 +24,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

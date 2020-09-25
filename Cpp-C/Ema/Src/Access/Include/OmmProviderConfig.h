@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ommProviderConfig_h
 
 /**
-	@class rtsdk::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
+	@class refinitiv::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
 	@brief OmmProviderConfig is a base class for the OmmNiProviderConfig
 
 	@see OmmProvider,
@@ -19,7 +19,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

@@ -10,9 +10,9 @@
 #include "OmmInvalidUsageException.h"
 #include <new>
 
-using namespace rtsdk::ema::domain::login;
-using namespace rtsdk::ema::rdm;
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::domain::login;
+using namespace refinitiv::ema::rdm;
+using namespace refinitiv::ema::access;
 
 LoginRefreshImpl::LoginRefreshImpl() :
 	_pElementList(0),

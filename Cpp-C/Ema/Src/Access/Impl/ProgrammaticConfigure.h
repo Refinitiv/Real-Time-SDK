@@ -14,7 +14,7 @@
 #include "EmaList.h"
 #include "ConfigErrorHandling.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

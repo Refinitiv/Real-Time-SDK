@@ -9,7 +9,7 @@
 #include "OmmTimeDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmTimeDecoder::OmmTimeDecoder() :
  _pRsslBuffer( 0 ),

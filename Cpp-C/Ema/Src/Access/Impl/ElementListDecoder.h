@@ -18,7 +18,7 @@
 #include "NoDataImpl.h"
 #include "rtr/rsslSetData.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	
 namespace ema {
 

@@ -30,11 +30,11 @@
 #include <Windows.h>
 #define PerfLargeInteger LARGE_INTEGER
 #else
-#define PerfLargeInteger  rtsdk::ema::access::Int64
+#define PerfLargeInteger  refinitiv::ema::access::Int64
 #endif
 
-typedef rtsdk::ema::access::UInt64 PerfTimeValue;
-typedef rtsdk::ema::access::UInt64 TICKS;
+typedef refinitiv::ema::access::UInt64 PerfTimeValue;
+typedef refinitiv::ema::access::UInt64 TICKS;
 
 namespace perftool {
 

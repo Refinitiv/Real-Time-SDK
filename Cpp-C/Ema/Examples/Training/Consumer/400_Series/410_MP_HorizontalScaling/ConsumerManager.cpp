@@ -7,7 +7,7 @@
 
 #include "ConsumerManager.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ConsumerManager::ConsumerManager( const EmaString& host, const EmaString& username ) :
  running( false )

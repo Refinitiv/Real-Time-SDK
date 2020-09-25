@@ -13,7 +13,7 @@
 #include "HashTable.h"
 #include "ItemInfo.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

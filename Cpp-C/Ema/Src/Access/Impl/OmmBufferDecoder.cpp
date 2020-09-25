@@ -10,7 +10,7 @@
 #include "ExceptionTranslator.h"
 #include <stdlib.h>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmBufferDecoder::OmmBufferDecoder() :
  _rsslBuffer(),

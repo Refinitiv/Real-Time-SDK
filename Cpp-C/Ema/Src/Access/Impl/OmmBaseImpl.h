@@ -31,7 +31,7 @@
 #include "OmmException.h"
 #include "OmmBaseImplMap.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

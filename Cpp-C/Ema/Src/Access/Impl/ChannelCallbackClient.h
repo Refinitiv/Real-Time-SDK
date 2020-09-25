@@ -15,7 +15,7 @@
 #include "Mutex.h"
 #include "OmmLoggerClient.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

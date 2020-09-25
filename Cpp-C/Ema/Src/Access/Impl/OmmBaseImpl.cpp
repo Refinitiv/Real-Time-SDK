@@ -31,17 +31,17 @@
 
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 /* Dummy no-op consumer class client for initializing handlers */
 /* This should never be used */
-class DummyConsClient : public rtsdk::ema::access::OmmConsumerClient
+class DummyConsClient : public refinitiv::ema::access::OmmConsumerClient
 {
 };
 
 /* Dummy no-op provider class client for initializing handlers */
 /* This should never be used */
-class DummyProvClient : public rtsdk::ema::access::OmmProviderClient
+class DummyProvClient : public refinitiv::ema::access::OmmProviderClient
 {
 };
 

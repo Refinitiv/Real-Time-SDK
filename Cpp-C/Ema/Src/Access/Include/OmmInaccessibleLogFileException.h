@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmInaccessibleLogFileException_h
 
 /**
-	@class rtsdk::ema::access::OmmInaccessibleLogFileException OmmInaccessibleLogFileException.h "Access/Include/OmmInaccessibleLogFileException.h"
+	@class refinitiv::ema::access::OmmInaccessibleLogFileException OmmInaccessibleLogFileException.h "Access/Include/OmmInaccessibleLogFileException.h"
 	@brief OmmInaccessibleLogFileException is thrown when EMA log file can not be created.
 
 	OmmInaccessibleLogFileException is thrown when user running EAM application has no
@@ -26,7 +26,7 @@
 #include "Access/Include/OmmException.h"
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

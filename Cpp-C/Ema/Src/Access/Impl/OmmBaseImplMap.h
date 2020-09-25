@@ -31,7 +31,7 @@
 #include <poll.h>
 #endif
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

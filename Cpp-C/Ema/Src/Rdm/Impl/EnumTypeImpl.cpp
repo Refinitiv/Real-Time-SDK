@@ -1,6 +1,6 @@
 #include "EnumTypeImpl.h"
 
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::rdm;
 
 EnumTypeImpl::EnumTypeImpl()
 {
@@ -28,12 +28,12 @@ void EnumTypeImpl::rsslEnumType(RsslEnumType* rsslEnumType)
 	_pRsslEnumType = rsslEnumType;
 }
 
-rtsdk::ema::access::UInt16 EnumTypeImpl::getValue() const
+refinitiv::ema::access::UInt16 EnumTypeImpl::getValue() const
 {
 	return _pRsslEnumType->value;
 }
 
-const rtsdk::ema::access::EmaString& EnumTypeImpl::getDisplay() const
+const refinitiv::ema::access::EmaString& EnumTypeImpl::getDisplay() const
 {
 	_stringDispaly.setInt(_pRsslEnumType->display.data, _pRsslEnumType->display.length,
 		_pRsslEnumType->display.length > 0 ? true : false);
@@ -41,7 +41,7 @@ const rtsdk::ema::access::EmaString& EnumTypeImpl::getDisplay() const
 	return _stringDispaly.toString();
 }
 
-const rtsdk::ema::access::EmaString& EnumTypeImpl::getMeaning() const
+const refinitiv::ema::access::EmaString& EnumTypeImpl::getMeaning() const
 {
 	_stringMeaning.setInt(_pRsslEnumType->meaning.data, _pRsslEnumType->meaning.length,
 	_pRsslEnumType->meaning.length > 0 ? true : false);
@@ -49,7 +49,7 @@ const rtsdk::ema::access::EmaString& EnumTypeImpl::getMeaning() const
 	return _stringMeaning.toString();
 }
 
-const rtsdk::ema::access::EmaString& EnumTypeImpl::toString() const
+const refinitiv::ema::access::EmaString& EnumTypeImpl::toString() const
 {
 	_stringToString.set(0, 64);
 

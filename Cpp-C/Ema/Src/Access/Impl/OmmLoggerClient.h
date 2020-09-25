@@ -13,7 +13,7 @@
 #include "Mutex.h"
 #include <stdio.h>
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

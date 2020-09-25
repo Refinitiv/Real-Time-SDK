@@ -12,7 +12,7 @@
 #include "ItemCallbackClient.h"
 #include "OmmBaseImplMap.h"
 
-namespace rtsdk {
+namespace refinitiv {
 namespace ema {
 namespace access {
 

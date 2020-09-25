@@ -9,7 +9,7 @@
 #ifndef __refinitiv_ema_domain_Login_h
 #define __refinitiv_ema_domain_Login_h
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -26,7 +26,7 @@ class EMA_ACCESS_API Login {
 public:
 
 /**
-@class rtsdk::ema::domain::login::LoginReq Login.h "Domain/Login/Include/Login.h"
+@class refinitiv::ema::domain::login::LoginReq Login.h "Domain/Login/Include/Login.h"
 @brief LoginReq is a helper class to provide ease of use for encoding and decoding of RDM defined login request attributes.
 
 @see EmaString,
@@ -49,7 +49,7 @@ public :
 
 	/** Constructor initialized with ReqMsg
 	*/
-	LoginReq( const rtsdk::ema::access::ReqMsg& );
+	LoginReq( const refinitiv::ema::access::ReqMsg& );
 	//@}
 
 	///@name Destructor
@@ -75,7 +75,7 @@ public :
 		\remark allows easy decoding of login request attributes
 		@return reference to this object
 	*/
-	LoginReq& message(const rtsdk::ema::access::ReqMsg&);
+	LoginReq& message(const refinitiv::ema::access::ReqMsg&);
 
 	/** method to set requested AllowSuspectData support type
 		@return reference to this object
@@ -90,32 +90,32 @@ public :
 	/** method to set ApplicationId
 		@return reference to this object
 	*/
-	LoginReq& applicationId( const rtsdk::ema::access::EmaString& );
+	LoginReq& applicationId( const refinitiv::ema::access::EmaString& );
 
 	/** method to set ApplicationName
 		@return reference to this object
 	*/
-	LoginReq& applicationName( const rtsdk::ema::access::EmaString& );
+	LoginReq& applicationName( const refinitiv::ema::access::EmaString& );
 
 	/** method to set ApplicationAuthorizationToken
 		@return reference to this object
 	*/
-	LoginReq& applicationAuthorizationToken(const rtsdk::ema::access::EmaString&);
+	LoginReq& applicationAuthorizationToken(const refinitiv::ema::access::EmaString&);
 
 	/** method to set application's InstanceId
 		@return reference to this object
 	*/
-	LoginReq& instanceId( const rtsdk::ema::access::EmaString& );
+	LoginReq& instanceId( const refinitiv::ema::access::EmaString& );
 
 	/** method to set application's Password
 		@return reference to this object
 	*/
-	LoginReq& password( const rtsdk::ema::access::EmaString& );
+	LoginReq& password( const refinitiv::ema::access::EmaString& );
 
 	/** method to set application's Position
 		@return reference to this object
 	*/
-	LoginReq& position( const rtsdk::ema::access::EmaString& );
+	LoginReq& position( const refinitiv::ema::access::EmaString& );
 
 	/** method to set requested ProvidePermissionExpressions support type
 		@return reference to this object
@@ -130,7 +130,7 @@ public :
 	/** method to set application's Role
 		@return reference to this object
 	*/
-	LoginReq& role(rtsdk::ema::access::UInt32 value = rtsdk::ema::rdm::LOGIN_ROLE_CONS);
+	LoginReq& role(refinitiv::ema::access::UInt32 value = refinitiv::ema::rdm::LOGIN_ROLE_CONS);
 
 	/** method to set requested SingleOpen support type
 		@return reference to this object
@@ -150,17 +150,17 @@ public :
 	/** method to set authentication extended buffer
 		@return reference to this object
 	*/
-	LoginReq& authenticationExtended(const rtsdk::ema::access::EmaBuffer&);
+	LoginReq& authenticationExtended(const refinitiv::ema::access::EmaBuffer&);
 
 	/** method to set name
 	@return reference to this object
 	*/
-	LoginReq& name(const rtsdk::ema::access::EmaString&);
+	LoginReq& name(const refinitiv::ema::access::EmaString&);
 
 	/** method to set name type
 	@return reference to this object
 	*/
-	LoginReq& nameType(const rtsdk::ema::access::UInt32&);
+	LoginReq& nameType(const refinitiv::ema::access::UInt32&);
 	//@}
 
 	///@name Accessors
@@ -254,7 +254,7 @@ public :
 	/** method to obtain ReqMsg out of LoginReq
 		@return ReqMsg version of LoginReq
 	*/
-	const rtsdk::ema::access::ReqMsg& getMessage() const;
+	const refinitiv::ema::access::ReqMsg& getMessage() const;
 
 	/** method to obtain requested AllowSuspectData support type
 	*/
@@ -267,32 +267,32 @@ public :
 	/** method to obtain ApplicationId
 		@throw OmmInvalidUsageException if hasApplicationId() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getApplicationId() const;
+	const refinitiv::ema::access::EmaString& getApplicationId() const;
 
 	/** method to obtain ApplicationName
 		@throw OmmInvalidUsageException if hasApplicationName() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getApplicationName() const;
+	const refinitiv::ema::access::EmaString& getApplicationName() const;
 
 	/** method to obtain ApplicationAuthorizationToken
 		@throw OmmInvalidUsageException if hasApplicationAuthorizationToken() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getApplicationAuthorizationToken() const;
+	const refinitiv::ema::access::EmaString& getApplicationAuthorizationToken() const;
 
 	/** method to obtain InstanceId
 		@throw OmmInvalidUsageException if hasInstanceId() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getInstanceId() const;
+	const refinitiv::ema::access::EmaString& getInstanceId() const;
 
 	/** method to obtain Password
 		@throw OmmInvalidUsageException if hasPassword() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getPassword() const;
+	const refinitiv::ema::access::EmaString& getPassword() const;
 
 	/** method to obtain Position
 		@throw OmmInvalidUsageException if hasPosition() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getPosition() const;
+	const refinitiv::ema::access::EmaString& getPosition() const;
 
 	/** method to obtain requested ProvidePermissionExpressions support type
 	*/
@@ -304,7 +304,7 @@ public :
 
 	/** method to obtain Role 
 	*/
-	rtsdk::ema::access::UInt32 getRole() const;
+	refinitiv::ema::access::UInt32 getRole() const;
 
 	/** method to obtain requested SingleOpen support type
 	*/
@@ -320,20 +320,20 @@ public :
 
 	/** method to obtain authentication extended
 	*/
-	const rtsdk::ema::access::EmaBuffer& getAuthenticationExtended() const;
+	const refinitiv::ema::access::EmaBuffer& getAuthenticationExtended() const;
 
 	/** method to obtain name
 	*/
-	const rtsdk::ema::access::EmaString& getName() const;
+	const refinitiv::ema::access::EmaString& getName() const;
 
 	/** method to obtain nameType
 	*/
-	const rtsdk::ema::access::UInt32& getNameType() const;
+	const refinitiv::ema::access::UInt32& getNameType() const;
 
 	/** Returns a string representation of the class instance.
 	@return string representation of the class instance
 	*/
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 	//@}
 
 private :
@@ -342,7 +342,7 @@ private :
 };
 
 /**
-@class rtsdk::ema::domain::login::LoginRefresh Login.h "Domain/Login/Include/Login.h"
+@class refinitiv::ema::domain::login::LoginRefresh Login.h "Domain/Login/Include/Login.h"
 @brief LoginRefresh is a helper class to provide ease of use for encoding and decoding of RDM defined login refresh attributes.
 
 @see EmaString,
@@ -366,7 +366,7 @@ public :
 	/** Constructor initialized with RefreshMsg
 		\remark allows easy decoding and encoding of login refresh attributes
 	*/
-	LoginRefresh( const rtsdk::ema::access::RefreshMsg& );
+	LoginRefresh( const refinitiv::ema::access::RefreshMsg& );
 	//@}
 
 	///@name Destructor
@@ -392,7 +392,7 @@ public :
 		\remark allows easy decoding of login refresh attributes
 		@return reference to this object
 	*/
-	LoginRefresh& message(const rtsdk::ema::access::RefreshMsg&);
+	LoginRefresh& message(const refinitiv::ema::access::RefreshMsg&);
 
 	/** method to set requested AllowSuspectData support type
 		@return reference to this object
@@ -402,17 +402,17 @@ public :
 	/** method to set ApplicationId
 		@return reference to this object
 	*/
-	LoginRefresh& applicationId( const rtsdk::ema::access::EmaString& );
+	LoginRefresh& applicationId( const refinitiv::ema::access::EmaString& );
 
 	/** method to set ApplicationName
 		@return reference to this object
 	*/
-	LoginRefresh& applicationName( const rtsdk::ema::access::EmaString& );
+	LoginRefresh& applicationName( const refinitiv::ema::access::EmaString& );
 
 	/** method to set application's Position
 		@return reference to this object
 	*/
-	LoginRefresh& position( const rtsdk::ema::access::EmaString& );
+	LoginRefresh& position( const refinitiv::ema::access::EmaString& );
 
 	/** method to set requested ProvidePermissionExpressions support type
 		@return reference to this object
@@ -432,12 +432,12 @@ public :
 	/** method to set requested SupportBatchRequests support type
 		@return reference to this object
 	*/
-	LoginRefresh& supportBatchRequests( rtsdk::ema::access::UInt32 value = 0x000);
+	LoginRefresh& supportBatchRequests( refinitiv::ema::access::UInt32 value = 0x000);
 
 	/** method to set requested SupportEnhancedSymbolList support type
 		@return reference to this object
 	*/
-	LoginRefresh& supportEnhancedSymbolList(rtsdk::ema::access::UInt32 value = rtsdk::ema::rdm::SUPPORT_SYMBOL_LIST_NAMES_ONLY);
+	LoginRefresh& supportEnhancedSymbolList(refinitiv::ema::access::UInt32 value = refinitiv::ema::rdm::SUPPORT_SYMBOL_LIST_NAMES_ONLY);
 
 	/** method to set requested SupportOMMPost support type
 		@return reference to this object
@@ -477,42 +477,42 @@ public :
 	/** method to set authentication extended buffer
 	@return reference to this object
 	*/
-	LoginRefresh& authenticationExtended(const rtsdk::ema::access::EmaBuffer& value);
+	LoginRefresh& authenticationExtended(const refinitiv::ema::access::EmaBuffer& value);
 
 	/** method to set authenticationTTReissue
 	@return reference to this object
 	*/
-	LoginRefresh& authenticationTTReissue(const rtsdk::ema::access::UInt64& value);
+	LoginRefresh& authenticationTTReissue(const refinitiv::ema::access::UInt64& value);
 
 	/** method to set authenticationErrorCode
 	@return reference to this object
 	*/
-	LoginRefresh& authenticationErrorCode(const rtsdk::ema::access::UInt64& value);
+	LoginRefresh& authenticationErrorCode(const refinitiv::ema::access::UInt64& value);
 	
 	/** method to set authenticationErrorText
 	@return reference to this object
 	*/
-	LoginRefresh& authenticationErrorText(const rtsdk::ema::access::EmaString& value);
+	LoginRefresh& authenticationErrorText(const refinitiv::ema::access::EmaString& value);
 
 	/** method to set name
 	@return reference to this object
 	*/
-	LoginRefresh& name(const rtsdk::ema::access::EmaString&);
+	LoginRefresh& name(const refinitiv::ema::access::EmaString&);
 
 	/** method to set name type
 	@return reference to this object
 	*/
-	LoginRefresh& nameType(const rtsdk::ema::access::UInt32&);
+	LoginRefresh& nameType(const refinitiv::ema::access::UInt32&);
 
 	/** method to set state
 	@return reference to this object
 	*/
-	LoginRefresh& state(const rtsdk::ema::access::OmmState::StreamState&, const rtsdk::ema::access::OmmState::DataState, const rtsdk::ema::access::UInt8&, const rtsdk::ema::access::EmaString&);
+	LoginRefresh& state(const refinitiv::ema::access::OmmState::StreamState&, const refinitiv::ema::access::OmmState::DataState, const refinitiv::ema::access::UInt8&, const refinitiv::ema::access::EmaString&);
 
 	/** method to set sequence number
 	@return reference to this object
 	*/
-	LoginRefresh& seqNum(const rtsdk::ema::access::UInt32&);
+	LoginRefresh& seqNum(const refinitiv::ema::access::UInt32&);
 	//@}
 
 	///@name Accessors
@@ -641,7 +641,7 @@ public :
 	/** method to obtain RefreshMsg out of LoginRefresh
 	@return RefreshMsg version of LoginRefresh
 	*/
-	const rtsdk::ema::access::RefreshMsg& getMessage() const;
+	const refinitiv::ema::access::RefreshMsg& getMessage() const;
 
 	/** method to obtain requested AllowSuspectData support type
 	*/
@@ -650,17 +650,17 @@ public :
 	/** method to obtain ApplicationId
 		@throw OmmInvalidUsageException if hasApplicationId() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getApplicationId() const;
+	const refinitiv::ema::access::EmaString& getApplicationId() const;
 
 	/** method to obtain ApplicationName
 		@throw OmmInvalidUsageException if hasApplicationName() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getApplicationName() const;
+	const refinitiv::ema::access::EmaString& getApplicationName() const;
 
 	/** method to obtain Position
 		@throw OmmInvalidUsageException if hasPosition() returns false
 	*/
-	const rtsdk::ema::access::EmaString& getPosition() const;
+	const refinitiv::ema::access::EmaString& getPosition() const;
 
 	/** method to obtain requested ProvidePermissionExpressions support type
 	*/
@@ -676,11 +676,11 @@ public :
 
 	/** method to obtain requested SupportBatchRequests support type
 	*/
-	rtsdk::ema::access::UInt32 getSupportBatchRequests() const;
+	refinitiv::ema::access::UInt32 getSupportBatchRequests() const;
 
 	/** method to obtain requested SupportEnhancedSymbolList support type
 	*/
-	rtsdk::ema::access::UInt32 getSupportEnhancedSymbolList() const;
+	refinitiv::ema::access::UInt32 getSupportEnhancedSymbolList() const;
 
 	/** method to obtain requested SupportOMMPost support type
 	*/
@@ -712,40 +712,40 @@ public :
 
 	/** method to obtain authentication extended buffer
 	*/
-	const rtsdk::ema::access::EmaBuffer& getAuthenticationExtended() const;
+	const refinitiv::ema::access::EmaBuffer& getAuthenticationExtended() const;
 
 	/** method to obtain authenticationTTReissue
 	*/
-	const rtsdk::ema::access::UInt64& getAuthenticationTTReissue() const;
+	const refinitiv::ema::access::UInt64& getAuthenticationTTReissue() const;
 
 	/** method to obtain authenticationErrorCode
 	*/
-	const rtsdk::ema::access::UInt64& getAuthenticationErrorCode() const;
+	const refinitiv::ema::access::UInt64& getAuthenticationErrorCode() const;
 
 	/** method to obtain authenticationErrorText
 	*/
-	const rtsdk::ema::access::EmaString& getAuthenticationErrorText() const;
+	const refinitiv::ema::access::EmaString& getAuthenticationErrorText() const;
 
 	/** method to obtain name
 	*/
-	const rtsdk::ema::access::EmaString& getName() const;
+	const refinitiv::ema::access::EmaString& getName() const;
 
 	/** method to obtain nameType
 	*/
-	const rtsdk::ema::access::UInt32& getNameType() const;
+	const refinitiv::ema::access::UInt32& getNameType() const;
 
 	/** method to obtain state
 	*/
-	const rtsdk::ema::access::OmmState& getState() const;
+	const refinitiv::ema::access::OmmState& getState() const;
 
 	/** method to obtain seqNum
 	*/
-	const rtsdk::ema::access::UInt32& getSeqNum() const;
+	const refinitiv::ema::access::UInt32& getSeqNum() const;
 
 	/** Returns a string representation of the class instance.
 	@return string representation of the class instance
 	*/
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 	//@}
 
 private:
@@ -755,7 +755,7 @@ private:
 
 
 /**
-@class rtsdk::ema::domain::login::LoginStatus Login.h "Domain/Login/Include/Login.h"
+@class refinitiv::ema::domain::login::LoginStatus Login.h "Domain/Login/Include/Login.h"
 @brief LoginStatus is a helper class to provide ease of use for encoding and decoding of RDM defined login Status attributes.
 
 @see EmaString,
@@ -779,7 +779,7 @@ public:
 	/** Constructor initialized with StatusMsg
 	\remark allows easy decoding and encoding of login Status attributes
 	*/
-	LoginStatus(const rtsdk::ema::access::StatusMsg&);
+	LoginStatus(const refinitiv::ema::access::StatusMsg&);
 	//@}
 
 	///@name Destructor
@@ -805,32 +805,32 @@ public:
 	\remark allows easy decoding of login Status attributes
 	@return reference to this object
 	*/
-	LoginStatus& message(const rtsdk::ema::access::StatusMsg&);
+	LoginStatus& message(const refinitiv::ema::access::StatusMsg&);
 
 	/** method to set authenticationErrorCode
 	@return reference to this object
 	*/
-	LoginStatus& authenticationErrorCode(const rtsdk::ema::access::UInt64& value);
+	LoginStatus& authenticationErrorCode(const refinitiv::ema::access::UInt64& value);
 
 	/** method to set authenticationErrorText
 	@return reference to this object
 	*/
-	LoginStatus& authenticationErrorText(const rtsdk::ema::access::EmaString& value);
+	LoginStatus& authenticationErrorText(const refinitiv::ema::access::EmaString& value);
 
 	/** method to set name
 	@return reference to this object
 	*/
-	LoginStatus& name(const rtsdk::ema::access::EmaString&);
+	LoginStatus& name(const refinitiv::ema::access::EmaString&);
 
 	/** method to set name type
 	@return reference to this object
 	*/
-	LoginStatus& nameType(const rtsdk::ema::access::UInt32&);
+	LoginStatus& nameType(const refinitiv::ema::access::UInt32&);
 
 	/** method to set state
 	@return reference to this object
 	*/
-	LoginStatus& state(const rtsdk::ema::access::OmmState::StreamState&, const rtsdk::ema::access::OmmState::DataState, const rtsdk::ema::access::UInt8&, const rtsdk::ema::access::EmaString&);
+	LoginStatus& state(const refinitiv::ema::access::OmmState::StreamState&, const refinitiv::ema::access::OmmState::DataState, const refinitiv::ema::access::UInt8&, const refinitiv::ema::access::EmaString&);
 
 	//@}
 
@@ -865,32 +865,32 @@ public:
 	/** method to obtain StatusMsg out of LoginStatus
 	@return StatusMsg version of LoginStatus
 	*/
-	const rtsdk::ema::access::StatusMsg& getMessage() const;
+	const refinitiv::ema::access::StatusMsg& getMessage() const;
 
 	/** method to obtain authenticationErrorCode
 	*/
-	const rtsdk::ema::access::UInt64& getAuthenticationErrorCode() const;
+	const refinitiv::ema::access::UInt64& getAuthenticationErrorCode() const;
 
 	/** method to obtain authenticationErrorText
 	*/
-	const rtsdk::ema::access::EmaString& getAuthenticationErrorText() const;
+	const refinitiv::ema::access::EmaString& getAuthenticationErrorText() const;
 
 	/** method to obtain name
 	*/
-	const rtsdk::ema::access::EmaString& getName() const;
+	const refinitiv::ema::access::EmaString& getName() const;
 
 	/** method to obtain nameType
 	*/
-	const rtsdk::ema::access::UInt32& getNameType() const;
+	const refinitiv::ema::access::UInt32& getNameType() const;
 
 	/** method to obtain state
 	*/
-	const rtsdk::ema::access::OmmState& getState() const;
+	const refinitiv::ema::access::OmmState& getState() const;
 
 	/** Returns a string representation of the class instance.
 	@return string representation of the class instance
 	*/
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 	//@}
 
 private:

@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmError_h
 
 /**
-	@class rtsdk::ema::access::OmmError OmmError.h "Access/Include/OmmError.h"
+	@class refinitiv::ema::access::OmmError OmmError.h "Access/Include/OmmError.h"
 	@brief OmmError represents received Omm data who fails to process properly.
 
 	Objects of OmmError class are returned when an error is detected while processing 
@@ -51,7 +51,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

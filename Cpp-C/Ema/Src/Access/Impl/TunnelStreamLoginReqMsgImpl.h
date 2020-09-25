@@ -13,7 +13,7 @@
 
 #include "rtr/rsslMsgEncoders.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

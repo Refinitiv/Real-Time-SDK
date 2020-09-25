@@ -10,7 +10,7 @@
 #include "RmtesBufferImpl.h"
 #include "EmaUnitTestConnect.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 char cacheBuf1[50];
 char cacheBuf2[50];

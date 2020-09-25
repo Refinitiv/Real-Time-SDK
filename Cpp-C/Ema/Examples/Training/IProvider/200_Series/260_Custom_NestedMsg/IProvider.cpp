@@ -7,8 +7,8 @@
 
 #include "IProvider.h"
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 #define APP_DOMAIN 200
@@ -72,7 +72,7 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 	}
 }
 
-void AppClient::onGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent& event)
+void AppClient::onGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent& event)
 {
 	cout << endl << "Received:    GenericMsg" << endl << "Item Handle: " << event.getHandle() << endl << "Closure:     " << event.getClosure() << endl;
 }

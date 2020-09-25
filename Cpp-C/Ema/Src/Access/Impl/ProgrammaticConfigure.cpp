@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #define MAX_UNSIGNED_INT16		0xFFFF
 #define MAX_UNSIGNED_INT32		0xFFFFFFFF

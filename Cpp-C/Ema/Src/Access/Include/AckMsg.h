@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_AckMsg_h
 
 /**
-	@class rtsdk::ema::access::AckMsg AckMsg.h "Access/Include/AckMsg.h"
+	@class refinitiv::ema::access::AckMsg AckMsg.h "Access/Include/AckMsg.h"
 	@brief AckMsg indicates success or failure of PostMsg.
 
 	If requested, AckMsg is sent by provider acting on PostMsg received from consumer.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

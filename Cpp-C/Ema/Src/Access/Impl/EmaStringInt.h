@@ -11,7 +11,7 @@
 
 #include "EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

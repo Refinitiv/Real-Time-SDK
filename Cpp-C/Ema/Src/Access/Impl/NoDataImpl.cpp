@@ -10,7 +10,7 @@
 #include "EmaString.h"
 #include "Utilities.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 NoDataImpl::NoDataImpl() :
  _rsslBuffer(),

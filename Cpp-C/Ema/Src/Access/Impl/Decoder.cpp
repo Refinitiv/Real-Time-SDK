@@ -53,7 +53,7 @@
 
 #define EMA_DECODER_TYPE_SIZE 271 
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 bool Decoder::setRsslData( Data* pData,
 						RsslDataType rsslType,

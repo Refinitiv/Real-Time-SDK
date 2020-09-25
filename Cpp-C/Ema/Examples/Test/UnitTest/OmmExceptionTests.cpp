@@ -11,7 +11,7 @@
 
 #define LARGE_TEXT_SIZE MAX_SIZE_PLUS_PADDING + 100
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)

@@ -11,7 +11,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -20,7 +20,7 @@ namespace access {
 class ServiceEndpointDiscoveryImpl;
 
 /**
-	@class rtsdk::ema::access::ServiceEndpointDiscoveryOption ServiceEndpointDiscoveryOption.h "Access/Include/ServiceEndpointDiscoveryOption.h"
+	@class refinitiv::ema::access::ServiceEndpointDiscoveryOption ServiceEndpointDiscoveryOption.h "Access/Include/ServiceEndpointDiscoveryOption.h"
 	@brief ServiceEndpointDiscoveryOption is used to specify query options for ServiceEndpointDiscovery::registerClient().
 
 	\remark All methods in this class are \ref SingleThreaded.

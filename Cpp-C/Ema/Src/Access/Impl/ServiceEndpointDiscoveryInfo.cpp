@@ -12,7 +12,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryInfo::ServiceEndpointDiscoveryInfo() :
 _toString(0,256)

@@ -14,7 +14,7 @@
 #include "EnumType.h"
 #include "EmaStringInt.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -30,23 +30,23 @@ public:
 
 	virtual ~EnumTypeImpl();
 
-	rtsdk::ema::access::UInt16 getValue() const;
+	refinitiv::ema::access::UInt16 getValue() const;
 
-	const rtsdk::ema::access::EmaString& getDisplay() const;
+	const refinitiv::ema::access::EmaString& getDisplay() const;
 
-	const rtsdk::ema::access::EmaString& getMeaning() const;
+	const refinitiv::ema::access::EmaString& getMeaning() const;
 
 	void rsslEnumType(RsslEnumType* rsslEnumType);
 
 	RsslEnumType*			rsslEnumType();
 
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 
-	mutable rtsdk::ema::access::EmaStringInt	_stringDispaly;
-	mutable rtsdk::ema::access::EmaStringInt	_stringMeaning;
-	mutable rtsdk::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaStringInt	_stringDispaly;
+	mutable refinitiv::ema::access::EmaStringInt	_stringMeaning;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
 	RsslEnumType*			_pRsslEnumType;
 

@@ -8,7 +8,7 @@
 
 #include "OmmBaseImplMap.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 #ifdef USING_POLL
 int OmmCommonImpl::addFd( int fd, short events )

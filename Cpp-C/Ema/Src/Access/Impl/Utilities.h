@@ -24,7 +24,7 @@
 #include "rtr/rsslState.h"
 #include "rtr/rsslErrorInfo.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -33,25 +33,25 @@ namespace rtsdk {
 	}
 }
 
-extern const rtsdk::ema::access::DataType::DataTypeEnum msgDataType[];
+extern const refinitiv::ema::access::DataType::DataTypeEnum msgDataType[];
 
-bool getCurrentDir( rtsdk::ema::access::EmaString& );
+bool getCurrentDir( refinitiv::ema::access::EmaString& );
 
-void stateToString( RsslState* , rtsdk::ema::access::EmaString& );
+void stateToString( RsslState* , refinitiv::ema::access::EmaString& );
 
 void hexToChar( char* out, char in );
 
-void hexToString( rtsdk::ema::access::EmaString& output, const rtsdk::ema::access::EmaBuffer& in );
+void hexToString( refinitiv::ema::access::EmaString& output, const refinitiv::ema::access::EmaBuffer& in );
 
 const char* ptrToStringAsHex( void* );
 
 const char* timeString();
 
-int emaGetUserName(rtsdk::ema::access::EmaString& string);
+int emaGetUserName(refinitiv::ema::access::EmaString& string);
 
-int emaGetPosition(rtsdk::ema::access::EmaString& string);
+int emaGetPosition(refinitiv::ema::access::EmaString& string);
 
-rtsdk::ema::access::EmaString& addIndent( rtsdk::ema::access::EmaString& temp, rtsdk::ema::access::UInt64 indent, bool addLine = false );
+refinitiv::ema::access::EmaString& addIndent( refinitiv::ema::access::EmaString& temp, refinitiv::ema::access::UInt64 indent, bool addLine = false );
 
 void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo );
 

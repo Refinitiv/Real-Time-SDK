@@ -10,7 +10,7 @@
 #include "OmmQos.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmQosDecoder::OmmQosDecoder() :
  _pRsslBuffer( 0 ),

@@ -37,7 +37,7 @@
 #include "PostMsg.h"
 #include "ChannelInformation.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

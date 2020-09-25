@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmTime_h
 
 /**
-	@class rtsdk::ema::access::OmmTime OmmTime.h "Access/Include/OmmTime.h"
+	@class refinitiv::ema::access::OmmTime OmmTime.h "Access/Include/OmmTime.h"
 	@brief OmmTime represents Time info in Omm.
 
 	OmmTime encapsulates hour, minute, second, millisecond, microsecond and nanosecond information.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

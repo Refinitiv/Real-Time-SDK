@@ -47,21 +47,21 @@ void sleep(int millisecs)
 #endif
 }
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processAppDomainRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processAppDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 protected:
 
-	void onReqMsg(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onReqMsg(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 };
 

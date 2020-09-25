@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_EmaBuffer_h
 
 /**
-	@class rtsdk::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
+	@class refinitiv::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
 	@brief EmaBuffer represents a general use binary buffer.
 
 	EmaBuffer is a buffer of 8 bit long characters where each character is represented by char or byte.
@@ -21,7 +21,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	
 namespace ema {
 

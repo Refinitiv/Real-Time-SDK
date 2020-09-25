@@ -11,7 +11,7 @@
 #include "StaticDecoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 SeriesDecoder::SeriesDecoder() :
  _rsslSeries(),

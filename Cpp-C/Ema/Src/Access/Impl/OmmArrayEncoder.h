@@ -15,7 +15,7 @@
 #include "rtr/rsslArray.h"
 #include "OmmState.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

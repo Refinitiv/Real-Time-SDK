@@ -9,7 +9,7 @@
 #ifndef __refinitiv_ema_access_Pipe_h
 #define __refinitiv_ema_access_Pipe_h
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

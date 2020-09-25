@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_Summary_h
 
 /**
-	@class rtsdk::ema::access::SummaryData SummaryData.h "Access/Include/SummaryData.h"
+	@class refinitiv::ema::access::SummaryData SummaryData.h "Access/Include/SummaryData.h"
 	@brief SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.
 
 	SummaryData contains objects of complex type.
@@ -69,7 +69,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

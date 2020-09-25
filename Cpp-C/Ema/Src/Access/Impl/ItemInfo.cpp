@@ -14,7 +14,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ItemInfo::ItemInfo(OmmServerBaseImpl& ommServerBaseimpl) :
 _streamId(0),

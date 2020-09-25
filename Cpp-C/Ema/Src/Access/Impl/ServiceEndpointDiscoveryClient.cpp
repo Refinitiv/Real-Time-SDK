@@ -8,7 +8,7 @@
 
 #include "ServiceEndpointDiscoveryClient.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryClient::ServiceEndpointDiscoveryClient()
 {

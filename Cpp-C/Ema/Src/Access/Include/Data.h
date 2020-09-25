@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_Data_h
 
 /**
-	@class rtsdk::ema::access::Data Data.h "Access/Include/Data.h"
+	@class refinitiv::ema::access::Data Data.h "Access/Include/Data.h"
 	@brief Data class is a parent abstract class defining common interfaces for all Data type classes.
 
 	All classes representing OMM Data inherit from this class.
@@ -26,7 +26,7 @@
 #include "Access/Include/EmaBuffer.h"
 #include "Access/Include/DataType.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

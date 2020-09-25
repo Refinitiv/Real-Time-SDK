@@ -12,7 +12,7 @@
 #include "OmmConsumerConfig.h"
 #include "ActiveConfig.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

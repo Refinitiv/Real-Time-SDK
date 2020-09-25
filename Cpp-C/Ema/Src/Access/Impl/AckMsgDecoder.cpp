@@ -12,7 +12,7 @@
 #include "rtr/rsslMsgDecoders.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 AckMsgDecoder::AckMsgDecoder() :
 	MsgDecoder(),

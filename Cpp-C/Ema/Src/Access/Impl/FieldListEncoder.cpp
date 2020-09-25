@@ -31,7 +31,7 @@
 #include "UpdateMsg.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 extern const EmaString& getMTypeAsString( OmmReal::MagnitudeType mType );
 

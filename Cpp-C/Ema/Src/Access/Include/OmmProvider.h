@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmProvider_h
 
 /**
-	@class rtsdk::ema::access::OmmProvider OmmProvider.h "Access/Include/OmmProvider.h"
+	@class refinitiv::ema::access::OmmProvider OmmProvider.h "Access/Include/OmmProvider.h"
 	@brief OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider application.
 
 	OmmProvider class provides interfaces for interactive and non interactive OmmProvider application use cases.
@@ -138,7 +138,7 @@
 #include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/EmaVector.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

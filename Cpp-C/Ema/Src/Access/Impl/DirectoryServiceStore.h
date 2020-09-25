@@ -13,7 +13,7 @@
 #include "EmaList.h"
 #include "OmmProviderConfig.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

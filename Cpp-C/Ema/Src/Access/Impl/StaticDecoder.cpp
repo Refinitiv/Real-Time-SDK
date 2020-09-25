@@ -56,7 +56,7 @@
 
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 void StaticDecoder::setRsslData( Data* pData, RsslMsg* pRsslMsg, UInt8 majVer, UInt8 minVer, const RsslDataDictionary* dictionary )
 {

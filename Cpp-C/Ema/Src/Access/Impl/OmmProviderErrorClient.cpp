@@ -8,7 +8,7 @@
 
 #include "OmmProviderErrorClient.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 
 OmmProviderErrorClient::OmmProviderErrorClient()

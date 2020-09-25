@@ -11,7 +11,7 @@
 
 #define EL_SET_DEF_SIZE 50000
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 ElementListSetDef::ElementListSetDef()
 {

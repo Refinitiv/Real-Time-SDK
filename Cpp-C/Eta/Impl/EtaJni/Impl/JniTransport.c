@@ -798,7 +798,7 @@ static RsslBool populateJavaChannelInfo(JNIEnv *env, RsslChannelInfo *rsslChnlIn
 	(*env)->CallObjectMethod(env, *jchnlinfo, mid, jpriorityFlushStrategy);
 
 	/* get the method ID for the multicastStats() method */
-	mid = (*env)->GetMethodID(env, channelInfoClass, "multicastStats", "()Lcom/rtsdk/eta/transport/MCastStats;");
+	mid = (*env)->GetMethodID(env, channelInfoClass, "multicastStats", "()Lcom/refinitiv/eta/transport/MCastStats;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -940,7 +940,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	connectOptsClass = (*env)->GetObjectClass(env, *jconnectopts);
 
 	/* get the method ID for the tunnelingInfo() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "tunnelingInfo", "()Lcom/rtsdk/eta/transport/TunnelingInfo;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "tunnelingInfo", "()Lcom/refinitiv/eta/transport/TunnelingInfo;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -996,7 +996,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	/* determine if segmented or unified network is used by whether or not unified network address is null */
 
 	/* get the method ID for the unifiedNetworkInfo() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "unifiedNetworkInfo", "()Lcom/rtsdk/eta/transport/UnifiedNetworkInfo;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "unifiedNetworkInfo", "()Lcom/refinitiv/eta/transport/UnifiedNetworkInfo;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1021,7 +1021,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	if (!jaddress) /* segmented */
 	{
 		/* get the method ID for the segmentedNetworkInfo() method */
-		mid = (*env)->GetMethodID(env, connectOptsClass, "segmentedNetworkInfo", "()Lcom/rtsdk/eta/transport/SegmentedNetworkInfo;");
+		mid = (*env)->GetMethodID(env, connectOptsClass, "segmentedNetworkInfo", "()Lcom/refinitiv/eta/transport/SegmentedNetworkInfo;");
 		if (mid == NULL)
 		{
 			return RSSL_FALSE;
@@ -1303,7 +1303,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	rsslConnectOpts->userSpecPtr = (*env)->CallObjectMethod(env, *jconnectopts, mid);
 
 	/* get the method ID for the tcpOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "tcpOpts", "()Lcom/rtsdk/eta/transport/TcpOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "tcpOpts", "()Lcom/refinitiv/eta/transport/TcpOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1326,7 +1326,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	rsslConnectOpts->tcpOpts.tcp_nodelay = (*env)->CallBooleanMethod(env, jtcpopts, mid);
 
 	/* get the method ID for the multicastOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "multicastOpts", "()Lcom/rtsdk/eta/transport/MCastOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "multicastOpts", "()Lcom/refinitiv/eta/transport/MCastOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1391,7 +1391,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 
 
 	/* get the method ID for the shmemOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "shmemOpts", "()Lcom/rtsdk/eta/transport/ShmemOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "shmemOpts", "()Lcom/refinitiv/eta/transport/ShmemOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1462,7 +1462,7 @@ static void populateJavaError(JNIEnv *env, RsslError *rsslError, jobject *jerror
 	if (rsslError->channel != NULL)
 	{
 		/* find the JNIChannel class */
-		jniChannelClass = (*env)->FindClass(env, "com/rtsdk/eta/transport/JNIChannel");
+		jniChannelClass = (*env)->FindClass(env, "com/refinitiv/eta/transport/JNIChannel");
 		if (jniChannelClass == NULL)
 		{
 			return;
@@ -1487,8 +1487,8 @@ static void populateJavaError(JNIEnv *env, RsslError *rsslError, jobject *jerror
 		}
 		}
 
-		/* get the method ID for the channel(Lcom/rtsdk/eta/transport/Channel;) method */
-		mid = (*env)->GetMethodID(env, errorClass, "channel", "(Lcom/rtsdk/eta/transport/Channel;)V");
+		/* get the method ID for the channel(Lcom/refinitiv/eta/transport/Channel;) method */
+		mid = (*env)->GetMethodID(env, errorClass, "channel", "(Lcom/refinitiv/eta/transport/Channel;)V");
 		if (mid == NULL)
 		{
 			return;
@@ -1754,7 +1754,7 @@ static jobject createJavaBuffer(JNIEnv *env, RsslBuffer *rsslBuffer)
 
 	if (jniBufferClass == NULL)
 	{
-		localRefClass = (*env)->FindClass(env, "com/rtsdk/eta/transport/JNIBuffer");
+		localRefClass = (*env)->FindClass(env, "com/refinitiv/eta/transport/JNIBuffer");
 		if (localRefClass == NULL)
 		{
 			return NULL;
@@ -1829,7 +1829,7 @@ static jobject getJavaReadBuffer(JNIEnv *env, RsslBuffer *rsslBuffer, jobject *j
 	/* get the method ID for the JNIChannel.readBuffer(ByteBuffer, int) method */
 	if (mid == NULL)
 	{
-		mid = (*env)->GetMethodID(env, jniChannelClass, "readBuffer", "(Ljava/nio/ByteBuffer;I)Lcom/rtsdk/eta/transport/JNIBuffer;");
+		mid = (*env)->GetMethodID(env, jniChannelClass, "readBuffer", "(Ljava/nio/ByteBuffer;I)Lcom/refinitiv/eta/transport/JNIBuffer;");
 		if (mid == NULL)
 		{
 			return NULL;
@@ -2229,7 +2229,7 @@ static RsslBool populateCBindOptions(JNIEnv *env, jobject *jbindopts, RsslBindOp
 	rsslBindOpts->userSpecPtr = (*env)->CallObjectMethod(env, *jbindopts, mid);
 
 	/* get the method ID for the tcpOpts() method */
-	mid = (*env)->GetMethodID(env, bindOptsClass, "tcpOpts", "()Lcom/rtsdk/eta/transport/TcpOpts;");
+	mid = (*env)->GetMethodID(env, bindOptsClass, "tcpOpts", "()Lcom/refinitiv/eta/transport/TcpOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -2886,9 +2886,9 @@ static void* selectLoop(void* threadArg)
 /*
  * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslInitialize
- * Signature: (ILcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (ILcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslInitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslInitialize
   (JNIEnv *env, jobject arg, jint jlocking, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -2988,7 +2988,7 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslInitialize
  * Method:    rsslUninitialize
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslUninitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslUninitialize
   (JNIEnv *env, jobject arg)
 {
 	jniInitialized = RSSL_FALSE;
@@ -3013,9 +3013,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslUninitialize
 /*
  * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslConnect
- * Signature: (Lcom/rtsdk/eta/transport/ConnectOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)Lcom/rtsdk/eta/transport/JNIChannel;
+ * Signature: (Lcom/refinitiv/eta/transport/ConnectOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIChannel;
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslConnect
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslConnect
   (JNIEnv *env, jobject arg, jobject jopts, jobject jerror, jobject jniChannel)
 {
 	RsslError error;
@@ -3108,9 +3108,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslConnect
 /*
  * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslBind
- * Signature: (Lcom/rtsdk/eta/transport/BindOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)Lcom/rtsdk/eta/transport/JNIServer;
+ * Signature: (Lcom/refinitiv/eta/transport/BindOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIServer;
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslBind
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslBind
   (JNIEnv *env, jobject arg, jobject jopts, jobject jerror, jobject jniServer)
 {
 	RsslError error;
@@ -3189,9 +3189,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslBind
 /*
  * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslAccept
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;Lcom/rtsdk/eta/transport/AcceptOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)Lcom/rtsdk/eta/transport/JNIChannel;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/AcceptOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIChannel;
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslAccept
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslAccept
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jopts, jobject jerror, jobject jniChannel)
 {
 	RsslError error;
@@ -3321,9 +3321,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslAccept
 /*
  * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslGetServerInfo
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;Lcom/rtsdk/eta/transport/ServerInfoImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ServerInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslGetServerInfo
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslGetServerInfo
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jinfo, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3360,9 +3360,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslGetServerInfo
 /*
  * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslServerIoctl
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;ILjava/lang/Object;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;ILjava/lang/Object;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslServerIoctl
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslServerIoctl
   (JNIEnv *env, jobject arg, jobject jsrvr, jint jcode, jobject jvalue, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3403,9 +3403,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslServerIoctl
 /*
  * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslServerBufferUsage
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslServerBufferUsage
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslServerBufferUsage
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3433,9 +3433,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslServerBufferUs
 /*
  * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslCloseServer
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslCloseServer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslCloseServer
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3470,9 +3470,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIServer_rsslCloseServer
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslGetChannelInfo
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ChannelInfoImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ChannelInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslGetChannelInfo
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslGetChannelInfo
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jinfo, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3509,9 +3509,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslGetChannelInf
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslIoctl
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;ILjava/lang/Object;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;ILjava/lang/Object;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslIoctl
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslIoctl
   (JNIEnv *env, jobject arg, jobject jchnl, jint jcode, jobject jvalue, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3560,9 +3560,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslIoctl
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslBufferUsage
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslBufferUsage
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslBufferUsage
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3590,9 +3590,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslBufferUsage
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslInitChannel
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/InProgInfoImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/InProgInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslInitChannel
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslInitChannel
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jinprog, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3656,9 +3656,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslInitChannel
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslCloseChannel
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslCloseChannel
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslCloseChannel
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3701,9 +3701,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslCloseChannel
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslRead
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ReadArgsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)Lcom/rtsdk/eta/transport/JNIBuffer;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ReadArgsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslRead
+JNIEXPORT jobject JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslRead
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jreadargs, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3765,9 +3765,9 @@ JNIEXPORT jobject JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslRead
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslGetBuffer
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;IZLcom/rtsdk/eta/transport/ErrorImpl;)Lcom/rtsdk/eta/transport/JNIBuffer;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;IZLcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslGetBuffer
+JNIEXPORT jobject JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslGetBuffer
   (JNIEnv *env, jobject arg, jobject jchnl, jint jsize, jboolean jpackbuffer, jobject jerror)
 {
 	RsslError error;
@@ -3800,9 +3800,9 @@ JNIEXPORT jobject JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslGetBuffer
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslReleaseBuffer
- * Signature: (Lcom/rtsdk/eta/transport/JNIBuffer;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslReleaseBuffer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslReleaseBuffer
   (JNIEnv *env, jobject arg, jobject jbuffer, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3826,9 +3826,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslReleaseBuffer
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslPackBuffer
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/JNIBuffer;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslPackBuffer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslPackBuffer
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jbuffer, jobject jerror)
 {
 	RsslError error;
@@ -3864,9 +3864,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslPackBuffer
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslWrite
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/JNIBuffer;Lcom/rtsdk/eta/transport/WriteArgsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/WriteArgsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslWrite
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslWrite
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jbuffer, jobject jwriteargs, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3952,9 +3952,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslWrite
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslFlush
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslFlush
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslFlush
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3982,9 +3982,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslFlush
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslPing
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslPing
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslPing
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -4012,9 +4012,9 @@ JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslPing
 /*
  * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslReconnectClient
- * Signature: (Lcom/rtsdk/eta/transport/JNIChannel;Lcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIChannel_rsslReconnectClient
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslReconnectClient
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;

@@ -39,8 +39,8 @@
 
 #include <limits.h>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString ItemCallbackClient::_clientName( "ItemCallbackClient" );
 const EmaString SingleItem::_clientName( "SingleItem" );

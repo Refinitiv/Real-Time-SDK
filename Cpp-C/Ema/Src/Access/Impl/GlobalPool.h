@@ -47,7 +47,7 @@
 #include "ElementListSetDef.h"
 #include "FieldListSetDef.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,6 +107,6 @@ public :
 
 }
 
-extern rtsdk::ema::access::GlobalPool g_pool;
+extern refinitiv::ema::access::GlobalPool g_pool;
 
 #endif // __refinitiv_ema_access_GlobalPool_h

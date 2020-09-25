@@ -11,7 +11,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -19,8 +19,8 @@ namespace rtsdk {
 	}
 }
 
-const rtsdk::ema::access::EmaString& rdmDomainToString( rtsdk::ema::access::UInt16 domain );
-const rtsdk::ema::access::EmaString& loginNameTypeToString( rtsdk::ema::access::UInt8 nameType );
+const refinitiv::ema::access::EmaString& rdmDomainToString( refinitiv::ema::access::UInt16 domain );
+const refinitiv::ema::access::EmaString& loginNameTypeToString( refinitiv::ema::access::UInt8 nameType );
 
 #endif // __refinitiv_ema_rdm_RdmUtilities_h
 

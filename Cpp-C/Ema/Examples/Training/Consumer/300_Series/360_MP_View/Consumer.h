@@ -31,21 +31,21 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 
-	void decode( const rtsdk::ema::access::FieldList& );			// print content of passed in FieldList to screen
+	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
-	void decode( const rtsdk::ema::access::Map& );					// print content of passed in Map to screen
+	void decode( const refinitiv::ema::access::Map& );					// print content of passed in Map to screen
 
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 };
 
 #endif // __ema_consumer_h_

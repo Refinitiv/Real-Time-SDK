@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmInt_h
 
 /**
-	@class rtsdk::ema::access::OmmInt OmmInt.h "Access/Include/OmmInt.h"
+	@class refinitiv::ema::access::OmmInt OmmInt.h "Access/Include/OmmInt.h"
 	@brief OmmInt represents Int64 value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

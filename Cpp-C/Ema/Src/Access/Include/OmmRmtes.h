@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmRmtes_h
 
 /**
-	@class rtsdk::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
+	@class refinitiv::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
 	@brief OmmRmtes represents Rmtes string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

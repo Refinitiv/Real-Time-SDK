@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmDateTime::OmmDateTime() :
  _pDecoder( new ( _space ) OmmDateTimeDecoder() )

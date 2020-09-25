@@ -12,7 +12,7 @@
 #include "OmmConsumerImpl.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmConsumer::OmmConsumer( const OmmConsumerConfig& config ) :
 	_pImpl( 0 )

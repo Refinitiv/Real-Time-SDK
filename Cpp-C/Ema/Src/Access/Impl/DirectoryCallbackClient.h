@@ -16,7 +16,7 @@
 #include "OmmLoggerClient.h"
 #include "ItemCallbackClient.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

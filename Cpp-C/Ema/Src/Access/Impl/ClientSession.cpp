@@ -13,7 +13,7 @@
 #include "LoginHandler.h"
 #include "Utilities.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 
 ClientSession::ClientSession(OmmServerBaseImpl* ommServerBaseImpl) :

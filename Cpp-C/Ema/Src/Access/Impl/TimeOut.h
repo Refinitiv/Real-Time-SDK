@@ -18,7 +18,7 @@
 #include "EmaList.h"
 #include "Mutex.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

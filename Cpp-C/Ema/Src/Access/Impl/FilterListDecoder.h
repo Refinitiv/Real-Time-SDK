@@ -16,7 +16,7 @@
 #include "EmaBufferInt.h"
 #include "EmaPool.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

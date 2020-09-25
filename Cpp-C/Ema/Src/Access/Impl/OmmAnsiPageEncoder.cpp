@@ -8,7 +8,7 @@
 
 #include "OmmAnsiPageEncoder.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmAnsiPageEncoder::OmmAnsiPageEncoder(void)
 {

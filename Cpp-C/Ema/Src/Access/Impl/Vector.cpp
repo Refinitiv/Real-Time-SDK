@@ -13,7 +13,7 @@
 #include "GlobalPool.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 extern const EmaString& getVActionAsString( VectorEntry::VectorAction vAction );

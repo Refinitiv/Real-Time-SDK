@@ -30,17 +30,17 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
-  void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
-  void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
-  void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+  void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+  void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+  void processInvalidItemRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 protected:
-  void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
-  void onClose(const rtsdk::ema::access::ReqMsg& reqMsg,
-			   const rtsdk::ema::access::OmmProviderEvent& event);
+  void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
+  void onClose(const refinitiv::ema::access::ReqMsg& reqMsg,
+			   const refinitiv::ema::access::OmmProviderEvent& event);
 };
 
 #endif // __ema_iprovider_h_

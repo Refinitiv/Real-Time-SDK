@@ -8,12 +8,12 @@
 
 #include "Ema.h"
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 protected:
-	void onReqMsg(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onReqMsg(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 };

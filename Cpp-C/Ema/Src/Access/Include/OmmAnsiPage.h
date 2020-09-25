@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_OmmAnsiPage_h
 
 /**
-	@class rtsdk::ema::access::OmmAnsiPage OmmAnsiPage.h "Access/Include/OmmAnsiPage.h"
+	@class refinitiv::ema::access::OmmAnsiPage OmmAnsiPage.h "Access/Include/OmmAnsiPage.h"
 	@brief OmmAnsiPage represents AnsiPage data format in Omm.
 
 	The following code snippet shows setting of AnsiPage data into FieldList;
@@ -60,7 +60,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

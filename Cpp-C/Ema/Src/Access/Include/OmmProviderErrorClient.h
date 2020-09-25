@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_ommProviderErrorClient_h
 
 /**
-	@class rtsdk::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
+	@class refinitiv::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
 	@brief OmmProviderErrorClient class provides callback mechanism used in place of exceptions.
 
 	By default OmmProvider class throws exceptions if usage errors occur. Specifying OmmProviderErrorClient
@@ -33,7 +33,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

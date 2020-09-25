@@ -8,7 +8,7 @@
 
 #include "OmmConsumerClient.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmConsumerClient::OmmConsumerClient()
 {

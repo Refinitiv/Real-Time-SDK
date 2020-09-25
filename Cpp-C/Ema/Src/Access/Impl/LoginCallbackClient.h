@@ -21,7 +21,7 @@
 #include "ReqMsg.h"
 #include "PostMsg.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

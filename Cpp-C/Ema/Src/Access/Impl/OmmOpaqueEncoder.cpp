@@ -9,7 +9,7 @@
 #include "OmmOpaqueEncoder.h"
 #include "EmaBuffer.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmOpaqueEncoder::OmmOpaqueEncoder()
 {

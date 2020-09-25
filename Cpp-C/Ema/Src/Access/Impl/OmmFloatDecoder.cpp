@@ -9,7 +9,7 @@
 #include "OmmFloatDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmFloatDecoder::OmmFloatDecoder() :
  _pRsslBuffer( 0 ),

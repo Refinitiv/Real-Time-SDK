@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #endif
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 	

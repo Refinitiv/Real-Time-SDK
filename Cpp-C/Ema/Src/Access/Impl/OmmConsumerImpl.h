@@ -12,7 +12,7 @@
 #include "OmmBaseImpl.h"
 #include "OmmConsumerActiveConfig.h"
 #include "ChannelInformation.h"
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

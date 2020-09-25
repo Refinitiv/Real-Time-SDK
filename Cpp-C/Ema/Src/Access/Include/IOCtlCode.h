@@ -10,7 +10,7 @@
 #define __refinitiv_ema_access_IOCtlCode_h
 
  /**
-	 \class rtsdk::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
+	 \class refinitiv::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
 	 \brief IOCtlCode class provides enumeration representing I/O codes for modifying I/O values programmatically using the modifyIOCtl() method
 	 of provided by OmmProvider and OmmConsumer classes.
 
@@ -29,7 +29,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

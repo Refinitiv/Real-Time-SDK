@@ -11,7 +11,7 @@
 
 #include "OmmNonRwfEncoder.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 

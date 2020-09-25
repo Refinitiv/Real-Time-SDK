@@ -26,7 +26,7 @@
 #define FID_FLOAT		-9
 #define FID_DOUBLE		-10
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -44,28 +44,28 @@ class EmaBuffer;
 
 }
 
-extern rtsdk::ema::access::EmaString g_userName;
-extern rtsdk::ema::access::EmaString g_password;
+extern refinitiv::ema::access::EmaString g_userName;
+extern refinitiv::ema::access::EmaString g_password;
 
-void encodeFieldList( RsslBuffer& rsslBuf, rtsdk::ema::access::EmaString& inText );
+void encodeFieldList( RsslBuffer& rsslBuf, refinitiv::ema::access::EmaString& inText );
 void encodeNonRWFData( RsslBuffer* rsslBuf, RsslBuffer* value );
 bool loadDictionaryFromFile( RsslDataDictionary* pDictionary );
 
-void perfDecode( const rtsdk::ema::access::ElementList& el );
-void perfDecode( const rtsdk::ema::access::FieldList& fl );
+void perfDecode( const refinitiv::ema::access::ElementList& el );
+void perfDecode( const refinitiv::ema::access::FieldList& fl );
 
 void RsslEncodeElementListAll( RsslBuffer& rsslBuf );
 void RsslEncodeFieldListAll( RsslBuffer& rsslBuf );
 void RsslEncodeMapAll( RsslBuffer& mapBuffer );
 
-void EmaEncodeFieldListAll( rtsdk::ema::access::FieldList& fl );
-void EmaEncodeElementListAll( rtsdk::ema::access::ElementList& el );
-void EmaEncodeMapAll( rtsdk::ema::access::Map& map );
+void EmaEncodeFieldListAll( refinitiv::ema::access::FieldList& fl );
+void EmaEncodeElementListAll( refinitiv::ema::access::ElementList& el );
+void EmaEncodeMapAll( refinitiv::ema::access::Map& map );
 
-void EmaDecodeFieldListAll( const rtsdk::ema::access::FieldList& fl );
-void EmaDecodeElementListAll( const rtsdk::ema::access::ElementList& el );
-void EmaDecodeMapAll( const rtsdk::ema::access::Map& map );
+void EmaDecodeFieldListAll( const refinitiv::ema::access::FieldList& fl );
+void EmaDecodeElementListAll( const refinitiv::ema::access::ElementList& el );
+void EmaDecodeMapAll( const refinitiv::ema::access::Map& map );
 
-bool comparingData(RsslBuffer& rsslBuffer, const rtsdk::ema::access::EmaString& emaString);
+bool comparingData(RsslBuffer& rsslBuffer, const refinitiv::ema::access::EmaString& emaString);
 
 #endif // __TestUtilities_h

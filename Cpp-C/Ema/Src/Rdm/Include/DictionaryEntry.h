@@ -19,7 +19,7 @@
 #include "Access/Include/EmaString.h"
 #include "Access/Include/EmaVector.h"
 
-namespace rtsdk {
+namespace refinitiv {
 
 namespace ema {
 
@@ -41,63 +41,63 @@ public:
 	*
 	* @return the acronym
 	*/
-	const rtsdk::ema::access::EmaString& getAcronym() const;
+	const refinitiv::ema::access::EmaString& getAcronym() const;
 
 	/**
 	* DDE Acronym.
 	*
 	* @return the ddeAcronym
 	*/
-	const rtsdk::ema::access::EmaString& getDDEAcronym() const;
+	const refinitiv::ema::access::EmaString& getDDEAcronym() const;
 
 	/**
 	* The fieldId the entry corresponds to.
 	*
 	* @return the fid
 	*/
-	rtsdk::ema::access::Int16 getFid() const;
+	refinitiv::ema::access::Int16 getFid() const;
 
 	/**
 	* The field to ripple data to.
 	*
 	* @return the rippleToField
 	*/
-	rtsdk::ema::access::Int16 getRippleToField() const;
+	refinitiv::ema::access::Int16 getRippleToField() const;
 
 	/**
 	* Marketfeed Field Type.
 	*
 	* @return the fieldType
 	*/
-	rtsdk::ema::access::Int8 getFieldType() const;
+	refinitiv::ema::access::Int8 getFieldType() const;
 
 	/**
 	* Marketfeed length.
 	*
 	* @return the length
 	*/
-	rtsdk::ema::access::UInt16 getLength() const;
+	refinitiv::ema::access::UInt16 getLength() const;
 
 	/**
 	* RWF type.
 	*
 	* @return data types defined in DataType::DataTypeEnum
 	*/
-	rtsdk::ema::access::UInt8 getRwfType() const;
+	refinitiv::ema::access::UInt8 getRwfType() const;
 
 	/**
 	* Marketfeed enum length.
 	*
 	* @return the enumLength
 	*/
-	rtsdk::ema::access::UInt8 getEnumLength() const;
+	refinitiv::ema::access::UInt8 getEnumLength() const;
 
 	/**
 	* RWF Length.
 	*
 	* @return the rwfLength
 	*/
-	rtsdk::ema::access::UInt32 getRwfLength() const;
+	refinitiv::ema::access::UInt32 getRwfLength() const;
 	//@}
 
 	///@name Operations
@@ -108,7 +108,7 @@ public:
 	*
 	* @return the enumerated type if it exists
 	*/
-	bool hasEnumType(rtsdk::ema::access::UInt16 value) const;
+	bool hasEnumType(refinitiv::ema::access::UInt16 value) const;
 
 	/**
 	* Returns the corresponding enumerated type in the dictionary entry's
@@ -118,7 +118,7 @@ public:
 	* @throw OmmInvalidUsageException if the entry does not exist.
 	* @return the enumerated type if it exists
 	*/
-	const EnumType& getEnumType(rtsdk::ema::access::UInt16 value) const;
+	const EnumType& getEnumType(refinitiv::ema::access::UInt16 value) const;
 
 	/**
 	* Check whether the EnumTypeTable exists
@@ -139,7 +139,7 @@ public:
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
 	*/
-	const rtsdk::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 	/** Operator const char* overload.
 	@throw OmmMemoryExhaustionException if app runs out of memory
@@ -168,7 +168,7 @@ private:
 	friend class DataDictionaryImpl;
 
 	template<class T>
-	friend class rtsdk::ema::access::EmaVector;
+	friend class refinitiv::ema::access::EmaVector;
 
 	// isManagedByUser true when the instance is created by user; false when the instance is created by API
 	DictionaryEntry(bool isManagedByUser);

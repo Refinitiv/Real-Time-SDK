@@ -8,51 +8,51 @@
 
 /* this file was machine generated */
 #include <jni.h>
-/* Header for class com_rtsdk_eta_transport_JNIProtocol */
+/* Header for class com_refinitiv_eta_transport_JNIProtocol */
 
-#ifndef _Included_com_rtsdk_eta_transport_JNIProtocol
-#define _Included_com_rtsdk_eta_transport_JNIProtocol
+#ifndef _Included_com_refinitiv_eta_transport_JNIProtocol
+#define _Included_com_refinitiv_eta_transport_JNIProtocol
 #ifdef __cplusplus
 extern "C" {
 #endif
 /*
- * Class:     com_rtsdk_eta_transport_JNIProtocol
+ * Class:     com_refinitiv_eta_transport_JNIProtocol
  * Method:    rsslInitialize
- * Signature: (ILcom/rtsdk/eta/transport/ErrorImpl;)I
+ * Signature: (ILcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslInitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslInitialize
   (JNIEnv *, jobject, jint, jobject);
 
 /*
- * Class:     com_rtsdk_eta_transport_JNIProtocol
+ * Class:     com_refinitiv_eta_transport_JNIProtocol
  * Method:    rsslUninitialize
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslUninitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslUninitialize
   (JNIEnv *, jobject);
 
 /*
- * Class:     com_rtsdk_eta_transport_JNIProtocol
+ * Class:     com_refinitiv_eta_transport_JNIProtocol
  * Method:    rsslConnect
- * Signature: (Lcom/rtsdk/eta/transport/ConnectOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;Lcom/rtsdk/eta/transport/JNIChannel;)I
+ * Signature: (Lcom/refinitiv/eta/transport/ConnectOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;Lcom/refinitiv/eta/transport/JNIChannel;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslConnect
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslConnect
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
- * Class:     com_rtsdk_eta_transport_JNIProtocol
+ * Class:     com_refinitiv_eta_transport_JNIProtocol
  * Method:    rsslBind
- * Signature: (Lcom/rtsdk/eta/transport/BindOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;Lcom/rtsdk/eta/transport/JNIServer;)I
+ * Signature: (Lcom/refinitiv/eta/transport/BindOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;Lcom/refinitiv/eta/transport/JNIServer;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslBind
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslBind
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
- * Class:     com_rtsdk_eta_transport_JNIProtocol
+ * Class:     com_refinitiv_eta_transport_JNIProtocol
  * Method:    rsslAccept
- * Signature: (Lcom/rtsdk/eta/transport/JNIServer;Lcom/rtsdk/eta/transport/AcceptOptionsImpl;Lcom/rtsdk/eta/transport/ErrorImpl;Lcom/rtsdk/eta/transport/JNIChannel;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/AcceptOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;Lcom/refinitiv/eta/transport/JNIChannel;)I
  */
-JNIEXPORT jint JNICALL Java_com_rtsdk_eta_transport_JNIProtocol_rsslAccept
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslAccept
   (JNIEnv *, jobject, jobject, jobject, jobject, jobject);
 
 #ifdef __cplusplus
