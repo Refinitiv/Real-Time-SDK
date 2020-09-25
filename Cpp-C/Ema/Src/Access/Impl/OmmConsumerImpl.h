@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmConsumerImpl_h
-#define __rtsdk_ema_access_OmmConsumerImpl_h
+#ifndef __refinitiv_ema_access_OmmConsumerImpl_h
+#define __refinitiv_ema_access_OmmConsumerImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmConsumerActiveConfig.h"
@@ -97,4 +97,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_OmmConsumerImpl_h
+#endif // __refinitiv_ema_access_OmmConsumerImpl_h

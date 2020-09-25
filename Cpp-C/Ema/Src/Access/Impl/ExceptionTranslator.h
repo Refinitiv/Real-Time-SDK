@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ExceptionTranlsator_h
-#define __rtsdk_ema_access_ExceptionTranlsator_h
+#ifndef __refinitiv_ema_access_ExceptionTranlsator_h
+#define __refinitiv_ema_access_ExceptionTranlsator_h
 
 #include "Common.h"
 #include "Access/Include/OmmProvider.h"
@@ -48,4 +48,4 @@ void throwDtuException( rtsdk::ema::access::UInt16 , const rtsdk::ema::access::E
 void throwJConverterException(const char* text, rtsdk::ema::access::Int32 errorCode,
 	RsslReactorChannel* reactorChannel, rtsdk::ema::access::ClientSession* clientSession, rtsdk::ema::access::OmmProvider* provider);
 
-#endif // __rtsdk_ema_access_ExceptionTranlsator_h
+#endif // __refinitiv_ema_access_ExceptionTranlsator_h

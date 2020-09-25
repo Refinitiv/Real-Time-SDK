@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_DataType_h
-#define __rtsdk_ema_access_DataType_h
+#ifndef __refinitiv_ema_access_DataType_h
+#define __refinitiv_ema_access_DataType_h
 
 /**
 	\class rtsdk::ema::access::DataType DataType.h "Access/DataType.h"
@@ -246,4 +246,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_DataType_h
+#endif // __refinitiv_ema_access_DataType_h

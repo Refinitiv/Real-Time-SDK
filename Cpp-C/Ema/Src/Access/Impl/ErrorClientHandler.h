@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ErrorClientHandler_h
-#define __rtsdk_ema_access_ErrorClientHandler_h
+#ifndef __refinitiv_ema_access_ErrorClientHandler_h
+#define __refinitiv_ema_access_ErrorClientHandler_h
 
 #include "OmmConsumerErrorClient.h"
 #include "OmmProviderErrorClient.h"
@@ -62,4 +62,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_ErrorClientHandler_h
+#endif // __refinitiv_ema_access_ErrorClientHandler_h

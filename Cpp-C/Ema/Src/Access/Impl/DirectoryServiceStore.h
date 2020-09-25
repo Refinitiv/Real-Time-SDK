@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __rtsdk_ema_access_DirectoryServiceStore_h
-#define __rtsdk_ema_access_DirectoryServiceStore_h
+#ifndef __refinitiv_ema_access_DirectoryServiceStore_h
+#define __refinitiv_ema_access_DirectoryServiceStore_h
 
 #include "ActiveConfig.h"
 #include "EmaList.h"
@@ -386,4 +386,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_DirectoryServiceStore_h
+#endif // __refinitiv_ema_access_DirectoryServiceStore_h

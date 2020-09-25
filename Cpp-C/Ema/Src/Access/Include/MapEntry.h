@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_MapEntry_h
-#define __rtsdk_ema_access_MapEntry_h
+#ifndef __refinitiv_ema_access_MapEntry_h
+#define __refinitiv_ema_access_MapEntry_h
 
 /**
 	@class rtsdk::ema::access::MapEntry MapEntry.h "Access/Include/MapEntry.h"
@@ -279,4 +279,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_MapEntry_h
+#endif // __refinitiv_ema_access_MapEntry_h

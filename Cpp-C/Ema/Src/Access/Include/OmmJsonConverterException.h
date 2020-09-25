@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmJsonConverterException_h
-#define __rtsdk_ema_access_OmmJsonConverterException_h
+#ifndef __refinitiv_ema_access_OmmJsonConverterException_h
+#define __refinitiv_ema_access_OmmJsonConverterException_h
 
  /**
 	 @class rtsdk::ema::access::OmmJsonConverterException OmmJsonConverterException.h "Access/Include/OmmJsonConverterException.h"
@@ -125,5 +125,5 @@ protected:
 
 }
 
-#endif // __rtsdk_ema_access_OmmJsonConverterException_h
+#endif // __refinitiv_ema_access_OmmJsonConverterException_h
 

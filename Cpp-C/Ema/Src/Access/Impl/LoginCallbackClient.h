@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_LoginCallbackClient_h
-#define __rtsdk_ema_access_LoginCallbackClient_h
+#ifndef __refinitiv_ema_access_LoginCallbackClient_h
+#define __refinitiv_ema_access_LoginCallbackClient_h
 
 #include "rtr/rsslReactor.h"
 #include "EmaList.h"
@@ -313,4 +313,4 @@ struct NiProviderLoginItemCreationCallbackStruct
 
 }
 
-#endif // __rtsdk_ema_access_LoginCallbackClient_h
+#endif // __refinitiv_ema_access_LoginCallbackClient_h

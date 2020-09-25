@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_FieldListDecoder_h
-#define __rtsdk_ema_access_FieldListDecoder_h
+#ifndef __refinitiv_ema_access_FieldListDecoder_h
+#define __refinitiv_ema_access_FieldListDecoder_h
 
 #include "Decoder.h"
 #include "EmaStringInt.h"
@@ -151,4 +151,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_FieldListDecoder_h
+#endif // __refinitiv_ema_access_FieldListDecoder_h

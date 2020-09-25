@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmRmtesDecoder_h
-#define __rtsdk_ema_access_OmmRmtesDecoder_h
+#ifndef __refinitiv_ema_access_OmmRmtesDecoder_h
+#define __refinitiv_ema_access_OmmRmtesDecoder_h
 
 #include "Decoder.h"
 #include "EmaBufferInt.h"
@@ -62,4 +62,4 @@ private :
 
 }
 
-#endif //__rtsdk_ema_access_OmmRmtesDecoder_h
+#endif //__refinitiv_ema_access_OmmRmtesDecoder_h

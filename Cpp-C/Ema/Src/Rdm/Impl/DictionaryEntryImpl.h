@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_rdm_DictionaryEntryImpl_h
-#define __rtsdk_ema_rdm_DictionaryEntryImpl_h
+#ifndef __refinitiv_ema_rdm_DictionaryEntryImpl_h
+#define __refinitiv_ema_rdm_DictionaryEntryImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
@@ -90,4 +90,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_rdm_DictionaryEntryImpl_h
+#endif // __refinitiv_ema_rdm_DictionaryEntryImpl_h

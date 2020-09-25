@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmSystemExceptionImpl_h
-#define __rtsdk_ema_access_OmmSystemExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmSystemExceptionImpl_h
+#define __refinitiv_ema_access_OmmSystemExceptionImpl_h
 
 #include "OmmSystemException.h"
 
@@ -41,4 +41,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_OmmSystemExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmSystemExceptionImpl_h

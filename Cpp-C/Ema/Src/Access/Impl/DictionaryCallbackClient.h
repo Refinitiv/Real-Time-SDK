@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_DictionaryCallbackClient_h
-#define __rtsdk_ema_access_DictionaryCallbackClient_h
+#ifndef __refinitiv_ema_access_DictionaryCallbackClient_h
+#define __refinitiv_ema_access_DictionaryCallbackClient_h
 
 #include "rtr/rsslReactor.h"
 #include "EmaString.h"
@@ -311,4 +311,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_DictionaryCallbackClient_h
+#endif // __refinitiv_ema_access_DictionaryCallbackClient_h

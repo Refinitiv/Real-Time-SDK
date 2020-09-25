@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmNiProviderConfigImpl_h
-#define __rtsdk_ema_access_OmmNiProviderConfigImpl_h
+#ifndef __refinitiv_ema_access_OmmNiProviderConfigImpl_h
+#define __refinitiv_ema_access_OmmNiProviderConfigImpl_h
 
 #include "OmmNiProviderConfig.h"
 #include "EmaConfigImpl.h"
@@ -56,4 +56,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_OmmNiProviderConfigImpl_h
+#endif // __refinitiv_ema_access_OmmNiProviderConfigImpl_h

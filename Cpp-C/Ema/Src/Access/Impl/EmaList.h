@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_EmaList_h
-#define __rtsdk_ema_access_EmaList_h
+#ifndef __refinitiv_ema_access_EmaList_h
+#define __refinitiv_ema_access_EmaList_h
 
 #include "Common.h"
 #include "Utilities.h"

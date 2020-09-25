@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmOpaqueEncoder_h
-#define __rtsdk_ema_access_OmmOpaqueEncoder_h
+#ifndef __refinitiv_ema_access_OmmOpaqueEncoder_h
+#define __refinitiv_ema_access_OmmOpaqueEncoder_h
 
 #include "OmmNonRwfEncoder.h"
 
@@ -50,4 +50,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_OmmOpaqueEncoder_h
+#endif // __refinitiv_ema_access_OmmOpaqueEncoder_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_PostMsg_h
-#define __rtsdk_ema_access_PostMsg_h
+#ifndef __refinitiv_ema_access_PostMsg_h
+#define __refinitiv_ema_access_PostMsg_h
 
 /**
 	@class rtsdk::ema::access::PostMsg PostMsg.h "Access/Include/PostMsg.h"
@@ -360,4 +360,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_PostMsg_h
+#endif // __refinitiv_ema_access_PostMsg_h

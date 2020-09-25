@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmException_h
-#define __rtsdk_ema_access_OmmException_h
+#ifndef __refinitiv_ema_access_OmmException_h
+#define __refinitiv_ema_access_OmmException_h
 
 /**
 	@class rtsdk::ema::access::OmmException OmmException.h "Access/Include/OmmException.h"
@@ -123,4 +123,4 @@ protected :
 
 }
 
-#endif // __rtsdk_ema_access_OmmException_h
+#endif // __refinitiv_ema_access_OmmException_h

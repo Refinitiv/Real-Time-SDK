@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmUnsupportedDomainTypeException_h
-#define __rtsdk_ema_access_OmmUnsupportedDomainTypeException_h
+#ifndef __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h
+#define __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h
 
 /**
 	@class rtsdk::ema::access::OmmUnsupportedDomainTypeException OmmUnsupportedDomainTypeException.h "Access/Include/OmmUnsupportedDomainTypeException.h"
@@ -80,4 +80,4 @@ protected :
 
 }
 
-#endif // __rtsdk_ema_access_OmmUnsupportedDomainTypeException_h
+#endif // __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h

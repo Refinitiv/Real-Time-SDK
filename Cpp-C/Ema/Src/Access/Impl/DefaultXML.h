@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_DefaultXML_h
-#define __rtsdk_ema_access_DefaultXML_h
+#ifndef __refinitiv_ema_access_DefaultXML_h
+#define __refinitiv_ema_access_DefaultXML_h
 
 #include "EmaString.h"
 
@@ -191,4 +191,4 @@ rtsdk::ema::access::EmaString NodesThatRequireName[] = {
 	"Service",
 };
 
-#endif //__rtsdk_ema_access_DefaultXML_h
+#endif //__refinitiv_ema_access_DefaultXML_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_rdm_RdmUtilities_h
-#define __rtsdk_ema_rdm_RdmUtilities_h
+#ifndef __refinitiv_ema_rdm_RdmUtilities_h
+#define __refinitiv_ema_rdm_RdmUtilities_h
 
 #include "Access/Include/Common.h"
 
@@ -22,6 +22,6 @@ namespace rtsdk {
 const rtsdk::ema::access::EmaString& rdmDomainToString( rtsdk::ema::access::UInt16 domain );
 const rtsdk::ema::access::EmaString& loginNameTypeToString( rtsdk::ema::access::UInt8 nameType );
 
-#endif // __rtsdk_ema_rdm_RdmUtilities_h
+#endif // __refinitiv_ema_rdm_RdmUtilities_h
 
 

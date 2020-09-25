@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __rtsdk_ema_domain_LoginReqImpl_h
-#define __rtsdk_ema_domain_LoginReqImpl_h
+#ifndef __refinitiv_ema_domain_LoginReqImpl_h
+#define __refinitiv_ema_domain_LoginReqImpl_h
 
 #include "ElementList.h"
 #include "EmaBuffer.h"
@@ -216,4 +216,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_domain_LoginReqImpl_h
+#endif // __refinitiv_ema_domain_LoginReqImpl_h

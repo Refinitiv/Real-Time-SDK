@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_IOCtlCode_h
-#define __rtsdk_ema_access_IOCtlCode_h
+#ifndef __refinitiv_ema_access_IOCtlCode_h
+#define __refinitiv_ema_access_IOCtlCode_h
 
  /**
 	 \class rtsdk::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
@@ -68,4 +68,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_IOCtlCode_h
+#endif // __refinitiv_ema_access_IOCtlCode_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ServiceEndpointDiscoveryEvent_h
-#define __rtsdk_ema_access_ServiceEndpointDiscoveryEvent_h
+#ifndef __refinitiv_ema_access_ServiceEndpointDiscoveryEvent_h
+#define __refinitiv_ema_access_ServiceEndpointDiscoveryEvent_h
 
 /**
 	@class rtsdk::ema::access::ServiceEndpointDiscoveryEvent ServiceEndpointDiscoveryEvent.h "Access/Include/ServiceEndpointDiscoveryEvent.h"

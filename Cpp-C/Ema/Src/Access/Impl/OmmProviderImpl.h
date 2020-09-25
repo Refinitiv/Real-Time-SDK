@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmProviderImpl_h
-#define __rtsdk_ema_access_OmmProviderImpl_h
+#ifndef __refinitiv_ema_access_OmmProviderImpl_h
+#define __refinitiv_ema_access_OmmProviderImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmProviderClient.h"
@@ -80,4 +80,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_OmmProviderImpl_h
+#endif // __refinitiv_ema_access_OmmProviderImpl_h

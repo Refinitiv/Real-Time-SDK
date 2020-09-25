@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_StatusMsgEncoder_h
-#define __rtsdk_ema_access_StatusMsgEncoder_h
+#ifndef __refinitiv_ema_access_StatusMsgEncoder_h
+#define __refinitiv_ema_access_StatusMsgEncoder_h
 
 #include "MsgEncoder.h"
 #include "StatusMsg.h"
@@ -130,4 +130,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_StatusMsgEncoder_h
+#endif // __refinitiv_ema_access_StatusMsgEncoder_h

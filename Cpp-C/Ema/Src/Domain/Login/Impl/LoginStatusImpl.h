@@ -15,8 +15,8 @@
 #include "OmmState.h"
 #include "OmmStateDecoder.h"
 
-#ifndef __rtsdk_ema_domain_LoginStatusImpl_h
-#define __rtsdk_ema_domain_LoginStatusImpl_h
+#ifndef __refinitiv_ema_domain_LoginStatusImpl_h
+#define __refinitiv_ema_domain_LoginStatusImpl_h
 
 namespace rtsdk {
 
@@ -126,5 +126,5 @@ private:
 
 }
 
-#endif // __rtsdk_ema_domain_LoginStatusImpl_h
+#endif // __refinitiv_ema_domain_LoginStatusImpl_h
 

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __rtsdk_ema_access_LoginHandler_h
-#define __rtsdk_ema_access_LoginHandler_h
+#ifndef __refinitiv_ema_access_LoginHandler_h
+#define __refinitiv_ema_access_LoginHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "EmaVector.h"
@@ -71,5 +71,5 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_LoginHandler_h
+#endif // __refinitiv_ema_access_LoginHandler_h
 

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ServiceDiscoveryClient_h
-#define __rtsdk_ema_access_ServiceDiscoveryClient_h
+#ifndef __refinitiv_ema_access_ServiceDiscoveryClient_h
+#define __refinitiv_ema_access_ServiceDiscoveryClient_h
 
 /**
 	@class rtsdk::ema::access::ServiceEndpointDiscoveryClient ServiceEndpointDiscoveryClient.h "Access/Include/ServiceEndpointDiscoveryClient.h"
@@ -95,4 +95,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_ServiceDiscoveryClient_h
+#endif // __refinitiv_ema_access_ServiceDiscoveryClient_h

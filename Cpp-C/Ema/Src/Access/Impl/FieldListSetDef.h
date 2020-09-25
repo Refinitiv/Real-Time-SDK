@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_FieldListSetDef_h
-#define __rtsdk_ema_access_FieldListSetDef_h
+#ifndef __refinitiv_ema_access_FieldListSetDef_h
+#define __refinitiv_ema_access_FieldListSetDef_h
 
 #include "EmaPool.h"
 
@@ -57,4 +57,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_FieldListSetDef_h
+#endif // __refinitiv_ema_access_FieldListSetDef_h

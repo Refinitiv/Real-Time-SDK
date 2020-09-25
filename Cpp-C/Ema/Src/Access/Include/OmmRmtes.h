@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmRmtes_h
-#define __rtsdk_ema_access_OmmRmtes_h
+#ifndef __refinitiv_ema_access_OmmRmtes_h
+#define __refinitiv_ema_access_OmmRmtes_h
 
 /**
 	@class rtsdk::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
@@ -108,4 +108,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_OmmRmtes_h
+#endif // __refinitiv_ema_access_OmmRmtes_h

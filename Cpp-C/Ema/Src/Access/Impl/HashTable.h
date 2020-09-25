@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_HashTable_h
-#define __rtsdk_ema_access_HashTable_h
+#ifndef __refinitiv_ema_access_HashTable_h
+#define __refinitiv_ema_access_HashTable_h
 
 #include "EmaString.h"
 #include <string.h>
@@ -342,4 +342,4 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::rehash( UInt32 newSize )
 
 }
 
-#endif // __rtsdk_ema_access_HashTable_h
+#endif // __refinitiv_ema_access_HashTable_h

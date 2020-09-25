@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_Pool_h
-#define __rtsdk_ema_access_Pool_h
+#ifndef __refinitiv_ema_access_Pool_h
+#define __refinitiv_ema_access_Pool_h
 
 #include "Mutex.h"
 #include "EmaVector.h"
@@ -389,4 +389,4 @@ UInt32 Pool< I, T >::count()
 
 }
 
-#endif // __rtsdk_ema_access_Pool_h
+#endif // __refinitiv_ema_access_Pool_h

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ElementList_h
-#define __rtsdk_ema_access_ElementList_h
+#ifndef __refinitiv_ema_access_ElementList_h
+#define __refinitiv_ema_access_ElementList_h
 
 /**
 	@class rtsdk::ema::access::ElementList ElementList.h "Access/Include/ElementList.h"
@@ -700,4 +700,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_ElementList_h
+#endif // __refinitiv_ema_access_ElementList_h

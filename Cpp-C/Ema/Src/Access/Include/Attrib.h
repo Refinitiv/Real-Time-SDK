@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_Attrib_h
-#define __rtsdk_ema_access_Attrib_h
+#ifndef __refinitiv_ema_access_Attrib_h
+#define __refinitiv_ema_access_Attrib_h
 
 /**
 	@class rtsdk::ema::access::Attrib Attrib.h "Access/Include/Attrib.h"
@@ -249,4 +249,4 @@ private :
 
 }
 
-#endif // __rtsdk_ema_access_Attrib_h
+#endif // __refinitiv_ema_access_Attrib_h

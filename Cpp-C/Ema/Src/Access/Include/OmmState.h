@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmState_h
-#define __rtsdk_ema_access_OmmState_h
+#ifndef __refinitiv_ema_access_OmmState_h
+#define __refinitiv_ema_access_OmmState_h
 /**
 	@class rtsdk::ema::access::OmmState OmmState.h "Access/Include/OmmState.h"
 	@brief OmmState represents State information in Omm. 
@@ -226,4 +226,4 @@ private :
 
 }
 
-#endif //__rtsdk_ema_access_OmmState_h
+#endif //__refinitiv_ema_access_OmmState_h

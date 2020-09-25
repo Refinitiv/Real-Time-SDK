@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __rtsdk_ema_domain_Login_h
-#define __rtsdk_ema_domain_Login_h
+#ifndef __refinitiv_ema_domain_Login_h
+#define __refinitiv_ema_domain_Login_h
 
 namespace rtsdk {
 
@@ -908,4 +908,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_domain_Login_h
+#endif // __refinitiv_ema_domain_Login_h

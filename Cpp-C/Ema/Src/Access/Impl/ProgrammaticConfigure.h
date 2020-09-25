@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_ProgrammaticConfigure_h
-#define __rtsdk_ema_access_ProgrammaticConfigure_h
+#ifndef __refinitiv_ema_access_ProgrammaticConfigure_h
+#define __refinitiv_ema_access_ProgrammaticConfigure_h
 
 #include "Map.h"
 #include "EmaVector.h"
@@ -221,4 +221,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_ProgrammaticConfigure_h
+#endif // __refinitiv_ema_access_ProgrammaticConfigure_h

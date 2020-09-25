@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_rdm_DictionaryEntry_h
-#define __rtsdk_ema_rdm_DictionaryEntry_h
+#ifndef __refinitiv_ema_rdm_DictionaryEntry_h
+#define __refinitiv_ema_rdm_DictionaryEntry_h
 
 /**
 * A data dictionary entry, containing field information and an enumeration table reference if present.
@@ -186,5 +186,5 @@ private:
 
 }
 
-#endif //  __rtsdk_ema_rdm_DictionaryEntry_h
+#endif //  __refinitiv_ema_rdm_DictionaryEntry_h
 

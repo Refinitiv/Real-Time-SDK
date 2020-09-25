@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_rdm_EnumType_h
-#define __rtsdk_ema_rdm_EnumType_h
+#ifndef __refinitiv_ema_rdm_EnumType_h
+#define __refinitiv_ema_rdm_EnumType_h
 
 /**
 * A single defined enumerated value.
@@ -95,5 +95,5 @@ private:
 
 }
 
-#endif // __rtsdk_ema_rdm_EnumType_h
+#endif // __refinitiv_ema_rdm_EnumType_h
 

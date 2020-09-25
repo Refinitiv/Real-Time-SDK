@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __rtsdk_ema_access_OmmConsumerConfigImpl_h
-#define __rtsdk_ema_access_OmmConsumerConfigImpl_h
+#ifndef __refinitiv_ema_access_OmmConsumerConfigImpl_h
+#define __refinitiv_ema_access_OmmConsumerConfigImpl_h
 
 #ifdef WIN32
 #include "direct.h"
@@ -60,4 +60,4 @@ private:
 
 }
 
-#endif // __rtsdk_ema_access_OmmConsumerConfigImpl_h
+#endif // __refinitiv_ema_access_OmmConsumerConfigImpl_h
