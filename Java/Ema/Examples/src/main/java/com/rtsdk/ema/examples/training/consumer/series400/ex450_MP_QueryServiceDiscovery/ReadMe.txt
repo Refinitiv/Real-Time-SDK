@@ -32,8 +32,8 @@ to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
 -location location to get an endpoint from Refinitiv Data Platform service discovery. Now, it is either
  "us-east" by default or "eu-west" (optional).
--keyfile keystore file for creating an encrypted connection (mandatory).
--keypasswd keystore password for creating an encrypted connection (mandatory).
+-keyfile keystore file for creating an encrypted connection.
+-keypasswd keystore password for creating an encrypted connection.
 Note: please refer to README.md of RTSDK Java for generating a keystore file.
 
 Optional RIC item name parameters.

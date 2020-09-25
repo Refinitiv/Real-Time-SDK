@@ -28,8 +28,8 @@ generate and manage client IDs at the following URL:
 https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
 to access this page).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
--keyfile keystore file for creating an encrypted connection (mandatory).
--keypasswd keystore password for creating an encrypted connection (mandatory).
+-keyfile keystore file for creating an encrypted connection.
+-keypasswd keystore password for creating an encrypted connection.
 Note: please refer to README.md of RTSDK Java for generating a keystore file.
 
 Optional RIC item name parameters.
