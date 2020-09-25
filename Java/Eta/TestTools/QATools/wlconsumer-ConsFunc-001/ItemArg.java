@@ -1,4 +1,4 @@
-package com.rtsdk.eta.valueadd.examples.common;
+package com.refinitiv.eta.valueadd.examples.common;
 
 /** Item argument class for the Value Add consumer and
  * non-interactive provider applications. */

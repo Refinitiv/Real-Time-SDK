@@ -1,28 +1,28 @@
-package com.rtsdk.eta.examples.common;
+package com.refinitiv.eta.examples.common;
 
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataDictionary;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DecodeIterator;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.Msg;
-import com.rtsdk.eta.codec.MsgClasses;
-import com.rtsdk.eta.codec.RefreshMsg;
-import com.rtsdk.eta.codec.State;
-import com.rtsdk.eta.codec.StatusMsg;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.rdm.Dictionary;
-import com.rtsdk.eta.transport.Channel;
-import com.rtsdk.eta.transport.Error;
-import com.rtsdk.eta.transport.TransportBuffer;
-import com.rtsdk.eta.transport.TransportFactory;
-import com.rtsdk.eta.transport.TransportReturnCodes;
-import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
-import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
-import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
-import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
-import com.rtsdk.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.Dictionary;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
 //APIQA: Adding for writing the string to files. 
 import java.io.BufferedWriter;
@@ -92,7 +92,7 @@ public class DictionaryHandler
      */
     public void loadDictionary()
     {
-        com.rtsdk.eta.transport.Error error = TransportFactory.createError();
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
 
         dictionary.clear();
 // APIQA: Clearing dictionary object
@@ -316,7 +316,7 @@ public class DictionaryHandler
      * 
      * Updates dictionary download states after full dictionary is received.
      */
-    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.rtsdk.eta.transport.Error error)
+    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.refinitiv.eta.transport.Error error)
     {
         int ret = dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)

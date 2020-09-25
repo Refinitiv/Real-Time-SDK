@@ -1,20 +1,20 @@
-package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rtsdk.eta.codec.Buffer;
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.rdm.DomainTypes;
-import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
-import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>

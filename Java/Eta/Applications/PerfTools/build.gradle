@@ -13,7 +13,7 @@ dependencies {
 	compile project(':Eta:Applications:Shared')
 }
 
-mainClassName = 'com.rtsdk.eta.perftools.upajprovperf.upajProvPerf'
+mainClassName = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
 
 task copyDictionary( type: Copy ) {
 	from '../../../etc'
@@ -38,7 +38,7 @@ javadoc {
     source exportedProjects.collect { project(it).sourceSets.main.allJava }
     classpath = files( exportedProjects.collect { project(it).sourceSets.main.compileClasspath } )
 
-    destinationDir = file('../../Docs/refman/upajperftools')
+    destinationDir = file('../../Docs/refman/etajperftools')
     title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
 
     options.footer ("${javadoc_footer}")
@@ -67,7 +67,7 @@ task runETAPerfProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.rtsdk.eta.perftools.upajprovperf.upajProvPerf'
+    main = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -87,7 +87,7 @@ task runETAPerfConsumer(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.rtsdk.eta.perftools.upajconsperf.upajConsPerf'
+    main = 'com.refinitiv.eta.perftools.consperf.ConsPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -107,7 +107,7 @@ task runETAPerfNIProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-	main = 'com.rtsdk.eta.perftools.upajniprovperf.upajNIProvPerf'
+	main = 'com.refinitiv.eta.perftools.niprovperf.NIProvPerf'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -124,7 +124,7 @@ task runETAPerfTransport(type: JavaExec) {
     // - uncomment and add to APP_ARGS to specify the command line options
     // APP_ARGS="-msgRate 1000 -runTime 60"
 
-	main = 'com.rtsdk.eta.perftools.upajtransportperf.upajTransportPerf'
+	main = 'com.refinitiv.eta.perftools.transportperf.TransportPerf'
 	classpath = sourceSets.main.runtimeClasspath
 }
 

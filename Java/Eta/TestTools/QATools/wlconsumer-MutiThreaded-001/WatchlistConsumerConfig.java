@@ -1,20 +1,20 @@
-package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.MsgKey;
-import com.rtsdk.eta.codec.MsgKeyFlags;
-import com.rtsdk.eta.codec.State;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.MsgKey;
+import com.refinitiv.eta.codec.MsgKeyFlags;
+import com.refinitiv.eta.codec.State;
 // APIQA
-import com.rtsdk.eta.perftools.common.XmlItemInfoList;
-import com.rtsdk.eta.shared.CommandLine;
-import com.rtsdk.eta.rdm.DomainTypes;
-import com.rtsdk.eta.transport.ConnectionTypes;
-import com.rtsdk.eta.valueadd.examples.common.ConnectionArg;
-import com.rtsdk.eta.valueadd.examples.common.ItemArg;
+import com.refinitiv.eta.perftools.common.XmlItemInfoList;
+import com.refinitiv.eta.shared.CommandLine;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.examples.common.ConnectionArg;
+import com.refinitiv.eta.valueadd.examples.common.ItemArg;
 
 public class WatchlistConsumerConfig 
 {

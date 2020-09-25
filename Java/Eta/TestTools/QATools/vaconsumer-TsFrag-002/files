@@ -1,6 +1,6 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-Consumer.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/consumer
-TunnelStreamHandler.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/consumer
-ConsumerCmdLineParser.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/consumer
+Consumer.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/consumer
+TunnelStreamHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/consumer
+ConsumerCmdLineParser.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/consumer

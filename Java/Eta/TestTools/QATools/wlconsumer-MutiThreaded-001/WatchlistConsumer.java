@@ -1,16 +1,16 @@
 //APIQA
-package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rtsdk.eta.codec.Codec;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.shared.CommandLine;
-import com.rtsdk.eta.transport.ConnectOptions;
-import com.rtsdk.eta.valueadd.examples.common.ConnectionArg;
-import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig;
-import com.rtsdk.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.shared.CommandLine;
+import com.refinitiv.eta.transport.ConnectOptions;
+import com.refinitiv.eta.valueadd.examples.common.ConnectionArg;
+import com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig;
+import com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
 
 /**
  * <p>

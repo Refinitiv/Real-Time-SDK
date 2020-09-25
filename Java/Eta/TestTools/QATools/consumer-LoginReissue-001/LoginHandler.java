@@ -1,27 +1,27 @@
-package com.rtsdk.eta.examples.common;
+package com.refinitiv.eta.examples.common;
 
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DecodeIterator;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.Msg;
-import com.rtsdk.eta.codec.MsgClasses;
-import com.rtsdk.eta.codec.State;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.rdm.Login;
-import com.rtsdk.eta.shared.ConsumerLoginState;
-import com.rtsdk.eta.transport.Error;
-import com.rtsdk.eta.transport.TransportBuffer;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginClose;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.shared.ConsumerLoginState;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 // APIQA:
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 // END APIQA
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 
 /**
  * This is the Login handler for the UPA Consumer and NIProvider application. It
@@ -135,8 +135,8 @@ public class LoginHandler
     }
 
     /**
-     * Login Role. Constant from {@link com.rtsdk.eta.rdm.Login.RoleTypes}.
-     * Default login role is {@link com.rtsdk.eta.rdm.Login.RoleTypes#CONS}
+     * Login Role. Constant from {@link com.refinitiv.eta.rdm.Login.RoleTypes}.
+     * Default login role is {@link com.refinitiv.eta.rdm.Login.RoleTypes#CONS}
      * 
      * @param role
      */

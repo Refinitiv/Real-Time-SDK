@@ -1,43 +1,43 @@
-package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 //APIQA
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
-import com.rtsdk.eta.codec.Buffer;
-import com.rtsdk.eta.codec.Codec;
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataDictionary;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DataTypes;
-import com.rtsdk.eta.codec.DictionaryEntry;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.FieldEntry;
-import com.rtsdk.eta.codec.FieldList;
-import com.rtsdk.eta.codec.MsgClasses;
-import com.rtsdk.eta.codec.PostMsg;
-import com.rtsdk.eta.codec.PostMsgFlags;
-import com.rtsdk.eta.codec.PostUserRights;
-import com.rtsdk.eta.codec.QosRates;
-import com.rtsdk.eta.codec.QosTimeliness;
-import com.rtsdk.eta.codec.Real;
-import com.rtsdk.eta.codec.RealHints;
-import com.rtsdk.eta.codec.StateCodes;
-import com.rtsdk.eta.codec.StatusMsg;
-import com.rtsdk.eta.codec.StatusMsgFlags;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceItem;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRefresh;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceUpdate;
-import com.rtsdk.eta.rdm.DomainTypes;
-import com.rtsdk.eta.rdm.InstrumentNameTypes;
-import com.rtsdk.eta.transport.TransportReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
-import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.DictionaryEntry;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.FieldEntry;
+import com.refinitiv.eta.codec.FieldList;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.PostMsg;
+import com.refinitiv.eta.codec.PostMsgFlags;
+import com.refinitiv.eta.codec.PostUserRights;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.Real;
+import com.refinitiv.eta.codec.RealHints;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StatusMsgFlags;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRefresh;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceUpdate;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.InstrumentNameTypes;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
  * This is the post handler for the UPA Value Add consumer application.

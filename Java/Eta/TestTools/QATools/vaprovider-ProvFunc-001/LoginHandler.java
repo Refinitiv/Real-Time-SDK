@@ -1,27 +1,27 @@
-package com.rtsdk.eta.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.StateCodes;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.shared.LoginRejectReason;
-import com.rtsdk.eta.shared.LoginRequestInfo;
-import com.rtsdk.eta.shared.LoginRequestInfoList;
-import com.rtsdk.eta.rdm.Login;
-import com.rtsdk.eta.transport.Channel;
-import com.rtsdk.eta.transport.TransportBuffer;
-import com.rtsdk.eta.transport.TransportReturnCodes;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginRequest;
-import com.rtsdk.eta.valueadd.domainrep.rdm.login.LoginStatus;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
-import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.shared.LoginRejectReason;
+import com.refinitiv.eta.shared.LoginRequestInfo;
+import com.refinitiv.eta.shared.LoginRequestInfoList;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
  * This is the implementation of processing of login requests and login status

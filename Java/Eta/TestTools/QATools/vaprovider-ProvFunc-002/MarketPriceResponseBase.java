@@ -1,19 +1,19 @@
-package com.rtsdk.eta.shared.rdm.marketprice;
+package com.refinitiv.eta.shared.rdm.marketprice;
 
-import com.rtsdk.eta.codec.Buffer;
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataDictionary;
-import com.rtsdk.eta.codec.DecodeIterator;
-import com.rtsdk.eta.codec.DictionaryEntry;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.FieldEntry;
-import com.rtsdk.eta.codec.FieldList;
-import com.rtsdk.eta.codec.Msg;
-import com.rtsdk.eta.codec.Real;
-import com.rtsdk.eta.codec.RealHints;
-import com.rtsdk.eta.codec.UInt;
-import com.rtsdk.eta.valueadd.domainrep.rdm.MsgBaseImpl;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.DictionaryEntry;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.FieldEntry;
+import com.refinitiv.eta.codec.FieldList;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.Real;
+import com.refinitiv.eta.codec.RealHints;
+import com.refinitiv.eta.codec.UInt;
+import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBaseImpl;
 
 /**
  * Market price response base class for market price refresh and update

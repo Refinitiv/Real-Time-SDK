@@ -1,29 +1,29 @@
-package com.rtsdk.eta.shared.provider;
+package com.refinitiv.eta.shared.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataDictionary;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DecodeIterator;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.Enum;
-import com.rtsdk.eta.codec.FieldEntry;
-import com.rtsdk.eta.codec.FieldList;
-import com.rtsdk.eta.codec.QosRates;
-import com.rtsdk.eta.codec.QosTimeliness;
-import com.rtsdk.eta.codec.Real;
-import com.rtsdk.eta.codec.StateCodes;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.codec.UInt;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceItem;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRefresh;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceUpdate;
-import com.rtsdk.eta.transport.Channel;
-import com.rtsdk.eta.transport.Error;
-import com.rtsdk.eta.transport.TransportBuffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Enum;
+import com.refinitiv.eta.codec.FieldEntry;
+import com.refinitiv.eta.codec.FieldList;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.Real;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.UInt;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRefresh;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceUpdate;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
 
 /**
  * This handles storage of all market price items.

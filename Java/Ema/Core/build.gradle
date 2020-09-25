@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.rtsdk.ema"
+group = "com.refinitiv.ema"
 archivesBaseName = "ema"
 version "$SpecificationVersion"
 
@@ -135,9 +135,9 @@ javadoc {
     options.header ("${javadoc_header}")
     options.bottom ("${javadoc_bottom}")
 
-    options.group ('Access', 'com.rtsdk.ema.access')
-    options.group ('RDM', 'com.rtsdk.ema.rdm')
-    options.group ('Login', 'com.rtsdk.ema.domain.login')
+    options.group ('Access', 'com.refinitiv.ema.access')
+    options.group ('RDM', 'com.refinitiv.ema.rdm')
+    options.group ('Login', 'com.refinitiv.ema.domain.login')
 
     options.setWindowTitle ('EMA')
 }

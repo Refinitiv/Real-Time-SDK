@@ -2,9 +2,9 @@
 ,Applications/Examples
 ,Applications/PerfTools
 ,Applications/Shared
-WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
-WatchlistConsumer.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
-ConsumerCallbackThread.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
-ConsumerRequestThread.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
+WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
+WatchlistConsumer.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
+ConsumerCallbackThread.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
+ConsumerRequestThread.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
 20k.xml,Applications/Examples/
 build.gradle,Applications/Examples/

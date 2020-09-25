@@ -1,8 +1,8 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
-ItemArg.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/common
-WatchlistConsumer.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
-PostHandler.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/watchlistconsumer
+WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
+ItemArg.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/common
+WatchlistConsumer.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
+PostHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/watchlistconsumer
 

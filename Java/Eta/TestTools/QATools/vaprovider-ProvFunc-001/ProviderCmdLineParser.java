@@ -1,6 +1,6 @@
-package com.rtsdk.eta.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
-import com.rtsdk.eta.valueadd.examples.common.CommandLineParser;
+import com.refinitiv.eta.valueadd.examples.common.CommandLineParser;
 
 class ProviderCmdLineParser implements CommandLineParser
 {

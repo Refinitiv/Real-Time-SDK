@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.rtsdk.eta.valueadd.cache"
+group = "com.refinitiv.eta.valueadd.cache"
 archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
@@ -93,14 +93,14 @@ javadoc {
                 println "Generating javadoc for ValueAddCache"
         }
 
-        destinationDir = file('../Docs/refman/upajvalueaddcache/')
+        destinationDir = file('../Docs/refman/etajvalueaddcache/')
         title = "ETA ValueAddCache JAVA " +  "${SpecificationVersion}"
 
         options.footer ("${javadoc_footer}")
         options.header ("${javadoc_header}")
         options.bottom ("${javadoc_bottom}")
 
-        options.group ('Cache', 'com.rtsdk.eta.valueadd.cache')
+        options.group ('Cache', 'com.refinitiv.eta.valueadd.cache')
 
         options.setWindowTitle ('ETA ValueAddCache')
 }

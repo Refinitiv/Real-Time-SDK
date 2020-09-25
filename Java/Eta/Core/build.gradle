@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.rtsdk.eta"
+group = "com.refinitiv.eta"
 archivesBaseName = "eta"
 version "$SpecificationVersion"
 
@@ -95,7 +95,7 @@ jar {
 
     from ('impl') 
     {
-        include 'com/rtsdk/proxy/authentication/kerberos/login.conf'
+        include 'com/refinitiv/proxy/authentication/kerberos/login.conf'
     }
 
     destinationDir = file("../Libs/")
@@ -110,7 +110,7 @@ javadoc {
     exclude '**/*Impl.java'
     exclude '**/JUnit*.java'
 
-    destinationDir = file('../Docs/refman/upaj/')
+    destinationDir = file('../Docs/refman/etaj/')
     title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
 
     options.footer ("${javadoc_footer}")

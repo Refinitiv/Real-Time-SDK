@@ -1,4 +1,4 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-Provider.java,Applications/Examples/src/main/java/com/rtsdk/eta/valueadd/examples/provider
+Provider.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider

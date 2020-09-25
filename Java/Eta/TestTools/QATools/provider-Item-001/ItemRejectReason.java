@@ -1,4 +1,4 @@
-package com.rtsdk.eta.shared.provider;
+package com.refinitiv.eta.shared.provider;
 
 /**
  *  Reasons an item request is rejected.

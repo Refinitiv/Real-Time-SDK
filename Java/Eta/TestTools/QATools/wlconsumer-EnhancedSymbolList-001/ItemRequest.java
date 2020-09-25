@@ -1,29 +1,29 @@
-package com.rtsdk.eta.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rtsdk.eta.codec.Array;
-import com.rtsdk.eta.codec.ArrayEntry;
-import com.rtsdk.eta.codec.Buffer;
-import com.rtsdk.eta.codec.CodecFactory;
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataTypes;
-import com.rtsdk.eta.codec.ElementEntry;
-import com.rtsdk.eta.codec.ElementList;
-import com.rtsdk.eta.codec.EncodeIterator;
-import com.rtsdk.eta.codec.Int;
-import com.rtsdk.eta.codec.MsgClasses;
-import com.rtsdk.eta.codec.Qos;
-import com.rtsdk.eta.codec.RequestMsg;
-import com.rtsdk.eta.codec.RequestMsgFlags;
-import com.rtsdk.eta.codec.UInt;
-import com.rtsdk.eta.shared.rdm.marketprice.MarketPriceRequestFlags;
-import com.rtsdk.eta.rdm.DomainTypes;
-import com.rtsdk.eta.rdm.ElementNames;
-import com.rtsdk.eta.rdm.InstrumentNameTypes;
-import com.rtsdk.eta.rdm.SymbolList;
-import com.rtsdk.eta.rdm.ViewTypes;
+import com.refinitiv.eta.codec.Array;
+import com.refinitiv.eta.codec.ArrayEntry;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.ElementEntry;
+import com.refinitiv.eta.codec.ElementList;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Int;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.Qos;
+import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.codec.RequestMsgFlags;
+import com.refinitiv.eta.codec.UInt;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRequestFlags;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.ElementNames;
+import com.refinitiv.eta.rdm.InstrumentNameTypes;
+import com.refinitiv.eta.rdm.SymbolList;
+import com.refinitiv.eta.rdm.ViewTypes;
 
 public class ItemRequest
 {

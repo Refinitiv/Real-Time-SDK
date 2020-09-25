@@ -177,42 +177,42 @@ For ease of product use, as of the RTSDK 1.2 release, Refinitiv maintains its RT
 You can download RTSDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify RTSDK dependencies (this is sample code) :
 
 	<dependency>
-		<groupId>com.rtsdk.ema</groupId>
+		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.rtsdk.eta</groupId>
+		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.rtsdk.eta.valueadd</groupId>
+		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.rtsdk.eta.valueadd.cache</groupId>
+		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.rtsdk.eta.ansi</groupId>
+		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.rtsdk.ema', name: 'ema', version: '3.5.1.0'
-	compile group: 'com.rtsdk.eta', name: 'eta', version: '3.5.1.0'
-	compile group: 'com.rtsdk.eta.valueadd', name: 'etaValueAdd', version: '3.5.1.0'
-	compile group: 'com.rtsdk.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.5.1.0'
-        compile group: 'com.rtsdk.eta.ansi', name: 'ansipage', version: '3.5.1.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.5.1.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.5.1.0'
 
 # Developing 
 

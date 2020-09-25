@@ -1,24 +1,24 @@
-package com.rtsdk.eta.valueadd.examples.consumer;
+package com.refinitiv.eta.valueadd.examples.consumer;
 
-import com.rtsdk.eta.codec.CodecReturnCodes;
-import com.rtsdk.eta.codec.DataStates;
-import com.rtsdk.eta.codec.DataTypes;
-import com.rtsdk.eta.codec.State;
-import com.rtsdk.eta.codec.StreamStates;
-import com.rtsdk.eta.rdm.ClassesOfService;
-import com.rtsdk.eta.transport.TransportBuffer;
-import com.rtsdk.eta.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.ReactorChannel;
-import com.rtsdk.eta.valueadd.reactor.ReactorErrorInfo;
-import com.rtsdk.eta.valueadd.reactor.ReactorFactory;
-import com.rtsdk.eta.valueadd.reactor.ReactorReturnCodes;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamMsgEvent;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamOpenOptions;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEvent;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.rtsdk.eta.valueadd.reactor.TunnelStreamInfo;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.ClassesOfService;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamOpenOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
 
 /**
  * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives
