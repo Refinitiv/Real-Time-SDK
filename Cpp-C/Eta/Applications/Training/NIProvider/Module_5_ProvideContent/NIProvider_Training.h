@@ -6,15 +6,15 @@
 */
 
 /*
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main h header file for the UPA NI Provider Training application. It is a 
+ * Main h header file for the ETA NI Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
@@ -23,15 +23,15 @@
  * clients in a client-server relationship. Multiple NIPs can connect 
  * to the same TREP-RT and publish the same items and content. 
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
- * along with other Enterprise Platform components, provide the information 
- * to any OMM consumer applications that indicate interest.
+ * along with other Refinitiv Real-Time Distribution System components, 
+ * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
+ * The first step of any ETA NIP application is to establish network 
  * communication with an ADH server. To do so, the OMM NIP typically creates 
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the rsslConnect function to initiate the connection 
@@ -39,7 +39,7 @@
  * 
  *
  ************************************************************************
- * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA NI Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might 
@@ -59,7 +59,7 @@
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 1c: Reading and Writing Data
+ * ETA NI Provider Training Module 1c: Reading and Writing Data
  ************************************************************************
  * Summary:
  * In this module, when a client or server RsslChannel.state is 
@@ -73,28 +73,28 @@
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to receive data from the connection. The 
  * arrival of this information is often announced by the I/O notification 
- * mechanism that the RsslChannel.socketId is registered with. The UPA 
+ * mechanism that the RsslChannel.socketId is registered with. The ETA 
  * Transport reads information from the network as a byte stream, after 
  * which it determines RsslBuffer boundaries and returns each buffer one by 
  * one.
  *
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
+ * involves a several step process. Because the ETA Transport provides 
  * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
+ * from the ETA Transport buffer pool. This can be the guaranteed output 
  * buffer pool associated with an RsslChannel. After a buffer is acquired, 
  * the user can populate the RsslBuffer.data and set the RsslBuffer.length 
  * to the number of bytes referred to by data. If queued information cannot 
  * be passed to the network, a function is provided to allow the application 
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able 
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write. 
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 2: Log in
+ * ETA NI Provider Training Module 2: Log in
  ************************************************************************
  * Summary:
  * In this module, applications authenticate with one another using the Login 
@@ -113,12 +113,12 @@
  * b) If the application gains access to the ADH, the Login response informs 
  * the application of this. The NI provider must now provide a Source Directory.
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package. 
  * 
  *
  ************************************************************************
- * UPA NI Provider Training Module 3: Provide Source Directory Information
+ * ETA NI Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
  * Summary:
  * In this module, OMM NIP application provides Source Directory information.
@@ -148,14 +148,14 @@
  * unavailable.
  * c) The Source Directory Group filter conveys item group status information, 
  * including information about group states as well as the merging of groups. 
- * For additional information about item groups, refer to UPAC Developer Guide.
+ * For additional information about item groups, refer to ETAC Developer Guide.
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 4: Load Dictionary Information
+ * ETA NI Provider Training Module 4: Load Dictionary Information
  ************************************************************************
  * Summary:
  * Dictionaries may be available locally in a file for an OMM NIP appliation. In 
@@ -174,10 +174,37 @@
  * this Training example, the OMM NIP will use dictionaries that are available 
  * locally in a file.
  *
+ *
+ ************************************************************************
+ * ETA NI Provider Training Module 5: Provide Content
+ ************************************************************************
+ * Summary:
+ * In this module, after providing a Source Directory, the OMM NIP application can 
+ * begin pushing content to the ADH. In this simple example, we just show functions 
+ * for sending 1 MP(MarketPrice) domain type Item refresh, update, and
+ * close status message(s) to an ADH. 
+ * 
+ * Detailed Descriptions:
+ * After providing a Source Directory, the NIP application can begin pushing content 
+ * to the ADH. Each unique information stream should begin with an RsslRefreshMsg, 
+ * conveying all necessary identification information for the content. Because the 
+ * provider instantiates this information, a negative value streamId should be used 
+ * for all streams. The initial identifying refresh can be followed by other status
+ * or update messages. Some ADH functionality, such as cache rebuilding, may require 
+ * that NIP applications publish the message key on all RsslRefreshMsgs. See the 
+ * component specific documentation for more information.
+ * 
+ * Some components may require that NIP applications publish the msgKey in RsslUpdateMsgs. 
+ * To avoid component or transport migration issues, NIP applications may want to always 
+ * include this information. 
+ * 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
+ * Data Package.
+ *
  */
 
-#ifndef _TR_UPA_NI_Provider_TRAINING_H
-#define _TR_UPA_NI_Provider_TRAINING_H
+#ifndef _ETA_NI_Provider_TRAINING_H
+#define _ETA_NI_Provider_TRAINING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -185,6 +212,16 @@ extern "C" {
 
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslMessagePackage.h"
+
+#define RDNDISPLAY_FID 2
+#define RDN_EXCHID_FID 4
+#define DIVPAYDATE_FID 38
+#define TRDPRC_1_FID 6
+#define BID_FID 22
+#define ASK_FID 25
+#define ACVOL_1_FID 32
+#define NETCHNG_1_FID 11
+#define ASK_TIME_FID 267
 
 /* We set the Update Rate Interval to be 1 second for NIP application, which is the Update Interval
  * the NIP application pushes the Update Mssage content to ADH
@@ -198,6 +235,11 @@ extern "C" {
  * instantiated, the NIP should use a streamId with a negative value. 
 */
 #define SRCDIR_STREAM_ID -1
+
+/* Because the provider instantiates this information, a negative value streamId should 
+ * be used for all streams. 
+ */
+#define MARKETPRICE_ITEM_STREAM_ID_START -2 /* starting stream ID */
 
 #ifdef _WIN32
 #ifdef _WIN64
@@ -215,37 +257,58 @@ typedef struct {
 	RsslUInt32	pingTimeoutClient; /* client ping timeout */
 	time_t		nextReceivePingTime; /* time client should receive next message/ping from server */
 	time_t		nextSendPingTime; /* time to send next ping from client */
-	time_t		currentTime;	/* current time from system clock */
+	time_t		currentTime; /* current time from system clock */
 	RsslBool	receivedServerMsg; /* flag for server message received */
-} UpaPingManagementInfo;
+} EtaPingManagementInfo;
+
+/* market price item data */
+typedef struct {
+	RsslUInt64		RDNDISPLAY;
+	RsslEnum		RDN_EXCHID;
+	RsslDate		DIVPAYDATE;
+	double			TRDPRC_1;
+	double			BID;
+	double			ASK;
+	double			ACVOL_1;
+	double			NETCHNG_1;
+	RsslDateTime	ASK_TIME;
+} EtaMarketPriceItem;
+
+/* market price item information. */
+typedef struct {
+	RsslInt32		streamId;
+	RsslBool		isRefreshComplete;
+	char			itemName[128];
+	void*			itemData; /* Holds information about the item's data. This data will be different depending on the domain of the item. */
+} EtaMarketPriceItemInfo;
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code);
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code);
 
 /* 
- * Initializes the ping times for upaChannel. 
- * upaChannel - The channel for ping management info initialization
+ * Initializes the ping times for etaChannel. 
+ * etaChannel - The channel for ping management info initialization
  * pingManagementInfo - The ping management information that is used
  */
-void initPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo);
+void initPingManagementHandler(RsslChannel* etaChannel, EtaPingManagementInfo* pingManagementInfo);
 
 /* 
  * Processing ping management handler 
- * upaChannel - The channel for ping management processing
+ * etaChannel - The channel for ping management processing
  * pingManagementInfo - The ping management information that is used
  */
-RsslRet processPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo);
+RsslRet processPingManagementHandler(RsslChannel* etaChannel, EtaPingManagementInfo* pingManagementInfo);
 
 /*
  * Sends a message buffer to a channel.  
- * upaChannel - The channel to send the message buffer to
+ * etaChannel - The channel to send the message buffer to
  * msgBuf - The msgBuf to be sent
  */
-RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
+RsslRet sendMessage(RsslChannel* etaChannel, RsslBuffer* msgBuf);
 
 /* 
  * Send Login request message to a channel. This consists of getting a message buffer, setting the login request 
@@ -253,11 +316,11 @@ RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
  * encoded and sent by OMM NI Provider and OMM non-interactive provider applications. This message registers a user 
  * with the system. After receiving a successful Login response, applications can then begin consuming or providing 
  * additional content. An OMM provider can use the Login request information to authenticate users with DACS.
- * upaChannel - The channel to send the Login request message buffer to
+ * etaChannel - The channel to send the Login request message buffer to
  * maxMsgSize - the requested size of the buffer for rsslGetBuffer function to obtain from the guaranteed/shared buffer pool.
  * encodeIter - The encode iterator
  */
-RsslRet sendLoginRequest(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter);
+RsslRet sendLoginRequest(RsslChannel* etaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter);
 
 /*
  * Processes a login response. This consists of decoding the response.
@@ -271,11 +334,11 @@ RsslRet processLoginResponse(RsslMsg* msg, RsslDecodeIterator* decodeIter);
  * A Login close message is encoded and sent by OMM NI Provider applications. This message allows a NI Provider to log out 
  * of the system. Closing a Login stream is equivalent to a 'Close All' type of message, where all open streams are 
  * closed (thus all other streams associated with the user are closed).
- * upaChannel - The channel to send the Login close message buffer to
+ * etaChannel - The channel to send the Login close message buffer to
  * maxMsgSize - the requested size of the buffer for rsslGetBuffer function to obtain from the guaranteed/shared buffer pool.
  * encodeIter - The encode iterator
  */
-RsslRet closeLoginStream(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter);
+RsslRet closeLoginStream(RsslChannel* etaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter);
 
 /* 
  * Send Source Directory response to a channel. This consists of getting a message buffer, setting the source directory 
@@ -283,19 +346,43 @@ RsslRet closeLoginStream(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, RsslEnc
  * the ADH server. OMM NIP application provides Source Directory information. The Source Directory domain model conveys 
  * information about all available services in the system. After completing the Login process, an OMM NIP must 
  * provide a Source Directory refresh.
- * upaChannel - The channel to send the Source Directory response message buffer to
+ * etaChannel - The channel to send the Source Directory response message buffer to
  * maxMsgSize - the requested size of the buffer for rsslGetBuffer function to obtain from the guaranteed/shared buffer pool.
  * encodeIter - The encode iterator
  * serviceName - The service name specified by the OMM NIP application (Optional to set) 
  * serviceId - the serviceId specified by the OMM NIP application (Optional to set) 
  */
-RsslRet sendSourceDirectoryResponse(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter, char serviceName[128], RsslUInt64 serviceId);
+RsslRet sendSourceDirectoryResponse(RsslChannel* etaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter, char serviceName[128], RsslUInt64 serviceId);
 
 /* 
- * upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
+ * Send just 1 Market Price item response message to a channel. This consists of getting a message buffer, encoding the 
+ * Market Price item response, and sending the item response to the server. Each unique information stream should begin with 
+ * an RsslRefreshMsg, conveying all necessary identification information for the content. Because the provider instantiates 
+ * this information, a negative value streamId should be used for all streams. The initial identifying refresh can be followed 
+ * by other status or update messages.
+ * etaChannel - The channel to send the item response message buffer to
+ * maxMsgSize - the requested size of the buffer for rsslGetBuffer function to obtain from the guaranteed/shared buffer pool.
+ * encodeIter - The encode iterator
+ * marketPriceItemInfo - The market price item information
+ * serviceId - The service id of the market price response
+ * dataDictionary - The dictionary used for encoding
+ */
+RsslRet sendMarketPriceItemResponse(RsslChannel* etaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter, EtaMarketPriceItemInfo* marketPriceItemInfo, RsslUInt16 serviceId,  RsslDataDictionary* dataDictionary);
+
+/*
+ * Sends the item close status message for a channel.
+ * etaChannel - The channel to send close status message to
+ * maxMsgSize - the requested size of the buffer for rsslGetBuffer function to obtain from the guaranteed/shared buffer pool.
+ * encodeIter - The encode iterator
+ * marketPriceItemInfo - The market price item information
+ */
+RsslRet sendItemCloseStatusMsg(RsslChannel* etaChannel, RsslUInt32 maxMsgSize, RsslEncodeIterator* encodeIter, EtaMarketPriceItemInfo* marketPriceItemInfo);
+
+/* 
+ * etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
  * Also, it simplifies the example codes and make the codes more readable.
  */
-RsslBuffer* upaGetBuffer(RsslChannel *upaChannel, RsslUInt32 size, RsslError *rsslError);
+RsslBuffer* etaGetBuffer(RsslChannel *etaChannel, RsslUInt32 size, RsslError *rsslError);
 
 #ifdef __cplusplus
 };

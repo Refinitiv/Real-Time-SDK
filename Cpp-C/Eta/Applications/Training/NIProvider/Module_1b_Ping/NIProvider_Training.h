@@ -6,15 +6,15 @@
 */
 
 /*
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main h header file for the UPA NI Provider Training application. It is a 
+ * Main h header file for the ETA NI Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
@@ -23,7 +23,7 @@
  * clients in a client-server relationship. Multiple NIPs can connect 
  * to the same TREP-RT and publish the same items and content. 
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
@@ -31,7 +31,7 @@
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
+ * The first step of any ETA NIP application is to establish network 
  * communication with an ADH server. To do so, the OMM NIP typically creates 
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the rsslConnect function to initiate the connection 
@@ -39,7 +39,7 @@
  * 
  *
  ************************************************************************
- * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA NI Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might 
@@ -57,45 +57,10 @@
  * In this situation, the NIP would send periodic heartbeat messages to inform 
  * the ADH Infrastructure that it is still alive.
  *
- *
- ************************************************************************
- * UPA NI Provider Training Module 1c: Reading and Writing Data
- ************************************************************************
- * Summary:
- * In this module, when a client or server RsslChannel.state is 
- * RSSL_CH_STATE_ACTIVE, it is possible for an application to receive 
- * data from the connection. Similarly, when a client or server 
- * RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is possible for an 
- * application to write data to the connection. Writing involves a several 
- * step process. 
- *
- * Detailed Descriptions:
- * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
- * possible for an application to receive data from the connection. The 
- * arrival of this information is often announced by the I/O notification 
- * mechanism that the RsslChannel.socketId is registered with. The UPA 
- * Transport reads information from the network as a byte stream, after 
- * which it determines RsslBuffer boundaries and returns each buffer one by 
- * one.
- *
- * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
- * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
- * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
- * buffer pool associated with an RsslChannel. After a buffer is acquired, 
- * the user can populate the RsslBuffer.data and set the RsslBuffer.length 
- * to the number of bytes referred to by data. If queued information cannot 
- * be passed to the network, a function is provided to allow the application 
- * to continue attempts to flush data to the connection. An I/O notification
- * mechanism can be used to help with determining when the network is able 
- * to accept additional bytes for writing. The UPA Transport can continue to
- * queue data, even if the network is unable to write. 
- *
  */
 
-#ifndef _TR_UPA_NI_Provider_TRAINING_H
-#define _TR_UPA_NI_Provider_TRAINING_H
+#ifndef _ETA_NI_Provider_TRAINING_H
+#define _ETA_NI_Provider_TRAINING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,35 +92,28 @@ typedef struct {
 	time_t		nextSendPingTime; /* time to send next ping from client */
 	time_t		currentTime;	/* current time from system clock */
 	RsslBool	receivedServerMsg; /* flag for server message received */
-} UpaPingManagementInfo;
+} EtaPingManagementInfo;
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code);
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code);
 
 /* 
- * Initializes the ping times for upaChannel. 
- * upaChannel - The channel for ping management info initialization
+ * Initializes the ping times for etaChannel. 
+ * etaChannel - The channel for ping management info initialization
  * pingManagementInfo - The ping management information that is used
  */
-void initPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo);
+void initPingManagementHandler(RsslChannel* etaChannel, EtaPingManagementInfo* pingManagementInfo);
 
 /* 
  * Processing ping management handler 
- * upaChannel - The channel for ping management processing
+ * etaChannel - The channel for ping management processing
  * pingManagementInfo - The ping management information that is used
  */
-RsslRet processPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo);
-
-/*
- * Sends a message buffer to a channel.  
- * upaChannel - The channel to send the message buffer to
- * msgBuf - The msgBuf to be sent
- */
-RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
+RsslRet processPingManagementHandler(RsslChannel* etaChannel, EtaPingManagementInfo* pingManagementInfo);
 
 #ifdef __cplusplus
 };

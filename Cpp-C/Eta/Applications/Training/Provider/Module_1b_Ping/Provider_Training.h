@@ -6,15 +6,15 @@
 */
 
 /*
- * This is the UPA Interactive Provider Training series of the UPA Training Suite
+ * This is the ETA Interactive Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Interactive Provider using the UPA Transport layer.
+ * training how to build a ETA OMM Interactive Provider using the ETA Transport layer.
  *
- * Main h header file for the UPA Interactive Provider Training application. It is a 
+ * Main h header file for the ETA Interactive Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1a: Establish network communication
+ * ETA Interactive Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * An OMM Interactive Provider application opens a listening socket on a well-known 
@@ -25,7 +25,7 @@
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish 
+ * The first step of any ETA Interactive Provider application is to establish 
  * a listening socket, usually on a well-known port so that consumer applications 
  * can easily connect. The provider uses the rsslBind function to open the port 
  * and listen for incoming connection attempts.
@@ -36,7 +36,7 @@
  * 
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might 
@@ -63,8 +63,8 @@
  *
  */
 
-#ifndef _TR_UPA_Provider_TRAINING_H
-#define _TR_UPA_Provider_TRAINING_H
+#ifndef _ETA_Provider_TRAINING_H
+#define _ETA_Provider_TRAINING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,34 +96,34 @@ typedef struct {
 	time_t		nextSendPingTime; /* time to send next ping from server */
 	time_t		currentTime;	/* current time from system clock */
 	RsslBool	receivedClientMsg; /* flag for client message received */
-} UpaPingManagementInfo;
+} EtaPingManagementInfo;
 
 /* channel management information */
 typedef struct {
-	RsslChannel* upaChannel;
-	RsslChannelInfo upaChannelInfo; /* UPA Channel Info returned by rsslGetChannelInfo call */
-	UpaPingManagementInfo pingManagementInfo;
-} UpaChannelManagementInfo;
+	RsslChannel* etaChannel;
+	RsslChannelInfo etaChannelInfo; /* ETA Channel Info returned by rsslGetChannelInfo call */
+	EtaPingManagementInfo pingManagementInfo;
+} EtaChannelManagementInfo;
 
 /*
  * Closes channel, closes server, cleans up and exits the application.
- * upaChannel - The channel to be closed
- * upaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
+ * etaChannel - The channel to be closed
+ * etaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSrvr, int code);
+void closeChannelServerCleanUpAndExit(RsslChannel* etaChannel, RsslServer* etaSrvr, int code);
 
 /* 
- * Initializes the ping times for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Initializes the ping times for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-void initPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+void initPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /* 
- * Processing ping management handler for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Processing ping management handler for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-RsslRet processPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet processPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 #ifdef __cplusplus
 };

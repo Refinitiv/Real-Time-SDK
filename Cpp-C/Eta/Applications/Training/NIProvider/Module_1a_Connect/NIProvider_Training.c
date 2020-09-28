@@ -9,15 +9,15 @@
 
 
 /*
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main c source file for the UPA NI Provider Training application. It is a 
+ * Main c source file for the ETA NI Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
@@ -26,7 +26,7 @@
  * clients in a client-server relationship. Multiple NIPs can connect 
  * to the same TREP-RT and publish the same items and content. 
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
@@ -34,32 +34,12 @@
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
+ * The first step of any ETA NIP application is to establish network 
  * communication with an ADH server. To do so, the OMM NIP typically creates 
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the rsslConnect function to initiate the connection 
  * process and then performs connection initialization processes as needed.
  * 
- *
- ************************************************************************
- * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
- ************************************************************************
- * Summary:
- * In this module, after establishing a connection, ping messages might 
- * need to be exchanged. The negotiated ping timeout is available via 
- * the RsslChannel. If ping heartbeats are not sent or received within 
- * the expected time frame, the connection can be terminated. Refinitiv 
- * recommends sending ping messages at intervals one-third the 
- * size of the ping timeout.
- *
- * Detailed Descriptions:
- * Ping or heartbeat messages are used to indicate the continued presence of 
- * an application. These are typically only required when no other information 
- * is being exchanged. For example, there may be long periods of time that 
- * elapse between requests made from an OMM NIP application to ADH Infrastructure.
- * In this situation, the NIP would send periodic heartbeat messages to inform 
- * the ADH Infrastructure that it is still alive.
- *
  */
 
 #include <stdio.h>
@@ -78,7 +58,7 @@
 #include <unistd.h>
 #endif
 
-#include "UPANIProvider_Training.h"
+#include "NIProvider_Training.h"
 
 int main(int argc, char **argv)
 {
@@ -86,7 +66,7 @@ int main(int argc, char **argv)
 
 	/* This example suite uses write descriptor in our client/NI Provider type examples in mainly 2 areas with
 	 * the I/O notification mechanism being used:
-	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary UPA transport
+	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary ETA transport
 	 *    negotiations and handshakes to complete channel initialization.
 	 * 2) rsslFlush() calls used throughout the application (after module 1a), together with rsslWrite() calls, such
 	 *    as in sendMessage() function. The write descriptor can be used to indicate when the socketId has write
@@ -125,7 +105,7 @@ int main(int argc, char **argv)
 				DECLARING VARIABLES
 	******************************************************************************************************************/
 	/* For this simple training app, only a single channel/connection is used for the entire life of this app. */
-	RsslChannel *upaChannel;
+	RsslChannel *etaChannel;
 
 	char srvrHostname[128], srvrPortNo[128], interfaceName[128];
 
@@ -142,7 +122,6 @@ int main(int argc, char **argv)
 	struct timeval time_interval;
 	int selRet;
 	RsslRet retval = RSSL_RET_FAILURE;
-	RsslRet retval_rsslRead = RSSL_RET_FAILURE; /* used exclusively for rsslRead call */
 
 	RsslError error;
 
@@ -154,15 +133,6 @@ int main(int argc, char **argv)
 	/* RSSL Channel Info returned by rsslGetChannelInfo call */
 	RsslChannelInfo channelInfo;
 
-	RsslBuffer* msgBuf = 0;
-
-	/* ping management information */
-	UpaPingManagementInfo pingManagementInfo;
-
-	time_t currentTime = 0;
-	time_t upaRuntime = 0;
-	RsslUInt32 runTime = 0;
-
 	/* the default option parameters */
 	/* connect to server running on same machine */
 	snprintf(srvrHostname, 128, "%s", "localhost");
@@ -170,8 +140,6 @@ int main(int argc, char **argv)
 	snprintf(srvrPortNo, 128, "%s", "14003");
 	/* use default NIC network interface card to bind to for all inbound and outbound data */
 	snprintf(interfaceName, 128, "%s", "");
-	/* use default runTime of 300 seconds */
-	runTime = 300;
 
 	/* User specifies options such as address, port, and interface from the command line.
 	 * User can have the flexibilty of specifying any or all of the parameters in any order.
@@ -197,15 +165,10 @@ int main(int argc, char **argv)
 				i += 2;
 				snprintf(interfaceName, 128, "%s", argv[i-1]);
 			}
-			else if (strcmp("-r", argv[i]) == 0)
-			{
-				i += 2;
-				sscanf(argv[i-1], "%u", &runTime);
-			}
 			else
 			{
 				printf("Error: Unrecognized option: %s\n\n", argv[i]);
-				printf("Usage: %s or\n%s [-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] [-r <runTime>] \n", argv[0], argv[0]);
+				printf("Usage: %s or\n%s [-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>] \n", argv[0], argv[0]);
 				exit(RSSL_RET_FAILURE);
 			}
 		}
@@ -216,16 +179,16 @@ int main(int argc, char **argv)
 	******************************************************************************************************************/
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 1:
-	 * Initialize UPA Transport using rsslInitialize
-	 * The first UPA Transport function that an application should call. This creates and initializes
+	 * Initialize ETA Transport using rsslInitialize
+	 * The first ETA Transport function that an application should call. This creates and initializes
 	 * internal memory and structures, as well as performing any boot strapping for underlying dependencies.
 	 * The rsslInitialize function also allows the user to specify the locking model they want applied
-	 * to the UPA Transport.
+	 * to the ETA Transport.
 	 *********************************************************/
 
 	/* RSSL_LOCK_NONE is used since this is a single threaded application.
 	 * For applications with other thread models (RSSL_LOCK_GLOBAL_AND_CHANNEL, RSSL_LOCK_GLOBAL),
-	 * see the UPA C developers guide for definitions of other locking models supported by UPA
+	 * see the ETA C developers guide for definitions of other locking models supported by ETA
 	 */
 	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
 	{
@@ -239,14 +202,8 @@ int main(int argc, char **argv)
 	FD_ZERO(&cleanExceptFds);
 	FD_ZERO(&cleanWriteFds);
 
-	/* get current time */
-	time(&currentTime);
-
-	/* Set the runtime of the UPA NI Provider application to be runTime (seconds) */
-	upaRuntime = currentTime + (time_t)runTime;
-
 	/* populate connect options, then pass to rsslConnect function -
-	 * UPA Transport should already be initialized
+	 * ETA Transport should already be initialized
 	 */
 	/* use standard socket connection */
 	cOpts.connectionType = RSSL_CONN_TYPE_SOCKET; /*!< (0) Channel is a standard TCP socket connection type */
@@ -271,7 +228,7 @@ int main(int argc, char **argv)
 	 * Connection options are passed in via an RsslConnectOptions structure.
 	 *********************************************************/
 
-	if ((upaChannel = rsslConnect(&cOpts, &error)) == 0)
+	if ((etaChannel = rsslConnect(&cOpts, &error)) == 0)
 	{
 		printf("Error %s (%d) (errno: %d) encountered with rsslConnect. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -283,8 +240,8 @@ int main(int argc, char **argv)
 
 	/* Connection was successful, add socketId to I/O notification mechanism and initialize connection */
 	/* Typical FD_SET use, this may vary depending on the I/O notification mechanism the application is using */
-	FD_SET(upaChannel->socketId, &cleanReadFds);
-	FD_SET(upaChannel->socketId, &cleanExceptFds);
+	FD_SET(etaChannel->socketId, &cleanReadFds);
+	FD_SET(etaChannel->socketId, &cleanExceptFds);
 
 	/* for non-blocking I/O (default), write descriptor is set initially in case this end starts the message
 	 * handshakes that rsslInitChannel() performs. Once rsslInitChannel() is called for the first time the
@@ -294,11 +251,11 @@ int main(int argc, char **argv)
 	 */
 	if (!cOpts.blocking)
 	{
-		if (!FD_ISSET(upaChannel->socketId, &cleanWriteFds))
-			FD_SET(upaChannel->socketId, &cleanWriteFds);
+		if (!FD_ISSET(etaChannel->socketId, &cleanWriteFds))
+			FD_SET(etaChannel->socketId, &cleanWriteFds);
 	}
 
-	printf("\nChannel IPC descriptor = "SOCKET_PRINT_TYPE"\n", upaChannel->socketId);
+	printf("\nChannel IPC descriptor = "SOCKET_PRINT_TYPE"\n", etaChannel->socketId);
 
 	/******************************************************************************************************************
 				MAIN LOOP TO SEE IF RESPONSE RECEIVED FROM PROVIDER
@@ -315,7 +272,7 @@ int main(int argc, char **argv)
 	 *In the program below we will use select(), as it is non-blocking
 	 */
 
-	while (upaChannel->state != RSSL_CH_STATE_ACTIVE)
+	while (etaChannel->state != RSSL_CH_STATE_ACTIVE)
 	{
 		useReadFds = cleanReadFds;
 		useWriteFds = cleanWriteFds;
@@ -346,7 +303,7 @@ int main(int argc, char **argv)
 			/* On success, select() return zero if the timeout expires before anything interesting happens. */
 			printf("\nChannel initialization has timed out, exiting...\n");
 			/* Closes channel, cleans up and exits the application. */
-			closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
+			closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 		}
 		else if (selRet > 0)
 		{
@@ -364,7 +321,7 @@ int main(int argc, char **argv)
 			 * looping can be used - the rsslInitChannel function should continue to be called until the
 			 * connection becomes active, at which point reading and writing can begin.
 			 */
-			switch (upaChannel->state)
+			switch (etaChannel->state)
 			{
 				/* Indicates that an RsslChannel requires additional initialization. This initialization is typically additional
 				 * connection handshake messages that need to be exchanged.
@@ -372,18 +329,18 @@ int main(int argc, char **argv)
 				case RSSL_CH_STATE_INITIALIZING:
 				{
 					/* rsslInitChannel is called if read or write or except is triggered */
-					if (FD_ISSET(upaChannel->socketId, &useReadFds) || FD_ISSET(upaChannel->socketId, &useWriteFds) || FD_ISSET(upaChannel->socketId, &useExceptFds))
+					if (FD_ISSET(etaChannel->socketId, &useReadFds) || FD_ISSET(etaChannel->socketId, &useWriteFds) || FD_ISSET(etaChannel->socketId, &useExceptFds))
 					{
 						/* Write descriptor is set initially in case this end starts the message handshakes that rsslInitChannel() performs.
 						 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.
 						 * We will set the write descriptor again if a FD_CHANGE event occurs. */
-						FD_CLR(upaChannel->socketId, &cleanWriteFds);
+						FD_CLR(etaChannel->socketId, &cleanWriteFds);
 
 						/*********************************************************
 						 * Client/NIProv Application Liefcycle Major Step 3:
-						 * Initialize until active using rsslInitChannel (UPA Transport connection establishment handshake)
+						 * Initialize until active using rsslInitChannel (ETA Transport connection establishment handshake)
 						 * Continues initialization of an RsslChannel. This channel could originate from rsslConnect or rsslAccept.
-						 * This function exchanges various messages to perform necessary UPA negotiations and handshakes to
+						 * This function exchanges various messages to perform necessary ETA negotiations and handshakes to
 						 * complete channel initialization.
 						 * Requires the use of an RsslInProgInfo structure.
 						 * The RsslChannel can be used for all additional transport functionality (e.g. reading, writing) once the
@@ -391,8 +348,8 @@ int main(int argc, char **argv)
 						 * the state will transition to RSSL_CH_STATE_CLOSED.
 						 *********************************************************/
 
-						/* Internally, the UPA initialization process includes several actions. The initialization includes
-						 * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+						/* Internally, the ETA initialization process includes several actions. The initialization includes
+						 * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
 						 * Compression, ping timeout, and versioning related negotiations also take place during the
 						 * initialization process. This process involves exchanging several messages across the connection,
 						 * and once all message exchanges have completed the RsslChannel.state will transition. If the connection
@@ -405,12 +362,12 @@ int main(int argc, char **argv)
 						 * For both client and server channels, more than one call to rsslInitChannel can be required to complete
 						 * the channel initialization process.
 						 */
-						if ((retval = rsslInitChannel(upaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
+						if ((retval = rsslInitChannel(etaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
 						{
 							printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd="SOCKET_PRINT_TYPE". Error Text: %s\n",
-								rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannel->socketId, error.text);
+								rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, etaChannel->socketId, error.text);
 							/* Closes channel, cleans up and exits the application. */
-							closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
+							closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 							break;
 						}
 						else
@@ -435,20 +392,20 @@ int main(int argc, char **argv)
 										 * I/O notification mechanism. The channel initialization is still in progress and subsequent calls
 										 * to rsslInitChannel are required to complete it.
 										 */
-										printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",upaChannel->socketId, inProgInfo.oldSocket );
+										printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",etaChannel->socketId, inProgInfo.oldSocket );
 
 										/* File descriptor has changed, unregister old and register new */
 										FD_CLR(inProgInfo.oldSocket, &cleanReadFds);
 										FD_CLR(inProgInfo.oldSocket, &cleanWriteFds);
 										FD_CLR(inProgInfo.oldSocket, &cleanExceptFds);
-										/* newSocket should equal upaChannel->socketId */
-										FD_SET(upaChannel->socketId, &cleanReadFds);
-										FD_SET(upaChannel->socketId, &cleanWriteFds);
-										FD_SET(upaChannel->socketId, &cleanExceptFds);
+										/* newSocket should equal etaChannel->socketId */
+										FD_SET(etaChannel->socketId, &cleanReadFds);
+										FD_SET(etaChannel->socketId, &cleanWriteFds);
+										FD_SET(etaChannel->socketId, &cleanExceptFds);
 									}
 									else
 									{
-										printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", upaChannel->socketId);
+										printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", etaChannel->socketId);
 									}
 								}
 								break;
@@ -459,7 +416,7 @@ int main(int argc, char **argv)
 								 */
 								case RSSL_RET_SUCCESS:
 								{
-									printf("\nChannel on fd "SOCKET_PRINT_TYPE" is now active - reading and writing can begin.\n", upaChannel->socketId);
+									printf("\nChannel on fd "SOCKET_PRINT_TYPE" is now active - reading and writing can begin.\n", etaChannel->socketId);
 
 									/*********************************************************
 									 * Connection is now active. The RsslChannel can be used for all additional
@@ -467,18 +424,18 @@ int main(int argc, char **argv)
 									 * transitions to RSSL_CH_STATE_ACTIVE
 									 *********************************************************/
 
-									/* After channel is active, use UPA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated
+									/* After channel is active, use ETA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated
 									 * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
 									 * compression information as well as many other values.
 									 */
-									if ((retval = rsslGetChannelInfo(upaChannel, &channelInfo, &error)) != RSSL_RET_SUCCESS)
+									if ((retval = rsslGetChannelInfo(etaChannel, &channelInfo, &error)) != RSSL_RET_SUCCESS)
 									{
 										printf("Error %s (%d) (errno: %d) encountered with rsslGetChannelInfo. Error Text: %s\n",
 											rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 
 										/* Connection should be closed, return failure */
 										/* Closes channel, cleans up and exits the application. */
-										closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
+										closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 									}
 
 									printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
@@ -488,7 +445,7 @@ int main(int argc, char **argv)
 										"	Send/Recv Buffer Sizes: %u/%u\n"
 										"	Ping Timeout: %u\n"
 										"	Connected component version: ",
-										upaChannel->socketId,			/*!< @brief Socket ID of this RSSL channel. */
+										etaChannel->socketId,			/*!< @brief Socket ID of this RSSL channel. */
 										channelInfo.maxFragmentSize,	/*!< @brief This is the max fragment size before fragmentation and reassembly is necessary. */
 										channelInfo.maxOutputBuffers,	/*!< @brief This is the maximum number of output buffers available to the channel. */
 										channelInfo.guaranteedOutputBuffers, /*!< @brief This is the guaranteed number of output buffers available to the channel. */
@@ -518,9 +475,9 @@ int main(int argc, char **argv)
 								default: /* Error handling */
 								{
 									printf("\nBad return value fd="SOCKET_PRINT_TYPE" <%s>\n",
-										upaChannel->socketId, error.text);
+										etaChannel->socketId, error.text);
 									/* Closes channel, cleans up and exits the application. */
-									closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
+									closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 								}
 								break;
 							}
@@ -556,7 +513,7 @@ int main(int argc, char **argv)
 				default: /* Error handling */
 				{
 					/* Closes channel, cleans up and exits the application. */
-					closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
+					closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 				}
 				break;
 			}
@@ -566,223 +523,17 @@ int main(int argc, char **argv)
 			/* On error, -1 is returned, and errno is set appropriately; the sets and timeout become undefined */
 			printf("\nSelect error.\n");
 			/* Closes channel, cleans up and exits the application. */
-			closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-		}
-	}
-
-	/* Initialize ping management handler */
-	initPingManagementHandler(upaChannel, &pingManagementInfo);
-
-	/*****************************************************************************************************************
-				SECOND MAIN LOOP TO CONNECTION ACTIVE - KEEP LISTEINING FOR INCOMING DATA
-	******************************************************************************************************************/
-	/* Here were are using a new Main loop. An alternative design would be to combine this Main loop with
-	 * the Main loop for getting connection active. Some bookkeeping would be required for that approach.
-	 */
-
-	/* Main loop for message processing (reading data, writing data, and ping management, etc.)
-	 * The loop calls select() to wait for notification
-	 * Currently, the only way to exit this Main loop is when an error condition is triggered or after
-	 * a predetermined run-time has elapsed.
-	 */
-	while (1)
-	{
-		useReadFds = cleanReadFds;
-		useWriteFds = cleanWriteFds;
-		useExceptFds = cleanExceptFds;
-
-		/* now that the channel is active, need to reset the time_interval for the select call -
-		 * for UPA NIProvider, timeout numbers for the select call should be set to be configurable UPDATE_INTERVAL.
-		 * We set the Update Rate Interval to be 1 second for NIP application, which is the Update Interval
-		 * the NIP application pushes the Update Mssage content to ADH
-		 */
-		/* On Linux platform, select() modifies timeout to reflect the amount of time not slept;
-		 * most other implementations do not do this. (POSIX.1-2001 permits either behaviour.)
-		 * This causes problems both when Linux code which reads timeout is ported to other operating systems,
-		 * and when code is ported to Linux that reuses a struct timeval for multiple select()s
-		 * in a loop without reinitializing it. Consider timeout to be undefined after select() returns.
-		 *
-		 * Note: You should reset the values of your timeout before you call select() every time.
-		 */
-		time_interval.tv_sec = UPDATE_INTERVAL;
-		time_interval.tv_usec = 0;
-
-		/* To check if any messages have arrived by calling select() */
-		selRet = select(FD_SETSIZE, &useReadFds, &useWriteFds, &useExceptFds, &time_interval);
-
-		if (selRet == 0)
-		{
-			/* no messages received, send item updates and continue */
-			/* the NIP application can begin pushing content to the ADH. */
-		}
-		else if (selRet > 0)
-		{
-			/* Received messages and reading from the channel/connection */
-			/* On success, select() return the number of file descriptors contained in the three returned descriptor sets
-			 * (that is, the total number of bits that are set in readfds, writefds, exceptfds)
-			 */
-
-			/* different behaviors are triggered by different file descriptors */
-			if (FD_ISSET(upaChannel->socketId, &useReadFds) || FD_ISSET(upaChannel->socketId, &useExceptFds))
-			{
-				/* reading data from channel via Read/Exception FD */
-
-				/* When a client RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is possible for an application to receive data from the connection.
-				 * The arrival of this information is often announced by the I/O notification mechanism that the RsslChannel.socketId is registered with.
-				 * The UPA Transport reads information from the network as a byte stream, after which it determines RsslBuffer boundaries and returns
-				 * each buffer one by one.
-				 */
-
-				retval_rsslRead = 1; /* initialize to a positive value for rsslRead call in case we have more data that is available to read */
-
-				/* Check the return code to determine whether more data is available to read */
-				while (retval_rsslRead > RSSL_RET_SUCCESS) /* read until no more to read */
-				{
-					/* There is more data to read and process and I/O notification may not trigger for it
-					 * Either schedule another call to read or loop on read until retCode == RSSL_RET_SUCCESS
-					 * and there is no data left in internal input buffer
-					 */
-
-					/*********************************************************
-					 * Read using rsslRead
-					 * rsslRead provides the user with data received from the connection. This function expects the RsslChannel to be in the active state.
-					 * When data is available, an RsslBuffer referring to the information is returned, which is valid until the next call to rsslRead.
-					 * A return code parameter passed into the function is used to convey error information as well as communicate whether there is additional
-					 * information to read. An I/O notification mechanism may not inform the user of this additional information as it has already been read
-					 * from the socket and is contained in the rsslRead input buffer.
-					 *********************************************************/
-
-					if ((msgBuf = rsslRead(upaChannel, &retval_rsslRead, &error)) != 0)
-					{
-						/* if a buffer is returned, we have data to process and code is success */
-
-						/* Processes a response from the channel/connection. This consists of performing a high level decode of the message and then
-						 * calling the applicable specific function for further processing.
-						 */
-					}
-					else
-					{
-						switch (retval_rsslRead)
-						{
-							/*!< (-13) Transport Success: rsslRead has received a ping message. There is no buffer in this case. */
-							case RSSL_RET_READ_PING:
-							{
-								/* Update ping monitor */
-								/* set flag for server message received */
-								pingManagementInfo.receivedServerMsg = RSSL_TRUE;
-							}
-							break;
-							/*!< (-14) Transport Success: rsslRead received an FD change event. The application should unregister the oldSocketId and
-							 * register the socketId with its notifier
-							 */
-							case RSSL_RET_READ_FD_CHANGE:
-							{
-								/* File descriptor changed, typically due to tunneling keep-alive */
-								/* Unregister old socketId and register new socketId */
-								printf("\nrsslRead() FD Change - Old FD: "SOCKET_PRINT_TYPE" New FD: "SOCKET_PRINT_TYPE"\n", upaChannel->oldSocketId, upaChannel->socketId);
-								FD_CLR(upaChannel->oldSocketId, &cleanReadFds);
-								FD_CLR(upaChannel->oldSocketId, &cleanWriteFds);
-								FD_CLR(upaChannel->oldSocketId, &cleanExceptFds);
-								/* Up to application whether to register with write set - depends on need for write notification. Here we need it for flushing. */
-								FD_SET(upaChannel->socketId, &cleanReadFds);
-								FD_SET(upaChannel->socketId, &cleanWriteFds);
-								FD_SET(upaChannel->socketId, &cleanExceptFds);
-							}
-							break;
-							/*!< (-11) Transport Success: Reading was blocked by the OS. Typically indicates that there are no bytes available to read,
-							 * returned from rsslRead.
-							 */
-							case RSSL_RET_READ_WOULD_BLOCK: /* Nothing to read */
-							break;
-							case RSSL_RET_FAILURE: /* fall through to default. */
-							default: /* Error handling */
-							{
-								if (retval_rsslRead < 0)
-								{
-									printf("Error %s (%d) (errno: %d) encountered with rsslRead fd="SOCKET_PRINT_TYPE". Error Text: %s\n",
-										rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError,
-										upaChannel->socketId, error.text);
-									/* Closes channel/connection, cleans up and exits the application. */
-									closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-								}
-							}
-							break;
-						}
-					}
-				}
-			}
-
-			/* An I/O notification mechanism can be used to indicate when the operating system can accept more data for output.
-			 * rsslFlush function is called because of a write file descriptor alert
-			 */
-			if (FD_ISSET(upaChannel->socketId, &useWriteFds))
-			{
-				/* flushing via write FD and active state */
-
-				/* Because it may not be possible for the rsslWrite function to pass all data to the underlying socket, some data
-				 * may be queued by the UPA Transport. The rsslFlush function is provided for the application to continue attempting
-				 * to pass queued data to the connection. If data is queued, this may be a result of all available output space being
-				 * used for a connection. An I/O notification mechanism can be used to alert the application when output space becomes
-				 * available on a connection.
-				 *
-				 * rsslFlush function performs any writing of queued data to the connection. This function expects the RsslChannel
-				 * to be in the active state. If no information is queued, the rsslFlush function is not required to be called and
-				 * should return immediately.
-				 *
-				 * This function also performs any buffer reordering that may occur due to priorities passed in on the rsslWrite
-				 * function. For more information about priority writing, refer to UPA C developers guide.
-				 */
-
-				/* rsslFlush use, be sure to keep track of the return values from rsslFlush so data is not stranded in the output buffer
-				 * - rsslFlush may need to be called again to continue attempting to pass data to the connection
-				 */
-			}
-		}
-		else if (selRet < 0)
-		{
-			/* On error, -1 is returned, and errno is set appropriately; the sets and timeout become undefined */
-			printf("\nSelect error.\n");
-			/* Closes channel, cleans up and exits the application. */
-			closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-		}
-
-		/* Processing ping management handler */
-		if ((retval = processPingManagementHandler(upaChannel, &pingManagementInfo)) > RSSL_RET_SUCCESS)
-		{
-			/* There is still data left to flush, leave our write notification enabled so we get called again.
-			 * If everything wasn't flushed, it usually indicates that the TCP output buffer cannot accept more yet
-			 */
-
-			/* set write fd if there's still other data queued */
-			/* flush is done by application */
-			FD_SET(upaChannel->socketId, &cleanWriteFds);
-		}
-		else if (retval < RSSL_RET_SUCCESS)
-		{
-			/* Closes channel, cleans up and exits the application. */
-			closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-		}
-
-		/* get current time */
-		time(&currentTime);
-
-		/* Handles the run-time for the UPA NI Provider application. Here we exit the application after a predetermined time to run */
-		if (currentTime >= upaRuntime)
-		{
-			/* Closes all streams for the NI Provider after run-time has elapsed. */
-
-			printf("\nupaNIProvider run-time has expired...\n");
-			closeChannelCleanUpAndExit(upaChannel, RSSL_RET_SUCCESS);
+			closeChannelCleanUpAndExit(etaChannel, RSSL_RET_FAILURE);
 		}
 	}
 }
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code)
 {
 	RsslRet	retval = 0;
 	RsslError error;
@@ -797,7 +548,7 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 	 * Calling rsslCloseChannel terminates the connection to the ADH.
 	 *********************************************************/
 
-	if ((retval = rsslCloseChannel(upaChannel, &error)) < RSSL_RET_SUCCESS)
+	if ((retval = rsslCloseChannel(etaChannel, &error)) < RSSL_RET_SUCCESS)
 	{
 		printf("Error %s (%d) (errno: %d) encountered with rsslCloseChannel. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -805,12 +556,12 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 6:
-	 * Uninitialize UPA Transport using rsslUninitialize
-	 * The last UPA Transport function that an application should call. This uninitializes internal data
+	 * Uninitialize ETA Transport using rsslUninitialize
+	 * The last ETA Transport function that an application should call. This uninitializes internal data
 	 * structures and deletes any allocated memory.
 	 *********************************************************/
 
-	/* All UPA Transport use is complete, must uninitialize.
+	/* All ETA Transport use is complete, must uninitialize.
 	 * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
 	 */
 	rsslUninitialize();
@@ -819,130 +570,9 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 	 * Exits the application if the run-time has expired.
 	 */
 	if (code == RSSL_RET_SUCCESS)
-		printf("\nUPA NI Provider Training application successfully ended.\n");
+		printf("\nETA NI Provider Training application successfully ended.\n");
 
 	/* End application */
 	exit(code);
-}
-
-/*
- * Initializes the ping times for upaChannel.
- * upaChannel - The channel for ping management info initialization
- * pingManagementInfo - The ping management information that is used
- */
-void initPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo)
-{
-	/* get current time */
-	time(&pingManagementInfo->currentTime);
-
-	/* set ping timeout for client and server */
-	/* Applications are able to configure their desired pingTimeout values, where the ping timeout is the point at which a connection
-	 * can be terminated due to inactivity. Heartbeat messages are typically sent every one-third of the pingTimeout, ensuring that
-	 * heartbeats are exchanged prior to a timeout occurring. This can be useful for detecting loss of connection prior to any kind of
-	 * network or operating system notification that may occur.
-	 */
-	pingManagementInfo->pingTimeoutClient = upaChannel->pingTimeout/3;
-	pingManagementInfo->pingTimeoutServer = upaChannel->pingTimeout;
-
-	/* set time to send next ping from client */
-	pingManagementInfo->nextSendPingTime = pingManagementInfo->currentTime + (time_t)pingManagementInfo->pingTimeoutClient;
-
-	/* set time client should receive next message/ping from server */
-	pingManagementInfo->nextReceivePingTime = pingManagementInfo->currentTime + (time_t)pingManagementInfo->pingTimeoutServer;
-
-	pingManagementInfo->receivedServerMsg = RSSL_FALSE;
-}
-
-/*
- * Processing ping management handler
- * upaChannel - The channel for ping management processing
- * pingManagementInfo - The ping management information that is used
- */
-RsslRet processPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementInfo* pingManagementInfo)
-{
-	/* Handles the ping processing for upaChannel. Sends a ping to the server if the next send ping time has arrived and
-	 * checks if a ping has been received from the server within the next receive ping time.
-	 */
-	RsslRet	retval = RSSL_RET_SUCCESS;
-	RsslError error;
-
-	/* get current time */
-	time(&pingManagementInfo->currentTime);
-
-	/* handle client pings */
-	if (pingManagementInfo->currentTime >= pingManagementInfo->nextSendPingTime)
-	{
-		/* send ping to server */
-		/*********************************************************
-		 * Client/NIProv Application Liefcycle Major Step 4:
-		 * Ping using rsslPing
-		 * Attempts to write a heartbeat message on the connection. This function expects the RsslChannel to be in the active state.
-		 * If an application calls the rsslPing function while there are other bytes queued for output, the UPA Transport layer will
-		 * suppress the heartbeat message and attempt to flush bytes to the network on the user's behalf.
-		 *********************************************************/
-
-		/* rsslPing use - this demonstrates sending of heartbeats */
-		if ((retval = rsslPing(upaChannel, &error)) > RSSL_RET_SUCCESS)
-		{
-			/* Indicates that queued data was sent as a heartbeat and there is still information internally queued by the transport.
-			 * The rsslFlush function must be called to continue attempting to pass the queued bytes to the connection. This information may
-			 * still be queued because there is not sufficient space in the connections output buffer.
-			 * An I/O notification mechanism can be used to indicate when the socketId has write availability.
-			 *
-			 * There is still data left to flush, leave our write notification enabled so we get called again.
-			 * If everything wasn't flushed, it usually indicates that the TCP output buffer cannot accept more yet
-			 */
-
-			/* flush needs to be done by application */
-		}
-		else
-		{
-			switch (retval)
-			{
-				case RSSL_RET_SUCCESS:
-				{
-					/* Ping message has been sent successfully */
-					printf("Ping message has been sent successfully ... \n\n");
-				}
-				break;
-				case RSSL_RET_FAILURE: /* fall through to default. */
-				default: /* Error handling */
-				{
-					printf("\nError %s (%d) (errno: %d) encountered with rsslPing() on fd="SOCKET_PRINT_TYPE" with code %d\n. Error Text: %s\n",
-						rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannel->socketId, retval,
-						error.text);
-					/* Closes channel/connection, cleans up and exits the application. */
-					return RSSL_RET_FAILURE;
-				}
-			}
-		}
-
-		/* set time to send next ping from client */
-		pingManagementInfo->nextSendPingTime = pingManagementInfo->currentTime + (time_t)pingManagementInfo->pingTimeoutClient;
-	}
-
-	/* handle server pings - an application should determine if data or pings have been received,
-	 * if not application should determine if pingTimeout has elapsed, and if so connection should be closed
-	 */
-	if (pingManagementInfo->currentTime >= pingManagementInfo->nextReceivePingTime)
-	{
-		/* check if client received message from server since last time */
-		if (pingManagementInfo->receivedServerMsg)
-		{
-			/* reset flag for server message received */
-			pingManagementInfo->receivedServerMsg = RSSL_FALSE;
-
-			/* set time client should receive next message/ping from server */
-			pingManagementInfo->nextReceivePingTime = pingManagementInfo->currentTime + (time_t)pingManagementInfo->pingTimeoutServer;
-		}
-		else /* lost contact with server */
-		{
-			printf("\nLost contact with server...\n");
-			/* Closes channel/connection, cleans up and exits the application. */
-			return RSSL_RET_FAILURE;
-		}
-	}
-
-	return retval;
 }
 

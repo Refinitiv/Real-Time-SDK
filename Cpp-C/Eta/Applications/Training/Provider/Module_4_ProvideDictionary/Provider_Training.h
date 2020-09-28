@@ -6,15 +6,15 @@
 */
 
 /*
- * This is the UPA Interactive Provider Training series of the UPA Training Suite
+ * This is the ETA Interactive Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Interactive Provider using the UPA Transport layer.
+ * training how to build a ETA OMM Interactive Provider using the ETA Transport layer.
  *
- * Main h header file for the UPA Interactive Provider Training application. It is a 
+ * Main h header file for the ETA Interactive Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1a: Establish network communication
+ * ETA Interactive Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * An OMM Interactive Provider application opens a listening socket on a well-known 
@@ -25,7 +25,7 @@
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish 
+ * The first step of any ETA Interactive Provider application is to establish 
  * a listening socket, usually on a well-known port so that consumer applications 
  * can easily connect. The provider uses the rsslBind function to open the port 
  * and listen for incoming connection attempts.
@@ -36,7 +36,7 @@
  *
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might 
@@ -63,7 +63,7 @@
  *
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1c: Reading and Writing Data
+ * ETA Interactive Provider Training Module 1c: Reading and Writing Data
  ************************************************************************
  * Summary:
  * In this module, when a client or server RsslChannel.state is 
@@ -77,28 +77,28 @@
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to receive data from the connection. The 
  * arrival of this information is often announced by the I/O notification 
- * mechanism that the RsslChannel.socketId is registered with. The UPA 
+ * mechanism that the RsslChannel.socketId is registered with. The ETA 
  * Transport reads information from the network as a byte stream, after 
  * which it determines RsslBuffer boundaries and returns each buffer one by 
  * one.
  *
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
+ * involves a several step process. Because the ETA Transport provides 
  * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
+ * from the ETA Transport buffer pool. This can be the guaranteed output 
  * buffer pool associated with an RsslChannel. After a buffer is acquired, 
  * the user can populate the RsslBuffer.data and set the RsslBuffer.length 
  * to the number of bytes referred to by data. If queued information cannot 
  * be passed to the network, a function is provided to allow the application 
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able 
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write. 
  *
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 2: Perform/Handle Login Process
+ * ETA Interactive Provider Training Module 2: Perform/Handle Login Process
  ************************************************************************
  * Summary:
  * Applications authenticate with one another using the Login domain model. 
@@ -127,12 +127,12 @@
  * Also please note for simple training app, the interactive provider only supports 
  * one client session from the consumer, that is, only supports one channel/client connection.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package. 
  *
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 3: Provide Source Directory Information
+ * ETA Interactive Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
  * Summary:
  * In this module, OMM Interactive Provider application provides Source Directory 
@@ -161,13 +161,43 @@
  * either individual item status messages (for each affected stream) or a Directory message 
  * containing the item group status information. 
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
+ * Data Package.
+ *
+ *
+ ************************************************************************
+ * ETA Interactive Provider Training Module 4: Provide Necessary Dictionaries
+ ************************************************************************
+ * Summary:
+ * In this module, OMM Interactive Provider application provides Necessary Dictionaries.
+ * Some data requires the use of a dictionary for encoding or decoding. The dictionary 
+ * typically defines type and formatting information, and tells the application how to 
+ * encode or decode information.
+ *
+ * Detailed Descriptions:
+ * Some data requires the use of a dictionary for encoding or decoding. The dictionary 
+ * typically defines type and formatting information, and tells the application how to 
+ * encode or decode information. Content that uses the RsslFieldList type requires the 
+ * use of a field dictionary (usually the Refinitiv RDMFieldDictionary, though it 
+ * can instead be a user-defined or modified field dictionary).
+ * 
+ * The Source Directory message should notify the consumer about dictionaries needed to 
+ * decode content sent by the provider. If the consumer needs a dictionary to decode 
+ * content, it is ideal that the Interactive Provider application also make this dictionary
+ * available to consumers for download. The provider can inform the consumer whether the
+ * dictionary is available via the Source Directory.
+ * 
+ * If loading from a file, ETA offers several utility functions for loading and managing 
+ * a properly-formatted field dictionary. There are also utility functions provided to 
+ * help the provider encode into an appropriate format for downloading. 
+ *
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  */
 
-#ifndef _TR_UPA_Provider_TRAINING_H
-#define _TR_UPA_Provider_TRAINING_H
+#ifndef _ETA_Provider_TRAINING_H
+#define _ETA_Provider_TRAINING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -180,6 +210,11 @@ extern "C" {
  * is the Update Interval the provider application sends the Update Message content to client
  */
 #define UPDATE_INTERVAL 1
+
+/* EnumType Dictionary now supports fragmenting at a message level -
+ * However, some EnumType Dictionary message can be still very large, up to 10K
+ */
+#define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 12800
 
 #ifdef _WIN32
 #ifdef _WIN64
@@ -199,7 +234,7 @@ typedef struct {
 	time_t		nextSendPingTime; /* time to send next ping from server */
 	time_t		currentTime;	/* current time from system clock */
 	RsslBool	receivedClientMsg; /* flag for client message received */
-} UpaPingManagementInfo;
+} EtaPingManagementInfo;
 
 /* login request information */
 typedef struct {
@@ -212,7 +247,7 @@ typedef struct {
 	char		InstanceId[128];
 	RsslUInt64	Role;
 	RsslBool	IsInUse;
-} UpaLoginRequestInfo;
+} EtaLoginRequestInfo;
 
 /* source directory request information */
 typedef struct {
@@ -220,96 +255,119 @@ typedef struct {
 	char		ServiceName[128];  /* service name requested by application */
 	RsslUInt64	ServiceId; /* service id associated with the service name requested by application */
 	RsslBool	IsInUse;
-} UpaSourceDirectoryRequestInfo;
+} EtaSourceDirectoryRequestInfo;
+
+/* dictionary request information */
+typedef struct {
+	RsslInt32	StreamId;
+	char		DictionaryName[128];
+	RsslMsgKey	MsgKey;
+	RsslBool	IsInUse;
+} EtaDictionaryRequestInfo;
 
 /* channel management information */
 typedef struct {
-	RsslChannel* upaChannel;
-	RsslChannelInfo upaChannelInfo; /* UPA Channel Info returned by rsslGetChannelInfo call */
-	UpaPingManagementInfo pingManagementInfo;
-	UpaLoginRequestInfo loginRequestInfo;
-	UpaSourceDirectoryRequestInfo sourceDirectoryRequestInfo;
-} UpaChannelManagementInfo;
+	RsslChannel* etaChannel;
+	RsslChannelInfo etaChannelInfo; /* ETA Channel Info returned by rsslGetChannelInfo call */
+	EtaPingManagementInfo pingManagementInfo;
+	EtaLoginRequestInfo loginRequestInfo;
+	EtaSourceDirectoryRequestInfo sourceDirectoryRequestInfo;
+	EtaDictionaryRequestInfo fieldDictionaryRequestInfo;
+	EtaDictionaryRequestInfo enumTypeDictionaryRequestInfo;
+} EtaChannelManagementInfo;
 
 /* reasons a login request is rejected */
 typedef enum {
 	MAX_LOGIN_REQUESTS_REACHED	= 0,
 	NO_USER_NAME_IN_REQUEST		= 1
-} UpaLoginRejectReason;
+} EtaLoginRejectReason;
 
 /* reasons a source directory request is rejected */
 typedef enum {
 	MAX_SRCDIR_REQUESTS_REACHED	= 0,
 	INCORRECT_FILTER_FLAGS		= 1
-} UpaSourceDirectoryRejectReason;
+} EtaSourceDirectoryRejectReason;
+
+/* dictionary type supported by ETA applications */
+typedef enum {
+	DICTIONARY_FIELD_DICTIONARY	= 0,
+	DICTIONARY_ENUM_TYPE		= 1
+} EtaDictionaryType;
+
+/* reasons a dictionary request is rejected */
+typedef enum {
+	UNKNOWN_DICTIONARY_NAME			= 0,
+	MAX_DICTIONARY_REQUESTS_REACHED	= 1
+} EtaDictionaryRejectReason;
 
 /*
  * Closes channel, closes server, cleans up and exits the application.
- * upaChannel - The channel to be closed
- * upaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
+ * etaChannel - The channel to be closed
+ * etaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
  * code - if exit due to errors/exceptions
+ * dataDictionary -  the dictionaries that need to be unloaded to clean up memory
  */
-void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSrvr, int code);
+void closeChannelServerCleanUpAndExit(RsslChannel* etaChannel, RsslServer* etaSrvr, int code, RsslDataDictionary* dataDictionary);
 
 /* 
- * Initializes the ping times for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Initializes the ping times for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-void initPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+void initPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /* 
- * Processing ping management handler for upaChannelManagementInfo.upaChannel. 
- * upaChannelInfo - The channel management information including the ping management information
+ * Processing ping management handler for etaChannelManagementInfo.etaChannel. 
+ * etaChannelInfo - The channel management information including the ping management information
  */
-RsslRet processPingManagementHandler(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet processPingManagementHandler(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Sends a message buffer to a channel.  
- * upaChannel - The channel to send the message buffer to
+ * etaChannel - The channel to send the message buffer to
  * msgBuf - The msgBuf to be sent
  */
-RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf);
+RsslRet sendMessage(RsslChannel* etaChannel, RsslBuffer* msgBuf);
 
 /*
  * Processes a login request. This consists of decoding the login request and calling
  * sendLoginResponse() to send the login response.
- * upaChannelInfo - The channel management information including the login request information
+ * etaChannelInfo - The channel management information including the login request information
  * msg - The partially decoded message
  * decodeIter - The decode iterator
  */
-RsslRet processLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
+RsslRet processLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
 
 /*
  * Sends a Login refresh response to a channel. This consists of getting a message buffer, setting the login response information, 
  * encoding the login response, and sending the login response to the client. If the Interactive Provider grants access, it should 
  * send an RsslRefreshMsg to convey that the user successfully connected. This message should indicate the feature set supported by 
  * the provider application.
- * upaChannelInfo - The channel management information including the login request information and 
+ * etaChannelInfo - The channel management information including the login request information and 
  * including the channel to send a login refresh response to
  */
-RsslRet sendLoginResponse(UpaChannelManagementInfo *upaChannelManagementInfo);
+RsslRet sendLoginResponse(EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Sends the login request reject status message for a channel.
- * upaChannelInfo - The channel management information including the login request information and 
+ * etaChannelInfo - The channel management information including the login request information and 
  * including the channel to send the login request reject status message to
  * streamId - The stream id of the login request reject status
  * reason - The reason for the reject
  */
-RsslRet sendLoginRequestRejectStatusMsg(UpaChannelManagementInfo *upaChannelManagementInfo, RsslInt32 streamId, UpaLoginRejectReason reason);
+RsslRet sendLoginRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelManagementInfo, RsslInt32 streamId, EtaLoginRejectReason reason);
 
 /* 
  * Closes a login stream. 
  * streamId - The stream id to close the login for
- * upaChannelInfo - The channel management information including the login request information
+ * etaChannelInfo - The channel management information including the login request information
  */
-void closeLoginStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChannelManagementInfo);
+void closeLoginStream(RsslInt32 streamId, EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Clears the login request information.
  * loginRequestInfo - The login request information to be cleared
  */
-RTR_C_INLINE void clearLoginReqInfo(UpaLoginRequestInfo* loginRequestInfo)
+RTR_C_INLINE void clearLoginReqInfo(EtaLoginRequestInfo* loginRequestInfo)
 {
 	loginRequestInfo->StreamId = 0;
 	loginRequestInfo->Username[0] = '\0';
@@ -325,44 +383,44 @@ RTR_C_INLINE void clearLoginReqInfo(UpaLoginRequestInfo* loginRequestInfo)
 /*
  * Processes a source directory request. This consists of decoding the source directory request and calling
  * sendSourceDirectoryResponse() to send the source directory response.
- * upaChannelInfo - The channel management information including the source directory request information
+ * etaChannelInfo - The channel management information including the source directory request information
  * msg - The partially decoded message
  * decodeIter - The decode iterator
  */
-RsslRet processSourceDirectoryRequest(UpaChannelManagementInfo *upaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
+RsslRet processSourceDirectoryRequest(EtaChannelManagementInfo *etaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter);
 
 /* 
  * Send Source Directory response to a channel. This consists of getting a message buffer, setting the source directory 
  * response information, encoding the source directory response, and sending the source directory response to 
  * the consumer. The Source Directory domain model conveys information about all available services in the system. 
  * An OMM consumer typically requests a Source Directory to retrieve information about available services and their capabilities. 
- * upaChannelInfo - The channel management information including the source directory request information
+ * etaChannelInfo - The channel management information including the source directory request information
  * serviceName - The service name specified by the OMM interactive provider application (Optional to set) 
  * serviceId - the serviceId specified by the OMM interactive provider  application (Optional to set) 
  */
-RsslRet sendSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManagementInfo, char serviceName[128], RsslUInt64 serviceId);
+RsslRet sendSourceDirectoryResponse(EtaChannelManagementInfo *etaChannelManagementInfo, char serviceName[128], RsslUInt64 serviceId);
 
 /*
  * Sends the source directory request reject status message for a channel.
- * upaChannelInfo - The channel management information including the source directory request information and 
+ * etaChannelInfo - The channel management information including the source directory request information and 
  * including the channel to send the source directory request reject status message to
  * streamId - The stream id of the source directory request reject status
  * reason - The reason for the reject
  */
-RsslRet sendSrcDirectoryRequestRejectStatusMsg(UpaChannelManagementInfo *upaChannelManagementInfo, RsslInt32 streamId, UpaSourceDirectoryRejectReason reason);
+RsslRet sendSrcDirectoryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelManagementInfo, RsslInt32 streamId, EtaSourceDirectoryRejectReason reason);
 
 /* 
  * Closes a source directory stream. 
  * streamId - The stream id to close the source directory for
- * upaChannelInfo - The channel management information including the source directory request information
+ * etaChannelInfo - The channel management information including the source directory request information
  */
-void closeSourceDirectoryStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChannelManagementInfo);
+void closeSourceDirectoryStream(RsslInt32 streamId, EtaChannelManagementInfo *etaChannelManagementInfo);
 
 /*
  * Clears the source directory request information.
  * srcDirReqInfo - The source directory request information to be cleared
  */
-RTR_C_INLINE void clearSourceDirectoryReqInfo(UpaSourceDirectoryRequestInfo* srcDirReqInfo)
+RTR_C_INLINE void clearSourceDirectoryReqInfo(EtaSourceDirectoryRequestInfo* srcDirReqInfo)
 {
 	srcDirReqInfo->StreamId = 0;
 	srcDirReqInfo->ServiceName[0] = '\0';
@@ -370,11 +428,69 @@ RTR_C_INLINE void clearSourceDirectoryReqInfo(UpaSourceDirectoryRequestInfo* src
 	srcDirReqInfo->IsInUse = RSSL_FALSE;
 }
 
+/*
+ * Processes a dictionary request. This consists of decoding the dictionary request and calling the corresponding flavors
+ * of the sendDictionaryResponse() functions to send the dictionary response.
+ * etaChannelInfo - The channel management information including the dictionary request information
+ * msg - The partially decoded message
+ * decodeIter - The decode iterator
+ * dataDictionary - The dictionary to encode field information or enumerated type information from
+ */
+RsslRet processDictionaryRequest(EtaChannelManagementInfo *etaChannelManagementInfo, RsslMsg* msg, RsslDecodeIterator* decodeIter, RsslDataDictionary* dataDictionary);
+
+/*
+ * Sends the field dictionary or enumType dictionary response to a channel. This consists of getting a message buffer, 
+ * encoding the field dictionary or enumType dictionary response, and sending the field dictionary or enumType dictionary response to the server. 
+ * etaChannelInfo - The channel management information including the dictionary request information and 
+ * including the channel to send the field dictionary or enumType dictionary response to
+ * dataDictionary - The dictionary to encode field information or enumerated type information from
+ */
+RsslRet sendDictionaryResponse(EtaChannelManagementInfo *etaChannelManagementInfo, RsslDataDictionary* dataDictionary, EtaDictionaryType dictionaryType);
+
+/*
+ * Sends the dictionary close status message for a channel.
+ * etaChannelInfo - The channel management information including the dictionary request information and 
+ * including the channel to send the dictionary close status message to
+ */
+RsslRet sendDictionaryCloseStatusMsg(EtaChannelManagementInfo *etaChannelManagementInfo);
+
+/*
+ * Sends the dictionary request reject status message for a channel.
+ * etaChannelInfo - The channel management information including the dictionary request information and 
+ * including the channel to send the dictionary request reject status message to
+ * streamId - The stream id of the dictionary request reject status
+ * reason - The reason for the reject
+ */
+RsslRet sendDictionaryRequestRejectStatusMsg(EtaChannelManagementInfo *etaChannelManagementInfo, RsslInt32 streamId, EtaDictionaryRejectReason reason);
+
 /* 
- * upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
+ * Closes a dictionary stream. 
+ * streamId - The stream id to close the dictionary for
+ * etaChannelInfo - The channel management information including the dictionary request information
+ */
+void closeDictionaryStream(RsslInt32 streamId, EtaChannelManagementInfo *etaChannelManagementInfo);
+
+/*
+ * Clears the dictionary request information.
+ * srcDirReqInfo - The dictionary request information to be cleared
+ */
+RTR_C_INLINE void clearDictionaryReqInfo(EtaDictionaryRequestInfo* dictionaryReqInfo)
+{
+	dictionaryReqInfo->StreamId = 0;
+	dictionaryReqInfo->DictionaryName[0] = '\0';
+	rsslClearMsgKey(&dictionaryReqInfo->MsgKey); /* Clears an Rssl message key */
+	dictionaryReqInfo->MsgKey.name.data = dictionaryReqInfo->DictionaryName;
+	dictionaryReqInfo->MsgKey.name.length = 128;
+	/*!< (0x07) "Normal" Verbosity, e.g. all but description */
+	dictionaryReqInfo->MsgKey.filter = RDM_DICTIONARY_NORMAL;
+	dictionaryReqInfo->IsInUse = RSSL_FALSE;
+}
+
+/* 
+ * etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
  * Also, it simplies the example codes and make the codes more readable.
  */
-RsslBuffer* upaGetBuffer(RsslChannel *upaChannel, RsslUInt32 size, RsslError *rsslError);
+RsslBuffer* etaGetBuffer(RsslChannel *etaChannel, RsslUInt32 size, RsslError *rsslError);
 
 #ifdef __cplusplus
 };

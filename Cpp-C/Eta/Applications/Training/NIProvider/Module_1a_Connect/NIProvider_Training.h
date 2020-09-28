@@ -6,15 +6,15 @@
 */
 
 /*
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main h header file for the UPA NI Provider Training application. It is a 
+ * Main h header file for the ETA NI Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
@@ -23,7 +23,7 @@
  * clients in a client-server relationship. Multiple NIPs can connect 
  * to the same TREP-RT and publish the same items and content. 
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
@@ -31,7 +31,7 @@
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
+ * The first step of any ETA NIP application is to establish network 
  * communication with an ADH server. To do so, the OMM NIP typically creates 
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The consumer uses the rsslConnect function to initiate the connection 
@@ -39,8 +39,8 @@
  * 
  */
 
-#ifndef _TR_UPA_NI_Provider_TRAINING_H
-#define _TR_UPA_NI_Provider_TRAINING_H
+#ifndef _ETA_NI_Provider_TRAINING_H
+#define _ETA_NI_Provider_TRAINING_H
 
 #ifdef _WIN32
 #ifdef _WIN64
@@ -61,10 +61,10 @@ extern "C" {
 
 /*
  * Closes channel, cleans up and exits the application.
- * upaChannel - The channel to be closed
+ * etaChannel - The channel to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code);
+void closeChannelCleanUpAndExit(RsslChannel* etaChannel, int code);
 
 #ifdef __cplusplus
 };

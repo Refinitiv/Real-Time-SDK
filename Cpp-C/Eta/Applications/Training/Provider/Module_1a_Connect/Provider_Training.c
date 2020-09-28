@@ -9,15 +9,15 @@
 
 
 /*
- * This is the UPA Interactive Provider Training series of the UPA Training Suite
+ * This is the ETA Interactive Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Interactive Provider using the UPA Transport layer.
+ * training how to build a ETA OMM Interactive Provider using the ETA Transport layer.
  *
- * Main c source file for the UPA Interactive Provider Training application. It is a 
+ * Main c source file for the ETA Interactive Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 1a: Establish network communication
+ * ETA Interactive Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * An OMM Interactive Provider application opens a listening socket on a well-known 
@@ -28,7 +28,7 @@
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish 
+ * The first step of any ETA Interactive Provider application is to establish 
  * a listening socket, usually on a well-known port so that consumer applications 
  * can easily connect. In this example, the port is consistent with that of 
  * other training consumer examples.
@@ -57,7 +57,7 @@
 #include <unistd.h>
 #endif
 
-#include "UPAProvider_Training.h"
+#include "Provider_Training.h"
 
 int main(int argc, char **argv)
 {
@@ -86,8 +86,8 @@ int main(int argc, char **argv)
 	/**************************************************************************************************
 			DECLARING VARIABLES
 	**************************************************************************************************/
-	/* UPA Server structure returned via the rsslBind call */
-	RsslServer* upaSrvr = 0;
+	/* ETA Server structure returned via the rsslBind call */
+	RsslServer* etaSrvr = 0;
 
 	RsslBool clientAccepted = RSSL_FALSE;
 
@@ -109,17 +109,17 @@ int main(int argc, char **argv)
 
 	RsslError error;
 
-	/* UPA Bind Options used in the rsslBind call. */
+	/* ETA Bind Options used in the rsslBind call. */
 	RsslBindOptions bindOpts = RSSL_INIT_BIND_OPTS;
 
-	/* UPA Accept Options used in the rsslAccept call */
+	/* ETA Accept Options used in the rsslAccept call */
 	RsslAcceptOptions acceptOpts = RSSL_INIT_ACCEPT_OPTS;
 
 	/* RsslInProgInfo Information for the In Progress Connection State */
 	RsslInProgInfo inProgInfo = RSSL_INIT_IN_PROG_INFO;
 
-	/* UPA channel management information */
-	UpaChannelManagementInfo upaChannelManagementInfo;
+	/* ETA channel management information */
+	EtaChannelManagementInfo etaChannelManagementInfo;
 
 	/* For this simple training app, the interactive provider only supports a single client. If the consumer disconnects,
 	 * the interactive provider would simply exit.
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	 * If you want the provider to support multiple client sessions at the same time, you need to implement support
 	 * for multiple client sessions feature similar to what rsslProvider example is doing.
 	 */
-	upaChannelManagementInfo.upaChannel = 0;
+	etaChannelManagementInfo.etaChannel = 0;
 
 	/* the default option parameters */
 	/* server is running on port number 14002 */
@@ -161,16 +161,16 @@ int main(int argc, char **argv)
 	******************************************************************************************************************/
 	/*********************************************************
 	 * Server/Provider Application Liefcycle Major Step 1:
-	 * Initialize UPA Transport using rsslInitialize
-	 * The first UPA Transport function that an application should call. This creates and initializes
+	 * Initialize ETA Transport using rsslInitialize
+	 * The first ETA Transport function that an application should call. This creates and initializes
 	 * internal memory and structures, as well as performing any boot strapping for underlying dependencies.
 	 * The rsslInitialize function also allows the user to specify the locking model they want applied
-	 * to the UPA Transport.
+	 * to the ETA Transport.
 	 *********************************************************/
 
 	/* RSSL_LOCK_NONE is used since this is a single threaded application.
 	 * For applications with other thread models (RSSL_LOCK_GLOBAL_AND_CHANNEL, RSSL_LOCK_GLOBAL),
-	 * see the UPA C developers guide for definitions of other locking models supported by UPA
+	 * see the ETA C developers guide for definitions of other locking models supported by ETA
 	 */
 	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
 	{
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 	FD_ZERO(&cleanWriteFds);
 
 	/* populate bind options, then pass to rsslBind function -
-	 * UPA Transport should already be initialized
+	 * ETA Transport should already be initialized
 	 */
 	bindOpts.serviceName = srvrPortNo;	/* server is running on default port number 14002 */
 	bindOpts.pingTimeout = 60;			/* servers desired ping timeout is 60 seconds, pings should be sent every 20 */
@@ -219,9 +219,9 @@ int main(int argc, char **argv)
 	 * RsslServer can begin accepting connections.
 	 *********************************************************/
 
-	/* Bind UPA server */
-	if ((upaSrvr = rsslBind(&bindOpts, &error)) != NULL)
-		printf("\nServer IPC descriptor = "SOCKET_PRINT_TYPE" bound on port %d\n", upaSrvr->socketId, upaSrvr->portNumber);
+	/* Bind ETA server */
+	if ((etaSrvr = rsslBind(&bindOpts, &error)) != NULL)
+		printf("\nServer IPC descriptor = "SOCKET_PRINT_TYPE" bound on port %d\n", etaSrvr->socketId, etaSrvr->portNumber);
 	else
 	{
 		printf("Error %s (%d) (errno: %d) encountered with rsslBind. Error Text: %s\n",
@@ -236,8 +236,8 @@ int main(int argc, char **argv)
 	 * initialize connection
 	 */
 	/* Typical FD_SET use, this may vary depending on the I/O notification mechanism the application is using */
-	FD_SET(upaSrvr->socketId, &cleanReadFds);
-	FD_SET(upaSrvr->socketId, &cleanExceptFds);
+	FD_SET(etaSrvr->socketId, &cleanReadFds);
+	FD_SET(etaSrvr->socketId, &cleanExceptFds);
 
 	/******************************************************************************************************************
 				MAIN LOOP TO SEE IF CONNECTION RECEIVED FROM CONSUMER
@@ -290,7 +290,7 @@ int main(int argc, char **argv)
 			 * (that is, the total number of bits that are set in readfds, writefds, exceptfds)
 			 */
 			/* rsslInitChannel is called if read is triggered */
-			if (FD_ISSET(upaSrvr->socketId, &useReadFds))
+			if (FD_ISSET(etaSrvr->socketId, &useReadFds))
 			{
 				/* Use rsslAccept for incoming connections, read and write data to established connections, etc */
 
@@ -304,7 +304,7 @@ int main(int argc, char **argv)
 				 * For this simple training app, the interactive provider only supports a single client.
 				 */
 
-				/* populate accept options, then pass to rsslAccept function - UPA Transport should already be initialized */
+				/* populate accept options, then pass to rsslAccept function - ETA Transport should already be initialized */
 
 				/*!< @brief If RSSL_TRUE, rsslAccept will send a NAK - even if the connection request is valid. */
 				acceptOpts.nakMount = RSSL_FALSE; /* allow the connection */
@@ -324,7 +324,7 @@ int main(int argc, char **argv)
 				 *********************************************************/
 
 				/* An OMM Provider application can begin the connection accepting or rejecting process by using the rsslAccept function */
-				if ((upaChannelManagementInfo.upaChannel = rsslAccept(upaSrvr, &acceptOpts, &error)) == 0)
+				if ((etaChannelManagementInfo.etaChannel = rsslAccept(etaSrvr, &acceptOpts, &error)) == 0)
 				{
 					printf("Error %s (%d) (errno: %d) encountered with rsslAccept. Error Text: %s\n",
 						rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -338,12 +338,12 @@ int main(int argc, char **argv)
 					/* For this simple training app, the interactive provider only supports one client session from the consumer. */
 
 					printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
-						upaSrvr->socketId,upaChannelManagementInfo.upaChannel->socketId);
+						etaSrvr->socketId,etaChannelManagementInfo.etaChannel->socketId);
 
 					/* Connection was successful, add socketId to I/O notification mechanism and initialize connection */
 					/* Typical FD_SET use, this may vary depending on the I/O notification mechanism the application is using */
-					FD_SET(upaChannelManagementInfo.upaChannel->socketId, &cleanReadFds);
-					FD_SET(upaChannelManagementInfo.upaChannel->socketId, &cleanExceptFds);
+					FD_SET(etaChannelManagementInfo.etaChannel->socketId, &cleanReadFds);
+					FD_SET(etaChannelManagementInfo.etaChannel->socketId, &cleanExceptFds);
 
 					// set clientAccepted to be TRUE and exit the while Main Loop #1
 					clientAccepted = RSSL_TRUE;
@@ -369,7 +369,7 @@ int main(int argc, char **argv)
 	 * Currently, the main loop would exit if an error condition is triggered or
 	 * RsslChannel.state transitions to RSSL_CH_STATE_ACTIVE.
 	 */
-	while (upaChannelManagementInfo.upaChannel->state != RSSL_CH_STATE_ACTIVE)
+	while (etaChannelManagementInfo.etaChannel->state != RSSL_CH_STATE_ACTIVE)
 	{
 		useReadFds = cleanReadFds;
 		useWriteFds = cleanWriteFds;
@@ -400,7 +400,7 @@ int main(int argc, char **argv)
 			/* On success, select() return zero if the timeout expires before anything interesting happens. */
 			printf("\nChannel initialization has timed out, exiting...\n");
 			/* Closes channel, closes server, cleans up and exits the application. */
-			closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE);
+			closeChannelServerCleanUpAndExit(etaChannelManagementInfo.etaChannel, etaSrvr, RSSL_RET_FAILURE);
 		}
 		else if (selRet > 0)
 		{
@@ -424,14 +424,14 @@ int main(int argc, char **argv)
 			 */
 
 			/* rsslInitChannel is called if read or write or except is triggered */
-			if (FD_ISSET(upaChannelManagementInfo.upaChannel->socketId, &useReadFds) || FD_ISSET(upaChannelManagementInfo.upaChannel->socketId, &useExceptFds))
+			if (FD_ISSET(etaChannelManagementInfo.etaChannel->socketId, &useReadFds) || FD_ISSET(etaChannelManagementInfo.etaChannel->socketId, &useExceptFds))
 			{
 
 				/*********************************************************
 				 * Server/Provider Application Liefcycle Major Step 4:
-				 * Initialize until active using rsslInitChannel (UPA Transport connection establishment handshake)
+				 * Initialize until active using rsslInitChannel (ETA Transport connection establishment handshake)
 				 * Continues initialization of an RsslChannel. This channel could originate from rsslConnect or rsslAccept.
-				 * This function exchanges various messages to perform necessary UPA negotiations and handshakes to
+				 * This function exchanges various messages to perform necessary ETA negotiations and handshakes to
 				 * complete channel initialization.
 				 * Requires the use of an RsslInProgInfo structure.
 				 * The RsslChannel can be used for all additional transport functionality (e.g. reading, writing) once the
@@ -439,8 +439,8 @@ int main(int argc, char **argv)
 				 * the state will transition to RSSL_CH_STATE_CLOSED.
 				 *********************************************************/
 
-				/* Internally, the UPA initialization process includes several actions. The initialization includes
-				 * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+				/* Internally, the ETA initialization process includes several actions. The initialization includes
+				 * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
 				 * Compression, ping timeout, and versioning related negotiations also take place during the
 				 * initialization process. This process involves exchanging several messages across the connection,
 				 * and once all message exchanges have completed the RsslChannel.state will transition. If the connection
@@ -453,12 +453,12 @@ int main(int argc, char **argv)
 				 * For both client and server channels, more than one call to rsslInitChannel can be required to complete
 				 * the channel initialization process.
 				 */
-				if ((retval = rsslInitChannel(upaChannelManagementInfo.upaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
+				if ((retval = rsslInitChannel(etaChannelManagementInfo.etaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
 				{
 					printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd="SOCKET_PRINT_TYPE". Error Text: %s\n",
-						rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannelManagementInfo.upaChannel->socketId, error.text);
+						rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, etaChannelManagementInfo.etaChannel->socketId, error.text);
 					/* Closes channel, closes server, cleans up and exits the application. */
-					closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE);
+					closeChannelServerCleanUpAndExit(etaChannelManagementInfo.etaChannel, etaSrvr, RSSL_RET_FAILURE);
 					break;
 				}
 				else
@@ -483,18 +483,18 @@ int main(int argc, char **argv)
 								 * I/O notification mechanism. The channel initialization is still in progress and subsequent calls
 								 * to rsslInitChannel are required to complete it.
 								 */
-								printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",upaChannelManagementInfo.upaChannel->socketId, inProgInfo.oldSocket );
+								printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",etaChannelManagementInfo.etaChannel->socketId, inProgInfo.oldSocket );
 
 								/* File descriptor has changed, unregister old and register new */
 								FD_CLR(inProgInfo.oldSocket, &cleanReadFds);
 								FD_CLR(inProgInfo.oldSocket, &cleanExceptFds);
-								/* newSocket should equal upaChannelManagementInfo.upaChannel->socketId */
-								FD_SET(upaChannelManagementInfo.upaChannel->socketId, &cleanReadFds);
-								FD_SET(upaChannelManagementInfo.upaChannel->socketId, &cleanExceptFds);
+								/* newSocket should equal etaChannelManagementInfo.etaChannel->socketId */
+								FD_SET(etaChannelManagementInfo.etaChannel->socketId, &cleanReadFds);
+								FD_SET(etaChannelManagementInfo.etaChannel->socketId, &cleanExceptFds);
 							}
 							else
 							{
-								printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", upaChannelManagementInfo.upaChannel->socketId);
+								printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", etaChannelManagementInfo.etaChannel->socketId);
 							}
 						}
 						break;
@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 						 */
 						case RSSL_RET_SUCCESS:
 						{
-							printf("\nChannel on fd "SOCKET_PRINT_TYPE" is now active - reading and writing can begin.\n", upaChannelManagementInfo.upaChannel->socketId);
+							printf("\nChannel on fd "SOCKET_PRINT_TYPE" is now active - reading and writing can begin.\n", etaChannelManagementInfo.etaChannel->socketId);
 
 							/*********************************************************
 							 * Connection is now active. The RsslChannel can be used for all additional
@@ -513,18 +513,18 @@ int main(int argc, char **argv)
 							 * transitions to RSSL_CH_STATE_ACTIVE
 							 *********************************************************/
 
-							/* After channel is active, use UPA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated
+							/* After channel is active, use ETA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated
 							 * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
 							 * compression information as well as many other values.
 							 */
-							if ((retval = rsslGetChannelInfo(upaChannelManagementInfo.upaChannel, &upaChannelManagementInfo.upaChannelInfo, &error)) != RSSL_RET_SUCCESS)
+							if ((retval = rsslGetChannelInfo(etaChannelManagementInfo.etaChannel, &etaChannelManagementInfo.etaChannelInfo, &error)) != RSSL_RET_SUCCESS)
 							{
 								printf("Error %s (%d) (errno: %d) encountered with rsslGetChannelInfo. Error Text: %s\n",
 									rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 
 								/* Connection should be closed, return failure */
 								/* Closes channel, closes server, cleans up and exits the application. */
-								closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE);
+								closeChannelServerCleanUpAndExit(etaChannelManagementInfo.etaChannel, etaSrvr, RSSL_RET_FAILURE);
 							}
 
 							printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
@@ -534,27 +534,27 @@ int main(int argc, char **argv)
 								"	Send/Recv Buffer Sizes: %u/%u\n"
 								"	Ping Timeout: %u\n"
 								"	Connected component version: ",
-								upaChannelManagementInfo.upaChannel->socketId,				/*!< @brief Socket ID of this UPA channel. */
-								upaChannelManagementInfo.upaChannelInfo.maxFragmentSize,	/*!< @brief This is the max fragment size before fragmentation and reassembly is necessary. */
-								upaChannelManagementInfo.upaChannelInfo.maxOutputBuffers,	/*!< @brief This is the maximum number of output buffers available to the channel. */
-								upaChannelManagementInfo.upaChannelInfo.guaranteedOutputBuffers, /*!< @brief This is the guaranteed number of output buffers available to the channel. */
-								upaChannelManagementInfo.upaChannelInfo.numInputBuffers,	/*!< @brief This is the number of input buffers available to the channel. */
-								upaChannelManagementInfo.upaChannelInfo.sysSendBufSize,		/*!< @brief This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
-								upaChannelManagementInfo.upaChannelInfo.sysRecvBufSize,		/*!< @brief This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
-								upaChannelManagementInfo.upaChannelInfo.pingTimeout 		/*!< @brief This is the value of the negotiated ping timeout */
+								etaChannelManagementInfo.etaChannel->socketId,				/*!< @brief Socket ID of this ETA channel. */
+								etaChannelManagementInfo.etaChannelInfo.maxFragmentSize,	/*!< @brief This is the max fragment size before fragmentation and reassembly is necessary. */
+								etaChannelManagementInfo.etaChannelInfo.maxOutputBuffers,	/*!< @brief This is the maximum number of output buffers available to the channel. */
+								etaChannelManagementInfo.etaChannelInfo.guaranteedOutputBuffers, /*!< @brief This is the guaranteed number of output buffers available to the channel. */
+								etaChannelManagementInfo.etaChannelInfo.numInputBuffers,	/*!< @brief This is the number of input buffers available to the channel. */
+								etaChannelManagementInfo.etaChannelInfo.sysSendBufSize,		/*!< @brief This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
+								etaChannelManagementInfo.etaChannelInfo.sysRecvBufSize,		/*!< @brief This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
+								etaChannelManagementInfo.etaChannelInfo.pingTimeout 		/*!< @brief This is the value of the negotiated ping timeout */
 							);
 
-							if (upaChannelManagementInfo.upaChannelInfo.componentInfoCount == 0)
+							if (etaChannelManagementInfo.etaChannelInfo.componentInfoCount == 0)
 								printf("(No component info)");
 							else
 							{
 								RsslUInt32 count;
-								for(count = 0; count < upaChannelManagementInfo.upaChannelInfo.componentInfoCount; ++count)
+								for(count = 0; count < etaChannelManagementInfo.etaChannelInfo.componentInfoCount; ++count)
 								{
 									printf("%.*s",
-										upaChannelManagementInfo.upaChannelInfo.componentInfo[count]->componentVersion.length,
-										upaChannelManagementInfo.upaChannelInfo.componentInfo[count]->componentVersion.data);
-									if (count < upaChannelManagementInfo.upaChannelInfo.componentInfoCount - 1)
+										etaChannelManagementInfo.etaChannelInfo.componentInfo[count]->componentVersion.length,
+										etaChannelManagementInfo.etaChannelInfo.componentInfo[count]->componentVersion.data);
+									if (count < etaChannelManagementInfo.etaChannelInfo.componentInfoCount - 1)
 										printf(", ");
 								}
 							}
@@ -569,8 +569,8 @@ int main(int argc, char **argv)
 							 */
 
 							/* clean up server */
-							FD_CLR(upaSrvr->socketId, &cleanReadFds);
-							FD_CLR(upaSrvr->socketId, &cleanExceptFds);
+							FD_CLR(etaSrvr->socketId, &cleanReadFds);
+							FD_CLR(etaSrvr->socketId, &cleanExceptFds);
 
 							/*********************************************************
 							 * Server/Provider Application Liefcycle Major Step 7:
@@ -584,11 +584,11 @@ int main(int argc, char **argv)
 							 * any necessary cleanup. All currently connected RsslChannels will remain open. This allows applications to continue
 							 * to send and receive data, while preventing new applications from connecting. The server has the option of calling
 							 * rsslCloseChannel to shut down any currently connected applications.
-							 * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+							 * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
 							 * The listening socket can be closed by calling rsslCloseServer. This prevents any new connection attempts.
 							 * If shutting down connections for all connected clients, the provider should call rsslCloseChannel for each connection client.
 							*/
-							if ((upaSrvr) && (rsslCloseServer(upaSrvr, &error) < RSSL_RET_SUCCESS))
+							if ((etaSrvr) && (rsslCloseServer(etaSrvr, &error) < RSSL_RET_SUCCESS))
 							{
 								printf("Error %s (%d) (errno: %d) encountered with rsslCloseServer.  Error Text: %s\n",
 									rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -598,16 +598,16 @@ int main(int argc, char **argv)
 								exit(RSSL_RET_FAILURE);
 							}
 
-							// set upaSrvr to be NULL
-							upaSrvr = 0;
+							// set etaSrvr to be NULL
+							etaSrvr = 0;
 						}
 						break;
 						default: /* Error handling */
 						{
 							printf("\nBad return value fd="SOCKET_PRINT_TYPE" <%s>\n",
-								upaChannelManagementInfo.upaChannel->socketId, error.text);
+								etaChannelManagementInfo.etaChannel->socketId, error.text);
 							/* Closes channel, closes server, cleans up and exits the application. */
-							closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE);
+							closeChannelServerCleanUpAndExit(etaChannelManagementInfo.etaChannel, etaSrvr, RSSL_RET_FAILURE);
 						}
 						break;
 					}
@@ -619,18 +619,18 @@ int main(int argc, char **argv)
 			/* On error, -1 is returned, and errno is set appropriately; the sets and timeout become undefined */
 			printf("\nSelect error.\n");
 			/* Closes channel, closes server, cleans up and exits the application. */
-			closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE);
+			closeChannelServerCleanUpAndExit(etaChannelManagementInfo.etaChannel, etaSrvr, RSSL_RET_FAILURE);
 		}
 	}
 }
 
 /*
  * Closes channel, closes server, cleans up and exits the application.
- * upaChannel - The channel to be closed
- * upaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
+ * etaChannel - The channel to be closed
+ * etaSrvr - The RsslServer that represents the listening socket connection to the user to be closed
  * code - if exit due to errors/exceptions
  */
-void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSrvr, int code)
+void closeChannelServerCleanUpAndExit(RsslChannel* etaChannel, RsslServer* etaSrvr, int code)
 {
 	RsslRet	retval = 0;
 	RsslError error;
@@ -641,10 +641,10 @@ void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSr
 	 * Close connection using rsslCloseChannel (OS connection release handshake)
 	 * rsslCloseChannel closes the server based RsslChannel. This will release any pool based resources
 	 * back to their respective pools, close the connection, and perform any additional necessary cleanup.
-	 * When shutting down the UPA Transport, the application should release all unwritten pool buffers.
+	 * When shutting down the ETA Transport, the application should release all unwritten pool buffers.
 	 * Calling rsslCloseChannel terminates the connection for each connection client.
 	 *********************************************************/
-	if ((upaChannel) && (retval = rsslCloseChannel(upaChannel, &error) < RSSL_RET_SUCCESS))
+	if ((etaChannel) && (retval = rsslCloseChannel(etaChannel, &error) < RSSL_RET_SUCCESS))
 	{
 		printf("Error %s (%d) (errno: %d) encountered with rsslCloseChannel. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -663,11 +663,11 @@ void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSr
 	 * any necessary cleanup. All currently connected RsslChannels will remain open. This allows applications to continue
 	 * to send and receive data, while preventing new applications from connecting. The server has the option of calling
 	 * rsslCloseChannel to shut down any currently connected applications.
-	 * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+	 * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
 	 * The listening socket can be closed by calling rsslCloseServer. This prevents any new connection attempts.
 	 * If shutting down connections for all connected clients, the provider should call rsslCloseChannel for each connection client.
 	*/
-	if ((upaSrvr) && (retval = rsslCloseServer(upaSrvr, &error) < RSSL_RET_SUCCESS))
+	if ((etaSrvr) && (retval = rsslCloseServer(etaSrvr, &error) < RSSL_RET_SUCCESS))
 	{
 		printf("Error %s (%d) (errno: %d) encountered with rsslCloseServer.  Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
@@ -675,12 +675,12 @@ void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSr
 
 	/*********************************************************
 	 * Server/Provider Application Liefcycle Major Step 8:
-	 * Uninitialize UPA Transport using rsslUninitialize
-	 * The last UPA Transport function that an application should call. This uninitializes internal data
+	 * Uninitialize ETA Transport using rsslUninitialize
+	 * The last ETA Transport function that an application should call. This uninitializes internal data
 	 * structures and deletes any allocated memory.
 	 *********************************************************/
 
-	/* All UPA Transport use is complete, must uninitialize.
+	/* All ETA Transport use is complete, must uninitialize.
 	 * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
 	 */
 	rsslUninitialize();
@@ -689,7 +689,7 @@ void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSr
 	 * Exits the application if the run-time has expired.
 	 */
 	if (code == RSSL_RET_SUCCESS)
-		printf("\nUPA Interactive Provider Training application successfully ended.\n");
+		printf("\nETA Interactive Provider Training application successfully ended.\n");
 
 	/* End application */
 	exit(code);
