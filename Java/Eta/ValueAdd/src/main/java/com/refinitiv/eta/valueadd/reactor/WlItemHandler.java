@@ -333,6 +333,9 @@ class WlItemHandler implements WlHandler
                     {
                         _tempItemAggregationRequest.flags(_tempItemAggregationRequest.flags() & ~RequestMsgFlags.MSG_KEY_IN_UPDATES);
                     }
+
+					if ( requestMsg.checkPause() && requestMsg.checkStreaming())
+						wlStream.numPausedRequestsCount(1);
                     
                     // send message to stream
                     if (sendNow)
@@ -395,9 +398,6 @@ class WlItemHandler implements WlHandler
                         
                         // update request state to PENDING_REFRESH
                         wlRequest.state(WlRequest.State.PENDING_REFRESH);
-                        
-                        if ( wlRequest.requestMsg().checkPause() && wlRequest.requestMsg().checkStreaming())
-                        	wlStream.numPausedRequestsCount(1);
                         
                         // associate stream and service
                         wlStream.wlService(wlService);                    
