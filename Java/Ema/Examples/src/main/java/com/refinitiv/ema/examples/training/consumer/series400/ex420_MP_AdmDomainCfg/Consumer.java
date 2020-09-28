@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.refinitiv.ema.examples.training.consumer.series400.ex420_MP_AdminDomainConfig;
+package com.refinitiv.ema.examples.training.consumer.series400.ex420_MP_AdmDomainCfg;
 
 import com.refinitiv.ema.access.Msg;
 
