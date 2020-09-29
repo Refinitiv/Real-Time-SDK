@@ -1,3 +1,3 @@
 #file,location
-UPAProvider_Training.c,Applications/Training/Provider/Module_5_HandleItemRequest
-UPAProvider_Training.h,Applications/Training/Provider/Module_5_HandleItemRequest
+Provider_Training.c,Applications/Training/Provider/Module_5_HandleItemRequest
+Provider_Training.h,Applications/Training/Provider/Module_5_HandleItemRequest
