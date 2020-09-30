@@ -60,7 +60,7 @@ int main( int argc, char* argv[] )
 	try { 
 		AppClient client;
 
-		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_2" ) );
+		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_7" ) );
 
 		// register client to receive MARKET_PRICE item updates
 		consumer.registerClient( ReqMsg().domainType(MMT_MARKET_PRICE).serviceName("DIRECT_FEED").name("IBM.N"), client );
