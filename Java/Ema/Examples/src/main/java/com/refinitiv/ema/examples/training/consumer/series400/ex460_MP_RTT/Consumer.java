@@ -57,9 +57,9 @@ public class Consumer
 		{
 			AppClient appClient = new AppClient();
 			
-			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig("");
+			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 
-			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_RTT"));
+			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_7"));
 
 			Login.LoginReq loginReq = EmaFactory.Domain.createLoginReq();
 			consumer.registerClient(loginReq.message(), appClient);
