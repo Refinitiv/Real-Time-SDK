@@ -85,7 +85,6 @@
 		<!-- Consumer with enabled RTT feature -->
 		<Consumer>
 			<Name value="Consumer_7"/>
-			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
 			<Channel value="Channel_1"/>
 			<Logger value="Logger_1"/>
 			<Dictionary value="Dictionary_2"/>
