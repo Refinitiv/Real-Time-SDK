@@ -28,7 +28,7 @@ usage help can be printed out.
 Detailed Description
 ====================
 
-430_MarketPrice_TrepAuthentication implements the following high level steps:
+430_MP_Authentication implements the following high level steps:
 
 + Implements OmmConsumerClient class in AppClient
   - overrides desired methods
