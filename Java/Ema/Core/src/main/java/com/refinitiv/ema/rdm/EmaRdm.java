@@ -10,8 +10,8 @@ package com.refinitiv.ema.rdm;
 /**
  * This file contains RDM constants and definitions.
  *
- * <p>Reuters Domain Models.
- * <br>This file contains the Reuters Domain Model specific definitions
+ * <p>Refinitiv Domain Models.
+ * <br>This file contains the Refinitiv Domain Model specific definitions
  * that can be used by the EMA applications.
  * <br>The definitions in this file will be made extensible in the future.</p>
  */

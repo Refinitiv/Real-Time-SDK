@@ -47,9 +47,9 @@ public class RipcHandshakeJunitTest
      * sentComponentVersion are hard coded in the TestData files.
      * userSpecifiedComponentVersion is the user specified component version.
      */
-    final static String receivedComponentVersion = "UPA Java Edition";
+    final static String receivedComponentVersion = "ETA Java Edition";
     final static String sentComponentVersion13 = "Test Client Version 1.23";
-    final static String sentComponentVersion14 = "UPA Java Edition";
+    final static String sentComponentVersion14 = "ETA Java Edition";
     final static String userSpecifiedComponentVersion = "User Specified Client Version 5.43";
 
     StringBuilder _sb = new StringBuilder();
@@ -735,7 +735,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq. The
+     * ETAJ client will connect to the TestServer and send a ConnectReq. The
      * TestServer will verify the ConnectReq (as RIPC13) along with the
      * component version. The TestServer will send a complete ConnectAck in a
      * single packet. initChannel() will be called until the channel is active
@@ -762,7 +762,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -820,7 +820,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq with a
+     * ETAJ client will connect to the TestServer and send a ConnectReq with a
      * user specified component version. The TestServer will verify the
      * ConnectReq (as RIPC13) along with the user specified component version.
      * The TestServer will send a complete ConnectAck in a single packet.
@@ -848,7 +848,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -913,7 +913,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq. The
+     * ETAJ client will connect to the TestServer and send a ConnectReq. The
      * TestServer will verify the ConnectReq (as RIPC13) along with the
      * component version. The TestServer will send a ConnectAck with each byte
      * in it's own packet. This will verify that the client can keep reading
@@ -942,7 +942,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -1008,7 +1008,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq. The
+     * ETAJ client will connect to the TestServer and send a ConnectReq. The
      * TestServer will verify the ConnectReq (as RIPC13) along with the
      * component version. The TestServer will send a complete ConnectAck in a
      * single packet with the wrong RIPC version. initChannel() will be called
@@ -1036,7 +1036,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -1092,7 +1092,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq with
+     * ETAJ client will connect to the TestServer and send a ConnectReq with
      * ZLIB compression requested. The TestServer will verify the ConnectReq (as
      * RIPC13) along with the component version. The TestServer will send a
      * complete ConnectAck in a single packet, with ZLIB compression type and
@@ -1122,7 +1122,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT),
                                                        Codec.protocolType(), Ripc.CompressionTypes.ZLIB, error)) == null)
@@ -1179,7 +1179,7 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ client will connect to the TestServer and send a
+     * In this test, the ETAJ client will connect to the TestServer and send a
      * ConnectReq. The TestServer will verify the ConnectReq as the current RIPC
      * version, for example version 13, then close the connection. The client
      * will fall back to RIPC version 12 and send a ConnectReq. The TestServer
@@ -1195,7 +1195,7 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ client will connect to the TestServer and send a
+     * In this test, the ETAJ client will connect to the TestServer and send a
      * ConnectReq. The TestServer will verify the ConnectReq as the current RIPC
      * version, for example version 13, then close the connection. The client
      * will fall back to RIPC version 12 and send a ConnectReq. The TestServer
@@ -1213,7 +1213,7 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ client will connect to the TestServer and send a
+     * In this test, the ETAJ client will connect to the TestServer and send a
      * ConnectReq. The TestServer will verify the ConnectReq as the current RIPC
      * version, for example version 13, then close the connection. The client
      * will fall back to RIPC version 12 and send a ConnectReq. The TestServer
@@ -1240,7 +1240,7 @@ public class RipcHandshakeJunitTest
      * This is a generalized version of the fallBack tests that several other
      * tests will call. It allows the fallBackRicpVersion and inputFile to be
      * specified. It also supports a flag to indicate that it expects to fall
-     * back to no protocol. This method will have a the UPAJ client connect to
+     * back to no protocol. This method will have a the ETAJ client connect to
      * the TestServer and send a ConnectReq. The TestServer will verify the
      * ConnectReq as the current RIPC version, for example version 13, then
      * close the connection. The client will fall back to RIPC version 12 and
@@ -1267,7 +1267,7 @@ public class RipcHandshakeJunitTest
 
             server.wait(TestServer.State.SETUP);
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -1347,7 +1347,7 @@ public class RipcHandshakeJunitTest
                     System.out.println("DEBUG: waiting for server to accept new connection");
                 }
 
-                /* UPAJ should establish a new connection. */
+                /* ETAJ should establish a new connection. */
 
                 retry = 1000 / SLEEPTIMEMS;
                 while (retry-- > 0)
@@ -1449,7 +1449,7 @@ public class RipcHandshakeJunitTest
      * This test will use a non RWF protocol type and the test server will cause
      * the client to fall back from RIPC13, then to RIPC12, then to no protocol
      * rather than RIPC11 since the client is using a non RWF protocol type.
-     * This method will have a the UPAJ client connect to the TestServer and
+     * This method will have a the ETAJ client connect to the TestServer and
      * send a ConnectReq. The TestServer will verify the ConnectReq as the
      * current RIPC version, for example version 13, then close the connection.
      * The client will fall back to RIPC version 12 and send a ConnectReq. The
@@ -1478,7 +1478,7 @@ public class RipcHandshakeJunitTest
 
             server.wait(TestServer.State.SETUP);
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), 
                                                        123, CompressionTypes.NONE, error)) == null)
@@ -1561,7 +1561,7 @@ public class RipcHandshakeJunitTest
                     System.out.println("DEBUG: waiting for server to accept new connection");
                 }
 
-                /* UPAJ should establish a new connection. */
+                /* ETAJ should establish a new connection. */
 
                 retry = 1000 / SLEEPTIMEMS;
                 while (retry-- > 0)
@@ -1631,7 +1631,7 @@ public class RipcHandshakeJunitTest
 
     /*
      * This test assumes that the current RIPC version is 13. In this test, the
-     * UPAJ client will connect to the TestServer and send a ConnectReq. The
+     * ETAJ client will connect to the TestServer and send a ConnectReq. The
      * TestServer will verify the ConnectReq (as RIPC13). The TestServer will
      * send a complete ConnectNak in a single packet. initChannel() will be
      * called until the initChannel() call fails and error.text() is populated
@@ -1657,7 +1657,7 @@ public class RipcHandshakeJunitTest
 
             server.setupServerSocket();
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -1709,7 +1709,7 @@ public class RipcHandshakeJunitTest
         }
     }
 
-    /* Helper method to bind UPAJ server socket. */
+    /* Helper method to bind ETAJ server socket. */
     private Server serverBind(Selector selector, Error error)
     {
         return serverBind(selector, 60, 30, Ripc.CompressionTypes.NONE, 0 /* compression level */,
@@ -1718,7 +1718,7 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * Helper method to bind UPAJ server socket. 
+     * Helper method to bind ETAJ server socket. 
      * 
      * @param selector
      * @param pingTimeout
@@ -1867,10 +1867,10 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq. initChannel()
-     * will be called on the UPAJ server until the ChannelState is ACTIVE, in
-     * which case the UPAJ server will have processed the ConnectReq and sent a
+     * will be called on the ETAJ server until the ChannelState is ACTIVE, in
+     * which case the ETAJ server will have processed the ConnectReq and sent a
      * ConnectAck. The TestClient will read and verify the ConnectAck (along
      * with component version).
      */
@@ -1882,10 +1882,10 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC12 ConnectReq. initChannel()
-     * will be called on the UPAJ server until the ChannelState is ACTIVE, in
-     * which case the UPAJ server will have processed the ConnectReq and sent a
+     * will be called on the ETAJ server until the ChannelState is ACTIVE, in
+     * which case the ETAJ server will have processed the ConnectReq and sent a
      * ConnectAck. The TestClient will read and verify the ConnectAck (along
      * with component version).
      */
@@ -1897,10 +1897,10 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC11 ConnectReq. initChannel()
-     * will be called on the UPAJ server until the ChannelState is ACTIVE, in
-     * which case the UPAJ server will have processed the ConnectReq and sent a
+     * will be called on the ETAJ server until the ChannelState is ACTIVE, in
+     * which case the ETAJ server will have processed the ConnectReq and sent a
      * ConnectAck. The TestClient will read and verify the ConnectAck (along
      * with component version).
      */
@@ -1915,10 +1915,10 @@ public class RipcHandshakeJunitTest
      * This is a generalized version of the
      * serverRcvSingleRipcXConnectReqTest().
      * 
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a ConnectReq. initChannel() will be
-     * called on the UPAJ server until the ChannelState is ACTIVE, in which case
-     * the UPAJ server will have processed the ConnectReq and sent a ConnectAck.
+     * called on the ETAJ server until the ChannelState is ACTIVE, in which case
+     * the ETAJ server will have processed the ConnectReq and sent a ConnectAck.
      * The TestClient will read and verify the ConnectAck (along with component
      * version).
      * 
@@ -1942,22 +1942,22 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client.
+            // have the ETAJ server accept the connection from our test client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);
 
             // have our test client read and verify the ConnectAck.
@@ -1994,11 +1994,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will be configured with
-     * AcceptOptions.nakMount(boolean) true. The UPAJ server will accept
+     * In this test, the ETAJ server will be configured with
+     * AcceptOptions.nakMount(boolean) true. The ETAJ server will accept
      * a connection from the TestClient. The TestClient will send a RIPC13
-     * ConnectReq. initChannel() will be called on the UPAJ server until the
-     * ChannelState is INACTIVE, in which case the UPAJ server will have
+     * ConnectReq. initChannel() will be called on the ETAJ server until the
+     * ChannelState is INACTIVE, in which case the ETAJ server will have
      * processed the ConnectReq and sent a ConnectNak. The TestClient will read
      * and verify the ConnectNak.
      */
@@ -2022,14 +2022,14 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client
+            // have the ETAJ server accept the connection from our test client
             // but specify NakMount.
             serverChannel = serverAccept(selector, true, error);
             assertNotNull(serverChannel.selectableChannel());
@@ -2037,9 +2037,9 @@ public class RipcHandshakeJunitTest
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq and send a
+            // have our ETAJ server process the ConnectReq and send a
             // ConnectNakk
-            // verify that the UPAJ server's channel state goes to INACTIVE.
+            // verify that the ETAJ server's channel state goes to INACTIVE.
             initChannelWaitState(serverChannel, ChannelState.INACTIVE, error, inProg);
 
             // have our test client read and verify the ConnectNak.
@@ -2064,11 +2064,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq with a protocol
-     * type version that the UPAJ server does not supports. initChannel() will
-     * be called on the UPAJ server until the ChannelState is INACTIVE, in which
-     * case the UPAJ server will have processed the ConnectReq and sent a
+     * type version that the ETAJ server does not supports. initChannel() will
+     * be called on the ETAJ server until the ChannelState is INACTIVE, in which
+     * case the ETAJ server will have processed the ConnectReq and sent a
      * ConnectNak. The TestClient will read and verify the ConnectNak.
      */
     @Test
@@ -2091,24 +2091,24 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 60, 30, Ripc.CompressionTypes.NONE, 0, Codec.protocolType(),
                                 Codec.majorVersion(), Codec.minorVersion(), false, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client
+            // have the ETAJ server accept the connection from our test client
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq. The protocolType will not match
-            // so the UPAJ server will send a ConnectNak.
-            // verify that the UPAJ server's channel state goes to INACTIVE.
+            // have our ETAJ server process the ConnectReq. The protocolType will not match
+            // so the ETAJ server will send a ConnectNak.
+            // verify that the ETAJ server's channel state goes to INACTIVE.
             initChannelWaitState(serverChannel, ChannelState.INACTIVE, error, inProg);
 
             // have our test client read and verify the ConnectNak.
@@ -2133,11 +2133,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq with a non protocol
-     * type version that the UPAJ server supports. initChannel() will be called
-     * on the UPAJ server until the ChannelState is ACTIVE, in which case the
-     * UPAJ server will have processed the ConnectReq and sent a ConnectAck. The
+     * type version that the ETAJ server supports. initChannel() will be called
+     * on the ETAJ server until the ChannelState is ACTIVE, in which case the
+     * ETAJ server will have processed the ConnectReq and sent a ConnectAck. The
      * TestClient will read and verify the ConnectAck.
      */
     @Test
@@ -2160,23 +2160,23 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 60, 30, Ripc.CompressionTypes.NONE, 0, 255, Codec.majorVersion(),
                                 Codec.minorVersion(), false, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client
+            // have the ETAJ server accept the connection from our test client
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannel(serverChannel, error, inProg); // receive ConnectReq
             client.writeMessageToSocket(replay.read()); // send clientKey to server
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg); // process clientKey
@@ -2205,11 +2205,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq with a non
-     * default major and minor version that the UPAJ server supports.
-     * initChannel() will be called on the UPAJ server until the ChannelState is
-     * ACTIVE, in which case the UPAJ server will have processed the ConnectReq
+     * default major and minor version that the ETAJ server supports.
+     * initChannel() will be called on the ETAJ server until the ChannelState is
+     * ACTIVE, in which case the ETAJ server will have processed the ConnectReq
      * and sent a ConnectAck. The TestClient will read and verify the
      * ConnectAck.
      */
@@ -2233,23 +2233,23 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 60, 30, CompressionTypes.NONE, 0, Codec.protocolType(), 255, 255,
                                 false, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client
+            // have the ETAJ server accept the connection from our test client
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
             
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannel(serverChannel, error, inProg);
             client.writeMessageToSocket(replay.read()); // send clientKey to server
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg); // process clientKey
@@ -2279,10 +2279,10 @@ public class RipcHandshakeJunitTest
     }
     
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq with ZLIB
-     * compression requested. initChannel() will be called on the UPAJ server
-     * until the ChannelState is ACTIVE, in which case the UPAJ server will have
+     * compression requested. initChannel() will be called on the ETAJ server
+     * until the ChannelState is ACTIVE, in which case the ETAJ server will have
      * processed the ConnectReq and sent a ConnectAck. The TestClient will read
      * and verify the ConnectAck (along with compression type and level).
      */
@@ -2306,23 +2306,23 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 60, 30, Ripc.CompressionTypes.ZLIB, 6, Codec.protocolType(),
                                 Codec.majorVersion(), Codec.minorVersion(), false, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client
+            // have the ETAJ server accept the connection from our test client
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);
 
             // have our test client read and verify the ConnectAck.
@@ -2350,10 +2350,10 @@ public class RipcHandshakeJunitTest
     }
     
     /*
-     * In this test, the UPAJ server will accept a connection from the
+     * In this test, the ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq with each byte
-     * in it's own packet. initChannel() will be called on the UPAJ server until
-     * the ChannelState is ACTIVE, in which case the UPAJ server will have
+     * in it's own packet. initChannel() will be called on the ETAJ server until
+     * the ChannelState is ACTIVE, in which case the ETAJ server will have
      * processed the ConnectReq and sent a ConnectAck. The TestClient will read
      * and verify the ConnectAck (along with component version).
      */
@@ -2380,15 +2380,15 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
             int channelState = ChannelState.INACTIVE;
             
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client.
+            // have the ETAJ server accept the connection from our test client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
@@ -2427,12 +2427,12 @@ public class RipcHandshakeJunitTest
             }
             compareExpectedConnectAck(client.buffer(), CURRENT_RIPC_VERSION, Transport.queryVersion().productVersion());
 
-            // have our UPAJ client send the clientKey
+            // have our ETAJ client send the clientKey
             replay2.read();
             client.writeMessageToSocket(replay2.read());
             
-            // have our UPAJ server process the clientKey and
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the clientKey and
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);            
             assertNull(error.text());
             
@@ -2449,11 +2449,11 @@ public class RipcHandshakeJunitTest
     }
     
     /*
-     * In this test, after binding the UPAJ server socket, the user specifies a
-     * component version. The UPAJ server will accept a connection from the
+     * In this test, after binding the ETAJ server socket, the user specifies a
+     * component version. The ETAJ server will accept a connection from the
      * TestClient. The TestClient will send a RIPC13 ConnectReq. initChannel()
-     * will be called on the UPAJ server until the ChannelState is ACTIVE, in
-     * which case the UPAJ server will have processed the ConnectReq and sent a
+     * will be called on the ETAJ server until the ChannelState is ACTIVE, in
+     * which case the ETAJ server will have processed the ConnectReq and sent a
      * ConnectAck with the user specified component version. The TestClient will
      * read and verify the ConnectAck (along with component version).
      */
@@ -2477,7 +2477,7 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
@@ -2488,18 +2488,18 @@ public class RipcHandshakeJunitTest
             myCi.componentVersion().data(componentVersionBB);
             server.ioctl(IoctlCodes.COMPONENT_INFO, myCi, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client.
+            // have the ETAJ server accept the connection from our test client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
             // have our test client send a ConnectReq to the server
             client.writeMessageToSocket(replay.read());
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannel(serverChannel, error, inProg); // receive ConnectReq
             client.writeMessageToSocket(replay.read()); // send clientKey to server
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg); // process clientKey
@@ -2529,11 +2529,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * In this test, the UAPJ server will bind the server socket. The UPAJ
+     * In this test, the UAPJ server will bind the server socket. The ETAJ
      * server will accept a connection from the TestClient. The TestClient will
      * send a RIPC13 ConnectReq. Before initChannel() is called, the user
-     * specifies a component version. initChannel() will be called on the UPAJ
-     * server until the ChannelState is ACTIVE, in which case the UPAJ server
+     * specifies a component version. initChannel() will be called on the ETAJ
+     * server until the ChannelState is ACTIVE, in which case the ETAJ server
      * will have processed the ConnectReq and sent a ConnectAck with the user
      * specified component version. The TestClient will read and verify the
      * ConnectAck (along with component version).
@@ -2558,14 +2558,14 @@ public class RipcHandshakeJunitTest
 
             initTransport(false); // initialize RSSL
 
-            // set the bind the UPAJ server
+            // set the bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
-            // have our test client connect to UPAJ server
+            // have our test client connect to ETAJ server
             client.connect();
 
-            // have the UPAJ server accept the connection from our test client.
+            // have the ETAJ server accept the connection from our test client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
@@ -2579,8 +2579,8 @@ public class RipcHandshakeJunitTest
             myCi.componentVersion().data(componentVersionBB);
             serverChannel.ioctl(IoctlCodes.COMPONENT_INFO, myCi, error);
             
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
+            // verify that the ETAJ server's channel state goes to active.
             initChannel(serverChannel, error, inProg); // receive ConnectReq
             client.writeMessageToSocket(replay.read()); // send clientKey to server
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg); // process clientKey
@@ -2610,10 +2610,10 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with no compression. A UPAJ client
-     * will be set up and connected to the UPAJ server. The UPAJ server will
-     * accept the connection. initChannel() will be called on the UPAJ client to
-     * send the ConnectReq. initChannel() will be called on the UPAJ server to
+     * This test will set up a ETAJ server with no compression. A ETAJ client
+     * will be set up and connected to the ETAJ server. The ETAJ server will
+     * accept the connection. initChannel() will be called on the ETAJ client to
+     * send the ConnectReq. initChannel() will be called on the ETAJ server to
      * send a ConnectAck. The received component versiOn from the ConnectReq and
      * ConnectAck will be verified.
      */
@@ -2625,11 +2625,11 @@ public class RipcHandshakeJunitTest
     }
     
     /*
-     * This test will set up a UPAJ server with ZLIB compression. A UPAJ client
-     * will be set up and connected to the UPAJ server. The UPAJ server will
-     * accept the connection. initChannel() will be called on the UPAJ client to
+     * This test will set up a ETAJ server with ZLIB compression. A ETAJ client
+     * will be set up and connected to the ETAJ server. The ETAJ server will
+     * accept the connection. initChannel() will be called on the ETAJ client to
      * send the ConnectReq (with ZLIB compression). initChannel() will be called
-     * on the UPAJ server to send a ConnectAck (with ZLIB compression). The
+     * on the ETAJ server to send a ConnectAck (with ZLIB compression). The
      * received component version from the ConnectReq and ConnectAck will be
      * verified.
      */
@@ -2642,11 +2642,11 @@ public class RipcHandshakeJunitTest
     /*
      * This is a generalized version of the defaultComponentInfoXTest().
      * 
-     * This test will set up a UPAJ server with the specified compression type.
-     * A UPAJ client will be set up and connected to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with the specified compression type.
+     * A ETAJ client will be set up and connected to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The received component version from the
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The received component version from the
      * ConnectReq and ConnectAck will be verified.
      * 
      * @param compressionType
@@ -2669,12 +2669,12 @@ public class RipcHandshakeJunitTest
         {
             initTransport(false); // initialize RSSL
 
-            // bind the UPAJ server
+            // bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 0, 30, compressionType, 6, Codec.protocolType(),
                                 Codec.majorVersion(), Codec.minorVersion(), false, error);
 
-            // UPAJ client to connect to UPAJ server.
+            // ETAJ client to connect to ETAJ server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT),
                                                        Codec.protocolType(), compressionType, error)) == null)
@@ -2682,7 +2682,7 @@ public class RipcHandshakeJunitTest
                 fail("Unable to connect to RSSL server: <" + error.text() + ">");
             }
 
-            // have the UPAJ server accept the connection from the UPAJ client.
+            // have the ETAJ server accept the connection from the ETAJ client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
@@ -2690,16 +2690,16 @@ public class RipcHandshakeJunitTest
             int channelState = initChannel(consumerChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
             channelState = initChannel(serverChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ client process the ConnectAck, send the clientKey and
-            // verify that the UPAJ client's channel state goes to active.
+            // have our ETAJ client process the ConnectAck, send the clientKey and
+            // verify that the ETAJ client's channel state goes to active.
             initChannelWaitState(consumerChannel, ChannelState.ACTIVE, error, inProg);
             
-            // have our UPAJ server process the clientKey and
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the clientKey and
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);            
             
             int rcvdBufSize = ((RsslSocketChannel)consumerChannel).scktChannel().socket().getReceiveBufferSize();
@@ -2731,11 +2731,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with the pingTimeout greater than 255.
-     * A UPAJ client will be set up and connected to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with the pingTimeout greater than 255.
+     * A ETAJ client will be set up and connected to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The pingTimeout will be verified to be
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The pingTimeout will be verified to be
      * set to 255.
      * 
      * @param compressionType
@@ -2757,13 +2757,13 @@ public class RipcHandshakeJunitTest
         {
             initTransport(false); // initialize RSSL
 
-            // bind the UPAJ server
+            // bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, 3000, 30, 0, 6, Codec.protocolType(),
                                 Codec.majorVersion(), Codec.minorVersion(), false, error);
 
             assertEquals(255, ((ServerImpl)server)._bindOpts.pingTimeout());
-            // UPAJ client to connect to UPAJ server.
+            // ETAJ client to connect to ETAJ server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT),
                                                        Codec.protocolType(), 0, error)) == null)
@@ -2771,7 +2771,7 @@ public class RipcHandshakeJunitTest
                 fail("Unable to connect to RSSL server: <" + error.text() + ">");
             }
 
-            // have the UPAJ server accept the connection from the UPAJ client.
+            // have the ETAJ server accept the connection from the ETAJ client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
@@ -2779,16 +2779,16 @@ public class RipcHandshakeJunitTest
             int channelState = initChannel(consumerChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
             channelState = initChannel(serverChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ client process the ConnectAck, send the clientKey and
-            // verify that the UPAJ client's channel state goes to active.
+            // have our ETAJ client process the ConnectAck, send the clientKey and
+            // verify that the ETAJ client's channel state goes to active.
             initChannelWaitState(consumerChannel, ChannelState.ACTIVE, error, inProg);
             
-            // have our UPAJ server process the clientKey and
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the clientKey and
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);            
             
             @SuppressWarnings("deprecation")
@@ -2821,11 +2821,11 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version. A UPAJ client will be set up with a user specified component
-     * version, then connect to the UPAJ server. The UPAJ server will accept the
-     * connection. initChannel() will be called on the UPAJ client to send the
-     * ConnectReq. initChannel() will be called on the UPAJ server to send a
+     * This test will set up a ETAJ server with a user specified component
+     * version. A ETAJ client will be set up with a user specified component
+     * version, then connect to the ETAJ server. The ETAJ server will accept the
+     * connection. initChannel() will be called on the ETAJ client to send the
+     * ConnectReq. initChannel() will be called on the ETAJ server to send a
      * ConnectAck. The received component version from the ConnectReq and
      * ConnectAck will be verified.
      */
@@ -2840,12 +2840,12 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version 127 in length. A UPAJ client will be set up with a user specified
-     * component version 127 in length, then connect to the UPAJ server. The
-     * UPAJ server will accept the connection. initChannel() will be called on
-     * the UPAJ client to send the ConnectReq. initChannel() will be called on
-     * the UPAJ server to send a ConnectAck. The received component version from
+     * This test will set up a ETAJ server with a user specified component
+     * version 127 in length. A ETAJ client will be set up with a user specified
+     * component version 127 in length, then connect to the ETAJ server. The
+     * ETAJ server will accept the connection. initChannel() will be called on
+     * the ETAJ client to send the ConnectReq. initChannel() will be called on
+     * the ETAJ server to send a ConnectAck. The received component version from
      * the ConnectReq and ConnectAck will be verified.
      */
     @Test
@@ -2855,12 +2855,12 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version 128 in length. A UPAJ client will be set up with a user specified
-     * component version 128 in length, then connect to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with a user specified component
+     * version 128 in length. A ETAJ client will be set up with a user specified
+     * component version 128 in length, then connect to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The received component version from the
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The received component version from the
      * ConnectReq and ConnectAck will be verified.
      */
     @Test
@@ -2870,12 +2870,12 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version 255 in length. A UPAJ client will be set up with a user specified
-     * component version 255 in length, then connect to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with a user specified component
+     * version 255 in length. A ETAJ client will be set up with a user specified
+     * component version 255 in length, then connect to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The received component version from the
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The received component version from the
      * ConnectReq and ConnectAck will be verified.
      */
     @Test
@@ -2885,12 +2885,12 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version 256 in length. A UPAJ client will be set up with a user specified
-     * component version 256 in length, then connect to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with a user specified component
+     * version 256 in length. A ETAJ client will be set up with a user specified
+     * component version 256 in length, then connect to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The received component version from the
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The received component version from the
      * ConnectReq and ConnectAck will be verified.
      */
     @Test
@@ -2900,12 +2900,12 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test will set up a UPAJ server with a user specified component
-     * version 2K in length. A UPAJ client will be set up with a user specified
-     * component version 2K in length, then connect to the UPAJ server. The UPAJ
+     * This test will set up a ETAJ server with a user specified component
+     * version 2K in length. A ETAJ client will be set up with a user specified
+     * component version 2K in length, then connect to the ETAJ server. The ETAJ
      * server will accept the connection. initChannel() will be called on the
-     * UPAJ client to send the ConnectReq. initChannel() will be called on the
-     * UPAJ server to send a ConnectAck. The received component version from the
+     * ETAJ client to send the ConnectReq. initChannel() will be called on the
+     * ETAJ server to send a ConnectAck. The received component version from the
      * ConnectReq and ConnectAck will be verified.
      */
     @Test
@@ -2972,11 +2972,11 @@ public class RipcHandshakeJunitTest
     /*
      * This is a generalized version of the userSpecifiedComponentInfoXTest().
      * 
-     * This test will set up a UPAJ server with the user specified component
-     * version. A UPAJ client will be set up with a user specified component
-     * version, then connect to the UPAJ server. The UPAJ server will accept the
-     * connection. initChannel() will be called on the UPAJ client to send the
-     * ConnectReq. initChannel() will be called on the UPAJ server to send a
+     * This test will set up a ETAJ server with the user specified component
+     * version. A ETAJ client will be set up with a user specified component
+     * version, then connect to the ETAJ server. The ETAJ server will accept the
+     * connection. initChannel() will be called on the ETAJ client to send the
+     * ConnectReq. initChannel() will be called on the ETAJ server to send a
      * ConnectAck. The received component version from the ConnectReq and
      * ConnectAck will be verified.
      * 
@@ -3004,7 +3004,7 @@ public class RipcHandshakeJunitTest
         {
             initTransport(false); // initialize RSSL
 
-            // bind the UPAJ server
+            // bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
@@ -3016,7 +3016,7 @@ public class RipcHandshakeJunitTest
             int ret = server.ioctl(IoctlCodes.COMPONENT_INFO, myServerCi, error);
             assertEquals(TransportReturnCodes.SUCCESS, ret);
 
-            // UPAJ client to connect to UPAJ server.
+            // ETAJ client to connect to ETAJ server.
             if ((consumerChannel = connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -3031,7 +3031,7 @@ public class RipcHandshakeJunitTest
             ret = consumerChannel.ioctl(IoctlCodes.COMPONENT_INFO, myClientCi, error);
             assertEquals(TransportReturnCodes.SUCCESS, ret);
 
-            // have the UPAJ server accept the connection from the UPAJ client.
+            // have the ETAJ server accept the connection from the ETAJ client.
             serverChannel = serverAccept(selector, false, error);
             assertNotNull(serverChannel.selectableChannel());
 
@@ -3039,16 +3039,16 @@ public class RipcHandshakeJunitTest
             int channelState = initChannel(consumerChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ server process the ConnectReq and send a ConnectAck
+            // have our ETAJ server process the ConnectReq and send a ConnectAck
             channelState = initChannel(serverChannel, error, inProg);
             assertEquals(ChannelState.INITIALIZING, channelState);
 
-            // have our UPAJ client process the ConnectAck, send the clientKey and
-            // verify that the UPAJ client's channel state goes to active.
+            // have our ETAJ client process the ConnectAck, send the clientKey and
+            // verify that the ETAJ client's channel state goes to active.
             initChannelWaitState(consumerChannel, ChannelState.ACTIVE, error, inProg);
             
-            // have our UPAJ server process the clientKey and
-            // verify that the UPAJ server's channel state goes to active.
+            // have our ETAJ server process the clientKey and
+            // verify that the ETAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);            
 
             // verify that the server and consumer received the correct
@@ -3088,7 +3088,7 @@ public class RipcHandshakeJunitTest
         {
             initTransport(false); // initialize RSSL
 
-            // bind the UPAJ server
+            // bind the ETAJ server
             selector = Selector.open();
             server = serverBind(selector, error);
 
@@ -3107,7 +3107,7 @@ public class RipcHandshakeJunitTest
                                                                             .componentVersion(),
                                                                     error));
 
-            // UPAJ client to connect to UPAJ server.
+            // ETAJ client to connect to ETAJ server.
             if ((clientChannel = connectToRsslServer("localhost",
                                                      String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {

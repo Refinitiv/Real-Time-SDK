@@ -1,5 +1,5 @@
 /**
- * This package contains the UPA Value Add Reactor. The UPA Reactor is a
+ * This package contains the ETA Value Add Reactor. The ETA Reactor is a
  * callback-based connection management and event processing component that
  * will significantly reduce the amount of code an application must write for
  * OMM-based applications. The Reactor can be used to create Consumer,

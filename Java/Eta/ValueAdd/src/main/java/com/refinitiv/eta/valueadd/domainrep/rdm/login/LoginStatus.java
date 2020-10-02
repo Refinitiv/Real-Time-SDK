@@ -31,7 +31,7 @@ public interface LoginStatus extends LoginMsg
      *
      * @param destStatusMsg Message to copy login status object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginStatus destStatusMsg);
 

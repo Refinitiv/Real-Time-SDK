@@ -27,7 +27,7 @@ public interface GlobalElementSetDefDb extends ElementSetDefDb
      * 
      * @param iter An iterator to use. Must be set to the encoded buffer.
      * @param verbosity The desired verbosity to decode.
-     * @param error UPA Error, to be populated in event of an error.
+     * @param error ETA Error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}
      * 

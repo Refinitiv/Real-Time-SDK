@@ -910,7 +910,7 @@ public class WriteBufferJunit
     }
 
     /*
-     * In this test, the UPAJ client will connect to the TestServer and send a
+     * In this test, the ETAJ client will connect to the TestServer and send a
      * ConnectReq. The TestServer will verify the ConnectReq as the current RIPC
      * version, for example version 13, then close the connection. The client
      * will fall back to RIPC version 12 and send a ConnectReq. The TestServer
@@ -965,7 +965,7 @@ public class WriteBufferJunit
 
             server.wait(TestServer.State.SETUP);
 
-            // make UPA call to connect to server.
+            // make ETA call to connect to server.
             if ((consumerChannel = RipcHandshakeJunitTest.connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
@@ -1044,7 +1044,7 @@ public class WriteBufferJunit
                     System.out.println("DEBUG: waiting for server to accept new connection");
                 }
 
-                /* UPAJ should establish a new connection. */
+                /* ETAJ should establish a new connection. */
 
                 retry = 1000 / SLEEPTIMEMS;
                 while (retry-- > 0)
@@ -1568,9 +1568,9 @@ public class WriteBufferJunit
         }
     }
 
-    /* Test the UPAQueue implementation. */
+    /* Test the ETAQueue implementation. */
     @Test
-    public void upaQueueTest()
+    public void etaQueueTest()
     {
     	EtaQueue qe = new EtaQueue();
     	qe.clear();

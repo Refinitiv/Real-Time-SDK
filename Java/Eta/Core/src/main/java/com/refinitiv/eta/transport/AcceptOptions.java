@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Accept Options used in the {@link Server#accept(AcceptOptions, Error)} call.
+ * ETA Accept Options used in the {@link Server#accept(AcceptOptions, Error)} call.
  * 
  * @see Server
  */
@@ -97,7 +97,7 @@ public interface AcceptOptions
     public int sysSendBufSize();
 
     /**
-     * Clears UPA Accept Options.
+     * Clears ETA Accept Options.
      */
     public void clear();
 

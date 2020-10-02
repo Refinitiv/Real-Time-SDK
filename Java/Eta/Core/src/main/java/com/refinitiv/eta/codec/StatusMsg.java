@@ -4,7 +4,7 @@ import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.State;
 
 /**
- * UPA Status Message is used to indicate changes to the stream or data
+ * ETA Status Message is used to indicate changes to the stream or data
  * properties. This message can convey changes in streamState or dataState,
  * changes in a stream's permissioning information, and changes to the item
  * group that the stream is part of. A Provider application uses the

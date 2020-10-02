@@ -161,10 +161,10 @@ typedef struct
 	RsslReactorConnectInfoImpl *connectionOptList;
 	TunnelManager *pTunnelManager;
 
-	/* Support session management and EDP-RT service discovery. */
+	/* Support session management and RDP service discovery. */
 	RsslBool				supportSessionMgnt;
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
-	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from EDP-RT service discovery */
+	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
 	/* This is original login request information */
 	RsslBuffer				userName;
@@ -555,7 +555,7 @@ struct _RsslReactorImpl
 
 	RsslInt64 ticksPerMsec;
 
-	/* For EDP token management and service discovery */
+	/* For RDP token management and service discovery */
 	RsslBuffer			serviceDiscoveryURL; /* Used the memory location from the serviceDiscoveryURLBuffer */
 	RsslBuffer			serviceDiscoveryURLBuffer;
 	RsslBuffer			tokenServiceURL; /* Used the memory location from the tokenServiceURLBuffer */

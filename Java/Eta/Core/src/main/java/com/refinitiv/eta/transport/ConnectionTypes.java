@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Connection types are used in several areas of the transport. When
+ * ETA Connection types are used in several areas of the transport. When
  * creating a connection an application can specify the connection type to use.
  */
 public class ConnectionTypes
@@ -18,7 +18,7 @@ public class ConnectionTypes
 
     /**
      * Indicates that the {@link Channel} is using a standard TCP-based socket
-     * connection. This type can be used to connect between any UPA Transport
+     * connection. This type can be used to connect between any ETA Transport
      * based applications.
      */
     public static final int SOCKET = 0;
@@ -27,14 +27,14 @@ public class ConnectionTypes
     /**
      * Indicates that the {@link Channel} is using an SSL/TLS encrypted
      * HTTP TCP-based socket connection. This type can be used by
-     * a UPA Transport consumer based application.
+     * a ETA Transport consumer based application.
      */
     public static final int ENCRYPTED = 1;
     
     
     /**
      * Indicates that the {@link Channel} is using an HTTP TCP-based socket
-     * connection. This type can be used by a UPA Transport
+     * connection. This type can be used by a ETA Transport
      * consumer based application.
      */
     public static final int HTTP = 2;

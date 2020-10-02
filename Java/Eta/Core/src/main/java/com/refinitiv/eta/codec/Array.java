@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * A UPA Array is a uniform primitive type that can contain 0 to N simple primitive entries,u
+ * A ETA Array is a uniform primitive type that can contain 0 to N simple primitive entries,u
  * where zero entries indicates an empty Array.
  * <p>
  * Each Array entry can house only simple primitive types such as {@link Int},

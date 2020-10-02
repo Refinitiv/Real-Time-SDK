@@ -37,7 +37,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
  * <p>
- * This is the main class for the UPA Java Generic Consumer application. The purpose
+ * This is the main class for the ETA Java Generic Consumer application. The purpose
  * of this application is to send and receive generic messages with opaque data between
  * a generic consumer and generic provider. It request files from a generic provider
  * and stores the file responses to disk.
@@ -47,7 +47,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
- * <li>Create a {@link ChannelSession UPA Channel Session}.
+ * <li>Create a {@link ChannelSession ETA Channel Session}.
  * <li>Create Handler instances to handle Login and Directory requests and responses.
  * <li>Connect to the provider, login, request source directory, send a request for
  * the generic domain to open a steam for generic messages.

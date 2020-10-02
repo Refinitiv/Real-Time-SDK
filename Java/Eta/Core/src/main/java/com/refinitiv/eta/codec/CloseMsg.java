@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * UPA close message is used by a Consumer to indicate no further interest in a
+ * ETA close message is used by a Consumer to indicate no further interest in a
  * stream. The stream should be closed as a result. The streamId indicates the
  * item stream to which {@link CloseMsg} applies.
  * 

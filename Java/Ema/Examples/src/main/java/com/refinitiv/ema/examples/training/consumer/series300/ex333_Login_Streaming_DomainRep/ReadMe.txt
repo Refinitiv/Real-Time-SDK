@@ -5,7 +5,7 @@ The ex333_Login_Streaming_DomainRep application is provided as an example of OMM
 application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct
+and parsing of OMM Login and MarketPrice data from Refinitiv Data Feed Direct
 (RDF-D), directly from an OMM Provider application, or from an
 Advanced Distribution Server.
 

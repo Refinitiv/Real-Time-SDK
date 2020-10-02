@@ -18,7 +18,7 @@ import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRequest;
 import com.refinitiv.eta.rdm.DomainTypes;
 
 /**
- * This is the market by order handler for the UPA consumer application. It
+ * This is the market by order handler for the ETA consumer application. It
  * provides methods for decoding a map containing field list contents,
  * decoding field entries from a response.
  * 

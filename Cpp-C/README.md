@@ -147,7 +147,7 @@ Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/RTSDK_C_Installation
 ## Install RTSDK 
 There are 3 ways to install Refinitiv Real-Time SDK:
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to RTSDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning RTSDK GitHub repo with --recursive to include submodule found in [a BinaryPack repository](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack). 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
 Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
 
@@ -214,7 +214,7 @@ Starting with ESDK1.3.1, DACS and ANSI libraries are available for 32-bits in th
 
 # Obtaining the Refinitiv Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of TREP Templates Service Pack.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Cpp-C/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Real-Time Templates Service Pack.
 
 
 # Developing 

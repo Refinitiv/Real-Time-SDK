@@ -6,7 +6,7 @@ Summary:
 
 The purpose of this application is to demonstrate consuming data from
 an OMM Provider, ADS device, OMM Provider application or Refinitiv 
-Real-Time Optimized using ValueAdd components.  It is a
+Real-Time - Optimized using ValueAdd components.  It is a
 single-threaded client application.
 
 The consumer application implements callbacks that process information
@@ -74,7 +74,7 @@ can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
 Both the shared version of libcurl and the openssl libraries are needed to run this example for 
-connecting and consuming data from Refinitiv Real-Time Optimized. 
+connecting and consuming data from Refinitiv Real-Time - Optimized. 
 
 -------------------
 Command line usage:
@@ -150,12 +150,13 @@ The -tsDomain option specifies the domainType to use when opening the tunnel str
 simple tunnel messaging. Like the other tunnel stream messaging options, this is associated
 with a channel (specified by the -tcp option). This option may be specified once per channel.
 
-Specifying the -at option configures the token used for TREP Authentication.  This should be used 
-in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
-will verify the token against a token validator.  For more information about the TREP Authentication
-feature, please see the Developers guide and the TREP Authentication guide.
+Specifying the -at option configures the token used for UserAuthn Authentication. This should be used 
+in place of a userName.  This token is retrieved from a token generator, and passed to
+Refinitiv Real-Time Distribution, which will verify the token against a token validator.
+For more information about the UserAuthn Authentication feature, please see the Developers guide and
+the UserAuthn Authentication guide.
 
-Specifying the -ax option configures the authentication extended information used for TREP Authentication.
+Specifying the -ax option configures the authentication extended information used for UserAuthn Authentication.
 
 Specifying the -aid option configures the Application Id.
 
@@ -165,7 +166,7 @@ VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd 
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
 using the default "us-east" region and enable session management to login and subscribe TRI.N from
-Refinitiv Real-Time Optimized.
+Refinitiv Real-Time - Optimized.
 
 - VAConsumer -? displays command line options.  
 

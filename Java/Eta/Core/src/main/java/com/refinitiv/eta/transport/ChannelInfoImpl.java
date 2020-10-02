@@ -264,7 +264,7 @@ public class ChannelInfoImpl implements ChannelInfo
         ((MCastStatsImpl)_multicastStats).unicastSent(multicastStats.unicastSent());
     }
 
-    /* used by JNI to set componentInfo from UPAC */
+    /* used by JNI to set componentInfo from ETAC */
     public void addCompVersionString(String compVersionStr)
     {
         ComponentInfo ci = new ComponentInfoImpl();

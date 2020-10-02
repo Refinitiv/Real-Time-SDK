@@ -7,7 +7,7 @@ import java.nio.channels.ServerSocketChannel;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.Int;
 
-/* Implements a JNI server that hooks into the UPAC API at the top level. */
+/* Implements a JNI server that hooks into the ETAC API at the top level. */
 public class JNIServer extends EtaNode implements Server
 {
     JNIProtocol _transport;
@@ -15,10 +15,10 @@ public class JNIServer extends EtaNode implements Server
     Int _tempInt = CodecFactory.createInt();
     BindOptions _bindOpts;
 
-    /* ServerSocketChannel of this UPA server. */
+    /* ServerSocketChannel of this ETA server. */
     public ServerSocketChannel _srvrScktChannel;
     
-    /* State of this UPA server. */
+    /* State of this ETA server. */
     public int _state;
     
     /* Port number this server is bound to. */
@@ -77,7 +77,7 @@ public class JNIServer extends EtaNode implements Server
             }
             else
             {
-                // SYSTEM_READ_BUFFERS not supported for UPAC
+                // SYSTEM_READ_BUFFERS not supported for ETAC
                 return TransportReturnCodes.SUCCESS;
             }
         }
@@ -223,7 +223,7 @@ public class JNIServer extends EtaNode implements Server
         }
     }
 
-    /* The following is for the UPAC JNI code. */
+    /* The following is for the ETAC JNI code. */
 
     /* Socket ID of this RSSL server. */
     public int _socketId;

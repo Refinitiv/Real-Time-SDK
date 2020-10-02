@@ -136,7 +136,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
         _majorVer = dIter.majorVersion();
         _minorVer = dIter.minorVersion();
-        int ret = etaApply(_etaCacheEntryRef, applyBuffer._upaBufferCPtr, dataLen, _majorVer, _minorVer, error);
+        int ret = etaApply(_etaCacheEntryRef, applyBuffer._etaBufferCPtr, dataLen, _majorVer, _minorVer, error);
 
         if (ret < CodecReturnCodes.SUCCESS && ret == error.errorId()) // is error, not warning
         {
@@ -195,7 +195,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
 
         // may need to consider how to handle rwf version difference between eIter and eIter from apply function
 
-        int ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._upaBufferCPtr, fragmentSize,
+        int ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._etaBufferCPtr, fragmentSize,
                               eIter.majorVersion(), eIter.minorVersion(),
                               cursorUsed, (cursorUsed != null ? cursorUsed.getETACursorRef() : 0), error);
 
@@ -246,7 +246,7 @@ class PayloadEntryImpl extends VaNode implements PayloadEntry
             while (!_traceCursor.isComplete())
             {
                 retrieveBuffer.clear();
-                ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._upaBufferCPtr, TRACE_BUF_SIZE,
+                ret = etaRetrieve(_etaCacheEntryRef, retrieveBuffer._etaBufferCPtr, TRACE_BUF_SIZE,
                                   _majorVer, _minorVer,
                                   _traceCursor, _traceCursor.getETACursorRef(), null);
 

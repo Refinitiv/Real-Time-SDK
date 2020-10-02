@@ -164,7 +164,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
+     * Returns a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @return clientId.
      */		
@@ -185,7 +185,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns the client secret for application making the request to EDP token service.
+     * Returns the client secret for application making the request to RDP token service.
      * 
      * @return clientSecret.
      */		
@@ -206,7 +206,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns the token scope for application making the request to EDP token service.
+     * Returns the token scope for application making the request to RDP token service.
      * 
      * @return tokenScope.
      */		

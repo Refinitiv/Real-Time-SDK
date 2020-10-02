@@ -500,7 +500,7 @@ typedef struct {
  * @see RsslConnectOptions
  */
 typedef struct {
-	RsslUInt		maxReaderLag;			/*!<  @brief Maximum number of messages that the client can have waiting to read. If the client "lags" the server by more than this amount, UPA will disconnect the client */
+	RsslUInt		maxReaderLag;			/*!<  @brief Maximum number of messages that the client can have waiting to read. If the client "lags" the server by more than this amount, ETA will disconnect the client */
 } RsslShmemOpts;
 
 #define RSSL_INIT_SHMEM_OPTS { 0 }

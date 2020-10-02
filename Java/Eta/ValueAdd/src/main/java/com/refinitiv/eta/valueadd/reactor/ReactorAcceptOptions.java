@@ -23,7 +23,7 @@ public class ReactorAcceptOptions
      * with the underlying Reactor#accept(Server, ReactorConnectOptions,
      * ReactorRole, ReactorErrorInfo)} method. This includes an option to reject
      * the connection as well as a userSpecObj. This is described in more detail
-     * in the UPA Developers Guide.
+     * in the ETA Developers Guide.
      * 
      * @return acceptOptions
      */

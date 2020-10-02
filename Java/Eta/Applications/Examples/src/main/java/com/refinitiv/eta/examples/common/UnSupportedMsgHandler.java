@@ -100,7 +100,7 @@ public class UnSupportedMsgHandler
      * 
      * @param channel - The channel to send not supported status message to
      * @param requestMsg - The partially decoded request message
-     * @param error - UPA error when encoding or sending of status message
+     * @param error - ETA error when encoding or sending of status message
      *            fails.
      * @return {@link CodecReturnCodes}
      */

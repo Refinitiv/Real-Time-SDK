@@ -91,7 +91,7 @@ public interface QueueData extends QueueMsg
      * 
      * @param eIter The Encode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int encodeInit(EncodeIterator eIter);
     
@@ -103,7 +103,7 @@ public interface QueueData extends QueueMsg
      * @param success If true - successfully complete the message, if false - remove
      *            the message from the buffer.
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int encodeComplete(EncodeIterator eIter, boolean success);
 

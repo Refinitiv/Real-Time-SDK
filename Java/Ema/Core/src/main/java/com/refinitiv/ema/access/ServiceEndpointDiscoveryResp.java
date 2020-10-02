@@ -10,7 +10,7 @@ package com.refinitiv.ema.access;
 import java.util.List;
 
 /**
- * ServiceEndpointDiscoveryResp represents a response from EDP-RT service discovery which contains a list of ServiceEndpointDiscoveryInfo
+ * ServiceEndpointDiscoveryResp represents a response from RDP service discovery which contains a list of ServiceEndpointDiscoveryInfo
  *
  * @see ServiceEndpointDiscoveryInfo
  */

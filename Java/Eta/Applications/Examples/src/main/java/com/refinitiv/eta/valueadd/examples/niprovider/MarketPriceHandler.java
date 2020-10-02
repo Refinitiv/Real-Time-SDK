@@ -34,7 +34,7 @@ import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.TransportBuffer;
 
 /*
- * This is the market price handler for the UPA NIProvider application. It
+ * This is the market price handler for the ETA NIProvider application. It
  * provides methods to encode and send refreshes and updates, as well as close
  * streams.
  */

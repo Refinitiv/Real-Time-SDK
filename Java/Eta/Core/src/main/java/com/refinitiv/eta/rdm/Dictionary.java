@@ -67,7 +67,7 @@ public class Dictionary
      * Enumerations describing how much information about a particular dictionary is
      * desired. These values are typically set in a {@link RequestMsg}'s
      * {@link MsgKey} filter when the request for the dictionary is made.
-     * See the UPA RDM Usage Guide for details.
+     * See the ETA RDM Usage Guide for details.
      * 
      * @see com.refinitiv.eta.codec.DataDictionary
      * @see com.refinitiv.eta.codec.MsgKey

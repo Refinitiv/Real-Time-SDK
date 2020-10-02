@@ -113,7 +113,7 @@ public interface ChannelInformation
 		public static final int UNKNOWN = -1;
 
 		/**
-		 * Reuters wire format protocol
+		 * Refinitiv wire format protocol
 		 */
 		public static final int RWF = 0;
 	}

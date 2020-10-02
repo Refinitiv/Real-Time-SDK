@@ -308,13 +308,13 @@ class RmtesDecoderImpl implements RmtesDecoder
 
                     break;
                 case RMTESParseState.ESC_21:
-                    if (currPtr.get(i) != 0x40) /* Reuters Ctrl 1 to CL */
+                    if (currPtr.get(i) != 0x40) /* Refinitiv Ctrl 1 to CL */
                     {
                         return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                     }
                     break;
                 case RMTESParseState.ESC_22:
-                    if (currPtr.get(i) != 0x30) /* Reuters Ctrl 2 to CR */
+                    if (currPtr.get(i) != 0x30) /* Refinitiv Ctrl 2 to CR */
                     {
                         return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                     }
@@ -848,7 +848,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         return CodecReturnCodes.SUCCESS;
     }
 
-    /* Handles the following cases ( Same as UPAC ): 1) ESC LBRKT
+    /* Handles the following cases ( Same as ETAC ): 1) ESC LBRKT
      * NumericNumber(base 10) RHPA - Cursor command 2) ESC LBRKT
      * NumericNumber(base 10) RREP - Repeat command for previous character
      */

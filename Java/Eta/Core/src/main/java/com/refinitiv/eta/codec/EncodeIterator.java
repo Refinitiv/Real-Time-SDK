@@ -29,7 +29,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
  * {@link #clear()} method can be used to initialize (or re-initialize for
  * reuse) the <code>EncodeIterator</code>. After clearing, a
  * {@link Buffer} with ample memory should be associated with the iterator;
- * this will be the buffer that content is encoded into (if using with the UPA
+ * this will be the buffer that content is encoded into (if using with the ETA
  * Transport, this is often a buffer obtained from the
  * {@link Channel#getBuffer(int, boolean, com.refinitiv.eta.transport.Error)}
  * method so it can be immediately written after encoding completes). 
@@ -38,7 +38,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
  * 
  * <b>Encode Iterator Example</b>
  * <p>
- * The following code example demonstrates creation of the UPA encode iterator
+ * The following code example demonstrates creation of the ETA encode iterator
  * and associating with buffer to encode into:
  * 
  * <ul class="blockList">
@@ -111,7 +111,7 @@ public interface EncodeIterator
      * iterator. When used for encoding, the iterator will then use that version
      * of the RWF to encode.
      * 
-     * Use this method when you want to encode into RWF and use UPAJ's transport.
+     * Use this method when you want to encode into RWF and use ETAJ's transport.
      * 
      * @param buffer {@link TransportBuffer} to use for encoding
      * @param rwfMajorVersion - this is the major version of the wire format to encode
@@ -239,7 +239,7 @@ public interface EncodeIterator
     public int minorVersion();
     
     /**
-     * Convenience method that replaces the streamId on an encoded UPA
+     * Convenience method that replaces the streamId on an encoded ETA
      * message.
      * 
      * @param streamId the new stream id
@@ -250,7 +250,7 @@ public interface EncodeIterator
     public int replaceStreamId(int streamId);
     
     /**
-     * Convenience method that replaces the seqNum on an encoded UPA message.
+     * Convenience method that replaces the seqNum on an encoded ETA message.
      * This only works if there is a seqNum already encoded in the message.
      * 
      * @param seqNum the new sequence number
@@ -262,7 +262,7 @@ public interface EncodeIterator
     public int replaceSeqNum(long seqNum);
     
     /**
-     * Convenience method that replaces the stream state on an encoded UPA
+     * Convenience method that replaces the stream state on an encoded ETA
      * message. This only works if there is a state already encoded in the message.
      * 
      * @param streamState the new stream state
@@ -276,7 +276,7 @@ public interface EncodeIterator
     public int replaceStreamState(int streamState);
     
     /**
-     * Convenience method that replaces the data state on an encoded UPA
+     * Convenience method that replaces the data state on an encoded ETA
      * message. This only works if there is a state already encoded in the message.
      * 
      * @param dataState the new data state
@@ -290,7 +290,7 @@ public interface EncodeIterator
     public int replaceDataState(int dataState);
 
     /**
-     * Convenience method that replaces the state code on an encoded UPA
+     * Convenience method that replaces the state code on an encoded ETA
      * message. This only works if there is a state already encoded in the message.
      * 
      * @param stateCode the state code
@@ -304,7 +304,7 @@ public interface EncodeIterator
     public int replaceStateCode(int stateCode);
     
     /**
-     * Convenience method that replaces the group id on an encoded UPA
+     * Convenience method that replaces the group id on an encoded ETA
      * message. This only works if there is a group id already encoded in the
      * message and the length of the new groupId is the same as the old one.
      * 

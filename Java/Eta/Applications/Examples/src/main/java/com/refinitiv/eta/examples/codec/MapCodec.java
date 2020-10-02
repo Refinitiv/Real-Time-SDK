@@ -238,7 +238,7 @@ public class MapCodec
 			System.out.printf("\tMap Header Decoded: TotalCountHint: %d\n", map.totalCountHint());
 
 			/* if summary data is present, invoking decoder for that type (instead of DecodeEntry)
-			indicates to UPA that user wants to decode summary data */
+			indicates to ETA that user wants to decode summary data */
 			if (map.checkHasSummaryData())
 			{
 				/* summary data is present.  Its type should be that of Map.containerType */

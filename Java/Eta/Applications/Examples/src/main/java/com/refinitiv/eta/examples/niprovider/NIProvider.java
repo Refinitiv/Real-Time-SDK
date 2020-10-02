@@ -37,7 +37,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * This is a main class to run UPA NIProvider application. The purpose of this
+ * This is a main class to run ETA NIProvider application. The purpose of this
  * application is to non-interactively provide Level I Market Price and Level 2
  * Market By Order data to an Advanced Data Hub (ADH). If supported it requests
  * dictionary from an adh.
@@ -48,7 +48,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
- * <li>Create a {@link ChannelSession UPA Channel Session}.
+ * <li>Create a {@link ChannelSession ETA Channel Session}.
  * <li>Create Handler instances to handle Login, Directory, MarketPrice and
  * MarketByOrder responses.
  * <li>Load Dictionary from file, if file available in the path.
@@ -69,10 +69,10 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * <p>
  * <em>Setup Environment</em>
  * <p>

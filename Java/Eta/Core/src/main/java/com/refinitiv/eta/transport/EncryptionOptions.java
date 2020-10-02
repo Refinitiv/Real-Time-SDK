@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Connect Options used in the
+ * ETA Connect Options used in the
  * {@link ConnectOptions} class.
  * 
  * @see Transport

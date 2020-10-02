@@ -36,7 +36,7 @@
  * connection to the well-known hostname and port of a server (Interactive 
  * Provider or ADS). The consumer uses the rsslConnect() function to initiate 
  * the connection and then uses the rsslInitChannel() function to complete 
- * channel initialization.(rssl stands for Reuters Source Sink Library.
+ * channel initialization.(rssl stands for Refinitiv Source Sink Library.
  * ETA stands for “Ultra Performance API.” It was the previous name of the product, 
  * before it was re-branded as ETA “Enterprise Transport API”.)
  * 

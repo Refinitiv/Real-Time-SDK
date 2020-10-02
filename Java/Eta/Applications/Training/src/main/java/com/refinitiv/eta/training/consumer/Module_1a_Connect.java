@@ -9,25 +9,25 @@
 
 /*********************************************************************************
 
- * This is the UPA Consumer Training series of the UPA Training Suite
+ * This is the ETA Consumer Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Consumer using the UPA Transport layer.
+ * training how to build a ETA OMM Consumer using the ETA Transport layer.
  *
- * Main Java source file for the UPA Consumer Training application. It is a 
+ * Main Java source file for the ETA Consumer Training application. It is a 
  * single-threaded client application.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1a: Establish network communication
+ * ETA Consumer Training Module 1a: Establish network communication
  *********************************************************************************
  * Summary:
- * In this module, the application initializes the UPA Transport and 
+ * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
  * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
- * The first step of any UPA consumer application is to establish a 
+ * The first step of any ETA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
  * with which to interact). An OMM consumer typically creates an out-bound 
  * connection to the well-known hostname and port of a server (Interactive 
@@ -157,12 +157,12 @@ public class Module_1a_Connect
          * INITIALIZATION
          **************************************************************************************************/
         /*********************************************************
-         * Client/Consumer Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Client/Consumer Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any bootstrapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
         {
@@ -172,7 +172,7 @@ public class Module_1a_Connect
 
         /* Set connect options */
         /* populate connect options, then pass to Connect function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* use standard socket connection */
         cOpts.connectionType(ConnectionTypes.SOCKET); /* (0) Channel is a standard TCP socket connection type */
@@ -278,8 +278,8 @@ public class Module_1a_Connect
                          * multiple times throughout the Loop 1, as it makes *
                          * more progress towards channel initialization. *
                          ***************************************************************************/
-                        /* Internally, the UPA initialization process includes several actions. The initialization includes
-                         * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+                        /* Internally, the ETA initialization process includes several actions. The initialization includes
+                         * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
                          * Compression, ping timeout, and versioning related negotiations also take place during the
                          * initialization process. This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.state() will transition. If the connection
@@ -443,14 +443,14 @@ public class Module_1a_Connect
         }
 
         /*********************************************************
-         * Client/Consumer Application Life Cycle Major Step 6: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Client/Consumer Application Life Cycle Major Step 6: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitializes internal data structures
          * and deletes any allocated memory.
          *********************************************************/
 
         /*
-         * All UPA Transport use is complete, must uninitialize. The
+         * All ETA Transport use is complete, must uninitialize. The
          * uninitialization process allows for any heap allocated memory to be
          * cleaned up properly.
          */
@@ -464,7 +464,7 @@ public class Module_1a_Connect
 
         if (code == TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
+            System.out.printf("\nETA Consumer Training Application successfully ended.\n");
         }
 
         System.exit(0);

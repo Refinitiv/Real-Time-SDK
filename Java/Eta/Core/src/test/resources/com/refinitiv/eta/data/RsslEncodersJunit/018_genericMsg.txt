@@ -1,4 +1,4 @@
-# The hex data has been created with UPAC rsslTrwfMessageTest.
+# The hex data has been created with ETAC rsslTrwfMessageTest.
 # The genericMsgTest function is included after the hex data.
 # 
 # MsgInit:

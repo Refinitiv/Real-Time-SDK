@@ -32,7 +32,7 @@ public class ReactorConnectInfo
      * Transport.connect} method. This includes information about the host or
      * network to connect to, the type of connection to use, and other transport
      * specific configuration information. This is described in more detail in
-     * the UPA Developers Guide.
+     * the ETA Developers Guide.
      * 
      * @return the {@link ConnectOptions}
      */

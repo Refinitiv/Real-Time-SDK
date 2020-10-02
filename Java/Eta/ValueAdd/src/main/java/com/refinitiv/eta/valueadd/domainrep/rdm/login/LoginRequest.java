@@ -33,7 +33,7 @@ public interface LoginRequest extends LoginMsg
      * @param destRequestMsg Message to copy login request object into. It
      *            cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginRequest destRequestMsg);
 
@@ -55,7 +55,7 @@ public interface LoginRequest extends LoginMsg
     /**
      * Sets userName for login to the user specified buffer. Data and position
      * of serviceName buffer will be set to passed in buffer's data and
-     * position. For TREP Authentication, this should contain the Authentication
+     * position. For UserAuthn Authentication, this should contain the Authentication
      * Token. Note that this creates garbage if buffer is backed by String
      * object.
      *

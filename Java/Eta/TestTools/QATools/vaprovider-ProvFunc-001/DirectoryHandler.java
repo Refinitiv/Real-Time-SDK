@@ -31,7 +31,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
- * This is the source directory handler for the UPA Java Provider application.
+ * This is the source directory handler for the ETA Java Provider application.
  * <p>
  * Only one source directory stream per channel is allowed by this simple
  * provider.
@@ -76,7 +76,7 @@ class DirectoryHandler
     private static final String enumTypeDictionaryName = "RWFEnum";
 
     // link name
-    private static final String linkName = "UPA Provider Link";
+    private static final String linkName = "ETA Provider Link";
 
     static final int OPEN_LIMIT = 10;
 

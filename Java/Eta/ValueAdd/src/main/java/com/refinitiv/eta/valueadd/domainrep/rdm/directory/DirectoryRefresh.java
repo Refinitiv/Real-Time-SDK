@@ -36,7 +36,7 @@ public interface DirectoryRefresh extends DirectoryMsg
      *
      * @param destRefreshMsg Message to copy directory refresh object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(DirectoryRefresh destRefreshMsg);
 

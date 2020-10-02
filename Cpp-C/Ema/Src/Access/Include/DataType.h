@@ -101,7 +101,7 @@ public :
 		Utf8Enum = 18,			/*!< A UTF-8 encoding of ISO 10646 (specified in section 3.9 of the Unicode
 									4.0 standard and IETF's RFC 3629). */
 		
-		RmtesEnum = 19,			/*!< An encoding with the Refinitiv Multilingual Text Encoding Standard.
+		RmtesEnum = 19,			/*!< An encoding with a multilingual text encoding standard.
 									RMTES uses ISO 2022 escape sequences to select the character sets used. 
 									RMTES provides support for the Refinitiv Basic Character Set, UTF-8, 
 									Japanese Latin and Katakana (JIS C 6220 - 1969), Japanese Kanji (JIS X 

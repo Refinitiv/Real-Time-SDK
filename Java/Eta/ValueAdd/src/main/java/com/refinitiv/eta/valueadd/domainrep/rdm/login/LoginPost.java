@@ -16,7 +16,7 @@ public interface LoginPost extends LoginMsg
      *
      * @param destPostMsg Message to copy login post object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginPost destPostMsg);
 }

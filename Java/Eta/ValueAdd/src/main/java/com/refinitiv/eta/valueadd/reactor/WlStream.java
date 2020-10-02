@@ -716,7 +716,7 @@ class WlStream extends VaNode
         return _watchlist.itemHandler().callbackUser("WlStream.sendNak", _ackMsg, null, _watchlist.streamIdtoWlRequestTable().get(tempWlInteger), errorInfo);
     }
     
-    /* Encodes a UPA message into buffer and writes to channel. */
+    /* Encodes a ETA message into buffer and writes to channel. */
     int encodeIntoBufferAndWrite(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;

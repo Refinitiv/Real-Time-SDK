@@ -86,7 +86,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>
- * This is a main class to run the UPA Value Add Consumer application.
+ * This is a main class to run the ETA Value Add Consumer application.
  * </p>
  * <H2>Summary</H2>
  * <p>
@@ -130,10 +130,10 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  * This application is intended as a basic usage example. Some of the design choices
  * were made to favor simplicity and readability over performance. This application 
  * is not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * </p>
  * <H2>Setup Environment</H2>
  * <p>
@@ -173,7 +173,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  *
  * <li>-passwd changes the password used when logging into the provider
  * 
- * <li>-clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator
+ * <li>-clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator
  * 
  * <li>-sessionMgnt enables the session management in the Reactor
  *

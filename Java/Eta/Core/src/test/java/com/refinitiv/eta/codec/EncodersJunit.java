@@ -1138,7 +1138,7 @@ public class EncodersJunit
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         
-        // verification data taken from UPAC DataTest
+        // verification data taken from ETAC DataTest
         assertEquals(1, buf.data().get(0));
         assertEquals(2, buf.data().get(1));
         assertEquals(0, buf.data().get(2));
@@ -1259,7 +1259,7 @@ public class EncodersJunit
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, elementSetDefDb, 32));
         
-        // verification data taken from UPAC DataTest
+        // verification data taken from ETAC DataTest
         assertEquals(0x08, buf.data().get(0));
         // Note that bytes 1 and 2 are skipped and not written, so they are not checked.
     }
@@ -1286,7 +1286,7 @@ public class EncodersJunit
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeComplete(iter, true));
         
-        // verification data taken from UPAC DataTest
+        // verification data taken from ETAC DataTest
         assertEquals(0x08, buf.data().get(0));
         // Note that bytes 1 and 2 are skipped and not written, so they are not checked.
         
@@ -1297,7 +1297,7 @@ public class EncodersJunit
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeComplete(iter, false)); // rollback
         
-        // verification data taken from UPAC DataTest
+        // verification data taken from ETAC DataTest
         assertEquals(0x08, buf.data().get(0));
         // Note that bytes 1 and 2 are skipped and not written, so they are not checked.
     }
@@ -1485,7 +1485,7 @@ public class EncodersJunit
         // encode element list complete
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeComplete(iter, true));
      
-        // verify encoded data against UPAC.
+        // verify encoded data against ETAC.
         expectedData = ParseHexFile.parse("src/test/resources/com/refinitiv/eta/data/RsslEncodersJunit/007_elementList_entries_wdate_time_enum.txt");
         assertNotNull(expectedData);
         assertArrayEquals(expectedData, convertToByteArray(bigBuf.data()));
@@ -2282,7 +2282,7 @@ public class EncodersJunit
         // encodeFieldListComplete
         assertEquals(CodecReturnCodes.SUCCESS, fieldList.encodeComplete(iter, true));
 
-        // verify data with UPAC
+        // verify data with ETAC
         byte[] expectedData = ParseHexFile.parse("src/test/resources/com/refinitiv/eta/data/RsslEncodersJunit/006_encodeFieldList_wEntries_andRollBack.txt");
         assertNotNull(expectedData);
         assertArrayEquals(expectedData, convertToByteArray(buf.data()));
@@ -2394,7 +2394,7 @@ public class EncodersJunit
         assertEquals(CodecReturnCodes.SUCCESS, Encoders.encodeArrayEntry(iter, smallBuf));
         assertEquals(CodecReturnCodes.SUCCESS, Encoders.encodeArrayComplete(iter, true));
 
-        // verify data with UPAC
+        // verify data with ETAC
         byte[] expectedData = ParseHexFile.parse("src/test/resources/com/refinitiv/eta/data/RsslEncodersJunit/008_array_entries_ascii.txt");
         assertNotNull(expectedData);
         assertArrayEquals(expectedData, convertToByteArray(buf.data()));
@@ -2566,7 +2566,7 @@ public class EncodersJunit
     
     
     /**
-     * encode a request message and compare encoded contexts with UPAC.
+     * encode a request message and compare encoded contexts with ETAC.
      */
     @Test
     public void encodeRequestMsgTest()
@@ -2748,7 +2748,7 @@ public class EncodersJunit
     }
     
     /**
-     * Encode a refresh message and compare encoded contexts with UPAC.
+     * Encode a refresh message and compare encoded contexts with ETAC.
      */
     @Test
     public void encodeRefreshMsgTest()
@@ -2934,7 +2934,7 @@ public class EncodersJunit
     }
     
     /**
-     * Encode a close message and compare encoded contexts with UPAC.
+     * Encode a close message and compare encoded contexts with ETAC.
      */
     @Test
     public void encodeCloseMsgTest()
@@ -2972,7 +2972,7 @@ public class EncodersJunit
     }
       
     /**
-     * Encode an update message and compare encoded contexts with UPAC.
+     * Encode an update message and compare encoded contexts with ETAC.
      */
     @Test
     public void encodeUpdateMsgTest()
@@ -4370,7 +4370,7 @@ public class EncodersJunit
     }
     
     /**
-     * Encode a generic message and compare encoded contents with UPAC.
+     * Encode a generic message and compare encoded contents with ETAC.
      */
     @Test
     public void encodeGenericMsgTest()
@@ -4530,7 +4530,7 @@ public class EncodersJunit
     }
     
     /**
-     * Encode an ack message and compare encoded contents with UPAC.
+     * Encode an ack message and compare encoded contents with ETAC.
      */
     @Test
     public void encodeAckMsgTest()
@@ -4688,7 +4688,7 @@ public class EncodersJunit
     }
     
     /**
-     * Encode a post message and compare encoded contexts with UPAC.
+     * Encode a post message and compare encoded contexts with ETAC.
      */
     @Test
     public void encodePostMsgTest()
@@ -4858,7 +4858,7 @@ public class EncodersJunit
     }
     
 	/**
-     * change buffer during encoding a generic message and compare encoded contents with UPAC.
+     * change buffer during encoding a generic message and compare encoded contents with ETAC.
      */
     @Test
     public void realignBufferTest()

@@ -11,7 +11,7 @@ import com.refinitiv.eta.codec.EncodeIterator;
 
 /**
  * This example is intended to serve as a high-level, basic demonstration of
- * encoding and decoding using the UPA API. The user can set break points and
+ * encoding and decoding using the ETA API. The user can set break points and
  * step through this code to get a look and feel for how to use the API.
  * <p>
  * <em>Summary</em>
@@ -423,7 +423,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA Fieldlist Encoding Example\n");
+		System.out.printf("\nBegin ETA Fieldlist Encoding Example\n");
 	
 		if ((retVal = fieldListCodec.exampleEncode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
@@ -434,7 +434,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("\nUPA Fieldlist Encoding Example Complete\n");
+		System.out.printf("\nETA Fieldlist Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -468,7 +468,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA Map Encoding Example\n");
+		System.out.printf("\nBegin ETA Map Encoding Example\n");
 	
 		if ((retVal = mapCodec.exampleEncode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
@@ -478,7 +478,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Map Encoding Example Complete\n");
+		System.out.printf("ETA Map Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -512,7 +512,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA ElementList Encoding Example\n");
+		System.out.printf("\nBegin ETA ElementList Encoding Example\n");
 		
 		System.out.printf("\tElementList Encoding Begin\n");
 	
@@ -524,7 +524,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("\nUPA ElementList Encoding Example Complete\n");
+		System.out.printf("\nETA ElementList Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -558,7 +558,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA Series Encoding Example\n");
+		System.out.printf("\nBegin ETA Series Encoding Example\n");
 	
 		if ((retVal = seriesCodec.exampleEncode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
@@ -568,7 +568,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Series Encoding Example Complete\n");
+		System.out.printf("ETA Series Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -602,7 +602,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA Vector Encoding Example\n");
+		System.out.printf("\nBegin ETA Vector Encoding Example\n");
 	
 		if ((retVal = vectorCodec.exampleEncode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
@@ -612,7 +612,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Vector Encoding Example Complete\n");
+		System.out.printf("ETA Vector Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -647,7 +647,7 @@ public class CodecExample
 		/* Perform all content encoding now that iterator is prepared.  */
 	
 		/* Encode the simple message */
-		System.out.printf("\nBegin UPA FilterList Encoding Example\n");
+		System.out.printf("\nBegin ETA FilterList Encoding Example\n");
 	
 		if ((retVal = filterListCodec.exampleEncode(encodeIter)) < CodecReturnCodes.SUCCESS)
 		{
@@ -657,7 +657,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA FilterList Encoding Example Complete\n");
+		System.out.printf("ETA FilterList Encoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -787,7 +787,7 @@ public class CodecExample
 		/* Perform all content decoding now that iterator is prepared.  */
 	
 		/* Decode the FieldList */
-		System.out.printf("\nBegin UPA Fieldlist Decoding Example\n");
+		System.out.printf("\nBegin ETA Fieldlist Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the total length available.  When the method finishes,
 	       it will set the actual length encoded into the buffer for the encDecBuffer.length member */
@@ -799,7 +799,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Fieldlist Decoding Example Complete\n");
+		System.out.printf("ETA Fieldlist Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -839,7 +839,7 @@ public class CodecExample
 		/* Perform all content decoding now that iterator is prepared.  */
 	
 		/* Decode the Map */
-		System.out.printf("\nBegin UPA Map Decoding Example\n");
+		System.out.printf("\nBegin ETA Map Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the total length available.  When the method finishes,
 	       it will set the actual length encoded into the buffer for the encDecBuffer.length member */
@@ -851,7 +851,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Map Decoding Example Complete\n");
+		System.out.printf("ETA Map Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -892,7 +892,7 @@ public class CodecExample
 		/* Perform all content decoding now that iterator is prepared.  */
 	
 		/* Decode the ElementList */
-		System.out.printf("\nBegin UPA ElementList Decoding Example\n");
+		System.out.printf("\nBegin ETA ElementList Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the 
 	       total length available.  When the method finishes,
@@ -906,7 +906,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA ElementList Decoding Example Complete\n");
+		System.out.printf("ETA ElementList Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -944,7 +944,7 @@ public class CodecExample
 	
 		/* Perform all content decoding now that iterator is prepared.  */
 	
-		System.out.printf("\nBegin UPA Series Decoding Example\n");
+		System.out.printf("\nBegin ETA Series Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the total length available.  When the method finishes,
 	       it will set the actual length encoded into the buffer for the encDecBuffer.length member */
@@ -956,7 +956,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Series Decoding Example Complete\n");
+		System.out.printf("ETA Series Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -994,7 +994,7 @@ public class CodecExample
 	
 		/* Perform all content decoding now that iterator is prepared.  */
 	
-		System.out.printf("\nBegin UPA Vector Decoding Example\n");
+		System.out.printf("\nBegin ETA Vector Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the total length available.  When the method finishes,
 	       it will set the actual length encoded into the buffer for the encDecBuffer.length member */
@@ -1006,7 +1006,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA Vector Decoding Example Complete\n");
+		System.out.printf("ETA Vector Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}
@@ -1045,7 +1045,7 @@ public class CodecExample
 	
 		/* Perform all content decoding now that iterator is prepared.  */
 	
-		System.out.printf("\nBegin UPA FilterList Decoding Example\n");
+		System.out.printf("\nBegin ETA FilterList Decoding Example\n");
 	
 		/* We pass in the buffer to this method with the total length available.  When the method finishes,
 	       it will set the actual length encoded into the buffer for the encDecBuffer.length member */
@@ -1057,7 +1057,7 @@ public class CodecExample
 			return retVal;
 		}
 	
-		System.out.printf("UPA FilterList Decoding Example Complete\n");
+		System.out.printf("ETA FilterList Decoding Example Complete\n");
 	
 		return CodecReturnCodes.SUCCESS;
 	}

@@ -166,16 +166,16 @@ public interface Service
      * 
      * @param encIter The Encode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int encode(EncodeIterator encIter);
 
     /**
-     * Decode a UPA service entry into an RDM service entry.
+     * Decode a ETA service entry into an RDM service entry.
      * 
      * @param dIter The Decode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int decode(DecodeIterator dIter);
 
@@ -282,7 +282,7 @@ public interface Service
      *
      * @param destService Service object to copy this object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(Service destService);
     
@@ -293,7 +293,7 @@ public interface Service
      *
      * @param destService Service object to be updated by this object. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of update operation.
+     * @return ETA return value indicating success or failure of update operation.
      */
     public int applyUpdate(Service destService);
     
@@ -379,7 +379,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -410,11 +410,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service data field into an RDM service data field.
+         * Decode a ETA service data field into an RDM service data field.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -470,7 +470,7 @@ public interface Service
          *
          * @param destServiceData ServiceData object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceData destServiceData)
         {
@@ -496,7 +496,7 @@ public interface Service
          *
          * @param destServiceData ServiceData object to update with information from this object. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of update operation.
+         * @return ETA return value indicating success or failure of update operation.
          */
         public int update(ServiceData destServiceData)
         {
@@ -988,7 +988,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -1033,11 +1033,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service data filter into an RDM service data filter.
+         * Decode a ETA service data filter into an RDM service data filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -1100,7 +1100,7 @@ public interface Service
          *
          * @param destServiceGroup ServiceGroup object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceGroup destServiceGroup)
         {
@@ -1804,7 +1804,7 @@ public interface Service
          * 
          * @param encodeIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encodeIter)
         {
@@ -2003,11 +2003,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service data filter into an RDM service info filter.
+         * Decode a ETA service data filter into an RDM service info filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -2190,7 +2190,7 @@ public interface Service
          *
          * @param destServiceInfo ServiceInfo object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceInfo destServiceInfo)
         {
@@ -2275,7 +2275,7 @@ public interface Service
          *
          * @param destServiceInfo ServiceInfo object to update with information from this object. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of update operation.
+         * @return ETA return value indicating success or failure of update operation.
          */
         public int update(ServiceInfo destServiceInfo)
         {
@@ -2604,7 +2604,7 @@ public interface Service
          *
          * @param destServiceLink ServiceLink object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceLink destServiceLink)
         {
@@ -2797,7 +2797,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -2917,11 +2917,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service link filter into an RDM service link filter.
+         * Decode a ETA service link filter into an RDM service link filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -3105,7 +3105,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -3150,11 +3150,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service data filter into an RDM service data filter.
+         * Decode a ETA service data filter into an RDM service data filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -3231,7 +3231,7 @@ public interface Service
          *
          * @param destServiceLinkInfo ServiceLinkInfo object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceLinkInfo destServiceLinkInfo)
         {
@@ -3257,7 +3257,7 @@ public interface Service
          *
          * @param destServiceLinkInfo ServiceLinkInfo object to update with information from this object. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of update operation.
+         * @return ETA return value indicating success or failure of update operation.
          */
         public int update(ServiceLinkInfo destServiceLinkInfo)
         {
@@ -3439,7 +3439,7 @@ public interface Service
          *
          * @param destServiceLink ServiceLink object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceLink destServiceLink)
         {
@@ -3616,7 +3616,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -3736,11 +3736,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service link filter into an RDM service link filter.
+         * Decode a ETA service link filter into an RDM service link filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -4111,7 +4111,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -4156,11 +4156,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service data filter into an RDM service data filter.
+         * Decode a ETA service data filter into an RDM service data filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -4239,7 +4239,7 @@ public interface Service
          *
          * @param destServiceLinkInfo ServiceLinkInfo object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceLinkInfo destServiceLinkInfo)
         {
@@ -4897,7 +4897,7 @@ public interface Service
          *
          * @param destServiceLoad ServiceLoad object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceLoad destServiceLoad)
         {
@@ -4931,7 +4931,7 @@ public interface Service
          *
          * @param destServiceLoad ServiceLoad object to update with information from this object. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of update operation.
+         * @return ETA return value indicating success or failure of update operation.
          */
         public int update(ServiceLoad destServiceLoad)
         {
@@ -4975,7 +4975,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -5025,11 +5025,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service load filter into an RDM service load filter.
+         * Decode a ETA service load filter into an RDM service load filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {
@@ -5190,7 +5190,7 @@ public interface Service
          *
          * @param destServiceState ServiceState object to copy this object into. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy operation.
+         * @return ETA return value indicating success or failure of copy operation.
          */
         public int copy(ServiceState destServiceState)
         {
@@ -5228,7 +5228,7 @@ public interface Service
          *
          * @param destServiceState ServiceState object to update with information from this object. It cannot be null.
          * 
-         * @return UPA return value indicating success or failure of update operation.
+         * @return ETA return value indicating success or failure of update operation.
          */
         public int update(ServiceState destServiceState)
         {
@@ -5452,7 +5452,7 @@ public interface Service
          * 
          * @param encIter The Encode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int encode(EncodeIterator encIter)
         {
@@ -5498,11 +5498,11 @@ public interface Service
         }
 
         /**
-         * Decode a UPA service status filter into an RDM service status filter.
+         * Decode a ETA service status filter into an RDM service status filter.
          * 
          * @param dIter The Decode Iterator
          * 
-         * @return UPA return value
+         * @return ETA return value
          */
         public int decode(DecodeIterator dIter)
         {

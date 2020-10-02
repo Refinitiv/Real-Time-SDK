@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * UPA 4-byte floating point value
+ * ETA 4-byte floating point value
  */
 public interface Float
 {

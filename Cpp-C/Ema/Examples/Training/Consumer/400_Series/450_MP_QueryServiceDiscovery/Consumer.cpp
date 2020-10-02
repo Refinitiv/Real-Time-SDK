@@ -62,7 +62,7 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 
 void AppClient::onError( const EmaString& statusText, const ServiceEndpointDiscoveryEvent& event )
 {
-	cout << "Failed to query EDP-RT service discovery. Error text: " << statusText << endl;
+	cout << "Failed to query Refinitiv Data Platform service discovery. Error text: " << statusText << endl;
 }
 
 void createProgramaticConfig( Map& configDb )
@@ -72,7 +72,7 @@ void createProgramaticConfig( Map& configDb )
 
 	if (connectWebSocket)
 	{
-		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Refinitiv Data Platform
 		elementMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
 			ElementList().addAscii( "Channel", "Channel_1" ).addAscii( "Dictionary", "Dictionary_1" ).complete() ).complete();
 	}
@@ -121,7 +121,7 @@ void createProgramaticConfig( Map& configDb )
 
 	if (connectWebSocket)
 	{
-		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from EDP
+		// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from RDP
 		configDb.addKeyAscii("DictionaryGroup", MapEntry::AddEnum,
 			ElementList().addMap("DictionaryList",
 				Map().addKeyAscii("Dictionary_1", MapEntry::AddEnum,
@@ -143,7 +143,7 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
-		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east\"" << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
@@ -247,7 +247,7 @@ int main( int argc, char* argv[] )
 			transportProtocol = ServiceEndpointDiscoveryOption::WebsocketEnum;
 		}
 
-		// Query endpoints from EDP-RT service discovery for the TCP protocol
+		// Query endpoints from RDP service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
 			.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
@@ -255,7 +255,7 @@ int main( int argc, char* argv[] )
 
 		if ( !host.length() || !port.length() )
 		{
-			cout << "Both hostname and port are not available for establishing a connection with Refinitiv Real-Time Optimized. Exiting..." << endl;
+			cout << "Both hostname and port are not available for establishing a connection with Refinitiv Real-Time - Optimized. Exiting..." << endl;
 			return -1;
 		}
 

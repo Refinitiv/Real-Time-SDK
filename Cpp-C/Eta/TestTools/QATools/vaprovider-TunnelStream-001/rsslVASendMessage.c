@@ -10,7 +10,7 @@
  * functions for sending an encoded message, and sending a not supported 
  * status message.
  *
- * The UPA Reactor handles all pings on the users behalf, so none of the 
+ * The ETA Reactor handles all pings on the users behalf, so none of the 
  * VA examples should require any ping handling or ping sending. 
  */
 

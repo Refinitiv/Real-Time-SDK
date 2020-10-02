@@ -29,7 +29,7 @@ import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
- * This is the main class for the UPA Java Provider application. It is a
+ * This is the main class for the ETA Java Provider application. It is a
  * single-threaded server application. The application uses either the operating
  * parameters entered by the user or a default set of parameters.
  * <p>
@@ -38,7 +38,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * one or more consumers. It allowed, it requests dictionary from the adh.
  * <p>
  * It is a single-threaded server application. First the application initializes 
- * the UPA transport and binds the server. If the dictionary files are in the path
+ * the ETA transport and binds the server. If the dictionary files are in the path
  * it loads dictionary information from the RDMFieldDictionary and enumtype.def files. 
  * Finally, it processes login, source directory, dictionary, market price, 
  * market by order, market by price, and symbol list 
@@ -79,10 +79,10 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * <p>
  * <em>Setup Environment</em>
  * <p>
@@ -239,7 +239,7 @@ public class Provider implements ReceivedMsgCallback
 
     private static void addCommandLineArgs()
     {
-        CommandLine.programName("UPA Provider");
+        CommandLine.programName("ETA Provider");
         CommandLine.addOption("p", defaultSrvrPortNo, "Server port number");
         CommandLine.addOption("s", defaultServiceName, "Service name");
         CommandLine.addOption("i", (String)null, "Interface name");

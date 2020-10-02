@@ -519,7 +519,7 @@ class CryptoHelper
             }
             catch (IOException e)
             {
-                // disconnect will be caught earlier in upaj connection
+                // disconnect will be caught earlier in etaj connection
                 _netSendBuffer.clear();
                 return result;
             }

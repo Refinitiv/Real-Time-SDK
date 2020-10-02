@@ -49,7 +49,7 @@ public interface LoginWarmStandbyInfo
      * 
      * @param encodeIter The Encode Iterator
      * 
-     * @return UPA return value.
+     * @return ETA return value.
      * 
      */
     public int encode(EncodeIterator encodeIter);
@@ -59,7 +59,7 @@ public interface LoginWarmStandbyInfo
      *
      * @param dIter The Decode Iterator
      * @param msg the msg
-     * @return UPA return value
+     * @return ETA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);
 
@@ -68,7 +68,7 @@ public interface LoginWarmStandbyInfo
      * 
      * @param destWarmStandbyInfo The resulting copy of the RDM Login WarmStandby Info
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginWarmStandbyInfo destWarmStandbyInfo);
 }

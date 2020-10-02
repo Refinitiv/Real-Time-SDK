@@ -28,7 +28,7 @@ public class JNIProtocol implements ProtocolInt
         }
     }
 
-    private final int LOCK_GLOBAL = 2; // UPAC - only the global lock is enabled
+    private final int LOCK_GLOBAL = 2; // ETAC - only the global lock is enabled
     boolean _isEtacInitialized; // flag to track whether ETAC is initialized
 
     final Pool _channelPool = new TrackingPool(this);
@@ -36,7 +36,7 @@ public class JNIProtocol implements ProtocolInt
     Error _error = new ErrorImpl();
 
     {
-        // load UPAC JNI library that contains native methods
+        // load ETAC JNI library that contains native methods
         System.loadLibrary("rsslEtaJNI");
     }
 
@@ -49,7 +49,7 @@ public class JNIProtocol implements ProtocolInt
     {
         try
         {
-            // initialize UPAC if not yet done so
+            // initialize ETAC if not yet done so
             if (!_isEtacInitialized)
             {
                 int rsslLocking = 0;
@@ -71,7 +71,7 @@ public class JNIProtocol implements ProtocolInt
             channel.serviceName(opts.unifiedNetworkInfo().serviceName());
             channel.interfaceName(opts.unifiedNetworkInfo().interfaceName());
 
-            // connect UPAC channel
+            // connect ETAC channel
             if (rsslConnect((ConnectOptionsImpl)opts, (ErrorImpl)error, channel) == TransportReturnCodes.SUCCESS)
             {
                 // initialize JNIChannel
@@ -117,7 +117,7 @@ public class JNIProtocol implements ProtocolInt
                 return null;
             }
 
-            // initialize UPAC if not yet done so
+            // initialize ETAC if not yet done so
             if (!_isEtacInitialized)
             {
                 int rsslLocking = 0;
@@ -138,7 +138,7 @@ public class JNIProtocol implements ProtocolInt
             server.open();
             server.bindOptions(opts);
 
-            // bind UPAC server
+            // bind ETAC server
             if (rsslBind((BindOptionsImpl)opts, (ErrorImpl)error, server) == TransportReturnCodes.SUCCESS)
             {
                 // initialize JNIServer
@@ -179,7 +179,7 @@ public class JNIProtocol implements ProtocolInt
             channel.serviceName(((JNIServer)srvr).bindOptions().serviceName());
             channel.interfaceName(((JNIServer)srvr).bindOptions().interfaceName());
 
-            // accept UPAC channel
+            // accept ETAC channel
             if (rsslAccept((JNIServer)srvr, (AcceptOptionsImpl)opts, (ErrorImpl)error, channel) == TransportReturnCodes.SUCCESS)
             {
                 // initialize JNIChannel
@@ -214,7 +214,7 @@ public class JNIProtocol implements ProtocolInt
     @Override
     public Pool getPool(int poolSpec)
     {
-        // JNI gets its buffer pool from UPAC
+        // JNI gets its buffer pool from ETAC
         return null;
     }
 
@@ -239,7 +239,7 @@ public class JNIProtocol implements ProtocolInt
         }
         _serverPool.clear();
 
-        // uninitialize UPAC
+        // uninitialize ETAC
         if (_isEtacInitialized)
         {
             rsslUninitialize();

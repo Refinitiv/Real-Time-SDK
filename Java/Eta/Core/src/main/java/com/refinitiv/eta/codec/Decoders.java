@@ -100,7 +100,7 @@ class Decoders
 
             if (!canDecodeContainerType(msg.containerType()))
             {
-                /* UPA has no decoders for this format(e.g. Opaque). Move past it. */
+                /* ETA has no decoders for this format(e.g. Opaque). Move past it. */
                 iter._curBufPos += msg.encodedDataBody().length();
                 try
                 {

@@ -68,7 +68,7 @@ public interface DataDictionary
     public int loadEnumTypeDictionary(String filename, Error error);
 
     /**
-     * Extract dictionary type from the encoded payload of a UPA message where
+     * Extract dictionary type from the encoded payload of a ETA message where
      * the domain type is DICTIONARY.
      * 
      * Typical use:<BR>
@@ -81,7 +81,7 @@ public interface DataDictionary
      * @param iter An iterator to use. Must be set to the encoded payload of the
      *            dictionary message.
      * @param dictionaryType The dictionary type, from DictionaryTypes.
-     * @param error UPA Error, to be populated in event of an error.
+     * @param error ETA Error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}. If success, dictionary type is
      *         populated. If failure, dictionary type not available.
@@ -107,7 +107,7 @@ public interface DataDictionary
      *            on the first call and is updated with each successfully encoded part.
      * 
      * @param verbosity The desired verbosity to encode.
-     * @param error UPA error, to be populated in event of an error.
+     * @param error ETA error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes},
      *         {@link CodecReturnCodes#DICT_PART_ENCODED} when encoding parts is
@@ -128,7 +128,7 @@ public interface DataDictionary
      * @param iter An iterator to use. Must be set to the encoded buffer.
      * @param verbosity The desired verbosity to decode. See
      *            {@link com.refinitiv.eta.rdm.Dictionary.VerbosityValues}.
-     * @param error UPA error, to be populated in event of an error.
+     * @param error ETA error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -144,7 +144,7 @@ public interface DataDictionary
      * 
      * @param iter Iterator to be used for encoding.
      * @param verbosity The desired verbosity to encode.
-     * @param error UPA Error, to be populated in event of an error.
+     * @param error ETA Error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -166,7 +166,7 @@ public interface DataDictionary
      * @param currentEnumTableEntry Tracks which fields have been encoded. Must be initialized to 0
      *            on the first call and is updated with each successfully encoded part. 
      * @param verbosity The desired verbosity to encode.
-     * @param error UPA Error, to be populated in event of an error.
+     * @param error ETA Error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -181,7 +181,7 @@ public interface DataDictionary
      * 
      * @param iter An iterator to use. Must be set to the encoded buffer.
      * @param verbosity The desired verbosity to decode.
-     * @param error UPA Error, to be populated in event of an error.
+     * @param error ETA Error, to be populated in event of an error.
      * 
      * @return {@link CodecReturnCodes}
      * 

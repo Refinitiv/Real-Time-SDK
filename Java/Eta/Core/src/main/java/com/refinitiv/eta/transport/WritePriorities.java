@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Write Priorities passed into the {@link Channel#write(TransportBuffer, WriteArgs, Error)} method call.
+ * ETA Write Priorities passed into the {@link Channel#write(TransportBuffer, WriteArgs, Error)} method call.
  * 
  * @see Channel
  */

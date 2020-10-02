@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * UPA Real Formatting Hint enumeration values.
+ * ETA Real Formatting Hint enumeration values.
  * <p>
  * <b>Typical Use</b>
  * <p>

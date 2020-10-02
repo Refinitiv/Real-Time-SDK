@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /** 
- * The UPA XML Decoder. Decodes a container of binary data to XML.<BR>
+ * The ETA XML Decoder. Decodes a container of binary data to XML.<BR>
  * 
  * Note that the container to be decoded must be the next piece of data
  * in line to be decoded before this method is called.<BR>

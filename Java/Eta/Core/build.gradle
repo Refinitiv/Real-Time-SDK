@@ -86,7 +86,7 @@ ext.sharedManifest = manifest {
 }
 
 jar {
-    doFirst { println 'Creating UPA jar file' }
+    doFirst { println 'Creating ETA jar file' }
 
     manifest { 
         attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'

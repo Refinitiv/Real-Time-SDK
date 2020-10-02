@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * UPA acknowledgment message is sent from a provider to a consumer to indicate receipt of a specific message.
+ * ETA acknowledgment message is sent from a provider to a consumer to indicate receipt of a specific message.
  * The acknowledgment carries success or failure (negative acknowledgment or Nak) information to the consumer.
  * Currently, a consumer can request acknowledgment for a {@link PostMsg} or a {@link CloseMsg}.
  * 

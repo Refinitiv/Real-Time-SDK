@@ -36,13 +36,13 @@ import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
- * This is the main class for the UPA Java Generic Provider application. It is
+ * This is the main class for the ETA Java Generic Provider application. It is
  * a multi-threaded application. The application uses either the operating
  * parameters entered by the user or a default set of parameters.
  * <p>
  * The purpose of this application is to respond to generic messages sent by a
  * generic consumer. The messages from the consumer are requests to retrieve
- * files. First the application initializes the UPA transport and binds
+ * files. First the application initializes the ETA transport and binds
  * the server. After that, it processes login, directory and file requests from
  * a generic consumer and sends the appropriate responses. A new thread is created to
  * respond to each file request. The responses are sent as generic messages with an

@@ -11,7 +11,7 @@
 
 /**
 	@class refinitiv::ema::access::ServiceEndpointDiscoveryResp ServiceEndpointDiscoveryResp.h "Access/Include/ServiceEndpointDiscoveryResp.h"
-	@brief ServiceEndpointDiscoveryResp represents a response from EDP-RT service discovery which contains a list of ServiceEndpointDiscoveryInfo
+	@brief ServiceEndpointDiscoveryResp represents a response from RDP service discovery which contains a list of ServiceEndpointDiscoveryInfo
 
 	\remark All methods in this class are \ref SingleThreaded.
 

@@ -5,7 +5,7 @@ The ex310_MP_Rmtes application is provided as an example of OMM Consumer
 application written to the EMA library showcasing RWF RMTES_STRING processing.
 
 This application demonstrates basic usage of the EMA library for accessing and
-parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly
+parsing of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D), directly
 from an OMM Provider application, or from an Advanced Distribution Server.
 
 ex310_MP_Rmtes showcases processing of RWF RMTES_STRING data

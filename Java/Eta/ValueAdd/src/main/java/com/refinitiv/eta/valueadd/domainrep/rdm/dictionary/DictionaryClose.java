@@ -14,7 +14,7 @@ public interface DictionaryClose extends DictionaryMsg
      * 
      * @param destCloseMsg Message to copy dictionary close object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(DictionaryClose destCloseMsg);
 }

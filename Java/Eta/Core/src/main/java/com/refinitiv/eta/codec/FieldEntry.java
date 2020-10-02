@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * An entry for a UPA {@link FieldList} that can house any {@link DataTypes}
+ * An entry for a ETA {@link FieldList} that can house any {@link DataTypes}
  * including primitive types, set-defined types, or container types.
  * If updating information, when the {@link FieldEntry} contains a primitive type, it
  * replaces any previously stored or displayed data associated with the same

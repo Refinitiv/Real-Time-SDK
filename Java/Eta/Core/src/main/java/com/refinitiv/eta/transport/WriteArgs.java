@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Write Arguments used in the {@link Channel#write(TransportBuffer, WriteArgs, Error)} call.
+ * ETA Write Arguments used in the {@link Channel#write(TransportBuffer, WriteArgs, Error)} call.
  * 
  * @see Channel
  * @see WritePriorities
@@ -78,7 +78,7 @@ public interface WriteArgs
     public long seqNum();
     
     /**
-     * Clears UPA Write Arguments.
+     * Clears ETA Write Arguments.
      */
     public void clear();
 }

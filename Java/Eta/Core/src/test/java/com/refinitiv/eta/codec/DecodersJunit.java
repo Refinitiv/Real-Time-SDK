@@ -554,7 +554,7 @@ public class DecodersJunit
     }    
     
     /**
-     * Test RsslCloseMsg.decode with data from UPAC.
+     * Test RsslCloseMsg.decode with data from ETAC.
      */
     @Test
     public void decodeCloseMsgTest()
@@ -1097,7 +1097,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslRequestMsg.decode with data from UPAC.
+     * Test RsslRequestMsg.decode with data from ETAC.
      */
     @Test
     public void decodeRequestMsgTest()
@@ -1108,14 +1108,14 @@ public class DecodersJunit
         assertNotNull(expected);
 
         ByteBuffer bb = ByteBuffer.wrap(expected);
-        Buffer upaBuffer = CodecFactory.createBuffer();
-        upaBuffer.data(bb, 0, bb.limit() - bb.position());
+        Buffer etaBuffer = CodecFactory.createBuffer();
+        etaBuffer.data(bb, 0, bb.limit() - bb.position());
         
         // create and associate a decode iterator with the RsslBuffer
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
         dIter.clear();
         assertEquals(CodecReturnCodes.SUCCESS,
-                     dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(),
+                     dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(),
                                                   Codec.minorVersion()));
         
         RequestMsg msg = (RequestMsg) CodecFactory.createMsg();
@@ -1255,7 +1255,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslRefreshMsg.decode with data from UPAC.
+     * Test RsslRefreshMsg.decode with data from ETAC.
      */
     @Test
     public void decodeRefreshMsgTest()
@@ -1266,14 +1266,14 @@ public class DecodersJunit
         assertNotNull(expected);
         
         ByteBuffer bb = ByteBuffer.wrap(expected);
-        Buffer upaBuffer = CodecFactory.createBuffer();
-        upaBuffer.data(bb, 0, bb.limit() - bb.position());
+        Buffer etaBuffer = CodecFactory.createBuffer();
+        etaBuffer.data(bb, 0, bb.limit() - bb.position());
         
         // create and associate a decode iterator with the RsslBuffer
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
         dIter.clear();
         assertEquals(CodecReturnCodes.SUCCESS,
-                     dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(),
+                     dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(),
                                                   Codec.minorVersion()));
         
         RefreshMsg msg = (RefreshMsg) CodecFactory.createMsg();
@@ -1415,7 +1415,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslUpdateMsg.decode with data from UPAC.
+     * Test RsslUpdateMsg.decode with data from ETAC.
      */
     @Test
     public void decodeUpdateMsgTest()
@@ -1426,14 +1426,14 @@ public class DecodersJunit
         assertNotNull(expected);
         
         ByteBuffer bb = ByteBuffer.wrap(expected);
-        Buffer upaBuffer = CodecFactory.createBuffer();
-        upaBuffer.data(bb, 0, bb.limit() - bb.position());
+        Buffer etaBuffer = CodecFactory.createBuffer();
+        etaBuffer.data(bb, 0, bb.limit() - bb.position());
         
         // create and associate a decode iterator with the RsslBuffer
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
         dIter.clear();
         assertEquals(CodecReturnCodes.SUCCESS,
-                     dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(),
+                     dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(),
                                                   Codec.minorVersion()));
         
         UpdateMsg msg = (UpdateMsg) CodecFactory.createMsg();
@@ -1564,7 +1564,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslStatusMsg.decode with data from UPAC.
+     * Test RsslStatusMsg.decode with data from ETAC.
      */
     @Test
     public void decodeStatusMsgTest()
@@ -2828,15 +2828,15 @@ public class DecodersJunit
     @Test
     public void decodeBufferTest()
     {
-        Buffer upaBuffer = CodecFactory.createBuffer();
+        Buffer etaBuffer = CodecFactory.createBuffer();
         Buffer buffer = CodecFactory.createBuffer();
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
 
         // test blank data
         ByteBuffer bb = ByteBuffer.allocate(0);
-        assertEquals(CodecReturnCodes.SUCCESS, upaBuffer.data(bb, 0, 0));
+        assertEquals(CodecReturnCodes.SUCCESS, etaBuffer.data(bb, 0, 0));
         dIter.clear();
-        dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(), Codec.minorVersion());
+        dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(CodecReturnCodes.BLANK_DATA, buffer.decode(dIter));
         
         // test with data
@@ -2844,9 +2844,9 @@ public class DecodersJunit
         bb.put((byte) 0x01);
         bb.put((byte) 0x02);
         bb.flip();
-        assertEquals(CodecReturnCodes.SUCCESS, upaBuffer.data(bb));
+        assertEquals(CodecReturnCodes.SUCCESS, etaBuffer.data(bb));
         dIter.clear();
-        dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(), Codec.minorVersion());
+        dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(CodecReturnCodes.SUCCESS, buffer.decode(dIter));
         assertEquals(2, buffer.length());
         assertEquals(0, buffer.position());
@@ -3270,7 +3270,7 @@ public class DecodersJunit
     }
 
     /**
-     * Test RsslElementEntry.decode() and verify a complete element list decoding with decoded data from UPAC.
+     * Test RsslElementEntry.decode() and verify a complete element list decoding with decoded data from ETAC.
      * <ol>
      * <li>Test elementEntry BUFFER_TOO_SMALL</li>
      * <li>test elementEntry INCOMPLETE_DATA (the entries length is larger than the bytebuffer).</li>
@@ -3490,9 +3490,9 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslFieldEntry.decode() and verify a complete element list decoding with decoded data from UPAC..
+     * Test RsslFieldEntry.decode() and verify a complete element list decoding with decoded data from ETAC..
      * <ol>
-     * <li>Test fieldList with STANDARD_DATA and INFO, verify data with UPAC.</li>
+     * <li>Test fieldList with STANDARD_DATA and INFO, verify data with ETAC.</li>
      * <li>Test fieldEntry with field data that is longer than the ByteBuffer.</li>
      * <li>Test fieldEntry with field data that is longer than the RsslBuffer.</li>
      * </ol>
@@ -4116,7 +4116,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslGenericMsg.decode with data from UPAC.
+     * Test RsslGenericMsg.decode with data from ETAC.
      */
     @Test
     public void decodeGenericMsgTest()
@@ -4127,14 +4127,14 @@ public class DecodersJunit
         assertNotNull(expected);
         
         ByteBuffer bb = ByteBuffer.wrap(expected);
-        Buffer upaBuffer = CodecFactory.createBuffer();
-        upaBuffer.data(bb, 0, bb.limit() - bb.position());
+        Buffer etaBuffer = CodecFactory.createBuffer();
+        etaBuffer.data(bb, 0, bb.limit() - bb.position());
         
         // create and associate a decode iterator with the RsslBuffer
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
         dIter.clear();
         assertEquals(CodecReturnCodes.SUCCESS,
-                     dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(),
+                     dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(),
                                                   Codec.minorVersion()));
         
         GenericMsg msg = (GenericMsg)CodecFactory.createMsg();
@@ -4257,7 +4257,7 @@ public class DecodersJunit
     }
     
     /**
-     * Test RsslPostMsg.decode with data from UPAC.
+     * Test RsslPostMsg.decode with data from ETAC.
      */
     @Test
     public void decodePostMsgTest()
@@ -4268,14 +4268,14 @@ public class DecodersJunit
         assertNotNull(expected);
         
         ByteBuffer bb = ByteBuffer.wrap(expected);
-        Buffer upaBuffer = CodecFactory.createBuffer();
-        upaBuffer.data(bb, 0, bb.limit() - bb.position());
+        Buffer etaBuffer = CodecFactory.createBuffer();
+        etaBuffer.data(bb, 0, bb.limit() - bb.position());
         
         // create and associate a decode iterator with the RsslBuffer
         DecodeIterator dIter = CodecFactory.createDecodeIterator();
         dIter.clear();
         assertEquals(CodecReturnCodes.SUCCESS,
-                     dIter.setBufferAndRWFVersion(upaBuffer, Codec.majorVersion(),
+                     dIter.setBufferAndRWFVersion(etaBuffer, Codec.majorVersion(),
                                                   Codec.minorVersion()));
         
         PostMsg msg = (PostMsg) CodecFactory.createMsg();

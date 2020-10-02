@@ -3,7 +3,7 @@ Summary
 
 ex110_MP_FileConfig is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
+and parsing OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
 directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 

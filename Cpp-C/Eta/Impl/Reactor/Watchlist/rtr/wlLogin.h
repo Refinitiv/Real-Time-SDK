@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 	
-/* Represents a User Token, if the AAA API or TREP Authentication is in use. Used to update the login 
+/* Represents a User Token, if the AAA API or UserAuthn Authentication is in use. Used to update the login 
  * request as the token changes. */
 typedef struct
 {

@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * A UPA entry that defines how to encode or decode a {@link FieldEntry}.
+ * A ETA entry that defines how to encode or decode a {@link FieldEntry}.
  * 
  * @see FieldSetDef
  */

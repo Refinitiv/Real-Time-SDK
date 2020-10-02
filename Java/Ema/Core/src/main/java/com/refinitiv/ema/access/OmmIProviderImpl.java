@@ -1445,7 +1445,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	{
 		ci.clear();
 		try {
-			ChannelInfo upaChannelInfo = TransportFactory.createChannelInfo();
+			ChannelInfo etaChannelInfo = TransportFactory.createChannelInfo();
 			Error error = TransportFactory.createError();
 			StringBuilder componentInfo = new StringBuilder();
 
@@ -1456,23 +1456,23 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					continue;
 
 				componentInfo.setLength(0);
-				upaChannelInfo.clear();
+				etaChannelInfo.clear();
 				error.clear();
 
-				channel.info(upaChannelInfo, error);
-				if (upaChannelInfo.componentInfo() == null ||
-						upaChannelInfo.componentInfo().isEmpty())
+				channel.info(etaChannelInfo, error);
+				if (etaChannelInfo.componentInfo() == null ||
+						etaChannelInfo.componentInfo().isEmpty())
 					componentInfo.append("unavailable");
 				else
-					for (ComponentInfo item : upaChannelInfo.componentInfo())
+					for (ComponentInfo item : etaChannelInfo.componentInfo())
 						componentInfo.append(item.componentVersion().toString());
 
 				ChannelInformation tmp =
-						new ChannelInformationImpl(componentInfo.toString(), upaChannelInfo.clientHostname(), upaChannelInfo.clientIP(),
+						new ChannelInformationImpl(componentInfo.toString(), etaChannelInfo.clientHostname(), etaChannelInfo.clientIP(),
 								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
-								channel.minorVersion(), channel.pingTimeout(), upaChannelInfo.maxFragmentSize(), upaChannelInfo.maxOutputBuffers(),
-								upaChannelInfo.guaranteedOutputBuffers(), upaChannelInfo.numInputBuffers(), upaChannelInfo.sysSendBufSize(),
-								upaChannelInfo.sysRecvBufSize(), upaChannelInfo.compressionType(), upaChannelInfo.compressionThreshold());
+								channel.minorVersion(), channel.pingTimeout(), etaChannelInfo.maxFragmentSize(), etaChannelInfo.maxOutputBuffers(),
+								etaChannelInfo.guaranteedOutputBuffers(), etaChannelInfo.numInputBuffers(), etaChannelInfo.sysSendBufSize(),
+								etaChannelInfo.sysRecvBufSize(), etaChannelInfo.compressionType(), etaChannelInfo.compressionThreshold());
 				ci.add(tmp);
 			}
 		}

@@ -49,7 +49,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 
 /**
- * This is the market price handler for the UPA consumer application. It
+ * This is the market price handler for the ETA consumer application. It
  * provides methods for sending the market price request(s) to a provider and
  * processing the response(s). Methods for decoding a field entry from a
  * response, and closing market price streams are also provided.

@@ -32,7 +32,7 @@ class IpcProtocolOptions
      * the RIPC ConnectAck message from the server to consumer.
      * The value will be taken from the BindOptions.maxFragmentSize().
      * 
-     * Note: Buffer sizes in UPAJ will be MAX_USER_MSG_SIZE + RIPC_HDR_SIZE.
+     * Note: Buffer sizes in ETAJ will be MAX_USER_MSG_SIZE + RIPC_HDR_SIZE.
      * Channel.info.maxFragmentSize() will be MAX_USER_MSG_SIZE - PACKED_HDR_SIZE. */
     int _maxUserMsgSize;
     

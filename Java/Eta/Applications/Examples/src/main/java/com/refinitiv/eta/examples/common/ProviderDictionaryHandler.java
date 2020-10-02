@@ -32,7 +32,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
 
 /**
- * This is the dictionary handler for both the UPA - Java Interactive Provider
+ * This is the dictionary handler for both the ETA - Java Interactive Provider
  * application. Only two dictionary streams (field and enum type) per channel
  * are allowed by this simple provider.
  * <p>

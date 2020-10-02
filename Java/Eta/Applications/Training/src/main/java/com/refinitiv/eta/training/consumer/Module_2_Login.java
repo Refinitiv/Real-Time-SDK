@@ -1,23 +1,23 @@
 /*********************************************************************************
- * This is the UPA Consumer Training series of the UPA Training Suite
+ * This is the ETA Consumer Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Consumer using the UPA Transport layer.
+ * training how to build a ETA OMM Consumer using the ETA Transport layer.
  *
- * Main Java source file for the UPA Consumer Training application. It is a 
+ * Main Java source file for the ETA Consumer Training application. It is a 
  * single-threaded client application.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1a: Establish network communication
+ * ETA Consumer Training Module 1a: Establish network communication
  *********************************************************************************
  * Summary:
- * In this module, the application initializes the UPA Transport and 
+ * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
  * and Refinitiv Real-Time. 
  *
  * Detailed Descriptions:
- * The first step of any UPA consumer application is to establish a 
+ * The first step of any ETA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
  * with which to interact). An OMM consumer typically creates an out-bound 
  * connection to the well-known hostname and port of a server (Interactive 
@@ -40,7 +40,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1b: Ping (heartbeat) Management
+ * ETA Consumer Training Module 1b: Ping (heartbeat) Management
  *********************************************************************************
  * Summary:
  * Ping or heartbeat messages indicate the continued presence of an application.
@@ -75,7 +75,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1c: Reading and Writing Data
+ * ETA Consumer Training Module 1c: Reading and Writing Data
  *********************************************************************************
  * Summary:
  * When channel initialization is complete, the state of the channel
@@ -86,23 +86,23 @@
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to receive data from the connection. The
  * arrival of this information is often announced by the I/O notification
- * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * mechanism that the Channel.scktChannel() is registered with. The ETA
  * Transport reads information from the network as a byte stream, after
  * which it determines buffer boundaries and returns each buffer one by
  * one.
  *
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to write data to the connection. Writing
- * involves a several step process. Because the UPA Transport provides
+ * involves a several step process. Because the ETA Transport provides
  * efficient buffer management, the user is required to obtain a buffer
- * from the UPA Transport buffer pool. This can be the guaranteed output
+ * from the ETA Transport buffer pool. This can be the guaranteed output
  * buffer pool associated with a Channel. After a buffer is acquired,
  * the user can populate the Buffer.data and set the Buffer.length
  * to the number of bytes referred to by data. If queued information cannot
  * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write.
  *
  * Command line usage:
@@ -118,7 +118,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  * 
  *********************************************************************************
- * UPA Consumer Training Module 2: Log in
+ * ETA Consumer Training Module 2: Log in
  *********************************************************************************
  * Summary:
  * Applications authenticate using the Login domain model. An OMM consumer must 
@@ -140,7 +140,7 @@
  * and the use of Dynamic Views. The consumer application can use this 
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  * Command line usage:
@@ -242,7 +242,7 @@ public class Module_2_Login
         TransportBuffer msgBuf = null;
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Iterator used for decoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -312,12 +312,12 @@ public class Module_2_Login
          * INITIALIZATION
          **************************************************************************************************/
         /*********************************************************
-         * Client/Consumer Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Client/Consumer Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any bootstrapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
         {
@@ -325,11 +325,11 @@ public class Module_2_Login
             System.exit(TransportReturnCodes.FAILURE);
         }
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
 
         /* Set connect options */
         /* populate connect options, then pass to Connect function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* use standard socket connection */
         cOpts.connectionType(ConnectionTypes.SOCKET); /* (0) Channel is a standard TCP socket connection type */
@@ -439,8 +439,8 @@ public class Module_2_Login
                          * multiple times throughout the Loop 1, as it makes *
                          * more progress towards channel initialization. *
                          ***************************************************************************/
-                        /* Internally, the UPA initialization process includes several actions. The initialization includes
-                         * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+                        /* Internally, the ETA initialization process includes several actions. The initialization includes
+                         * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
                          * Compression, ping timeout, and versioning related negotiations also take place during the
                          * initialization process. This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.state() will transition. If the connection
@@ -674,8 +674,8 @@ public class Module_2_Login
                                  * calling the applicable specific function for further processing.
                                  */
 
-                                /* No need to clear the message before we decode into it. UPA Decoding populates all message members (and that is true for any
-                                 * decoding with UPA, you never need to clear anything but the iterator)
+                                /* No need to clear the message before we decode into it. ETA Decoding populates all message members (and that is true for any
+                                 * decoding with ETA, you never need to clear anything but the iterator)
                                  */
                                 /* We have data to process */
                                 /* Create message to represent buffer data */
@@ -711,7 +711,7 @@ public class Module_2_Login
                                         /* (1) Login Message */
                                         /* main difference with last module_1c_read_and_write
                                         * add sendMessage(), sendLoginRequest(),processLoginResponse(), closeLoginStream()
-                                        * and upaGetBuffer() functions at the end.*/
+                                        * and etaGetBuffer() functions at the end.*/
                                         if (processLoginResponse(msg, decodeIter) != TransportReturnCodes.SUCCESS)
                                         {
                                             /* Login Failed and the application is denied - Could be one of the following 3 possibilities:
@@ -731,7 +731,7 @@ public class Module_2_Login
                                         }
                                         else
                                         {
-                                            System.out.printf("UPA Consumer application is granted access and has logged in successfully.\n\n");
+                                            System.out.printf("ETA Consumer application is granted access and has logged in successfully.\n\n");
                                         }
                                     }
                                         break;
@@ -869,7 +869,7 @@ public class Module_2_Login
                 currentTime = System.currentTimeMillis();
 
                 /* If the runtime has expired */
-                if (System.currentTimeMillis() >= upaRuntime)
+                if (System.currentTimeMillis() >= etaRuntime)
                 {
                     /* Closes all streams for the consumer after run-time has elapsed. */
 
@@ -905,7 +905,7 @@ public class Module_2_Login
                         }
                     }
 
-                    System.out.printf("UPA Client run-time has expired...\n\n");
+                    System.out.printf("ETA Client run-time has expired...\n\n");
                     closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.SUCCESS);
                 }
             }
@@ -949,13 +949,13 @@ public class Module_2_Login
         }
 
         /*********************************************************
-         * Client/Consumer Application Lifecycle Major Step 6: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Client/Consumer Application Lifecycle Major Step 6: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitializes internal data structures
          * and deletes any allocated memory.
          *********************************************************/
 
-        /* All UPA Transport use is complete, must uninitialize.
+        /* All ETA Transport use is complete, must uninitialize.
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
@@ -968,15 +968,15 @@ public class Module_2_Login
 
         if (code == TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("\nUPA Consumer Training Application successfully ended.\n");
+            System.out.printf("\nETA Consumer Training Application successfully ended.\n");
         }
 
         System.exit(0);
     }
 
     /*
-     * Initializes the ping times for upaChannel.
-     * upaChannel - The channel for ping management info initialization
+     * Initializes the ping times for etaChannel.
+     * etaChannel - The channel for ping management info initialization
      */
     static int pingTimeoutServer; /* server ping timeout */
     static int pingTimeoutClient; /* client ping timeout */
@@ -1002,11 +1002,11 @@ public class Module_2_Login
 
     /*
      * Processing ping management handler
-     * upaChannel - The channel for ping management processing
+     * etaChannel - The channel for ping management processing
      */
     public static int processPingManagementHandler(Channel channel)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the server if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the server if the next send ping time has arrived and
          * checks if a ping has been received from the server within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -1024,7 +1024,7 @@ public class Module_2_Login
              * rsslPing Attempts to write a heartbeat message on the connection.
              * This function expects the RsslChannel to be in the active state.
              * If an application calls the rsslPing function while there are
-             * other bytes queued for output, the UPA Transport layer will
+             * other bytes queued for output, the ETA Transport layer will
              * suppress the heartbeat message and attempt to flush bytes to the
              * network on the user's behalf.
              *********************************************************/
@@ -1119,10 +1119,10 @@ public class Module_2_Login
          * specified for this call. Here we use WriteFlags.NO_FLAGS. For more
          * information on other flag enumeration such as
          * WriteFlags.DO_NOT_COMPRESS or WriteFlags.DIRECT_SOCKET_WRITE, see the
-         * UPA C developers guide for rsslWrite Flag Enumeration Values
-         * supported by UPA Transport.
+         * ETA C developers guide for rsslWrite Flag Enumeration Values
+         * supported by ETA Transport.
          *
-         * The UPA Transport also supports writing data at different priority
+         * The ETA Transport also supports writing data at different priority
          * levels. The application can pass in two integer values used for
          * reporting information about the number of bytes that will be written.
          * The uncompressedBytesWritten parameter will return the number of
@@ -1139,7 +1139,7 @@ public class Module_2_Login
          * to the network.
          *********************************************************/
 
-        /* Now write the data - keep track of UPA Transport return code -
+        /* Now write the data - keep track of ETA Transport return code -
          * Because positive values indicate bytes left to write, some negative transport layer return codes still indicate success
          */
 
@@ -1168,8 +1168,8 @@ public class Module_2_Login
         /* set write fd if there's still data queued */
         if (retCode > TransportReturnCodes.SUCCESS)
         {
-            /* The write was successful and there is more data queued in UPA Transport. The channel.flush() method should be used to continue attempting to flush data 
-             * to the connection. UPA will release buffer.
+            /* The write was successful and there is more data queued in ETA Transport. The channel.flush() method should be used to continue attempting to flush data 
+             * to the connection. ETA will release buffer.
              */
 
             /* Flush needs to be done by application */
@@ -1181,7 +1181,7 @@ public class Module_2_Login
                 case TransportReturnCodes.SUCCESS:
                 {
                     /* Successful write and all data has been passed to the connection */
-                    /* Continue with next operations. UPA will release buffer.*/
+                    /* Continue with next operations. ETA will release buffer.*/
                 }
                     break;
                 case TransportReturnCodes.NO_BUFFERS:
@@ -1242,7 +1242,7 @@ public class Module_2_Login
         /* Populate and encode a requestMsg */
         RequestMsg reqMsg = (RequestMsg)CodecFactory.createMsg();
 
-        /* UPA provides clear functions for its structures (e.g., encodeIterator.clear()). 
+        /* ETA provides clear functions for its structures (e.g., encodeIterator.clear()). 
          * These functions are tuned to be efficient 
          * and avoid initializing unnecessary
          * structure members, and allow for optimal structure use and reuse. 
@@ -1264,14 +1264,14 @@ public class Module_2_Login
         Buffer userNameBuf = CodecFactory.createBuffer();
 
         /* Get a buffer of the channel max fragment size */
-        /* Obtains a non-packable buffer of the requested size from the UPA Transport guaranteed buffer pool to write into for the Login request.
+        /* Obtains a non-packable buffer of the requested size from the ETA Transport guaranteed buffer pool to write into for the Login request.
          * For an outbound TransportBuffer (specifically one gotten from Channel.getBuffer(), like this one) length() initially does indeed indicate the number of bytes available, but when the ByteBuffer's position is after the start 
          * (because the application has written something, i.e. encoded some or all of a Login request message), 
          * it actually returns the number of bytes between the start & current positions 
          * (basically, the number of bytes encoded thus far).
          */
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxFragmentSize, error)) == null)
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxFragmentSize, error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -1356,7 +1356,7 @@ public class Module_2_Login
             return TransportReturnCodes.FAILURE;
         }
         /* ApplicationName */
-        applicationName.data("UPA Consumer Training");
+        applicationName.data("ETA Consumer Training");
 
         elementEntry.dataType(DataTypes.ASCII_STRING);
         elementEntry.name(ElementNames.APPNAME);
@@ -1629,7 +1629,7 @@ public class Module_2_Login
         CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
 
         /* Get a buffer of the channel max fragment size */
-        /* UPA provides clear functions for its structures (e.g., encodeIterator.clear()). 
+        /* ETA provides clear functions for its structures (e.g., encodeIterator.clear()). 
          * These functions are tuned to be efficient 
          * and avoid initializing unnecessary
          * structure members, and allow for optimal structure use and reuse. 
@@ -1637,13 +1637,13 @@ public class Module_2_Login
         /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
         EncodeIterator encIter = CodecFactory.createEncodeIterator(); /* the encode iterator is created (typically stack allocated)  */
 
-        /* Obtains a non-packable buffer of the requested size from the UPA Transport guaranteed buffer pool to write into for the Login close.
+        /* Obtains a non-packable buffer of the requested size from the ETA Transport guaranteed buffer pool to write into for the Login close.
          * For an outbound TransportBuffer (specifically one gotten from Channel.getBuffer(), like this one) length() initially does indeed indicate the number of bytes available, 
          * but when the ByteBuffer's position is after the start (because the application has written something, i.e. encoded some or all of a Login request message), 
          * it actually returns the number of bytes between the start & current positions (basically, the number of bytes encoded thus far).
          */
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxFragmentSize, error)) == null)
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxFragmentSize, error)) == null)
         {
             return TransportReturnCodes.FAILURE;
         }
@@ -1714,7 +1714,7 @@ public class Module_2_Login
      * @param error - tracks error info *
      * @return obtained buffer *
      **************************************************************/
-    public static TransportBuffer upaGetBuffer(Channel channel, int size, Error error)
+    public static TransportBuffer etaGetBuffer(Channel channel, int size, Error error)
     {
         int retCode;
 

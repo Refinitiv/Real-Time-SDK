@@ -20992,8 +20992,8 @@ VOT_PER_SH "VOTING RTS PER SHR"  7789  NULL        PRICE              17  REAL64
 !
 Y1GDIV_YLD "GROSS DIV YLD FY1"   7790  NULL        PRICE              17  REAL64           7
 !
-! Estimated Year 1 gross Dividend Yield for the index, as calculated by Thomson 
-! Reuters. Year 1 is the twelve month financial period following the year covered in 
+! Estimated Year 1 gross Dividend Yield for the index, as calculated by Refinitiv. 
+! Year 1 is the twelve month financial period following the year covered in 
 ! the most recently reported annual results.
 !
 SYNCIDX_1D "SYNC INDEX 1D"       7791  NULL        PRICE              17  REAL64           7

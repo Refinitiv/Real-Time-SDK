@@ -21,10 +21,11 @@
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
- * connects to TREP-RT and sends a specific set (non-interactive) of 
- * information (services, domains, and capabilities). NIPs act like 
- * clients in a client-server relationship. Multiple NIPs can connect 
- * to the same TREP-RT and publish the same items and content. 
+ * connects to Refinitiv Real-Time Distribution System and sends a specific
+ * set (non-interactive) of information (services, domains, and capabilities).
+ * NIPs act like clients in a client-server relationship. Multiple NIPs can
+ * connect to the same Refinitiv Real-Time Distribution System and publish
+ * the same items and content.
  * 
  * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 

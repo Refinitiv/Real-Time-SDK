@@ -5,7 +5,7 @@ The ex330_Login_Streaming application is provided as an example of OMM Consumer
 application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct
+and parsing of OMM Login and MarketPrice data from Refinitiv Data Feed Direct
 (RDF-D), directly from an OMM Provider application, or from an 
 Advanced Distribution Server.
 

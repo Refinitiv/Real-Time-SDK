@@ -81,7 +81,7 @@ public class StateCodes
     /**
      * Indicates a gap was detected between messages. A gap might be detected
      * via an external reliability mechanism (e.g., transport) or using the
-     * seqNum present in UPA messages.
+     * seqNum present in ETA messages.
      */
     public static final int GAP_DETECTED = 11;
 

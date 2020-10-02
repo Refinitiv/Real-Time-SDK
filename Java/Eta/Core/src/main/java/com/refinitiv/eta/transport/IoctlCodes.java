@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA IOCtl codes for {@link Channel#ioctl(int, Object, Error)},
+ * ETA IOCtl codes for {@link Channel#ioctl(int, Object, Error)},
  * {@link Channel#ioctl(int, int, Error)}, {@link Server#ioctl(int, Object, Error)}
  * and {@link Server#ioctl(int, int, Error)}.
  * 
@@ -36,8 +36,8 @@ public class IoctlCodes
     public static final int NUM_GUARANTEED_BUFFERS = 2;
 
     /**
-     * Allows a {@link Channel} to change the internal UPA output queue depth
-     * water mark, which has a default value of 6,144 bytes. When the UPA output
+     * Allows a {@link Channel} to change the internal ETA output queue depth
+     * water mark, which has a default value of 6,144 bytes. When the ETA output
      * queue exceeds this number of bytes, the write method internally
      * attempts to flush content to the network.
      * Value is an int. Default is 6144.

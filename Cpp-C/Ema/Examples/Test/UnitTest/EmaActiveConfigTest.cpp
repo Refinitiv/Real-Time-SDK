@@ -106,7 +106,7 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 	EXPECT_EQ(socketChannelConfig.securityProtocol, RSSL_ENC_TLSV1_2);
 
 	EXPECT_EQ(socketChannelConfig.enableSessionMgnt, RSSL_FALSE);
-	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_EDP_RT_LOCATION);
+	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_RDP_RT_LOCATION);
 	EXPECT_EQ(socketChannelConfig.wsMaxMsgSize, DEFAULT_WS_MAXMSGSIZE);
 	EXPECT_TRUE(socketChannelConfig.wsProtocols == DEFAULT_WS_PROTOCLOS);
 

@@ -60,7 +60,7 @@ The static library will be one level deeper in /Static.
 Running Examples
 =================
 To run any consumer example, any OMM provider application/component is needed to source
-the data from. Any OMM based provider (UPA/RFA) or (ADS/EED) may be used.
+the data from. Any OMM based provider (ETA/RFA) or (ADS/EED) may be used.
 
 To run any non-interactive provider example an ADH is required. 
 

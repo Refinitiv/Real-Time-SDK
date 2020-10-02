@@ -11,7 +11,7 @@
 
 /**
 	@class refinitiv::ema::access::ServiceEndpointDiscoveryInfo ServiceEndpointDiscoveryInfo.h "Access/Include/ServiceEndpointDiscoveryInfo.h"
-	@brief ServiceEndpointDiscoveryInfo represents an service endpoint information from EDP-RT service discovery.
+	@brief ServiceEndpointDiscoveryInfo represents an service endpoint information from RDP service discovery.
 
 	\remark All methods in this class are \ref SingleThreaded.
 
@@ -41,7 +41,7 @@ public:
 	*/
 	const EmaString&	getEndPoint() const;
 
-	/** Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time Optimized
+	/** Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time - Optimized
 	*	@return a list of location
 	*/
 	const EmaVector<EmaString>& getLocationList() const;

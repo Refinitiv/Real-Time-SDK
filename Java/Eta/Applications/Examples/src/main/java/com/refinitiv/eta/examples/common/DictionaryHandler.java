@@ -25,7 +25,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
 /**
- * This is the dictionary handler for the UPA consumer application. It provides
+ * This is the dictionary handler for the ETA consumer application. It provides
  * methods for loading the field/enumType dictionaries from a file and sending
  * requests for those dictionaries to a provider. Methods for processing the
  * dictionary response and closing a dictionary stream are also provided.

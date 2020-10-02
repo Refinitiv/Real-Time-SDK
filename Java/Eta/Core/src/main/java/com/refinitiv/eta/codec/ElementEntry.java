@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * An entry for UPA {@link ElementList} that can house any {@link DataTypes},
+ * An entry for ETA {@link ElementList} that can house any {@link DataTypes},
  * including primitive types, set-defined types, or container types.
  * If {@link ElementEntry} is a part of updating information and contains a
  * primitive type, any previously stored or displayed data is replaced.
@@ -256,7 +256,7 @@ public interface ElementEntry
 
     /**
      * A {@link Buffer} containing the name associated with this
-     * {@link ElementEntry}. Element names are defined outside of UPA, typically
+     * {@link ElementEntry}. Element names are defined outside of ETA, typically
      * as part of a domain model specification or dictionary. It Is possible for
      * a name to be empty; however this provides no identifying information for
      * the element.
@@ -267,7 +267,7 @@ public interface ElementEntry
 
     /**
      * A {@link Buffer} containing the name associated with this
-     * {@link ElementEntry}. Element names are defined outside of UPA, typically
+     * {@link ElementEntry}. Element names are defined outside of ETA, typically
      * as part of a domain model specification or dictionary. It Is possible for
      * a name to be empty; however this provides no identifying information for
      * the element.

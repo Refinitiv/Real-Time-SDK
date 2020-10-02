@@ -18,7 +18,7 @@ import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRequest;
 import com.refinitiv.eta.rdm.DomainTypes;
 
 /**
- * This is the market by price handler for the UPA consumer application. It
+ * This is the market by price handler for the ETA consumer application. It
  * provides method decoding a field entry from a response.
  * 
  * Methods for sending the market by price request(s) to a provider,

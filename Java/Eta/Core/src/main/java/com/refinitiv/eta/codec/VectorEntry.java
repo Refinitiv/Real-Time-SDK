@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * An entry for the UPA {@link Vector} that can house other Container Types
+ * An entry for the ETA {@link Vector} that can house other Container Types
  * only. {@link Vector} is a uniform type, where {@link Vector#containerType()}
  * indicates the single type housed in each entry. Each entry has an associated
  * action which informs the user of how to apply the data contained in the entry

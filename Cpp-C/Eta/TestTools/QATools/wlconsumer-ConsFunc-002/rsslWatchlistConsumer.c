@@ -7,11 +7,11 @@
 
 /*
  * This is the main file for the rsslWatchlistConsumer application.  It is a single-threaded
- * client application that utilizes the UPA Reactor's watchlist to provide recovery of data.
+ * client application that utilizes the ETA Reactor's watchlist to provide recovery of data.
  * 
  * The main consumer file provides the callback for channel events and 
  * the default callback for processing RsslMsgs. The main function
- * Initializes the UPA Reactor, makes the desired connections, and
+ * Initializes the ETA Reactor, makes the desired connections, and
  * dispatches for events.
  *
  * This application makes use of the RDM package for easier decoding of Login & Source Directory
@@ -57,7 +57,7 @@ static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
 
-/* For TREP authentication login reissue */
+/* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 
@@ -250,13 +250,13 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				printf("Error: Invalid encrypted connection type %d for querying EDP service discovery", watchlistConsumerConfig.encryptedConnectionType);
+				printf("Error: Invalid encrypted connection type %d for querying RDP service discovery", watchlistConsumerConfig.encryptedConnectionType);
 				exit(-1);
 			}
 		}
 		else
 		{
-			printf("Error: Invalid connection type %d for querying EDP service discovery", watchlistConsumerConfig.connectionType);
+			printf("Error: Invalid connection type %d for querying RDP service discovery", watchlistConsumerConfig.connectionType);
 			exit(-1);
 		}
 

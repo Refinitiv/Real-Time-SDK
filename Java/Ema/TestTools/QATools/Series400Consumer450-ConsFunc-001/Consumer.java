@@ -324,7 +324,7 @@ public class Consumer
 			
 			if ( host == null || port == null )
 			{
-				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time Optimized. Exiting...");
+				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time - Optimized. Exiting...");
 				return;
 			}
 			

@@ -42,7 +42,7 @@ public class MarketPriceStatus extends MsgBaseImpl
      * 
      * @param destStatusMsg The resulting copy of the RDM Market price Status
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int copy(MarketPriceStatus destStatusMsg)
     {

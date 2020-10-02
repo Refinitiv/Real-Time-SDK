@@ -5322,7 +5322,7 @@ public class ReactorJunit
             // wait and read one message.
             assertTrue(testServer.readMessageFromSocket() > 0);
 
-            // should equal output from UPAC
+            // should equal output from ETAC
             byte[] expected = ParseHexFile.parse(BASE_PACK_TEST_DATA_DIR_NAME + "/Packed1.txt");
             assertNotNull(expected);
             byte[] bytes = new byte[testServer.buffer().position()];
@@ -5358,7 +5358,7 @@ public class ReactorJunit
             // wait and read one message.
             assertTrue(testServer.readMessageFromSocket() > 0);
 
-            // should equal output from UPAC
+            // should equal output from ETAC
             expected = ParseHexFile.parse(BASE_PACK_TEST_DATA_DIR_NAME + "/Packed2.txt");
             assertNotNull(expected);
             bytes = new byte[testServer.buffer().position()];

@@ -143,8 +143,8 @@ public :
 	*/
 	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token" );
 
-	/** Specifies an URL to override the default for the EDP service discovery to get global endpoints
-		@param[in] serviceDiscoveryUrl specifies an URL for EDP service discovery.
+	/** Specifies an URL to override the default for the RDP service discovery to get global endpoints
+		@param[in] serviceDiscoveryUrl specifies an URL for RDP service discovery.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& serviceDiscoveryUrl( const EmaString& serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/" );

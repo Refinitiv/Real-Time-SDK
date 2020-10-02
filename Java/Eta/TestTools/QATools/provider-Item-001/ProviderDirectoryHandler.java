@@ -29,7 +29,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * This is the source directory handler for the UPA Java Provider application.
+ * This is the source directory handler for the ETA Java Provider application.
  * <p>
  * Only one source directory stream per channel is allowed by this simple
  * provider.
@@ -73,7 +73,7 @@ public class ProviderDirectoryHandler
     private static final String enumTypeDictionaryName = "RWFEnum";
 
     // link name
-    private static final String linkName = "UPA Provider Link";
+    private static final String linkName = "ETA Provider Link";
     //APIQA
     public static final int OPEN_LIMIT = 50000;
 

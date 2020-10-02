@@ -349,7 +349,7 @@ class BindOptionsImpl implements BindOptions
     @Override
     public void maxFragmentSize(int maxFragmentSize)
     {
-        // Follow range rule coded in UPAC
+        // Follow range rule coded in ETAC
         assert (maxFragmentSize >= 20 && maxFragmentSize <= 0xFFFF) : "maxFragmentSize is out of range (20-65535)";
 
         // If assertions disabled, ignore out-of-range value and keep existing value

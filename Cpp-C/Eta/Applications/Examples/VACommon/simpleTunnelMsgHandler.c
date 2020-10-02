@@ -6,7 +6,7 @@
 */
 
 /*
- * This is a basic tunnel stream messages handler for the UPA Value Add consumer application.
+ * This is a basic tunnel stream messages handler for the ETA Value Add consumer application.
  * It handles exchange of simple generic messages over the tunnel stream.
  */
 

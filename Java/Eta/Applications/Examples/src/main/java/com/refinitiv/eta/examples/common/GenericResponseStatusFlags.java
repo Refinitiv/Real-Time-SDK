@@ -1,7 +1,7 @@
 package com.refinitiv.eta.examples.common;
 
 /**
- * Status flags used by the UPA Java Generic Consumer and Provider applications.
+ * Status flags used by the ETA Java Generic Consumer and Provider applications.
  */
 public class GenericResponseStatusFlags
 {

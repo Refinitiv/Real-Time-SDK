@@ -24,16 +24,16 @@ public interface ConsumerStatusService
      *
      * @param destConsumerStatusService Message to copy consumer status service object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(ConsumerStatusService destConsumerStatusService);
 
     /**
-     * Decode a UPA message into an RDM message.
+     * Decode a ETA message into an RDM message.
      *
      * @param dIter The Decode Iterator
      * @param msg the msg
-     * @return UPA return value
+     * @return ETA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);
 
@@ -42,7 +42,7 @@ public interface ConsumerStatusService
      * 
      * @param encodeIter The Encode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int encode(EncodeIterator encodeIter);
 

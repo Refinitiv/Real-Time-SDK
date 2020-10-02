@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * An entry for a UPA {@link FilterList} that can house only other container
+ * An entry for a ETA {@link FilterList} that can house only other container
  * types. FilterList is a non-uniform type, where the
  * {@link FilterList#containerType()} should indicate the most common type
  * housed in each entry. Entries that differ from this type must specify their

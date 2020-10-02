@@ -122,7 +122,7 @@ static const char *defaultProxyPasswd = "";
 static const char *defaultProxyDomain = "";
 static const char *defaultCAStore = "";
 
-/* For TREP authentication login reissue */
+/* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 static RsslBool isLoginReissue;

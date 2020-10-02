@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * The UPA Time type allows for bandwidth optimized representation of a time
+ * The ETA Time type allows for bandwidth optimized representation of a time
  * value containing hour, minute, second, millisecond, microsecond, and nanosecond information.
  * 
  * {@link Time} is always represented as GMT unless otherwise specified.

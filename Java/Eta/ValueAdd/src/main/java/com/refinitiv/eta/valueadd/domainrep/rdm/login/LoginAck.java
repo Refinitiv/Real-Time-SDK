@@ -18,7 +18,7 @@ public interface LoginAck extends LoginMsg
      *
      * @param destAckMsg Message to copy login ack object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginAck destAckMsg);
 }

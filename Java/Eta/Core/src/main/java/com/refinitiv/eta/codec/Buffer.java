@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import java.nio.ByteBuffer;
 
 /**
- * UPA Buffer represents some type of user-provided content along with the
+ * ETA Buffer represents some type of user-provided content along with the
  * content's length.
  * 
  * <p>

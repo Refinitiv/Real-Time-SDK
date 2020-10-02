@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Connect Options used in the
+ * ETA Connect Options used in the
  * {@link Transport#connect(ConnectOptions, Error)} call.
  * 
  * @see Transport
@@ -236,7 +236,7 @@ public interface ConnectOptions
     /**
      * The major version number of the {@link Channel}.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#majorVersion()}.
      * 
      * @param majorVersion the majorVersion to set
@@ -253,7 +253,7 @@ public interface ConnectOptions
     /**
      * The minor version number of the {@link Channel}.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#minorVersion()}.
      * 
      * @param minorVersion the minorVersion to set
@@ -285,7 +285,7 @@ public interface ConnectOptions
      * information in content being distributed. This information is provided to
      * help client and server applications manage the information they are communicating.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#protocolType()}.
      * 
      * @param protocolType the protocolType to set
@@ -405,7 +405,7 @@ public interface ConnectOptions
     public SeqMCastOpts seqMCastOpts();
     
     /**
-     * Clears UPA Connect Options.
+     * Clears ETA Connect Options.
      */
     public void clear();
 

@@ -30,7 +30,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
  * <p>
- * This is a main class to run UPA Consumer application. The purpose of this
+ * This is a main class to run ETA Consumer application. The purpose of this
  * application is to consume or post content between an OMM consumer and OMM
  * provider. It is a single-threaded client application.
  * </p>
@@ -39,7 +39,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
- * <li>Create a {@link ChannelSession UPA Channel Session}.
+ * <li>Create a {@link ChannelSession ETA Channel Session}.
  * <li>Create Handler instances to handle Login, Directory, Dictionary,
  * MarketPrice, MarketByOrder, MarketByPrice, and YieldCurve requests and responses.
  * <li>Create handlers for posting and symbol list request, responses.
@@ -58,10 +58,10 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * <p>
  * <em>Setup Environment</em>
  * <p>

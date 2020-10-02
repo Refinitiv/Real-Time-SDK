@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Initialize Arguments used in the {@link Transport#initialize(InitArgs, Error)} call.
+ * ETA Initialize Arguments used in the {@link Transport#initialize(InitArgs, Error)} call.
  * 
  * @see Transport
  */
@@ -22,7 +22,7 @@ public interface InitArgs
     public boolean globalLocking();
 
     /**
-     * Clears UPA Initialize Arguments.
+     * Clears ETA Initialize Arguments.
      */
     public void clear();
 }

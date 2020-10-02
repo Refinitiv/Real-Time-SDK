@@ -53,7 +53,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 
 /**
- * This is the news handler for the UPA NewsViewer application. It provides
+ * This is the news handler for the ETA NewsViewer application. It provides
  * methods for sending the market price request(s) to a provider and processing
  * the response(s). News items are requested via these market price requests.
  * Methods for decoding a field entry from a response, and closing market price

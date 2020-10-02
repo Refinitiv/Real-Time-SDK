@@ -47,7 +47,7 @@ class LoginHandler
     private static String applicationId = "256";
 
     // application name
-    private static String applicationName = "UPA Provider";    
+    private static String applicationName = "ETA Provider";    
 
     private LoginRequestInfoList _loginRequestInfoList;
 

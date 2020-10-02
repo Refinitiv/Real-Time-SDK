@@ -2,7 +2,7 @@ package com.refinitiv.eta.codec;
 
 /**
  * <p>
- * UPA Quality of Service class contains information rate and/or timeliness
+ * ETA Quality of Service class contains information rate and/or timeliness
  * information. Timeliness conveys information about the age of data. Rate
  * conveys information about the data's period of change. Some timeliness or
  * rate values may allow for additional time or rate information to be provided.

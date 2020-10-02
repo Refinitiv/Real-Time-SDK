@@ -28,7 +28,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * This is the source directory handler for the UPA consumer application. It
+ * This is the source directory handler for the ETA consumer application. It
  * provides methods for sending the source directory request to a provider and
  * processing the response. Methods for setting the service name, getting the
  * service information, and closing a source directory stream are also provided.

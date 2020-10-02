@@ -10,7 +10,7 @@ package com.refinitiv.ema.access;
 import java.util.List;
 
 /**
- * ServiceEndpointDiscoveryInfo represents an service endpoint information from EDP-RT service discovery.
+ * ServiceEndpointDiscoveryInfo represents an service endpoint information from RDP service discovery.
  *
  * <p>This class is retrieved from ServiceEndpointDiscoveryResp</p>
  * 
@@ -34,7 +34,7 @@ public interface ServiceEndpointDiscoveryInfo
 	public String endpoint();
 	
 	/**
-	 * Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time Optimized 
+	 * Gets a list of locations where the infrastructure is deployed in Refinitiv Real-Time - Optimized 
 	 * 
 	 * @return a list of location
 	 */
@@ -48,9 +48,9 @@ public interface ServiceEndpointDiscoveryInfo
 	public String port();
 	
 	/**
-	 * Gets a public Refinitiv Real-Time Optimized provider
+	 * Gets a public Refinitiv Real-Time - Optimized provider
 	 * 
-	 * @return a Refinitiv Real-Time Optimized provider
+	 * @return a Refinitiv Real-Time - Optimized provider
 	 */
 	public String provider();
 	

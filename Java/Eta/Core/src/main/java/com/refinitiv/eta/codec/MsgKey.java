@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * UPA Message Key houses a variety of attributes used to help identify the
+ * ETA Message Key houses a variety of attributes used to help identify the
  * contents flowing within a particular stream. This information, in conjunction
  * with domainType and quality of service information, can be used to uniquely
  * identify a data stream.
@@ -143,7 +143,7 @@ public interface MsgKey
     /**
      * The identifier associated with a service (a logical mechanism that provides
      * or enables access to a set of capabilities). This value should correspond
-     * to the service content being requested or provided. In UPA, a service
+     * to the service content being requested or provided. In ETA, a service
      * corresponds to a subset of  content provided by a component, where the
      * Source Directory domain defines specific attributes associated with each
      * service. These attributes include information such as QoS, the specific
@@ -158,7 +158,7 @@ public interface MsgKey
     /**
      * The identifier associated with a service (a logical mechanism that provides
      * or enables access to a set of capabilities). This value should correspond
-     * to the service content being requested or provided. In UPA, a service
+     * to the service content being requested or provided. In ETA, a service
      * corresponds to a subset of  content provided by a component, where the
      * Source Directory domain defines specific attributes associated with each
      * service. These attributes include information such as QoS, the specific
@@ -254,7 +254,7 @@ public interface MsgKey
     /**
      * Container Type of the msgKey attributes. Must be a container type from
      * the {@link DataTypes} enumeration in the range {@link DataTypes#CONTAINER_TYPE_MIN}
-     * to 255. Can indicate the presence of a UPA container type (value
+     * to 255. Can indicate the presence of a ETA container type (value
      * {@link DataTypes#NO_DATA} - 224) or some type of customer-defined container
      * type (value 225 - 255).
      * 
@@ -264,7 +264,7 @@ public interface MsgKey
 
     /**
      * Container Type of the msgKey attributes. Must be a container type from
-     * the {@link DataTypes} enumeration. Can indicate the presence of a UPA
+     * the {@link DataTypes} enumeration. Can indicate the presence of a ETA
      * container type (value {@link DataTypes#NO_DATA} - 224) or some type of
      * customer-defined container type (value 225 - 255).
      * 

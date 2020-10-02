@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * A UPA entry that defines how to encode or decode an {@link ElementEntry}.
+ * A ETA entry that defines how to encode or decode an {@link ElementEntry}.
  * 
  * @see ElementSetDef
  */
@@ -16,7 +16,7 @@ public interface ElementSetDefEntry
 
     /**
      * The name that corresponds to this set-defined element; contained in the
-     * structure as a {@link Buffer}. Element names are defined outside of UPA,
+     * structure as a {@link Buffer}. Element names are defined outside of ETA,
      * typically as part of a domain model specification or dictionary. When
      * encoding, you can optionally populate {@link ElementEntry#name()} with
      * the name expected in the set definition. If name is not used, validation
@@ -31,7 +31,7 @@ public interface ElementSetDefEntry
 
     /**
      * The name that corresponds to this set-defined element; contained in the
-     * structure as a {@link Buffer}. Element names are defined outside of UPA,
+     * structure as a {@link Buffer}. Element names are defined outside of ETA,
      * typically as part of a domain model specification or dictionary. When
      * encoding, you can optionally populate {@link ElementEntry#name()} with
      * the name expected in the set definition. If name is not used, validation

@@ -3,13 +3,13 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * UPA Post Message allows a Consumer application to push content to upstream
+ * ETA Post Message allows a Consumer application to push content to upstream
  * components. This information can be applied to a Refinitiv Real-Time 
  * Distribution System cache or routed further upstream to the source of data. 
  * Once received, the upstream components can republish data to downstream consumers. 
  * Post messages can be routed along a specific item stream, referred to 
  * as on-stream posting, or along a user's Login stream, referred to as off-stream posting.
- * A {@link PostMsg} can contain any UPA container type, including other messages.
+ * A {@link PostMsg} can contain any ETA container type, including other messages.
  * User identification information can be associated with a post message and can
  * be provided along with the content that was posted.
  * 
@@ -315,7 +315,7 @@ public interface PostMsg extends Msg
     public int postUserRights();
 
     /**
-     * The UPA Post User Info Structure. This information can optionally be
+     * The ETA Post User Info Structure. This information can optionally be
      * provided along with the posted content via the postUserInfo on the
      * {@link RefreshMsg}, {@link UpdateMsg}, and {@link StatusMsg}.
      * 

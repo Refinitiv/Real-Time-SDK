@@ -722,7 +722,7 @@ public class DirectoryJunit
         {
                 Service.ServiceGroupFlags.HAS_MERGED_TO_GROUP,
                 Service.ServiceGroupFlags.HAS_STATUS // // uncomment when
-                // encode/decode of state type is implemented by upaj
+                // encode/decode of state type is implemented by etaj
         };
 
         int[] flagsList = TypedMessageTestUtil._createFlagCombinations(flagsBase, false);
@@ -847,7 +847,7 @@ public class DirectoryJunit
         {
                 Service.ServiceStateFlags.HAS_ACCEPTING_REQS
                 // RDMServiceStateFlags.HAS_STATUS // uncomment when
-                // encode/decode of state type is implemented by upaj
+                // encode/decode of state type is implemented by etaj
         };
 
         int[] flagsList = TypedMessageTestUtil._createFlagCombinations(flagsBase, false);

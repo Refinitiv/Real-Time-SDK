@@ -8,15 +8,15 @@
  */
 
 /*****************************************************************************************
- * This is the UPA Interactive Provider Training series of the UPA Training Suite
+ * This is the ETA Interactive Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Interactive Provider using the UPA Transport layer.
+ * training how to build a ETA OMM Interactive Provider using the ETA Transport layer.
  *
- * Main Java source file for the UPA Interactive Provider Training application. It is a 
+ * Main Java source file for the ETA Interactive Provider Training application. It is a 
  * single-threaded client application.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1a: Establish network communication
+ * ETA Interactive Provider Training Module 1a: Establish network communication
  *****************************************************************************************
  * Summary:
  * An OMM Interactive Provider application opens a listening socket on a well-known 
@@ -27,7 +27,7 @@
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish
+ * The first step of any ETA Interactive Provider application is to establish
  * a listening socket, usually on a well-known port so that consumer applications
  * can easily connect. The provider uses the Transport.bind() method to open the port
  * and listen for incoming connection attempts.
@@ -49,7 +49,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  *****************************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might
@@ -87,7 +87,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  * 
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1c: Reading and Writing Data
+ * ETA Interactive Provider Training Module 1c: Reading and Writing Data
  *****************************************************************************************
  * Summary:
  * In this module, when a client or server Channel.state() is 
@@ -101,23 +101,23 @@
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
  * possible for an application to receive data from the connection. The 
  * arrival of this information is often announced by the I/O notification 
- * mechanism that the Channel.scktChannel() is registered with. The UPA 
+ * mechanism that the Channel.scktChannel() is registered with. The ETA 
  * Transport reads information from the network as a byte stream, after 
  * which it determines buffer boundaries and returns each buffer one by 
  * one.
  *
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
- * involves a several step process. Because the UPA Transport provides 
+ * involves a several step process. Because the ETA Transport provides 
  * efficient buffer management, the user is required to obtain a buffer 
- * from the UPA Transport buffer pool. This can be the guaranteed output 
+ * from the ETA Transport buffer pool. This can be the guaranteed output 
  * buffer pool associated with a Channel. After a buffer is acquired, 
  * the user can populate the Buffer.data and set the Buffer.length 
  * to the number of bytes referred to by data. If queued information cannot 
  * be passed to the network, a function is provided to allow the application 
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able 
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write.
  *
  * Command line usage:
@@ -183,7 +183,7 @@ public class Module_1c_ReadWrite
          * DECLARING VARIABLES
          **************************************************************************************************/
         /* Create a server to eventually accept connection requests */
-        Server upaSrvr = null;
+        Server server = null;
 
         boolean clientAccepted = false;
 
@@ -208,7 +208,7 @@ public class Module_1c_ReadWrite
         TransportBuffer msgBuf = null;
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Create decode iterator to decode the contents of the buffer */
@@ -273,12 +273,12 @@ public class Module_1c_ReadWrite
          * INITIALIZATION
          **************************************************************************************************/
         /*********************************************************
-         * Server/Provider Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Server/Provider Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any bootstrapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
 
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
@@ -288,10 +288,10 @@ public class Module_1c_ReadWrite
         }
 
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
 
         /* populate bind options, then pass to Bind function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* Set bind options */
         bindOpts.serviceName(srvrPortNo); /* server is running on default port number 14002 */
@@ -315,8 +315,8 @@ public class Module_1c_ReadWrite
         /**************************************************************************************************
          * Bind and receive a server
          **************************************************************************************************/
-        /* Bind UPA server */
-        if ((upaSrvr = Transport.bind(bindOpts, error)) == null)
+        /* Bind ETA server */
+        if ((server = Transport.bind(bindOpts, error)) == null)
         {
             System.out.printf("Error (%d) (errno: %d) encountered with Bind. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
             /* End application, uninitialize to clean up first */
@@ -325,8 +325,8 @@ public class Module_1c_ReadWrite
         }
 
         int clientChannelFDValue = -1;
-        final int upaServerFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(upaSrvr.selectableChannel());
-        System.out.printf("Server IPC descriptor = %d bound on port %d\n", upaServerFDValue, upaSrvr.portNumber());
+        final int etaServerFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(server.selectableChannel());
+        System.out.printf("Server IPC descriptor = %d bound on port %d\n", etaServerFDValue, server.portNumber());
 
         opMask |= SelectionKey.OP_ACCEPT;
 
@@ -334,12 +334,12 @@ public class Module_1c_ReadWrite
         try
         {
             selector = Selector.open();
-            upaSrvr.selectableChannel().register(selector, opMask, upaSrvr);
+            server.selectableChannel().register(selector, opMask, server);
         }
         catch (Exception e)
         {
             System.out.printf("Exception %s\n", e.getMessage());
-            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
         }
 
         SelectionKey key = null;
@@ -364,7 +364,7 @@ public class Module_1c_ReadWrite
                 if (keyIter.hasNext())
                 {
                     /* Check if channel is ACCEPT-able */
-                    key = upaSrvr.selectableChannel().keyFor(selector);
+                    key = server.selectableChannel().keyFor(selector);
                     if (key.isAcceptable())
                     {
                         acceptOpts.nakMount(false);
@@ -389,7 +389,7 @@ public class Module_1c_ReadWrite
                          * used for other transport operations.
                          *********************************************************/
                         /* An OMM Provider application can begin the connection accepting or rejecting process by using the Accept function */
-                        if ((channel = upaSrvr.accept(acceptOpts, error)) == null)
+                        if ((channel = server.accept(acceptOpts, error)) == null)
                         {
                             System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                             Transport.uninitialize();
@@ -399,7 +399,7 @@ public class Module_1c_ReadWrite
                         {
                             /* For this simple training app, the interactive provider only supports one client session from the consumer. */
                              clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
-                            System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", upaServerFDValue, clientChannelFDValue);
+                            System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", etaServerFDValue, clientChannelFDValue);
                             /*set clientAccepted to be TRUE and exit the while Main Loop #1*/
                             clientAccepted = true;
                         }
@@ -409,7 +409,7 @@ public class Module_1c_ReadWrite
             catch (IOException e)
             {
                 System.out.printf("Exception %s\n", e.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -433,7 +433,7 @@ public class Module_1c_ReadWrite
             catch (Exception e)
             {
                 System.out.printf("Exception: %s\n", e.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
             }
 
             /* Wait for any I/O notification updates in the channel for our specified amt of seconds (e.g. 60 sec.)*/
@@ -448,7 +448,7 @@ public class Module_1c_ReadWrite
                 if (!keyIter.hasNext())
                 {
                     System.out.printf("Channel initialization has timed out.\n");
-                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                 }
                 else
                 {
@@ -462,8 +462,8 @@ public class Module_1c_ReadWrite
                          * multiple times throughout the Loop 2, as it makes *
                          * more progress towards channel initialization. *
                          ***************************************************************************/
-                        /* Internally, the UPA initialization process includes several actions. The initialization includes
-                         * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+                        /* Internally, the ETA initialization process includes several actions. The initialization includes
+                         * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
                          * Compression, ping timeout, and versioning related negotiations also take place during the
                          * initialization process. This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.state will transition. If the connection
@@ -479,7 +479,7 @@ public class Module_1c_ReadWrite
                         if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                         {
                             System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
-                            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                         }
 
                         /* Handle return code appropriately */
@@ -513,7 +513,7 @@ public class Module_1c_ReadWrite
                                     catch (Exception e)
                                     {
                                         System.out.printf("Exception: %s\n", e.getMessage());
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                     }
                                     try
                                     {
@@ -522,7 +522,7 @@ public class Module_1c_ReadWrite
                                     catch (Exception e)
                                     {
                                         System.out.printf("Exception: %s\n", e.getMessage());
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                     }
                                 }
                                 else
@@ -545,7 +545,7 @@ public class Module_1c_ReadWrite
                                  * that the state transitions to ACTIVE
                                  *********************************************************/
 
-                                /* After channel is active, use UPA Transport utility function GetChannelInfo to query Channel negotiated
+                                /* After channel is active, use ETA Transport utility function GetChannelInfo to query Channel negotiated
                                  * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
                                  * compression information as well as many other values.
                                  */
@@ -556,7 +556,7 @@ public class Module_1c_ReadWrite
                                     System.out.printf("Error (%d) (errno: %d) encountered with channel.info. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
                                     /* Connection should be closed, return failure */
                                     /* Closes channel, closes server, cleans up and exits the application. */
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                 }
 
                                 /* Print out basic channel info */
@@ -602,11 +602,11 @@ public class Module_1c_ReadWrite
                                  * any necessary cleanup. All currently connected Channels will remain open. This allows applications to continue
                                  * to send and receive data, while preventing new applications from connecting. The server has the option of calling
                                  * CloseChannel to shut down any currently connected applications.
-                                 * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+                                 * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
                                  * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
                                  * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
                                 */
-                                if ((upaSrvr == null) & (upaSrvr.close(error) < TransportReturnCodes.SUCCESS))
+                                if ((server == null) & (server.close(error) < TransportReturnCodes.SUCCESS))
                                 {
                                     System.out.printf("Error (%d) (errno: %d) encountered with CloseServer.  Error Text : %s\n", error.errorId(), error.sysError(), error.text());
 
@@ -615,14 +615,14 @@ public class Module_1c_ReadWrite
                                     System.exit(TransportReturnCodes.FAILURE);
                                 }
 
-                                /*set upaSrvr to be null*/
-                                upaSrvr = null;
+                                /*set server to be null*/
+                                server = null;
                             }
                                 break;
                             default: /* Error handling */
                             {
                                 System.out.printf("Bad return value fd=%d: <%s>\n", clientChannelFDValue, TransportReturnCodes.toString(retCode));
-                                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                             }
                                 break;
                         }
@@ -632,7 +632,7 @@ public class Module_1c_ReadWrite
             catch (IOException e1)
             {
                 System.out.printf("Exception %s\n", e1.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
             }
         }
 
@@ -665,7 +665,7 @@ public class Module_1c_ReadWrite
             catch (Exception e)
             {
                 System.out.printf("Exception %s\n", e.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
             }
 
             /* Wait 1 second for any I/O notification updates in the channel */
@@ -706,8 +706,8 @@ public class Module_1c_ReadWrite
                                  * calling the applicable specific function for further processing.
                                  */
 
-                                /* No need to clear the message before we decode into it. UPA Decoding populates all message members (and that is true for any
-                                 * decoding with UPA, you never need to clear anything but the iterator)
+                                /* No need to clear the message before we decode into it. ETA Decoding populates all message members (and that is true for any
+                                 * decoding with ETA, you never need to clear anything but the iterator)
                                  */
                                 /* We have data to process */
                                 /* Create message to represent buffer data */
@@ -725,7 +725,7 @@ public class Module_1c_ReadWrite
                                 {
                                     System.out.printf("\nSetDecodeIteratorBuffer() failed with return code: %d\n", ret);
                                     /* Closes channel, closes server, cleans up and exits the application. */
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                 }
                                 /******************************************
                                  * Step 6) Decode buffer message *
@@ -735,7 +735,7 @@ public class Module_1c_ReadWrite
                                 {
                                     System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                                     /* Closes channel, closes server, cleans up and exits the application. */
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                 }
 
                                 /* Deduce an action based on the domain type of the message */
@@ -790,7 +790,7 @@ public class Module_1c_ReadWrite
                                         catch (Exception e)
                                         {
                                             System.out.printf("Exception %s\n", e.getMessage());
-                                            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                         }
                                         try
                                         {
@@ -799,7 +799,7 @@ public class Module_1c_ReadWrite
                                         catch (Exception e)
                                         {
                                             System.out.printf("Exception %s\n", e.getMessage());
-                                            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                         }
                                         break;
 
@@ -815,7 +815,7 @@ public class Module_1c_ReadWrite
                                         if (retCode < 0)
                                         {
                                             System.out.printf("Error (%d) (errno: %d) encountered with Read Error Text: %s\n", error.errorId(), error.sysError(), error.text());
-                                            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                         }
                                         break;
                                 }
@@ -859,7 +859,7 @@ public class Module_1c_ReadWrite
                                     System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                                     /* Connection should be closed, return failure */
                                     /* Closes channel/connection, cleans up and exits the application. */
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                                 }
                             }
                         }
@@ -879,14 +879,14 @@ public class Module_1c_ReadWrite
                 else if (retCode < TransportReturnCodes.SUCCESS)
                 {
                     /* Closes channel, cleans up and exits the application. */
-                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
                 }
 
                 /* get current time */
                 currentTime = System.currentTimeMillis();
 
                 /* If the runtime has expired */
-                if (System.currentTimeMillis() >= upaRuntime)
+                if (System.currentTimeMillis() >= etaRuntime)
                 {
                     /* Closes all streams for the Interactive Provider after run-time has elapsed in our simple Interactive Provider example.
                      * If the provider application must shut down, it can either leave consumer connections intact or shut them down. If the provider
@@ -911,14 +911,14 @@ public class Module_1c_ReadWrite
                             System.out.printf("Flush has failed with return code %d - <%s>\n", retCode, error.text());
                         }
                     }
-                    System.out.printf("UPA Server run-time has expired...\n");
-                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.SUCCESS);
+                    System.out.printf("ETA Server run-time has expired...\n");
+                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.SUCCESS);
                 }
             }
             catch (IOException e1)
             {
                 System.out.printf("Exception %s\n", e1.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE);
             }
         }
     }
@@ -953,7 +953,7 @@ public class Module_1c_ReadWrite
          * using CloseChannel (OS connection release handshake) CloseChannel
          * closes the server based Channel. This will release any pool based
          * resources back to their respective pools, close the connection, and
-         * perform any additional necessary cleanup. When shutting down the UPA
+         * perform any additional necessary cleanup. When shutting down the ETA
          * Transport, the application should release all unwritten pool buffers.
          * Calling CloseChannel terminates the connection for each connection
          * client.
@@ -976,7 +976,7 @@ public class Module_1c_ReadWrite
          * any necessary cleanup. All currently connected Channels will remain open. This allows applications to continue
          * to send and receive data, while preventing new applications from connecting. The server has the option of calling
          * CloseChannel to shut down any currently connected applications.
-         * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+         * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
@@ -985,12 +985,12 @@ public class Module_1c_ReadWrite
         }
 
         /*********************************************************
-         * Server/Provider Application Life Cycle Major Step 8: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Server/Provider Application Life Cycle Major Step 8: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitialized internal data structures
          * and deletes any allocated memory.
          *********************************************************/
-        /* All UPA Transport use is complete, must uninitialize.
+        /* All ETA Transport use is complete, must uninitialize.
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
@@ -1006,7 +1006,7 @@ public class Module_1c_ReadWrite
          */
         if (code == TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("\nUPA Interactive Provider Training Application successfully ended.\n");
+            System.out.printf("\nETA Interactive Provider Training Application successfully ended.\n");
         }
 
         /* End application */
@@ -1014,7 +1014,7 @@ public class Module_1c_ReadWrite
     }
 
     /*********************************************************
-     * Initializes the ping times for upaChannel. upaChannel - The channel for
+     * Initializes the ping times for etaChannel. etaChannel - The channel for
      * ping management info initialization
      *********************************************************/
     static int pingTimeoutServer; /* server ping timeout */
@@ -1054,7 +1054,7 @@ public class Module_1c_ReadWrite
 
     /**
      * *******************************************************
-     * Processing ping management handler upaChannel - The channel for ping
+     * Processing ping management handler etaChannel - The channel for ping
      * management processing
      * *******************************************************.
      *
@@ -1064,7 +1064,7 @@ public class Module_1c_ReadWrite
      */
     public static int processPingManagementHandler(Channel channel, Selector selector)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the client if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the client if the next send ping time has arrived and
          * checks if a ping has been received from the client within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -1082,7 +1082,7 @@ public class Module_1c_ReadWrite
              * Ping Attempts to write a heartbeat message on the connection.
              * This function expects the Channel to be in the active state. If
              * an application calls the Ping function while there are other
-             * bytes queued for output, the UPA Transport layer will suppress
+             * bytes queued for output, the ETA Transport layer will suppress
              * the heartbeat message and attempt to flush bytes to the network
              * on the user's behalf.
              *********************************************************/

@@ -6,11 +6,11 @@ import com.refinitiv.eta.transport.InProgInfo;
 import com.refinitiv.eta.transport.TransportBuffer;
 
 /**
- * The UPA Channel is used to represent a connection that can send or receive
+ * The ETA Channel is used to represent a connection that can send or receive
  * information across a network. This class is used to represent a connection,
  * regardless of if that was an outbound connection or a connection that was
  * accepted by a listening socket. Any memory associated with a {@link Channel}
- * object is internally managed by the UPA Transport Package, and the
+ * object is internally managed by the ETA Transport Package, and the
  * application does not need to create nor destroy any memory associated with a
  * {@link Channel}. The {@link Channel} is typically used to perform any action
  * on the connection that it represents (e.g. reading, writing, disconnecting, * etc).
@@ -206,7 +206,7 @@ public interface Channel
     public int releaseBuffer(TransportBuffer buffer, Error error);
 
     /**
-     * Allows user to pack multiple UPA encoded messages into the same UPA Buffer.<br>
+     * Allows user to pack multiple ETA encoded messages into the same ETA Buffer.<br>
      * 
      * Typical use: <br>
      * This is called when the application wants to perform message packing.

@@ -12,7 +12,7 @@ import com.refinitiv.eta.transport.ReentrantLock;
 import com.refinitiv.eta.transport.SocketProtocol;
 
 /**
- * UPA transport is used by an OMM Interactive Provider to create listening
+ * ETA transport is used by an OMM Interactive Provider to create listening
  * sockets and by OMM consumer and NIP applications to establish outbound
  * connections to a listening socket.
  */
@@ -49,11 +49,11 @@ public class Transport
 
         if (_libVersionInfo.productInternalVersion() == null)
         {
-            _libVersionInfo.productInternalVersion("UPA Java Edition");
+            _libVersionInfo.productInternalVersion("ETA Java Edition");
         }
         if (_libVersionInfo.productVersion() == null)
         {
-            _libVersionInfo.productVersion("UPA Java Edition");
+            _libVersionInfo.productVersion("ETA Java Edition");
         }
         if (_libVersionInfo.productDate() == null)
         {
@@ -78,12 +78,12 @@ public class Transport
     private static Protocol _hiddenTcpJni;         // JNI TCP implementation (used only for testing)
 
     /**
-     * Initializes the UPA transport API and all internal members.<BR>
+     * Initializes the ETA transport API and all internal members.<BR>
      * 
-     * This is the first method called when using the UPA. It initializes internal data structures.
+     * This is the first method called when using the ETA. It initializes internal data structures.
      * 
      * @param initArgs Arguments for initialize
-     * @param error UPA Error, to be populated in event of an error
+     * @param error ETA Error, to be populated in event of an error
      * 
      * @return {@link TransportReturnCodes}
      * 
@@ -127,9 +127,9 @@ public class Transport
     }
 
     /**
-     * Uninitializes the UPA API and all internal members.<BR>
+     * Uninitializes the ETA API and all internal members.<BR>
      * 
-     * This is the last method called by an application when using the UPA. 
+     * This is the last method called by an application when using the ETA. 
      * If multiple threads call initialize() on Transport, they have to
      * call uninitialize() when the thread finishes.
      * The last uninitialize() call releases all internally pooled resources to GC.
@@ -224,9 +224,9 @@ public class Transport
      * 4. Read or write with the Channel<BR>
      * 
      * @param opts Options used when connecting
-     * @param error UPA Error, to be populated in event of an error
+     * @param error ETA Error, to be populated in event of an error
      * 
-     * @return Connected UPA channel or NULL
+     * @return Connected ETA channel or NULL
      * 
      * @see ConnectOptions
      * @see Channel
@@ -347,16 +347,16 @@ public class Transport
     }
 
     /**
-     * Creates a UPA Server by binding to a port.<BR>
+     * Creates a ETA Server by binding to a port.<BR>
      * 
      * 1. Initialize BindOptions<BR>
      * 2. Set BindOptions to desired values<BR>
      * 3. Call bind to create {@link Server}<BR>
      * 
      * @param opts Options used when binding
-     * @param error UPA Error, to be populated in event of an error
+     * @param error ETA Error, to be populated in event of an error
      * 
-     * @return Bound UPA server or NULL
+     * @return Bound ETA server or NULL
      * 
      * @see BindOptions
      * @see Server

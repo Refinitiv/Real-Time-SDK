@@ -98,11 +98,11 @@ public class TransportReturnCodes
 
     /* General Failure and Success Codes */
     /**
-     * General Failure: UPA general failure return code.
+     * General Failure: ETA general failure return code.
      */
     public static final int FAILURE = -1;
     /**
-     * General Success: UPA general success return code.
+     * General Success: ETA general success return code.
      */
     public static final int SUCCESS = 0;
 

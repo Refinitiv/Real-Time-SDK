@@ -1,4 +1,4 @@
-# The hex data has been created with UPAC rsslTrwfMessageTest.
+# The hex data has been created with ETAC rsslTrwfMessageTest.
 # The requestMsgTest function is included after the hex data.
 # 
 # MsgInit:
@@ -54,7 +54,7 @@ FC FF FD 80 5B 26 0D 42  61 74 63 68 5F 52 65 71   ....[&.B atch_Req
 70 65 04 01 01 09 3A 56  69 65 77 44 61 74 61 0F   pe....:V iewData.
 FE 00 08 04 02 00 02 00  16 00 19                  ........ ...
 
-# The UPAC code has been included if needed to reproduce this data at a later date.
+# The ETAC code has been included if needed to reproduce this data at a later date.
 #
 #void requestMsgTest(RsslUInt32 repeat)
 #{

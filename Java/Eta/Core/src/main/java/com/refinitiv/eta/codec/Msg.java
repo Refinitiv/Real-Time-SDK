@@ -8,7 +8,7 @@ import com.refinitiv.eta.codec.XMLDecoder;
 /**
  * Communicates data between system components: to exchange information,
  * indicate status, permission users and access, and for a variety of other
- * purposes. Each UPA message, while having their own unique members, shares a
+ * purposes. Each ETA message, while having their own unique members, shares a
  * common set of members. This common set of members form the base portion of
  * each message structure.
  * 
@@ -27,7 +27,7 @@ public interface Msg extends XMLDecoder
     public void clear();
 
     /**
-     * Encode a UPA Message. Encodes the key into buffer, all the data is
+     * Encode a ETA Message. Encodes the key into buffer, all the data is
      * passed in.<BR>
      * Typical use:<BR>
      * 1. Set Msg structure members.<BR>
@@ -45,7 +45,7 @@ public interface Msg extends XMLDecoder
     public int encode(EncodeIterator iter);
 
     /**
-     * Initiate encoding of a UPA Message. Initiates encoding of a message.<BR>
+     * Initiate encoding of a ETA Message. Initiates encoding of a message.<BR>
      * Typical use:<BR>
      * 1. Call Msg.encodeInit().<BR>
      * 2. Encode the key contents.<BR>
@@ -64,7 +64,7 @@ public interface Msg extends XMLDecoder
     public int encodeInit(EncodeIterator iter, int dataMaxSize);
 
     /**
-     * Complete encoding of a UPA Message. Complete encoding of a message.<BR>
+     * Complete encoding of a ETA Message. Complete encoding of a message.<BR>
      * Typical use:<BR>
      * 1. Call Msg.encodeInit().<BR>
      * 2. Encode the key contents.<BR>

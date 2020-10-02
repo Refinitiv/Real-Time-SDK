@@ -8,15 +8,15 @@
  */
 
 /*****************************************************************************************
- * This is the UPA Interactive Provider Training series of the UPA Training Suite
+ * This is the ETA Interactive Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step
- * training how to build a UPA OMM Interactive Provider using the UPA Transport layer.
+ * training how to build a ETA OMM Interactive Provider using the ETA Transport layer.
  *
- * Main Java source file for the UPA Interactive Provider Training application. It is a
+ * Main Java source file for the ETA Interactive Provider Training application. It is a
  * single-threaded client application.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1a: Establish network communication
+ * ETA Interactive Provider Training Module 1a: Establish network communication
  *****************************************************************************************
  * Summary:
  * An OMM Interactive Provider application opens a listening socket on a well-known
@@ -27,7 +27,7 @@
  * on a well-known port allowing OMM consumer applications to connect.
  *
  * Detailed Descriptions:
- * The first step of any UPA Interactive Provider application is to establish
+ * The first step of any ETA Interactive Provider application is to establish
  * a listening socket, usually on a well-known port so that consumer applications
  * can easily connect. The provider uses the Transport.bind() method to open the port
  * and listen for incoming connection attempts.
@@ -49,7 +49,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA Interactive Provider Training Module 1b: Ping (heartbeat) Management
  *****************************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might
@@ -87,7 +87,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 1c: Reading and Writing Data
+ * ETA Interactive Provider Training Module 1c: Reading and Writing Data
  *****************************************************************************************
  * Summary:
  * In this module, when a client or server Channel.state() is
@@ -101,23 +101,23 @@
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to receive data from the connection. The
  * arrival of this information is often announced by the I/O notification
- * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * mechanism that the Channel.scktChannel() is registered with. The ETA
  * Transport reads information from the network as a byte stream, after
  * which it determines buffer boundaries and returns each buffer one by
  * one.
  *
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to write data to the connection. Writing
- * involves a several step process. Because the UPA Transport provides
+ * involves a several step process. Because the ETA Transport provides
  * efficient buffer management, the user is required to obtain a buffer
- * from the UPA Transport buffer pool. This can be the guaranteed output
+ * from the ETA Transport buffer pool. This can be the guaranteed output
  * buffer pool associated with a Channel. After a buffer is acquired,
  * the user can populate the Buffer.data and set the Buffer.length
  * to the number of bytes referred to by data. If queued information cannot
  * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write.
  *
  * Command line usage:
@@ -133,7 +133,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *****************************************************************************************
- * UPA Interactive Provider Training Module 2: Perform/Handle Login Process
+ * ETA Interactive Provider Training Module 2: Perform/Handle Login Process
  *****************************************************************************************
  * Summary:
  * Applications authenticate with one another using the Login domain model.
@@ -162,7 +162,7 @@
  * Also please note for simple training app, the interactive provider only supports
  * one client session from the consumer, that is, only supports one channel/client connection.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -178,7 +178,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 3: Provide Source Directory Information
+ * ETA Interactive Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
  * Summary:
  * In this module, OMM Interactive Provider application provides Source Directory
@@ -207,7 +207,7 @@
  * either individual item status messages (for each affected stream) or a Directory message
  * containing the item group status information.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -223,7 +223,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA Interactive Provider Training Module 4: Provide Necessary Dictionaries
+ * ETA Interactive Provider Training Module 4: Provide Necessary Dictionaries
  ************************************************************************
  * Summary:
  * In this module, OMM Interactive Provider application provides Necessary Dictionaries.
@@ -244,11 +244,11 @@
  * available to consumers for download. The provider can inform the consumer whether the
  * dictionary is available via the Source Directory.
  * 
- * If loading from a file, UPA offers several utility functions for loading and managing 
+ * If loading from a file, ETA offers several utility functions for loading and managing 
  * a properly-formatted field dictionary. There are also utility functions provided to 
  * help the provider encode into an appropriate format for downloading. 
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  * Command line usage:
@@ -353,7 +353,7 @@ public class Module_4_ProvideDictionary
     public static String loginRequestInfo_InstanceId;
     public static String loginRequestInfo_Role;
 
-    public static int upaServerFDValue;
+    public static int etaServerFDValue;
     public static int clientChannelFDValue;
 
     public static int sourceDirectoryRequestInfo_StreamId;
@@ -410,7 +410,7 @@ public class Module_4_ProvideDictionary
          * DECLARING VARIABLES
          **************************************************************************************************/
         /* Create a server to eventually accept connection requests */
-        Server upaSrvr = null;
+        Server server = null;
 
         boolean clientAccepted = false;
 
@@ -435,7 +435,7 @@ public class Module_4_ProvideDictionary
         TransportBuffer msgBuf = null;
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Create decode iterator to decode the contents of the buffer */
@@ -519,12 +519,12 @@ public class Module_4_ProvideDictionary
          * INITIALIZATION
          **************************************************************************************************/
         /*********************************************************
-         * Server/Provider Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Server/Provider Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any bootstrapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
 
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
@@ -534,10 +534,10 @@ public class Module_4_ProvideDictionary
         }
 
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
 
         /* populate bind options, then pass to Bind function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* Set bind options */
         bindOpts.serviceName(srvrPortNo); /* server is running on default port number 14002 */
@@ -568,7 +568,7 @@ public class Module_4_ProvideDictionary
          * and enumerated dictionaries from local files, if they exist, at the
          * earlier stage of the interactive provider applications.
          *
-         * When loading from local files, UPA offers several utility functions
+         * When loading from local files, ETA offers several utility functions
          * to load and manage a properly-formatted field dictionary and enum
          * type dictionary.
          *********************************************************/
@@ -602,13 +602,13 @@ public class Module_4_ProvideDictionary
 
         }
 
-        System.out.printf("UPA provider app has successfully loaded both dictionaries from local files.\n\n");
+        System.out.printf("ETA provider app has successfully loaded both dictionaries from local files.\n\n");
 
         /**************************************************************************************************
          * Bind and receive a server
          **************************************************************************************************/
-        /* Bind UPA server */
-        if ((upaSrvr = Transport.bind(bindOpts, error)) == null)
+        /* Bind ETA server */
+        if ((server = Transport.bind(bindOpts, error)) == null)
         {
             System.out.printf("Error (%d) (errno: %d) encountered with Bind. Error Text: %s\n", error.errorId(), error.sysError(), error.text());
             /* End application, uninitialize to clean up first */
@@ -616,8 +616,8 @@ public class Module_4_ProvideDictionary
             System.exit(TransportReturnCodes.FAILURE);
         }
 
-        upaServerFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(upaSrvr.selectableChannel());
-        System.out.printf("Server IPC descriptor = %d bound on port %d\n", upaServerFDValue, upaSrvr.portNumber());
+        etaServerFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(server.selectableChannel());
+        System.out.printf("Server IPC descriptor = %d bound on port %d\n", etaServerFDValue, server.portNumber());
 
         opMask |= SelectionKey.OP_ACCEPT;
 
@@ -625,12 +625,12 @@ public class Module_4_ProvideDictionary
         try
         {
             selector = Selector.open();
-            upaSrvr.selectableChannel().register(selector, opMask, upaSrvr);
+            server.selectableChannel().register(selector, opMask, server);
         }
         catch (Exception e)
         {
             System.out.printf("Exception %s\n", e.getMessage());
-            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
         }
 
         SelectionKey key = null;
@@ -654,7 +654,7 @@ public class Module_4_ProvideDictionary
             if (keyIter.hasNext())
             {
                 /* Check if channel is ACCEPT-able */
-                key = upaSrvr.selectableChannel().keyFor(selector);
+                key = server.selectableChannel().keyFor(selector);
                 if (key.isAcceptable())
                 {
                     acceptOpts.nakMount(false);
@@ -678,7 +678,7 @@ public class Module_4_ProvideDictionary
                      * can be used for other transport operations.
                      *********************************************************/
                     /* An OMM Provider application can begin the connection accepting or rejecting process by using the Accept function */
-                    if ((channel = upaSrvr.accept(acceptOpts, error)) == null)
+                    if ((channel = server.accept(acceptOpts, error)) == null)
                     {
                         System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
                         Transport.uninitialize();
@@ -687,7 +687,7 @@ public class Module_4_ProvideDictionary
                     {
                         /* For this simple training app, the interactive provider only supports one client session from the consumer. */
                         clientChannelFDValue = TrainingModuleUtils.getFDValueOfSelectableChannel(channel.selectableChannel());
-                        System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", upaServerFDValue, clientChannelFDValue);
+                        System.out.printf("\nServer fd = %d: New client on Channel fd=%d\n", etaServerFDValue, clientChannelFDValue);
                         /*set clientAccepted to be TRUE and exit the while Main Loop #1*/
                         clientAccepted = true;
                     }
@@ -715,7 +715,7 @@ public class Module_4_ProvideDictionary
             catch (Exception e)
             {
                 System.out.printf("Exception: %s\n", e.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
             }
 
             /* Wait for any I/O notification updates in the channel for our specified amt of seconds (e.g. 60 sec.)*/
@@ -729,7 +729,7 @@ public class Module_4_ProvideDictionary
             if (!keyIter.hasNext())
             {
                 System.out.printf("Channel initialization has timed out.\n");
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
             }
             else
             {
@@ -743,8 +743,8 @@ public class Module_4_ProvideDictionary
                      * multiple times throughout the Loop 2, as it makes * more
                      * progress towards channel initialization. *
                      ***************************************************************************/
-                    /* Internally, the UPA initialization process includes several actions. The initialization includes
-                     * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+                    /* Internally, the ETA initialization process includes several actions. The initialization includes
+                     * any necessary ETA connection handshake exchanges, including any HTTP or HTTPS negotiation.
                      * Compression, ping timeout, and versioning related negotiations also take place during the
                      * initialization process. This process involves exchanging several messages across the connection,
                      * and once all message exchanges have completed the Channel.state will transition. If the connection
@@ -760,7 +760,7 @@ public class Module_4_ProvideDictionary
                     if ((retCode = channel.init(inProgInfo, error)) < TransportReturnCodes.SUCCESS)
                     {
                         System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
-                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                     }
 
                     /* Deduce an action from return code of Channel.init() */
@@ -794,7 +794,7 @@ public class Module_4_ProvideDictionary
                                 catch (Exception e)
                                 {
                                     System.out.printf("Exception: %s\n", e.getMessage());
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                 }
                                 try
                                 {
@@ -803,7 +803,7 @@ public class Module_4_ProvideDictionary
                                 catch (Exception e)
                                 {
                                     System.out.printf("Exception: %s\n", e.getMessage());
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                 }
                             }
                             else
@@ -827,7 +827,7 @@ public class Module_4_ProvideDictionary
                              * to ACTIVE
                              *********************************************************/
 
-                            /* After channel is active, use UPA Transport utility function GetChannelInfo to query Channel negotiated
+                            /* After channel is active, use ETA Transport utility function GetChannelInfo to query Channel negotiated
                              * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
                              * compression information as well as many other values.
                              */
@@ -836,7 +836,7 @@ public class Module_4_ProvideDictionary
                             if ((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
                             {
                                 System.out.printf("Error (%d) (errno: %d) encountered with Init Channel fd=%d. Error Text: %s\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
-                                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
 
                             /* Print out basic channel info */
@@ -882,11 +882,11 @@ public class Module_4_ProvideDictionary
                              * any necessary cleanup. All currently connected Channels will remain open. This allows applications to continue
                              * to send and receive data, while preventing new applications from connecting. The server has the option of calling
                              * CloseChannel to shut down any currently connected applications.
-                             * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+                             * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
                              * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
                              * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
                             */
-                            if ((upaSrvr == null) & (upaSrvr.close(error) < TransportReturnCodes.SUCCESS))
+                            if ((server == null) & (server.close(error) < TransportReturnCodes.SUCCESS))
                             {
                                 System.out.printf("Error (%d) (errno: %d) encountered with CloseServer.  Error Text : %s\n", error.errorId(), error.sysError(), error.text());
 
@@ -895,14 +895,14 @@ public class Module_4_ProvideDictionary
                                 System.exit(TransportReturnCodes.FAILURE);
                             }
 
-                            /*set upaSrvr to be null*/
-                            upaSrvr = null;
+                            /*set server to be null*/
+                            server = null;
                         }
                             break;
                         default: /* Error handling */
                         {
                             System.out.printf("Bad return value fd=%d: <%s>\n", clientChannelFDValue, TransportReturnCodes.toString(retCode));
-                            closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                            closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                         }
                             break;
                     }
@@ -951,7 +951,7 @@ public class Module_4_ProvideDictionary
             catch (Exception e)
             {
                 System.out.printf("Exception %s\n", e.getMessage());
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
             }
 
             /* Wait 1 second for any I/O notification updates in the channel */
@@ -991,8 +991,8 @@ public class Module_4_ProvideDictionary
                              * calling the applicable specific function for further processing.
                              */
 
-                            /* No need to clear the message before we decode into it. UPA Decoding populates all message members (and that is true for any
-                             * decoding with UPA, you never need to clear anything but the iterator)
+                            /* No need to clear the message before we decode into it. ETA Decoding populates all message members (and that is true for any
+                             * decoding with ETA, you never need to clear anything but the iterator)
                              */
                             /* We have data to process */
 
@@ -1012,7 +1012,7 @@ public class Module_4_ProvideDictionary
                             {
                                 System.out.printf("\nSetDecodeIteratorBuffer() failed with return code: %d\n", ret);
                                 /* Closes channel, closes server, cleans up and exits the application. */
-                                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
                             /******************************************
                              * Step 6) Decode buffer message *
@@ -1020,7 +1020,7 @@ public class Module_4_ProvideDictionary
                             if ((retCode = msg.decode(decodeIter)) != CodecReturnCodes.SUCCESS)
                             {
                                 System.out.printf("msg.decode(): Error (%d) (errno: %d) on SessionData fd=%d. Size: %d\n", error.errorId(), error.sysError(), clientChannelFDValue, msgBuf.length());
-                                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
 
                             /* Deduce an action based on the domain type of the message */
@@ -1041,7 +1041,7 @@ public class Module_4_ProvideDictionary
                                     else if (retCode < TransportReturnCodes.SUCCESS)
                                     {
                                         clearLoginRequestInfo();
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                 }
                                     break;
@@ -1062,7 +1062,7 @@ public class Module_4_ProvideDictionary
                                     else if (retCode < TransportReturnCodes.SUCCESS)
                                     {
                                         /* Closes channel, closes server, cleans up and exits the application. */
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                 }
                                     break;
@@ -1084,7 +1084,7 @@ public class Module_4_ProvideDictionary
                                     else if (retCode < TransportReturnCodes.SUCCESS)
                                     {
                                         /* Closes channel, closes server, cleans up and exits the application. */
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                 }
                                     break;
@@ -1130,7 +1130,7 @@ public class Module_4_ProvideDictionary
                                     catch (Exception e)
                                     {
                                         System.out.printf("Exception %s\n", e.getMessage());
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                     try
                                     {
@@ -1139,7 +1139,7 @@ public class Module_4_ProvideDictionary
                                     catch (Exception e)
                                     {
                                         System.out.printf("Exception %s\n", e.getMessage());
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                     break;
 
@@ -1151,7 +1151,7 @@ public class Module_4_ProvideDictionary
                                 case TransportReturnCodes.INIT_NOT_INITIALIZED:
                                 case TransportReturnCodes.FAILURE:
                                     System.out.printf("Error (%d) (errno: %d) fd=%d <%s>\n", error.errorId(), error.sysError(), clientChannelFDValue, error.text());
-                                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     break;
                                 default:
                                 {
@@ -1159,7 +1159,7 @@ public class Module_4_ProvideDictionary
                                     {
                                         System.out.printf("Error (%d) (errno: %d) encountered with ChannelRead fd=%d. Error Text: %s\n",
                                                 error.errorId(), error.sysError(), clientChannelFDValue, error.text());
-                                        closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                        closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                                     }
                                 }
                             }
@@ -1196,7 +1196,7 @@ public class Module_4_ProvideDictionary
                                         error.errorId(), error.sysError(), clientChannelFDValue, retCode, error.text());
                                 /* Connection should be closed, return failure */
                                 /* Closes channel/connection, cleans up and exits the application. */
-                                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                             }
                         }
                     }
@@ -1217,14 +1217,14 @@ public class Module_4_ProvideDictionary
             else if (retCode < TransportReturnCodes.SUCCESS)
             {
                 /* Closes channel, cleans up and exits the application. */
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
             }
 
             /* get current time */
             currentTime = System.currentTimeMillis();
 
             /* If the runtime has expired */
-            if (System.currentTimeMillis() >= upaRuntime)
+            if (System.currentTimeMillis() >= etaRuntime)
             {
                 /* Closes all streams for the Interactive Provider after run-time has elapsed in our simple Interactive Provider example.
                  * If the provider application must shut down, it can either leave consumer connections intact or shut them down.
@@ -1241,7 +1241,7 @@ public class Module_4_ProvideDictionary
                      */
 
                     /* Closes channel, closes server, cleans up and exits the application. */
-                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                    closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.FAILURE, _dictionary);
                 }
 
                 /* flush before exiting */
@@ -1266,8 +1266,8 @@ public class Module_4_ProvideDictionary
                     }
                 }
 
-                System.out.printf("UPA Server run-time has expired...\n\n");
-                closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.SUCCESS, _dictionary);
+                System.out.printf("ETA Server run-time has expired...\n\n");
+                closeChannelServerCleanUpAndExit(channel, server, selector, TransportReturnCodes.SUCCESS, _dictionary);
             }
         }
     }
@@ -1310,7 +1310,7 @@ public class Module_4_ProvideDictionary
          * any necessary cleanup. All currently connected Channels will remain open. This allows applications to continue
          * to send and receive data, while preventing new applications from connecting. The server has the option of calling
          * CloseChannel to shut down any currently connected applications.
-         * When shutting down the UPA Transport, the application should release any unwritten pool buffers.
+         * When shutting down the ETA Transport, the application should release any unwritten pool buffers.
          * The listening socket can be closed by calling CloseServer. This prevents any new connection attempts.
          * If shutting down connections for all connected clients, the provider should call CloseChannel for each connection client.
         */
@@ -1324,12 +1324,12 @@ public class Module_4_ProvideDictionary
         else
             dictionary.clear();
         /*********************************************************
-         * Server/Provider Application Life Cycle Major Step 8: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Server/Provider Application Life Cycle Major Step 8: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitialized internal data structures
          * and deletes any allocated memory.
          *********************************************************/
-        /* All UPA Transport use is complete, must uninitialize.
+        /* All ETA Transport use is complete, must uninitialize.
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
@@ -1345,7 +1345,7 @@ public class Module_4_ProvideDictionary
          */
         if (code == TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("\nUPA Interactive Provider Training Application successfully ended.\n");
+            System.out.printf("\nETA Interactive Provider Training Application successfully ended.\n");
         }
 
         /* End application */
@@ -1407,7 +1407,7 @@ public class Module_4_ProvideDictionary
     }
 
     /*********************************************************
-     * Initializes the ping times for upaChannel.
+     * Initializes the ping times for etaChannel.
      * 
      * @param channel - The channel for ping management info initialization
      *********************************************************/
@@ -1458,7 +1458,7 @@ public class Module_4_ProvideDictionary
 
     public static int processPingManagementHandler(Channel channel)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the client if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the client if the next send ping time has arrived and
          * checks if a ping has been received from the client within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -1476,7 +1476,7 @@ public class Module_4_ProvideDictionary
              * Ping Attempts to write a heartbeat message on the connection.
              * This function expects the Channel to be in the active state. If
              * an application calls the Ping function while there are other
-             * bytes queued for output, the UPA Transport layer will suppress
+             * bytes queued for output, the ETA Transport layer will suppress
              * the heartbeat message and attempt to flush bytes to the network
              * on the user's behalf.
              *********************************************************/
@@ -1568,10 +1568,10 @@ public class Module_4_ProvideDictionary
          * used. This function allows for several modifications to be specified
          * for this call. Here we use _WRITE_NO_FLAGS. For more information on
          * other flag enumeration such as _WRITE_DO_NOT_COMPRESS or
-         * _WRITE_DIRECT_SOCKET_WRITE, see the UPA C developers guide for Write
-         * Flag Enumeration Values supported by UPA Transport.
+         * _WRITE_DIRECT_SOCKET_WRITE, see the ETA C developers guide for Write
+         * Flag Enumeration Values supported by ETA Transport.
          *
-         * The UPA Transport also supports writing data at different priority
+         * The ETA Transport also supports writing data at different priority
          * levels. The application can pass in two integer values used for
          * reporting information about the number of bytes that will be written.
          * The uncompressedBytesWritten parameter will return the number of
@@ -1588,7 +1588,7 @@ public class Module_4_ProvideDictionary
          * to the network.
          *********************************************************/
 
-        /* Now write the data - keep track of UPA Transport return code -
+        /* Now write the data - keep track of ETA Transport return code -
          * Because positive values indicate bytes left to write, some negative transport layer return codes still indicate success
          */
         WriteArgs writeArgs = TransportFactory.createWriteArgs();
@@ -1618,8 +1618,8 @@ public class Module_4_ProvideDictionary
 
         if (retCode > TransportReturnCodes.SUCCESS)
         {
-            /* The write was successful and there is more data queued in UPA Transport. The Channel.flush() method should be used to continue attempting to flush data
-             * to the connection. UPA will release buffer.
+            /* The write was successful and there is more data queued in ETA Transport. The Channel.flush() method should be used to continue attempting to flush data
+             * to the connection. ETA will release buffer.
              */
 
             /* Flush needs to be done by application */
@@ -1631,7 +1631,7 @@ public class Module_4_ProvideDictionary
                 case TransportReturnCodes.SUCCESS:
                 {
                     /* Successful write and all data has been passed to the connection */
-                    /* Continue with next operations. UPA will release buffer.*/
+                    /* Continue with next operations. ETA will release buffer.*/
                 }
                     break;
                 case TransportReturnCodes.NO_BUFFERS:
@@ -1893,8 +1893,8 @@ public class Module_4_ProvideDictionary
 
         /* Get a buffer of the channel max fragment size */
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, closes server, cleans up and exits the application. */
@@ -2046,7 +2046,7 @@ public class Module_4_ProvideDictionary
         }
 
         /* ApplicationName */
-        applicationName.data("UPA Provider Training");
+        applicationName.data("ETA Provider Training");
         elementEntry.dataType(DataTypes.ASCII_STRING);
         elementEntry.name(ElementNames.APPNAME);
 
@@ -2158,7 +2158,7 @@ public class Module_4_ProvideDictionary
      * @return obtained buffer *
      * ************************************************************
      */
-    public static TransportBuffer upaGetBuffer(Channel channel, int size, Error error)
+    public static TransportBuffer etaGetBuffer(Channel channel, int size, Error error)
     {
         int retCode;
         TransportBuffer msgBuf = null;
@@ -2228,8 +2228,8 @@ public class Module_4_ProvideDictionary
             return TransportReturnCodes.FAILURE;
         }
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, closes server, cleans up and exits the application. */
@@ -2475,8 +2475,8 @@ public class Module_4_ProvideDictionary
         /* clear encode iterator for reuse - this should be used to achieve the best performance while clearing the iterator. */
         encodeIter.clear();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null)/* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null)/* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, closes server, cleans up and exits the application. */
@@ -3097,10 +3097,10 @@ public class Module_4_ProvideDictionary
         /* clear encode iterator for reuse - this should be used to achieve the best performance while clearing the iterator. */
         encodeIter.clear();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
         /* Create channel info as a holder */
 
-        if ((msgBuf = upaGetBuffer(channel, maxFragmentSize, error)) == null)
+        if ((msgBuf = etaGetBuffer(channel, maxFragmentSize, error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, closes server, cleans up and exits the application. */
@@ -3385,12 +3385,12 @@ public class Module_4_ProvideDictionary
         while (true)
         {
 
-            /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+            /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
             switch (dictionaryType)
             {
                 case Dictionary.Types.FIELD_DEFINITIONS:
 
-                    if ((msgBuf = upaGetBuffer(chnl, maxSize, error)) == null) /* first check Error */
+                    if ((msgBuf = etaGetBuffer(chnl, maxSize, error)) == null) /* first check Error */
                     {
                         /* Connection should be closed, return failure */
                         /* Closes channel, closes server, cleans up and exits the application. */
@@ -3399,7 +3399,7 @@ public class Module_4_ProvideDictionary
                     break;
                 case Dictionary.Types.ENUM_TABLES:
                     /* EnumType Dictionary now supports fragmenting at a message level - However, some EnumType Dictionary message can be still very large, up to 10K */
-                    if ((msgBuf = upaGetBuffer(chnl, MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, error)) == null) /* first check Error */
+                    if ((msgBuf = etaGetBuffer(chnl, MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, error)) == null) /* first check Error */
                     {
                         /* Connection should be closed, return failure */
                         /* Closes channel, closes server, cleans up and exits the application. */
@@ -3740,8 +3740,8 @@ public class Module_4_ProvideDictionary
         /* clear encode iterator for reuse - this should be used to achieve the best performance while clearing the iterator. */
         _encodeIter.clear();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(chnl, maxSize, error)) == null)/* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(chnl, maxSize, error)) == null)/* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, closes server, cleans up and exits the application. */
@@ -3857,8 +3857,8 @@ public class Module_4_ProvideDictionary
         for (i = 0; i < 2; i++)
         {
 
-            /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-            if ((msgBuf = upaGetBuffer(chnl, maxSize, error)) == null)/* first check Error */
+            /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+            if ((msgBuf = etaGetBuffer(chnl, maxSize, error)) == null)/* first check Error */
             {
                 /* Connection should be closed, return failure */
                 /* Closes channel, closes server, cleans up and exits the application. */

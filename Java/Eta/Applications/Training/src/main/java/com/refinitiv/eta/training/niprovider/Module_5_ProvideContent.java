@@ -8,24 +8,25 @@
  */
 
 /**
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main c source file for the UPA NI Provider Training application. It is a
+ * Main c source file for the ETA NI Provider Training application. It is a
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
- * connects to TREP-RT and sends a specific set (non-interactive) of 
- * information (services, domains, and capabilities). NIPs act like 
- * clients in a client-server relationship. Multiple NIPs can connect 
- * to the same TREP-RT and publish the same items and content. 
+ * connects to Refinitiv Real-Time Distribution System and sends a specific
+ * set (non-interactive) of information (services, domains, and capabilities).
+ * NIPs act like clients in a client-server relationship. Multiple NIPs can
+ * connect to the same Refinitiv Real-Time Distribution System and publish
+ * the same items and content.
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
@@ -33,7 +34,7 @@
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network
+ * The first step of any ETA NIP application is to establish network
  * communication with an ADH server. To do so, the OMM NIP typically creates
  * an outbound connection to the well-known hostname and port of an ADH.
  * The OMM NIP uses the Connect function to initiate the connection
@@ -52,7 +53,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA NI Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might
@@ -84,7 +85,7 @@
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 1c: Reading and Writing Data
+ * ETA NI Provider Training Module 1c: Reading and Writing Data
  ************************************************************************
  * Summary:
  * In this module, when a client or server Channel.state is
@@ -98,23 +99,23 @@
  * When a client or server Channel.state is ACTIVE, it is
  * possible for an application to receive data from the connection. The
  * arrival of this information is often announced by the I/O notification
- * mechanism that the Channel.socketId is registered with. The UPA
+ * mechanism that the Channel.socketId is registered with. The ETA
  * Transport reads information from the network as a byte stream, after
  * which it determines Buffer boundaries and returns each buffer one by
  * one.
  *
  * When a client or server Channel.state is ACTIVE, it is
  * possible for an application to write data to the connection. Writing
- * involves a several step process. Because the UPA Transport provides
+ * involves a several step process. Because the ETA Transport provides
  * efficient buffer management, the user is required to obtain a buffer
- * from the UPA Transport buffer pool. This can be the guaranteed output
+ * from the ETA Transport buffer pool. This can be the guaranteed output
  * buffer pool associated with an Channel. After a buffer is acquired,
  * the user can populate the Buffer.data and set the Buffer.length
  * to the number of bytes referred to by data. If queued information cannot
  * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write.
  *
  * Command line usage:
@@ -130,7 +131,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA NI Provider Training Module 2: Log in
+ * ETA NI Provider Training Module 2: Log in
  ************************************************************************
  * Summary:
  * In this module, applications authenticate with one another using the Login
@@ -149,7 +150,7 @@
  * b) If the application gains access to the ADH, the Login response informs
  * the application of this. The NI provider must now provide a Source Directory.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -165,7 +166,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA NI Provider Training Module 3: Provide Source Directory Information
+ * ETA NI Provider Training Module 3: Provide Source Directory Information
  ************************************************************************
  * Summary:
  * In this module, OMM NIP application provides Source Directory information.
@@ -195,9 +196,9 @@
  * unavailable.
  * c) The Source Directory Group filter conveys item group status information,
  * including information about group states as well as the merging of groups.
- * For additional information about item groups, refer to UPAC Developer Guide.
+ * For additional information about item groups, refer to ETAC Developer Guide.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -214,7 +215,7 @@
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 4: Load Dictionary Information
+ * ETA NI Provider Training Module 4: Load Dictionary Information
  ************************************************************************
  * Summary:
  * Dictionaries may be available locally in a file for an OMM NIP appliation. In
@@ -247,7 +248,7 @@
  *
  *
  ************************************************************************
- * UPA NI Provider Training Module 5: Provide Content
+ * ETA NI Provider Training Module 5: Provide Content
  ************************************************************************
  * Summary:
  * In this module, after providing a Source Directory, the OMM NIP application can 
@@ -269,7 +270,7 @@
  * To avoid component or transport migration issues, NIP applications may want to always 
  * include this information. 
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  * Command line usage:
@@ -419,7 +420,7 @@ public class Module_5_ProvideContent
         MarketPriceItem marketPriceItem = new MarketPriceItem();
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -550,17 +551,17 @@ public class Module_5_ProvideContent
          * INITIALIZATION - USING Initialize()
          ******************************************************************************************************************/
         /*********************************************************
-         * Client/NIProv Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Client/NIProv Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any boot strapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
 
         /* _LOCK_NONE is used since this is a single threaded application.
          * For applications with other thread models (_LOCK_GLOBAL_AND_CHANNEL, _LOCK_GLOBAL),
-         * see the UPA C developers guide for definitions of other locking models supported by UPA
+         * see the ETA C developers guide for definitions of other locking models supported by ETA
          */
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
         {
@@ -569,9 +570,9 @@ public class Module_5_ProvideContent
         }
 
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
         /* populate connect options, then pass to Connect function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* use standard socket connection */
         cOpts.connectionType(ConnectionTypes.SOCKET); /* (0) Channel is a standard TCP socket connection type */
@@ -590,7 +591,7 @@ public class Module_5_ProvideContent
          * and enumerated dictionaries from local files, if they exist, at the
          * earlier stage of the consumer applications.
          *
-         * When loading from local files, UPA offers several utility functions
+         * When loading from local files, ETA offers several utility functions
          * to load and manage a properly-formatted field dictionary and enum
          * type dictionary.
          *
@@ -623,7 +624,7 @@ public class Module_5_ProvideContent
         else
             System.out.printf("Successfully loaded enum type dictionary from local file.\n\n");
 
-        System.out.printf("UPA NIP application has successfully loaded both dictionaries from local files.\n\n");
+        System.out.printf("ETA NIP application has successfully loaded both dictionaries from local files.\n\n");
 
         /******************************************************************************************************************
          * CONNECTION SETUP - USING Connect()
@@ -967,7 +968,7 @@ public class Module_5_ProvideContent
 
                         /* When a client Channel.state is ACTIVE, it is possible for an application to receive data from the connection.
                          * The arrival of this information is often announced by the I/O notification mechanism that the Channel.socketId is registered with.
-                         * The UPA Transport reads information from the network as a byte stream, after which it determines Buffer boundaries and returns
+                         * The ETA Transport reads information from the network as a byte stream, after which it determines Buffer boundaries and returns
                          * each buffer one by one.
                          */
 
@@ -1012,8 +1013,8 @@ public class Module_5_ProvideContent
                                  * calling the applicable specific function for further processing.
                                  */
 
-                                /* No need to clear the message before we decode into it. UPA Decoding populates all message members (and that is true for any
-                                 * decoding with UPA, you never need to clear anything but the iterator)
+                                /* No need to clear the message before we decode into it. ETA Decoding populates all message members (and that is true for any
+                                 * decoding with ETA, you never need to clear anything but the iterator)
                                  */
                                 /* We have data to process */
 
@@ -1070,11 +1071,11 @@ public class Module_5_ProvideContent
                                         else
                                         {
                                             isLoginSuccessful = true;
-                                            System.out.printf("UPA NI Provider application is granted access and has logged in successfully.\n\n");
+                                            System.out.printf("ETA NI Provider application is granted access and has logged in successfully.\n\n");
                                             /* The Source Directory domain model conveys information about all available services in the system. After completing the
                                              * Login process, an OMM NIP must provide a Source Directory refresh message.
                                              */
-                                            System.out.printf("UPA NI Provider application is providing a Source Directory refresh message.\n\n");
+                                            System.out.printf("ETA NI Provider application is providing a Source Directory refresh message.\n\n");
                                             sendSourceDirectoryResponse(channel, maxMsgSize, encodeIter, serviceName, serviceId);
 
                                         }
@@ -1236,9 +1237,9 @@ public class Module_5_ProvideContent
                 /* get current time */
                 currentTime = System.currentTimeMillis();
 
-                /* Handles the run-time for the UPA NI Provider application. Here we exit the application after a predetermined time to run */
+                /* Handles the run-time for the ETA NI Provider application. Here we exit the application after a predetermined time to run */
                 /* If the runtime has expired */
-                if (System.currentTimeMillis() >= upaRuntime)
+                if (System.currentTimeMillis() >= etaRuntime)
                 {
                     /* Closes all streams for the NI Provider after run-time has elapsed. */
                     /* send close status messages to all item streams */
@@ -1273,7 +1274,7 @@ public class Module_5_ProvideContent
                         }
                     }
 
-                    System.out.printf("UPA Client run-time has expired...\n\n");
+                    System.out.printf("ETA Client run-time has expired...\n\n");
                     closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.SUCCESS);
                 }
             }
@@ -1286,7 +1287,7 @@ public class Module_5_ProvideContent
 
     /*
      * Closes channel, cleans up and exits the application.
-     * upaChannel - The channel to be closed
+     * etaChannel - The channel to be closed
      * code - if exit due to errors/exceptions
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
@@ -1316,13 +1317,13 @@ public class Module_5_ProvideContent
         }
 
         /*********************************************************
-         * Client/NIProv Application Life Cycle Major Step 6: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Client/NIProv Application Life Cycle Major Step 6: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitializes internal data structures
          * and deletes any allocated memory.
          *********************************************************/
 
-        /* All UPA Transport use is complete, must uninitialize.
+        /* All ETA Transport use is complete, must uninitialize.
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
@@ -1337,7 +1338,7 @@ public class Module_5_ProvideContent
          * Exits the application if the run-time has expired.
          */
         if (code == TransportReturnCodes.SUCCESS)
-            System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
+            System.out.printf("\nETA NI Provider Training application successfully ended.\n");
 
         /* End application */
         System.exit(0);
@@ -1345,8 +1346,8 @@ public class Module_5_ProvideContent
     }
 
     /*
-     * Initializes the ping times for upaChannel.
-     * upaChannel - The channel for ping management info initialization
+     * Initializes the ping times for etaChannel.
+     * etaChannel - The channel for ping management info initialization
      */
     static int pingTimeoutServer; /* server ping timeout */
     static int pingTimeoutClient; /* client ping timeout */
@@ -1369,11 +1370,11 @@ public class Module_5_ProvideContent
 
     /*
      * Processing ping management handler
-     * upaChannel - The channel for ping management processing
+     * etaChannel - The channel for ping management processing
      */
     public static int processPingManagementHandler(Channel channel, Error error, Short opMask, Selector selector)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the server if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the server if the next send ping time has arrived and
          * checks if a ping has been received from the server within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -1390,7 +1391,7 @@ public class Module_5_ProvideContent
              * Ping Attempts to write a heartbeat message on the connection.
              * This function expects the Channel to be in the active state. If
              * an application calls the Ping function while there are other
-             * bytes queued for output, the UPA Transport layer will suppress
+             * bytes queued for output, the ETA Transport layer will suppress
              * the heartbeat message and attempt to flush bytes to the network
              * on the user's behalf.
              *********************************************************/
@@ -1463,7 +1464,7 @@ public class Module_5_ProvideContent
 
     /*
      * Sends a message buffer to a channel.
-     * upaChannel - The channel to send the message buffer to
+     * etaChannel - The channel to send the message buffer to
      * msgBuf - The msgBuf to be sent
      */
     public static int sendMessage(Channel channel, TransportBuffer msgBuf)
@@ -1484,10 +1485,10 @@ public class Module_5_ProvideContent
          * This function allows for several modifications to be specified for
          * this call. Here we use WriteFlags.NO_FLAGS. For more information on
          * other flag enumeration such as WriteFlags.DO_NOT_COMPRESS or
-         * WriteFlags.WRITE_DIRECT_SOCKET_WRITE, see the UPA C developers guide
-         * for Write Flag Enumeration Values supported by UPA Transport.
+         * WriteFlags.WRITE_DIRECT_SOCKET_WRITE, see the ETA C developers guide
+         * for Write Flag Enumeration Values supported by ETA Transport.
          *
-         * The UPA Transport also supports writing data at different priority
+         * The ETA Transport also supports writing data at different priority
          * levels. The application can pass in two integer values used for
          * reporting information about the number of bytes that will be written.
          * The uncompressedBytesWritten parameter will return the number of
@@ -1504,7 +1505,7 @@ public class Module_5_ProvideContent
          * to the network.
          *********************************************************/
 
-        /* Now write the data - keep track of UPA Transport return code -
+        /* Now write the data - keep track of ETA Transport return code -
          * Because positive values indicate bytes left to write, some negative transport layer return codes still indicate success
          */
 
@@ -1534,8 +1535,8 @@ public class Module_5_ProvideContent
         /* set write fd if there's still data queued */
         if (retCode > TransportReturnCodes.SUCCESS)
         {
-            /* The write was successful and there is more data queued in UPA Transport. The Flush function should be used to continue attempting to flush data
-             * to the connection. UPA will release buffer.
+            /* The write was successful and there is more data queued in ETA Transport. The Flush function should be used to continue attempting to flush data
+             * to the connection. ETA will release buffer.
              */
 
             /* flush needs to be done by application */
@@ -1548,7 +1549,7 @@ public class Module_5_ProvideContent
                 case TransportReturnCodes.SUCCESS:
                 {
                     /* Successful write and all data has been passed to the connection */
-                    /* Continue with next operations. UPA will release buffer.*/
+                    /* Continue with next operations. ETA will release buffer.*/
                 }
                     break;
                 case TransportReturnCodes.NO_BUFFERS:
@@ -1598,7 +1599,7 @@ public class Module_5_ProvideContent
      * encoded and sent by OMM consumer and OMM non-interactive provider applications. This message registers a user
      * with the system. After receiving a successful Login response, applications can then begin consuming or providing
      * additional content. An OMM provider can use the Login request information to authenticate users with DACS.
-     * upaChannel - The channel to send the Login request message buffer to
+     * etaChannel - The channel to send the Login request message buffer to
      * maxMsgSize - the requested size of the buffer for GetBuffer function to obtain from the guaranteed/shared buffer pool.
      * encodeIter - The encode iterator
      */
@@ -1624,8 +1625,8 @@ public class Module_5_ProvideContent
         elementList.clear();
         elementEntry.clear();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxFragmentSize, error)) == null)
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxFragmentSize, error)) == null)
         {
             return TransportReturnCodes.FAILURE;
         }
@@ -1719,7 +1720,7 @@ public class Module_5_ProvideContent
         }
 
         /* ApplicationName */
-        applicationName.data("UPA NI provider Training");
+        applicationName.data("ETA NI provider Training");
 
         elementEntry.dataType(DataTypes.ASCII_STRING);
         elementEntry.name(ElementNames.APPNAME);
@@ -1999,7 +2000,7 @@ public class Module_5_ProvideContent
      * A Login close message is encoded and sent by OMM NIP applications. This message allows a NIP to log out
      * of the system. Closing a Login stream is equivalent to a 'Close All' type of message, where all open streams are
      * closed (thus all other streams associated with the user are closed).
-     * upaChannel - The channel to send the Login close message buffer to
+     * etaChannel - The channel to send the Login close message buffer to
      * maxMsgSize - the requested size of the buffer for GetBuffer function to obtain from the guaranteed/shared buffer pool.
      * encodeIter - The encode iterator
      */
@@ -2011,7 +2012,7 @@ public class Module_5_ProvideContent
         CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
 
         /* Get a buffer of the channel max fragment size */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null)
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -2076,10 +2077,10 @@ public class Module_5_ProvideContent
     }
 
     /*
-     * upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
+     * etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer.
      * Also, it simplifies the example codes and make the codes more readable.
      */
-    public static TransportBuffer upaGetBuffer(Channel channel, int size, Error error)
+    public static TransportBuffer etaGetBuffer(Channel channel, int size, Error error)
 
     {
         int retCode;
@@ -2135,7 +2136,7 @@ public class Module_5_ProvideContent
      * the ADH server. OMM NIP application provides Source Directory information. The Source Directory domain model conveys
      * information about all available services in the system. After completing the Login process, an OMM NIP must
      * provide a Source Directory refresh.
-     * upaChannel - The channel to send the Source Directory response message buffer to
+     * etaChannel - The channel to send the Source Directory response message buffer to
      * maxMsgSize - the requested size of the buffer for GetBuffer function to obtain from the guaranteed/shared buffer pool.
      * encodeIter - The encode iterator
      * serviceName - The service name specified by the OMM NIP application (Optional to set)
@@ -2171,8 +2172,8 @@ public class Module_5_ProvideContent
         Array array = CodecFactory.createArray();
         ArrayEntry arrayEntry = CodecFactory.createArrayEntry();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -2787,7 +2788,7 @@ public class Module_5_ProvideContent
      * an RefreshMsg, conveying all necessary identification information for the content. Because the provider instantiates
      * this information, a negative value streamId should be used for all streams. The initial identifying refresh can be followed
      * by other status or update messages.
-     * upaChannel - The channel to send the item response message buffer to
+     * etaChannel - The channel to send the item response message buffer to
      * maxMsgSize - the requested size of the buffer for GetBuffer function to obtain from the guaranteed/shared buffer pool.
      * encodeIter - The encode iterator
      * marketPriceItemInfo - The market price item information
@@ -2823,8 +2824,8 @@ public class Module_5_ProvideContent
 
         /* In this simple example, we are sending just 1 Market Price item response message to a channel. */
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -2905,7 +2906,7 @@ public class Module_5_ProvideContent
             refreshMsg.qos().timeliness(QosTimeliness.REALTIME);
             msg = refreshMsg;
 
-            System.out.printf("UPA NI Provider application is providing a MarketPrice Item refresh message.\n\n");
+            System.out.printf("ETA NI Provider application is providing a MarketPrice Item refresh message.\n\n");
         }
         else /* this is an update message */
         {
@@ -2924,7 +2925,7 @@ public class Module_5_ProvideContent
 
             msg = updateMsg;
 
-            System.out.printf("UPA NI Provider application is providing a MarketPrice Item update message.\n\n");
+            System.out.printf("ETA NI Provider application is providing a MarketPrice Item update message.\n\n");
         }
 
         msgBase.domainType(DomainTypes.MARKET_PRICE); /* (6) Market Price Message */
@@ -3168,7 +3169,7 @@ public class Module_5_ProvideContent
 
     /*
      * Sends the item close status message for a channel.
-     * upaChannel - The channel to send close status message to
+     * etaChannel - The channel to send close status message to
      * maxMsgSize - the requested size of the buffer for GetBuffer function to obtain from the guaranteed/shared buffer pool.
      * encodeIter - The encode iterator
      * marketPriceItemInfo - The market price item information
@@ -3184,8 +3185,8 @@ public class Module_5_ProvideContent
 
         String stateText;
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */

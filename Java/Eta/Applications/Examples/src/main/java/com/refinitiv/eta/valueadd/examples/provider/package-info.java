@@ -1,4 +1,4 @@
 /**
- * This package contains the UPA Value Add Provider.
+ * This package contains the ETA Value Add Provider.
  */
 package com.refinitiv.eta.valueadd.examples.provider;

@@ -3,7 +3,7 @@ package com.refinitiv.eta.transport;
 import java.nio.ByteBuffer;
 
 /**
- * UPA buffer used by transport layer.
+ * ETA buffer used by transport layer.
  */
 public interface TransportBuffer
 {
@@ -44,7 +44,7 @@ public interface TransportBuffer
      * 
      * @return the capacity. Maximum number of bytes that can be stored in the
      *         write buffer. In case of read only buffer, this is maximum number
-     *         of bytes UPAJ fills in to the buffer.
+     *         of bytes ETAJ fills in to the buffer.
      */
     public int capacity();
 

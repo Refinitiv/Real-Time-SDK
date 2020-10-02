@@ -37,16 +37,16 @@ public interface MsgBase
      * 
      * @param eIter The Encode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     public int encode(EncodeIterator eIter);
 
     /**
-     * Decode a UPA message into an RDM message.
+     * Decode a ETA message into an RDM message.
      *
      * @param dIter The Decode Iterator
      * @param msg the msg
-     * @return UPA return value
+     * @return ETA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);
 

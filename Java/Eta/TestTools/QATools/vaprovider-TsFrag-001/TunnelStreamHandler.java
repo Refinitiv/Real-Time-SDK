@@ -63,7 +63,7 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
     private static String applicationId = "256";
 
     // application name
-    private static String applicationName = "UPA TunnelStream Provider";
+    private static String applicationName = "ETA TunnelStream Provider";
 
     void processNewStream(TunnelStreamRequestEvent event)
     {

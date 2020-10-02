@@ -9,7 +9,7 @@ ex450_MP_QueryServiceDiscovery illustrates how to query endpoints from
 Refinitiv Data Platform service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with the Refinitiv Real-Time Optimized service and consuming data. This 
+for establishing a connection with the Refinitiv Real-Time - Optimized service and consuming data. This 
 application requires a username (Machine ID), password, and client ID for 
 authorization with the token service in order to an access token for querying 
 endpoints from the Refinitiv Data Platform service discovery and sending login requests to the

@@ -44,7 +44,7 @@ TEST(ElementListTests, testElementListwithReal)
 	}
 }
 
-//encode ElementList with UPA and decode ElementList with EMA
+//encode ElementList with ETA and decode ElementList with EMA
 TEST(ElementListTests, testElementListDecodeAll)
 {
 
@@ -503,7 +503,7 @@ TEST(ElementListTests, testElementListDecodeAll)
 	}
 }
 
-//encode with UPA and decode with EMA
+//encode with ETA and decode with EMA
 TEST(ElementListTests, testElementListContainsFieldListDecodeAll)
 {
 
@@ -768,7 +768,7 @@ TEST(ElementListTests, testElementListContainsFieldListDecodeAll)
 	}
 }
 
-//encode with UPA and decode with EMA
+//encode with ETA and decode with EMA
 TEST(ElementListTests, testElementListContainsElementListDecodeAll)
 {
 
@@ -1037,7 +1037,7 @@ TEST(ElementListTests, testElementListContainsElementListDecodeAll)
 	}
 }
 
-//encode with UPA and decode with EMA
+//encode with ETA and decode with EMA
 TEST(ElementListTests, testElementListContainsMapDecodeAll)
 {
 

@@ -42,11 +42,11 @@ public class Codec
         }
 
         if (_libVersionInfo.productInternalVersion() == null) {
-            _libVersionInfo.productInternalVersion("UPA Java Edition");
+            _libVersionInfo.productInternalVersion("ETA Java Edition");
         }
 
         if (_libVersionInfo.productVersion() == null) {
-            _libVersionInfo.productVersion("UPA Java Edition");
+            _libVersionInfo.productVersion("ETA Java Edition");
         }
 
         if (_libVersionInfo.productDate() == null) {

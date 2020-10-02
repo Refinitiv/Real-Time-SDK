@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * A bi-directional UPA message that does not have any implicit interaction
+ * A bi-directional ETA message that does not have any implicit interaction
  * semantics associated with it, thus the name generic. Once a stream is
  * established via a request-refresh/status interaction, this message can be
  * sent from consumer to provider as well as from provider to consumer, and can

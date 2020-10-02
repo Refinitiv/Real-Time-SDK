@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Qos;
 
 /**
- * UPA {@link RequestMsg} is used by an OMM consumer to express interest in a
+ * ETA {@link RequestMsg} is used by an OMM consumer to express interest in a
  * particular information stream. The request's msgKey members help identify the
  * stream and priority information can be used to indicate the streams
  * importance to the consumer. {@link Qos} information can be used to express

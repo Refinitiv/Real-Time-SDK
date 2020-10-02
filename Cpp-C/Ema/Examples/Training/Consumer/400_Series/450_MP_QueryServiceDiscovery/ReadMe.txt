@@ -3,15 +3,15 @@ Summary
 
 450_MP_QueryServiceDiscovery is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time Optimized.
+and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized.
 
 450_MP_QueryServiceDiscovery illustrates how to query endpoints from
-EDP-RT service discovery using the ServiceEndpointDiscovery class and use the 
+RDP service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
 for establishing a connection with the Refinitiv Real-Time service and consuming data. This application
 requires a machine ID and a password for authorization with the token service in order
-to an access token for querying endpoints from the EDP service discovery and sending
+to an access token for querying endpoints from the RDP service discovery and sending
 login requests to the service. EMA automatically refreshes the token to keep
 session alive with the service. 
 
@@ -28,7 +28,7 @@ including:
  You can generate and manage client Ids by using the Eikon App Key Generator.
  This is found by visiting my.Refinitiv.com, launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
-- location location to get an endpoint from EDP-RT service discovery. Now, it is either
+- location location to get an endpoint from RDP service discovery. Now, it is either
 "us-east" by default or "eu-west" (optional).
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 -websocket Use the WebSocket transport protocol (optional).

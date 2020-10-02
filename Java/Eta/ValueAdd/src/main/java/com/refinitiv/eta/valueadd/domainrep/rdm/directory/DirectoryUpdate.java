@@ -32,7 +32,7 @@ public interface DirectoryUpdate extends DirectoryMsg
      *
      * @param destUpdateMsg Message to copy directory update object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(DirectoryUpdate destUpdateMsg);
 

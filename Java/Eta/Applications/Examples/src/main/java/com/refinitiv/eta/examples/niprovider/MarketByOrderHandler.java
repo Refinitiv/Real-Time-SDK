@@ -28,7 +28,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * This is the market by order handler for the UPA NIProvider application. It
+ * This is the market by order handler for the ETA NIProvider application. It
  * provides methods to encode and send refreshes and updates, as well as
  * closing streams.
  */

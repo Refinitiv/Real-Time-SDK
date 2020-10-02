@@ -134,7 +134,7 @@ public interface DirectoryStatus extends DirectoryMsg
      *
      * @param destStatusMsg Message to copy directory status object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(DirectoryStatus destStatusMsg);
     

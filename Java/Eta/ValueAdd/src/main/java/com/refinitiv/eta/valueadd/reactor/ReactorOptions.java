@@ -99,9 +99,9 @@ public class ReactorOptions
     }
 
     /**
-     * A URL for the EDP-RT service discovery 
+     * A URL for the RDP service discovery 
      *
-     * @param serviceDiscoveryURL the URL for the EDP-RT service discovery
+     * @param serviceDiscoveryURL the URL for the RDP service discovery
      * 
      * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
      * 		   or if position or length is outside of the data's capacity.
@@ -146,7 +146,7 @@ public class ReactorOptions
     }
 
     /**
-     * A URL for the EDP-RT service discovery 
+     * A URL for the RDP service discovery 
      * 
      * @return the serviceDiscoveryURL
      */
@@ -158,10 +158,10 @@ public class ReactorOptions
     
     /**
      * A URL of the token service to get an access token and a refresh token. 
-     * This is used for querying EDP-RT service
-     * discovery and subscribing data from EDP-RT.
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
      *
-     * @param tokenServiceURL the URL for the EDP-RT service discovery
+     * @param tokenServiceURL the URL for the RDP service discovery
      * 
      * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
      * 		   or if position or length is outside of the data's capacity.
@@ -228,8 +228,8 @@ public class ReactorOptions
     
     /**
      * a URL of the token service to get an access token and a refresh token. 
-     * This is used for querying EDP-RT service
-     * discovery and subscribing data from EDP-RT.
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
      * 
      * @return the tokenServiceURL
      */

@@ -185,7 +185,7 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         final String krbfile = _proxyAuthenticator.getCredentials().get(CredentialName.KRB5_CONFIG_FILE);
 
         // Name of login module (name of LoginContext in JAAS config file)
-        final String module = "upaj-kerberos-client";
+        final String module = "etaj-kerberos-client";
 
         // set necessary system properties
         System.setProperty("java.security.krb5.conf", krbfile);

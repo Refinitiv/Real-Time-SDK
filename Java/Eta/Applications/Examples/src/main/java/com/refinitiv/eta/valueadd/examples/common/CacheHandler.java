@@ -10,7 +10,7 @@ import com.refinitiv.eta.valueadd.cache.CacheFactory;
 import com.refinitiv.eta.valueadd.cache.PayloadEntry;
 
 /**
- * This is the cache handler for the UPA Value Add example applications.
+ * This is the cache handler for the ETA Value Add example applications.
  */
 public class CacheHandler
 {

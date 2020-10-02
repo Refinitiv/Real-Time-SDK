@@ -6,7 +6,7 @@ import com.refinitiv.eta.codec.State;
 
 /**
  * <p>
- * UPA {@link RefreshMsg} contains payload information along with state, QoS,
+ * ETA {@link RefreshMsg} contains payload information along with state, QoS,
  * permissioning, and group information. {@link RefreshMsg} is often provided as
  * an initial response or when an upstream source requires a data
  * resynchronization point.

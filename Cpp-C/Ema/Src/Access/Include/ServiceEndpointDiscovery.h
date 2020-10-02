@@ -11,7 +11,7 @@
 
 /**
 	@class refinitiv::ema::access::ServiceEndpointDiscovery ServiceEndpointDiscovery.h "Access/Include/ServiceEndpointDiscovery.h"
-	@brief ServiceEndpointDiscovery class provides the functionality to query endpoints from EDP-RT service discovery.
+	@brief ServiceEndpointDiscovery class provides the functionality to query endpoints from RDP service discovery.
 
 	Application interacts with the service discovery through the ServiceEndpointDiscovery interface methods. The results of
 	these interactions are communicated back to application through ServiceEndpointDiscoveryClient.
@@ -79,7 +79,7 @@ public:
 
 	///@name Operations
 	//@{
-	/** Queries the EDP-RT service discovery synchronously to get endpoints according to the specified parameters 
+	/** Queries the RDP service discovery synchronously to get endpoints according to the specified parameters 
 		@param[in] params specifies query options to get endpoints
 		@param[in] client specifies ServiceEndpointDiscoveryClient instance receiving notifications about this query
 		@param[in] closure specifies application defined query identification

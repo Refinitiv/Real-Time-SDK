@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
-* UPA 8-byte double value
+* ETA 8-byte double value
 */
 public interface Double
 {

@@ -174,7 +174,7 @@ typedef struct
 	double itemData;
 	ItemRequest *pPostItem;
 
-	/* For TREP authentication login reissue */
+	/* For UserAuthn authentication login reissue */
 	RsslUInt loginReissueTime; // represented by epoch time in seconds
 	RsslBool canSendLoginReissue;
 

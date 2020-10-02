@@ -33,7 +33,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
  * 
  * <b>Decode Iterator Example</b>
  * <p>
- * The following code example demonstrates creation of the UPA decode iterator,
+ * The following code example demonstrates creation of the ETA decode iterator,
  * associating buffer to decode and setting RWF version to the decode iterator:
  * 
  * <ul class="blockList">
@@ -176,7 +176,7 @@ public interface DecodeIterator
     public int minorVersion();
     
     /**
-     * Extract msgClass from the UPA message encoded in the buffer.
+     * Extract msgClass from the ETA message encoded in the buffer.
      * 
      * @return msgClass or {@link CodecReturnCodes#INCOMPLETE_DATA} if the encoded buffer is too small
      * 
@@ -185,7 +185,7 @@ public interface DecodeIterator
     public int extractMsgClass();
 
     /**
-     * Extract domainType from the UPA message encoded in the buffer.
+     * Extract domainType from the ETA message encoded in the buffer.
      * 
      * @return domainType or {@link CodecReturnCodes#INCOMPLETE_DATA} if the encoded buffer is too small
      * 
@@ -194,21 +194,21 @@ public interface DecodeIterator
     public int extractDomainType();
 
     /**
-     * Extract streamId from the UPA message encoded in the buffer.
+     * Extract streamId from the ETA message encoded in the buffer.
      * 
      * @return streamId or {@link CodecReturnCodes#INCOMPLETE_DATA} if the encoded buffer is too small
      */
     public int extractStreamId();
 
     /**
-     * Extract seqNum from the UPA message encoded in the buffer.
+     * Extract seqNum from the ETA message encoded in the buffer.
      * 
      * @return seqNum or {@link CodecReturnCodes#INCOMPLETE_DATA} if the encoded buffer is too small
      */
     public int extractSeqNum();
 
     /**
-     * Extract groupId from the UPA message encoded in the buffer.
+     * Extract groupId from the ETA message encoded in the buffer.
      * 
      * @param groupId the Buffer to extract groupId into
      * 
@@ -220,7 +220,7 @@ public interface DecodeIterator
     public int extractGroupId(Buffer groupId);
     
     /**
-     * Extract postId from the UPA message encoded in the buffer.
+     * Extract postId from the ETA message encoded in the buffer.
      * 
      * @return seqNum or {@link CodecReturnCodes#INCOMPLETE_DATA} if the encoded buffer is too small
      */

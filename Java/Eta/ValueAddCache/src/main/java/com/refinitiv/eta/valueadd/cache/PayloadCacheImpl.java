@@ -125,7 +125,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                 while (flexLenBufList.hasNext())
                 {
                     buffer = (CacheJNIBuffer)flexLenBufList.next();
-                    etaFreeRsslBuffer(buffer._upaBufferCPtr);
+                    etaFreeRsslBuffer(buffer._etaBufferCPtr);
                 }
             }
 
@@ -136,7 +136,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                 while (flexLenBufList.hasNext())
                 {
                     buffer = (CacheJNIBuffer)flexLenBufList.next();
-                    etaFreeRsslBuffer(buffer._upaBufferCPtr);
+                    etaFreeRsslBuffer(buffer._etaBufferCPtr);
                 }
             }
         }
@@ -226,10 +226,10 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                                          "PayloadCacheImpl.bindDictionary error: unable to create eta dictonary with dictionaryKey.");
 
             // first time bind
-            bindRet = etaLoadDictionaryFromBuffer(etaDictDbRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
+            bindRet = etaLoadDictionaryFromBuffer(etaDictDbRef, _dictLoadingHelper._dictEncodedBuf._etaBufferCPtr,
                                                   _dictLoadingHelper._dictEncodedBufWrap.length(), error);
 
-            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
 
             if (bindRet < CodecReturnCodes.SUCCESS)
                 return bindRet;
@@ -242,10 +242,10 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
         else
         {
             // could be first time load (loaded by other cache first) or reload
-            bindRet = etaLoadDictionaryFromBuffer(globalDictDb._etaDictRef, _dictLoadingHelper._dictEncodedBuf._upaBufferCPtr,
+            bindRet = etaLoadDictionaryFromBuffer(globalDictDb._etaDictRef, _dictLoadingHelper._dictEncodedBuf._etaBufferCPtr,
                                                   _dictLoadingHelper._dictEncodedBufWrap.length(), error);
 
-            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+            etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
 
             if (bindRet < CodecReturnCodes.SUCCESS)
                 return bindRet;
@@ -428,7 +428,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
                                                                       Codec.majorVersion(), Codec.minorVersion());
             if (_dictLoadingHelper._dictMsg.encodeInit(_dictLoadingHelper._dictEncodeIter, 0) == CodecReturnCodes.FAILURE)
             {
-                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
                 return false;
             }
             int ret = dict.encodeFieldDictionary(_dictLoadingHelper._dictEncodeIter, _dictLoadingHelper._dictMinFidInt,
@@ -436,7 +436,7 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
 
             if (ret == CodecReturnCodes.DICT_PART_ENCODED)
             {
-                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
                 dictSize = dictSize + DICT_INCREASE_SIZE;
                 etaBufferRef = etaCreateRsslBuffer(_dictLoadingHelper._dictEncodedBuf, dictSize, null);
                 if (etaBufferRef == 0)
@@ -446,14 +446,14 @@ class PayloadCacheImpl extends VaNode implements PayloadCache
             }
             else if (ret == CodecReturnCodes.FAILURE)
             {
-                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
                 return false;
             }
             else
             {
                 if (_dictLoadingHelper._dictMsg.encodeComplete(_dictLoadingHelper._dictEncodeIter, true) == CodecReturnCodes.FAILURE)
                 {
-                    etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._upaBufferCPtr);
+                    etaFreeRsslBuffer(_dictLoadingHelper._dictEncodedBuf._etaBufferCPtr);
                     return false;
                 }
                 return true;

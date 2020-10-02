@@ -55,11 +55,11 @@ public class MarketByOrderClose extends MsgBaseImpl
     }
 
     /**
-     * Decode a UPA message into a market by order close message.
+     * Decode a ETA message into a market by order close message.
      * 
      * @param dIter The Decode Iterator
      * 
-     * @return UPA return value
+     * @return ETA return value
      */
     @Override
     public int decode(DecodeIterator dIter, Msg msg)

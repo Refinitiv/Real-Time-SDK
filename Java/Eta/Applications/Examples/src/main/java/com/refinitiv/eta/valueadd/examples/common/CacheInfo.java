@@ -9,7 +9,7 @@ import com.refinitiv.eta.valueadd.cache.PayloadCacheConfigOptions;
 import com.refinitiv.eta.valueadd.cache.PayloadCursor;
 
 /**
- * Cache information used by the UPA Value Add example applications.
+ * Cache information used by the ETA Value Add example applications.
  */
 public class CacheInfo
 {

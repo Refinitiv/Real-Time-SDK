@@ -2,7 +2,7 @@ package com.refinitiv.eta.transport;
 
 import java.nio.ByteBuffer;
 
-/* Implements a JNI buffer that wraps a UPAC RsslBuffer. */
+/* Implements a JNI buffer that wraps a ETAC RsslBuffer. */
 public class JNIBuffer implements TransportBuffer
 {
     /* The length of the buffer. */

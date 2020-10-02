@@ -523,7 +523,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
                         error.channel(this);
                         error.errorId(TransportReturnCodes.FAILURE);
                         error.sysError(0);
-                        error.text("Incoming UDP packet is too short to contain a UPA Sequenced Multicast Header");
+                        error.text("Incoming UDP packet is too short to contain a ETA Sequenced Multicast Header");
                         return null;
                     }
 
@@ -547,7 +547,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
                         error.channel(this);
                         error.errorId(TransportReturnCodes.FAILURE);
                         error.sysError(0);
-                        error.text("Unknown UPA Sequenced Multicast header version.");
+                        error.text("Unknown ETA Sequenced Multicast header version.");
                         return null;
                     }
 

@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Channel states.
+ * ETA Channel states.
  */
 public class ChannelState
 {

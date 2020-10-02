@@ -2,7 +2,7 @@ package com.refinitiv.eta.transport;
 
 
 /**
- * UPA Read Flags passed into the {@link Channel#read(ReadArgs, Error)} method call.
+ * ETA Read Flags passed into the {@link Channel#read(ReadArgs, Error)} method call.
  * 
  * @see Channel
  */

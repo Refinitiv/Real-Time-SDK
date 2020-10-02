@@ -126,7 +126,7 @@ import com.refinitiv.eta.codec.Buffer;
  *     SeriesEntry seriesEntry = CodecFactory.createSeriesEntry();
  * 
  *     // if summary data is present, invoking decoder for that type (instead of
- *     // DecodeEntry) indicates to UPA that user wants to decode summary data
+ *     // DecodeEntry) indicates to ETA that user wants to decode summary data
  *     if ((series.flags() &amp; SeriesFlags.HAS_STANDARD_DATA) != 0)
  *     {
  *         // summary data is present. Its type should be that of

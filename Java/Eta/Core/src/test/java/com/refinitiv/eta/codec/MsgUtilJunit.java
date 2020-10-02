@@ -28,7 +28,7 @@ public class MsgUtilJunit
         MsgKey key1 = CodecFactory.createMsgKey();
         MsgKey key2 = CodecFactory.createMsgKey();
         Buffer name1 = CodecFactory.createBuffer();
-        name1.data("upaj");
+        name1.data("etaj");
         Buffer name2 = CodecFactory.createBuffer();
         ByteBuffer bb = ByteBuffer.allocate(7);
         byte[] bts = { 1, 2, 0, 10, 57, 0x7F, 4 };

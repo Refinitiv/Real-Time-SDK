@@ -149,7 +149,7 @@ public class VectorCodec
 		System.out.printf("\tVector Header Decoded: TotalCountHint: %d\n", vector.totalCountHint());
 
 		/* if summary data is present, invoking decoder for that type (instead of DecodeEntry)
-		indicates to UPA that user wants to decode summary data */
+		indicates to ETA that user wants to decode summary data */
 		if(vector.checkHasSummaryData()) {
 			
 			/*summary data is present.  Its type should be that of Vector.containerType*/

@@ -35,7 +35,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
 
 
 /*
- * This is the market by order handler for the UPA Value Add NIProvider application. It
+ * This is the market by order handler for the ETA Value Add NIProvider application. It
  * provides methods to encode and send refreshes and updates, as well as
  * closing streams.
  */

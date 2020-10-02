@@ -5,7 +5,7 @@ The ex280_MP_Perf application is provided as an example
 of OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
+and parsing of OMM MarketPrice data from Refinitiv Data Feed Direct (RDF-D),
 directly from an OMM Provider application, or from an Advanced Distribution Server.
 
 ex280_MP_Perf is a simple performance focused application

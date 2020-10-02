@@ -9,24 +9,25 @@
  */
 
 /**
- * This is the UPA NI Provider Training series of the UPA Training Suite
+ * This is the ETA NI Provider Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM NI Provider using the UPA Transport layer.
+ * training how to build a ETA OMM NI Provider using the ETA Transport layer.
  *
- * Main c source file for the UPA NI Provider Training application. It is a 
+ * Main c source file for the ETA NI Provider Training application. It is a 
  * single-threaded client application.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1a: Establish network communication
+ * ETA NI Provider Training Module 1a: Establish network communication
  ************************************************************************
  * Summary:
  * A Non-Interactive Provider (NIP) writes a provider application that 
- * connects to TREP-RT and sends a specific set (non-interactive) of 
- * information (services, domains, and capabilities). NIPs act like 
- * clients in a client-server relationship. Multiple NIPs can connect 
- * to the same TREP-RT and publish the same items and content. 
+ * connects to Refinitiv Real-Time Distribution System and sends a specific
+ * set (non-interactive) of information (services, domains, and capabilities).
+ * NIPs act like clients in a client-server relationship. Multiple NIPs can
+ * connect to the same Refinitiv Real-Time Distribution System and publish
+ * the same items and content.
  * 
- * In this module, the OMM NIP application initializes the UPA Transport 
+ * In this module, the OMM NIP application initializes the ETA Transport 
  * and establish a connection to an ADH server. Once connected, an OMM NIP 
  * can publish information into the ADH cache without needing to handle 
  * requests for the information. The ADH can cache the information and 
@@ -34,7 +35,7 @@
  * provide the information to any NIProvider applications that indicate interest.
  *
  * Detailed Descriptions:
- * The first step of any UPA NIP application is to establish network 
+ * The first step of any ETA NIP application is to establish network 
  * communication with an ADH server. To do so, the OMM NIP typically creates 
  * an outbound connection to the well-known hostname and port of an ADH. 
  * The OMM NIP uses the Connect function to initiate the connection 
@@ -53,7 +54,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA NI Provider Training Module 1b: Ping (heartbeat) Management
+ * ETA NI Provider Training Module 1b: Ping (heartbeat) Management
  ************************************************************************
  * Summary:
  * In this module, after establishing a connection, ping messages might 
@@ -143,7 +144,7 @@ public class Module_1b_Ping
         TransportBuffer msgBuf = null;
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Create initialization arguments (InitArgs) to specify any initialization options for Transport */
@@ -201,12 +202,12 @@ public class Module_1b_Ping
          * INITIALIZATION - USING Initialize()
          ******************************************************************************************************************/
         /*********************************************************
-         * Client/NIProv Application Life Cycle Major Step 1: Initialize UPA
-         * Transport using Initialize The first UPA Transport function that an
+         * Client/NIProv Application Life Cycle Major Step 1: Initialize ETA
+         * Transport using Initialize The first ETA Transport function that an
          * application should call. This creates and initializes internal memory
          * and structures, as well as performing any boot strapping for
          * underlying dependencies. The Initialize function also allows the user
-         * to specify the locking model they want applied to the UPA Transport.
+         * to specify the locking model they want applied to the ETA Transport.
          *********************************************************/
 
         if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
@@ -216,9 +217,9 @@ public class Module_1b_Ping
         }
 
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
         /* populate connect options, then pass to Connect function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* use standard socket connection */
         cOpts.connectionType(ConnectionTypes.SOCKET); /* (0) Channel is a standard TCP socket connection type */
@@ -419,7 +420,7 @@ public class Module_1b_Ping
                                  * _CH_STATE_ACTIVE
                                  *********************************************************/
 
-                                /* After channel is active, use UPA Transport utility function GetChannelInfo to query Channel negotiated
+                                /* After channel is active, use ETA Transport utility function GetChannelInfo to query Channel negotiated
                                  * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
                                  * compression information as well as many other values.
                                  */
@@ -667,11 +668,11 @@ public class Module_1b_Ping
                 /* get current time */
                 currentTime = System.currentTimeMillis();
 
-                /* Handles the run-time for the UPA NI Provider application. Here we exit the application after a predetermined time to run */
+                /* Handles the run-time for the ETA NI Provider application. Here we exit the application after a predetermined time to run */
                 /* If the runtime has expired */
-                if (System.currentTimeMillis() >= upaRuntime)
+                if (System.currentTimeMillis() >= etaRuntime)
                 {
-                    System.out.printf("UPA Client run-time has expired...\n\n");
+                    System.out.printf("ETA Client run-time has expired...\n\n");
                     closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.SUCCESS);
                 }
             }
@@ -684,7 +685,7 @@ public class Module_1b_Ping
 
     /*
      * Closes channel, cleans up and exits the application.
-     * upaChannel - The channel to be closed
+     * etaChannel - The channel to be closed
      * code - if exit due to errors/exceptions
      */
     public static void closeChannelCleanUpAndExit(Channel channel, Selector selector, Error error, int code)
@@ -714,13 +715,13 @@ public class Module_1b_Ping
         }
 
         /*********************************************************
-         * Client/NIProv Application Life Cycle Major Step 6: Uninitialize UPA
-         * Transport using Uninitialize The last UPA Transport function that an
+         * Client/NIProv Application Life Cycle Major Step 6: Uninitialize ETA
+         * Transport using Uninitialize The last ETA Transport function that an
          * application should call. This uninitializes internal data structures
          * and deletes any allocated memory.
          *********************************************************/
 
-        /* All UPA Transport use is complete, must uninitialize.
+        /* All ETA Transport use is complete, must uninitialize.
          * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
          */
         Transport.uninitialize();
@@ -735,7 +736,7 @@ public class Module_1b_Ping
          * Exits the application if the run-time has expired.
          */
         if (code == TransportReturnCodes.SUCCESS)
-            System.out.printf("\nUPA NI Provider Training application successfully ended.\n");
+            System.out.printf("\nETA NI Provider Training application successfully ended.\n");
 
         /* End application */
         System.exit(0);
@@ -743,8 +744,8 @@ public class Module_1b_Ping
     }
 
     /*
-     * Initializes the ping times for upaChannel.
-     * upaChannel - The channel for ping management info initialization
+     * Initializes the ping times for etaChannel.
+     * etaChannel - The channel for ping management info initialization
      */
     static int pingTimeoutServer; /* server ping timeout */
     static int pingTimeoutClient; /* client ping timeout */
@@ -767,11 +768,11 @@ public class Module_1b_Ping
 
     /*
      * Processing ping management handler
-     * upaChannel - The channel for ping management processing
+     * etaChannel - The channel for ping management processing
      */
     public static int processPingManagementHandler(Channel channel, Error error, Short opMask, Selector selector)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the server if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the server if the next send ping time has arrived and
          * checks if a ping has been received from the server within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -788,7 +789,7 @@ public class Module_1b_Ping
              * Ping Attempts to write a heartbeat message on the connection.
              * This function expects the Channel to be in the active state. If
              * an application calls the Ping function while there are other
-             * bytes queued for output, the UPA Transport layer will suppress
+             * bytes queued for output, the ETA Transport layer will suppress
              * the heartbeat message and attempt to flush bytes to the network
              * on the user's behalf.
              *********************************************************/

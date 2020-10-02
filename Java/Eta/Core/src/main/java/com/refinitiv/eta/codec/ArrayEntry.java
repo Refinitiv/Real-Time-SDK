@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * UPA entry for {@link Array} that can house only simple primitive types
+ * ETA entry for {@link Array} that can house only simple primitive types
  * such as {@link Int}, {@link Real}, or {@link Date}.
  * 
  * @see Array

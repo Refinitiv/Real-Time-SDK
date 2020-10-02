@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Write Flags passed into the
+ * ETA Write Flags passed into the
  * {@link Channel#write(TransportBuffer, WriteArgs, Error)} method call.
  * 
  * @see Channel

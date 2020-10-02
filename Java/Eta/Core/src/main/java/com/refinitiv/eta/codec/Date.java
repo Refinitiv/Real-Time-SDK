@@ -168,7 +168,7 @@ public interface Date
     /**
      * Represents the year, where 0 indicates a blank entry. You can use this
      * member to specify a two or four digit year (where specific usage is
-     * indicated outside of UPA). year allows for a range of 0 to 65,535.
+     * indicated outside of ETA). year allows for a range of 0 to 65,535.
      * 
      * @param year the year to set
      * 
@@ -180,7 +180,7 @@ public interface Date
     /**
      * Represents the year, where 0 indicates a blank entry. You can use this
      * member to specify a two or four digit year (where specific usage is
-     * indicated outside of UPA). year allows for a range of 0 to 65,535.
+     * indicated outside of ETA). year allows for a range of 0 to 65,535.
      * 
      * @return the year
      */

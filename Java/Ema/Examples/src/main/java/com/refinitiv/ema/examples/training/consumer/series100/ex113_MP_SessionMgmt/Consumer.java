@@ -58,7 +58,7 @@ public class Consumer {
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
-	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -keypasswd keystore password for encryption.\n"

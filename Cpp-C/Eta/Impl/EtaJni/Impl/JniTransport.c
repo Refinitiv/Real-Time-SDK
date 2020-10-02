@@ -911,7 +911,7 @@ static RsslBool populateJavaChannelInfo(JNIEnv *env, RsslChannelInfo *rsslChnlIn
 		return RSSL_FALSE;
 	}
 
-	/* call addCompVersionString method for each UPAC component version string */
+	/* call addCompVersionString method for each ETAC component version string */
 	for (i = 0; i < rsslChnlInfo->componentInfoCount; i++)
 	{
 		jcomponentVersion = (*env)->NewStringUTF(env, rsslChnlInfo->componentInfo[i]->componentVersion.data);
@@ -1745,7 +1745,7 @@ static jobject createJavaBuffer(JNIEnv *env, RsslBuffer *rsslBuffer)
 	static jmethodID mid = NULL;
 	static jfieldID fid = NULL;
 
-	/* create direct ByteBuffer from UPAC buffer */
+	/* create direct ByteBuffer from ETAC buffer */
 	byteBufferObject = (*env)->NewDirectByteBuffer(env, rsslBuffer->data, rsslBuffer->length);
 	if (byteBufferObject == NULL)
 	{
@@ -1806,7 +1806,7 @@ static jobject getJavaReadBuffer(JNIEnv *env, RsslBuffer *rsslBuffer, jobject *j
 	static jmethodID mid = NULL;
 	static jfieldID fid = NULL;
 
-	/* create direct ByteBuffer from UPAC buffer */
+	/* create direct ByteBuffer from ETAC buffer */
 	byteBufferObject = (*env)->NewDirectByteBuffer(env, rsslBuffer->data, rsslBuffer->length);
 
 	/* get the JNIChannel class */
@@ -3222,7 +3222,7 @@ JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslAccept
 	rsslChnl = rsslAccept(rsslSrvr, &rsslAcceptsOpts, &error);
 	if (rsslChnl != NULL)
 	{
-		/* handle Java AcceptOptions.sysSendBufSize by setting value via UPAC ioctl */
+		/* handle Java AcceptOptions.sysSendBufSize by setting value via ETAC ioctl */
 		
 		/* get the AcceptOptions class */
 		acceptOptsClass = (*env)->GetObjectClass(env, jopts);
@@ -3237,7 +3237,7 @@ JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslAccept
 		/* get sysSendBufSize */
 		sysSendBufSize = (*env)->CallIntMethod(env, jopts, mid);
 
-		/* set value via UPAC ioctl */
+		/* set value via ETAC ioctl */
 		if (sysSendBufSize > 0)
 		{
 			if (rsslIoctl(rsslChnl, RSSL_SYSTEM_WRITE_BUFFERS, &sysSendBufSize, &error) < RSSL_RET_SUCCESS)

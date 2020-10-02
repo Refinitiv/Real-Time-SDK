@@ -36,7 +36,7 @@ import com.refinitiv.eta.transport.Error;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
- * This is the post handler for the UPA consumer application. It provides
+ * This is the post handler for the ETA consumer application. It provides
  * methods for sending on stream and off stream post messages.
  */
 public class PostHandler

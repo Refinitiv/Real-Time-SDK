@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import java.math.BigInteger;
 
 /**
- * UPA Unsigned Integer type. Can currently represent an unsigned value with precision of up to 64 bits.
+ * ETA Unsigned Integer type. Can currently represent an unsigned value with precision of up to 64 bits.
  */
 public interface UInt
 {

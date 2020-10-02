@@ -6,14 +6,14 @@ Summary:
 --------
 
 A Non-Interactive Provider (NIP) writes a provider application that 
-connects to TREP-RT and sends a specific set (non-interactive) of 
-information (services, domains, and capabilities). NIPs act like 
-clients in a client-server relationship. Multiple NIPs can connect 
-to the same TREP-RT and publish the same items and content. The NIP 
-application sends a login request like a consumer to the ADH and 
-processes source directory and item requests like a provider. A source 
-directory refresh message and market price and/or market by order refresh/update 
-messages are published to the ADH without any request for them.
+connects to Refinitiv Real-Time Distribution and sends a specific set
+(non-interactive) of information (services, domains, and capabilities).
+NIPs act like clients in a client-server relationship. Multiple NIPs can
+connect to the same Refinitiv Real-Time Distribution and publish the same
+items and content. The NIP application sends a login request like a consumer
+to the ADH and processes source directory and item requests like a provider.
+A source directory refresh message and market price and/or market by order
+refresh/update messages are published to the ADH without any request for them.
 
 Some data requires the use of a dictionary for encoding or decoding. This 
 dictionary typically defines type and formatting information and directs 

@@ -34,7 +34,7 @@ import com.refinitiv.eta.transport.WritePriorities;
 
 
 /**
- * Encapsulate UPA transport methods for the interactive provider and generic
+ * Encapsulate ETA transport methods for the interactive provider and generic
  * provider example applications.
  * 
  * <P>
@@ -42,7 +42,7 @@ import com.refinitiv.eta.transport.WritePriorities;
  * <ol>
  * <li>
  * Call {@link #init(boolean, Error)} to create a listening socket. This method
- * initializes upaj transport and binds the server to a local port.</li>
+ * initializes etaj transport and binds the server to a local port.</li>
  * <li>Poll socket events from server socket using selector.</li>
  * <li>If a new client session is trying to connect, accept or reject it using
  * {@link #handleNewClientSession(Server, Error)}.</li>
@@ -62,7 +62,7 @@ public class ProviderSession
     public Selector selector;
     public ClientSessionInfo[] clientSessions = new ClientSessionInfo[CLIENT_SESSIONS_LIMIT];
     
-    private Server _upajServer;
+    private Server _server;
     private int _clientSessionCount = 0;
     private Msg _xmlMsg = CodecFactory.createMsg();
     private DecodeIterator _xmlDIter = CodecFactory.createDecodeIterator();
@@ -82,9 +82,9 @@ public class ProviderSession
  
 
     /**
-     * Initializes upaj transport and binds the server to a local port.
+     * Initializes etaj transport and binds the server to a local port.
      * 
-     * @param globalLock flag to enable global locking on UPA Transport
+     * @param globalLock flag to enable global locking on ETA Transport
      * @param error Error information when init fails.
      * 
      * @return {@link TransportReturnCodes#SUCCESS} if successful,
@@ -119,23 +119,23 @@ public class ProviderSession
         _bindOptions.minorVersion(Codec.minorVersion());
         _bindOptions.protocolType(Codec.protocolType());
         
-        _upajServer = Transport.bind(_bindOptions, error);
+        _server = Transport.bind(_bindOptions, error);
         
-        if (_upajServer == null)
+        if (_server == null)
         {
             error.text("Unable to bind server: " + error.text());
             Transport.uninitialize();
             return TransportReturnCodes.FAILURE;
         }
-        System.out.println("\nServer bound on port " + _upajServer.portNumber());
+        System.out.println("\nServer bound on port " + _server.portNumber());
         try
         {
-            _upajServer.selectableChannel().register(selector, SelectionKey.OP_ACCEPT, _upajServer);
+            _server.selectableChannel().register(selector, SelectionKey.OP_ACCEPT, _server);
         }
         catch (Exception e)
         {
         	System.out.println(" Shut down the provider.");
-            _upajServer.close(error);
+            _server.close(error);
             
             Transport.uninitialize();
             error.text(e.getMessage());
@@ -315,7 +315,7 @@ public class ProviderSession
     }
 
     /**
-     * Closes server session and uninitialize UPAJ Transport.
+     * Closes server session and uninitialize ETAJ Transport.
      */
     public void uninit()
     {
@@ -333,7 +333,7 @@ public class ProviderSession
         /* clean up server */
         try
         {
-            removeOption(_upajServer, SelectionKey.OP_READ);
+            removeOption(_server, SelectionKey.OP_READ);
         }
         catch (ClosedChannelException e)
         {
@@ -341,7 +341,7 @@ public class ProviderSession
             // + e.getMessage());
         }
         System.out.println( "Shutdown provider...");
-        _upajServer.close(error);
+        _server.close(error);
 
         /* clear the bind options */
         _bindOptions.clear();
@@ -741,7 +741,7 @@ public class ProviderSession
     }
 
     /**
-     * Writes the content of the {@link TransportBuffer} to the UPA channel.
+     * Writes the content of the {@link TransportBuffer} to the ETA channel.
      *
      * @param channel the channel
      * @param msgBuf the msg buf
@@ -772,7 +772,7 @@ public class ProviderSession
         {
             setMsgSent(channel);
             /*
-             * The write was successful and there is more data queued in UPA
+             * The write was successful and there is more data queued in ETA
              * Transport. Use selector to be notified when output space becomes
              * available on a connection.
              */
@@ -814,7 +814,7 @@ public class ProviderSession
 
                     /*
                      * The write was successful and there is more data queued in
-                     * UPA Transport. Use selector to be notified when output
+                     * ETA Transport. Use selector to be notified when output
                      * space becomes available on a connection.
                      */
                     if (retval > TransportReturnCodes.SUCCESS)
@@ -827,7 +827,7 @@ public class ProviderSession
                 {
                     /*
                      * The write was successful, but an attempt to flush failed.
-                     * UPA will release buffer.
+                     * ETA will release buffer.
                      */
                     if (channel.state() == ChannelState.CLOSED)
                     {
@@ -841,7 +841,7 @@ public class ProviderSession
 
                         /*
                          * The write was successful and there is more data
-                         * queued in UPA Transport. Use selector to be notified
+                         * queued in ETA Transport. Use selector to be notified
                          * when output space becomes available on a connection.
                          */
 

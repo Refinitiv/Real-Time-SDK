@@ -32,7 +32,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
- * This is the symbol list handler for the UPA Value Add consumer application.
+ * This is the symbol list handler for the ETA Value Add consumer application.
  * It provides methods for sending the symbol list request(s) to a provider
  * and processing the response(s). Method closing stream is also provided.
  */

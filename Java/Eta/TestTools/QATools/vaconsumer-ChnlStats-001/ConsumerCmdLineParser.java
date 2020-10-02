@@ -484,7 +484,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
 				"\n -uname changes the username used when logging into the provider\n" +
 				"\n -passwd changes the password used when logging into the provider\n" +
-		        "\n -clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.\n" +
+		        "\n -clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.\n" +
 				"\n -sessionMgnt enables the session management in the Reactor\n" +
 				"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n" + 
 				"\n -view specifies each request using a basic dynamic view\n" +

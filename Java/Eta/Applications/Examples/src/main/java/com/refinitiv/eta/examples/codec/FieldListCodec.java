@@ -538,7 +538,7 @@ public class FieldListCodec
 				}
 				else
 				{
-					/* A UPA application will typically use a field dictionary to decode field list content.  
+					/* A ETA application will typically use a field dictionary to decode field list content.  
 					When using, code similar to the following can be used to look up type in field dictionary 
 					and call correct primitive decode method */ 
 

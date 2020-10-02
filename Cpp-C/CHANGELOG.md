@@ -70,7 +70,7 @@ Both ETA C and EMA C++ 3.5.1.L1 Issues Resolved
 - [ESDK-3697] - Build and ship libraries using RedHat 8.X
 - [ESDK-3902] - Document lsb_release requirement for cmake
 - [ESDK-3956] - Readme and text files have spelling errors
-- [ESDK-4090] - Rebranding: Change code references to "Thomson Reuters" in unit tests, examples, etc.
+- [ESDK-4090] - Rebranding: Change code references to "Refinitiv" in unit tests, examples, etc.
 - [ESDK-4091] - Support a configurable debug parameters to show REST interactions (that do not print credentials)
 - [ESDK-4165] - Rebranding: Change references in Code Comments and READMEs
 - [ESDK-4177] - Rebranding: Change references to ESDK in Cmake build
@@ -81,7 +81,7 @@ ESDK C++/C Release 1.5.0.G1 (Jun 30, 2020)
 
 New Features Added
 ------------------
-This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in EDP connectivity.
+This is a maintenance GitHub push which resolves customer issus, bugs and adds support for the following: ability for providers to get round trip latency measurements, provider support for posting, permit server side socket to be reused and ability to configure takeExclusiveSignOn in RDP connectivity.
 
 EMA C++ 3.5.0.G1 Issues Resolved
 --------------------------------
@@ -91,9 +91,9 @@ EMA C++ 3.5.0.G1 Issues Resolved
 - [ESDK-3292] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024] [GitHub # 141]
 - [ESDK-3843] Support SO_REUSEADDR to permit server side socket to be reused for loadbalancing
 - [ESDK-3907] Ema Cons113 Example does NOT work with EncryptedProtocolType::RSSL_WEBSOCKET
-- [ESDK-3908] Support EMA EDP Websocket encrypted connection example 
+- [ESDK-3908] Support EMA RDP Websocket encrypted connection example 
 - [ESDK-3933] Suppport Round Trip Latency Monitoring
-- [ESDK-3988] Change EMA EDP example to take RIC as an input
+- [ESDK-3988] Change EMA RDP example to take RIC as an input
 
 ETA C 3.5.0.G1 Issues Resolved
 --------------------------------
@@ -210,7 +210,7 @@ ETA C 3.3.1.G1 Issues Resolved
 
 Both ETA C and EMA C++ 3.3.1.G1 Issues Resolved
 -----------------------------------------------
-- [ESDK-3468] Add EDP Auth proactive token renewal with password grant prior to refresh token expiration
+- [ESDK-3468] Add RDP Auth proactive token renewal with password grant prior to refresh token expiration
 
 ---------------------------------------------
 ESDK C++/C Release 1.3.1.L1 (July 31, 2019)
@@ -262,7 +262,7 @@ ESDK C++/C Release 1.3.0.G1 (April 16, 2019)
 
 EMA/ETA C/C++ 3.3.0.G1 Issues Resolved
 --------------------------------
-- [ESDK-3194] Documentation improvements for EDP examples [GitHub #98]
+- [ESDK-3194] Documentation improvements for RDP examples [GitHub #98]
 - [ESDK-3239] CMake fix for build of cjson libraries
 
 ---------------------------------------------
@@ -271,7 +271,7 @@ ESDK C++/C Release 1.3.0.L1 (March 26, 2019)
 
 New Features Added
 ------------------
-This ESDK release provides support for EDP Session management (token renewal) and Service Discovery (discovering host/port information based on Cloud region and type of connection ). Also available is added support for encrypted transport using openSSL versions 1.0.X and 1.1.X on Windows and Linux for EMA C++ and ETA C. Also in this release, all external dependencies such as libxml2, zlib, lz2 rely on associated external distribution locations and incorporated into build using cmake. 
+This ESDK release provides support for RDP Session management (token renewal) and Service Discovery (discovering host/port information based on Cloud region and type of connection ). Also available is added support for encrypted transport using openSSL versions 1.0.X and 1.1.X on Windows and Linux for EMA C++ and ETA C. Also in this release, all external dependencies such as libxml2, zlib, lz2 rely on associated external distribution locations and incorporated into build using cmake. 
 
 EMA C++ 3.3.0.L1 Issues Resolved
 --------------------------------
@@ -303,7 +303,7 @@ ETA C 3.3.0.L1 Issues Resolved
 - [ESDK-1687] Use Cmake to obtain Zlib from GitHub
 - [ESDK-1688] Use Cmake to obtain Libxml2 from GitHub
 - [ESDK-1710] Provides HTTP requests for blocking and non-blocking call for ETAC
-- [ESDK-1716] Implements EDP service discovery and token management for ETAC reactor
+- [ESDK-1716] Implements RDP service discovery and token management for ETAC reactor
 - [ESDK-1746] Update ETA examples to connection using HTTPS connection type with/without a proxy
 - [ESDK-1747] Fix Cpp-C ANSI and DACS Guide links in reference manual
 - [ESDK-2603] CMake changes for new add external project cmake modules

@@ -444,7 +444,7 @@ class ServerImpl extends EtaNode implements Server
                 case IoctlCodes.SERVER_NUM_POOL_BUFFERS:
                 {
                     /* SERVER_NUM_POOL_BUFFERS: the per server number of
-                     * sharedPool buffers that UPAJ will share with channels of a server. */
+                     * sharedPool buffers that ETAJ will share with channels of a server. */
                     if (value > 0)
                     {
                         retCode = adjustSharedPoolBuffers(value);

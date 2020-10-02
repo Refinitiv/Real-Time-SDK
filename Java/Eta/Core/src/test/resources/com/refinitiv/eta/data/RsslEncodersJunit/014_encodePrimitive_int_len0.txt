@@ -1,4 +1,4 @@
-# Hand generated from ReutersWireFormat.vsd, Structures tab, rwfArray
+# Hand generated from RefinitivWireFormat.vsd, Structures tab, rwfArray
 # structure: rwfArray
 # rwfUInt8     dataType
 # rwfUInt16-ob itemLength

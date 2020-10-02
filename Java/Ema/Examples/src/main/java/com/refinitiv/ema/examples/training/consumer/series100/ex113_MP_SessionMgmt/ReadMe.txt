@@ -3,11 +3,11 @@ Summary
 
 ex113_MP_SessionManagement is an OMM Consumer application example
 that demonstrates basic usage of the EMA library in accessing
-and parsing OMM MarketPrice data from Refinitiv Real-Time Optimized.
+and parsing OMM MarketPrice data from Refinitiv Real-Time -- Optimized.
 
 ex113_MP_SessionManagement illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
-a connection with a Refinitiv Real-Time Optimized service and consuming data. This 
+a connection with a Refinitiv Real-Time -- Optimized service and consuming data. This 
 application requires a user name (Machine ID), password, and client ID for authorization 
 with the token service in order to an access token for querying endpoints from the 
 RDP service discovery and sending login requests to the service. EMA automatically 

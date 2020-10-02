@@ -23,7 +23,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
 /**
- * This is the dictionary handler for the UPA consumer application.
+ * This is the dictionary handler for the ETA consumer application.
  * It provides methods for loading the field/enumType dictionaries from a file or
  * requesting from ADH.
  */

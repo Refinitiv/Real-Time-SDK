@@ -21,7 +21,7 @@ public interface InProgInfo
     public int flags();
 
     /**
-     * Old java.nio.channels.SocketChannel of this UPA channel - used in Read Channel Change events.
+     * Old java.nio.channels.SocketChannel of this ETA channel - used in Read Channel Change events.
      * 
      * @return the oldScktChannel
      * 
@@ -31,7 +31,7 @@ public interface InProgInfo
     public java.nio.channels.SocketChannel oldScktChannel();
 
     /**
-     * java.nio.channels.SocketChannel of new UPA channel.
+     * java.nio.channels.SocketChannel of new ETA channel.
      * 
      * @return the newScktChannel
      * 
@@ -41,14 +41,14 @@ public interface InProgInfo
     public java.nio.channels.SelectableChannel newScktChannel();
 
     /**
-     * Old java.nio.channels.SelectableChannel of this UPA channel - used in Read Channel Change events.
+     * Old java.nio.channels.SelectableChannel of this ETA channel - used in Read Channel Change events.
      * 
      * @return the oldSelectableChannel
      */
     public java.nio.channels.SelectableChannel oldSelectableChannel();
 
     /**
-     * java.nio.channels.SelectableChannel of new UPA channel.
+     * java.nio.channels.SelectableChannel of new ETA channel.
      * 
      * @return the newSelectableChannel
      */

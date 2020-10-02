@@ -1,4 +1,4 @@
-# The hex data has been taken from RsslEncodersJunit.encodeStatusMsgTest() with data from UPAC.
+# The hex data has been taken from RsslEncodersJunit.encodeStatusMsgTest() with data from ETAC.
 #
 # MsgInit:
 #   msgClass = STATUS (0x03)

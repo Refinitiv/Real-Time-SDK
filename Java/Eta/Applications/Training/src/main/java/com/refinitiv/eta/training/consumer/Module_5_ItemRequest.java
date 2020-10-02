@@ -1,23 +1,23 @@
 /*********************************************************************************
- * This is the UPA Consumer Training series of the UPA Training Suite
+ * This is the ETA Consumer Training series of the ETA Training Suite
  * applications. The purpose of this application is to show step-by-step 
- * training how to build a UPA OMM Consumer using the UPA Transport layer.
+ * training how to build a ETA OMM Consumer using the ETA Transport layer.
  *
- * Main Java source file for the UPA Consumer Training application. It is a 
+ * Main Java source file for the ETA Consumer Training application. It is a 
  * single-threaded client application.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1a: Establish network communication
+ * ETA Consumer Training Module 1a: Establish network communication
  *********************************************************************************
  * Summary:
- * In this module, the application initializes the UPA Transport and 
+ * In this module, the application initializes the ETA Transport and 
  * connects the client. An OMM consumer application can establish a 
  * connection to other OMM Interactive Provider applications, including 
  * Refinitiv Real-Time Distribution Systems, Refinitiv Data Feed Direct,
  * and Refinitiv Real-Time.
  *
  * Detailed Descriptions:
- * The first step of any UPA consumer application is to establish a 
+ * The first step of any ETA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
  * with which to interact). An OMM consumer typically creates an out-bound 
  * connection to the well-known hostname and port of a server (Interactive 
@@ -41,7 +41,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1b: Ping (heartbeat) Management
+ * ETA Consumer Training Module 1b: Ping (heartbeat) Management
  *********************************************************************************
  * Summary:
  * Ping or heartbeat messages indicate the continued presence of an application.
@@ -77,7 +77,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *********************************************************************************
- * UPA Consumer Training Module 1c: Reading and Writing Data
+ * ETA Consumer Training Module 1c: Reading and Writing Data
  *********************************************************************************
  * Summary:
  * When channel initialization is complete, the state of the channel
@@ -88,23 +88,23 @@
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to receive data from the connection. The
  * arrival of this information is often announced by the I/O notification
- * mechanism that the Channel.scktChannel() is registered with. The UPA
+ * mechanism that the Channel.scktChannel() is registered with. The ETA
  * Transport reads information from the network as a byte stream, after
  * which it determines buffer boundaries and returns each buffer one by
  * one.
  *
  * When a client or server Channel.state() is ChannelState.ACTIVE, it is
  * possible for an application to write data to the connection. Writing
- * involves a several step process. Because the UPA Transport provides
+ * involves a several step process. Because the ETA Transport provides
  * efficient buffer management, the user is required to obtain a buffer
- * from the UPA Transport buffer pool. This can be the guaranteed output
+ * from the ETA Transport buffer pool. This can be the guaranteed output
  * buffer pool associated with a Channel. After a buffer is acquired,
  * the user can populate the Buffer.data and set the Buffer.length
  * to the number of bytes referred to by data. If queued information cannot
  * be passed to the network, a function is provided to allow the application
  * to continue attempts to flush data to the connection. An I/O notification
  * mechanism can be used to help with determining when the network is able
- * to accept additional bytes for writing. The UPA Transport can continue to
+ * to accept additional bytes for writing. The ETA Transport can continue to
  * queue data, even if the network is unable to write.
  *
  * Command line usage:
@@ -120,7 +120,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  *********************************************************************************
- * UPA Consumer Training Module 2: Log in
+ * ETA Consumer Training Module 2: Log in
  *********************************************************************************
  * Summary:
  * Applications authenticate using the Login domain model. An OMM consumer must
@@ -142,7 +142,7 @@
  * and the use of Dynamic Views. The consumer application can use this
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -158,7 +158,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA Consumer Training Module 3: Obtain Source Directory
+ * ETA Consumer Training Module 3: Obtain Source Directory
  ************************************************************************
  * Summary:
  * The Source Directory domain model conveys information about all available
@@ -181,7 +181,7 @@
  * The Source Directory Group filter conveys item group status information,
  * including information about group states, as well as the merging of groups.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -197,7 +197,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA Consumer Training Module 4: Obtain Dictionary Information
+ * ETA Consumer Training Module 4: Obtain Dictionary Information
  ************************************************************************
  * Summary:
  * Consumer applications often require a dictionary for encoding or decoding
@@ -219,15 +219,15 @@
  * information from a local file or download the information from the
  * provider if available.
  *
- * - If loading from a file, UPA offers several utility functions to load and
+ * - If loading from a file, ETA offers several utility functions to load and
  *   manage a properly-formatted field dictionary.
  * - If downloading information, the application issues a request using the
  *   Dictionary domain model. The provider application should respond with a
- *   dictionary response, typically broken into a multi-part message. UPA
+ *   dictionary response, typically broken into a multi-part message. ETA
  *   offers several utility functions for encoding and decoding of the
  *   Dictionary domain content.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA
+ * Content is encoded and decoded using the ETA Message Package and the ETA
  * Data Package.
  *
  * Command line usage:
@@ -243,7 +243,7 @@
  * Pressing the CTRL+C buttons terminates the program.
  *
  ************************************************************************
- * UPA Consumer Training Module 5: Issue Item Requests 
+ * ETA Consumer Training Module 5: Issue Item Requests 
  ************************************************************************
  * Summary:
  * After the consumer application successfully logs in and obtains Source 
@@ -274,7 +274,7 @@
  * Also added 4 more functions: sendMarketPriceItemRequest(), processMarketPriceItemResponse(), decodeMarketPricePayload()
  * and closeMarketPriceItemStream(). More details are in those functions.
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the ETA Message Package and the ETA 
  * Data Package.
  *
  * Command line usage:
@@ -394,8 +394,8 @@ public class Module_5_ItemRequest
     static long serviceDiscoveryInfo_serviceId;
 
     static boolean serviceDiscoveryInfo_serviceNameFound = false;
-    static boolean serviceDiscoveryInfo_upalDMTDictionarySupported = false;
-    static boolean serviceDiscoveryInfo_upaDMTMarketPriceSupported = false;
+    static boolean serviceDiscoveryInfo_etalDMTDictionarySupported = false;
+    static boolean serviceDiscoveryInfo_etaDMTMarketPriceSupported = false;
     static boolean serviceDiscoveryInfo_RDMFieldDictionaryProvided = false;
     static boolean serviceDiscoveryInfo_enumtypeProvided = false;
     static int serviceDiscoveryInfo_ServiceState;
@@ -454,7 +454,7 @@ public class Module_5_ItemRequest
         TransportBuffer msgBuf = null;
 
         long currentTime = 0;
-        long upaRuntime = 0;
+        long etaRuntime = 0;
         long runTime = 0;
 
         /* Iterator used for decoding throughout the application - we can clear it and reuse it instead of recreating it */
@@ -549,11 +549,11 @@ public class Module_5_ItemRequest
         }
 
         currentTime = System.currentTimeMillis();
-        upaRuntime = currentTime + runTime * 1000;
+        etaRuntime = currentTime + runTime * 1000;
 
         /* Set connect options */
         /* populate connect options, then pass to Connect function -
-         * UPA Transport should already be initialized
+         * ETA Transport should already be initialized
          */
         /* use standard socket connection */
         cOpts.connectionType(ConnectionTypes.SOCKET); /* (0) Channel is a standard TCP socket connection type */
@@ -598,7 +598,7 @@ public class Module_5_ItemRequest
          * and enumerated dictionaries from local files, if they exist, at the
          * earlier stage of the consumer applications.
          *
-         * When loading from local files, UPA offers several utility functions
+         * When loading from local files, ETA offers several utility functions
          * to load and manage a properly-formatted field dictionary and enum
          * type dictionary.
          *
@@ -635,7 +635,7 @@ public class Module_5_ItemRequest
         if ((dictionariesLoadedInfo_fieldDictionaryLoaded) && (dictionariesLoadedInfo_enumTypeDictionaryLoaded))
         {
             dictionariesLoadedInfo_isInitialized = true;
-            System.out.printf("UPA Consumer application has successfully loaded both dictionaries from (local) files.\n\n");
+            System.out.printf("ETA Consumer application has successfully loaded both dictionaries from (local) files.\n\n");
 
         }
         /*****************************************************
@@ -902,7 +902,7 @@ public class Module_5_ItemRequest
                                         }
                                         else
                                         {
-                                            System.out.printf("UPA Consumer application is granted access and has logged in successfully.\n\n");
+                                            System.out.printf("ETA Consumer application is granted access and has logged in successfully.\n\n");
                                             serviceDiscoveryInfo_serviceName = serviceName;
                                             /* After it is granted access, those common daily activities and requesting could be done here.
                                              * But first we need the source directory.*/
@@ -934,7 +934,7 @@ public class Module_5_ItemRequest
                                         }
                                         else
                                         {
-                                            System.out.printf("UPA Consumer application has successfully received source directory information.\n\n");
+                                            System.out.printf("ETA Consumer application has successfully received source directory information.\n\n");
                                         }
 
                                         /* exit app if service name entered by user cannot be found */
@@ -956,9 +956,9 @@ public class Module_5_ItemRequest
                                         /* A consumer application can determine whether to load necessary dictionary information from a local file or
                                          * download the information from the provider if available.
                                          *
-                                         * - If loading from a file, UPA offers several utility functions to load and manage a properly-formatted field dictionary.
+                                         * - If loading from a file, ETA offers several utility functions to load and manage a properly-formatted field dictionary.
                                          * - If downloading information, the application issues a request using the Dictionary domain model. The provider application
-                                         * should respond with a dictionary response, typically broken into a multi-part message. UPA offers several utility functions
+                                         * should respond with a dictionary response, typically broken into a multi-part message. ETA offers several utility functions
                                          * for encoding and decoding of the Dictionary domain content.
                                          *
                                          * In this simple app, we are trying to first loading necessary dictionary information from a local file, if it exists.
@@ -991,7 +991,7 @@ public class Module_5_ItemRequest
                                         if ((dictionariesLoadedInfo_fieldDictionaryLoaded) && (dictionariesLoadedInfo_enumTypeDictionaryLoaded))
                                         {
                                             /* check to see if the provider supports the Market Price Domain Type (DomainTypes.MARKET_PRICE) */
-                                            if (!serviceDiscoveryInfo_upaDMTMarketPriceSupported)
+                                            if (!serviceDiscoveryInfo_etaDMTMarketPriceSupported)
                                             {
                                                 System.out.printf("\nMARKET_PRICE Domain Type is NOT supported by the indicated provider. Exit app.\n");
                                                 /* Closes channel, cleans up and exits the application. */
@@ -1036,7 +1036,7 @@ public class Module_5_ItemRequest
                                          * the Dictionary domain model. The
                                          * provider application should respond
                                          * with a dictionary response, typically
-                                         * broken into a multi-part message. UPA
+                                         * broken into a multi-part message. ETA
                                          * offers several utility functions for
                                          * encoding and decoding of the
                                          * Dictionary domain content.
@@ -1055,7 +1055,7 @@ public class Module_5_ItemRequest
                                         if (!dictionariesLoadedInfo_fieldDictionaryLoaded)
                                         {
                                             /* check if Dictionary Domain Type is supported */
-                                            if (!serviceDiscoveryInfo_upalDMTDictionarySupported)
+                                            if (!serviceDiscoveryInfo_etalDMTDictionarySupported)
                                             {
                                                 System.out.printf("\nDictionary Domain Type is NOT supported. Exit app.\n");
                                                 /* Closes channel, cleans up and exits the application. */
@@ -1092,7 +1092,7 @@ public class Module_5_ItemRequest
                                         if (!dictionariesLoadedInfo_enumTypeDictionaryLoaded)
                                         {
                                             /* check if Dictionary Domain Type is supported */
-                                            if (!serviceDiscoveryInfo_upalDMTDictionarySupported)
+                                            if (!serviceDiscoveryInfo_etalDMTDictionarySupported)
                                             {
                                                 System.out.printf("\nDictionary Domain Type is NOT supported. Exit app.\n");
                                                 /* Closes channel, cleans up and exits the application. */
@@ -1140,10 +1140,10 @@ public class Module_5_ItemRequest
                                             if ((dictionariesLoadedInfo_fieldDictionaryLoaded) && (dictionariesLoadedInfo_enumTypeDictionaryLoaded))
                                             {
                                                 dictionariesLoadedInfo_isInitialized = true;
-                                                System.out.printf("UPA Consumer application has successfully downloaded both dictionaries or successfully downloaded 1 dictionary if the other dictionary has already been loaded from (local) file successfully.\n\n");
+                                                System.out.printf("ETA Consumer application has successfully downloaded both dictionaries or successfully downloaded 1 dictionary if the other dictionary has already been loaded from (local) file successfully.\n\n");
 
                                                 /* check to see if the provider supports the Market Price Domain Type (MARKET_PRICE) */
-                                                if (!serviceDiscoveryInfo_upaDMTMarketPriceSupported)
+                                                if (!serviceDiscoveryInfo_etaDMTMarketPriceSupported)
                                                 {
                                                     System.out.printf("\nMARKET_PRICE Domain Type is NOT supported by the indicated provider. Exit app.\n");
                                                     /* Closes channel, cleans up and exits the application. */
@@ -1182,7 +1182,7 @@ public class Module_5_ItemRequest
                                         }
                                         else
                                         {
-                                            System.out.printf("\nUPA Consumer application has successfully received Market Price item response.\n\n");
+                                            System.out.printf("\nETA Consumer application has successfully received Market Price item response.\n\n");
                                         }
 
                                     }
@@ -1320,7 +1320,7 @@ public class Module_5_ItemRequest
                 currentTime = System.currentTimeMillis();
 
                 /* If the runtime has expired */
-                if (System.currentTimeMillis() >= upaRuntime)
+                if (System.currentTimeMillis() >= etaRuntime)
                 {
                     if ((retCode = closeMarketPriceItemStream(channel, channelInfo.maxFragmentSize())) != TransportReturnCodes.SUCCESS) /* (retval > _RET_SUCCESS) or (retval < _RET_SUCCESS) */
                     {
@@ -1360,7 +1360,7 @@ public class Module_5_ItemRequest
                         }
                     }
 
-                    System.out.printf("UPA Client run-time has expired...\n\n");
+                    System.out.printf("ETA Client run-time has expired...\n\n");
                     closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.SUCCESS, dictionary);
                 }
             }
@@ -1419,15 +1419,15 @@ public class Module_5_ItemRequest
 
         if (code == TransportReturnCodes.SUCCESS)
         {
-            System.out.printf("UPA Consumer Training Application successfully ended.\n");
+            System.out.printf("ETA Consumer Training Application successfully ended.\n");
         }
 
         System.exit(0);
     }
 
     /*
-     * Initializes the ping times for upaChannel.
-     * upaChannel - The channel for ping management info initialization
+     * Initializes the ping times for etaChannel.
+     * etaChannel - The channel for ping management info initialization
      * pingManagementInfo - The ping management information that is used
      */
     static int pingTimeoutServer; /* server ping timeout */
@@ -1467,12 +1467,12 @@ public class Module_5_ItemRequest
      */
     /*
      * Processing ping management handler
-     * upaChannel - The channel for ping management processing
+     * etaChannel - The channel for ping management processing
      * pingManagementInfo - The ping management information that is used
      */
     public static int processPingManagementHandler(Channel channel, Short opMask, Selector selector)
     {
-        /* Handles the ping processing for upaChannel. Sends a ping to the server if the next send ping time has arrived and
+        /* Handles the ping processing for etaChannel. Sends a ping to the server if the next send ping time has arrived and
          * checks if a ping has been received from the server within the next receive ping time.
          */
         int retval = TransportReturnCodes.SUCCESS;
@@ -1490,7 +1490,7 @@ public class Module_5_ItemRequest
              * Ping Attempts to write a heartbeat message on the connection.
              * This function expects the Channel to be in the active state. If
              * an application calls the Ping function while there are other
-             * bytes queued for output, the UPA Transport layer will suppress
+             * bytes queued for output, the ETA Transport layer will suppress
              * the heartbeat message and attempt to flush bytes to the network
              * on the user's behalf.
              *********************************************************/
@@ -1591,8 +1591,8 @@ public class Module_5_ItemRequest
 
         if (retCode > TransportReturnCodes.SUCCESS)
         {
-            /* The write was successful and there is more data queued in UPA Transport. The Channel.flush() method should be used to continue attempting to flush data 
-             * to the connection. UPA will release buffer.
+            /* The write was successful and there is more data queued in ETA Transport. The Channel.flush() method should be used to continue attempting to flush data 
+             * to the connection. ETA will release buffer.
              */
 
             /* Flush needs to be done by application */
@@ -1604,7 +1604,7 @@ public class Module_5_ItemRequest
                 case TransportReturnCodes.SUCCESS:
                 {
                     /* Successful write and all data has been passed to the connection */
-                    /* Continue with next operations. UPA will release buffer.*/
+                    /* Continue with next operations. ETA will release buffer.*/
                 }
                     break;
                 case TransportReturnCodes.NO_BUFFERS:
@@ -1680,7 +1680,7 @@ public class Module_5_ItemRequest
         String userName = "put userName here";
 
         /* Get a buffer of the channel max fragment size */
-        if ((msgBuf = upaGetBuffer(channel, maxFragmentSize, error)) == null)
+        if ((msgBuf = etaGetBuffer(channel, maxFragmentSize, error)) == null)
         {
             return TransportReturnCodes.FAILURE;
         }
@@ -1733,7 +1733,7 @@ public class Module_5_ItemRequest
             return TransportReturnCodes.FAILURE;
         }
 
-        applicationName.data("UPA Consumer Training");
+        applicationName.data("ETA Consumer Training");
 
         elementEntry.dataType(DataTypes.ASCII_STRING);
         elementEntry.name(ElementNames.APPNAME);
@@ -1964,7 +1964,7 @@ public class Module_5_ItemRequest
         }
 
         /* Get a buffer of the channel max fragment size */
-        if ((msgBuf = upaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
+        if ((msgBuf = etaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
         {
             return TransportReturnCodes.FAILURE;
         }
@@ -2014,7 +2014,7 @@ public class Module_5_ItemRequest
      * @return obtained buffer *
      * ************************************************************
      */
-    public static TransportBuffer upaGetBuffer(Channel channel, int size, Error error)
+    public static TransportBuffer etaGetBuffer(Channel channel, int size, Error error)
     {
         int retCode;
 
@@ -2066,7 +2066,7 @@ public class Module_5_ItemRequest
         RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
 
         /* get a buffer for the source directory request */
-        if ((msgBuf = upaGetBuffer(channel, maxMsgSize, error)) == null)
+        if ((msgBuf = etaGetBuffer(channel, maxMsgSize, error)) == null)
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -2243,7 +2243,7 @@ public class Module_5_ItemRequest
                 }
 
                 /* if summary data is present, invoking decoder for that type (instead of DecodeEntry)
-                 * indicates to UPA that user wants to decode summary data
+                 * indicates to ETA that user wants to decode summary data
                  */
                 if ((map.flags() & MapFlags.HAS_SUMMARY_DATA) != 0)
                 {
@@ -2283,7 +2283,7 @@ public class Module_5_ItemRequest
                         /* if this is the current serviceId we are interested in */
                         if ((serviceId.toLong() == serviceDiscoveryInfo_serviceId) && (serviceDiscoveryInfo_serviceNameFound == true))
                         {
-                            /* this is the current serviceId we are interested in and requested by the UPA Consumer application */
+                            /* this is the current serviceId we are interested in and requested by the ETA Consumer application */
                             System.out.printf(" (%s)\n", serviceDiscoveryInfo_serviceName);
                         }
 
@@ -2441,14 +2441,14 @@ public class Module_5_ItemRequest
                                                             if (capabilities.toLong() == DomainTypes.DICTIONARY)
                                                             {
                                                                 System.out.printf("\tDomainTypes.DICTIONARY domain type is supported.\n");
-                                                                serviceDiscoveryInfo_upalDMTDictionarySupported = true;
+                                                                serviceDiscoveryInfo_etalDMTDictionarySupported = true;
                                                             }
 
                                                             /* if advertising MarketPrice domain type is supported */
                                                             if (capabilities.toLong() == DomainTypes.MARKET_PRICE)
                                                             {
                                                                 System.out.printf("\tDomainTypes.MARKET_PRICE domain type is supported.\n");
-                                                                serviceDiscoveryInfo_upaDMTMarketPriceSupported = true;
+                                                                serviceDiscoveryInfo_etaDMTMarketPriceSupported = true;
                                                             }
 
                                                         }
@@ -2494,7 +2494,7 @@ public class Module_5_ItemRequest
                                                                 System.out.printf("\tReceived Source Directory Update for DictionariesProvided[%d]: %s\n", arrayCount, arrayEntry.encodedData().toString());
 
                                                             /* DictionariesProvided provide the dictionaries that are available for downloading */
-                                                            /* Our training UPA Consumer app only cares about RDMFieldDictionary and enumtype.def */
+                                                            /* Our training ETA Consumer app only cares about RDMFieldDictionary and enumtype.def */
                                                             dictionariesProvided = arrayEntry.encodedData().toString();
 
                                                             if (dictionariesProvided.equals(dictionaryDownloadName))
@@ -2804,7 +2804,7 @@ public class Module_5_ItemRequest
     /**
      * ******************************************************************************************************************************
      * Processes a dictionary response. This consists of decoding the response.
-     * * upaChannelInfo - The channel management information including the
+     * * etaChannelInfo - The channel management information including the
      * dictionaries loaded information that is populated/updated * msg - The
      * partially decoded message * decodeIter - The decode iterator *
      * dataDictionary - the dictionary used for decoding the field entry data *
@@ -2996,8 +2996,8 @@ public class Module_5_ItemRequest
         EncodeIterator encIter;
         encIter = CodecFactory.createEncodeIterator();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -3095,8 +3095,8 @@ public class Module_5_ItemRequest
         EncodeIterator encIter;
         encIter = CodecFactory.createEncodeIterator();
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */
@@ -3635,7 +3635,7 @@ public class Module_5_ItemRequest
         /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
         EncodeIterator encIter = CodecFactory.createEncodeIterator();
 
-        /* Obtains a non-packable buffer of the requested size from the UPA Transport guaranteed buffer pool to write into for the Login request.
+        /* Obtains a non-packable buffer of the requested size from the ETA Transport guaranteed buffer pool to write into for the Login request.
          * For an outbound TransportBuffer (specifically one gotten from Channel.getBuffer(), like this one) length() initially does indeed indicate the number of bytes available, 
          * but when the ByteBuffer's position is after the start 
          * (because the application has written something, i.e. encoded some or all of a Login request message), 
@@ -3643,8 +3643,8 @@ public class Module_5_ItemRequest
          * (basically, the number of bytes encoded thus far).
          */
 
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
+        /* etaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
+        if ((msgBuf = etaGetBuffer(chnl, maxFragmentSize, error)) == null) /* first check Error */
         {
             /* Connection should be closed, return failure */
             /* Closes channel, cleans up and exits the application. */

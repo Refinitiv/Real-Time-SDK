@@ -81,16 +81,16 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>
- * This is a main class to run the UPA Value Add WatchlistConsumer application.
+ * This is a main class to run the ETA Value Add WatchlistConsumer application.
  * </p>
  * <H2>Summary</H2>
  * <p>
  * This is the main file for the WatchlistConsumer application.  It is a single-threaded
- * client application that utilizes the UPA Reactor's watchlist to provide recovery of data.
+ * client application that utilizes the ETA Reactor's watchlist to provide recovery of data.
  * 
  * The main consumer file provides the callback for channel events and 
  * the default callback for processing RsslMsgs. The main function
- * Initializes the UPA Reactor, makes the desired connections, and
+ * Initializes the ETA Reactor, makes the desired connections, and
  * dispatches for events.
  * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
@@ -122,10 +122,10 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  * This application is intended as a basic usage example. Some of the design choices
  * were made to favor simplicity and readability over performance. This application 
  * is not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * </p>
  * <H2>Setup Environment</H2>
  * <p>

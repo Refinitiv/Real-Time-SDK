@@ -27,7 +27,7 @@ class TestReactorEvent;
 extern "C" {
 #endif
 
-/* A component that uses UPA directly, instead of a Reactor. */
+/* A component that uses ETA directly, instead of a Reactor. */
 class CoreComponent
 {
 private:

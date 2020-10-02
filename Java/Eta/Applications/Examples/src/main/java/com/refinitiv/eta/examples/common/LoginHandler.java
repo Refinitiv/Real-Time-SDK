@@ -22,7 +22,7 @@ import java.util.Objects;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
- * This is the Login handler for the UPA Consumer and NIProvider application. It
+ * This is the Login handler for the ETA Consumer and NIProvider application. It
  * provides methods for encoding and sending of login request, as well as
  * processing of responses (refresh, status, update, close). Methods are also
  * provided to allow setting of application name, user name and role, to be used

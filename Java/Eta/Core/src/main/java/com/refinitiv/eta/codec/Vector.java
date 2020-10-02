@@ -151,7 +151,7 @@ import com.refinitiv.eta.codec.Buffer;
  *      VectorEntry vectorEntry = CodecFactory.createVectory();
  *      
  *      //if summary data is present, invoking decoder for that type (instead of DecodeEntry)
- *      //indicates to UPA that user wants to decode summary data 
+ *      //indicates to ETA that user wants to decode summary data 
  *      if(vector.flags() & VectorFlags.HAS_SUMMARY_DATA)
  *      {
  *          //summary data is present.  Its type should be that of vector.containerType

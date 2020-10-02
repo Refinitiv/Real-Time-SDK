@@ -3,7 +3,7 @@ package com.refinitiv.eta.transport;
 import java.util.List;
 
 /**
- * UPA Channel Info available through {@link Channel#info(ChannelInfo, Error)} method call.
+ * ETA Channel Info available through {@link Channel#info(ChannelInfo, Error)} method call.
  * 
  * @see Channel
  */
@@ -11,7 +11,7 @@ public interface ChannelInfo
 {
     /**
      * The maximum size buffer allowed to be written to the network. If a larger
-     * buffer is required, UPA Transport will internally fragment the larger
+     * buffer is required, ETA Transport will internally fragment the larger
      * buffer into smaller maxFragmentSize buffers. This is the largest size a
      * user can request while still being 'packable.'
      * 
@@ -21,7 +21,7 @@ public interface ChannelInfo
 
     /**
      * The maximum size buffer allowed to be written to the network. If a larger
-     * buffer is required, UPA Transport will internally fragment the larger
+     * buffer is required, ETA Transport will internally fragment the larger
      * buffer into smaller maxFragmentSize buffers. This is the largest size a
      * user can request while still being 'packable.'
      * 
@@ -79,7 +79,7 @@ public interface ChannelInfo
 
     /**
      * The size of the send or output buffer associated with the underlying
-     * transport. UPA Transport has additional output buffers, controlled by
+     * transport. ETA Transport has additional output buffers, controlled by
      * maxOutputBuffers and guaranteedOutputBuffers. For some connection types,
      * this value can be changed through the use of
      * {@link Channel#ioctl(int, int, Error)}.
@@ -90,7 +90,7 @@ public interface ChannelInfo
 
     /**
      * The size of the receive or input buffer associated with the underlying
-     * transport. UPA Transport has an additional input buffer controlled by
+     * transport. ETA Transport has an additional input buffer controlled by
      * numInputBuffers. For some connection types, this value can be changed
      * through the use of {@link Channel#ioctl(int, int, Error)}.
      * 
@@ -138,7 +138,7 @@ public interface ChannelInfo
     public List<ComponentInfo> componentInfo();
 
     /**
-     * Clears UPA Channel Info.
+     * Clears ETA Channel Info.
      */
     public void clear();
     

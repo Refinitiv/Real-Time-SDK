@@ -33,13 +33,13 @@ import com.refinitiv.eta.transport.WriteFlags;
 import com.refinitiv.eta.transport.WritePriorities;
 
 /**
- * Manages UPA channel and provides methods for connection establishment,
+ * Manages ETA channel and provides methods for connection establishment,
  * channel initialization, read, and write methods for Consumer and NIProvider
  * example applications.
  * <P>
  * 
  * Usage of this class within the Consumer and NIProvider applications:<br>
- * 1. Call {@link #initTransport(boolean, Error)} to initialize UPA <br>
+ * 1. Call {@link #initTransport(boolean, Error)} to initialize ETA <br>
  * 2. Call {@link #connect(InProgInfo, Error)}.<br>
  * 3. Call {@link #initChannel(InProgInfo, Error)} in loop until channel becomes
  * active that is channel state is ChannelState.ACTIVE. <br>
@@ -51,8 +51,8 @@ import com.refinitiv.eta.transport.WritePriorities;
  * the application to retry connection establishment.
  * 
  * <p>
- * This class is a wrapper utility class for UPA's Channel and Transport classes
- * and handles typical return codes from UPA, for example, file descriptor
+ * This class is a wrapper utility class for ETA's Channel and Transport classes
+ * and handles typical return codes from ETA, for example, file descriptor
  * changes during read, connection failures, registering for write when there is
  * more data in the queue, flushing of data after write, flush failures.
  * 
@@ -127,13 +127,13 @@ public class ChannelSession
     }
 
     /**
-     * Initializes the UPA transport API and all internal members.<BR>
+     * Initializes the ETA transport API and all internal members.<BR>
      * 
-     * This is the first method called when using the UPA. It initializes
+     * This is the first method called when using the ETA. It initializes
      * internal data structures.
      * 
-     * @param globalLock flag to enable global locking on UPA Transport
-     * @param error UPA Error, to be populated in event of an error
+     * @param globalLock flag to enable global locking on ETA Transport
+     * @param error ETA Error, to be populated in event of an error
      * 
      * @return {@link TransportReturnCodes}
      */
@@ -173,9 +173,9 @@ public class ChannelSession
     }
 
     /**
-     * Returns underlying UPA channel.
+     * Returns underlying ETA channel.
      * 
-     * @return UPA channel
+     * @return ETA channel
      */
     public Channel channel()
     {
@@ -188,7 +188,7 @@ public class ChannelSession
      * @param size - Size of the transport buffer to retrieve.
      * @param packedBuffer - Set to true if you plan on packing multiple
      *            messages into the same buffer
-     * @param error UPA error information in case of failure.
+     * @param error ETA error information in case of failure.
      * @return {@link TransportReturnCodes}
      */
     public TransportBuffer getTransportBuffer(int size, boolean packedBuffer, Error error)
@@ -232,7 +232,7 @@ public class ChannelSession
     /**
      * Cleans up channel and sets connection recovery flag to true.
      * 
-     * @param error UPA error information when channel cleanup fails.
+     * @param error ETA error information when channel cleanup fails.
      * @return {@link TransportReturnCodes}
      */
     public int recoverConnection(Error error)
@@ -250,7 +250,7 @@ public class ChannelSession
      * @param pingHandler - PingHandler's flag for server message received is
      *            set when read is done.
      * @param callbackclient - Callback client to call when message is received.
-     * @param error - UPA error information in case of read failure.
+     * @param error - ETA error information in case of read failure.
      * @return {@link TransportReturnCodes}
      */
     public int read(PingHandler pingHandler, ResponseCallback callbackclient, Error error)
@@ -358,10 +358,10 @@ public class ChannelSession
     }
 
     /**
-     * Initializes UPA non-blocking channel.
+     * Initializes ETA non-blocking channel.
      * 
      * @param inProg {@link InProgInfo}
-     * @param error UPA error information in case of failure
+     * @param error ETA error information in case of failure
      * 
      * @return {@link TransportReturnCodes}
      * 
@@ -408,7 +408,7 @@ public class ChannelSession
     }
 
     /**
-     * Closes the UPA channel and uninitilizes Transport.
+     * Closes the ETA channel and uninitilizes Transport.
      *
      * @param error error information in case of failure
      * @return {@link TransportReturnCodes}
@@ -541,7 +541,7 @@ public class ChannelSession
     
     
     /**
-     * Writes the content of the {@link TransportBuffer} to the UPA channel.
+     * Writes the content of the {@link TransportBuffer} to the ETA channel.
      *
      * @param msgBuf the msg buf
      * @param error the error
@@ -669,7 +669,7 @@ public class ChannelSession
     }
 
     /**
-     * Establishes the outbound connection to the UPA server. If connection is
+     * Establishes the outbound connection to the ETA server. If connection is
      * established, registers the channel for read and write select operation.
      * It recovers connection in case of connection failure. It assumes
      * application has called {@link #initTransport(boolean, Error)} before calling this
@@ -681,7 +681,7 @@ public class ChannelSession
      * becomes active, ChannelState.ACTIVE
      * 
      * @param inProg - {@link InProgInfo}
-     * @param error - UPA error information in case of connection failure.
+     * @param error - ETA error information in case of connection failure.
      * @return {@link TransportReturnCodes}
      * @see Transport#connect(ConnectOptions, Error)
      */

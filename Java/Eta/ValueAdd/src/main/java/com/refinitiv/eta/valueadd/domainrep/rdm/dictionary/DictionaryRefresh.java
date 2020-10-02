@@ -18,7 +18,7 @@ public interface DictionaryRefresh extends DictionaryMsg
      *
      * @param destRefreshMsg Message to copy dictionary refresh object into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(DictionaryRefresh destRefreshMsg);
 

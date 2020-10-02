@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Server Info returned by {@link Server#info(ServerInfo, Error)} call.
+ * ETA Server Info returned by {@link Server#info(ServerInfo, Error)} call.
  * 
  * @see Server
  */
@@ -25,7 +25,7 @@ public interface ServerInfo
     public int peakBufferUsage();
 
     /**
-     * Clears UPA Server Info.
+     * Clears ETA Server Info.
      */
     public void clear();
 }

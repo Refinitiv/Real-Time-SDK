@@ -28,7 +28,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
  * <p>
- * This is a main class to run UPA NewsViewer application. The purpose of this
+ * This is a main class to run ETA NewsViewer application. The purpose of this
  * application is to consume content between an OMM news consumer and OMM news
  * provider. It is a single-threaded client application.
  * </p>
@@ -37,7 +37,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
- * <li>Create a {@link ChannelSession UPA Channel Session}.
+ * <li>Create a {@link ChannelSession ETA Channel Session}.
  * <li>Create Handler instances to handle Login, Dictionary, and news items.
  * <li>If the dictionary is found in the directory of execution, then it is
  * loaded directly from the file. However, the default configuration for this
@@ -54,10 +54,10 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * <p>
  * <em>Setup Environment</em>
  * <p>

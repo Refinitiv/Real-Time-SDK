@@ -15,7 +15,7 @@ public class LibraryVersionInfoImpl implements LibraryVersionInfo
     @Override
     public String toString()
     {
-        return "Ultra Performance API (UPA), Java Edition, LibraryVersionInfo" + "\n" + 
+        return "Enterprise Transport API (ETA), Java Edition, LibraryVersionInfo" + "\n" + 
                "\tproductVersion: " + _productVersion + "\n" + 
                "\tproductInternalVersion: " + _productInternalVersion + "\n" + 
                "\tproductDate: " + _productDate;

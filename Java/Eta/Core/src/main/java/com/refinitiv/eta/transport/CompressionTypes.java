@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Supported Compression types.
+ * ETA Supported Compression types.
  */
 public class CompressionTypes
 {

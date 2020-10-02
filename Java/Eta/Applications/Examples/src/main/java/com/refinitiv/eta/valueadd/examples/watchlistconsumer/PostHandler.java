@@ -38,7 +38,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
- * This is the post handler for the UPA Value Add consumer application.
+ * This is the post handler for the ETA Value Add consumer application.
  * It provides methods for sending on stream and off stream post messages.
  */
 class PostHandler

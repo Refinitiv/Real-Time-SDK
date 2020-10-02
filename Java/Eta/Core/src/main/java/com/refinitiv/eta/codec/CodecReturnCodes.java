@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * Return codes associated with UPA Codec package.
+ * Return codes associated with ETA Codec package.
  */
 public class CodecReturnCodes
 {
@@ -286,9 +286,9 @@ public class CodecReturnCodes
             case BUFFER_TOO_SMALL:
                 return "Failure: The buffer provided does not have sufficient space to perform the operation.";
             case FAILURE:
-                return "Failure: UPA general failure return code.";
+                return "Failure: ETA general failure return code.";
             case SUCCESS:
-                return "Success: UPA general success return code.";
+                return "Success: ETA general success return code.";
             case DICT_PART_ENCODED:
                 return "Success: Successfully encoded part of a dictionary message, returned from the  dictionary processing methods.";
             case ENCODE_MSG_KEY_ATTRIB:

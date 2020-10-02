@@ -2,14 +2,14 @@ package com.refinitiv.eta.transport;
 
 
 /**
- * UPA Read Arguments used in the {@link Channel#read(ReadArgs, Error)} call.
+ * ETA Read Arguments used in the {@link Channel#read(ReadArgs, Error)} call.
  * 
  * @see Channel
  */
 public interface ReadArgs
 {
     /**
-     * UPA Read Return Value used in the {@link Channel#read(ReadArgs, Error)}
+     * ETA Read Return Value used in the {@link Channel#read(ReadArgs, Error)}
      * call. A positive value if there is more data to read,
      * {@link TransportReturnCodes#READ_WOULD_BLOCK} if the read call is
      * blocked, or a failure code.

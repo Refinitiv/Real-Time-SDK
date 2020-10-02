@@ -2,12 +2,12 @@ OVERVIEW
 ========
 
 The ex430_MP_Authentication application is a simple application written to demonstrate
-usage of the TREP Authentication Feature.
+usage of the UserAuthn Authentication Feature.
 
 LIMITATIONS
 ===========
 
-To demonstrate the TREP Authentication Feature the ex430_MP_Authentication application
+To demonstrate the UserAuthn Authentication Feature the ex430_MP_Authentication application
 must be connected to an ADH that supports the feature.
 
 USAGE

@@ -293,7 +293,7 @@ public class Reactor
     }
 
 	/**
-	 * Shuts down and cleans up a Reactor. Stops the UPA Reactor if necessary and
+	 * Shuts down and cleans up a Reactor. Stops the ETA Reactor if necessary and
 	 * sends ReactorChannelEvents to all active channels indicating that they are down.
 	 * Once this call is made, the Reactor is destroyed and no further calls should
 	 * be made with it.
@@ -1069,7 +1069,7 @@ public class Reactor
                 populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.connect", 
                 	"Reactor.connect(): Invalid connection type: " + 
                 	reactorConnectInfo.connectOptions().connectionType() + 
-                	" for requesting EDP-RT service discovery.");                	
+                	" for requesting RDP service discovery.");                	
             return ReactorReturnCodes.PARAMETER_INVALID;
     	}
     	
@@ -1140,7 +1140,7 @@ public class Reactor
 
 	static boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
 	{
-    	// only use the EDP-RT connection information if not specified by the user
+    	// only use the RDP (formerly EDP-RT) connection information if not specified by the user
     	if((reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() == null &&
     			reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName() == null) ||
     		(	reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() != null && 
@@ -1186,7 +1186,7 @@ public class Reactor
     }
     
     /**
-     * Queries EDP-RT service discovery to get service endpoint information.
+     * Queries RDP (formerly EDP-RT) service discovery to get service endpoint information.
      * 
      * @param options The {@link ReactorServiceDiscoveryOptions} to configure options and specify the 
      * 		ReactorServiceEndpointEventCallback to receive service endpoint information. 

@@ -33,7 +33,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 
 
-public class ReactorWatchlistEDPJunit
+public class ReactorWatchlistRDPJunit
 {
 	final int AUTH_TOKEN_EXPIRATION = 300;
 	ReactorAuthTokenInfo _tokenInfo = null;	
@@ -325,7 +325,7 @@ public class ReactorWatchlistEDPJunit
 		{
 			System.out.println("edpUserName edpPassword keyfile and keypasswd need to be set as VM arguments to run this test.");
 			System.out.println("i.e. -DedpUserName=USERNAME -DedpPassword=PASSWORD -Dkeyfile=*.jks -Dkeypasswd=PASSWORD");
-			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *EDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD -Dkeyfile=keystore.jks -Dkeypasswd=PASSWORD\"");
+			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *RDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD -Dkeyfile=keystore.jks -Dkeypasswd=PASSWORD\"");
 			System.out.println("Skipping this test");			
 			return false;
 		}
@@ -384,9 +384,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPConnectSpecificLocationTest()
+	public void RDPConnectSpecificLocationTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectSpecificLocationTest <<<<<<<<<<\n");
+		System.out.println("\n>>>>>>>>> Running RDPConnectSpecificLocationTest <<<<<<<<<<\n");
 		/* Test a queryServiceDiscovery */
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -533,9 +533,9 @@ public class ReactorWatchlistEDPJunit
 
 
 	@Test
-	public void EDPConnectErrorInvalidConnectionTypeTest()
+	public void RDPConnectErrorInvalidConnectionTypeTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidConnectionTypeTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidConnectionTypeTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -594,9 +594,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPConnectErrorInvalidLocationTest()
+	public void RDPConnectErrorInvalidLocationTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidLocationTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidLocationTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -659,9 +659,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectErrorAddressAndSessionManagmentSpecifiedTest()
+	public void RDPConnectErrorAddressAndSessionManagmentSpecifiedTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorAddressAndSessionManagmentSpecifiedTest <<<<<<<<<<\n");		
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorAddressAndSessionManagmentSpecifiedTest <<<<<<<<<<\n");		
 		assumeTrue(checkCredentials());	
 		unlockAccount();
 		
@@ -809,9 +809,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPConnectTest()
+	public void RDPConnectTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -895,9 +895,9 @@ public class ReactorWatchlistEDPJunit
 
 
 	@Test
-	public void EDPConnectConnectionListTest()
+	public void RDPConnectConnectionListTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectConnectionListTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1053,9 +1053,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectConnectionListErrorWrongCredentialsTest()
+	public void RDPConnectConnectionListErrorWrongCredentialsTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectConnectionListErrorWrongCredentialsTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListErrorWrongCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
@@ -1186,9 +1186,9 @@ public class ReactorWatchlistEDPJunit
 
 
 	@Test
-	public void EDPConnectConnectionListSecondConnectionEDPInvalidCredentialsTest()
+	public void RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectConnectionListSecondConnectionEDPInvalidCredentialsTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
@@ -1333,9 +1333,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest()
+	public void RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1428,9 +1428,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectWatchlistDisabledAddressAndPortEmptyTest()
+	public void RDPConnectWatchlistDisabledAddressAndPortEmptyTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledAddressAndPortEmptyTest <<<<<<<<<<\n");			
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledAddressAndPortEmptyTest <<<<<<<<<<\n");			
 		/* Test a to see if address and service name will be overwritten by service discovery when user sets them to 
 		 * empty strings prior to connection */
 		assumeTrue(checkCredentials());
@@ -1478,9 +1478,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectWatchlistDisabledAddressAndPortSetTest()
+	public void RDPConnectWatchlistDisabledAddressAndPortSetTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledAddressAndPortSetTest <<<<<<<<<<\n");			
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledAddressAndPortSetTest <<<<<<<<<<\n");			
 		/* Test a to see if address and service name will NOT be overwritten by service discovery when user sets them to 
 		 * some string */
 		assumeTrue(checkCredentials());
@@ -1516,7 +1516,7 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
-			// check if the connection info came from EDP
+			// check if the connection info came from RDP
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("FAKE"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("FAKE"));
 			
@@ -1528,9 +1528,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectWatchlistDisabledTest()
+	public void RDPConnectWatchlistDisabledTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1614,9 +1614,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPConnectWatchlistDisabledConnectionListTest()
+	public void RDPConnectWatchlistDisabledConnectionListTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledConnectionListTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();	
 		
@@ -1742,9 +1742,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectWatchlistDisabledErrorNoRDMLoginTest()
+	public void RDPConnectWatchlistDisabledErrorNoRDMLoginTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledErrorNoRDMLoginTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledErrorNoRDMLoginTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1856,9 +1856,9 @@ public class ReactorWatchlistEDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPConnectUserSpecifiedClientIdExpectedServiceDiscoveryRequestTest()
+	public void RDPConnectUserSpecifiedClientIdExpectedServiceDiscoveryRequestTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1919,9 +1919,9 @@ public class ReactorWatchlistEDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPConnectUserSpecifiedClientIdTest()
+	public void RDPConnectUserSpecifiedClientIdTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1981,9 +1981,9 @@ public class ReactorWatchlistEDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPConnectErrorInvalidClientIdTest()
+	public void RDPConnectErrorInvalidClientIdTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidClientIdTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2051,9 +2051,9 @@ public class ReactorWatchlistEDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPConnectErrorIncorrectCredentialsTest()
+	public void RDPConnectErrorIncorrectCredentialsTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorIncorrectCredentialsTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorIncorrectCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 
 		// request service discovery with valid user name / password to prevent being locked out 
@@ -2125,9 +2125,9 @@ public class ReactorWatchlistEDPJunit
 	}		 
 
 	@Test
-	public void EDPConnectErrorInvalidTokenServiceURLTest()
+	public void RDPConnectErrorInvalidTokenServiceURLTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidTokenServiceURLTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidTokenServiceURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2176,9 +2176,9 @@ public class ReactorWatchlistEDPJunit
 	}		
 
 	@Test
-	public void EDPConnectUserSpecifiedTokenServiceUrlTest()
+	public void RDPConnectUserSpecifiedTokenServiceUrlTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedTokenServiceUrlTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedTokenServiceUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2228,9 +2228,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectUserSpecifiedServiceDiscoveryUrlTest()
+	public void RDPConnectUserSpecifiedServiceDiscoveryUrlTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedServiceDiscoveryUrlTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedServiceDiscoveryUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();		
 		TestReactor consumerReactor = null;
@@ -2278,9 +2278,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPConnectErrorInvalidServiceDiscoveryURLTest()
+	public void RDPConnectErrorInvalidServiceDiscoveryURLTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidServiceDiscoveryURLTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidServiceDiscoveryURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2329,9 +2329,9 @@ public class ReactorWatchlistEDPJunit
 	}			
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorInvalidDataFormatAndTransportTest()
+	public void RDPQueryServiceDiscoveryErrorInvalidDataFormatAndTransportTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorInvalidDataFormatAndTransportTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorInvalidDataFormatAndTransportTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2408,9 +2408,9 @@ public class ReactorWatchlistEDPJunit
 	}		
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorCallbackMissingTest()
+	public void RDPQueryServiceDiscoveryErrorCallbackMissingTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorCallbackMissingTest <<<<<<<<<<\n");			
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorCallbackMissingTest <<<<<<<<<<\n");			
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2449,9 +2449,9 @@ public class ReactorWatchlistEDPJunit
 
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorErrorInfoMissingTest()
+	public void RDPQueryServiceDiscoveryErrorErrorInfoMissingTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorErrorInfoMissingTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorErrorInfoMissingTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2485,9 +2485,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorServiceDiscoveryOptionsMissingTest()
+	public void RDPQueryServiceDiscoveryErrorServiceDiscoveryOptionsMissingTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorServiceDiscoveryOptionsMissingTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorServiceDiscoveryOptionsMissingTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2525,9 +2525,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPQueryServiceDiscoveryMissingClientIdTest()
+	public void RDPQueryServiceDiscoveryMissingClientIdTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryMissingClientIdTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryMissingClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2583,9 +2583,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorMismatchOfTypesTest()
+	public void RDPQueryServiceDiscoveryErrorMismatchOfTypesTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorMismatchOfTypesTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorMismatchOfTypesTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2620,7 +2620,7 @@ public class ReactorWatchlistEDPJunit
 					System.out.println(event.serviceEndpointInfo());
 					System.out.println(event.errorInfo());					
 					assertTrue(event.errorInfo().code() == ReactorReturnCodes.FAILURE );
-					// since there is a mismatch of the dataformat and protocol the EDP will respond with 404 error Not found.
+					// since there is a mismatch of the dataformat and protocol the RDP will respond with 404 error Not found.
 					assertTrue(event.errorInfo().toString().contains("404"));
 					_count++;
 					return 0;
@@ -2660,9 +2660,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPQueryServiceDiscoveryJSONTest()
+	public void RDPQueryServiceDiscoveryJSONTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryJSONTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryJSONTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2742,9 +2742,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorPasswordTest()
+	public void RDPQueryServiceDiscoveryErrorPasswordTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorPasswordTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2818,10 +2818,10 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest()
 	{
 		
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -2924,9 +2924,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -3019,9 +3019,9 @@ public class ReactorWatchlistEDPJunit
 
 
 	@Test
-	public void EDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -3113,9 +3113,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPQueryServiceDiscoveryNoDataFormatProtocolTest()
+	public void RDPQueryServiceDiscoveryNoDataFormatProtocolTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryNoDataFormatProtocolTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryNoDataFormatProtocolTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -3193,9 +3193,9 @@ public class ReactorWatchlistEDPJunit
 	}	
 
 	@Test
-	public void EDPQueryServiceDiscoveryNoTransportProtocolTest()
+	public void RDPQueryServiceDiscoveryNoTransportProtocolTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryNoTransportProtocolTest <<<<<<<<<<\n");
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryNoTransportProtocolTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -3343,9 +3343,9 @@ public class ReactorWatchlistEDPJunit
 	}
 
 	@Test
-	public void EDPQueryServiceDiscoveryTest()
+	public void RDPQueryServiceDiscoveryTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -3424,9 +3424,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPNoOAuthCredentialForEnablingSessionMgnt()
+	public void RDPNoOAuthCredentialForEnablingSessionMgnt()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPNoOAuthCredentialForEnablingSessionMgnt <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPNoOAuthCredentialForEnablingSessionMgnt <<<<<<<<<<\n");	
 		
 		TestReactor consumerReactor = null;
 		
@@ -3463,9 +3463,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPNoUserNameForEnablingSessionMgnt()
+	public void RDPNoUserNameForEnablingSessionMgnt()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPNoUserNameForEnablingSessionMgnt <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPNoUserNameForEnablingSessionMgnt <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3510,9 +3510,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPNoPasswordForEnablingSessionMgnt()
+	public void RDPNoPasswordForEnablingSessionMgnt()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPNoPasswordForEnablingSessionMgnt <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPNoPasswordForEnablingSessionMgnt <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3558,9 +3558,9 @@ public class ReactorWatchlistEDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPNoClientIDForEnablingSessionMgnt()
+	public void RDPNoClientIDForEnablingSessionMgnt()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPNoClientIDForEnablingSessionMgnt <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPNoClientIDForEnablingSessionMgnt <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3607,9 +3607,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_CallbackTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_CallbackTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_CallbackTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_CallbackTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3679,9 +3679,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3743,9 +3743,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_ClientIDTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_ClientIDTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3793,9 +3793,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3843,9 +3843,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_PasswordTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_PasswordTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_PasswordTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3892,9 +3892,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3941,9 +3941,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest <<<<<<<<<<\n");	
 		
 		assumeTrue(checkCredentials());
 		unlockAccount();
@@ -3991,9 +3991,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPConnectionUsingReactorOAuthCredentialOnlyTest()
+	public void RDPConnectionUsingReactorOAuthCredentialOnlyTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectionUsingReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectionUsingReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4062,9 +4062,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest()
+	public void RDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectionUsingReactorOAuthCredentialOnly_WatchListEnabledTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4123,9 +4123,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultiConnectionsConnectAndCloseWithSameCredentialTest()
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredentialTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultiConnectionsConnectAndCloseWithSameCredentialTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultiConnectionsConnectAndCloseWithSameCredentialTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4184,9 +4184,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest()
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4260,9 +4260,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest()
+	public void RDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPSubmitTokenRenewalWithoutTokenSessionAndCallbackTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4294,9 +4294,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest()
+	public void RDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPSubmitTokenRenewalUsingInvalidCredential_WithoutTokenSessionTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		TestReactor consumerReactor = null;
 		
@@ -4335,9 +4335,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest()
+	public void RDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest <<<<<<<<<<\n");
+		System.out.println("\n>>>>>>>>> Running RDPSubmitTokenRenewalTakeExclusiveSignOnOff_WithoutTokenSessionTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4379,9 +4379,9 @@ public class ReactorWatchlistEDPJunit
 	}
 	
 	@Test
-	public void EDPSubmitTokenRenewalWithoutTokenSessionTest()
+	public void RDPSubmitTokenRenewalWithoutTokenSessionTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPSubmitTokenRenewalWithoutTokenSessionTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPSubmitTokenRenewalWithoutTokenSessionTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -4424,9 +4424,9 @@ public class ReactorWatchlistEDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void EDPSubmitCredentialInCallbackTest()
+	public void RDPSubmitCredentialInCallbackTest()
 	{
-		System.out.println("\n>>>>>>>>> Running EDPSubmitCredentialInCallbackTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPSubmitCredentialInCallbackTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		

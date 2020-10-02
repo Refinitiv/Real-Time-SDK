@@ -153,7 +153,7 @@ class ChannelInformationImpl implements ChannelInformation
 			_stringBuilder.append( "\n\tconnection type: " + ConnectionTypes.toString(_connectionType)
 				+ "\n\tprotocol type: ");
 		if (_protocolType == 0)
-			_stringBuilder.append("Reuters wire format");
+			_stringBuilder.append("Refinitiv wire format");
 		else
 			_stringBuilder.append("unknown wire format");
 		_stringBuilder.append("\n\tmajor version: " + _majorVersion + "\n\tminor version: " + _minorVersion

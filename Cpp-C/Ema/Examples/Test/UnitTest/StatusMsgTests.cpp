@@ -35,7 +35,7 @@ TEST(StatusMsgTests, testStatusMsgInStatusMsg)
 	}
 }
 
-//encoding by UPA and decoding by EMA
+//encoding by ETA and decoding by EMA
 TEST(StatusMsgTests, testStatusMsgDecode)
 {
 

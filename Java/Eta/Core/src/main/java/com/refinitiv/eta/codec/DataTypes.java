@@ -1,7 +1,7 @@
 package com.refinitiv.eta.codec;
 
 /**
- * Defines enumerations for UPA primitive and container types.
+ * Defines enumerations for ETA primitive and container types.
  */
 public class DataTypes
 {
@@ -32,7 +32,7 @@ public class DataTypes
         throw new AssertionError();
     }
 
-    /* Minimum allowed value for primitive types - used for internal UPA range checking */
+    /* Minimum allowed value for primitive types - used for internal ETA range checking */
     static final int PRIMITIVE_MIN = 0;
 	
     /**
@@ -101,7 +101,7 @@ public class DataTypes
     /**
      * Defines QoS information such as data timeliness (e.g. real time) and rate
      * (e.g. tick-by-tick). Allows a user to send QoS information as part of the
-     * data payload. Similar information can also be conveyed using multiple UPA
+     * data payload. Similar information can also be conveyed using multiple ETA
      * message headers.
      */
     public static final int QOS = 12;
@@ -109,7 +109,7 @@ public class DataTypes
     /**
      * Represents data and stream state information. Allows a user to send state
      * information as part of data payload. Similar information can also be
-     * conveyed in several UPA message headers.
+     * conveyed in several ETA message headers.
      */
     public static final int STATE = 13;
 
@@ -122,7 +122,7 @@ public class DataTypes
     public static final int ENUM = 14;
 
     /**
-     * The UPA Array type allows users to represent a simple base primitive type
+     * The ETA Array type allows users to represent a simple base primitive type
      * list (all primitive types except {@link Array}). The user can specify the
      * base primitive type that an array carries and whether each is of a
      * variable or fixed-length. Because the array is a primitive type, if any
@@ -132,7 +132,7 @@ public class DataTypes
 
     /**
      * Represents a raw byte buffer type. Any semantics associated with the data
-     * in this buffer is provided from outside of UPA, either via a field
+     * in this buffer is provided from outside of ETA, either via a field
      * dictionary (e.g., RDMFieldDictionary), or a DMM definition
      */
     public static final int BUFFER = 16;
@@ -140,7 +140,7 @@ public class DataTypes
     /**
      * Represents an ASCII string which should contain only characters that are
      * valid in ASCII specification. Because this might be NULL terminated, use
-     * the provided length when accessing content. UPA does not enforce or
+     * the provided length when accessing content. ETA does not enforce or
      * validate any encoding standard, and this is the responsibility of the
      * encoding or decoding user.
      */
@@ -149,16 +149,16 @@ public class DataTypes
     /**
      * Represents a UTF8 string which should follow the UTF8 encoding standard
      * and contain only characters valid within that set. Because this might be
-     * NULL terminated, use the provided length when accessing content. UPA does
+     * NULL terminated, use the provided length when accessing content. ETA does
      * not enforce or validate any encoding standard, and this is the
      * responsibility of the encoding or decoding user.
      */
     public static final int UTF8_STRING = 18;
 
     /**
-     * Represents an RMTES (Reuters Multilingual Text Encoding Standard) string
+     * Represents an RMTES (a multilingual text encoding standard) string
      * which should follow the RMTES encoding standard and contain only
-     * characters valid within that set. UPA does not enforce or validate
+     * characters valid within that set. ETA does not enforce or validate
      * encoding standards, so this is the responsibility of the encoding or
      * decoding user.
      */

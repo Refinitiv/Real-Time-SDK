@@ -6,9 +6,9 @@
   These three groups of classes and interfaces are described in the following sections:
   <p>
   
-  <b>UPA Data Types</b>
+  <b>ETA Data Types</b>
   <p>
-  These types manages binary representation of UPA data payload, ranging from simple primitive types
+  These types manages binary representation of ETA data payload, ranging from simple primitive types
   through comprehensive hierarchical container types. These types are split across two categories:
   <ul>
   <li>
@@ -56,31 +56,31 @@
   </li>
   </ul>
   <li>
-  A Container Type models more intricate data representations than UPA Primitive Types and 
+  A Container Type models more intricate data representations than ETA Primitive Types and 
   can manage dynamic content at a more granular level. Container types represent complex types 
   like field identifier-value, name-value, or key-value pairs. 
-  UPA offers several uniform (i.e., homogeneous) container types whose entries house the
+  ETA offers several uniform (i.e., homogeneous) container types whose entries house the
   same type of data. Additionally, there are several non-uniform (i.e., heterogeneous)
   container types in which different entries can hold different types of data.
   </li>
 </ul>
 <p>
-<b>UPA Encode and Decode Iterators</b>
+<b>ETA Encode and Decode Iterators</b>
 <p>
-The following sections describe high level usage of the UPA Encode and Decode Iterators. 
-Specific iterator structure and method definitions can be found in UPA Iterator Reference Group.
+The following sections describe high level usage of the ETA Encode and Decode Iterators. 
+Specific iterator structure and method definitions can be found in ETA Iterator Reference Group.
 <ul>
 <li>
-<b>UPA Iterator Overview</b>
-When encoding or decoding RWF content with UPA, the user leverages an iterator to manage the encoding or
-decoding process. UPA defines a single encode iterator type ({@link com.refinitiv.eta.codec.EncodeIterator})
+<b>ETA Iterator Overview</b>
+When encoding or decoding RWF content with ETA, the user leverages an iterator to manage the encoding or
+decoding process. ETA defines a single encode iterator type ({@link com.refinitiv.eta.codec.EncodeIterator})
 and a single decode iterator type ({@link com.refinitiv.eta.codec.DecodeIterator}). 
 A single instance of this iterator can manage the full depth and breadth of the encoding or decoding process. 
 Alternately, multiple iterator instances can be used to individually manage separate portions of the encode
 or decode process. 
 See {@link com.refinitiv.eta.codec.DecodeIterator} for more information and code examples.
 
-The UPA encoder/decoder does not provide any inherent threading or locking capability. 
+The ETA encoder/decoder does not provide any inherent threading or locking capability. 
 Separate iterator and type instances do not cause contention and do not share resources between instances.
 Any needed threading, locking, or thread-model implementation is at the discretion of the application. 
 Different application threads can encode or decode different messages without requiring a lock; 
@@ -101,16 +101,16 @@ Though possible, Refinitiv recommends that you do not encode or decode related m
 <li>
 <b>Iterator RWF Protocol Versioning</b>
 <p>
-The UPA iterators help the user to manage version information associated with the RWF content being exchanged.
-When using the UPA Transport the protocol type and version information can be exchanged and negotiated on the
+The ETA iterators help the user to manage version information associated with the RWF content being exchanged.
+When using the ETA Transport the protocol type and version information can be exchanged and negotiated on the
 connection (via the {@link com.refinitiv.eta.transport.ConnectOptions} or 
 {@link com.refinitiv.eta.transport.BindOptions}).
-The UPA Transport will reject any connection establishment when the protocol type does not match across the
+The ETA Transport will reject any connection establishment when the protocol type does not match across the
 connection. If the protocol type does match, an appropriate major and minor version will be determined and 
 this should be the version of RWF encoded or decoded when using this connection. After the connection becomes
 active, this negotiated version information is available and can then be provided to the iterator to ensure 
-that the proper version is encoded or decoded. If not using the UPA Transport, the user can determine the
-desired version of RWF to encode and specify this information on their iterator. UPA provides RWF protocol 
+that the proper version is encoded or decoded. If not using the ETA Transport, the user can determine the
+desired version of RWF to encode and specify this information on their iterator. ETA provides RWF protocol 
 type and protocol version values in  {@link com.refinitiv.eta.codec.Codec} for this purpose.
 
 <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
@@ -124,9 +124,9 @@ and avoid incompatibility if new RWF functionality is added.
 </li>
 </ul>
 <p>
-<b>UPA Messages</b>
+<b>ETA Messages</b>
 <p>
-The interfaces for UPA Message group manages the binary representation of UPA message headers, UPA messages and messaging constructs.
+The interfaces for ETA Message group manages the binary representation of ETA message headers, ETA messages and messaging constructs.
 There are constructs to allow for communication stream identification and to determine uniqueness of streams within a connection
 <p>
 See {@link com.refinitiv.eta.codec.Msg} for more information and code examples.

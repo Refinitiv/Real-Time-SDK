@@ -3,7 +3,7 @@ package com.refinitiv.eta.codec;
 import com.refinitiv.eta.codec.Buffer;
 
 /**
- * An entry for a UPA {@link Map} that can house only other Container Types.
+ * An entry for a ETA {@link Map} that can house only other Container Types.
  * 
  * {@link Map} is a uniform type, where the {@link Map#containerType()}
  * indicates the single type housed in each entry. Each entry has an associated

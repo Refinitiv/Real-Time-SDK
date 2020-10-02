@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.Int;
 
-/* Implements a JNI channel that hooks into the UPAC API at the top level. */
+/* Implements a JNI channel that hooks into the ETAC API at the top level. */
 public class JNIChannel extends EtaNode implements Channel
 {
-    /* SocketChannel of this UPA channel. */
+    /* SocketChannel of this ETA channel. */
     public SocketChannel _scktChannel;
     
-    /* Old SocketChannel of this UPA channel - used in rsslRead Channel Change events. */
+    /* Old SocketChannel of this ETA channel - used in rsslRead Channel Change events. */
     public SocketChannel _oldScktChannel;
     
-    /* State of this UPA channel. */
+    /* State of this ETA channel. */
     public int _state;
     
     /* Type that this connection is. */
@@ -673,12 +673,12 @@ public class JNIChannel extends EtaNode implements Channel
         _interfaceName = interfaceName;
     }
 
-    /* The following is for the UPAC JNI code. */
+    /* The following is for the ETAC JNI code. */
 
-    /* Socket ID of this UPA channel. */
+    /* Socket ID of this ETA channel. */
     public int _socketId;
     
-    /* Old Socket Id of this UPA channel - used in rsslRead FD Change events. */
+    /* Old Socket Id of this ETA channel - used in rsslRead FD Change events. */
     public int _oldSocketId;
     
     /* Pointer to the actual rsslChannel in C. */

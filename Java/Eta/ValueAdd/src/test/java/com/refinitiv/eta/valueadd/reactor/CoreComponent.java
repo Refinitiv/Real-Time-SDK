@@ -59,7 +59,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 
-/** A component that uses UPA directly, instead of a Reactor. */
+/** A component that uses ETA directly, instead of a Reactor. */
 public class CoreComponent
 {
     Channel _channel;

@@ -6,9 +6,9 @@ import java.nio.channels.SelectableChannel;
 import com.refinitiv.eta.transport.Channel;
 
 /**
- * The UPA Server class is used to represent a server that is listening for
+ * The ETA Server class is used to represent a server that is listening for
  * incoming connection requests. Any memory associated with a {@link Server}
- * class is internally managed by the UPA Transport Package, and the application
+ * class is internally managed by the ETA Transport Package, and the application
  * does not need to create nor destroy this type.
  * The {@link Server} is typically used to accept or reject incoming connection attempts.
  */
@@ -21,8 +21,8 @@ public interface Server
      * If information about the {@link Server} is needed, such as
      * peakBufferUsage, this method can be called to retrieve this information.
      * 
-     * @param info UPA Server Info structure to be populated
-     * @param error UPA Error, to be populated in event of an error
+     * @param info ETA Server Info structure to be populated
+     * @param error ETA Error, to be populated in event of an error
      * 
      * @return {@link TransportReturnCodes}
      * 
@@ -31,7 +31,7 @@ public interface Server
     public int info(ServerInfo info, Error error);
 
     /**
-     * Allows changing some I/O values programmatically for a UPA Server.<BR>
+     * Allows changing some I/O values programmatically for a ETA Server.<BR>
      * 
      * Typical use:<BR>
      * If an I/O value needs to be changed for a server, this is used. Currently
@@ -54,7 +54,7 @@ public interface Server
     public int ioctl(int code, Object value, Error error);
 
     /**
-     * Allows changing some I/O values programmatically for a UPA Server.<BR>
+     * Allows changing some I/O values programmatically for a ETA Server.<BR>
      * 
      * Typical use:<BR>
      * If an I/O value needs to be changed for a server, this is used. Currently
@@ -92,7 +92,7 @@ public interface Server
      * the server. This, in combination with the bufferPoolSize used as input to
      * the Bind call, can be used to monitor and potentially throttle buffer usage.
      * 
-     * @param error UPA Error, to be populated in event of an error
+     * @param error ETA Error, to be populated in event of an error
      * 
      * @return If less than 0, this is a {@link TransportReturnCodes},
      *         otherwise it is the total number of buffers in use by the server
@@ -100,14 +100,14 @@ public interface Server
     public int bufferUsage(Error error);
 
     /**
-     * Closes a UPA Server.<BR>
+     * Closes a ETA Server.<BR>
      * 
      * Typical use:<BR>
      * When done using a Server, this call closes it. Active channels connected
      * to this server will not be closed; this allows them to continue receiving
      * data even if the server is not accepting more connections.
      * 
-     * @param error UPA Error, to be populated in event of an error
+     * @param error ETA Error, to be populated in event of an error
      * 
      * @return {@link TransportReturnCodes}
      * 
@@ -127,17 +127,17 @@ public interface Server
      * client. If a clients connect message is not accepted, a negative
      * acknowledgment is sent to the client and no {@link Channel} is returned.
      * 
-     * @param opts UPA Accept Options
-     * @param error UPA Error, to be populated in event of an error
+     * @param opts ETA Accept Options
+     * @param error ETA Error, to be populated in event of an error
      * 
-     * @return Accepted UPA channel or NULL
+     * @return Accepted ETA channel or NULL
      * 
      * @see AcceptOptions
      */
     public Channel accept(AcceptOptions opts, Error error);
 
     /**
-     * ServerSocketChannel of this UPA server.
+     * ServerSocketChannel of this ETA server.
      * 
      * @return the srvrScktChannel
      * 
@@ -147,7 +147,7 @@ public interface Server
     public ServerSocketChannel srvrScktChannel();
 
     /**
-     * SelectableChannel of this UPA server. Use to register selector.
+     * SelectableChannel of this ETA server. Use to register selector.
      * 
      * @return the srvrScktChannel
      */

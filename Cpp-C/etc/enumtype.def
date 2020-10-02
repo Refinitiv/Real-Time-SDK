@@ -1,20 +1,18 @@
 !
 ! This document contains information proprietary to
-! Thomson Reuters and designed to display Integrated
-! Data Network (IDN) data within Thomson Reuters 
-! products.
+! Refinitiv and designed to display Integrated
+! Data Network (IDN) data within Refinitiv products.
 ! This document may not be reproduced, disclosed or
 ! used in whole or part without the express written
-! permission of Thomson Reuters. Thomson Reuters may
-! update or remove this document at any time without
-! notice.
+! permission of Refinitiv. Refinitiv may update or
+! remove this document at any time without notice.
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.44
 !tag Build_RDMD  4.20.44
-!tag DT_Version  20.71
-!tag Date        10-Aug-2020
+!tag DT_Version  20.81
+!tag Date        14-Sep-2020
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -550,12 +548,12 @@ INS_P_CCY  13612
     894        "ZMK"   Zambian kwacha
     900        "ROb"   Romanian bani
     901        "TWD"   New Taiwan dollar
-    902        "BHf"   Bahraini Fils 
-    903        "KWf"   Kuwaiti Fils
-    904        "OMb"   Baiza Omani 
-    905        "SAh"   Saudi Arabian Halalah
-    906        "QAd"   Qatari Dirham
-    907        "AEf"   UAE Fils
+    902        "BHf"   Bahraini Fils (deprecated)
+    903        "KWf"   Kuwaiti Fils (deprecated)
+    904        "OMb"   Baiza Omani (deprecated)
+    905        "SAh"   Saudi Arabian Halalah (deprecated)
+    906        "QAd"   Qatari Dirham (deprecated)
+    907        "AEf"   UAE Fils (deprecated)
     927        "UYW"   Uruguayan Unidad Previsional
     928        "VES"   Venezuelan Bolivar Soberano
     929        "MRU"   Mauritanian Ouguiya
@@ -8726,6 +8724,10 @@ DRK_EXID   13610
    1627        "CHM"   CHINIMANDI
    1628        "CEN"   Centro Nacional De Control De Energeia (The National Energy Control Center)
    1629        "LBM"   NASDAQ LBMA Trade Data
+   1630        "CEB"   CME EBS Benchmarks (UK)
+   1631        "MCO"   Mercado do Cacau
+   1632        "USG"   United States Geological Survey
+   1633        "CIO"   CIMD Group
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16811,6 +16813,10 @@ DLVY_TERMS 12959
      23      "DAP  "   Delivered at Place
      24      "DLV  "   Delivered
      25      "FD   "   Free Delivered
+     26      "LFB  "   LIVE FOB
+     27      "LDE  "   LIVE DELIVERED
+     28      "DDE  "   DRESSED DELIVERED
+     29      "DFB  "   DRESSED FOB
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19727,6 +19733,26 @@ LMT_STS_2  13591
      30     "CT+POA"   Eligible for both VCM and Pre-Opening Session (POS)
      31     "POA+CA"   Eligible for both Pre-Opening Session (POS) and Closing Auction Session (CAS)
      32     "CT+OCA"   Eligible for VCM, POS and CAS
+     33     "U>3   "   Upper Price Limit Beyond Level 3 in Effect
+     34     "L>3   "   Lower Price Limit Beyond Level 3 in Effect
+     35     "UM    "   Upper Price Limit Max Level in Effect
+     36     "LM    "   Lower Limit Price  Max Level  in Effect
+     37     "U1L>3 "   Upper Price Limit Level 1 & Lower Limit Price Beyond Level 3 in Effect
+     38     "U2L>3 "   Upper Price Limit Level 2 & Lower Limit Price Beyond Level 3 in Effect
+     39     "U3L>3 "   Upper Price Limit Level 3 & Lower Limit Price Beyond Level 3 in Effect
+     40     "U1LM  "   Upper Price Limit Level 1 & Lower Limit Price Max Level in Effect
+     41     "U2LM  "   Upper Price Limit Level 2 & Lower Limit Price Max Level in Effect
+     42     "U3LM  "   Upper Price Limit Level 3 & Lower Limit Price Max Level in Effect
+     43     "U>3LM "   Upper Price Limit Beyond Level 3 & Lower Limit Price Max Level in Effect
+     44     "U>3L1 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 1 in Effect
+     45     "U>3L2 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 2 in Effect
+     46     "U>3L3 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 3 in Effect
+     47     "U>3L>3"   Upper Price Limit Beyond Level 3 & Lower Limit Price Beyond Level 3 in Effect
+     48     "UML1  "   Upper Price Limit Max Level & Lower Limit Price  Level 1 in Effect
+     49     "UML2  "   Upper Price Limit Max Level & Lower Limit Price  Level 2 in Effect
+     50     "UML3  "   Upper Price Limit Max Level & Lower Limit Price  Level 3 in Effect
+     51     "UML>3 "   Upper Price Limit Max Level & Lower Limit Price Beyond Level 3 in Effect
+     52     "UMLM  "   Upper Price Limit Max Level & Lower Limit Price  Max Level  in Effect
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20349,6 +20375,26 @@ LMT_LV_TG  13566
      13     "U3L1  "   Upper Price Limit Level 3 & Lower Limit Price Level 1 are triggered
      14     "U3L2  "   Upper Price Limit Level 3 & Lower Limit Price Level 2 are triggered
      15     "U3L3  "   Upper Price Limit Level 3 & Lower Limit Price Level 3 are triggered
+     16     "U>3   "   Upper Price Limit Beyond Level 3 is  triggered
+     17     "L>3   "   Lower Price Limit Beyond Level 3 is  triggered
+     18     "UM    "   Upper Price Limit Max Level is triggered
+     19     "LM    "   Lower Limit Price  Max Level is triggered
+     20     "U1L>3 "   Upper Price Limit Level 1 & Lower Limit Price Beyond Level 3 are triggered
+     21     "U2L>3 "   Upper Price Limit Level 2 & Lower Limit Price Beyond Level 3 are triggered
+     22     "U3L>3 "   Upper Price Limit Level 3 & Lower Limit Price Beyond Level 3 are triggered
+     23     "U1LM  "   Upper Price Limit Level 1 & Lower Limit Price Max Level are triggered
+     24     "U2LM  "   Upper Price Limit Level 2 & Lower Limit Price Max Level are triggered
+     25     "U3LM  "   Upper Price Limit Level 3 & Lower Limit Price Max Level are triggered
+     26     "U>3LM "   Upper Price Limit Beyond Level 3 & Lower Limit Price Max Level are triggered
+     27     "U>3L1 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 1 are  triggered
+     28     "U>3L2 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 2 are triggered
+     29     "U>3L3 "   Upper Price Limit Beyond Level 3 & Lower Limit Price  Level 3 are triggered
+     30     "U>3L>3"   Upper Price Limit Beyond Level 3 & Lower Limit Price Beyond Level 3 are triggered
+     31     "UML1  "   Upper Price Limit Max Level & Lower Limit Price  Level 1 are triggered
+     32     "UML2  "   Upper Price Limit Max Level & Lower Limit Price  Level 2 are triggered
+     33     "UML3  "   Upper Price Limit Max Level & Lower Limit Price  Level 3 are triggered
+     34     "UML>3 "   Upper Price Limit Max Level & Lower Limit Price Beyond Level 3 are triggered
+     35     "UMLM  "   Upper Price Limit Max Level & Lower Limit Price  Max Level  are triggered
 !
 ! ACRONYM    FID
 ! -------    ---

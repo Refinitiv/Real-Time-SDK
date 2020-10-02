@@ -94,7 +94,7 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig applicationId(String applicationId);
 	
 	/**
-	 * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
+	 * Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
 	 * 
 	 * @param clientId specifies an unique identifier.
 	 * @return reference to this object
@@ -135,9 +135,9 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig tokenServiceUrl(String tokenServiceUrl);
 	
 	/**
-	 * Specifies an URL to override the default for the EDP service discovery to get global endpoints.
+	 * Specifies an URL to override the default for the RDP service discovery to get global endpoints.
 	 * <p>Defaults to "https://api.refinitiv.com/streaming/pricing/v1/".</p>
-	 * @param serviceDiscoveryUrl specifies an URL for EDP service discovery.
+	 * @param serviceDiscoveryUrl specifies an URL for RDP service discovery.
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl);

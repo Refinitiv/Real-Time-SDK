@@ -52,7 +52,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
- * <p>This is a main class to run UPA NIProvider application. The purpose of this
+ * <p>This is a main class to run ETA NIProvider application. The purpose of this
  * application is to non-interactively provide Level I Market Price and Level 2
  * Market By Order data to an Advanced Data Hub (ADH). It is a single-threaded
  * client application using ValueAdd components.
@@ -62,7 +62,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  * <ul>
  * <li>Initialize and set command line options.
  * <li>Load Dictionary from file.
- * <li>Create a {@link Reactor UPA Channel}. It responds to messages through its Login,
+ * <li>Create a {@link Reactor ETA Channel}. It responds to messages through its Login,
  * Directory, Dictionary and default message callbacks.
  * <li>Connect to the ADH provider, send item refreshes, then send item updates.
  * </ul>
@@ -80,10 +80,10 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * </p>
  * <H2>Setup Environment</H2>
  * <p>

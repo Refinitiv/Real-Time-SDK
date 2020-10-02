@@ -95,7 +95,7 @@ typedef enum {
 	RSSL_SC_REALTIME_RESUMED				= 8,	/*!< (8) Realtime resumed (indicates that Just-In-Time Conflation has completed on the stream) */
 	RSSL_SC_FAILOVER_STARTED				= 9,	/*!< (9) Failover started (indicates that a component has begun recovery due to a failover condition, user should be notified when recovery due to failover is completed via an RSSL_SC_FAILOVER_COMPLETED code) */
 	RSSL_SC_FAILOVER_COMPLETED				= 10,	/*!< (10) Failover completed (indicates that recovery from failover condition has been completed) */
-	RSSL_SC_GAP_DETECTED					= 11,	/*!< (11) Gap detected (indicates that gap has been detected between messages, this may have been detected via an external reliability mechanism (e.g. transport) or may have been detected using the seqNum present on the UPA messages) */
+	RSSL_SC_GAP_DETECTED					= 11,	/*!< (11) Gap detected (indicates that gap has been detected between messages, this may have been detected via an external reliability mechanism (e.g. transport) or may have been detected using the seqNum present on the ETA messages) */
 	RSSL_SC_NO_RESOURCES					= 12,	/*!< (12) No resources (indicates that there are no resources available to accommodate the stream) */
 	RSSL_SC_TOO_MANY_ITEMS					= 13,	/*!< (13) Too many items open (indicates that a request cannot be processed because there are too many other streams already open) */
 	RSSL_SC_ALREADY_OPEN					= 14,	/*!< (14) Item already open (indicates that a stream is already open on the connection for the requested information) */

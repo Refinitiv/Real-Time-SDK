@@ -20,7 +20,7 @@ public interface LoginConnectionConfig
      * @param destConnectionConfig ConnectionConfig object to copy this object
      *            into. It cannot be null.
      * 
-     * @return UPA return value indicating success or failure of copy operation.
+     * @return ETA return value indicating success or failure of copy operation.
      */
     public int copy(LoginConnectionConfig destConnectionConfig);
 
@@ -118,7 +118,7 @@ public interface LoginConnectionConfig
          * @param destServerInfo ServerInfo object to copy this object into. It
          *            cannot be null.
          * 
-         * @return UPA return value indicating success or failure of copy
+         * @return ETA return value indicating success or failure of copy
          *         operation.
          */
         public int copy(ServerInfo destServerInfo)

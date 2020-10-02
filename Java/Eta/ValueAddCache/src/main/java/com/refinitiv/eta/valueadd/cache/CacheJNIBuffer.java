@@ -10,7 +10,7 @@ class CacheJNIBuffer extends VaNode
     int _capability;
     ByteBuffer _data;
 
-    long _upaBufferCPtr = 0;
+    long _etaBufferCPtr = 0;
 
     void data(ByteBuffer data, int length)
     {

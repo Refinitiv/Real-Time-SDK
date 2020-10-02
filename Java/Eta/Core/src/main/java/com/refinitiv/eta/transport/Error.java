@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * Many of the UPA Transport Package methods take a parameter for returning
+ * Many of the ETA Transport Package methods take a parameter for returning
  * detailed error information. This Error object is only populated in the event
  * of an error condition and should only be inspected when a specific failure
  * code is returned from the method itself.
@@ -30,7 +30,7 @@ public interface Error
     public void channel(Channel channel);
 
     /**
-     * A UPA specific return code, used to specify the error that has occurred.
+     * A ETA specific return code, used to specify the error that has occurred.
      * See the following sections for specific error conditions that may arise.
      * 
      * @return the errorId
@@ -38,7 +38,7 @@ public interface Error
     public int errorId();
 
     /**
-     * A UPA specific return code, used to specify the error that has occurred.
+     * A ETA specific return code, used to specify the error that has occurred.
      * See the following sections for specific error conditions that may arise.
      * 
      * @param errorId the errorId to set
@@ -65,7 +65,7 @@ public interface Error
 
     /**
      * Detailed text describing the error that has occurred. This may include
-     * UPA specific error information, underlying library specific error
+     * ETA specific error information, underlying library specific error
      * information, or a combination of both.
      * 
      * @return the text
@@ -74,7 +74,7 @@ public interface Error
 
     /**
      * Detailed text describing the error that has occurred. This may include
-     * UPA specific error information, underlying library specific error
+     * ETA specific error information, underlying library specific error
      * information, or a combination of both.
      * 
      * @param text the text to set

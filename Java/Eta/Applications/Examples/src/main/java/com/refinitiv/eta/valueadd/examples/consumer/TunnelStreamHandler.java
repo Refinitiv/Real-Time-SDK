@@ -20,7 +20,7 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
 
 /**
- * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives
+ * This is the tunnel stream handler for the ETA Value Add consumer application. It sends and receives
  * basic text messages over a tunnel stream. It only supports one ReactorChannel/TunnelStream.
  */
 public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback

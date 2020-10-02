@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
 /**
- * UPA Bind Options used in the {@link Transport#bind(BindOptions, Error)} call.
+ * ETA Bind Options used in the {@link Transport#bind(BindOptions, Error)} call.
  * 
  * @see Transport
  */
@@ -40,7 +40,7 @@ public interface BindOptions
 
     /**
      * A character representation of an IP address or hostname associated with
-     * the local network interface to bind to. UPA Transport will establish
+     * the local network interface to bind to. ETA Transport will establish
      * connections on the specified interface. This value is intended for use in
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
@@ -52,7 +52,7 @@ public interface BindOptions
 
     /**
      * A character representation of an IP address or hostname associated with
-     * the local network interface to bind to. UPA Transport will establish
+     * the local network interface to bind to. ETA Transport will establish
      * connections on the specified interface. This value is intended for use in
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
@@ -309,7 +309,7 @@ public interface BindOptions
 
     /**
      * The maximum size buffer that will be written to the network. If a larger
-     * buffer is required, UPA Transport will internally fragment the larger
+     * buffer is required, ETA Transport will internally fragment the larger
      * buffer into smaller maxFragmentSize buffers. This is different from
      * application level message fragmentation done via the Message Package. Any
      * guaranteed, shared, or input buffers created will use this size. This
@@ -324,7 +324,7 @@ public interface BindOptions
 
     /**
      * The maximum size buffer that will be written to the network. If a larger
-     * buffer is required, UPA Transport will internally fragment the larger
+     * buffer is required, ETA Transport will internally fragment the larger
      * buffer into smaller maxFragmentSize buffers. This is different from
      * application level message fragmentation done via the Message Package. Any
      * guaranteed, shared, or input buffers created will use this size. This
@@ -459,7 +459,7 @@ public interface BindOptions
      * is provided to help client and server applications manage the information
      * they are communicating.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#majorVersion()}.
      * 
      * @param majorVersion the majorVersion to set
@@ -484,7 +484,7 @@ public interface BindOptions
     /**
      * The minor version number of the {@link Server}.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#minorVersion()}.
      * 
      * @param minorVersion the minorVersion to set
@@ -509,7 +509,7 @@ public interface BindOptions
     /**
      * The protocol type of the {@link Server}.<BR>
      * <BR>
-     * If the UPA Codec package is being used, this should be set to
+     * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#protocolType()}.
      *
      * @param protocolType the protocol type

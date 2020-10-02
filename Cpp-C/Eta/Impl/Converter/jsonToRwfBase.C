@@ -948,7 +948,7 @@ bool jsonToRwfBase::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer ** 
 bool jsonToRwfBase::processBuffer(jsmntok_t ** const tokPtr, RsslBuffer ** const ptrBufPtr, void** const  ptrVoidPtr)
 {
 	// RFC4648 Compliant Base64 Encoder
-	// Not compatible with IDN (MarketFeed) encoder/decoder
+	// Not compatible with MarketFeed encoder/decoder
 
   static char b64DecodeTable[] = { -1, -1, -1, -1, -1, -1, -1, -1, /* 0 - 7 */
 									-1, -1, -1, -1, -1, -1, -1, -1,	/* 8 - 15 */

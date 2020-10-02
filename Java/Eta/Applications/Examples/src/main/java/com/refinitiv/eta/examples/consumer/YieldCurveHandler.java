@@ -49,7 +49,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 
 /**
- * This is the yield curve handler for the UPA consumer application. It provides
+ * This is the yield curve handler for the ETA consumer application. It provides
  * methods for sending the yield curve request(s) to a provider and processing
  * the response(s). Methods for decoding vectors containing field lists and/or
  * arrays, decoding field entries from a response, closing yield curve streams,

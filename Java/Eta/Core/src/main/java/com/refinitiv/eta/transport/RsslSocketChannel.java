@@ -174,7 +174,7 @@ class RsslSocketChannel extends EtaNode implements Channel
 
     // for proxy
     protected static final String CHAR_ENCODING = "US-ASCII";
-    protected static final String USER_AGENT = "User-Agent: UPA/Java\r\n";
+    protected static final String USER_AGENT = "User-Agent: ETA/Java\r\n";
     protected static final String PROXY_CONNECTION_KEEP_ALIVE = "Proxy-Connection: Keep-Alive\r\n";
     protected static final String PRAGMA_NO_CACHE = "Pragma: no-cache\r\n";
     protected static final String EOL = "\r\n";
@@ -878,7 +878,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                     break;
                 case IoctlCodes.NUM_GUARANTEED_BUFFERS:
                     /* NUM_GUARANTEED_BUFFERS:
-                     * the per channel number of guaranteedOutputBuffers that UPAJ will create for the client. */
+                     * the per channel number of guaranteedOutputBuffers that ETAJ will create for the client. */
                     if (value >= 0)
                     {
                         retCode = adjustGuaranteedOutputBuffers(value);

@@ -27,7 +27,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
- * This is the dictionary handler for the UPA - Java Interactive Provider
+ * This is the dictionary handler for the ETA - Java Interactive Provider
  * application. Only two dictionary streams (field and enum type) per channel
  * are allowed by this simple provider.
  * <p>

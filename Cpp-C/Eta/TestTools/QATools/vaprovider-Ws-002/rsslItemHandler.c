@@ -1071,12 +1071,12 @@ RsslRet processSingleItemRequest(RsslReactor *pReactor, RsslReactorChannel* pRea
 	/* check for invalid symbol list request */
 	if((domainType == RSSL_DMT_SYMBOL_LIST) && (msg->msgBase.msgKey.name.length != 0))
 	{
-		RsslBuffer upaItemListName;
-		upaItemListName.data = (char *)"_UPA_ITEM_LIST";
-		upaItemListName.length = (RsslUInt32)strlen("_UPA_ITEM_LIST");
+		RsslBuffer etaItemListName;
+		etaItemListName.data = (char *)"_UPA_ITEM_LIST";
+		etaItemListName.length = (RsslUInt32)strlen("_UPA_ITEM_LIST");
 
 		/* if the consumer specified symbol list name isn't "_UPA_ITEM_LIST", reject it */
-		if (!rsslBufferIsEqual(&msg->msgBase.msgKey.name, &upaItemListName))
+		if (!rsslBufferIsEqual(&msg->msgBase.msgKey.name, &etaItemListName))
 		{
 			if (sendItemRequestReject(pReactor, pReactorChannel, msg->msgBase.streamId, domainType, ITEM_NOT_SUPPORTED, isPrivateStream) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;

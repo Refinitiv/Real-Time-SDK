@@ -4,7 +4,7 @@ import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.rdm.UpdateEventTypes;
 
 /**
- * UPA Update Message is used by Interactive and Non-Interactive Providers to
+ * ETA Update Message is used by Interactive and Non-Interactive Providers to
  * convey changes to data associated with an item stream. When streaming, update
  * messages typically flow after an initial refresh has been delivered. Update
  * messages can be delivered between parts of a multi-part refresh message, even

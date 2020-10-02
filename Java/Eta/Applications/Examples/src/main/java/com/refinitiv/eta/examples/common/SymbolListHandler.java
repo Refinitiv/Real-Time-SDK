@@ -29,7 +29,7 @@ import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.Error;
 
 /**
- * This is the symbol list handler for the UPA consumer application. It provides
+ * This is the symbol list handler for the ETA consumer application. It provides
  * methods for sending the symbol list request(s) to a provider and processing
  * the response(s). Method closing stream is also provided.
  */

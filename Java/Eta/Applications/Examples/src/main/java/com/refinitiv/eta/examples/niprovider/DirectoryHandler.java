@@ -24,7 +24,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
- * This is the source directory handler for the UPA NIProvider application. It
+ * This is the source directory handler for the ETA NIProvider application. It
  * provides methods for sending the source directory refresh to a consumer
  * (e.g. ADH). Methods for setting the service name, getting the service
  * information, and closing a source directory stream are also provided.
