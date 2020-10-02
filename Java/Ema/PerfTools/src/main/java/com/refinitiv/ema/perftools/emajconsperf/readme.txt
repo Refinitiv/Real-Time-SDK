@@ -26,7 +26,7 @@ total system time (The CPU time is the total across all threads, and as such
 this number can be greater than 100% if multiple threads are busy).  
 
 For more detailed information on the performance measurement applications, 
-see the EMA Open Source Performance Tools Guide(Docs/PerfToolsGuide.doc).
+see the ETA Open Source Performance Tools Guide(Eta/Docs/ETAJ_PerfToolsGuide.pdf).
 
 This application uses an open source C-language XML parser library.
 
