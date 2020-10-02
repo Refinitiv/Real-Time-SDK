@@ -7,7 +7,7 @@ usage of the UserAuthn Authentication Feature.
 LIMITATIONS
 ===========
 
-To demonstrate the UserAuthn Authentication Feature the 430_MarketPrice_TrepAuthentication application
+To demonstrate the UserAuthn Authentication Feature the 430_MP_Authentication application
 must be connected to an ADH that supports the feature.
 
 USAGE

@@ -79,14 +79,14 @@ Module:  Watchlist Consumer
 
 wlconsumer-LoginReissue-001:  Alter WLConsumer to send a login reissue with PAUSE-ALL after some item updates and a RESUME-ALL after receiving a source directory update.
 
-wlconsumer-TrepAuth-001:  Alter WLConsumer to take a "-at2" input that permits user to specify a
+wlconsumer-Auth-001:  Alter WLConsumer to take a "-at2" input that permits user to specify a
 2nd token used in a token renewal.
 
-wlconsumer-TrepAuth-002:  Alter WLConsumer to send PAUSE_ALL after 5 update and a RESUME_ALL after receiving a source directory update. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal.
+wlconsumer-Auth-002:  Alter WLConsumer to send PAUSE_ALL after 5 update and a RESUME_ALL after receiving a source directory update. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal.
 
-wlconsumer-TrepAuth-003:  Alter WLConsumer to send item pause after 5 updates on stream id 5 and item pause after 10 updates on stream id 6. Altered code does an item resume after 20 updates on stream id 6. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal.  NOTE:  This test must be done with two like items and one different item. Example:  "-mp TRI -mp TRI -mp IBM"
+wlconsumer-Auth-003:  Alter WLConsumer to send item pause after 5 updates on stream id 5 and item pause after 10 updates on stream id 6. Altered code does an item resume after 20 updates on stream id 6. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal.  NOTE:  This test must be done with two like items and one different item. Example:  "-mp TRI -mp TRI -mp IBM"
 
-wlconsumer-TrepAuth-004:  Alter WLConsumer to send PAUSE_ALL after 5 updates. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal. NOTE: This is a slight variation on wlconsumer-TrepAuth-001 with the RESUME-ALL code removed.
+wlconsumer-Auth-004:  Alter WLConsumer to send PAUSE_ALL after 5 updates. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal. NOTE: This is a slight variation on wlconsumer-Auth-001 with the RESUME-ALL code removed.
 
 wlconsumer-ConsFunc-001:  Altered WLConsumer to accept new command line arguments.
 MP Items can now be requested as snapshot, private stream, and/or view. 
