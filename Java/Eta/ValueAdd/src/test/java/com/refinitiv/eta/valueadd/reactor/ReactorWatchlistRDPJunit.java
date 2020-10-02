@@ -41,7 +41,9 @@ public class ReactorWatchlistRDPJunit
 	abstract class ReactorServiceEndpointEventCallbackTest implements ReactorServiceEndpointEventCallback
 	{
 		public int _count = 0;
-		public ReactorServiceEndpointInfo _endpointInfo = null;  
+		public ReactorServiceEndpointInfo _endpointInfo = null;
+		public String host = "";
+		public String port = "";
 	}
 	
 	abstract class ReactorOAuthCredentialEventCallbackTest implements ReactorOAuthCredentialEventCallback
@@ -1856,9 +1858,9 @@ public class ReactorWatchlistRDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPConnectUserSpecifiedClientIdExpectedServiceDiscoveryRequestTest()
+	public void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest()
 	{
-		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
+		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
 		unlockAccount();
 		
@@ -1887,13 +1889,59 @@ public class ReactorWatchlistRDPJunit
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);
 			
+			/* Get an endpoint from the service discovery */
+			
+			ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.userName(buf);
+			}
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpPassword"));
+				reactorServiceDiscoveryOptions.password(buf);
+			}  	  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
+
+			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
+			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
+
+			ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
+			{				
+				@Override
+				public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
+					
+					for (ReactorServiceEndpointInfo info : event.serviceEndpointInfo())
+					{
+						if( info.locationList().toString().contains("us-east") )
+						{
+							host = info.endPoint();
+							port = info.port();
+							break;
+						}
+					}
+					
+					return 0;
+				}     				
+			};
+
+			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			assertTrue(consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue(!callback.host.isEmpty() && !callback.port.isEmpty());
+
 			/*
 			 * create a Client Connection.
 			 */
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			
-			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("amer-3.pricing.streaming.edp.thomsonreuters.com");
-			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("14002");			
+			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(callback.host);
+			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(callback.port);			
 			
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
