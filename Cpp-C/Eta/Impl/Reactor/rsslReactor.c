@@ -109,6 +109,10 @@ static RsslRet _reactorWatchlistMsgCallback(RsslWatchlist *pWatchlist, RsslWatch
 };
 #endif
 
+/* current created reactor index */
+static rtr_atomic_val currentIndReactor = 0;
+
+
 static RsslRet _reactorSendConnReadyEvent(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError)
 {
 	RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
@@ -826,7 +830,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	pReactorImpl->memoryBuffer.data = memBuf;
 	pReactorImpl->memoryBuffer.length = pReactorImpl->dispatchDecodeMemoryBufferSize;
 
-	if (_reactorWorkerStart(pReactorImpl, pReactorOpts, pError) != RSSL_RET_SUCCESS)
+	if (_reactorWorkerStart(pReactorImpl, pReactorOpts, RTR_ATOMIC_INCREMENT_RET(currentIndReactor), pError) != RSSL_RET_SUCCESS)
 	{
 		_reactorWorkerCleanupReactor(pReactorImpl);
 		return NULL;
