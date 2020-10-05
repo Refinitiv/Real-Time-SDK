@@ -14,9 +14,9 @@ set(rtsdk_INTERNAL_API_VERSION_MAJOR 3)
 set(rtsdk_INTERNAL_RELEASE_TWEAK L1)
 set(rtsdk_RELEASE_TYPE rrg)
 
-set( librssl_SO_VERSION 13 )
-set( librsslVA_SO_VERSION 16 )
-set( libema_SO_VERSION 11 )
+set( librssl_SO_VERSION 14 )
+set( librsslVA_SO_VERSION 17 )
+set( libema_SO_VERSION 12 )
 set( librsslJsonConverter_SO_VERSION 2 )
 
 set(Ansi_VERSION_MAJOR 1)
