@@ -166,15 +166,15 @@ static u8 ripccompressions[][3]	=	{	{ 0, 0x00, RSSL_COMP_NONE  },	/* no compress
 #include "rtr/ripcinetutils.h"
 extern RsslRet getSSLProtocolTransFuncs(RsslSocketChannel* rsslSocketChannel, ripcSSLProtocolFlags protocolBitmap);
 
-extern RIPC_SESS_VERS ripc10Ver;
-extern RIPC_SESS_VERS ripc11Ver;
-extern RIPC_SESS_VERS ripc11WinInetVer;
-extern RIPC_SESS_VERS ripc12Ver;
-extern RIPC_SESS_VERS ripc12WinInetVer;
-extern RIPC_SESS_VERS ripc13Ver;
-extern RIPC_SESS_VERS ripc13WinInetVer;
-extern RIPC_SESS_VERS ripc14Ver;
-extern RIPC_SESS_VERS ripc14WinInetVer;
+RIPC_SESS_VERS ripc10Ver;
+RIPC_SESS_VERS ripc11Ver;
+RIPC_SESS_VERS ripc11WinInetVer;
+RIPC_SESS_VERS ripc12Ver;
+RIPC_SESS_VERS ripc12WinInetVer;
+RIPC_SESS_VERS ripc13Ver;
+RIPC_SESS_VERS ripc13WinInetVer;
+RIPC_SESS_VERS ripc14Ver;
+RIPC_SESS_VERS ripc14WinInetVer;
 
 /************* global variables ************/
 //#define IPC_DEBUG
