@@ -17,8 +17,8 @@
 
 #include "rtr/rwfToJsonConverter.h"
 
-DEV_THREAD_LOCAL char* rwfToJsonConverter::_elementSetDefDbMem = (char)0x0;
-DEV_THREAD_LOCAL char* rwfToJsonConverter::_fieldSetDefDbMem = (char)0x0;
+DEV_THREAD_LOCAL char* rwfToJsonConverter::_elementSetDefDbMem = NULL;
+DEV_THREAD_LOCAL char* rwfToJsonConverter::_fieldSetDefDbMem = NULL;
 
 //Use 1 to 3 byte variable UTF encoding
 //#define MaxUTF8Bytes 3
