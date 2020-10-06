@@ -8,7 +8,7 @@
 #include "Consumer.h"
 #include <cstring>
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 

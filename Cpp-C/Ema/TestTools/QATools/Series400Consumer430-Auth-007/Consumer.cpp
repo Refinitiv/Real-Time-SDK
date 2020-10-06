@@ -10,9 +10,9 @@
 #include "Consumer.h"
 #include <stdlib.h>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
-using namespace rtsdk::ema::domain::login;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
+using namespace refinitiv::ema::domain::login;
 using namespace std;
 OmmConsumer* _pOmmConsumer; 
 UInt64  _loginHandle;

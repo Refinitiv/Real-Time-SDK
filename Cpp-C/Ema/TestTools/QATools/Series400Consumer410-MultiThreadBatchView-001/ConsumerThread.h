@@ -34,7 +34,7 @@
 class AppThread
 {
 public:
-	AppThread(rtsdk::ema::access::OmmConsumer*);
+	AppThread(refinitiv::ema::access::OmmConsumer*);
 
 	virtual ~AppThread();
 
@@ -45,7 +45,7 @@ public:
 	virtual void run();
 
 protected:
-	rtsdk::ema::access::OmmConsumer* _ommConsumer;
+	refinitiv::ema::access::OmmConsumer* _ommConsumer;
 	bool _running;
 
 #ifdef WIN32
@@ -65,25 +65,25 @@ class ConsumerThread : public AppThread
 {
 public :
 
-	ConsumerThread(rtsdk::ema::access::OmmConsumer*, 
-					rtsdk::ema::access::OmmConsumerClient* client);
+	ConsumerThread(refinitiv::ema::access::OmmConsumer*, 
+					refinitiv::ema::access::OmmConsumerClient* client);
 
 	virtual ~ConsumerThread();
 
 	void run();
 
-	void openItem(const rtsdk::ema::access::EmaString& item, 
-				const rtsdk::ema::access::EmaString& serviceName,
+	void openItem(const refinitiv::ema::access::EmaString& item, 
+				const refinitiv::ema::access::EmaString& serviceName,
 	            unsigned int mode);
 
 	void sendRequest();
 
 protected :
-	rtsdk::ema::access::EmaString _itemNamePrefix;
-	rtsdk::ema::access::EmaString _serviceName;
+	refinitiv::ema::access::EmaString _itemNamePrefix;
+	refinitiv::ema::access::EmaString _serviceName;
 	unsigned int   _mode;
-	rtsdk::ema::access::ReqMsg _reqMsg;
-	rtsdk::ema::access::OmmConsumerClient* _client;
+	refinitiv::ema::access::ReqMsg _reqMsg;
+	refinitiv::ema::access::OmmConsumerClient* _client;
 };
 
 #endif // __ema_consumerthread_h_

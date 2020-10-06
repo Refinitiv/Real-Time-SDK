@@ -47,25 +47,25 @@ void sleep(int millisecs)
 #endif
 }
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processAppDomainRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processAppDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
     //APIQA
-	void processLoginDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
-	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
-	void processDirectoryDomainGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+	void processDirectoryDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
    //END APIQA
 protected:
 
-	void onReqMsg(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onReqMsg(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onGenericMsg(const rtsdk::ema::access::GenericMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 };
 

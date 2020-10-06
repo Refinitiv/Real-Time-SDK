@@ -7,7 +7,7 @@
 
 #include "NiProvider.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 void createProgrammaticConfig( Map& configMap )

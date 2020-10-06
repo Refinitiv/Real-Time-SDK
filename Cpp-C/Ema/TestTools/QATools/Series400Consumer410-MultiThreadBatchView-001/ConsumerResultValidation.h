@@ -24,9 +24,9 @@ using namespace std;
 class ResultValidation
 {
 public:
-	ResultValidation(const rtsdk::ema::access::EmaString& itemName);
+	ResultValidation(const refinitiv::ema::access::EmaString& itemName);
 
-	bool closureValidate(const rtsdk::ema::access::EmaString& receivedItemName);
+	bool closureValidate(const refinitiv::ema::access::EmaString& receivedItemName);
 
 	static void printTestResult();
 
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-	rtsdk::ema::access::EmaString _itemName;
+	refinitiv::ema::access::EmaString _itemName;
 };
 
 #endif // __ema_resultvalidatio_h_

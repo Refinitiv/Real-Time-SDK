@@ -21,7 +21,7 @@
 
 #include "Ema.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
 
 void sleep(int millisecs)
@@ -51,18 +51,18 @@ UInt64 getCurrentTime()
 	return msec;
 }
 
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 };
 
-class AppLoginClient : public rtsdk::ema::access::OmmConsumerClient
+class AppLoginClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public:
 	AppLoginClient();
@@ -70,11 +70,11 @@ public:
 	UInt64 _handle;
 	UInt64 _TTReissue;
 protected:
-	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
+	void onRefreshMsg(const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent&);
 
-	void onUpdateMsg(const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
+	void onUpdateMsg(const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent&);
 
-	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent&);
+	void onStatusMsg(const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent&);
 };
 
 
