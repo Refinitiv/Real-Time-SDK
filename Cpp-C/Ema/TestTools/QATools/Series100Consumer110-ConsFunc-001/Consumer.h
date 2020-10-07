@@ -31,22 +31,22 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 
-	void decode( const rtsdk::ema::access::FieldList& );			// print content of passed in FieldList to screen
-	void decodeEList( const rtsdk::ema::access::ElementList& );			// print content of passed in ElementList to screen
-	void decodeM( const rtsdk::ema::access::Map& );					// print content of passed in Map to screen
-	void decode( const rtsdk::ema::access::OmmOpaque& oq );
+	void decode( const refinitiv::ema::access::FieldList& );			// print content of passed in FieldList to screen
+	void decodeEList( const refinitiv::ema::access::ElementList& );			// print content of passed in ElementList to screen
+	void decodeM( const refinitiv::ema::access::Map& );					// print content of passed in Map to screen
+	void decode( const refinitiv::ema::access::OmmOpaque& oq );
 
 protected :
-    void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
-    void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+    void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
+    void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-    void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+    void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void processRespMsg( const rtsdk::ema::access::RefreshMsg& , const rtsdk::ema::access::OmmConsumerEvent& );		// process all response messages (single and multi part refresh, update and status)
+	void processRespMsg( const refinitiv::ema::access::RefreshMsg& , const refinitiv::ema::access::OmmConsumerEvent& );		// process all response messages (single and multi part refresh, update and status)
 };
 
 #endif // __ema_consumer_h_

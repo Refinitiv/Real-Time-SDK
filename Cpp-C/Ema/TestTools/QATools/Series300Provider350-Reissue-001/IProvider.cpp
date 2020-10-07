@@ -9,8 +9,8 @@
 #include "IProvider.h"
 #include <string.h>
 
-using namespace rtsdk::ema::access;
-using namespace rtsdk::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 UInt64 itemHandle = 0;

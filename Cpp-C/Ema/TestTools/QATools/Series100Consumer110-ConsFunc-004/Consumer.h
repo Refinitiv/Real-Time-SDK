@@ -39,25 +39,25 @@ public :
 
 	virtual ~RmtesFid() {}
 
-	rtsdk::ema::access::Int64				_fid;
-	rtsdk::ema::access::EmaString			_fidName;
-	rtsdk::ema::access::RmtesBuffer		_buffer;
+	refinitiv::ema::access::Int64				_fid;
+	refinitiv::ema::access::EmaString			_fidName;
+	refinitiv::ema::access::RmtesBuffer		_buffer;
 };
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
-	void decodeFieldList( const rtsdk::ema::access::FieldList&  );
+	void decodeFieldList( const refinitiv::ema::access::FieldList&  );
 
 	void printPage();
 
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
 	RmtesFid		_array[ 1000 ];
 };

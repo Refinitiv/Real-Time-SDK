@@ -30,36 +30,36 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processInvalidItemRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 protected:
 
-	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
 };
 //API QA
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public rtsdk::ema::access::OmmProviderErrorClient
+class AppErrorClient : public refinitiv::ema::access::OmmProviderErrorClient
 {
 public:
 
-	void onInvalidHandle(rtsdk::ema::access::UInt64, const rtsdk::ema::access::EmaString&);
+	void onInvalidHandle(refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString&);
 
-	void onInaccessibleLogFile(const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString&);
+	void onInaccessibleLogFile(const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString&);
 
-	void onSystemError(rtsdk::ema::access::Int64, void*, const rtsdk::ema::access::EmaString&);
+	void onSystemError(refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString&);
 
-	void onMemoryExhaustion(const rtsdk::ema::access::EmaString&);
+	void onMemoryExhaustion(const refinitiv::ema::access::EmaString&);
 
-	void onInvalidUsage(const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32);
+	void onInvalidUsage(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32);
 };
 //END API QA
 #endif // __ema_iprovider_h_

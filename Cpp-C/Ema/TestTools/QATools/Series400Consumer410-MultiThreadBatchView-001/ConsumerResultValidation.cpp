@@ -7,14 +7,14 @@
 
 #include "ConsumerResultValidation.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 
-ResultValidation::ResultValidation(const rtsdk::ema::access::EmaString& itemName)
+ResultValidation::ResultValidation(const refinitiv::ema::access::EmaString& itemName)
 {
 	_itemName = itemName;
 }
 
-bool ResultValidation::closureValidate(const rtsdk::ema::access::EmaString& receivedItemName)
+bool ResultValidation::closureValidate(const refinitiv::ema::access::EmaString& receivedItemName)
 {
 	bool result = (receivedItemName == _itemName) ? true : false;
 	if (result)

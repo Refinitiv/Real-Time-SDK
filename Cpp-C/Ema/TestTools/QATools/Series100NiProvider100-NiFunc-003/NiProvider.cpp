@@ -7,7 +7,7 @@
 
 #include "NiProvider.h"
 
-using namespace rtsdk::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 int main( int argc, char* argv[] )

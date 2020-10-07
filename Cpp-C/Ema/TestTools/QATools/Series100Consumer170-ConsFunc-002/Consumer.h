@@ -31,31 +31,31 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public rtsdk::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 protected :
 
-	void onRefreshMsg( const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const rtsdk::ema::access::UpdateMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 };
 //API QA
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public rtsdk::ema::access::OmmConsumerErrorClient
+class AppErrorClient : public refinitiv::ema::access::OmmConsumerErrorClient
 {
 public:
 
-	void onInvalidHandle(rtsdk::ema::access::UInt64, const rtsdk::ema::access::EmaString&);
+	void onInvalidHandle(refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString&);
 
-	void onInaccessibleLogFile(const rtsdk::ema::access::EmaString&, const rtsdk::ema::access::EmaString&);
+	void onInaccessibleLogFile(const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString&);
 
-	void onSystemError(rtsdk::ema::access::Int64, void*, const rtsdk::ema::access::EmaString&);
+	void onSystemError(refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString&);
 
-	void onMemoryExhaustion(const rtsdk::ema::access::EmaString&);
+	void onMemoryExhaustion(const refinitiv::ema::access::EmaString&);
 
-	void onInvalidUsage(const rtsdk::ema::access::EmaString&, rtsdk::ema::access::Int32);
+	void onInvalidUsage(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32);
 };
 //END API QA
 #endif // __ema_consumer_h_

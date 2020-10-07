@@ -57,30 +57,30 @@ public:
 
     }
 
-    rtsdk::ema::rdm::DataDictionary _dataDictionary;
+    refinitiv::ema::rdm::DataDictionary _dataDictionary;
     bool                                     _fldComplete;
     bool                                     _enumComplete;
 };
 //END APIQA
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processMarketPriceRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processInvalidItemRequest(const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void processInvalidItemRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
     //APIQA
-	void decode(const rtsdk::ema::access::Msg&, DataDictionaryCache*, bool complete = false);
+	void decode(const refinitiv::ema::access::Msg&, DataDictionaryCache*, bool complete = false);
 
 protected:
 
-	void onReqMsg( const rtsdk::ema::access::ReqMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
-	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onRefreshMsg(const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
-	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmProviderEvent& );
+	void onStatusMsg(const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmProviderEvent& );
 
 };
 

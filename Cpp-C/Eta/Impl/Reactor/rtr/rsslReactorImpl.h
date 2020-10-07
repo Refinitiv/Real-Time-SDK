@@ -463,6 +463,8 @@ RsslRet reactorLockInterface(RsslReactorImpl *pReactorImpl, RsslBool allowedInCa
 /* Unlocks reactor */
 RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl);
 
+#define MAX_THREADNAME_STRLEN 16
+
 /* RsslReactorWorker
  * The reactorWorker handles when to send pings and flushing.
  * Primary responsiblities include:
@@ -497,6 +499,8 @@ typedef struct
 	RsslQueue errorInfoPool; /* Keeps a pool of RsslErrorInfo for notifying users with the token events. */
 	RsslQueue errorInfoInUsedPool; /* Keeps a pool of RsslErrorInfo in used */
 	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
+
+	char nameReactorWorker[MAX_THREADNAME_STRLEN]; /* Name of the reactor worker thread */
 
 } RsslReactorWorker;
 
@@ -616,7 +620,7 @@ RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pRe
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
-RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);
+RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError);
 
 /* Cleanup all reactor resources(it is assumed that there will be no more use of this reactor so all memory can be cleaned up */
 void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl);

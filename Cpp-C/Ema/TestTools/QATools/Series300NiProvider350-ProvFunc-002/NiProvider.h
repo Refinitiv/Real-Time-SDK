@@ -41,24 +41,24 @@ public:
 
 	}
 
-	rtsdk::ema::rdm::DataDictionary _dataDictionary;
+	refinitiv::ema::rdm::DataDictionary _dataDictionary;
 	bool 									 _fldComplete;
 	bool 									 _enumComplete;
 };
 
 //END APIQA
-class AppClient : public rtsdk::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
     //APIQA
-	void decode(const rtsdk::ema::access::Msg&, DataDictionaryCache*, bool complete = false);  
+	void decode(const refinitiv::ema::access::Msg&, DataDictionaryCache*, bool complete = false);  
 
 protected:
 
-	void onRefreshMsg(const rtsdk::ema::access::RefreshMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onRefreshMsg(const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onStatusMsg(const rtsdk::ema::access::StatusMsg&, const rtsdk::ema::access::OmmProviderEvent&);
+	void onStatusMsg(const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 };
 
 
