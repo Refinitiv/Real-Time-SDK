@@ -32,7 +32,7 @@ flag set in the applicable response messages. If a request is received without t
 private stream flag set for the item name of "RES-DS", this application redirects
 the consumer to open the "RES-DS" item on a private stream instead of a normal stream.
 
-Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". The
+Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". The
 symbol list name is provided in the source directory response for the consumer to use.
 
 This application is intended as a basic usage example. Some of the design choices

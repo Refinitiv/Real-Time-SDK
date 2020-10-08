@@ -7,7 +7,7 @@
 0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
 0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
 0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
-0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
 //
 // LoginRefresh
 //
@@ -496,7 +496,7 @@
 000F: 6C 64 07 52 57 46 45 6E  75 6D 03 51 6F 53 0F FE   ld.RWFEnum.QoS..
 0010: 00 06 0C 00 00 01 01 22  10 53 75 70 70 6F 72 74   .......".Support
 0011: 73 51 6F 53 52 61 6E 67  65 04 01 00 08 49 74 65   sQoSRange....Ite
-0012: 6D 4C 69 73 74 11 0E 5F  55 50 41 5F 49 54 45 4D   mList.._UPA_ITEM
+0012: 6D 4C 69 73 74 11 0E 5F  45 54 41 5F 49 54 45 4D   mList.._ETA_ITEM
 0013: 5F 4C 49 53 54 1A 53 75  70 70 6F 72 74 73 4F 75   _LIST.SupportsOu
 0014: 74 4F 66 42 61 6E 64 53  6E 61 70 73 68 6F 74 73   tOfBandSnapshots
 0015: 04 01 00 17 41 63 63 65  70 74 69 6E 67 43 6F 6E   ....AcceptingCon
@@ -546,7 +546,7 @@
                                 </array>
                             </elementEntry>
                             <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
-                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="_UPA_ITEM_LIST"/>
+                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="_ETA_ITEM_LIST"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
                             <elementEntry name="AcceptingConsumerStatus" dataType="UINT" data="0"/>
                         </elementList>

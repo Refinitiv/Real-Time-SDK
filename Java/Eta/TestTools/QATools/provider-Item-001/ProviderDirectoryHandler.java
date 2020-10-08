@@ -437,7 +437,7 @@ public class ProviderDirectoryHandler
             if (!_enableGenericProvider)
             {
                 _service.info().applyHasItemList();
-                _service.info().itemList().data("_UPA_ITEM_LIST");
+                _service.info().itemList().data("_ETA_ITEM_LIST");
             }
  
             // accepting customer status = no

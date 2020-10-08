@@ -6,7 +6,7 @@
 0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
 0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
 0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
-0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
 
 //
 // LoginRefresh
@@ -17,7 +17,7 @@
 0003: 02 00 00 80 A1 26 08 58  58 58 58 58 58 58 58 01   .....&.XXXXXXXX.
 0004: 05 80 93 08 00 06 0D 41  70 70 6C 69 63 61 74 69   .......Applicati
 0005: 6F 6E 49 64 11 03 32 35  36 0F 41 70 70 6C 69 63   onId..256.Applic
-0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 55 50 41 20 50   ationName..UPA P
+0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 45 54 41 20 50   ationName..ETA P
 0007: 72 6F 76 69 64 65 72 08  50 6F 73 69 74 69 6F 6E   rovider.Position
 0008: 11 1C 31 30 2E 39 31 2E  31 36 31 2E 32 34 38 2F   ..10.91.161.248/
 0009: 58 58 58 58 58 58 58 58  2D 58 58 58 2D 58 0A 53   XXXXXXXX-XXX-X.S
@@ -32,7 +32,7 @@
         <attrib>
             <elementList flags="0x08 (HAS_STANDARD_DATA)">
                 <elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/>
-                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="UPA Provider"/>
+                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="ETA Provider"/>
                 <elementEntry name="Position" dataType="ASCII_STRING" data="10.91.161.248/XXXXXXXX-XXX-X"/>
                 <elementEntry name="SingleOpen" dataType="UINT" data="0"/>
                 <elementEntry name="SupportOMMPost" dataType="UINT" data="1"/>
@@ -65,7 +65,7 @@
 000F: 46 46 6C 64 07 52 57 46  45 6E 75 6D 03 51 6F 53   FFld.RWFEnum.QoS
 0010: 0F FE 00 06 0C 00 00 01  01 22 10 53 75 70 70 6F   .........".Suppo
 0011: 72 74 73 51 6F 53 52 61  6E 67 65 04 01 00 08 49   rtsQoSRange....I
-0012: 74 65 6D 4C 69 73 74 11  0E 5F 55 50 41 5F 49 54   temList.._UPA_IT
+0012: 74 65 6D 4C 69 73 74 11  0E 5F 45 54 41 5F 49 54   temList.._ETA_IT
 0013: 45 4D 5F 4C 49 53 54 1A  53 75 70 70 6F 72 74 73   EM_LIST.Supports
 0014: 4F 75 74 4F 66 42 61 6E  64 53 6E 61 70 73 68 6F   OutOfBandSnapsho
 0015: 74 73 04 01 00 17 41 63  63 65 70 74 69 6E 67 43   ts....AcceptingC
@@ -113,7 +113,7 @@
                                 </array>
                             </elementEntry>
                             <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
-                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="_UPA_ITEM_LIST"/>
+                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="_ETA_ITEM_LIST"/>
                             <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
                             <elementEntry name="AcceptingConsumerStatus" dataType="UINT" data="0"/>
                         </elementList>

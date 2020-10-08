@@ -96,9 +96,9 @@ This file holds one RIPC14 ConneckAck split across multiple read calls.
 
 0047: 10
 
-0048: 55
+0048: 45
 
-0049: 50
+0049: 54
 
 0050: 41
 

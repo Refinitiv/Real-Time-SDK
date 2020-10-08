@@ -94,7 +94,7 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
  * been opened by a consumer are rejected (in this example).
  * </p>
  * <p>
- * Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". The
+ * Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". The
  * symbol list name is provided in the source directory response for the consumer to use.
  * </p>
  * <p>

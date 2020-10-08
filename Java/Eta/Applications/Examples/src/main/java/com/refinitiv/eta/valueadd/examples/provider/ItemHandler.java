@@ -145,7 +145,7 @@ class ItemHandler
 
         _triItemName.data("TRI");
         _privateStreamItemName.data("RES-DS");
-        _slNameBuf.data("_UPA_ITEM_LIST");
+        _slNameBuf.data("_ETA_ITEM_LIST");
         _batchReqName.data(":ItemList");
         
         //set Qos for provider
@@ -434,7 +434,7 @@ class ItemHandler
         if ((domainType == DomainTypes.SYMBOL_LIST) && (msg.msgKey().name() != null))
         {
             //if the consumer specified symbol list name isn't
-            //"_UPA_ITEM_LIST", reject it
+            //"_ETA_ITEM_LIST", reject it
             if (!msg.msgKey().name().equals(_slNameBuf))
             {
                 return sendItemRequestReject(chnl, msg.streamId(), domainType, ItemRejectReason.ITEM_NOT_SUPPORTED, isPrivateStream, errorInfo);

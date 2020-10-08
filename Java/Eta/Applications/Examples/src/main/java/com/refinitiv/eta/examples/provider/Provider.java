@@ -69,7 +69,7 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * redirects the consumer to open the "RES-DS" item on a private stream instead 
  * of a normal stream.
  * <p>
- * Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". 
+ * Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". 
  * The symbol list name is provided in the source directory response for the consumer 
  * to use.
  * <p> 

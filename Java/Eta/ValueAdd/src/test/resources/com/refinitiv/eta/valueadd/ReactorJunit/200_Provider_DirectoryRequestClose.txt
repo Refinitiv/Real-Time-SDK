@@ -6,7 +6,7 @@
 0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
 0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
 0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
-0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
 
 // LOGIN REFRESH
 
@@ -16,7 +16,7 @@
 0003: 02 00 00 80 A1 26 08 58  58 58 58 58 58 58 58 01   .....&.XXXXXXXX.
 0004: 05 80 93 08 00 06 0D 41  70 70 6C 69 63 61 74 69   .......Applicati
 0005: 6F 6E 49 64 11 03 32 35  36 0F 41 70 70 6C 69 63   onId..256.Applic
-0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 55 50 41 20 50   ationName..UPA P
+0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 45 54 41 20 50   ationName..ETA P
 0007: 72 6F 76 69 64 65 72 08  50 6F 73 69 74 69 6F 6E   rovider.Position
 0008: 11 1C 31 30 2E 39 31 2E  31 36 31 2E 31 36 38 2F   ..10.91.161.168/
 0009: 58 58 58 58 58 58 58 58  2D 58 58 58 2D 58 0A 53   XXXXXXXX-XXX-X.S
@@ -31,7 +31,7 @@
         <attrib>
             <elementList flags="0x08 (HAS_STANDARD_DATA)">
                 <elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/>
-                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="UPA Provider"/>
+                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="ETA Provider"/>
                 <elementEntry name="Position" dataType="ASCII_STRING" data="10.91.161.168/XXXXXXXX-XXX-X"/>
                 <elementEntry name="SingleOpen" dataType="UINT" data="0"/>
                 <elementEntry name="SupportOMMPost" dataType="UINT" data="1"/>

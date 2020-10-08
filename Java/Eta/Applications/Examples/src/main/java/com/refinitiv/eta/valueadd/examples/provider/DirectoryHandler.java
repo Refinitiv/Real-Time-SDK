@@ -364,7 +364,7 @@ class DirectoryHandler
             // itemList - Name of SymbolList that includes all of the items that
             // he publisher currently provides.
             _service.info().applyHasItemList();
-            _service.info().itemList().data("_UPA_ITEM_LIST");
+            _service.info().itemList().data("_ETA_ITEM_LIST");
  
             // accepting customer status = no
             _service.info().applyHasAcceptingConsumerStatus();

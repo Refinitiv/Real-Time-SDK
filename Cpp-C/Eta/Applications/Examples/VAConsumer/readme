@@ -94,7 +94,7 @@ The domain may also be any of the private stream domains: mpps(MarketPrice PS), 
 
 	Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,yc:YCMAT01,sl
 
-Symbol list requests may optionally specify a name, e.g. "sl:_UPA_ITEM_LIST." If a name is not
+Symbol list requests may optionally specify a name, e.g. "sl:_ETA_ITEM_LIST." If a name is not
 specified, the consumer will use the ItemList from the directory response.
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform

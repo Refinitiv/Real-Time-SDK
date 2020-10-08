@@ -92,9 +92,9 @@ This file holds one RIPC14 ConneckReq split across multiple read calls.
 
 0045: 10
 
-0046: 55
+0046: 45
 
-0047: 50
+0047: 54
 
 0048: 41
 
