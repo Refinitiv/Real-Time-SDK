@@ -5,15 +5,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
-#define __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
+#ifndef __refinitiv_ema_rdm_EnumTypeTableImpl_h
+#define __refinitiv_ema_rdm_EnumTypeTableImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
 #include <EmaVector.h>
 #include <EnumType.h>
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -26,15 +26,15 @@ public:
 	EnumTypeTableImpl();
 	virtual ~EnumTypeTableImpl();
 
-	const thomsonreuters::ema::access::EmaVector<EnumType>& getEnumTypes() const;
+	const refinitiv::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
-	const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>& getFidReferences() const;
+	const refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>& getFidReferences() const;
 
 	RsslEnumTypeTable* getRsslEnumTypeTable() const;
 
 	void rsslEnumTypeTable(RsslEnumTypeTable*);
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 
@@ -42,11 +42,11 @@ private:
 
 	mutable bool 										_refreshEnumTypeList;
 
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
-	mutable thomsonreuters::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
+	mutable refinitiv::ema::access::EmaVector<EnumType>*    _pEnumTypeList;
 
-	mutable thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>*    _pFidsList;
+	mutable refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>*    _pFidsList;
 
 	EnumTypeTableImpl(RsslEnumTypeTable*);
 };
@@ -57,5 +57,5 @@ private:
 
 }
 
-#endif //  __thomsonreuters_ema_rdm_EnumTypeTableImpl_h
+#endif //  __refinitiv_ema_rdm_EnumTypeTableImpl_h
 

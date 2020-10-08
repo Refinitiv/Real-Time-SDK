@@ -1,28 +1,28 @@
-package com.thomsonreuters.upa.examples.common;
+package com.refinitiv.eta.examples.common;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.Dictionary;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.Dictionary;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
 //APIQA: Adding for writing the string to files. 
 import java.io.BufferedWriter;
@@ -32,7 +32,7 @@ import java.io.IOException;
 //END APIQA
 
 /**
- * This is the dictionary handler for the UPA consumer application. It provides
+ * This is the dictionary handler for the ETA consumer application. It provides
  * methods for loading the field/enumType dictionaries from a file and sending
  * requests for those dictionaries to a provider. Methods for processing the
  * dictionary response and closing a dictionary stream are also provided.
@@ -92,7 +92,7 @@ public class DictionaryHandler
      */
     public void loadDictionary()
     {
-        com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
 
         dictionary.clear();
 // APIQA: Clearing dictionary object
@@ -316,7 +316,7 @@ public class DictionaryHandler
      * 
      * Updates dictionary download states after full dictionary is received.
      */
-    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
+    private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.refinitiv.eta.transport.Error error)
     {
         int ret = dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)

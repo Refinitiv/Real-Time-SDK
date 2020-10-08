@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmFloat_h
-#define __thomsonreuters_ema_access_OmmFloat_h
+#ifndef __refinitiv_ema_access_OmmFloat_h
+#define __refinitiv_ema_access_OmmFloat_h
 
 /**
-	@class thomsonreuters::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
+	@class refinitiv::ema::access::Float OmmFloat.h "Access/Include/OmmFloat.h"
 	@brief OmmFloat represents float value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmFloat_h
+#endif // __refinitiv_ema_access_OmmFloat_h

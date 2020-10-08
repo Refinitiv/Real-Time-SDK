@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Map_h
-#define __thomsonreuters_ema_access_Map_h
+#ifndef __refinitiv_ema_access_Map_h
+#define __refinitiv_ema_access_Map_h
 
 /**
-	@class thomsonreuters::ema::access::Map Map.h "Access/Include/Map.h"
+	@class refinitiv::ema::access::Map Map.h "Access/Include/Map.h"
 	@brief Map is a homogeneous container of complex data type entries.
 
 	Map entries are identified by a map key. All entries must have key of the
@@ -112,7 +112,7 @@
 #include "Access/Include/MapEntry.h"
 #include "Access/Include/SummaryData.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -670,4 +670,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Map_h
+#endif // __refinitiv_ema_access_Map_h

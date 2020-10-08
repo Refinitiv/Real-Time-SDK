@@ -9,7 +9,7 @@
 #include "OmmJsonConverterExceptionImpl.h"
 #include "ChannelInfoImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmJsonConverterExceptionImpl::OmmJsonConverterExceptionImpl() :
 	OmmJsonConverterException()

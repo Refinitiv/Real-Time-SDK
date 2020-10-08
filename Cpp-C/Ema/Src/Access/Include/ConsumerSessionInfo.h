@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ConsumerSessionInfo_h
-#define __thomsonreuters_ema_access_ConsumerSessionInfo_h
+#ifndef __refinitiv_ema_access_ConsumerSessionInfo_h
+#define __refinitiv_ema_access_ConsumerSessionInfo_h
 
  /**
-	 @class thomsonreuters::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
+	 @class refinitiv::ema::access::ConsumerSessionInfo ConsumerSessionInfo.h "Access/Include/ConsumerSessionInfo.h"
 	 @brief ConsumerSessionInfo provides session information for OmmConsumer when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -20,7 +20,7 @@
 
 #include "Access/Include/SessionInfo.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -53,4 +53,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ConsumerSessionInfo_h
+#endif // __refinitiv_ema_access_ConsumerSessionInfo_h

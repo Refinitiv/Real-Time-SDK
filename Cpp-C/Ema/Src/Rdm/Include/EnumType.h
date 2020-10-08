@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_EnumType_h
-#define __thomsonreuters_ema_rdm_EnumType_h
+#ifndef __refinitiv_ema_rdm_EnumType_h
+#define __refinitiv_ema_rdm_EnumType_h
 
 /**
 * A single defined enumerated value.
@@ -16,7 +16,7 @@
 #include "Access/Include/EmaString.h"
 #include "Access/Include/EmaVector.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -36,7 +36,7 @@ public:
 	*
 	* @return the value
 	*/
-	thomsonreuters::ema::access::UInt16 getValue() const;
+	refinitiv::ema::access::UInt16 getValue() const;
 
 	/**
 	* A brief string representation describing what the type means (For example,
@@ -44,7 +44,7 @@ public:
 	*
 	* @return the display
 	*/
-	const thomsonreuters::ema::access::EmaString& getDisplay() const;
+	const refinitiv::ema::access::EmaString& getDisplay() const;
 
 	/**
 	* A more elaborate description of what the value means. This information is
@@ -52,7 +52,7 @@ public:
 	*
 	* @return the meaning
 	*/
-	const thomsonreuters::ema::access::EmaString& getMeaning() const;
+	const refinitiv::ema::access::EmaString& getMeaning() const;
 	//@}
 
 	///@name Operations
@@ -60,7 +60,7 @@ public:
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
 	*/
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 	/** Operator const char* overload.
 	@throw OmmMemoryExhaustionException if app runs out of memory
@@ -76,7 +76,7 @@ private:
 	friend class EnumTypeTableImpl;
 
 	template<class T>
-	friend class thomsonreuters::ema::access::EmaVector;
+	friend class refinitiv::ema::access::EmaVector;
 
 	EnumType();
 
@@ -95,5 +95,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_EnumType_h
+#endif // __refinitiv_ema_rdm_EnumType_h
 

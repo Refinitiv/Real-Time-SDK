@@ -11,7 +11,7 @@
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 ChannelStatistics::ChannelStatistics()
 {
@@ -54,7 +54,7 @@ ChannelStatistics& ChannelStatistics::tcpRetransmitCount( UInt64 cpRetransmitCou
 /* cs has been cleared and calling function has verified that channel arguments are non-null.
  * Calling function has also updated hostname and ipAddress
  */
-void thomsonreuters::ema::access::getChannelStats(const RsslReactorChannel* rsslReactorChannel,
+void refinitiv::ema::access::getChannelStats(const RsslReactorChannel* rsslReactorChannel,
 												 ChannelStatistics& cs) {
 	// create channel stats info
 	RsslErrorInfo rsslErrorInfo;

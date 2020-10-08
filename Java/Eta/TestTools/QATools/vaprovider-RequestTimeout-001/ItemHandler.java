@@ -1,71 +1,71 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.thomsonreuters.upa.codec.AckMsg;
-import com.thomsonreuters.upa.codec.AckMsgFlags;
-import com.thomsonreuters.upa.codec.Array;
-import com.thomsonreuters.upa.codec.ArrayEntry;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.ElementEntry;
-import com.thomsonreuters.upa.codec.ElementList;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.MsgKey;
-import com.thomsonreuters.upa.codec.MsgKeyFlags;
-import com.thomsonreuters.upa.codec.NakCodes;
-import com.thomsonreuters.upa.codec.PostMsg;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.RefreshMsgFlags;
-import com.thomsonreuters.upa.codec.RequestMsg;
-import com.thomsonreuters.upa.codec.RequestMsgFlags;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StatusMsgFlags;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.codec.UpdateMsg;
-import com.thomsonreuters.upa.codec.UpdateMsgFlags;
-import com.thomsonreuters.upa.shared.provider.ItemInfo;
-import com.thomsonreuters.upa.shared.provider.ItemInfoList;
-import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
-import com.thomsonreuters.upa.shared.provider.ItemRequestInfo;
-import com.thomsonreuters.upa.shared.provider.ItemRequestInfoList;
-import com.thomsonreuters.upa.shared.LoginRequestInfo;
-import com.thomsonreuters.upa.shared.provider.MarketByOrderItems;
-import com.thomsonreuters.upa.shared.provider.MarketByPriceItems;
-import com.thomsonreuters.upa.shared.provider.MarketPriceItems;
-import com.thomsonreuters.upa.shared.provider.SymbolListItems;
-import com.thomsonreuters.upa.shared.rdm.marketbyprice.MarketByPriceItem;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceStatus;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.ChannelState;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.transport.WriteArgs;
-import com.thomsonreuters.upa.valueadd.cache.CacheFactory;
-import com.thomsonreuters.upa.valueadd.cache.PayloadEntry;
-import com.thomsonreuters.upa.valueadd.examples.common.CacheHandler;
-import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.codec.AckMsg;
+import com.refinitiv.eta.codec.AckMsgFlags;
+import com.refinitiv.eta.codec.Array;
+import com.refinitiv.eta.codec.ArrayEntry;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.ElementEntry;
+import com.refinitiv.eta.codec.ElementList;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.MsgKey;
+import com.refinitiv.eta.codec.MsgKeyFlags;
+import com.refinitiv.eta.codec.NakCodes;
+import com.refinitiv.eta.codec.PostMsg;
+import com.refinitiv.eta.codec.Qos;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.RefreshMsgFlags;
+import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.codec.RequestMsgFlags;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StatusMsgFlags;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.UpdateMsg;
+import com.refinitiv.eta.codec.UpdateMsgFlags;
+import com.refinitiv.eta.shared.provider.ItemInfo;
+import com.refinitiv.eta.shared.provider.ItemInfoList;
+import com.refinitiv.eta.shared.provider.ItemRejectReason;
+import com.refinitiv.eta.shared.provider.ItemRequestInfo;
+import com.refinitiv.eta.shared.provider.ItemRequestInfoList;
+import com.refinitiv.eta.shared.LoginRequestInfo;
+import com.refinitiv.eta.shared.provider.MarketByOrderItems;
+import com.refinitiv.eta.shared.provider.MarketByPriceItems;
+import com.refinitiv.eta.shared.provider.MarketPriceItems;
+import com.refinitiv.eta.shared.provider.SymbolListItems;
+import com.refinitiv.eta.shared.rdm.marketbyprice.MarketByPriceItem;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceStatus;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.ChannelState;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.transport.WriteArgs;
+import com.refinitiv.eta.valueadd.cache.CacheFactory;
+import com.refinitiv.eta.valueadd.cache.PayloadEntry;
+import com.refinitiv.eta.valueadd.examples.common.CacheHandler;
+import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
  * This is the implementation of handling item requests for the interactive
@@ -145,7 +145,7 @@ class ItemHandler
 
         _triItemName.data("TRI");
         _privateStreamItemName.data("RES-DS");
-        _slNameBuf.data("_UPA_ITEM_LIST");
+        _slNameBuf.data("_ETA_ITEM_LIST");
         _batchReqName.data(":ItemList");
         
         //set Qos for provider
@@ -434,7 +434,7 @@ class ItemHandler
         if ((domainType == DomainTypes.SYMBOL_LIST) && (msg.msgKey().name() != null))
         {
             //if the consumer specified symbol list name isn't
-            //"_UPA_ITEM_LIST", reject it
+            //"_ETA_ITEM_LIST", reject it
             if (!msg.msgKey().name().equals(_slNameBuf))
             {
                 return sendItemRequestReject(chnl, msg.streamId(), domainType, ItemRejectReason.ITEM_NOT_SUPPORTED, isPrivateStream, errorInfo);

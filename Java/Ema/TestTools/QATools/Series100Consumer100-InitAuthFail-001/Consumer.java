@@ -5,9 +5,9 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example100__MarketPrice__Streaming;
+package com.refinitiv.ema.examples.training.consumer.series100.ex100_MP_Streaming;
 
-import com.thomsonreuters.ema.access.*;
+import com.refinitiv.ema.access.*;
 
 class AppErrorClient implements OmmConsumerErrorClient {
 	@Override

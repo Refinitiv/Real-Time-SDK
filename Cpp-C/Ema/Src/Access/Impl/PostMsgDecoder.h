@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_PostMsgDecoder_h
-#define __thomsonreuters_ema_access_PostMsgDecoder_h
+#ifndef __refinitiv_ema_access_PostMsgDecoder_h
+#define __refinitiv_ema_access_PostMsgDecoder_h
 
 #include "EmaPool.h"
 #include "MsgDecoder.h"
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -151,4 +151,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_PostMsgDecoder_h
+#endif // __refinitiv_ema_access_PostMsgDecoder_h

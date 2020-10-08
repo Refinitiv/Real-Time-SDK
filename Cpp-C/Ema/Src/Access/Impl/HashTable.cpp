@@ -8,7 +8,7 @@
 
 #include "HashTable.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 template<>
 size_t Hasher<int>::operator()( const int& val ) const

@@ -10,7 +10,7 @@
 #include "ActiveConfig.h"
 #include "OmmIProviderActiveConfig.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 class EmaActiveConfigTest : public ::testing::Test {
@@ -106,7 +106,7 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 	EXPECT_EQ(socketChannelConfig.securityProtocol, RSSL_ENC_TLSV1_2);
 
 	EXPECT_EQ(socketChannelConfig.enableSessionMgnt, RSSL_FALSE);
-	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_EDP_RT_LOCATION);
+	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_RDP_RT_LOCATION);
 	EXPECT_EQ(socketChannelConfig.wsMaxMsgSize, DEFAULT_WS_MAXMSGSIZE);
 	EXPECT_TRUE(socketChannelConfig.wsProtocols == DEFAULT_WS_PROTOCLOS);
 

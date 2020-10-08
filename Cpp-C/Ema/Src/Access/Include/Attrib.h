@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Attrib_h
-#define __thomsonreuters_ema_access_Attrib_h
+#ifndef __refinitiv_ema_access_Attrib_h
+#define __refinitiv_ema_access_Attrib_h
 
 /**
-	@class thomsonreuters::ema::access::Attrib Attrib.h "Access/Include/Attrib.h"
+	@class refinitiv::ema::access::Attrib Attrib.h "Access/Include/Attrib.h"
 	@brief Attrib conveys message attribute information.
 
 	Attrib is used to provide item identification information. This information is
@@ -78,7 +78,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -249,4 +249,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Attrib_h
+#endif // __refinitiv_ema_access_Attrib_h

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_key_h
-#define __thomsonreuters_ema_access_key_h
+#ifndef __refinitiv_ema_access_key_h
+#define __refinitiv_ema_access_key_h
 
 /**
-	@class thomsonreuters::ema::access::Key Key.h "Access/Include/Key.h"
+	@class refinitiv::ema::access::Key Key.h "Access/Include/Key.h"
 	@brief Key conveys MapEntry key information.
 
 	Key contains objects of primitive type (e.g. they are not complex type)
@@ -69,7 +69,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -223,4 +223,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_key_h
+#endif // __refinitiv_ema_access_key_h

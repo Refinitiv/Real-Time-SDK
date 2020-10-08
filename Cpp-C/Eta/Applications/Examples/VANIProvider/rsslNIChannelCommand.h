@@ -89,7 +89,7 @@ typedef struct
 	RsslRDMDirectoryRefresh directoryRefresh;
 	/* service id associated with the service name requested by application */
 
-	/* For TREP authentication login reissue */
+	/* For UserAuthn authentication login reissue */
 	RsslUInt loginReissueTime; // represented by epoch time in seconds
 	RsslBool canSendLoginReissue;
 } NIChannelCommand;

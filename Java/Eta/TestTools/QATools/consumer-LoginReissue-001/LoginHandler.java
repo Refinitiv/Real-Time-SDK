@@ -1,30 +1,30 @@
-package com.thomsonreuters.upa.examples.common;
+package com.refinitiv.eta.examples.common;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.shared.ConsumerLoginState;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.shared.ConsumerLoginState;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 // APIQA:
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 // END APIQA
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 
 /**
- * This is the Login handler for the UPA Consumer and NIProvider application. It
+ * This is the Login handler for the ETA Consumer and NIProvider application. It
  * provides methods for encoding and sending of login request, as well as
  * processing of responses (refresh, status, update, close). Methods are also
  * provided to allow setting of application name, user name and role, to be used
@@ -135,8 +135,8 @@ public class LoginHandler
     }
 
     /**
-     * Login Role. Constant from {@link com.thomsonreuters.upa.rdm.Login.RoleTypes}.
-     * Default login role is {@link com.thomsonreuters.upa.rdm.Login.RoleTypes#CONS}
+     * Login Role. Constant from {@link com.refinitiv.eta.rdm.Login.RoleTypes}.
+     * Default login role is {@link com.refinitiv.eta.rdm.Login.RoleTypes#CONS}
      * 
      * @param role
      */

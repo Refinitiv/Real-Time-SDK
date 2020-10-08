@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_ServerChannelHandler_h
-#define __thomsonreuters_ema_access_ServerChannelHandler_h
+#ifndef __refinitiv_ema_access_ServerChannelHandler_h
+#define __refinitiv_ema_access_ServerChannelHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "OmmServerBaseImpl.h"
 #include "ClientSession.h"
 #include "EmaList.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -87,4 +87,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ServerChannelHandler_h
+#endif // __refinitiv_ema_access_ServerChannelHandler_h

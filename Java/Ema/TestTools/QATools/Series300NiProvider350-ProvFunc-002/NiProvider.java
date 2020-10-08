@@ -6,26 +6,26 @@
 ///*|-----------------------------------------------------------------------------
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.thomsonreuters.ema.examples.training.niprovider.series300.example350__Dictionary__Streaming;
+package com.refinitiv.ema.examples.training.niprovider.series300.ex350_Dictionary_Streaming;
 
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmNiProviderConfig;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.OmmProviderClient;
-import com.thomsonreuters.ema.access.OmmProviderEvent;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.rdm.DataDictionary;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmNiProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmProviderClient;
+import com.refinitiv.ema.access.OmmProviderEvent;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.rdm.DataDictionary;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {

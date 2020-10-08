@@ -4,8 +4,8 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.thomsonreuters.upa"
-archivesBaseName = "upa"
+group = "com.refinitiv.eta"
+archivesBaseName = "eta"
 version "$SpecificationVersion"
 
 uploadArchives { 
@@ -35,7 +35,7 @@ uploadArchives {
 
                 developers {
                     developer {
-                        organization 'Thomson Reuters'
+                        organization 'Refinitiv'
                     }
                 }
 
@@ -86,7 +86,7 @@ ext.sharedManifest = manifest {
 }
 
 jar {
-    doFirst { println 'Creating UPA jar file' }
+    doFirst { println 'Creating ETA jar file' }
 
     manifest { 
         attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
@@ -95,11 +95,11 @@ jar {
 
     from ('impl') 
     {
-        include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
+        include 'com/refinitiv/proxy/authentication/kerberos/login.conf'
     }
 
     destinationDir = file("../Libs/")
-        baseName = 'upa'
+        baseName = 'eta'
 }
 
 javadoc {
@@ -110,7 +110,7 @@ javadoc {
     exclude '**/*Impl.java'
     exclude '**/JUnit*.java'
 
-    destinationDir = file('../Docs/refman/upaj/')
+    destinationDir = file('../Docs/refman/etaj/')
     title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
 
     options.footer ("${javadoc_footer}")

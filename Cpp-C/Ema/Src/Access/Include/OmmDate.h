@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmDate_h
-#define __thomsonreuters_ema_access_OmmDate_h
+#ifndef __refinitiv_ema_access_OmmDate_h
+#define __refinitiv_ema_access_OmmDate_h
 
 /**
-	@class thomsonreuters::ema::access::OmmDate OmmDate.h "Access/Include/OmmDate.h"
+	@class refinitiv::ema::access::OmmDate OmmDate.h "Access/Include/OmmDate.h"
 	@brief OmmDate represents Date info in Omm.
 
 	OmmDate encapsulates year, month and day information.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -137,4 +137,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmDate_h
+#endif // __refinitiv_ema_access_OmmDate_h

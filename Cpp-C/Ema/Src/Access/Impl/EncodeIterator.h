@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EncodeIterator_h
-#define __thomsonreuters_ema_access_EncodeIterator_h
+#ifndef __refinitiv_ema_access_EncodeIterator_h
+#define __refinitiv_ema_access_EncodeIterator_h
 
 #include "EmaPool.h"
 #include "rtr/rsslIterators.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -67,4 +67,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_EncodeIterator_h
+#endif //__refinitiv_ema_access_EncodeIterator_h

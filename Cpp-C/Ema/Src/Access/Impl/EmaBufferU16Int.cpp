@@ -8,7 +8,7 @@
 
 #include "EmaBufferU16Int.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 EmaBufferU16Int::EmaBufferU16Int() :
  EmaBufferU16()

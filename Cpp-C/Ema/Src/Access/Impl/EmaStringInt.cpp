@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 EmaStringInt::EmaStringInt() :
  _pTempString( 0 ),

@@ -44,10 +44,10 @@ static bool	_DbgHelpIntialized = false;
 #endif
 
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 #ifdef WIN32
-bool getCurrentDir( thomsonreuters::ema::access::EmaString& dir )
+bool getCurrentDir( refinitiv::ema::access::EmaString& dir )
 {
 	DWORD length = MAX_LENGTH;
 	char* temp = new char[length];
@@ -77,7 +77,7 @@ bool getCurrentDir( thomsonreuters::ema::access::EmaString& dir )
 	}
 }
 #else
-bool getCurrentDir( thomsonreuters::ema::access::EmaString& dir )
+bool getCurrentDir( refinitiv::ema::access::EmaString& dir )
 {
 	size_t length = MAX_LENGTH;
 	char* temp = new char[length];
@@ -111,7 +111,7 @@ bool getCurrentDir( thomsonreuters::ema::access::EmaString& dir )
 
 
 
-void stateToString( RsslState* pState, thomsonreuters::ema::access::EmaString& stateString )
+void stateToString( RsslState* pState, refinitiv::ema::access::EmaString& stateString )
 {
 	if ( !pState )
 	{

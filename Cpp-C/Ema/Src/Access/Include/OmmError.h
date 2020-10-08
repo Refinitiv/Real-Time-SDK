@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmError_h
-#define __thomsonreuters_ema_access_OmmError_h
+#ifndef __refinitiv_ema_access_OmmError_h
+#define __refinitiv_ema_access_OmmError_h
 
 /**
-	@class thomsonreuters::ema::access::OmmError OmmError.h "Access/Include/OmmError.h"
+	@class refinitiv::ema::access::OmmError OmmError.h "Access/Include/OmmError.h"
 	@brief OmmError represents received Omm data who fails to process properly.
 
 	Objects of OmmError class are returned when an error is detected while processing 
@@ -51,7 +51,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -149,4 +149,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmError_h
+#endif // __refinitiv_ema_access_OmmError_h

@@ -18,8 +18,8 @@
 
 #include "OmmIProviderImpl.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString LoginHandler::_clientName("LoginHandler");
 

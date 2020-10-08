@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmException_h
-#define __thomsonreuters_ema_access_OmmException_h
+#ifndef __refinitiv_ema_access_OmmException_h
+#define __refinitiv_ema_access_OmmException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmException OmmException.h "Access/Include/OmmException.h"
+	@class refinitiv::ema::access::OmmException OmmException.h "Access/Include/OmmException.h"
 	@brief OmmException is a parent class for all exception types thrown by EMA.
 
 	This class provides all the common functionalities and methods used by the inheriting classes.
@@ -34,7 +34,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -123,4 +123,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmException_h
+#endif // __refinitiv_ema_access_OmmException_h

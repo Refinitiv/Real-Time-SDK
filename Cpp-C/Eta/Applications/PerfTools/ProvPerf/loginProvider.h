@@ -39,7 +39,7 @@ void setLoginConfigPosition();
 /* Decodes a login request and sends an appropriate response. */
 RsslRet processLoginRequest(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslMsg* msg, RsslDecodeIterator* dIter);
 
-/* Decodes a login request and sends an appropriate response using the UPA VA Reactor. */
+/* Decodes a login request and sends an appropriate response using the ETA VA Reactor. */
 RsslRet processLoginRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsg *pLoginMsg);
 
 #ifdef __cplusplus

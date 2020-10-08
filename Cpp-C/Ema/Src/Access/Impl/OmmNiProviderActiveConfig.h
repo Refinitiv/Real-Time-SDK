@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNiProviderActiveConfig_h
-#define __thomsonreuters_ema_access_OmmNiProviderActiveConfig_h
+#ifndef __refinitiv_ema_access_OmmNiProviderActiveConfig_h
+#define __refinitiv_ema_access_OmmNiProviderActiveConfig_h
 
 #include "ActiveConfig.h"
 #include "OmmProviderConfig.h"
 #include "rtr/rsslState.h"
 #include "rtr/rsslQos.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -59,4 +59,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNiProviderActiveConfig_h
+#endif // __refinitiv_ema_access_OmmNiProviderActiveConfig_h

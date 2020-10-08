@@ -31,17 +31,17 @@
 
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 /* Dummy no-op consumer class client for initializing handlers */
 /* This should never be used */
-class DummyConsClient : public thomsonreuters::ema::access::OmmConsumerClient
+class DummyConsClient : public refinitiv::ema::access::OmmConsumerClient
 {
 };
 
 /* Dummy no-op provider class client for initializing handlers */
 /* This should never be used */
-class DummyProvClient : public thomsonreuters::ema::access::OmmProviderClient
+class DummyProvClient : public refinitiv::ema::access::OmmProviderClient
 {
 };
 
@@ -737,7 +737,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		try
 		{
 			/*	Both host and port is set as empty string by default to support the Reactor's session management
-				to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
+				to query them from RDP service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
 			*/
 			socketChannelCfg = new SocketChannelConfig("","", channelType);
 			socketChannelCfg->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
@@ -776,7 +776,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			pConfigImpl->get<EmaString>(channelNodeName + "OpenSSLCAStore", socketChannelCfg->sslCAStore);
 
 		if (!pConfigImpl->get< EmaString >(channelNodeName + "Location", socketChannelCfg->location))
-			socketChannelCfg->location = DEFAULT_EDP_RT_LOCATION;
+			socketChannelCfg->location = DEFAULT_RDP_RT_LOCATION;
 
 		UInt64 tempUInt = 0;
 		pConfigImpl->get<UInt64>(channelNodeName + "EnableSessionManagement", tempUInt);

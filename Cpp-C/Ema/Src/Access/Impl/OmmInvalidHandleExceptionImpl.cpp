@@ -8,7 +8,7 @@
 
 #include "OmmInvalidHandleExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmInvalidHandleExceptionImpl::OmmInvalidHandleExceptionImpl( UInt64 handle ) :
  OmmInvalidHandleException( handle )

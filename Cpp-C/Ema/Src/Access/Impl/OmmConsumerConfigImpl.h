@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerConfigImpl_h
-#define __thomsonreuters_ema_access_OmmConsumerConfigImpl_h
+#ifndef __refinitiv_ema_access_OmmConsumerConfigImpl_h
+#define __refinitiv_ema_access_OmmConsumerConfigImpl_h
 
 #ifdef WIN32
 #include "direct.h"
@@ -18,7 +18,7 @@
 #include "ExceptionTranslator.h"
 #include "ProgrammaticConfigure.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -60,4 +60,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerConfigImpl_h
+#endif // __refinitiv_ema_access_OmmConsumerConfigImpl_h

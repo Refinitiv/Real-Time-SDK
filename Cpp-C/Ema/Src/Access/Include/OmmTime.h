@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmTime_h
-#define __thomsonreuters_ema_access_OmmTime_h
+#ifndef __refinitiv_ema_access_OmmTime_h
+#define __refinitiv_ema_access_OmmTime_h
 
 /**
-	@class thomsonreuters::ema::access::OmmTime OmmTime.h "Access/Include/OmmTime.h"
+	@class refinitiv::ema::access::OmmTime OmmTime.h "Access/Include/OmmTime.h"
 	@brief OmmTime represents Time info in Omm.
 
 	OmmTime encapsulates hour, minute, second, millisecond, microsecond and nanosecond information.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -152,4 +152,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmTime_h
+#endif // __refinitiv_ema_access_OmmTime_h

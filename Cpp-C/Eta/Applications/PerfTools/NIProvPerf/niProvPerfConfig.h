@@ -6,7 +6,7 @@
 */
 
 /* niProvPerfConfig.h
- * Configures the upacNIProvPerf application. */
+ * Configures the NIProvPerf application. */
 
 #ifndef _NI_PROV_PERF_CONFIG_H
 #define _NI_PROV_PERF_CONFIG_H
@@ -32,7 +32,7 @@ typedef struct
 	RsslUInt32			guaranteedOutputBuffers;	/* Guaranteed Output Buffers(-outputBufs).*/
 	RsslUInt32			sendBufSize;				/* System Send Buffer Size(-sendBufSize) */
 	RsslUInt32			recvBufSize;				/* System Send Buffer Size(-recvBufSize) */
-	RsslUInt32			highWaterMark;				/* sets the point which will cause UPA to automatically flush */
+	RsslUInt32			highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	char				summaryFilename[128];		/* Name of the summary log file(-summaryFile). */
 	char				statsFilename[128];			/* Name of the statistics log file(-statsFile). */
 	RsslUInt32			writeStatsInterval;			/* Controls how often statistics are written. */
@@ -50,7 +50,7 @@ typedef struct
 	RsslInt32			itemPublishCount;			/* Number of items to publish noninteractively(-itemCount).*/
 	RsslInt32			commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
 
-	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
 
 	char				caStore[255];				/* Certificate authority location */
 	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */

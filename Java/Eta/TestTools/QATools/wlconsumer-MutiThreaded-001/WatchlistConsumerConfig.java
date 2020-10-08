@@ -1,20 +1,20 @@
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.MsgKey;
-import com.thomsonreuters.upa.codec.MsgKeyFlags;
-import com.thomsonreuters.upa.codec.State;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.MsgKey;
+import com.refinitiv.eta.codec.MsgKeyFlags;
+import com.refinitiv.eta.codec.State;
 // APIQA
-import com.thomsonreuters.upa.perftools.common.XmlItemInfoList;
-import com.thomsonreuters.upa.shared.CommandLine;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
-import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
+import com.refinitiv.eta.perftools.common.XmlItemInfoList;
+import com.refinitiv.eta.shared.CommandLine;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.examples.common.ConnectionArg;
+import com.refinitiv.eta.valueadd.examples.common.ItemArg;
 
 public class WatchlistConsumerConfig 
 {

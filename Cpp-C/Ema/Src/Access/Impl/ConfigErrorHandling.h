@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ConfigErrorHandling_h
-#define __thomsonreuters_ema_access_ConfigErrorHandling_h
+#ifndef __refinitiv_ema_access_ConfigErrorHandling_h
+#define __refinitiv_ema_access_ConfigErrorHandling_h
 
 #include "EmaString.h"
 #include "OmmLoggerClient.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -76,4 +76,4 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_ConfigErrorHandling_h
+#endif //__refinitiv_ema_access_ConfigErrorHandling_h

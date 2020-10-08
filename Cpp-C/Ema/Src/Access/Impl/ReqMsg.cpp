@@ -13,8 +13,8 @@
 #include "GlobalPool.h"
 #include "RdmUtilities.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmArrayEncoder_h
-#define __thomsonreuters_ema_access_OmmArrayEncoder_h
+#ifndef __refinitiv_ema_access_OmmArrayEncoder_h
+#define __refinitiv_ema_access_OmmArrayEncoder_h
 
 #include "Encoder.h"
 #include "OmmReal.h"
@@ -15,7 +15,7 @@
 #include "rtr/rsslArray.h"
 #include "OmmState.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -132,4 +132,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmArrayEncoder_h
+#endif // __refinitiv_ema_access_OmmArrayEncoder_h

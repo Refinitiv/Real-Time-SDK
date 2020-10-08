@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 #define MAX_UNSIGNED_INT16		0xFFFF
 #define MAX_UNSIGNED_INT32		0xFFFFFFFF
@@ -2044,7 +2044,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
 				{
 					/*	Both host and port is set as empty string by default to support the Reactor's session management
-						to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
+						to query them from RDP service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
 					*/
 					socketChannelConfig = new SocketChannelConfig("", "", (RsslConnectionTypes)channelType);
 					socketChannelConfig->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;

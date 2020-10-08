@@ -6,7 +6,7 @@
 */
 
 /* consumerThreads.h
- * Provides the logic that consumer connections use in upacConsPerf for
+ * Provides the logic that consumer connections use in ConsPerf for
  * connecting to a provider, requesting items, and processing the received refreshes and updates. */
 
 #ifndef _CONSUMER_THREADS_H
@@ -187,11 +187,11 @@ typedef struct {
 	RsslBuffer				directoryMsgCopyMemory;		/* Memory buffer for directoryMsgCopy. */
 	RsslBuffer				directoryMsgCopyMemoryOrig;	/* Copy of memory buffer(used to cleanup) */
 	ItemRequest				*itemRequestList;			/* List of items to request. */
-	RsslReactor				*pReactor;					/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslReactorChannel		*pReactorChannel;			/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslReactorOMMConsumerRole consumerRole;			/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslRDMLoginRequest		loginRequest;				/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslRDMDirectoryRequest	dirRequest;					/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactor				*pReactor;					/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslReactorChannel		*pReactorChannel;			/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslReactorOMMConsumerRole consumerRole;			/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslRDMLoginRequest		loginRequest;				/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslRDMDirectoryRequest	dirRequest;					/* Used for when application uses VA Reactor instead of ETA Channel. */
 	RsslRDMService          *pDesiredService;           /* Store information about the desired service once we find it. */
 	RsslQueue				requestQueue;				/* Request queue. */
 	RsslQueue				waitingForRefreshQueue;		/* Waiting for refresh queue. */
@@ -232,7 +232,7 @@ void consumerThreadInitPings(ConsumerThread* pConsumerThread);
 /* Check ping times on a consumer thread's connection, sending a ping if needed. */
 RsslBool consumerThreadCheckPings(ConsumerThread* pConsumerThread);
 
-/* ConsumerThread function for use with UPA Channel. */
+/* ConsumerThread function for use with ETA Channel. */
 RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct);
 
 /* ConsumerThread function for use with VA Reactor. */

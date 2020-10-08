@@ -116,42 +116,42 @@ public:
 	}
 };
 // DirectoryHandler
-class DirectoryClient : public thomsonreuters::ema::access::OmmConsumerClient
+class DirectoryClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 	DirectoryClient() : pConsThread( NULL ) {};
-	void decode( const thomsonreuters::ema::access::Map& ); 
-	void decodeInfo( const thomsonreuters::ema::access::ElementList& elist, bool &gotDesiredSvc);
-	void decodeState( const thomsonreuters::ema::access::ElementList& elist);
+	void decode( const refinitiv::ema::access::Map& ); 
+	void decodeInfo( const refinitiv::ema::access::ElementList& elist, bool &gotDesiredSvc);
+	void decodeState( const refinitiv::ema::access::ElementList& elist);
 	void init( ConsumerThread *pConsThr );
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
 	ConsumerThread *pConsThread;
 };
 
 // application defined client class for receiving and processing of item messages
-class MarketPriceClient : public thomsonreuters::ema::access::OmmConsumerClient
+class MarketPriceClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 	MarketPriceClient() : pConsumerThread( NULL ) {};
 	void init( ConsumerThread *pConsThr );
 
-	bool decodeMPUpdate( const thomsonreuters::ema::access::FieldList&, UInt16 msgtype  );
+	bool decodeMPUpdate( const refinitiv::ema::access::FieldList&, UInt16 msgtype  );
 	bool checkPostUserInfo() { return true; };
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 	
 	void onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent );
 
@@ -161,23 +161,23 @@ protected :
 };
 
 // application defined client class for receiving and processing of item messages
-class MarketByOrderClient : public thomsonreuters::ema::access::OmmConsumerClient
+class MarketByOrderClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 	MarketByOrderClient() : pConsumerThread( NULL ) {};
 	void init( ConsumerThread *pConsThr );
 
-	bool decodeMBOUpdate(const thomsonreuters::ema::access::Map&, UInt16 msgtype );
+	bool decodeMBOUpdate(const refinitiv::ema::access::Map&, UInt16 msgtype );
 	bool decodeFldList( const FieldList& fldList, UInt16 msgtype, UInt64 &timeTracker, UInt64 &postTimeTracker,	UInt64 &genMsgTimeTracker, bool summData = false );
 	bool checkPostUserInfo() { return true; };
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 	
 	void onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent );
 
@@ -204,7 +204,7 @@ typedef enum {
 class ItemInfo
 {
 public:
-	ItemInfo() : handle(0), StreamId(0), domain( thomsonreuters::ema::rdm::MMT_MARKET_PRICE ), 
+	ItemInfo() : handle(0), StreamId(0), domain( refinitiv::ema::rdm::MMT_MARKET_PRICE ), 
 				itemFlags ( ITEM_IS_SOLICITED ),itemData( NULL), pAppClient(NULL) {}; 
 	UInt64		handle;
 	Int32		StreamId; 

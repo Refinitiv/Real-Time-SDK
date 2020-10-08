@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ElementList_h
-#define __thomsonreuters_ema_access_ElementList_h
+#ifndef __refinitiv_ema_access_ElementList_h
+#define __refinitiv_ema_access_ElementList_h
 
 /**
-	@class thomsonreuters::ema::access::ElementList ElementList.h "Access/Include/ElementList.h"
+	@class refinitiv::ema::access::ElementList ElementList.h "Access/Include/ElementList.h"
 	@brief ElementList is a heterogeneous container of complex and primitive data type entries.
 	
 	ElementList entries are identified by name.
@@ -145,7 +145,7 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/ElementEntry.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -700,4 +700,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_ElementList_h
+#endif // __refinitiv_ema_access_ElementList_h

@@ -45,14 +45,14 @@ void sleep(int millisecs)
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public:
 
 
 protected:
 
-	void onAllMsg(const thomsonreuters::ema::access::Msg&, const thomsonreuters::ema::access::OmmConsumerEvent&);
+	void onAllMsg(const refinitiv::ema::access::Msg&, const refinitiv::ema::access::OmmConsumerEvent&);
 };
 
 #endif // __ema_consumer_h_

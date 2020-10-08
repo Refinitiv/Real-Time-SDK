@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidUsageException_h
-#define __thomsonreuters_ema_access_OmmInvalidUsageException_h
+#ifndef __refinitiv_ema_access_OmmInvalidUsageException_h
+#define __refinitiv_ema_access_OmmInvalidUsageException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmInvalidUsageException OmmInvalidUsageException.h "Access/Include/OmmInvalidUsageException.h"
+	@class refinitiv::ema::access::OmmInvalidUsageException OmmInvalidUsageException.h "Access/Include/OmmInvalidUsageException.h"
 	@brief OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -145,4 +145,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidUsageException_h
+#endif // __refinitiv_ema_access_OmmInvalidUsageException_h

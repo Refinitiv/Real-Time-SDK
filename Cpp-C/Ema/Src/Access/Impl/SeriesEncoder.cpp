@@ -13,7 +13,7 @@
 #include "Series.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 SeriesEncoder::SeriesEncoder() :
  _rsslSeries(),

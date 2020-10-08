@@ -219,7 +219,7 @@ typedef struct
 	RsslBuffer      *locationList;   /*!< A list of locations. The list indicates the location of the service. */
 	RsslUInt32      locationCount;   /*!< The number of locations in locationList. */
 	RsslBuffer      port;            /*!< A port number used to establish connection. */
-	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time Optimized provider. */
+	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time - Optimized provider. */
 	RsslBuffer      transport;       /*!< A transport type used to access service. */
 } RsslReactorServiceEndpointInfo;
 
@@ -241,7 +241,7 @@ typedef struct
 	RsslReactorServiceEndpointInfo *serviceEndpointInfoList; /*!< The list of service endpoints associated with this event. */
 	RsslUInt32                     serviceEndpointInfoCount; /*!< The number of service endpoint information in serviceEndpointInfoList. */
 	void                           *userSpecPtr;        /*!< A user-specified pointer associated with this RsslReactorServiceEndpointEvent. */
-	RsslErrorInfo                  *pErrorInfo;             /*!< Contains information about the error that occurred with EDP token service and service discovery 
+	RsslErrorInfo                  *pErrorInfo;             /*!< Contains information about the error that occurred with RDP token service and service discovery 
                                                              * which provides information about the error and its location in the source code. */
 	RsslUInt32                     statusCode;          /*!< Represents HTTP response status code */
 } RsslReactorServiceEndpointEvent;
@@ -261,7 +261,7 @@ RTR_C_INLINE void rsslClearReactorServiceEndpointEvent(RsslReactorServiceEndpoin
  */
 typedef struct
 {
-	RsslBuffer					userName;					/*!< The user name to authorize with the EDP token service. This is used to get sensitive information
+	RsslBuffer					userName;					/*!< The user name to authorize with the RDP token service. This is used to get sensitive information
 															 *   for the user name in the RsslReactorOAuthCredentialEventCallback. */
 	RsslBuffer					password;					/*!< The password for user name used to get an access token and a refresh token. */
 	RsslBuffer					newPassword;				/*!< The new password to change the password associated with this user name.
@@ -293,7 +293,7 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewal(RsslReactorOAuthCredent
 typedef struct
 {
 	RsslReactorChannel					*pReactorChannel;						/*!< The channel associated with this event. */
-	RsslReactorOAuthCredentialRenewal	*pReactorOAuthCredentialRenewal;		/*!< The OAuth credential for renewal authentication with the EDP token service. */
+	RsslReactorOAuthCredentialRenewal	*pReactorOAuthCredentialRenewal;		/*!< The OAuth credential for renewal authentication with the RDP token service. */
 } RsslReactorOAuthCredentialEvent;
 
 /**

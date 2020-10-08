@@ -5,8 +5,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_rdm_EnumTypeTable_h
-#define __thomsonreuters_ema_rdm_EnumTypeTable_h
+#ifndef __refinitiv_ema_rdm_EnumTypeTable_h
+#define __refinitiv_ema_rdm_EnumTypeTable_h
 
 /**
 * A table of enumerated types.  A field that uses this table will contain a value
@@ -16,7 +16,7 @@
 #include "EnumType.h"
 #include "Access/Include/EmaVector.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -33,13 +33,13 @@ public:
 	* Returns the list of EnumType that is belonged to this EnumTypeTable.
 	* @return the list of EnumType
 	*/
-	const thomsonreuters::ema::access::EmaVector<EnumType>& getEnumTypes() const;
+	const refinitiv::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
 	/**
 	* Returns the list of Field ID that references to this EnumTypeTable.
 	* @return the list of FID
 	*/
-	const thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>& getFidReferences() const;
+	const refinitiv::ema::access::EmaVector<refinitiv::ema::access::Int16>& getFidReferences() const;
 	//@}
 
 	///@name Operations
@@ -47,7 +47,7 @@ public:
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
 	*/
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 	/** Operator const char* overload.
 	@throw OmmMemoryExhaustionException if app runs out of memory
@@ -61,7 +61,7 @@ private:
 	friend class DataDictionaryImpl;
 
 	template<class T>
-	friend class thomsonreuters::ema::access::EmaVector;
+	friend class refinitiv::ema::access::EmaVector;
 
 	EnumTypeTableImpl* _pImpl;
 
@@ -80,4 +80,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_EnumTypeTable_h
+#endif // __refinitiv_ema_rdm_EnumTypeTable_h

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmArray_h
-#define __thomsonreuters_ema_access_OmmArray_h
+#ifndef __refinitiv_ema_access_OmmArray_h
+#define __refinitiv_ema_access_OmmArray_h
 
 /**
-	@class thomsonreuters::ema::access::OmmArray OmmArray.h "Access/Include/OmmArray.h"
+	@class refinitiv::ema::access::OmmArray OmmArray.h "Access/Include/OmmArray.h"
 	@brief OmmArray is a homogeneous container of primitive data type entries.
 
 	The following code snippet shows addition of primitive data type entries to OmmArray.
@@ -73,7 +73,7 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/OmmArrayEntry.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -458,4 +458,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmArray_h
+#endif // __refinitiv_ema_access_OmmArray_h

@@ -8,7 +8,7 @@
 
 #include "StreamId.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 StreamId::StreamId( Int32 streamId )
 {

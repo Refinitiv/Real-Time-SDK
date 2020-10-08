@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_EnumTypeImpl_h
-#define __thomsonreuters_ema_rdm_EnumTypeImpl_h
+#ifndef __refinitiv_ema_rdm_EnumTypeImpl_h
+#define __refinitiv_ema_rdm_EnumTypeImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
 #include "EnumType.h"
 #include "EmaStringInt.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -30,23 +30,23 @@ public:
 
 	virtual ~EnumTypeImpl();
 
-	thomsonreuters::ema::access::UInt16 getValue() const;
+	refinitiv::ema::access::UInt16 getValue() const;
 
-	const thomsonreuters::ema::access::EmaString& getDisplay() const;
+	const refinitiv::ema::access::EmaString& getDisplay() const;
 
-	const thomsonreuters::ema::access::EmaString& getMeaning() const;
+	const refinitiv::ema::access::EmaString& getMeaning() const;
 
 	void rsslEnumType(RsslEnumType* rsslEnumType);
 
 	RsslEnumType*			rsslEnumType();
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringDispaly;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringMeaning;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaStringInt	_stringDispaly;
+	mutable refinitiv::ema::access::EmaStringInt	_stringMeaning;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
 	RsslEnumType*			_pRsslEnumType;
 
@@ -58,4 +58,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_EnumTypeImpl_h
+#endif // __refinitiv_ema_rdm_EnumTypeImpl_h

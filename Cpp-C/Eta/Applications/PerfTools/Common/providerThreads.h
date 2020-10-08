@@ -6,7 +6,7 @@
 */
 
 /* providerThreads.h
- * Provides the logic that connections use with upacProvPerf and upacNIProvPerf for maintaining
+ * Provides the logic that connections use with ProvPerf and NIProvPerf for maintaining
  * channels and open items for a connection, and manages the sending of refreshes and updates. */
 
 #ifndef _PROVIDER_THREADS_H
@@ -151,14 +151,14 @@ typedef struct
 	RsslLocalFieldSetDefDb	fListSetDef;			/* Set definition, if needed. */
 	char					setDefMemory[3825];		/* Memory for set definitions.  */
 	TimeRecordQueue			genMsgLatencyRecords;	/* Queue of timestamp information(for gen msgs), collected periodically by the main thread. */
-	RsslReactor				*pReactor;				/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslReactorOMMNIProviderRole niProviderRole;	/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslRDMLoginRequest		loginRequest;			/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslRDMDirectoryRefresh directoryRefresh;		/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslRDMService			service;				/* Used for when application uses VA Reactor instead of UPA Channel. */
-	fd_set					readfds;				/* Read file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
-	fd_set					exceptfds;				/* Exception file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
-	fd_set					wrtfds;					/* Write file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactor				*pReactor;				/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslReactorOMMNIProviderRole niProviderRole;	/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslRDMLoginRequest		loginRequest;			/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslRDMDirectoryRefresh directoryRefresh;		/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslRDMService			service;				/* Used for when application uses VA Reactor instead of ETA Channel. */
+	fd_set					readfds;				/* Read file descriptor set. Used for when application uses VA Reactor instead of ETA Channel. */
+	fd_set					exceptfds;				/* Exception file descriptor set. Used for when application uses VA Reactor instead of ETA Channel. */
+	fd_set					wrtfds;					/* Write file descriptor set. Used for when application uses VA Reactor instead of ETA Channel. */
 
 	RsslMCastStats prevMCastStats;
 	TimeRecordQueue messageEncodeTimeRecords;	/* Measurement of encoding time */

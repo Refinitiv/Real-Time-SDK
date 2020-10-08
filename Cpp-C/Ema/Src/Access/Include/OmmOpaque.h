@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmOpaque_h
-#define __thomsonreuters_ema_access_OmmOpaque_h
+#ifndef __refinitiv_ema_access_OmmOpaque_h
+#define __refinitiv_ema_access_OmmOpaque_h
 
 /**
-	@class thomsonreuters::ema::access::OmmOpaque OmmOpaque.h "Access/Include/OmmOpaque.h"
+	@class refinitiv::ema::access::OmmOpaque OmmOpaque.h "Access/Include/OmmOpaque.h"
 	@brief OmmOpaque represents Opaque data format in Omm.
 
 	The following code snippet shows setting of Opaque data into FieldList;
@@ -60,7 +60,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -166,4 +166,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmOpaque_h
+#endif // __refinitiv_ema_access_OmmOpaque_h

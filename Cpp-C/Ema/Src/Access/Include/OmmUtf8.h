@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmUtf8_h
-#define __thomsonreuters_ema_access_OmmUtf8_h
+#ifndef __refinitiv_ema_access_OmmUtf8_h
+#define __refinitiv_ema_access_OmmUtf8_h
 
 /**
-	@class thomsonreuters::ema::access::OmmUtf8 OmmUtf8.h "Access/Include/OmmUtf8.h"
+	@class refinitiv::ema::access::OmmUtf8 OmmUtf8.h "Access/Include/OmmUtf8.h"
 	@brief OmmUtf8 represents Utf8 string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmUtf8_h
+#endif // __refinitiv_ema_access_OmmUtf8_h

@@ -1,9 +1,0 @@
-This file just contains the RIPC handshake, followed by a ping message
-
-0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
-0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
-0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
-0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
-
-This is the ping message
-0000: 00 03 01                                           ...

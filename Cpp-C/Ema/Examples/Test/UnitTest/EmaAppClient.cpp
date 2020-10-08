@@ -8,8 +8,8 @@
 
 #include "EmaAppClient.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 void AppClient::processLoginRequest(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 {

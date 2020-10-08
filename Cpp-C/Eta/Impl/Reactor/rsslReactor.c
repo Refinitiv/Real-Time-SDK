@@ -109,6 +109,10 @@ static RsslRet _reactorWatchlistMsgCallback(RsslWatchlist *pWatchlist, RsslWatch
 };
 #endif
 
+/* current created reactor index */
+static rtr_atomic_val currentIndReactor = 0;
+
+
 static RsslRet _reactorSendConnReadyEvent(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError)
 {
 	RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
@@ -826,7 +830,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	pReactorImpl->memoryBuffer.data = memBuf;
 	pReactorImpl->memoryBuffer.length = pReactorImpl->dispatchDecodeMemoryBufferSize;
 
-	if (_reactorWorkerStart(pReactorImpl, pReactorOpts, pError) != RSSL_RET_SUCCESS)
+	if (_reactorWorkerStart(pReactorImpl, pReactorOpts, RTR_ATOMIC_INCREMENT_RET(currentIndReactor), pError) != RSSL_RET_SUCCESS)
 	{
 		_reactorWorkerCleanupReactor(pReactorImpl);
 		return NULL;
@@ -1453,7 +1457,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 				else
 				{
 					rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-						"Failed to parse service endpoint information from the EDP-RT service discovery.");
+						"Failed to parse service endpoint information from the RDP service discovery.");
 
 					reactorServicEndpointEvent.pErrorInfo = &errorInfo;
 					(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServicEndpointEvent);
@@ -1462,7 +1466,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 			else
 			{
 				rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"Failed to query service endpoint information from the EDP-RT service discovery. Text: %s", restResponse.dataBody.data);
+					"Failed to query service endpoint information from the RDP service discovery. Text: %s", restResponse.dataBody.data);
 
 				reactorServicEndpointEvent.pErrorInfo = &errorInfo;
 				(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServicEndpointEvent);
@@ -1471,7 +1475,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		else
 		{
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Failed to send a request to the EDP-RT service discovery. Text: %s", errorInfo.rsslError.text);
+				"Failed to send a request to the RDP service discovery. Text: %s", errorInfo.rsslError.text);
 		}
 
 		free(pRestRequestArgs);
@@ -6526,7 +6530,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 		default:
 			free(pRsslRestRequestArgs);
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-				"Invalid transport protocol(%d) for requesting EDP-RT service discovery.",
+				"Invalid transport protocol(%d) for requesting RDP service discovery.",
 				transport);
 			return 0;
 		}
@@ -6562,7 +6566,7 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 		default:
 			free(pRsslRestRequestArgs);
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-				"Invalid data format protocol(%d) for requesting EDP-RT service discovery.",
+				"Invalid data format protocol(%d) for requesting RDP service discovery.",
 				transport);
 			return 0;
 		}
@@ -6955,7 +6959,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 			else
 			{
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-					"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.",
+					"Invalid encrypted protocol type(%d) for requesting RDP service discovery.",
 					pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
 
 				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
@@ -6966,7 +6970,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 		}
 		default:
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-				"Invalid connection type(%d) for requesting EDP-RT service discovery.",
+				"Invalid connection type(%d) for requesting RDP service discovery.",
 				transport);
 
 			RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
@@ -6975,7 +6979,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 		while (retryCount <= 1) /* Retry the request using the redirect URL only one time. */
 		{
-			/* Get host name and port for EDP-RT service discovery */
+			/* Get host name and port for RDP service discovery */
 			if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorChannelImpl->pParentReactor, &serviceDiscoveryURL,
 				transport, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
 				&pTokenSessionImpl->tokenInformation.accessToken, &argumentsAndHeaders,
@@ -7084,7 +7088,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 						else
 						{
 							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-								"Failed to query host name and port from the EDP-RT service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
+								"Failed to query host name and port from the RDP service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
 						}
 
 						free(parseBuffer.data);
@@ -7107,7 +7111,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 								if (pReactorImpl->serviceDiscoveryURLBuffer.data == 0)
 								{
 									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-										"Failed to copy the redirect URL for the EDP-RT service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+										"Failed to copy the redirect URL for the RDP service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
 									break;
 								}
 							}
@@ -7124,7 +7128,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 						}
 
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-							"The redirect URL does not exist in the Location header for the EDP-RT service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+							"The redirect URL does not exist in the Location header for the RDP service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
 
 						break;
 					}
@@ -7145,7 +7149,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 								if (pTokenSessionImpl->temporaryURLBuffer.data == 0)
 								{
 									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-										"Failed to copy the temporary redirect URL for the EDP-RT service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+										"Failed to copy the temporary redirect URL for the RDP service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
 									break;
 								}
 							}
@@ -7162,14 +7166,14 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 						}
 
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-							"The redirect URL does not exist in the Location header for the EDP-RT service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+							"The redirect URL does not exist in the Location header for the RDP service discovery from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
 
 						break;
 					}
 					default:
 					{
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-							"Failed to query host name and port from the EDP-RT service discovery from HTTP error code %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+							"Failed to query host name and port from the RDP service discovery from HTTP error code %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
 					}
 				}
 			}

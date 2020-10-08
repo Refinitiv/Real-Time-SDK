@@ -39,8 +39,8 @@
 #include <limits.h>
 #include <new>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString ItemCallbackClient::_clientName( "ItemCallbackClient" );
 const EmaString SingleItem::_clientName( "SingleItem" );

@@ -59,7 +59,7 @@ public :
 		/** default constructor
 			\remark sets initial list capacity to zero
 		*/
-	AppVector( thomsonreuters::ema::access::UInt64 capacity = 0 );
+	AppVector( refinitiv::ema::access::UInt64 capacity = 0 );
 	//@}
 
 	///@name Copy Constructor
@@ -93,24 +93,24 @@ public :
 		/** method to obtain current size of the list
 			\return number of elements on the list
 		*/
-		thomsonreuters::ema::access::UInt64 size() const;
+		refinitiv::ema::access::UInt64 size() const;
 
 		/** index operator
 			\remark allows read only access to the i-th element of the list
 		*/
-		const T& operator[]( thomsonreuters::ema::access::UInt64 index ) const;
+		const T& operator[]( refinitiv::ema::access::UInt64 index ) const;
 
 		/** index operator
 			\remark allows read & write access to the i-th element of the list
 		*/
-		T& operator[]( thomsonreuters::ema::access::UInt64 index );
+		T& operator[]( refinitiv::ema::access::UInt64 index );
 
 		/** returns position of the first encountered element on the list
 			that matches passed in value
 			\param value - value of the element to be found
 			\return -1 if no matching element was found and position otherwise
 		*/
-		thomsonreuters::ema::access::Int64 getPositionOf( const T& value ) const;
+		refinitiv::ema::access::Int64 getPositionOf( const T& value ) const;
 
 		/** comparison operator for the entire list
 		*/
@@ -132,7 +132,7 @@ public :
 			\param pos position of the element to be removed
 			\return true if this element was removed, false otherwise
 		*/
-		bool removePosition( thomsonreuters::ema::access::UInt64 pos );
+		bool removePosition( refinitiv::ema::access::UInt64 pos );
 
 		/** Removes value specified element from the list
 			\param value - value of the element to be removed
@@ -147,16 +147,16 @@ private :
 
 	// data members
 	
-	thomsonreuters::ema::access::UInt64		m_capacity;
+	refinitiv::ema::access::UInt64		m_capacity;
 
-	thomsonreuters::ema::access::UInt64		m_size;
+	refinitiv::ema::access::UInt64		m_size;
 
 	T*			m_list;
 };
 
 // default constructor
 template< class T >
-AppVector< T >::AppVector( thomsonreuters::ema::access::UInt64 capacity ) :
+AppVector< T >::AppVector( refinitiv::ema::access::UInt64 capacity ) :
 	m_size( 0 ),
 	m_capacity( capacity ),
 	m_list( 0 )
@@ -179,7 +179,7 @@ AppVector< T >::AppVector( const AppVector< T >& other ) :
 
 	m_list = new T[ (unsigned int)m_capacity ];
 
-	for ( thomsonreuters::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
+	for ( refinitiv::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
 	{
 		m_list[pos] = other.m_list[pos];
 	}
@@ -196,7 +196,7 @@ AppVector< T >& AppVector< T >::operator=( const AppVector< T >& other )
 		// enough memory already allocated
 		m_size = other.m_size;
 
-		for ( thomsonreuters::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
+		for ( refinitiv::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
 		{
 			m_list[pos] = other.m_list[pos];
 		}
@@ -211,7 +211,7 @@ AppVector< T >& AppVector< T >::operator=( const AppVector< T >& other )
 
 		m_list = new T[ (unsigned int)(m_capacity) ];
 
-		for ( thomsonreuters::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
+		for ( refinitiv::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
 		{
 			m_list[pos] = other.m_list[pos];
 		}
@@ -226,7 +226,7 @@ bool AppVector< T >::operator==( const AppVector< T >& other ) const
 {
 	if ( m_size != other.m_size ) return false;
 
-	for ( thomsonreuters::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
+	for ( refinitiv::ema::access::UInt64 pos = 0; pos < m_size; ++pos )
 	{
 		if ( ! ( m_list[pos] == other.m_list[pos] ) ) return false;
 	}
@@ -260,7 +260,7 @@ void AppVector< T >::push_back( const T& element )
 	}
 	else
 	{
-		thomsonreuters::ema::access::UInt64 i = 0;
+		refinitiv::ema::access::UInt64 i = 0;
 		if ( m_capacity == 0 )
 		{
 			m_capacity = 5;
@@ -287,36 +287,36 @@ void AppVector< T >::push_back( const T& element )
 }
 
 template <class T >
-thomsonreuters::ema::access::UInt64 AppVector< T >::size() const
+refinitiv::ema::access::UInt64 AppVector< T >::size() const
 {
 	return m_size;
 }
 
 template < class T >
-T& AppVector< T >::operator[]( thomsonreuters::ema::access::UInt64 position ) 
+T& AppVector< T >::operator[]( refinitiv::ema::access::UInt64 position ) 
 {
 	assert ( position < m_size);
 	return m_list[position];
 }
 
 template < class T >
-const T& AppVector< T >::operator[]( thomsonreuters::ema::access::UInt64 position ) const
+const T& AppVector< T >::operator[]( refinitiv::ema::access::UInt64 position ) const
 {
 	assert ( position < m_size);
 	return m_list[position];
 }
 
 template < class T >
-thomsonreuters::ema::access::Int64 AppVector< T >::getPositionOf( const T& value ) const
+refinitiv::ema::access::Int64 AppVector< T >::getPositionOf( const T& value ) const
 {
-	thomsonreuters::ema::access::Int64 position = -1;
+	refinitiv::ema::access::Int64 position = -1;
 
 	// check which element matches the passed one
-	for ( thomsonreuters::ema::access::UInt64 idx = 0; idx < m_size; ++idx )
+	for ( refinitiv::ema::access::UInt64 idx = 0; idx < m_size; ++idx )
 	{
 		if ( operator[]( idx ) == value )
 		{
-			position = (thomsonreuters::ema::access::Int64)(idx);
+			position = (refinitiv::ema::access::Int64)(idx);
 			break;
 		}
 	}
@@ -325,13 +325,13 @@ thomsonreuters::ema::access::Int64 AppVector< T >::getPositionOf( const T& value
 }
 
 template < class T >
-bool AppVector< T >::removePosition( thomsonreuters::ema::access::UInt64 position )
+bool AppVector< T >::removePosition( refinitiv::ema::access::UInt64 position )
 {
 	// return if index out of range
 	if ( position >= m_size ) return false;
 
 	// move down elements above passed idx by one
-	for ( thomsonreuters::ema::access::UInt64 i = position + 1; i < m_size; ++i )
+	for ( refinitiv::ema::access::UInt64 i = position + 1; i < m_size; ++i )
 	{
 		m_list[ i - 1 ] = m_list[ i ];
 	}
@@ -347,7 +347,7 @@ bool AppVector< T >::removeValue( const T& value )
 	bool copy = false;
 
 	// check which element matches the passed one
-	for ( thomsonreuters::ema::access::UInt64 idx = 0; idx < m_size; ++idx )
+	for ( refinitiv::ema::access::UInt64 idx = 0; idx < m_size; ++idx )
 	{
 		if ( !( operator[]( idx ) == value )  && !copy )
 		{

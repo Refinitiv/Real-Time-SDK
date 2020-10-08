@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_VectorEncoder_h
-#define __thomsonreuters_ema_access_VectorEncoder_h
+#ifndef __refinitiv_ema_access_VectorEncoder_h
+#define __refinitiv_ema_access_VectorEncoder_h
 
 #include "Encoder.h"
 #include "ComplexType.h"
@@ -15,7 +15,7 @@
 #include "VectorEntry.h"
 #include "rtr/rsslVector.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -101,4 +101,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_VectorEncoder_h
+#endif // __refinitiv_ema_access_VectorEncoder_h

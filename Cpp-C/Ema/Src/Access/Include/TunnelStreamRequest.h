@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_TunnelStreamRequest_h
-#define __thomsonreuters_ema_access_TunnelStreamRequest_h
+#ifndef __refinitiv_ema_access_TunnelStreamRequest_h
+#define __refinitiv_ema_access_TunnelStreamRequest_h
 
 #include "EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -21,7 +21,7 @@ class ReqMsg;
 class TunnelStreamLoginReqMsgImpl;
 
 /**
-	@class thomsonreuters::ema::access::CosCommon TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::CosCommon TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief CosCommon encapsulates common member of the ClassOfService class
 
 	CosCommon describes common options related to the exchange of messages.
@@ -88,7 +88,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::CosAuthentication TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::CosAuthentication TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief CosAuthentication encapsulates authentication member of the ClassOfService class
 
 	CosAuthentication contains options to authenticate a consumer to the corresponding provider.
@@ -161,7 +161,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::CosFlowControl TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::CosFlowControl TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief CosFlowControl encapsulates flow control member of the ClassOfService class
 
 	CosFlowControl contains options related to flow control, such as the type and the allowed window of outstanding data.
@@ -265,7 +265,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::CosDataIntegrity TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::CosDataIntegrity TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief CosDataIntegrity encapsulates data integrity member of the ClassOfService class
 
 	CosDataIntegrity contains options related to the reliability of content exchanged over the tunnel stream.
@@ -338,7 +338,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::CosGuarantee TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::CosGuarantee TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief CosGuarantee encapsulates guarantee member of the ClassOfService class
 
 	CosGuarantee contains options related to the guarantee of content submitted over the tunnel stream.
@@ -437,7 +437,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::ClassOfService TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::ClassOfService TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief ClassOfService encapsulates behaviours of tunnel stream.
 
 	ClassOfService is used to negotiate behaviors of a tunnel stream. Negotiated behaviors are divided into
@@ -555,7 +555,7 @@ private :
 };
 
 /**
-	@class thomsonreuters::ema::access::TunnelStreamRequest TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
+	@class refinitiv::ema::access::TunnelStreamRequest TunnelStreamRequest.h "Access/Include/TunnelStreamRequest.h"
 	@brief TunnelStreamRequest encapsulates tunnel stream request parameters.
 
 	TunnelStreamRequest contains options used for creation of a tunnel stream.
@@ -764,4 +764,4 @@ private :
 
 };
 
-#endif // __thomsonreuters_ema_access_TunnelStreamRequest_h
+#endif // __refinitiv_ema_access_TunnelStreamRequest_h

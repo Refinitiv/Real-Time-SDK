@@ -127,9 +127,9 @@ typedef struct
 														 * opening a tunnel stream. */
 
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
-	RsslBuffer			clientId;						/* Unique ID defined for application making request to EDP token service */  
-	RsslBuffer			location;						/* Location to get an endpoint from EDP Service discovery */
-	RsslBool			queryEndpoint;					/* Queries the EDP service discovery in application for the specified connection type and location. */	
+	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service */  
+	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
+	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */	
 
 	//APIQA
 	EventCounter		eventCounters[MAX_ITEMS];

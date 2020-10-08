@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_DateTimeStringFormat_h
-#define __thomsonreuters_ema_access_DateTimeStringFormat_h
+#ifndef __refinitiv_ema_access_DateTimeStringFormat_h
+#define __refinitiv_ema_access_DateTimeStringFormat_h
 
 /**
-	@class thomsonreuters::ema::access::DateTimeStringFormat "Access/Include/DateTimeStringFormat.h"
+	@class refinitiv::ema::access::DateTimeStringFormat "Access/Include/DateTimeStringFormat.h"
 	@brief DateTimeStringFormat is an interface to string conversion methods for OmmDate, OmmTime & OmmDateTime.
 
 	\remark DateTimeStringFormat is single threaded.
@@ -28,7 +28,7 @@
 #include "Access/Include/OmmTime.h"
 #include "Access/Include/OmmDateTime.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -90,4 +90,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DateTimeStringFormat_h
+#endif // __refinitiv_ema_access_DateTimeStringFormat_h

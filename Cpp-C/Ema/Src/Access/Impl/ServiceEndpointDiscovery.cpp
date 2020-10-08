@@ -12,7 +12,7 @@
 #include "ServiceEndpointDiscoveryImpl.h"
 #include "ExceptionTranslator.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURL, const EmaString& serviceDiscoveryURL)
 : _pImpl(0)

@@ -18,7 +18,7 @@
 #include "OmmUnsupportedDomainTypeExceptionImpl.h"
 #include "OmmJsonConverterExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 void throwIueException( const EmaString& text, Int32 errorCode )
 {
@@ -70,7 +70,7 @@ void throwLfiException( const EmaString& fileName, const EmaString& text )
 	OmmInaccessibleLogFileExceptionImpl::throwException( fileName, text );
 }
 
-void throwDtuException( thomsonreuters::ema::access::UInt16 domainType , const thomsonreuters::ema::access::EmaString& text )
+void throwDtuException( refinitiv::ema::access::UInt16 domainType , const refinitiv::ema::access::EmaString& text )
 {
 	OmmUnsupportedDomainTypeExceptionImpl::throwException( text, domainType );
 }

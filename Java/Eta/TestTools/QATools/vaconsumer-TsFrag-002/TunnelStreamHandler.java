@@ -1,39 +1,39 @@
-package com.thomsonreuters.upa.valueadd.examples.consumer;
+package com.refinitiv.eta.valueadd.examples.consumer;
 
 // APIQA:
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
 // END APIQA: 
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
 //APIQA:
-import com.thomsonreuters.upa.codec.GenericMsg;
-import com.thomsonreuters.upa.codec.MsgClasses;
+import com.refinitiv.eta.codec.GenericMsg;
+import com.refinitiv.eta.codec.MsgClasses;
 //END APIQA: 
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.ClassesOfService;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.ClassesOfService;
 //APIQA:
-//import com.thomsonreuters.upa.transport.TransportBuffer;
+//import com.refinitiv.eta.transport.TransportBuffer;
 //END APIQA: 
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamOpenOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamOpenOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
 
 /**
- * This is the tunnel stream handler for the UPA Value Add consumer application. It sends and receives
+ * This is the tunnel stream handler for the ETA Value Add consumer application. It sends and receives
  * basic text messages over a tunnel stream. It only supports one ReactorChannel/TunnelStream.
  */
 public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback

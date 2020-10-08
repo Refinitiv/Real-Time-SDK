@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerClient_h
-#define __thomsonreuters_ema_access_OmmConsumerClient_h
+#ifndef __refinitiv_ema_access_OmmConsumerClient_h
+#define __refinitiv_ema_access_OmmConsumerClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerClient OmmConsumerClient.h "Access/Include/OmmConsumerClient.h"
+	@class refinitiv::ema::access::OmmConsumerClient OmmConsumerClient.h "Access/Include/OmmConsumerClient.h"
 	@brief OmmConsumerClient class provides callback interfaces to pass received messages.
 
 	Application needs to implement an application client class inheriting from OmmConsumerClient.
@@ -67,7 +67,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -152,4 +152,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerClient_h
+#endif // __refinitiv_ema_access_OmmConsumerClient_h

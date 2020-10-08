@@ -1,4 +1,4 @@
-package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
+package com.refinitiv.eta.valueadd.examples.watchlistconsumer;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -13,84 +13,84 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.thomsonreuters.upa.codec.AckMsg;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CloseMsg;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.MapEntryActions;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.RequestMsg;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StatusMsg;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.codec.UpdateMsg;
-import com.thomsonreuters.upa.shared.CommandLine;
-import com.thomsonreuters.upa.rdm.Dictionary;
-import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.ConnectOptions;
-import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
+import com.refinitiv.eta.codec.AckMsg;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CloseMsg;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.MapEntryActions;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.UpdateMsg;
+import com.refinitiv.eta.shared.CommandLine;
+import com.refinitiv.eta.rdm.Dictionary;
+import com.refinitiv.eta.rdm.Dictionary.VerbosityValues;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.transport.ConnectOptions;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
 // APIQA:  Add DirectoryRequest
-import com.thomsonreuters.upa.rdm.Directory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.refinitiv.eta.rdm.Directory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 // END APIQA
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
-import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
-import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
-import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ConsumerCallback;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDirectoryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.Reactor;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
+import com.refinitiv.eta.valueadd.examples.common.ConnectionArg;
+import com.refinitiv.eta.valueadd.examples.common.ItemArg;
+import com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.ItemInfo;
+import com.refinitiv.eta.valueadd.reactor.ConsumerCallback;
+import com.refinitiv.eta.valueadd.reactor.RDMDictionaryMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.RDMDirectoryMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.RDMLoginMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.Reactor;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>
- * This is a main class to run the UPA Value Add WatchlistConsumer application.
+ * This is a main class to run the ETA Value Add WatchlistConsumer application.
  * </p>
  * <H2>Summary</H2>
  * <p>
  * This is the main file for the WatchlistConsumer application.  It is a single-threaded
- * client application that utilizes the UPA Reactor's watchlist to provide recovery of data.
+ * client application that utilizes the ETA Reactor's watchlist to provide recovery of data.
  * 
  * The main consumer file provides the callback for channel events and 
  * the default callback for processing RsslMsgs. The main function
- * Initializes the UPA Reactor, makes the desired connections, and
+ * Initializes the ETA Reactor, makes the desired connections, and
  * dispatches for events.
  * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
@@ -122,10 +122,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * This application is intended as a basic usage example. Some of the design choices
  * were made to favor simplicity and readability over performance. This application 
  * is not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * </p>
  * <H2>Setup Environment</H2>
  * <p>

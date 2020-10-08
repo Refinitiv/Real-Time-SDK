@@ -5,28 +5,28 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.iprovider.series400.example421__MarketPrice__ProgrammaticConfig;
+package com.refinitiv.ema.examples.training.iprovider.series400.ex421_MP_ProgrammaticCfg;
 
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmIProviderConfig;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.OmmProviderClient;
-import com.thomsonreuters.ema.access.OmmProviderEvent;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmIProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmProviderClient;
+import com.refinitiv.ema.access.OmmProviderEvent;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {

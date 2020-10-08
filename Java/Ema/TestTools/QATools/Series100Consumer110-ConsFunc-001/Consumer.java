@@ -1,9 +1,9 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-package com.thomsonreuters.ema.examples.training.consumer.series100.example110__MarketPrice__FileConfig;
+package com.refinitiv.ema.examples.training.consumer.series100.ex110_MP_FileCfg;
 
-import com.thomsonreuters.ema.access.*;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.rdm.*;
+import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.rdm.*;
 
 class AppClient implements OmmConsumerClient
 {
@@ -411,7 +411,7 @@ public class Consumer
                     Thread.sleep(1600);
                     System.out.println("PAUSE NOW h2");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(true).initialImage(false), h2);
-                    System.out.println("STOP recieve updates");
+                    System.out.println("STOP receive updates");
                     Thread.sleep(1600);
                     System.out.println("RESUME  NOW h1");
 
@@ -433,7 +433,7 @@ public class Consumer
                     Thread.sleep(1600);
                     System.out.println("PAUSE NOW h2");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(true).initialImage(false), h2);
-                    System.out.println("STOP recieve updates");
+                    System.out.println("STOP receive updates");
                     Thread.sleep(1600);
                     System.out.println("RESUME  NOW h1");
                     consumer.reissue(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").pause(false).initialImage(true), h1);

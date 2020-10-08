@@ -257,7 +257,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 	}
 
-	/* For EDP token management and service discovery */
+	/* For RDP token management and service discovery */
 	free(pReactorImpl->accessTokenRespBuffer.data);
 	free(pReactorImpl->tokenInformationBuffer.data);
 	free(pReactorImpl->serviceDiscoveryRespBuffer.data);
@@ -1540,7 +1540,7 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 
 			if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 				(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
-			{	/* Get host name and port for EDP-RT service discovery */
+			{	/* Get host name and port for RDP service discovery */
 				RsslRestRequestArgs *pRestRequestArgs;
 				RsslBuffer rsslBuffer;
 				RsslQueueLink *pLink = NULL;
@@ -1555,7 +1555,7 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 					break;
 				default:
 					rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-						"Invalid connection type(%d) for requesting EDP-RT service discovery.",
+						"Invalid connection type(%d) for requesting RDP service discovery.",
 						transport);
 
 					pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
@@ -1656,7 +1656,7 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_PARSE_RESP_FAILURE;
 				
 				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"Failed to query host name and port from the EDP-RT service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
+					"Failed to query host name and port from the RDP service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
 
 				/* Notify error back to the application via the channel event */
 				if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))

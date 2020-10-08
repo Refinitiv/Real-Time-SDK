@@ -26,7 +26,7 @@ typedef int DUMMY_SOCKET;
 #include <float.h>
 #include "Ema.h"
 #include <stdio.h>
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 struct ResourceUsageStats {
 	double cpuUsageFraction;

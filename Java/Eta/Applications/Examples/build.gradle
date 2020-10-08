@@ -11,11 +11,11 @@ dependencies {
 	compile project(':Eta:ValueAdd')
 	compile project(':Eta:ValueAddCache')
 	compile project(':Eta:Applications:Shared')
-	// Adding dependency on the jdacsUpalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
+	// Adding dependency on the jdacsEtalib.jar
+	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
 }
 
-mainClassName = 'com.thomsonreuters.upa.examples.provider.Provider'
+mainClassName = 'com.refinitiv.eta.examples.provider.Provider'
 
 task copyDictionary( type: Copy ) {
 	from '../../../etc'
@@ -38,7 +38,7 @@ javadoc {
     source exportedProjects.collect { project(it).sourceSets.main.allJava }
     classpath = files( exportedProjects.collect { project(it).sourceSets.main.compileClasspath } )
 
-    destinationDir = file('../../Docs/refman/upajexamples')
+    destinationDir = file('../../Docs/refman/etajexamples')
     title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " - Java Edition Examples"
 
     options.footer ("${javadoc_footer}")
@@ -49,7 +49,7 @@ javadoc {
 }
 
 task cleanJavadoc (type: Delete) {
-        delete ('../../Docs/refman/upajexamples')
+        delete ('../../Docs/refman/etajexamples')
 }
 
 run.dependsOn copyDictionary
@@ -60,7 +60,7 @@ task runProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Interactive Provider Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.provider.Provider'
+	main = 'com.refinitiv.eta.examples.provider.Provider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -69,7 +69,7 @@ task runConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Consumer Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.consumer.Consumer'
+	main = 'com.refinitiv.eta.examples.consumer.Consumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -78,7 +78,7 @@ task runNIProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Non Interactive Provider Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.niprovider.NIProvider'
+	main = 'com.refinitiv.eta.examples.niprovider.NIProvider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -87,7 +87,7 @@ task runVAProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Interactive Provider Application Example'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.provider.Provider'
+	main = 'com.refinitiv.eta.valueadd.examples.provider.Provider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -96,7 +96,7 @@ task runVAConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Consumer Application Example'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.consumer.Consumer'
+	main = 'com.refinitiv.eta.valueadd.examples.consumer.Consumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -105,7 +105,7 @@ task runVANIProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Non Interactive Provider Application Example'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider'
+	main = 'com.refinitiv.eta.valueadd.examples.niprovider.NIProvider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -114,7 +114,7 @@ task runWatchlistConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Watchlist Consumer Application Example'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumer'
+	main = 'com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -123,7 +123,7 @@ task runGenericProv(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Generic Provider Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.genericprov.GenericProv'
+	main = 'com.refinitiv.eta.examples.genericprov.GenericProv'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -132,7 +132,7 @@ task runGenericCons(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Generic Consumer Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.genericcons.GenericCons'
+	main = 'com.refinitiv.eta.examples.genericcons.GenericCons'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -141,7 +141,7 @@ task runNewsViewer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA News Viewer Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.newsviewer.NewsViewer'
+	main = 'com.refinitiv.eta.examples.newsviewer.NewsViewer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -150,7 +150,7 @@ task runAnsiPageExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Ansi Page Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.ansipage.AnsiPageExample'
+	main = 'com.refinitiv.eta.examples.ansipage.AnsiPageExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -159,7 +159,7 @@ task runCodecExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Codec Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.codec.CodecExample'
+	main = 'com.refinitiv.eta.examples.codec.CodecExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -168,7 +168,7 @@ task runAuthLockExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA AuthLock Application Example'
 
-	main = 'com.thomsonreuters.upa.examples.authlock.AuthLockExample'
+	main = 'com.refinitiv.eta.examples.authlock.AuthLockExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBufferU16_h
-#define __thomsonreuters_ema_access_EmaBufferU16_h
+#ifndef __refinitiv_ema_access_EmaBufferU16_h
+#define __refinitiv_ema_access_EmaBufferU16_h
 
 /**
-	@class thomsonreuters::ema::access::EmaBufferU16 EmaBufferU16.h "Access/Include/Include/EmaBufferU16.h"
+	@class refinitiv::ema::access::EmaBufferU16 EmaBufferU16.h "Access/Include/Include/EmaBufferU16.h"
 	@brief EmaBufferU16 represents general use binary buffer.
 
 	EmaBufferU16 is a buffer of 16 bit long characters where each character is represented by UInt16.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	
 namespace ema {
 
@@ -171,4 +171,4 @@ EmaBufferU16 operator+( EmaBufferU16 buff_1, const EmaBufferU16& buff_2 );
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaBufferU16_h
+#endif // __refinitiv_ema_access_EmaBufferU16_h

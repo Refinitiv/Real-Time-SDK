@@ -1,0 +1,9 @@
+This file holds one RIPC14 ConneckReq with non default (255) protocol type
+and one clientKey.
+
+0000: 00 3E 00 00 00 00 17 08  2C 00 3C 00 FF 0E 01 0E   .>......,.<.....
+0001: 58 58 58 58 58 58 58 58  2D 54 50 4C 2D 41 0D 31   XXXXXXXX-TPL-A.1
+0002: 30 2E 39 31 2E 31 36 31  2E 32 34 38 11 10 45 54   0.91.161.248..ET
+0003: 41 20 4A 61 76 61 20 45  64 69 74 69 6F 6E         A Java Edition
+
+0000: 00 0C 08 08 0F 20 15 2D  0E 55 63 54               ..... .-.UcT

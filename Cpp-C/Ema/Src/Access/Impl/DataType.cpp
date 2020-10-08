@@ -8,7 +8,7 @@
 
 #include "DataType.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmOutOfRangeException_h
-#define __thomsonreuters_ema_access_OmmOutOfRangeException_h
+#ifndef __refinitiv_ema_access_OmmOutOfRangeException_h
+#define __refinitiv_ema_access_OmmOutOfRangeException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmOutOfRangeException OmmOutOfRangeException.h "Access/Include/OmmOutOfRangeException.h"
+	@class refinitiv::ema::access::OmmOutOfRangeException OmmOutOfRangeException.h "Access/Include/OmmOutOfRangeException.h"
 	@brief OmmOutOfRangeException is thrown when a passed in method argument is out of range.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -71,4 +71,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmOutOfRangeException_h
+#endif // __refinitiv_ema_access_OmmOutOfRangeException_h

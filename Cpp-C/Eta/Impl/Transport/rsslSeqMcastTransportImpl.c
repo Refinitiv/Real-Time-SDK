@@ -938,7 +938,7 @@ RSSL_RSSL_SEQ_MCAST_IMPL_FAST(RsslBuffer*) rsslSeqMcastRead(rsslChannelImpl* rss
 				readOutArgs->uncompressedBytesRead = 0;
 				*readRet = -1;
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 1007 Incomming UDP packet length is too short to contain a UPA Sequenced Multicast header.\n", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 1007 Incomming UDP packet length is too short to contain a ETA Sequenced Multicast header.\n", __FILE__, __LINE__);
 				if (chnlLocking)
 					seqMcastUnlock(&pSeqMcastChannel->lock);
 
@@ -957,7 +957,7 @@ RSSL_RSSL_SEQ_MCAST_IMPL_FAST(RsslBuffer*) rsslSeqMcastRead(rsslChannelImpl* rss
 				readOutArgs->uncompressedBytesRead = 0;
 				*readRet = -1;
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 1007 Unknown UPA Sequenced Multicast header version(%d).\n", __FILE__, __LINE__, tmpChar);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 1007 Unknown ETA Sequenced Multicast header version(%d).\n", __FILE__, __LINE__, tmpChar);
 				if (chnlLocking)
 					seqMcastUnlock(&pSeqMcastChannel->lock);
 

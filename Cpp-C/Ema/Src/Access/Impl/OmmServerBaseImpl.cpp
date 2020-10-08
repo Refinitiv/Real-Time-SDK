@@ -40,7 +40,7 @@
 
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, void* closure) :
 	_activeServerConfig(activeServerConfig),

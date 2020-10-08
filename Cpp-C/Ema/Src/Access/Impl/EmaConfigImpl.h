@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaConfigImpl_h
-#define __thomsonreuters_ema_access_EmaConfigImpl_h
+#ifndef __refinitiv_ema_access_EmaConfigImpl_h
+#define __refinitiv_ema_access_EmaConfigImpl_h
 
 #ifdef WIN32
 #include "direct.h"
@@ -33,10 +33,10 @@
 #define DEFAULT_IPROV_NAME							  EmaString("EmaIProvider")
 #define DEFAULT_NIPROV_NAME							  EmaString("EmaNiProvider")
 
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::rdm;
 
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -1466,4 +1466,4 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaConfigImpl_h
+#endif // __refinitiv_ema_access_EmaConfigImpl_h

@@ -6,14 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_TunnelStreamLoginReqMsgImpl_h
-#define __thomsonreuters_ema_access_TunnelStreamLoginReqMsgImpl_h
+#ifndef __refinitiv_ema_access_TunnelStreamLoginReqMsgImpl_h
+#define __refinitiv_ema_access_TunnelStreamLoginReqMsgImpl_h
 
 #include "ReqMsg.h"
 
 #include "rtr/rsslMsgEncoders.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -53,4 +53,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_TunnelStreamLoginReqMsgImpl_h
+#endif // __refinitiv_ema_access_TunnelStreamLoginReqMsgImpl_h

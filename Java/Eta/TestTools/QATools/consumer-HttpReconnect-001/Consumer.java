@@ -1,44 +1,44 @@
-package com.thomsonreuters.upa.examples.consumer;
+package com.refinitiv.eta.examples.consumer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.ResponseCallback;
-import com.thomsonreuters.upa.examples.common.DirectoryHandler;
-import com.thomsonreuters.upa.examples.common.DictionaryHandler;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.StreamIdWatchList;
-import com.thomsonreuters.upa.examples.common.SymbolListHandler;
-import com.thomsonreuters.upa.shared.CommandLine;
-import com.thomsonreuters.upa.shared.ConsumerLoginState;
-import com.thomsonreuters.upa.shared.PingHandler;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.ChannelInfo;
-import com.thomsonreuters.upa.transport.ChannelState;
-import com.thomsonreuters.upa.transport.ConnectOptions;
-import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.InProgInfo;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.Qos;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.examples.common.ChannelSession;
+import com.refinitiv.eta.examples.common.ResponseCallback;
+import com.refinitiv.eta.examples.common.DirectoryHandler;
+import com.refinitiv.eta.examples.common.DictionaryHandler;
+import com.refinitiv.eta.examples.common.LoginHandler;
+import com.refinitiv.eta.examples.common.StreamIdWatchList;
+import com.refinitiv.eta.examples.common.SymbolListHandler;
+import com.refinitiv.eta.shared.CommandLine;
+import com.refinitiv.eta.shared.ConsumerLoginState;
+import com.refinitiv.eta.shared.PingHandler;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.transport.ChannelInfo;
+import com.refinitiv.eta.transport.ChannelState;
+import com.refinitiv.eta.transport.ConnectOptions;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.InProgInfo;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
 /**
  * <p>
- * This is a main class to run UPA Consumer application. The purpose of this
+ * This is a main class to run ETA Consumer application. The purpose of this
  * application is to consume or post content between an OMM consumer and OMM
  * provider. It is a single-threaded client application.
  * </p>
@@ -47,7 +47,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
- * <li>Create a {@link ChannelSession UPA Channel Session}.
+ * <li>Create a {@link ChannelSession ETA Channel Session}.
  * <li>Create Handler instances to handle Login, Directory, Dictionary,
  * MarketPrice, MarketByOrder, MarketByPrice, and YieldCurve requests and responses.
  * <li>Create handlers for posting and symbol list request, responses.
@@ -66,10 +66,10 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * This application is intended as a basic usage example. Some of the design
  * choices were made to favor simplicity and readability over performance. It is
  * not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * <p>
  * <H2>Setup Environment</H2>
  * <p>

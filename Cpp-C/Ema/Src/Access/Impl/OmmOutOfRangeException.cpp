@@ -9,7 +9,7 @@
 #include "OmmOutOfRangeException.h"
 #include "EmaStringInt.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 #define EMASTRING_SIZE sizeof( EmaStringInt )
 

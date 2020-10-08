@@ -1,5 +1,5 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-Provider.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider
-TunnelStreamHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider
+Provider.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider
+TunnelStreamHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider

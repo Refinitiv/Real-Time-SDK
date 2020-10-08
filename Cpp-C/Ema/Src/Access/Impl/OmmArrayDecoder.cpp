@@ -10,7 +10,7 @@
 #include "StaticDecoder.h"
 #include "Utilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmArrayDecoder::OmmArrayDecoder() :
  _rsslArray(),

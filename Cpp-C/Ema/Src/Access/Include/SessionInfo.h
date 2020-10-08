@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_SessionInfo_h
-#define __thomsonreuters_ema_access_SessionInfo_h
+#ifndef __refinitiv_ema_access_SessionInfo_h
+#define __refinitiv_ema_access_SessionInfo_h
 
  /**
-	 @class thomsonreuters::ema::access::SessionInfo SessionInfo.h "Access/Include/SessionInfo.h"
+	 @class refinitiv::ema::access::SessionInfo SessionInfo.h "Access/Include/SessionInfo.h"
 	 @brief SessionInfo provides session information when EMA throws OmmJsonConverterException.
 
 	 \remark All methods in this class are \ref SingleThreaded.
@@ -20,7 +20,7 @@
 
 #include "Access/Include/ChannelInformation.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -42,4 +42,4 @@ public:
 
 }
 
-#endif // __thomsonreuters_ema_access_SessionInfo_h
+#endif // __refinitiv_ema_access_SessionInfo_h

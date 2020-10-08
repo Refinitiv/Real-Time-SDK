@@ -30,17 +30,17 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void decode(const thomsonreuters::ema::access::Msg&, bool complete = false);	// print content of passed in Msg to screen
+	void decode(const refinitiv::ema::access::Msg&, bool complete = false);	// print content of passed in Msg to screen
 
 protected:
 
-	void onRefreshMsg(const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onRefreshMsg(const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onStatusMsg(const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onStatusMsg(const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 };
 
 

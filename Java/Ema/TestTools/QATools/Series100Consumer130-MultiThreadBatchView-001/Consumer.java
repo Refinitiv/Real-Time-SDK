@@ -7,32 +7,32 @@
 //
 //APIQA this file is a standalone tool. See qa_readme.txt for details about this tool.
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example130__MarketPrice__UserDisp;
+package com.refinitiv.ema.examples.training.consumer.series100.ex130_MP_UserDisp;
 
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmArray;
+import com.refinitiv.ema.access.FieldEntry;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmArray;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
-import com.thomsonreuters.ema.perftools.common.PerfToolsReturnCodes;
-import com.thomsonreuters.ema.perftools.common.XmlItemInfoList;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
+import com.refinitiv.ema.perftools.common.PerfToolsReturnCodes;
+import com.refinitiv.ema.perftools.common.XmlItemInfoList;
+import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 
 
 class AppClient implements OmmConsumerClient

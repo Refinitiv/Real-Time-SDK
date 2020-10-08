@@ -11,8 +11,8 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::domain::login;
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::domain::login;
+using namespace refinitiv::ema::access;
 
 Login::LoginRefresh::LoginRefresh()
 {

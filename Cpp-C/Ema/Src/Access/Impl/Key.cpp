@@ -27,7 +27,7 @@
 #include "RmtesBuffer.h" // not sure if needed
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 

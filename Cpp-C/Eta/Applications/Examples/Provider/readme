@@ -32,7 +32,7 @@ flag set in the applicable response messages. If a request is received without t
 private stream flag set for the item name of "RES-DS", this application redirects
 the consumer to open the "RES-DS" item on a private stream instead of a normal stream.
 
-Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". The
+Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". The
 symbol list name is provided in the source directory response for the consumer to use.
 
 This application is intended as a basic usage example. Some of the design choices
@@ -77,13 +77,13 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported Linux
+It is set up for building on the ETA supported Linux
 platforms using the supported compilers.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using ETA static or
+shared libraries. The default build uses ETA static
+libraries. To use ETA shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

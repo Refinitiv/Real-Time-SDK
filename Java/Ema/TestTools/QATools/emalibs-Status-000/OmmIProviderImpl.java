@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.access;
+package com.refinitiv.ema.access;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -13,33 +13,33 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
-import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
-import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.transport.ChannelInfo;
-import com.thomsonreuters.upa.transport.ComponentInfo;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportFactory;
+import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
+import com.refinitiv.ema.access.ConfigManager.ConfigElement;
+import com.refinitiv.ema.access.DirectoryServiceStore.ServiceIdInteger;
+import com.refinitiv.ema.access.OmmLoggerClient.Severity;
+import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceState;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.transport.ChannelInfo;
+import com.refinitiv.eta.transport.ComponentInfo;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportFactory;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
 {
@@ -337,7 +337,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		userLock().lock();
 		
 		RefreshMsgImpl refreshMsgImpl = (RefreshMsgImpl)refreshMsg;
-		com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg = (com.thomsonreuters.upa.codec.RefreshMsg )refreshMsgImpl._rsslMsg;
+		com.refinitiv.eta.codec.RefreshMsg rsslRefreshMsg = (com.refinitiv.eta.codec.RefreshMsg )refreshMsgImpl._rsslMsg;
 		
 		ItemInfo itemInfo = getItemInfo(handle);
 		
@@ -381,7 +381,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 		else if ( refreshMsgImpl.domainType() == EmaRdm.MMT_DIRECTORY )
 		{
-			if ( refreshMsgImpl._rsslMsg.containerType() != com.thomsonreuters.upa.codec.DataTypes.MAP )
+			if ( refreshMsgImpl._rsslMsg.containerType() != com.refinitiv.eta.codec.DataTypes.MAP )
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
@@ -429,7 +429,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 		else if (refreshMsgImpl.domainType() == EmaRdm.MMT_DICTIONARY)
 		{
-			if ( refreshMsgImpl._rsslMsg.containerType() != com.thomsonreuters.upa.codec.DataTypes.SERIES )
+			if ( refreshMsgImpl._rsslMsg.containerType() != com.refinitiv.eta.codec.DataTypes.SERIES )
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ")
@@ -441,7 +441,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
 				{
-					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
+					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.refinitiv.eta.codec.RefreshMsgFlags.HAS_MSG_KEY );
 				}
 				else
 				{
@@ -502,7 +502,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
 				{
-					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
+					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.refinitiv.eta.codec.RefreshMsgFlags.HAS_MSG_KEY );
 				}
 				else
 				{
@@ -524,7 +524,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			
 			if ( itemInfo.isPrivateStream() )
 			{
-		        ((com.thomsonreuters.upa.codec.RefreshMsg)refreshMsgImpl._rsslMsg).applyPrivateStream();
+		        ((com.refinitiv.eta.codec.RefreshMsg)refreshMsgImpl._rsslMsg).applyPrivateStream();
 			}
 		}
 		
@@ -584,7 +584,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				}
 			}
 			
-			if ( updateMsgImpl._rsslMsg.containerType() != com.thomsonreuters.upa.codec.DataTypes.MAP )
+			if ( updateMsgImpl._rsslMsg.containerType() != com.refinitiv.eta.codec.DataTypes.MAP )
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit UpdateMsg with directory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
@@ -665,7 +665,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				if ( encodeServiceIdFromName(updateMsgImpl.serviceName(), updateMsgImpl._rsslMsg) )
 				{
-					updateMsgImpl._rsslMsg.flags( updateMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.UpdateMsgFlags.HAS_MSG_KEY );
+					updateMsgImpl._rsslMsg.flags( updateMsgImpl._rsslMsg.flags() | com.refinitiv.eta.codec.UpdateMsgFlags.HAS_MSG_KEY );
 				}
 				else
 				{
@@ -771,7 +771,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
 				{
-					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
+					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.refinitiv.eta.codec.StatusMsgFlags.HAS_MSG_KEY );
 				}
 				else
 				{
@@ -832,7 +832,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
 				{
-					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
+					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.refinitiv.eta.codec.StatusMsgFlags.HAS_MSG_KEY );
 				}
 				else
 				{
@@ -850,7 +850,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			clientSession = itemInfo.clientSession();
 			statusMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
 			
-			com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg =  (com.thomsonreuters.upa.codec.StatusMsg)statusMsgImpl._rsslMsg;
+			com.refinitiv.eta.codec.StatusMsg rsslStatusMsg =  (com.refinitiv.eta.codec.StatusMsg)statusMsgImpl._rsslMsg;
 			
 			if ( rsslStatusMsg.checkHasGroupId() )
 			{
@@ -859,7 +859,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			
 			if ( itemInfo.isPrivateStream() )
 			{
-		        ((com.thomsonreuters.upa.codec.StatusMsg)statusMsgImpl._rsslMsg).applyPrivateStream();
+		        ((com.refinitiv.eta.codec.StatusMsg)statusMsgImpl._rsslMsg).applyPrivateStream();
 			}
 		}
 		
@@ -868,7 +868,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			return;
 		}
 		
-		handleItemInfo(statusMsgImpl.domainType(), handle, ((com.thomsonreuters.upa.codec.StatusMsg )statusMsgImpl._rsslMsg).state(), false);
+		handleItemInfo(statusMsgImpl.domainType(), handle, ((com.refinitiv.eta.codec.StatusMsg )statusMsgImpl._rsslMsg).state(), false);
 		
 		userLock().unlock();
 	}
@@ -1046,7 +1046,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				    {			
 						if (loggerClient().isErrorEnabled())
 			        	{
-							com.thomsonreuters.upa.transport.Error error = _rsslErrorInfo.error();
+							com.refinitiv.eta.transport.Error error = _rsslErrorInfo.error();
 							
 				        	strBuilder().append("Internal error: rsslChannel.submit() failed in OmmProviderImpl.submit(")
 				        		.append(DataType.asString(msgImpl.dataType())).append(")").append(OmmLoggerClient.CR)
@@ -1100,11 +1100,11 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 			case MsgClasses.REFRESH:
 				itemInfo.setSentRefresh();
-				com.thomsonreuters.upa.codec.RefreshMsg refreshMsg =  (com.thomsonreuters.upa.codec.RefreshMsg)msgImpl._rsslMsg;
+				com.refinitiv.eta.codec.RefreshMsg refreshMsg =  (com.refinitiv.eta.codec.RefreshMsg)msgImpl._rsslMsg;
 				handleItemInfo(msgImpl._rsslMsg.domainType(), itemInfo.handle().value(), refreshMsg.state(), refreshMsg.checkRefreshComplete());
 				break;
 			case MsgClasses.STATUS:
-				handleItemInfo(msgImpl._rsslMsg.domainType(),  itemInfo.handle().value(),((com.thomsonreuters.upa.codec.StatusMsg)msgImpl._rsslMsg).state(), false);
+				handleItemInfo(msgImpl._rsslMsg.domainType(),  itemInfo.handle().value(),((com.refinitiv.eta.codec.StatusMsg)msgImpl._rsslMsg).state(), false);
 				break;
 			default:
 				break;
@@ -1122,7 +1122,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	    {			
 			if (loggerClient().isErrorEnabled())
         	{
-				com.thomsonreuters.upa.transport.Error error = _rsslErrorInfo.error();
+				com.refinitiv.eta.transport.Error error = _rsslErrorInfo.error();
 				
 	        	strBuilder().append("Internal error: rsslChannel.submit() failed in OmmProviderImpl.submit(")
 	        		.append(DataType.asString(msgImpl.dataType())).append(")").append(OmmLoggerClient.CR)
@@ -1172,7 +1172,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 	}
 	
-	boolean encodeServiceIdFromName(String serviceName, com.thomsonreuters.upa.codec.Msg rsslMsg)
+	boolean encodeServiceIdFromName(String serviceName, com.refinitiv.eta.codec.Msg rsslMsg)
 	{	
 		ServiceIdInteger serviceId = _ommIProviderDirectoryStore.serviceId(serviceName);
 		
@@ -1201,7 +1201,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		return true;
 	}
 	
-	boolean validateServiceId(int serviceId, com.thomsonreuters.upa.codec.Msg rsslMsg)
+	boolean validateServiceId(int serviceId, com.refinitiv.eta.codec.Msg rsslMsg)
 	{	
 		String serviceName = _ommIProviderDirectoryStore.serviceName(serviceId);
 		
@@ -1467,7 +1467,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	{
 		ci.clear();
 		try {
-			ChannelInfo upaChannelInfo = TransportFactory.createChannelInfo();
+			ChannelInfo etaChannelInfo = TransportFactory.createChannelInfo();
 			Error error = TransportFactory.createError();
 			StringBuilder componentInfo = new StringBuilder();
 
@@ -1478,19 +1478,19 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					continue;
 
 				componentInfo.setLength(0);
-				upaChannelInfo.clear();
+				etaChannelInfo.clear();
 				error.clear();
 
-				channel.info(upaChannelInfo, error);
-				if (upaChannelInfo.componentInfo() == null ||
-						upaChannelInfo.componentInfo().isEmpty())
+				channel.info(etaChannelInfo, error);
+				if (etaChannelInfo.componentInfo() == null ||
+						etaChannelInfo.componentInfo().isEmpty())
 					componentInfo.append("unavailable");
 				else
-					for (ComponentInfo item : upaChannelInfo.componentInfo())
+					for (ComponentInfo item : etaChannelInfo.componentInfo())
 						componentInfo.append(item.componentVersion().toString());
 
 				ChannelInformation tmp =
-						new ChannelInformationImpl(componentInfo.toString(), upaChannelInfo.clientHostname(), upaChannelInfo.clientIP(),
+						new ChannelInformationImpl(componentInfo.toString(), etaChannelInfo.clientHostname(), etaChannelInfo.clientIP(),
 								reactorChannel.state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
 								channel.minorVersion(), channel.pingTimeout());
 				ci.add(tmp);

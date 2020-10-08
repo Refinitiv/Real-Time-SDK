@@ -1,4 +1,4 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -9,57 +9,57 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.shared.DirectoryRejectReason;
-import com.thomsonreuters.upa.shared.LoginRejectReason;
-import com.thomsonreuters.upa.shared.DictionaryRejectReason;
-import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
-import com.thomsonreuters.upa.rdm.Directory;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.transport.BindOptions;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.IoctlCodes;
-import com.thomsonreuters.upa.transport.Server;
-import com.thomsonreuters.upa.transport.Transport;
-import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.transport.TransportReturnCodes;
-import com.thomsonreuters.upa.valueadd.cache.CacheFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ProviderCallback;
-import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMDirectoryMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.Reactor;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorAcceptOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamListenerCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.shared.DirectoryRejectReason;
+import com.refinitiv.eta.shared.LoginRejectReason;
+import com.refinitiv.eta.shared.DictionaryRejectReason;
+import com.refinitiv.eta.shared.provider.ItemRejectReason;
+import com.refinitiv.eta.rdm.Directory;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.BindOptions;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.IoctlCodes;
+import com.refinitiv.eta.transport.Server;
+import com.refinitiv.eta.transport.Transport;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.cache.CacheFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.reactor.ProviderCallback;
+import com.refinitiv.eta.valueadd.reactor.ProviderRole;
+import com.refinitiv.eta.valueadd.reactor.RDMDictionaryMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.RDMDirectoryMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.RDMLoginMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.Reactor;
+import com.refinitiv.eta.valueadd.reactor.ReactorAcceptOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamListenerCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamRequestEvent;
 
 /**
  * <p>
- * This is a main class to run the UPA Value Add Provider application.
+ * This is a main class to run the ETA Value Add Provider application.
  * </p>
  * <H2>Summary</H2>
  * <p>
@@ -92,17 +92,17 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
  * been opened by a consumer are rejected (in this example).
  * </p>
  * <p>
- * Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". The
+ * Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". The
  * symbol list name is provided in the source directory response for the consumer to use.
  * </p>
  * <p>
  * This application is intended as a basic usage example. Some of the design choices
  * were made to favor simplicity and readability over performance. This application 
  * is not intended to be used for measuring performance. This application uses
- * Value Add and shows how using Value Add simplifies the writing of UPA
- * applications. Because Value Add is a layer on top of UPA, you may see a
+ * Value Add and shows how using Value Add simplifies the writing of ETA
+ * applications. Because Value Add is a layer on top of ETA, you may see a
  * slight decrease in performance compared to writing applications directly to
- * the UPA interfaces.
+ * the ETA interfaces.
  * </p>
  * <H2>Setup Environment</H2>
  * <p>

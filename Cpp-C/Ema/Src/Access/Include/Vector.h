@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_vector_h
-#define __thomsonreuters_ema_access_vector_h
+#ifndef __refinitiv_ema_access_vector_h
+#define __refinitiv_ema_access_vector_h
 
 /**
-	@class thomsonreuters::ema::access::Vector Vector.h "Access/Include/Vector.h"
+	@class refinitiv::ema::access::Vector Vector.h "Access/Include/Vector.h"
 	@brief Vector is a homogeneous container of complex data type entries.
 
 	Vector entries are identified by index.
@@ -109,7 +109,7 @@
 #include "Access/Include/VectorEntry.h"
 #include "Access/Include/SummaryData.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -278,4 +278,4 @@ private :
 
 }
 
-#endif //  __thomsonreuters_ema_access_vector_h
+#endif //  __refinitiv_ema_access_vector_h

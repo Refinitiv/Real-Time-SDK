@@ -1,6 +1,6 @@
 
 set( SOURCE_FILES
-    transportPerfConfig.c       transportThreads.c   upacTransportPerf.c
+    transportPerfConfig.c       transportThreads.c   TransportPerf.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/latencyRandomArray.c
     ${EtaExamples_SOURCE_DIR}/PerfTools/Common/statistics.c

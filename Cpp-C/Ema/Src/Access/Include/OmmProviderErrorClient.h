@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ommProviderErrorClient_h
-#define __thomsonreuters_ema_access_ommProviderErrorClient_h
+#ifndef __refinitiv_ema_access_ommProviderErrorClient_h
+#define __refinitiv_ema_access_ommProviderErrorClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
+	@class refinitiv::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
 	@brief OmmProviderErrorClient class provides callback mechanism used in place of exceptions.
 
 	By default OmmProvider class throws exceptions if usage errors occur. Specifying OmmProviderErrorClient
@@ -33,7 +33,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -121,4 +121,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ommProviderErrorClient_h
+#endif // __refinitiv_ema_access_ommProviderErrorClient_h

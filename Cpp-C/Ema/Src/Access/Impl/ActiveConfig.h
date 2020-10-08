@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ActiveConfig_h
-#define __thomsonreuters_ema_access_ActiveConfig_h
+#ifndef __refinitiv_ema_access_ActiveConfig_h
+#define __refinitiv_ema_access_ActiveConfig_h
 
 #include "OmmLoggerClient.h"
 #include "DictionaryCallbackClient.h"
@@ -38,7 +38,7 @@
 #define DEFAULT_DICTIONARY_TYPE							Dictionary::FileDictionaryEnum
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
-#define DEFAULT_EDP_RT_LOCATION							EmaString( "us-east" )
+#define DEFAULT_RDP_RT_LOCATION							EmaString( "us-east" )
 #define DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT				-1
 #define DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL			5000
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS				100
@@ -128,7 +128,7 @@
 #define PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 0x40  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 #define PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 0x80  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -598,4 +598,4 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_ActiveConfig_h
+#endif // __refinitiv_ema_access_ActiveConfig_h

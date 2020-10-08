@@ -17,8 +17,6 @@
 
 #include "rtr/rwfToJsonBase.h"
 #include "rtr/rsslRmtes.h"
-//DEV_THREAD_LOCAL char* rwfToJsonBase::_elementSetDefDbMem = (char)0x0;
-//DEV_THREAD_LOCAL char* rwfToJsonBase::_fieldSetDefDbMem = (char)0x0;
 
 //Use 1 to 3 byte variable UTF encoding
 #define MaxUTF8Bytes 3

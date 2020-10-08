@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_domain_LoginReqImpl_h
-#define __thomsonreuters_ema_domain_LoginReqImpl_h
+#ifndef __refinitiv_ema_domain_LoginReqImpl_h
+#define __refinitiv_ema_domain_LoginReqImpl_h
 
 #include "ElementList.h"
 #include "EmaBuffer.h"
@@ -15,7 +15,7 @@
 #include "ReqMsg.h"
 #include "ExceptionTranslator.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -31,7 +31,7 @@ public:
 
 	LoginReqImpl(const LoginReqImpl&);
 
-	LoginReqImpl(const thomsonreuters::ema::access::ReqMsg&);
+	LoginReqImpl(const refinitiv::ema::access::ReqMsg&);
 
 	virtual ~LoginReqImpl();
 
@@ -39,29 +39,29 @@ public:
 
 	LoginReqImpl& operator=(const LoginReqImpl&);
 
-	LoginReqImpl& message(const thomsonreuters::ema::access::ReqMsg&);
+	LoginReqImpl& message(const refinitiv::ema::access::ReqMsg&);
 
 	LoginReqImpl& allowSuspectData(bool value);
 
 	LoginReqImpl& downloadConnectionConfig(bool value);
 
-	LoginReqImpl& applicationId(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& applicationId(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& applicationName(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& applicationName(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& applicationAuthorizationToken(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& applicationAuthorizationToken(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& instanceId(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& instanceId(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& password(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& password(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& position(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& position(const refinitiv::ema::access::EmaString&);
 
 	LoginReqImpl& providePermissionExpressions(bool value);
 
 	LoginReqImpl& providePermissionProfile(bool value);
 
-	LoginReqImpl& role(thomsonreuters::ema::access::UInt32 value);
+	LoginReqImpl& role(refinitiv::ema::access::UInt32 value);
 
 	LoginReqImpl& singleOpen(bool value);
 
@@ -69,11 +69,11 @@ public:
 
 	LoginReqImpl& pause(bool value);
 
-	LoginReqImpl& authenticationExtended(const thomsonreuters::ema::access::EmaBuffer&);
+	LoginReqImpl& authenticationExtended(const refinitiv::ema::access::EmaBuffer&);
 
-	LoginReqImpl& name(const thomsonreuters::ema::access::EmaString&);
+	LoginReqImpl& name(const refinitiv::ema::access::EmaString&);
 
-	LoginReqImpl& nameType(const thomsonreuters::ema::access::UInt32&);
+	LoginReqImpl& nameType(const refinitiv::ema::access::UInt32&);
 
 	bool hasAllowSuspectData() const;
 
@@ -113,25 +113,25 @@ public:
 
 	bool getDownloadConnectionConfig() const;
 
-	const thomsonreuters::ema::access::ReqMsg& getMessage();
+	const refinitiv::ema::access::ReqMsg& getMessage();
 
-	const thomsonreuters::ema::access::EmaString& getApplicationId() const;
+	const refinitiv::ema::access::EmaString& getApplicationId() const;
 
-	const thomsonreuters::ema::access::EmaString& getApplicationName() const;
+	const refinitiv::ema::access::EmaString& getApplicationName() const;
 
-	const thomsonreuters::ema::access::EmaString& getApplicationAuthorizationToken() const;
+	const refinitiv::ema::access::EmaString& getApplicationAuthorizationToken() const;
 
-	const thomsonreuters::ema::access::EmaString& getInstanceId() const;
+	const refinitiv::ema::access::EmaString& getInstanceId() const;
 
-	const thomsonreuters::ema::access::EmaString& getPassword() const;
+	const refinitiv::ema::access::EmaString& getPassword() const;
 
-	const thomsonreuters::ema::access::EmaString& getPosition() const;
+	const refinitiv::ema::access::EmaString& getPosition() const;
 
 	bool getProvidePermissionExpressions() const;
 
 	bool getProvidePermissionProfile() const;
 
-	thomsonreuters::ema::access::UInt32 getRole() const;
+	refinitiv::ema::access::UInt32 getRole() const;
 
 	bool getSingleOpen() const;
 
@@ -139,21 +139,21 @@ public:
 
 	bool getPause() const;
 
-	const thomsonreuters::ema::access::EmaBuffer& getAuthenticationExtended() const;
+	const refinitiv::ema::access::EmaBuffer& getAuthenticationExtended() const;
 
-	const thomsonreuters::ema::access::EmaString& getName() const;
+	const refinitiv::ema::access::EmaString& getName() const;
 
-	const thomsonreuters::ema::access::UInt32& getNameType() const;
+	const refinitiv::ema::access::UInt32& getNameType() const;
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 
-	void encode(thomsonreuters::ema::access::ReqMsg&) const;
+	void encode(refinitiv::ema::access::ReqMsg&) const;
 
-	void decode(const thomsonreuters::ema::access::ReqMsg&);
+	void decode(const refinitiv::ema::access::ReqMsg&);
 
-	const thomsonreuters::ema::access::ReqMsg& message() const;
+	const refinitiv::ema::access::ReqMsg& message() const;
 
 	bool								    _allowSuspectData;
 	bool								    _downloadConnectionConfig;
@@ -161,16 +161,16 @@ private:
 	bool									_providePermissionExpressions;
 	bool						            _singleOpen;
 	bool									_supportProviderDictionaryDownload;
-	thomsonreuters::ema::access::UInt32									_role;
+	refinitiv::ema::access::UInt32									_role;
 	bool									_pause;
-	thomsonreuters::ema::access::EmaString	                            _applicationId;
-	thomsonreuters::ema::access::EmaString	                            _applicationName;
-	thomsonreuters::ema::access::EmaString	                            _applicationAuthToken;
-	thomsonreuters::ema::access::EmaString	                            _instanceId;
-	thomsonreuters::ema::access::EmaString	                            _password;
-	thomsonreuters::ema::access::EmaString	                            _position;
-	thomsonreuters::ema::access::EmaString								_authenticationToken;
-	thomsonreuters::ema::access::EmaBuffer								_authenticationExtended;
+	refinitiv::ema::access::EmaString	                            _applicationId;
+	refinitiv::ema::access::EmaString	                            _applicationName;
+	refinitiv::ema::access::EmaString	                            _applicationAuthToken;
+	refinitiv::ema::access::EmaString	                            _instanceId;
+	refinitiv::ema::access::EmaString	                            _password;
+	refinitiv::ema::access::EmaString	                            _position;
+	refinitiv::ema::access::EmaString								_authenticationToken;
+	refinitiv::ema::access::EmaBuffer								_authenticationExtended;
 
 	mutable bool		                    _changed;
 	bool		                            _allowSuspectDataSet;
@@ -191,18 +191,18 @@ private:
 	bool									_nameSet;
 	bool									_nameTypeSet;
 
-	mutable thomsonreuters::ema::access::ElementList*	                _pElementList;
+	mutable refinitiv::ema::access::ElementList*	                _pElementList;
 
-	thomsonreuters::ema::access::UInt32									_domainType;
-	thomsonreuters::ema::access::UInt32									_nameType;
-	thomsonreuters::ema::access::EmaString								_name;
+	refinitiv::ema::access::UInt32									_domainType;
+	refinitiv::ema::access::UInt32									_nameType;
+	refinitiv::ema::access::EmaString								_name;
 	
-	thomsonreuters::ema::access::EmaString						_defaultName;
-	thomsonreuters::ema::access::EmaString						_defaultPosition;
+	refinitiv::ema::access::EmaString						_defaultName;
+	refinitiv::ema::access::EmaString						_defaultPosition;
 
-	thomsonreuters::ema::access::ReqMsg									_reqMsg;
+	refinitiv::ema::access::ReqMsg									_reqMsg;
 
-	mutable thomsonreuters::ema::access::EmaString                       _toString;
+	mutable refinitiv::ema::access::EmaString                       _toString;
 
 	char																defaultUsername[256];
 	char																defaultPosition[256];
@@ -216,4 +216,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_domain_LoginReqImpl_h
+#endif // __refinitiv_ema_domain_LoginReqImpl_h

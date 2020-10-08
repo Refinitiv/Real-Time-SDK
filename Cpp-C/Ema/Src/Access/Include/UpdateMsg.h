@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_UpdateMsg_h
-#define __thomsonreuters_ema_access_UpdateMsg_h
+#ifndef __refinitiv_ema_access_UpdateMsg_h
+#define __refinitiv_ema_access_UpdateMsg_h
 
 /**
-	@class thomsonreuters::ema::access::UpdateMsg UpdateMsg.h "Access/Include/UpdateMsg.h"
+	@class refinitiv::ema::access::UpdateMsg UpdateMsg.h "Access/Include/UpdateMsg.h"
 	@brief UpdateMsg conveys changes to item data.
 
 	The following code snippet shows receiving and processing of UpdateMsg.
@@ -62,7 +62,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -352,4 +352,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_UpdateMsg_h
+#endif // __refinitiv_ema_access_UpdateMsg_h

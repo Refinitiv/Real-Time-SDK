@@ -15,8 +15,8 @@
 #include <limits.h>
 #include <new>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 CosCommon::CosCommon() :
  _maxMsgSize( 6144 )

@@ -12,7 +12,7 @@
 #include "OmmQosDecoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 RefreshMsgEncoder::RefreshMsgEncoder() :
  MsgEncoder(),

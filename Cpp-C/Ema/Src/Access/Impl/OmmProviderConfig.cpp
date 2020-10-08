@@ -8,7 +8,7 @@
 
 #include "OmmProviderConfig.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmProviderConfig::OmmProviderConfig()
 {

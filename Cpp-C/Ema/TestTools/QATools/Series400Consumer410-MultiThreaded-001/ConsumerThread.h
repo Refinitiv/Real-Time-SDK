@@ -34,7 +34,7 @@
 class AppThread
 {
 public:
-	AppThread(thomsonreuters::ema::access::OmmConsumer*);
+	AppThread(refinitiv::ema::access::OmmConsumer*);
 
 	virtual ~AppThread();
 
@@ -45,7 +45,7 @@ public:
 	virtual void run();
 
 protected:
-	thomsonreuters::ema::access::OmmConsumer* _ommConsumer;
+	refinitiv::ema::access::OmmConsumer* _ommConsumer;
 	bool _running;
 
 #ifdef WIN32
@@ -65,23 +65,23 @@ class ConsumerThread : public AppThread
 {
 public :
 
-	ConsumerThread(thomsonreuters::ema::access::OmmConsumer*, 
-					thomsonreuters::ema::access::OmmConsumerClient* client);
+	ConsumerThread(refinitiv::ema::access::OmmConsumer*, 
+					refinitiv::ema::access::OmmConsumerClient* client);
 
 	virtual ~ConsumerThread();
 
 	void run();
 
-	void openItem(const thomsonreuters::ema::access::EmaString& item, 
-				const thomsonreuters::ema::access::EmaString& serviceName);
+	void openItem(const refinitiv::ema::access::EmaString& item, 
+				const refinitiv::ema::access::EmaString& serviceName);
 
 	void sendRequest();
 
 protected :
-	thomsonreuters::ema::access::EmaString _itemNamePrefix;
-	thomsonreuters::ema::access::EmaString _serviceName;
-	thomsonreuters::ema::access::ReqMsg _reqMsg;
-	thomsonreuters::ema::access::OmmConsumerClient* _client;
+	refinitiv::ema::access::EmaString _itemNamePrefix;
+	refinitiv::ema::access::EmaString _serviceName;
+	refinitiv::ema::access::ReqMsg _reqMsg;
+	refinitiv::ema::access::OmmConsumerClient* _client;
 };
 
 #endif // __ema_consumerthread_h_

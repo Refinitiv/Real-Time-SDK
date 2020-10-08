@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmInvalidUsageExceptionImpl_h
+#define __refinitiv_ema_access_OmmInvalidUsageExceptionImpl_h
 
 #include "OmmInvalidUsageException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -41,4 +41,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidUsageExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmInvalidUsageExceptionImpl_h

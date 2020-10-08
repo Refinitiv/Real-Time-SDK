@@ -43,7 +43,7 @@
 #include "Access/Impl/StatusMsgDecoder.h"
 #include "Access/Impl/UpdateMsgDecoder.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 TEST(NoDataSizeTest, testDataVsDecoderSize)

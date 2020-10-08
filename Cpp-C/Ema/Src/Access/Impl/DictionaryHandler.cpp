@@ -20,7 +20,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 const int DictionaryHandler::INITIAL_DICTIONARY_STATUS_MSG_SIZE(256);
 

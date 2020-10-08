@@ -31,31 +31,31 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 };
 //API QA
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public thomsonreuters::ema::access::OmmConsumerErrorClient
+class AppErrorClient : public refinitiv::ema::access::OmmConsumerErrorClient
 {
 public:
 
-	void onInvalidHandle(thomsonreuters::ema::access::UInt64, const thomsonreuters::ema::access::EmaString&);
+	void onInvalidHandle(refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString&);
 
-	void onInaccessibleLogFile(const thomsonreuters::ema::access::EmaString&, const thomsonreuters::ema::access::EmaString&);
+	void onInaccessibleLogFile(const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString&);
 
-	void onSystemError(thomsonreuters::ema::access::Int64, void*, const thomsonreuters::ema::access::EmaString&);
+	void onSystemError(refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString&);
 
-	void onMemoryExhaustion(const thomsonreuters::ema::access::EmaString&);
+	void onMemoryExhaustion(const refinitiv::ema::access::EmaString&);
 
-	void onInvalidUsage(const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32);
+	void onInvalidUsage(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32);
 };
 //END API QA
 #endif // __ema_consumer_h_

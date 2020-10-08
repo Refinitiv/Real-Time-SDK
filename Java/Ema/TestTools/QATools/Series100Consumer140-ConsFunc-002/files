@@ -1,2 +1,2 @@
 #file,location
-Consumer.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/consumer/series100/example140__MarketByOrder__Streaming
+Consumer.java,Examples/src/main/java/com/refinitiv/ema/examples/training/consumer/series100/ex140_MBO_Streaming

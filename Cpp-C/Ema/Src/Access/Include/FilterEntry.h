@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterEntry_h
-#define __thomsonreuters_ema_access_FilterEntry_h
+#ifndef __refinitiv_ema_access_FilterEntry_h
+#define __refinitiv_ema_access_FilterEntry_h
 
 /**
-	@class thomsonreuters::ema::access::FilterEntry FilterEntry.h "Access/Include/FilterEntry.h"
+	@class refinitiv::ema::access::FilterEntry FilterEntry.h "Access/Include/FilterEntry.h"
 	@brief FilterEntry represents an entry of FilterList.
 
 	FilterEntry associates entry's id, action, permission info, data and its data type.
@@ -59,7 +59,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -271,4 +271,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterEntry_h
+#endif // __refinitiv_ema_access_FilterEntry_h

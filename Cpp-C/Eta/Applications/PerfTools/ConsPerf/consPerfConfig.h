@@ -6,7 +6,7 @@
 */
 
 /* consPerfConfig.h
- * Configures the upacConsPerf application. */
+ * Configures the ConsPerf application. */
 
 #ifndef _CONS_PERF_CONFIG_H
 #define _CONS_PERF_CONFIG_H
@@ -52,7 +52,7 @@ typedef struct
 	RsslUInt32			numInputBuffers;			/* Input Buffers. See -inputBufs */
 	RsslUInt32			sendBufSize;				/* System Send Buffer Size(-sendBufSize) */
 	RsslUInt32			recvBufSize;				/* System Send Buffer Size(-recvBufSize) */
-	RsslUInt32			highWaterMark;				/* sets the point which will cause UPA to automatically flush */
+	RsslUInt32			highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	RsslBool			tcpNoDelay;					/* Enable/Disable Nagle's algorithm. See -tcpDelay */
 	RsslBool			requestSnapshots;			/* Whether to request all items as snapshots. See -snapshot */
 
@@ -71,8 +71,8 @@ typedef struct
 	RsslBool			nanoTime;					/* Whether to assume latency is nanosecond precision instead of microsecond. */
 	RsslBool			measureDecode;				/* Measure time to decode latency updates (-measureDecode) */
 
-	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
-	RsslBool			useWatchlist;				/* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
+	RsslBool			useWatchlist;				/* Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving. */
 
 	char				caStore[255];				/* Certificate authority location */
 	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */

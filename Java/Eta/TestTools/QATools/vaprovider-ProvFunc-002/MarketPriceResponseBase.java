@@ -1,19 +1,19 @@
-package com.thomsonreuters.upa.shared.rdm.marketprice;
+package com.refinitiv.eta.shared.rdm.marketprice;
 
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.DictionaryEntry;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.FieldEntry;
-import com.thomsonreuters.upa.codec.FieldList;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.Real;
-import com.thomsonreuters.upa.codec.RealHints;
-import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBaseImpl;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.DictionaryEntry;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.FieldEntry;
+import com.refinitiv.eta.codec.FieldList;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.Real;
+import com.refinitiv.eta.codec.RealHints;
+import com.refinitiv.eta.codec.UInt;
+import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBaseImpl;
 
 /**
  * Market price response base class for market price refresh and update

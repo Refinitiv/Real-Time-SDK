@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_DictionaryEntryImpl_h
-#define __thomsonreuters_ema_rdm_DictionaryEntryImpl_h
+#ifndef __refinitiv_ema_rdm_DictionaryEntryImpl_h
+#define __refinitiv_ema_rdm_DictionaryEntryImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
@@ -16,7 +16,7 @@
 #include "EnumType.h"
 #include "EnumTypeTable.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -34,27 +34,27 @@ public:
 
 	void rsslDictionaryEntry(RsslDictionaryEntry* rsslDictionaryEntry);
 
-	const thomsonreuters::ema::access::EmaString& getAcronym() const;
+	const refinitiv::ema::access::EmaString& getAcronym() const;
 
-	const thomsonreuters::ema::access::EmaString& getDDEAcronym() const;
+	const refinitiv::ema::access::EmaString& getDDEAcronym() const;
 
-	thomsonreuters::ema::access::Int16 getFid() const;
+	refinitiv::ema::access::Int16 getFid() const;
 
-	thomsonreuters::ema::access::Int16 getRippleToField() const;
+	refinitiv::ema::access::Int16 getRippleToField() const;
 
-	thomsonreuters::ema::access::Int8 getFieldType() const;
+	refinitiv::ema::access::Int8 getFieldType() const;
 
-	thomsonreuters::ema::access::UInt16 getLength() const;
+	refinitiv::ema::access::UInt16 getLength() const;
 
-	thomsonreuters::ema::access::UInt8 getEnumLength() const;
+	refinitiv::ema::access::UInt8 getEnumLength() const;
 
-	thomsonreuters::ema::access::UInt8 getRwfType() const;
+	refinitiv::ema::access::UInt8 getRwfType() const;
 
-	thomsonreuters::ema::access::UInt16 getRwfLength() const;
+	refinitiv::ema::access::UInt16 getRwfLength() const;
 
-	bool hasEnumType(thomsonreuters::ema::access::UInt16 value) const;
+	bool hasEnumType(refinitiv::ema::access::UInt16 value) const;
 
-	const EnumType& getEnumEntry(thomsonreuters::ema::access::UInt16 value) const;
+	const EnumType& getEnumEntry(refinitiv::ema::access::UInt16 value) const;
 
 	bool hasEnumTypeTable() const;
 
@@ -62,7 +62,7 @@ public:
 
 	RsslDictionaryEntry* getRsslDictionaryEntry();
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 	/** Detects that the instance was created by user or API.
 	* @return true when the instance was created by user; otherwise when the instance was created by API.
@@ -73,13 +73,13 @@ public:
 
 private:
 
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringAcronym;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringDDEAcronym;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaStringInt	_stringAcronym;
+	mutable refinitiv::ema::access::EmaStringInt	_stringDDEAcronym;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
 	RsslDictionaryEntry*	_pRsslDictionaryEntry;
 	EnumType				_enumType;
-	mutable thomsonreuters::ema::access::EmaVector<EnumType>*    _pEnumEntryList;
+	mutable refinitiv::ema::access::EmaVector<EnumType>*    _pEnumEntryList;
 	EnumTypeTable			_enumTypeTable;
 	bool					_isManagedByUser;  // true when the instance is created by user, otherwise the instance is created by API
 };
@@ -90,4 +90,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_DictionaryEntryImpl_h
+#endif // __refinitiv_ema_rdm_DictionaryEntryImpl_h

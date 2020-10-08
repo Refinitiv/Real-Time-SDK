@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ServiceDiscoveryClient_h
-#define __thomsonreuters_ema_access_ServiceDiscoveryClient_h
+#ifndef __refinitiv_ema_access_ServiceDiscoveryClient_h
+#define __refinitiv_ema_access_ServiceDiscoveryClient_h
 
 /**
-	@class thomsonreuters::ema::access::ServiceEndpointDiscoveryClient ServiceEndpointDiscoveryClient.h "Access/Include/ServiceEndpointDiscoveryClient.h"
+	@class refinitiv::ema::access::ServiceEndpointDiscoveryClient ServiceEndpointDiscoveryClient.h "Access/Include/ServiceEndpointDiscoveryClient.h"
 	@brief ServiceEndpointDiscoveryClient class provides callback interfaces to pass received responses.
 
 	Application needs to implement an application client class inheriting from ServiceEndpointDiscoveryClient.
@@ -48,7 +48,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -95,4 +95,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ServiceDiscoveryClient_h
+#endif // __refinitiv_ema_access_ServiceDiscoveryClient_h

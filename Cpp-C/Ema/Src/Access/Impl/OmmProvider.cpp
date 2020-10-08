@@ -17,7 +17,7 @@
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
   _pImpl( 0 ),

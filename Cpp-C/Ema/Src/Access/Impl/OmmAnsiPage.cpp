@@ -13,7 +13,7 @@
 #include "GlobalPool.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmAnsiPage::OmmAnsiPage() :
  _toString(),

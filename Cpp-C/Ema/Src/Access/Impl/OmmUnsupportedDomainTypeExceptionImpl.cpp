@@ -8,7 +8,7 @@
 
 #include "OmmUnsupportedDomainTypeExceptionImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmUnsupportedDomainTypeExceptionImpl::OmmUnsupportedDomainTypeExceptionImpl()
 {

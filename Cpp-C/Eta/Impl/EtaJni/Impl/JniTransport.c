@@ -798,7 +798,7 @@ static RsslBool populateJavaChannelInfo(JNIEnv *env, RsslChannelInfo *rsslChnlIn
 	(*env)->CallObjectMethod(env, *jchnlinfo, mid, jpriorityFlushStrategy);
 
 	/* get the method ID for the multicastStats() method */
-	mid = (*env)->GetMethodID(env, channelInfoClass, "multicastStats", "()Lcom/thomsonreuters/upa/transport/MCastStats;");
+	mid = (*env)->GetMethodID(env, channelInfoClass, "multicastStats", "()Lcom/refinitiv/eta/transport/MCastStats;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -911,7 +911,7 @@ static RsslBool populateJavaChannelInfo(JNIEnv *env, RsslChannelInfo *rsslChnlIn
 		return RSSL_FALSE;
 	}
 
-	/* call addCompVersionString method for each UPAC component version string */
+	/* call addCompVersionString method for each ETAC component version string */
 	for (i = 0; i < rsslChnlInfo->componentInfoCount; i++)
 	{
 		jcomponentVersion = (*env)->NewStringUTF(env, rsslChnlInfo->componentInfo[i]->componentVersion.data);
@@ -940,7 +940,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	connectOptsClass = (*env)->GetObjectClass(env, *jconnectopts);
 
 	/* get the method ID for the tunnelingInfo() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "tunnelingInfo", "()Lcom/thomsonreuters/upa/transport/TunnelingInfo;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "tunnelingInfo", "()Lcom/refinitiv/eta/transport/TunnelingInfo;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -996,7 +996,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	/* determine if segmented or unified network is used by whether or not unified network address is null */
 
 	/* get the method ID for the unifiedNetworkInfo() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "unifiedNetworkInfo", "()Lcom/thomsonreuters/upa/transport/UnifiedNetworkInfo;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "unifiedNetworkInfo", "()Lcom/refinitiv/eta/transport/UnifiedNetworkInfo;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1021,7 +1021,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	if (!jaddress) /* segmented */
 	{
 		/* get the method ID for the segmentedNetworkInfo() method */
-		mid = (*env)->GetMethodID(env, connectOptsClass, "segmentedNetworkInfo", "()Lcom/thomsonreuters/upa/transport/SegmentedNetworkInfo;");
+		mid = (*env)->GetMethodID(env, connectOptsClass, "segmentedNetworkInfo", "()Lcom/refinitiv/eta/transport/SegmentedNetworkInfo;");
 		if (mid == NULL)
 		{
 			return RSSL_FALSE;
@@ -1303,7 +1303,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	rsslConnectOpts->userSpecPtr = (*env)->CallObjectMethod(env, *jconnectopts, mid);
 
 	/* get the method ID for the tcpOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "tcpOpts", "()Lcom/thomsonreuters/upa/transport/TcpOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "tcpOpts", "()Lcom/refinitiv/eta/transport/TcpOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1326,7 +1326,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 	rsslConnectOpts->tcpOpts.tcp_nodelay = (*env)->CallBooleanMethod(env, jtcpopts, mid);
 
 	/* get the method ID for the multicastOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "multicastOpts", "()Lcom/thomsonreuters/upa/transport/MCastOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "multicastOpts", "()Lcom/refinitiv/eta/transport/MCastOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1391,7 +1391,7 @@ static RsslBool populateCConnectOptions(JNIEnv *env, jobject *jconnectopts, Rssl
 
 
 	/* get the method ID for the shmemOpts() method */
-	mid = (*env)->GetMethodID(env, connectOptsClass, "shmemOpts", "()Lcom/thomsonreuters/upa/transport/ShmemOpts;");
+	mid = (*env)->GetMethodID(env, connectOptsClass, "shmemOpts", "()Lcom/refinitiv/eta/transport/ShmemOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -1462,7 +1462,7 @@ static void populateJavaError(JNIEnv *env, RsslError *rsslError, jobject *jerror
 	if (rsslError->channel != NULL)
 	{
 		/* find the JNIChannel class */
-		jniChannelClass = (*env)->FindClass(env, "com/thomsonreuters/upa/transport/JNIChannel");
+		jniChannelClass = (*env)->FindClass(env, "com/refinitiv/eta/transport/JNIChannel");
 		if (jniChannelClass == NULL)
 		{
 			return;
@@ -1487,8 +1487,8 @@ static void populateJavaError(JNIEnv *env, RsslError *rsslError, jobject *jerror
 		}
 		}
 
-		/* get the method ID for the channel(Lcom/thomsonreuters/upa/transport/Channel;) method */
-		mid = (*env)->GetMethodID(env, errorClass, "channel", "(Lcom/thomsonreuters/upa/transport/Channel;)V");
+		/* get the method ID for the channel(Lcom/refinitiv/eta/transport/Channel;) method */
+		mid = (*env)->GetMethodID(env, errorClass, "channel", "(Lcom/refinitiv/eta/transport/Channel;)V");
 		if (mid == NULL)
 		{
 			return;
@@ -1745,7 +1745,7 @@ static jobject createJavaBuffer(JNIEnv *env, RsslBuffer *rsslBuffer)
 	static jmethodID mid = NULL;
 	static jfieldID fid = NULL;
 
-	/* create direct ByteBuffer from UPAC buffer */
+	/* create direct ByteBuffer from ETAC buffer */
 	byteBufferObject = (*env)->NewDirectByteBuffer(env, rsslBuffer->data, rsslBuffer->length);
 	if (byteBufferObject == NULL)
 	{
@@ -1754,7 +1754,7 @@ static jobject createJavaBuffer(JNIEnv *env, RsslBuffer *rsslBuffer)
 
 	if (jniBufferClass == NULL)
 	{
-		localRefClass = (*env)->FindClass(env, "com/thomsonreuters/upa/transport/JNIBuffer");
+		localRefClass = (*env)->FindClass(env, "com/refinitiv/eta/transport/JNIBuffer");
 		if (localRefClass == NULL)
 		{
 			return NULL;
@@ -1806,7 +1806,7 @@ static jobject getJavaReadBuffer(JNIEnv *env, RsslBuffer *rsslBuffer, jobject *j
 	static jmethodID mid = NULL;
 	static jfieldID fid = NULL;
 
-	/* create direct ByteBuffer from UPAC buffer */
+	/* create direct ByteBuffer from ETAC buffer */
 	byteBufferObject = (*env)->NewDirectByteBuffer(env, rsslBuffer->data, rsslBuffer->length);
 
 	/* get the JNIChannel class */
@@ -1829,7 +1829,7 @@ static jobject getJavaReadBuffer(JNIEnv *env, RsslBuffer *rsslBuffer, jobject *j
 	/* get the method ID for the JNIChannel.readBuffer(ByteBuffer, int) method */
 	if (mid == NULL)
 	{
-		mid = (*env)->GetMethodID(env, jniChannelClass, "readBuffer", "(Ljava/nio/ByteBuffer;I)Lcom/thomsonreuters/upa/transport/JNIBuffer;");
+		mid = (*env)->GetMethodID(env, jniChannelClass, "readBuffer", "(Ljava/nio/ByteBuffer;I)Lcom/refinitiv/eta/transport/JNIBuffer;");
 		if (mid == NULL)
 		{
 			return NULL;
@@ -2229,7 +2229,7 @@ static RsslBool populateCBindOptions(JNIEnv *env, jobject *jbindopts, RsslBindOp
 	rsslBindOpts->userSpecPtr = (*env)->CallObjectMethod(env, *jbindopts, mid);
 
 	/* get the method ID for the tcpOpts() method */
-	mid = (*env)->GetMethodID(env, bindOptsClass, "tcpOpts", "()Lcom/thomsonreuters/upa/transport/TcpOpts;");
+	mid = (*env)->GetMethodID(env, bindOptsClass, "tcpOpts", "()Lcom/refinitiv/eta/transport/TcpOpts;");
 	if (mid == NULL)
 	{
 		return RSSL_FALSE;
@@ -2884,11 +2884,11 @@ static void* selectLoop(void* threadArg)
 /* NATIVE JAVA METHODS */
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIProtocol
+ * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslInitialize
- * Signature: (ILcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (ILcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslInitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslInitialize
   (JNIEnv *env, jobject arg, jint jlocking, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -2984,11 +2984,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslIni
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIProtocol
+ * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslUninitialize
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslUninitialize
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslUninitialize
   (JNIEnv *env, jobject arg)
 {
 	jniInitialized = RSSL_FALSE;
@@ -3011,11 +3011,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslUni
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIProtocol
+ * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslConnect
- * Signature: (Lcom/thomsonreuters/upa/transport/ConnectOptionsImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)Lcom/thomsonreuters/upa/transport/JNIChannel;
+ * Signature: (Lcom/refinitiv/eta/transport/ConnectOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIChannel;
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslConnect
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslConnect
   (JNIEnv *env, jobject arg, jobject jopts, jobject jerror, jobject jniChannel)
 {
 	RsslError error;
@@ -3106,11 +3106,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslCon
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIProtocol
+ * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslBind
- * Signature: (Lcom/thomsonreuters/upa/transport/BindOptionsImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)Lcom/thomsonreuters/upa/transport/JNIServer;
+ * Signature: (Lcom/refinitiv/eta/transport/BindOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIServer;
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslBind
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslBind
   (JNIEnv *env, jobject arg, jobject jopts, jobject jerror, jobject jniServer)
 {
 	RsslError error;
@@ -3187,11 +3187,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslBin
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIProtocol
+ * Class:     com_rtsdk_eta_transport_JNIProtocol
  * Method:    rsslAccept
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIServer;Lcom/thomsonreuters/upa/transport/AcceptOptionsImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)Lcom/thomsonreuters/upa/transport/JNIChannel;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/AcceptOptionsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIChannel;
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslAccept
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIProtocol_rsslAccept
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jopts, jobject jerror, jobject jniChannel)
 {
 	RsslError error;
@@ -3222,7 +3222,7 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslAcc
 	rsslChnl = rsslAccept(rsslSrvr, &rsslAcceptsOpts, &error);
 	if (rsslChnl != NULL)
 	{
-		/* handle Java AcceptOptions.sysSendBufSize by setting value via UPAC ioctl */
+		/* handle Java AcceptOptions.sysSendBufSize by setting value via ETAC ioctl */
 		
 		/* get the AcceptOptions class */
 		acceptOptsClass = (*env)->GetObjectClass(env, jopts);
@@ -3237,7 +3237,7 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslAcc
 		/* get sysSendBufSize */
 		sysSendBufSize = (*env)->CallIntMethod(env, jopts, mid);
 
-		/* set value via UPAC ioctl */
+		/* set value via ETAC ioctl */
 		if (sysSendBufSize > 0)
 		{
 			if (rsslIoctl(rsslChnl, RSSL_SYSTEM_WRITE_BUFFERS, &sysSendBufSize, &error) < RSSL_RET_SUCCESS)
@@ -3319,11 +3319,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslAcc
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIServer
+ * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslGetServerInfo
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIServer;Lcom/thomsonreuters/upa/transport/ServerInfoImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ServerInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslGetServerInfo
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslGetServerInfo
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jinfo, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3358,11 +3358,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslGetSe
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIServer
+ * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslServerIoctl
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIServer;ILjava/lang/Object;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;ILjava/lang/Object;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslServerIoctl
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslServerIoctl
   (JNIEnv *env, jobject arg, jobject jsrvr, jint jcode, jobject jvalue, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3401,11 +3401,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslServe
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIServer
+ * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslServerBufferUsage
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIServer;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslServerBufferUsage
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslServerBufferUsage
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3431,11 +3431,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslServe
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIServer
+ * Class:     com_rtsdk_eta_transport_JNIServer
  * Method:    rsslCloseServer
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIServer;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIServer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslCloseServer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIServer_rsslCloseServer
   (JNIEnv *env, jobject arg, jobject jsrvr, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3468,11 +3468,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIServer_rsslClose
 }
   
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslGetChannelInfo
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ChannelInfoImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ChannelInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslGetChannelInfo
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslGetChannelInfo
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jinfo, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3507,11 +3507,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslGetC
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslIoctl
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;ILjava/lang/Object;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;ILjava/lang/Object;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslIoctl
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslIoctl
   (JNIEnv *env, jobject arg, jobject jchnl, jint jcode, jobject jvalue, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3558,11 +3558,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslIoct
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslBufferUsage
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslBufferUsage
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslBufferUsage
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3588,11 +3588,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslBuff
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslInitChannel
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/InProgInfoImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/InProgInfoImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslInitChannel
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslInitChannel
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jinprog, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3654,11 +3654,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslInit
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslCloseChannel
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslCloseChannel
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslCloseChannel
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3699,11 +3699,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslClos
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslRead
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ReadArgsImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)Lcom/thomsonreuters/upa/transport/JNIBuffer;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ReadArgsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslRead
+JNIEXPORT jobject JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslRead
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jreadargs, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3763,11 +3763,11 @@ JNIEXPORT jobject JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslR
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslGetBuffer
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;IZLcom/thomsonreuters/upa/transport/ErrorImpl;)Lcom/thomsonreuters/upa/transport/JNIBuffer;
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;IZLcom/refinitiv/eta/transport/ErrorImpl;)Lcom/refinitiv/eta/transport/JNIBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslGetBuffer
+JNIEXPORT jobject JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslGetBuffer
   (JNIEnv *env, jobject arg, jobject jchnl, jint jsize, jboolean jpackbuffer, jobject jerror)
 {
 	RsslError error;
@@ -3798,11 +3798,11 @@ JNIEXPORT jobject JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslG
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslReleaseBuffer
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIBuffer;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslReleaseBuffer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslReleaseBuffer
   (JNIEnv *env, jobject arg, jobject jbuffer, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3824,11 +3824,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslRele
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslPackBuffer
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/JNIBuffer;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslPackBuffer
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslPackBuffer
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jbuffer, jobject jerror)
 {
 	RsslError error;
@@ -3862,11 +3862,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslPack
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslWrite
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/JNIBuffer;Lcom/thomsonreuters/upa/transport/WriteArgsImpl;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/JNIBuffer;Lcom/refinitiv/eta/transport/WriteArgsImpl;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslWrite
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslWrite
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jbuffer, jobject jwriteargs, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3950,11 +3950,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslWrit
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslFlush
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslFlush
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslFlush
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -3980,11 +3980,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslFlus
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslPing
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslPing
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslPing
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;
@@ -4010,11 +4010,11 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslPing
 }
 
 /*
- * Class:     com_thomsonreuters_upa_transport_JNIChannel
+ * Class:     com_rtsdk_eta_transport_JNIChannel
  * Method:    rsslReconnectClient
- * Signature: (Lcom/thomsonreuters/upa/transport/JNIChannel;Lcom/thomsonreuters/upa/transport/ErrorImpl;)I
+ * Signature: (Lcom/refinitiv/eta/transport/JNIChannel;Lcom/refinitiv/eta/transport/ErrorImpl;)I
  */
-JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIChannel_rsslReconnectClient
+JNIEXPORT jint JNICALL Java_com_refinitiv_eta_transport_JNIChannel_rsslReconnectClient
   (JNIEnv *env, jobject arg, jobject jchnl, jobject jerror)
 {
 	RsslRet rsslRetVal;

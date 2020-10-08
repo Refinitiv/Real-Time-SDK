@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_IOCtlCode_h
-#define __thomsonreuters_ema_access_IOCtlCode_h
+#ifndef __refinitiv_ema_access_IOCtlCode_h
+#define __refinitiv_ema_access_IOCtlCode_h
 
  /**
-	 \class thomsonreuters::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
+	 \class refinitiv::ema::access::IOCtlCode IOCtlCode.h "Access/Include/IOCtlCode.h"
 	 \brief IOCtlCode class provides enumeration representing I/O codes for modifying I/O values programmatically using the modifyIOCtl() method
 	 of provided by OmmProvider and OmmConsumer classes.
 
@@ -29,7 +29,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -68,4 +68,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_IOCtlCode_h
+#endif // __refinitiv_ema_access_IOCtlCode_h

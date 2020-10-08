@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInvalidHandleException_h
-#define __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#ifndef __refinitiv_ema_access_OmmInvalidHandleException_h
+#define __refinitiv_ema_access_OmmInvalidHandleException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmInvalidHandleException OmmInvalidHandleException.h "Access/Include/OmmInvalidHandleException.h"
+	@class refinitiv::ema::access::OmmInvalidHandleException OmmInvalidHandleException.h "Access/Include/OmmInvalidHandleException.h"
 	@brief OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer.
 
 	OmmConsumer uses UInt64 values, called handles to identify individual item streams.
@@ -25,7 +25,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -87,4 +87,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#endif // __refinitiv_ema_access_OmmInvalidHandleException_h

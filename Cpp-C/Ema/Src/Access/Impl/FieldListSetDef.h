@@ -6,14 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FieldListSetDef_h
-#define __thomsonreuters_ema_access_FieldListSetDef_h
+#ifndef __refinitiv_ema_access_FieldListSetDef_h
+#define __refinitiv_ema_access_FieldListSetDef_h
 
 #include "EmaPool.h"
 
 #include "rtr/rsslSetData.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -57,4 +57,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FieldListSetDef_h
+#endif // __refinitiv_ema_access_FieldListSetDef_h

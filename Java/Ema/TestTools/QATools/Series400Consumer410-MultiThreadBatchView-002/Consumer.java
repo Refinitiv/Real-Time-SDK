@@ -6,7 +6,7 @@
 ///*|----------------------------------------------------------------------------------------------------
 
 //APIQA
-package com.thomsonreuters.ema.examples.training.consumer.series400.example410__MarketPrice__HorizontalScaling;
+package com.refinitiv.ema.examples.training.consumer.series400.ex410_MP_HorizontalScaling;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -27,27 +27,27 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmInvalidUsageException;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldEntry;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmArray;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmInvalidUsageException;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 public class Consumer {
 	private EmaConsumerService emaConsumerService = new EmaConsumerServiceImpl();

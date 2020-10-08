@@ -21,12 +21,12 @@ public:
 	virtual ~ThreadInfo() {}
 
 	void setThreadId( long id ) { _threadId = id; }
-	void setThreadName( const thomsonreuters::ema::access::EmaString& name ) { _threadName = name; }
+	void setThreadName( const refinitiv::ema::access::EmaString& name ) { _threadName = name; }
 	void setRequestedCPU( long cpu ) { _requestedCPU = cpu; }
 	void setBoundCPU( long cpu ) { _boundCPU = cpu; }
 
 	long getThreadId() const { return _threadId; }
-	const thomsonreuters::ema::access::EmaString& getThreadName() const { return _threadName; }
+	const refinitiv::ema::access::EmaString& getThreadName() const { return _threadName; }
 	long getRequestedCPU() const { return _requestedCPU; }
 	long getBoundCPU() const { return _boundCPU; }
 
@@ -39,7 +39,7 @@ private:
 	long										_threadId;
 	long										_requestedCPU;
 	long										_boundCPU;
-	thomsonreuters::ema::access::EmaString		_threadName;
+	refinitiv::ema::access::EmaString		_threadName;
 };
 
 #endif // __ema__threadAffinity_h__

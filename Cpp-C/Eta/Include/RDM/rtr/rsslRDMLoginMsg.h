@@ -146,10 +146,10 @@ typedef struct {
 	RsslUInt	role;							/*!< Indicates the role of the application.  Populated by RDMLoginRoleTypes */
 	RsslUInt	singleOpen;						/*!< Indicates whether the Consumer desires for the Provider to handle recovery on its behalf. */
 	RsslUInt	supportProviderDictionaryDownload;	/*!< Indicates whether the Consumer supports dictionary download. */
-	RsslBuffer	userName;						/*!< The UserName being used to login.  For TREP Authentication, this should contain Authentication Token */
+	RsslBuffer	userName;						/*!< The UserName being used to login.  For UserAuthn Authentication, this should contain Authentication Token */
 	RsslUInt8	userNameType;					/*!< The type of the userName.  Populated by RDMLoginUserIdTypes */
 	RsslBuffer  applicationAuthorizationToken;	/*!< The ApplicationAuthorizationToken. */
-	RsslBuffer 	authenticationExtended;			/*!< Additional data required for TREP Authentication */
+	RsslBuffer 	authenticationExtended;			/*!< Additional data required for UserAuthn Authentication */
 	char defaultUsername[256];					/*!< Provides memory space for the userName when using the rsslInitDefaultRDMLoginRequest() function. */
 	char defaultPosition[256];					/*!< Provides memory space for the position when using the rsslInitDefaultRDMLoginRequest() function. */
 } RsslRDMLoginRequest;
@@ -304,13 +304,13 @@ typedef struct {
 	RsslUInt					supportOptimizedPauseResume;	/*!< Indicates whether the Provider supports Optimized Pause & Resume. */
 	RsslUInt					supportStandby;					/*!< Indicates whether the Provider may be used for Warm Standby. */
 	RsslUInt					supportViewRequests;			/*!< Indicates whether the Provider supports Requests with Dynamic View information. */
-	RsslUInt					sequenceRetryInterval;			/*!< For ADS multicast configuration of a watchlist-enabled UPA Reactor. Configures the time (in seconds) the Reactor will delay recovery of items when a gap is detected. */
-	RsslUInt					updateBufferLimit;				/*!< For ADS multicast configuration of a watchlist-enabled UPA Reactor. Configures the number of multicast messages the Reactor will buffer on each stream for reordering againts the item's refresh. */
-	RsslUInt					sequenceNumberRecovery;			/*!< For ADS multicast configuration of a watchlist-enabled UPA Reactor. Configures whether the Reactor recovers from a gap detected in an item stream. */
-	RsslUInt					authenticationTTReissue;		/*!< For TREP Authentication, this indicates the time(in epoch) that the token expires on */
-	RsslBuffer					authenticationExtendedResp;		/*!< For TREP Authentication, this is extra data that may need to be used by the client application from the token generator */
-	RsslUInt					authenticationErrorCode;		/*!< For TREP Authentication, this is any error information from the token generator */
-	RsslBuffer					authenticationErrorText;		/*!< For Trep Authentication, this is the text associated with the authentication error code */
+	RsslUInt					sequenceRetryInterval;			/*!< For ADS multicast configuration of a watchlist-enabled ETA Reactor. Configures the time (in seconds) the Reactor will delay recovery of items when a gap is detected. */
+	RsslUInt					updateBufferLimit;				/*!< For ADS multicast configuration of a watchlist-enabled ETA Reactor. Configures the number of multicast messages the Reactor will buffer on each stream for reordering againts the item's refresh. */
+	RsslUInt					sequenceNumberRecovery;			/*!< For ADS multicast configuration of a watchlist-enabled ETA Reactor. Configures whether the Reactor recovers from a gap detected in an item stream. */
+	RsslUInt					authenticationTTReissue;		/*!< For UserAuthn Authentication, this indicates the time(in epoch) that the token expires on */
+	RsslBuffer					authenticationExtendedResp;		/*!< For UserAuthn Authentication, this is extra data that may need to be used by the client application from the token generator */
+	RsslUInt					authenticationErrorCode;		/*!< For UserAuthn Authentication, this is any error information from the token generator */
+	RsslBuffer					authenticationErrorText;		/*!< For UserAuthn Authentication, this is the text associated with the authentication error code */
 } RsslRDMLoginRefresh;
 
 /**
@@ -399,8 +399,8 @@ typedef struct {
 	RsslState		state;			/*!< The current state of the login stream. */
 	RsslBuffer		userName;		/*!< The userName that was used when sending the Login Request. */
 	RsslUInt8		userNameType;	/*!< The type of the userName that was used with the Loginn Request.Populated by RDMLoginUserIdTypes */
-	RsslUInt		authenticationErrorCode;	/*!< For TREP Authentication, this is any error information from the token generator */
-	RsslBuffer		authenticationErrorText;	/*!< For Trep Authentication, this is the text associated with the authentication error code */
+	RsslUInt		authenticationErrorCode;	/*!< For UserAuthn Authentication, this is any error information from the token generator */
+	RsslBuffer		authenticationErrorText;	/*!< For UserAuthn Authentication, this is the text associated with the authentication error code */
 
 } RsslRDMLoginStatus;
 

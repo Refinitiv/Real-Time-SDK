@@ -1,0 +1,15 @@
+# Hand generated from RefinitivWireFormat.vsd, Structures tab, rwfArray
+#
+# structure: rwfArray
+# rwfUInt8     dataType
+# rwfUInt16-ob itemLength
+# rwfUInt16    itemCount
+# typearray    array[itemLength]
+#
+# dataType = (4) UINT
+# itemLength = (0x00) 0
+# itemCount = (0x00 0x03) 3
+# ArrayEntry[0] = (0x01 0x00) 0
+# ArrayEntry[1] = (0x01 0xFF) 255
+# ArrayEntry[2] = (0x02 0xFF 0xFF) 65535
+04 00 00 03 01 00 01 FF  02 FF FF                     .......... ...

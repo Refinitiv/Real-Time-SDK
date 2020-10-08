@@ -776,9 +776,9 @@ RsslRet processSingleItemRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIter
 	if((domainType == RSSL_DMT_SYMBOL_LIST) && (msg->msgBase.msgKey.name.length != 0))
 	{
 		RsslBuffer symbolListName;
-		symbolListName.data = (char *)"_UPA_ITEM_LIST";
-		symbolListName.length = (RsslUInt32)strlen("_UPA_ITEM_LIST");
-		/* if the consumer specified symbol list name isn't "_UPA_ITEM_LIST", reject it */
+		symbolListName.data = (char *)"_ETA_ITEM_LIST";
+		symbolListName.length = (RsslUInt32)strlen("_ETA_ITEM_LIST");
+		/* if the consumer specified symbol list name isn't "_ETA_ITEM_LIST", reject it */
 		if (!rsslBufferIsEqual(&(msg->msgBase.msgKey.name), &symbolListName))
 		{
 			if (sendItemRequestReject(chnl, msg->msgBase.streamId, domainType, ITEM_NOT_SUPPORTED, isPrivateStream) != RSSL_RET_SUCCESS)

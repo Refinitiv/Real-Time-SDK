@@ -6,7 +6,7 @@
 */
 
 /* provPerfConfig.h
- * Configures the upacProvPerf application. */
+ * Configures the ProvPerf application. */
 
 #ifndef _PROV_PERF_CONFIG_H
 #define _PROV_PERF_CONFIG_H
@@ -27,13 +27,13 @@ typedef struct
 	RsslUInt32			guaranteedOutputBuffers;	/* Guaranteed Output Buffers. See -outputBufs */
 	RsslUInt32			maxOutputBuffers;		/* Max Output Buffers. See -maxOutputBufs */
 	RsslUInt32			maxFragmentSize;			/* Maximum Fragment Size. See -maxFragmentSize */
-	RsslUInt32			highWaterMark;				/* sets the point which will cause UPA to automatically flush */
+	RsslUInt32			highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	RsslUInt32			sendBufSize;				/* System Send Buffer Size. See -sendBufSize */
 	RsslUInt32			recvBufSize;				/* System Send Buffer Size. See -recvBufSize */
 	char				summaryFilename[128];		/* Name of the summary log file. See -summaryFile */
 	RsslUInt32			writeStatsInterval;			/* Controls how often statistics are written. */
 	RsslBool			displayStats;				/* Controls whether stats appear on the screen. */
-	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
 	RsslConnectionTypes connType;					/* Connection type for this provider */
 	char				serverCert[255];			/* Server certificate file location */
 	char				serverKey[255];				/* Server private key file location */

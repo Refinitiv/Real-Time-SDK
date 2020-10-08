@@ -9,7 +9,7 @@
 #include "Access/Impl/StaticDecoder.h"
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 TEST(VectorTests, testVectorContainsFieldListsDecodeAll)

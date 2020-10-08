@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FilterList_h
-#define __thomsonreuters_ema_access_FilterList_h
+#ifndef __refinitiv_ema_access_FilterList_h
+#define __refinitiv_ema_access_FilterList_h
 
 /**
-	@class thomsonreuters::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
+	@class refinitiv::ema::access::FilterList FilterList.h "Access/Include/FilterList.h"
 	@brief FilterList is a heterogeneous container of complex data type entries.
 
 	FilterList entries are identified by Filter Id. For the source directory information,
@@ -120,7 +120,7 @@
 #include "Access/Include/ComplexType.h"
 #include "Access/Include/FilterEntry.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -272,4 +272,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FilterList_h
+#endif // __refinitiv_ema_access_FilterList_h

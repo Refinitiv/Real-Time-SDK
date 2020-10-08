@@ -8,7 +8,7 @@
 
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 // no google tests in this function
@@ -1358,7 +1358,7 @@ void perfDecode( const FieldList& fl )
 	}
 }
 
-bool comparingData(RsslBuffer& rsslBuffer, const thomsonreuters::ema::access::EmaString& emaString)
+bool comparingData(RsslBuffer& rsslBuffer, const refinitiv::ema::access::EmaString& emaString)
 {
 	if ( ( rsslBuffer.length == emaString.length() ) && ( memcmp(rsslBuffer.data, emaString.c_str(), rsslBuffer.length) == 0 ) )
 	{

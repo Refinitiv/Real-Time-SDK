@@ -110,7 +110,7 @@ Please refer to Installation Guides for [ETA](Java/Eta/Docs/RTSDK_J_Installation
 ## Install RTSDK 
 This section shows the required setup needed before you can build any of the Java APIs.
 
-Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. For releases prior to RTSDK 1.3.0.L1, ONLY, a Binary Pack may be obtained by cloning RTSDK GitHub repo with --recursive to include submodule found in [a BinaryPack repository](http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack). 
+Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
 Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-java/downloads).
 
@@ -168,7 +168,7 @@ This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
 
 # Obtaining the Refinitiv Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of TREP Templates Service Pack.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Templates Service Pack.
 
 # Maven Central
 
@@ -177,42 +177,42 @@ For ease of product use, as of the RTSDK 1.2 release, Refinitiv maintains its RT
 You can download RTSDK libraries and dependencies from Maven Central using several different tools, specific procedural instructions are not included here. Maven uses the following syntax to specify RTSDK dependencies (this is sample code) :
 
 	<dependency>
-		<groupId>com.thomsonreuters.ema</groupId>
+		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.thomsonreuters.upa</groupId>
-		<artifactId>upa</artifactId>
+		<groupId>com.refinitiv.eta</groupId>
+		<artifactId>eta</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.thomsonreuters.upa.valueadd</groupId>
-		<artifactId>upaValueAdd</artifactId>
+		<groupId>com.refinitiv.eta.valueadd</groupId>
+		<artifactId>etaValueAdd</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
-		<artifactId>upaValueAddCache</artifactId>
+		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
+		<artifactId>etaValueAddCache</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 	<dependency>
-		<groupId>com.thomsonreuters.upa.ansi</groupId>
+		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
 		<version>3.5.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.5.1.0'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.5.1.0'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.5.1.0'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.5.1.0'
-        compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.5.1.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.5.1.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.5.1.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.5.1.0'
 
 # Developing 
 

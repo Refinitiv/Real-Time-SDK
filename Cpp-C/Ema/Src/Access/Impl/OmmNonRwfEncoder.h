@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNonRwfEncoder_h
-#define __thomsonreuters_ema_access_OmmNonRwfEncoder_h
+#ifndef __refinitiv_ema_access_OmmNonRwfEncoder_h
+#define __refinitiv_ema_access_OmmNonRwfEncoder_h
 
 #include "Encoder.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -36,4 +36,4 @@ public :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNonRwfEncoder_h
+#endif // __refinitiv_ema_access_OmmNonRwfEncoder_h

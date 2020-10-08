@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_GlobalPool_h
-#define __thomsonreuters_ema_access_GlobalPool_h
+#ifndef __refinitiv_ema_access_GlobalPool_h
+#define __refinitiv_ema_access_GlobalPool_h
 
 #include "OmmArrayDecoder.h"
 #include "ElementListDecoder.h"
@@ -47,7 +47,7 @@
 #include "ElementListSetDef.h"
 #include "FieldListSetDef.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,6 +107,6 @@ public :
 
 }
 
-extern thomsonreuters::ema::access::GlobalPool g_pool;
+extern refinitiv::ema::access::GlobalPool g_pool;
 
-#endif // __thomsonreuters_ema_access_GlobalPool_h
+#endif // __refinitiv_ema_access_GlobalPool_h
