@@ -460,7 +460,6 @@
 			<GuaranteedOutputBuffers value="100000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="0"/>
-			<DirectWrite value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
 		</Channel>
