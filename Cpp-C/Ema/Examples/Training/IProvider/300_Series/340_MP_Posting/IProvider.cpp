@@ -82,8 +82,9 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 void AppClient::onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event )
 {
 	// if the post is on the login stream, then it's an off-stream post, else it's an on-stream post
-	cout << "Received an " << (event.getHandle() == loginStreamHandle ? "off-stream" : "on-stream" ) <<
-		" item post (item=" << (postMsg.hasName() ? postMsg.getName() : "n/a") << ")" << endl;
+	cout << "Received an " << (event.getHandle() == loginStreamHandle ? "off-stream" : "on-stream") << endl;
+
+	cout << postMsg << endl;
 
 	if (postMsg.getSolicitAck())
 	{
