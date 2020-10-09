@@ -114,7 +114,7 @@ int main( int argc, char* argv[] )
 		AppClient appClient;
 		AppErrorClient erroClient;
 
-		OmmProvider provider( OmmIProviderConfig().providerName( "Provider_1" ).operationModel( OmmIProviderConfig::UserDispatchEnum ), appClient, erroClient );
+		OmmProvider provider( OmmIProviderConfig().providerName( "Provider_3" ).operationModel( OmmIProviderConfig::UserDispatchEnum ), appClient, erroClient );
 		
 		int count = 0;
 		unsigned long long startTime = getCurrentTime();
