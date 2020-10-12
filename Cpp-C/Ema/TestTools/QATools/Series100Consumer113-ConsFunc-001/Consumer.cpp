@@ -139,7 +139,7 @@ int main( int argc, char* argv[] )
 			printHelp();
 			return -1;
 		}
-		OmmConsumer consumer( config.consumerName( "Consumer_3" ) );
+		OmmConsumer consumer( config.consumerName( "Consumer_4" ) );
 		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );
 		sleep( 900000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {

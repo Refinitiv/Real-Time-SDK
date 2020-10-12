@@ -187,7 +187,7 @@ public class Consumer {
 			
 			AppClient appClient = new AppClient();
 			
-			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_3").username(userName).password(password));
+			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_4").username(userName).password(password));
 			
 			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("BBL.BK"), appClient);
 			
