@@ -1517,7 +1517,7 @@ public class ReactorChannel extends VaNode
     	{
     		_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "ReactorChannel.applyServiceDiscoveryEndpoint", 
         			"ReactorChannel.applyServiceDiscoveryEndpoint(): Could not find matching location: " + reactorConnectInfo.location() + 
-        			" for requesting EDP-RT service discovery.");                	
+        			" for requesting RDP service discovery.");                	
         	return ReactorReturnCodes.PARAMETER_INVALID;
     	}
     }
