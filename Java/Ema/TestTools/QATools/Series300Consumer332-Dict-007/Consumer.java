@@ -191,8 +191,6 @@ public class Consumer
 			consumer.registerClient(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).name("RWFEnum").
 					filter(EmaRdm.DICTIONARY_NORMAL),appClient);
 
-			//consumer.registerClient(reqMsg.clear().serviceName("API_ELEKTRON_EPD_RSSL").name("IBM.N"), appClient);
-
 			while(appClient.fldDictComplete!=true && appClient.enumTypeComplete!=true) {
 				Thread.sleep(1000); 
 			}

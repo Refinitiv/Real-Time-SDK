@@ -9,20 +9,20 @@
 ! ENUMERATED TYPES
 ! ================
 ! 
-! Version 4.10.11_TREP-RT_13.11
+! Version 4.10.11_Dictionary_13.11
 ! -------------------------------------
 !
 !     * Modified July 4, 2012 at Bangkok:
 !        - This file is based on enumtype.001 version 13.11.
-!        - New enumerations added in 4.10.11_TREP-RT have been defined with placeholder values.
+!        - New enumerations added in 4.10.11_Dictionary have been defined with placeholder values.
 ! 
-! RDMD Version 4.10.11_TREP-RT
+! RDMD Version 4.10.11
 ! Display Version 13.11
 ! --------------------
 ! 04/07/2012
 !
 !tag Filename    ENUMTYPE.001
-!tag Desc        IDN Marketstream enumerated tables
+!tag Desc        Marketstream enumerated tables
 !tag RT_Version  4.10.11
 !tag Build_RDMD  4.10.11
 !tag DT_Version  13.11

@@ -445,7 +445,7 @@ void watchlistRecoveryTest_OneItem_RequestTimeout(RsslBool singleOpen, RsslConne
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(!wtfGetEvent());
 
-	/* Send a login reissue now (UPAC-500). */
+	/* Send a login reissue now */
 	wtfInitDefaultLoginRequest(&loginRequest);
 	loginRequest.flags |= RDM_LG_RQF_NO_REFRESH;
 	rsslClearReactorSubmitMsgOptions(&opts);
@@ -2937,8 +2937,7 @@ void watchlistRecoveryTest_OneItem_LoginClosed_Directory(RsslConnectionTypes con
 
 	/* Test that the directory stream is properly closed when
 	 * a login close is received. The provider avoids sending a response,
-	 * so we can test that the stream's timeout is properly removed.
-	 * See UPAC-57. */
+	 * so we can test that the stream's timeout is properly removed. */
 
 	ASSERT_TRUE(wtfStartTest());
 

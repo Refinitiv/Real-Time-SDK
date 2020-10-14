@@ -9,14 +9,14 @@
 ! ENUMERATED TYPES
 ! ================
 ! 
-! Version 4.20.03_TREP-RT_13.81
+! Version 4.20.03_Dictionary_13.81
 ! -------------------------------------
 !
 !     * Modified Sep 16, 2013 at Bangkok:
 !        - This file is based on enumtype.001 version 13.81.
-!        - New enumerations added in 4.20.03_TREP-RT have been defined with placeholder values.
+!        - New enumerations added in 4.20.03 have been defined with placeholder values.
 ! 
-! RDMD Version 4.20.03_TREP-RT
+! RDMD Version 4.20.03
 ! Display Version 13.81
 ! --------------------
 ! 16/09/2013
@@ -7595,7 +7595,7 @@ COR_EXID   13402
    1174        "NAB"   Agencia Maritima Nabsa S.A
    1175        "NOB"   NASDAQ OMX BALTIC ICW
    1176        "NAV"   NASDAQ OMX VINX ICW
-   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for ELEKTRON
+   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for Refinitiv Real-Time 
    1178        "NOR"   NASDAQ OMX NORDIC ICW
    1179        "ENN"   Energie Nederland
    1180        "ATC"   Advance Trading Inc
@@ -7615,7 +7615,7 @@ COR_EXID   13402
    1194        "TW$"   Taiwan Money Rates
    1195        "TYS"   TOKYO STOCK EXCHANGE FLEX - STANDARD (TRHS ONLY )
    1196        "OSH"   OSAKA SECURITYIES EXCHANGE - TRHS ONLY
-   1197        "BTA"   BATS    - FOR ELEKTRON
+   1197        "BTA"   BATS    - FOR Refinitiv Real-Time 
    1198        "NTE"   NET ENERGY INC
    1199        "DG2"   DUBAI GOLD AND COMMODITIES EXCHANGE LEVEL 2
    1200        "NOC"   Nasdaq OMX Commodities
@@ -7664,7 +7664,7 @@ COR_EXID   13402
    1243        "FSC"   FTSE CUREX FX INDEX BASKETS (REAL-TIME)
    1244        "UCB"   US CENSUS BUREAU
    1245        "RIA"   Central Dispatching Department of Fuel and Energy Complex
-   1246        "BYX"   BATS LEVEL - 2 (BATS MULTICAST - ELEKTRON)
+   1246        "BYX"   BATS LEVEL - 2 (BATS MULTICAST - Refinitiv Real-Time)
    1247        "NA3"   NAIROBI SECURITIES EXCHANGE BONDS DATA
    1248        "CB2"   CBOE FUTURES EXCHANGE LEVEL2
    1249        "OMR"   Oil Market Report
@@ -7700,7 +7700,7 @@ COR_EXID   13402
    1279        "CS1"   CHI-X CANADA - TSX VENTURE L1
    1280        "CS2"   CHI-X CANADA - TSX VENTURE L2
    1281        "HS1"   HONG KONG STOCK EXCHANGE-LEVEL 1
-   1282        "HSF"   HONG KONG STOCK EXCHANGE ELEKTRON - MBP FULL TICK
+   1282        "HSF"   HONG KONG STOCK EXCHANGE REFINITIV REAL-TIME - MBP FULL TICK
    1283        "MXX"   MCX-SX EQUITY - L1
    1284        "MXY"   MCX-SX EQUITY - L2
    1285        "BUC"   BUCHAREST STOCK EXCHANGE

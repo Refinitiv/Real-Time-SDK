@@ -1,8 +1,8 @@
 # Enterprise Transport API (ETA) Java Edition
 
-This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  
+This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available in Enterprise Transport API.  
 
-The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
+The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible. Starting with verison RTSDK 2.0, there are changes to namespace and jar file names: please see [REBRAND.md](https://github.com/Refinitiv/Real-Time-SDK/blob/master/REBRAND.md) for details on how to adapt a UPA application or a ETA application written to prior versions of the library to see what must be changed. 
 
 ETA Java contains open source components. The transport, decoder, encoder, and cache components are open source. 
 
@@ -19,6 +19,7 @@ Copyright (C) 2019-2020 Refinitiv. All rights reserved.
 - ValueAddDevGuide
 - RDMUsageGuide
 - API_ConceptsGuide
+- TrainingToolGuide
 - PerfToolsGuide
 - AnsiPageDevGuide
 - DacsLibraryFunctions
@@ -117,22 +118,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.5.1.0.jar               eta3.5.1.L1       The ETA - Java Edition library.  Includes
+    eta-3.6.0.0.jar               eta3.6.0.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.5.1.0.jar       eta3.5.1.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.0.0.jar       eta3.6.0.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.5.1.0.jar  eta3.5.1.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.0.0.jar  eta3.6.0.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    jDacsEtalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
+    jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
 
-    ansipage-3.5.1.0.jar          eta3.5.1.L1       The ANSI decoders and encoders.
+    ansipage-3.6.0.0.jar          eta3.6.0.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.5.1.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.6.0.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -161,10 +162,10 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.5.1
+    Release Number: 3.6.0
     Load Number: 1
-    Load ID: etaj3.5.1.L1.all
-        Supersedes: etaj3.5.0.L1.all.rrg
+    Load ID: etaj3.6.0.L1.all
+        Supersedes: etaj3.5.1.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

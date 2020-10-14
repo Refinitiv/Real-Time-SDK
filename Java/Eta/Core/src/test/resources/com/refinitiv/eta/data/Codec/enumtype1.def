@@ -90,7 +90,7 @@ RDN_EXCHID     4
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"    TRC (THOMSON REUTERS CONTRIBUTED DATA)
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -6114,7 +6114,7 @@ PRIM_SRC    4470
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49       "TRC"    TRC (THOMSON REUTERS CONTRIBUTED DATA) 
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -7013,7 +7013,7 @@ PRIM_SRC    4470
     945        "CCD"   Consolidated Currency Future Level 1
     946        "BS2"   BOMBAY STOCK EXCHANGE LEVEL 2
     947        "BAE"   Baku Stock Exchange
-    948        "TRX"   THOMSON REUTERS INDICES 
+    948        "TRX"   REFINITIV INDICES
     949        "PRV"   PSEUDO PACIFIC STOCK EXCHANGE
     950        "BKL"   BAIKAL
     951        "CHA"   AUSTRALIA - CHI-X

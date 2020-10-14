@@ -131,7 +131,7 @@ import com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumerCo
  * 
  * <p>Here is configuring per connection, per reactor, and per thread. "server"  configuration will override all previous connection configuration.
  *   Reading a list of items from the file which will be distributed evenly to all configured connections, and it will override the previous configured items. For example:
- * <li>-runtime 150 -server localhost:14002:DIRECT_FEED -server localhost:14003:ELEKTRON_FEED -itemFile c:/temp/20k.xml -itemCount 20000
+ * <li>-runtime 150 -server localhost:14002:DIRECT_FEED -server localhost:14003:ELEKTRON_DD -itemFile c:/temp/20k.xml -itemCount 20000
  *  
  * </ul>
  */

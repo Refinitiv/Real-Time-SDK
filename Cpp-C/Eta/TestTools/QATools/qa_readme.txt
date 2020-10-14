@@ -91,22 +91,22 @@ Module:  Watchlist Consumer
 wlconsumer-LoginReissue-001:  Alter WLConsumer to send a login reissue with PAUSE-ALL after some item updates 
 and a RESUME-ALL after receiving a source directory update.
 
-wlconsumer-TrepAuth-001:  Alter WLConsumer to take a "-at2" input that permits user to specify a 
+wlconsumer-Auth-001:  Alter WLConsumer to take a "-at2" input that permits user to specify a 
 2nd token used in a token renewal.
 
-wlconsumer-TrepAuth-002:  Alter WLConsumer to send PAUSE_ALL after 5 update and a RESUME_ALL after
+wlconsumer-Auth-002:  Alter WLConsumer to send PAUSE_ALL after 5 update and a RESUME_ALL after
 receiving a source directory update.  Also WLConsumer is altered to take a "-at2" input that 
 permits user to specify a 2nd token used in a token renewal.
 
-wlconsumer-TrepAuth-003:  Alter WLConsumer to send item pause after 5 updates on stream id 5
+wlconsumer-Auth-003:  Alter WLConsumer to send item pause after 5 updates on stream id 5
 and item pause after 10 updates on stream id 6. Do a item resume after 20 updates on stream id 6
 Also WLConsumer is altered to take a "-at2" input that permits user to specify a
 2nd token used in a token renewal.  NOTE:  This test must be done with two like items and one different item.
 Example:  "-mp TRI -mp TRI -mp IBM"
 
-wlconsumer-TrepAuth-004:  Alter WLConsumer to send PAUSE_ALL after 5 update. Also WLConsumer 
+wlconsumer-Auth-004:  Alter WLConsumer to send PAUSE_ALL after 5 update. Also WLConsumer 
 is altered to take a "-at2" input that permits user to specify a 2nd token used in a token 
-renewal. NOTE: This is very similar to wlconsumer-TrepAuth-002 except that it does not resume
+renewal. NOTE: This is very similar to wlconsumer-Auth-002 except that it does not resume
 Targetted for the 3.1 release are two main features for which there will be code changes specific 
 to that feature:
   Below, 02001 can be read as "02" and "001".  The "02" represents 2nd feature of the release.

@@ -54,6 +54,9 @@ Platforms:
 
 	Red Hat Enterprise Linux 6.X Release 64bit, GCC 4.4.4 (JNI Libraries)
 	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
+        Red Hat Enterprise Server 8.X Release 64-bit (JNI Libraries)
+        CentOS 7.X Release 64-bit Qualification 
+        CentOS 8.X Release 64-bit Qualification
 
 #### Tested Versions
 
@@ -97,7 +100,7 @@ This release has been tested with the following:
 
 - ADS 3.4.2
 - ADH 3.4.2
-- DACS 7.3
+- DACS 7.6
 
 # Documentation
   
@@ -112,9 +115,9 @@ This section shows the required setup needed before you can build any of the Jav
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-java/downloads).
+Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/refinitiv-real-time-opnsrc/rt-sdk-java/downloads).
 
-Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
+Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html).
 
 ## Building RTSDK
 
@@ -122,7 +125,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 Gradle is now used to build RTSDK.
 Gradle can be downloaded from https://gradle.org
-NOTE: Starting release ESDK 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
+NOTE: Starting with SDK version 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
 
 Refer to the RTSDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 

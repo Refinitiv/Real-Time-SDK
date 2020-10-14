@@ -75,7 +75,7 @@ typedef enum {
 	RSSL_GNMF_MESSAGE_COMPLETE		= 0x0010,		/*!< (0x0010) Indicates that this RsslGenericMsg is the final part of a multi-part generic message. This flag should be set on both single-part generic messages, as well as the final message in a multi-part generic message sequence. */
 	RSSL_GNMF_HAS_SECONDARY_SEQ_NUM	= 0x0020,		/*!< (0x0020) This RsslGenericMsg has a secondary sequence number, contained in RsslGenericMsg::secondarySeqNum */
 	RSSL_GNMF_HAS_PART_NUM			= 0x0040,		/*!< (0x0040) This RsslGenericMsg has a part number, contained in RsslGenericMsg::partNum. */
-	RSSL_GNMF_HAS_REQ_MSG_KEY		= 0x0080,		/*!< (0x0080) The RsslGenericMsg has the original request's message key, contained in \ref RsslGenericMsg::msgBase::reqMsgKey*/
+	RSSL_GNMF_HAS_REQ_MSG_KEY		= 0x0080,		/*!< (0x0080) The RsslGenericMsg has the original request's message key, contained in \ref RsslGenericMsg::reqMsgKey*/
 	RSSL_GNMF_PROVIDER_DRIVEN		= 0x4000		/*!< (0x4000) This RsslGenericMsg is sent from a provider and is not in response to a specific request */
 } RsslGenericFlags;
 

@@ -78,7 +78,7 @@ RDN_EXCHID     4
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   TRC (THOMSON REUTERS CONTRIBUTED DATA) 
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -243,7 +243,7 @@ RDN_EXCHID     4
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   SOURCE IS A THOMSON REUTERS CONTRIBUTOR
+    214        "RCT"   Source is a Refinitiv Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -6881,7 +6881,7 @@ COR_EXID   13402
      46        "BSQ"   Consolidated Issue, listed by Boston SE
      47        "CHI"   CHI - X Europe
      48        "WCQ"   Consolidated Issue, listed by CBOE
-     49        "TRC"   TRC (THOMSON REUTERS CONTRIBUTED DATA) 
+     49        "TRC"   Source is a Refinitiv Contributor
      50        "KBT"   Kansas City Board of Trade
      51        "SOM"   Stockholmsborsen - derivatives (was Om Stockholm)
      52        "ADS"   NASD Alternative Display Facility for Nasdaq Capital Market
@@ -7046,7 +7046,7 @@ COR_EXID   13402
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   SOURCE IS A THOMSON REUTERS CONTRIBUTOR
+    214        "RCT"   Source is a Refinitiv Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -7780,7 +7780,7 @@ COR_EXID   13402
     945        "CCD"   Consolidated Currency Future Level 1
     946        "BS2"   BSE Ltd
     947        "BAE"   Baku Stock Exchange
-    948        "TRX"   THOMSON REUTERS INDICES 
+    948        "TRX"   REFINITIV INDICES
     949        "PRV"   PSEUDO PACIFIC STOCK EXCHANGE
     950        "BKL"   BAIKAL
     951        "CHA"   AUSTRALIA - CHI-X
@@ -8009,7 +8009,7 @@ COR_EXID   13402
    1174        "NAB"   Agencia Maritima Nabsa S.A
    1175        "NOB"   NASDAQ OMX BALTIC ICW
    1176        "NAV"   NASDAQ OMX VINX ICW
-   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for ELEKTRON
+   1177        "NTO"   NASDAQ TOTAL VIEW ITCH MBP TOP 10 LEVELS for Refinitiv Real-Time
    1178        "NOR"   NASDAQ OMX NORDIC ICW
    1179        "ENN"   Energie Nederland
    1180        "ATC"   Advance Trading Inc
@@ -8029,7 +8029,7 @@ COR_EXID   13402
    1194        "TW$"   Taiwan Money Rates
    1195        "TYS"   TOKYO STOCK EXCHANGE FLEX - STANDARD (TRHS ONLY )
    1196        "OSH"   OSAKA EXCHANGE INC. - TRHS ONLY
-   1197        "BTA"   BATS    - FOR ELEKTRON
+   1197        "BTA"   BATS    - FOR Refinitiv Real-Time
    1198        "NTE"   NET ENERGY INC
    1199        "DG2"   DUBAI GOLD AND COMMODITIES EXCHANGE LEVEL 2
    1200        "NOC"   Nasdaq OMX Commodities
@@ -8078,7 +8078,7 @@ COR_EXID   13402
    1243        "FSC"   FTSE CUREX FX INDEX BASKETS (REAL-TIME)
    1244        "UCB"   US CENSUS BUREAU
    1245        "RIA"   Central Dispatching Department of Fuel and Energy Complex
-   1246        "BYX"   BATS Y LEVEL - 2 (BATS MULTICAST - ELEKTRON)
+   1246        "BYX"   BATS Y LEVEL - 2 (BATS MULTICAST - Refinitiv Real-Time)
    1247        "NA3"   NAIROBI SECURITIES EXCHANGE BONDS DATA
    1248        "CB2"   CBOE FUTURES EXCHANGE L1 AND L2
    1249        "OMR"   Oil Market Report
@@ -8092,7 +8092,7 @@ COR_EXID   13402
    1257        "CNL"   CANDEAL FIXED INCOME MARKET DATA
    1258        "INX"   Instinet Canada Cross
    1259        "RDT"   Reseau de Transport d'Electricite
-   1260        "OCD"   OSAKA EXCHANGE INC. - DERIVS(HFMIU)-ELEKTRON ONLY
+   1260        "OCD"   OSAKA EXCHANGE INC. - DERIVS(HFMIU)-Refinitiv-Real-Time ONLY
    1261        "IFO"   ISTANBUL STOCK EXCHANGE FUTURES AND OPTIONS L1
    1262        "JIS"   The Japan Iron and Steel Federation
    1263        "IXX"   INSTINET CANADA CROSS
@@ -8114,7 +8114,7 @@ COR_EXID   13402
    1279        "CS1"   CHI-X CANADA - TSX VENTURE L1
    1280        "CS2"   CHI-X CANADA ATS TSX VENTURE L1 AND L2
    1281        "HS1"   HONG KONG STOCK EXCHANGE-LEVEL 1
-   1282        "HSF"   HONG KONG STOCK EXCHANGE ELEKTRON - MBP FULL TICK
+   1282        "HSF"   HONG KONG STOCK EXCHANGE Refinitiv Real-Time - MBP FULL TICK
    1283        "MXX"   MCX-SX EQUITY - L1
    1284        "MXY"   MCX-SX EQUITY - L2
    1285        "BUC"   BUCHAREST STOCK EXCHANGE
@@ -8162,7 +8162,7 @@ COR_EXID   13402
    1327        "SNR"   Snam Rete Gas S.p.A
    1328        "WIN"   WINGAS UK Limited
    1329        "CJC"   Shanghai JC Intelligence Co. Ltd. (JCI)
-   1330        "BZX"   BATS Global Markets - BZX Exchange - Level 2 (Elektron)
+   1330        "BZX"   BATS Global Markets - BZX Exchange - Level 2 (Refinitiv Real-Time)
    1331        "CLN"   CAROLINA CAPITAL MARKETS
    1332        "KGE"   KRX Gold Spot Exchange
    1333        "DXA"   Direct EDGE Multicast - EDGA

@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.5.1.0.jar         ema3.5.1.L1
+    ema-3.6.0.0.jar         ema3.6.0.L1
 
 # EMA Java Issues and Workarounds
  
@@ -91,10 +91,10 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6313
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.5.1
+    Release Number: 3.6.0
     Load Number: 1
-    Load ID: ema3.5.1.L1.java
-        Supersedes: ema3.5.0.L1.java
+    Load ID: ema3.6.0.L1.java
+        Supersedes: ema3.5.1.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

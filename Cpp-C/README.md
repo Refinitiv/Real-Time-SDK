@@ -22,6 +22,7 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - Oracle Linux Server 6.X or 7.X Release 64-bit
 - Red Hat Enterprise Server 8.X Release 64-bit
 - CentOS 7.X Release 64-bit
+- CentOS 8.X Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -63,6 +64,7 @@ Platforms & Compilers:
 	GCC compiler suite version 4.4.4 or higher for Oracle Linux 6.0, 64-bit, qualification with RH6 library build
 	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
 	GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
+	GCC compiler suite version 8.3.1 or higher for CentOS 8.0, 64-bit, qualification with RH8 library build 
 
 * Eta VACache library built 
 
@@ -100,6 +102,7 @@ This release has been tested with the following on supported platform/OS combina
 	Red Hat Enterprise Linux Server 6.10 64-bit 	GCC 7.4.0 	n/a			RHEL6_64_GCC740
 	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
 	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
+	CentOS 8.0 64-bit                		GCC 4.8.2	OL7_64_GCC482		CENTOS8_64_GCC831
 
 	n/a = This is not a tested combination
 
@@ -134,7 +137,7 @@ This release has been tested with the following:
 
 - ADS 3.4.2
 - ADH 3.4.2
-- DACS 7.3
+- DACS 7.6
 
 # Documentation
 
@@ -149,9 +152,9 @@ There are 3 ways to install Refinitiv Real-Time SDK:
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/elektron/elektron-sdk-cc/downloads).
+Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads).
 
-Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for: "Elektron SDK".
+Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). 
 
 ## Building RTSDK
 
@@ -208,9 +211,10 @@ CMake has build support for 32 bit platforms.
 
 Linux: Add "-DBUILD\_32\_BIT\_ETA=ON" to the cmake build
 
-Windows: Do not add "Win64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015" 
+Windows: Do not add "Win64" or "-A x64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015" 
 
-Starting with ESDK1.3.1, DACS and ANSI libraries are available for 32-bits in the BinaryPack.
+NOTE: Starting with SDK version 1.3.1, DACS libraries are available for 32-bits in the BinaryPack.
+NOTE: DACS libraries provided in BinaryPack for VS 2017 and VS2019 are copied from VS 2015 as these builds are not currently available.
 
 # Obtaining the Refinitiv Field Dictionaries
 

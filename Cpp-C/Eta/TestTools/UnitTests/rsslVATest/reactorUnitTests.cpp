@@ -3805,7 +3805,7 @@ static void reactorUnitTests_InvalidArguments(RsslConnectionTypes connectionType
 
 void reactorUnitTests_ShortPingInterval(RsslConnectionTypes connectionType)
 {
-	/* Test that connection can stay up with a very small ping interval (reproduces UPAC-632). */
+	/* Test that connection can stay up with a very small ping interval */
 	RsslServer *pRsslServer;
 	RsslReactorChannel *pProvCh, *pConsCh;
 	RsslBindOptions rsslBindOpts;

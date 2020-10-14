@@ -1,6 +1,6 @@
 This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and summaries of fixes/features prior to RTSDK-1.5.1.L1, may continue to refer to ESDK or Elektron.
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and summaries of fixes/features prior to RTSDK-1.5.1.L1, may continue to refer to ESDK or Elektron. Fix IDs will continue to refer to ESDK.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
@@ -9,24 +9,57 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.0.L1 aka EMA 3.6.0.L1 and ETA 3.6.0.L1 
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
+The primary object of this release is to completely rebrand RTSDK: change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customer, REBRAND.md was also added. In addition, there were a few fixes included. This release also introduces qualification on CentOS 8.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 08784579] - [ESDK-4079] - rsslReactorConnect returned 0 when using an invalid network interface
-- [GitHub Pull Request #99] - [ESDK-3241] - Fix invalid usage of pthread_mutex_init()
-- [GitHub #135] - [ESDK-3882] - EMA C++: Setting literal as status text with Login::LoginRefresh::state() is unsafe!
-- [GitHub #147] - [ESDK-4132] - EmaConfigImpl.cpp uses xmlCleanupParser wrongly, can cause memory corruption in multithreaded programs
-- [ESDK-3689] - Enhance ETA Performance tools to support Tunnelstreams
+- [GitHub # 157] - [ESDK-4372] - Invalid conversion between char and char\* in rwfToJsonConverter.cpp
+- [GitHub # 156] - [ESDK-4373] - Extraneous space before REAL_SHA1_INIT
+- [Case Number: 09179092] - [ESDK-4397] - EMA C++ offstream posting payload decode issue 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.0.L1 (Oct 19, 2020)
+---------------------------------------------
+
+New Features Added
+------------------
+The primary object of this release is to completely rebrand RTSDK:  change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customer, REBRAND.md was also added. In addition, there were a few fixes included. This release also introduces qualification on CentOS8.
+
+EMA C++ 3.6.0.L1 Issues Resolved
+--------------------------------
+- [ESDK-3222] - Multiple config files shipped with EmaCpp
+- [ESDK-3367] - EMA CPP Config Guide contradicts between the Section Headings and the title for tables for Channel parameter
+- [ESDK-3671] - Shorten EMA example names to avoid build errors on windows
+- [ESDK-4151] - Change namespace to refinitiv
+- [ESDK-4397] - EMA C++ offstream posting payload decode issue - [Case Number: 09179092]
+
+ETA C 3.6.0.L1 Issues Resolved
+--------------------------------
+- [ESDK-4253] - Add in thread naming for the reactor worker thread
+- [ESDK-4310] - Replace versioning variables in header files to rtsdk
+- [ESDK-4372] - Invalid conversion between char and char\* in rwfToJsonConverter.cpp - [GitHub # 157 ]
+- [ESDK-4373] - Extraneous space before REAL_SHA1_INIT - [GitHub # 156]
+- [ESDK-4380] - Move ripcVer definitions to just rsslSocketTransportImpl.c instead of in the header
+
+Both ETA C and EMA C++ 3.6.0.L1 Issues Resolved
+-----------------------------------------------
+- [ESDK-4056] - Qualification & build with CentOS8
+- [ESDK-4243] - Documentation: change code snippets to new namespace in all documentation (PDF)
+- [ESDK-4244] - Documentation: change namespace references and references to previous product names (PDF)
+- [ESDK-4266] - Documentation: change references to prior product names in code comments
+- [ESDK-4274] - Replace dependent libraries to re-branded for C/C++: DACS
+- [ESDK-4285] - Change QA tools to adapt to changes to filenames
+- [ESDK-4288] - Create REBRAND.md with customer impacts and add any changes to product names
+- [ESDK-4395] - Rebrand: Differentiate between RTSDK product and ETA/EMA library versions
 
 ---------------------------------------------
 RTSDK C++/C Release 1.5.1.L1 (Sept 4, 2020)
@@ -293,7 +326,7 @@ EMA C++ 3.3.0.L1 Issues Resolved
 ETA C 3.3.0.L1 Issues Resolved
 --------------------------------
 - [ESDK-132] ETAC WL consumer example with encrypted connection is crashing when channel initialization fails
-- [ESDK-627] Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
+- [ESDK-627] Remove references to UPA Developers Guide [Case Number: 05543578]
 - [ESDK-212] Incorrect syntax for command line argument example with upacTransportPerf example
 - [ESDK-1245] Qualify Linux GCC 4.8.5
 - [ESDK-1565] Turn on OpenSSL support for Windows Client connections

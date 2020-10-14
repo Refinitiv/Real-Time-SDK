@@ -6,14 +6,14 @@
 !   update or remove this document at any time without
 !   notice.
 !
-!   Version	 4.20.03_TREP-RT_13.81		16-09-2013
+!   Version	 4.20.03_Dictionary_13.81		16-09-2013
 !	* Modified 16/09/2013 at Bangkok:
 !     - This file is a based on RWF.DAT from RDMD V4.20.03.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.03_TREP-RT
+!   Version: 4.20.03
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29078,7 +29078,7 @@ CD_DELETE  "CD_DELETE"          32755  NULL        INTEGER            10  UINT64
 !
 CD_DENYRSN "CD_DENYRSN"         32756  NULL        INTEGER            10  UINT64           5
 !
-! When an application receives a NAK code of RSSL_NAKC_DENIED_BY_SRC (UPA) or 
+! When an application receives a NAK code of RSSL_NAKC_DENIED_BY_SRC (ETA) or 
 ! NackCode::DeniedBySrc (RFA) this field carries a reason code. This code indicates 
 ! why the CSG denied the contribution.  See Appendix C
 !

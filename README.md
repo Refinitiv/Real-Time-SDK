@@ -1,21 +1,21 @@
 # Refinitiv Real-Time SDK Announcement
 
-As of Oct 1, 2018 the former Financial and Risk business division of Thomson Reuters is now known as Refinitiv. All names and marks owned by Thomson Reuters, including Thomson, Reuters and the Kinesis logo are used under license from Thomson Reuters and its affiliated companies.
+Elektron SDK is now rebranded to Refinitiv Real-Time SDK (RTSDK).
 
-- Refinitiv products will be undergoing brand changes to reflect Refinitiv branding. For any further information please contact us at legal@refinitiv.com.
-- Eektron SDK is now rebranded to Refinitiv Real-Time SDK. Further rebranding changes are forthcoming.
+In general, please note that Refinitiv products will be undergoing brand changes to reflect Refinitiv branding. 
 
-REBRAND IMPACT STATEMENT: Starting with release RTSDK 2.0 (ETA/EMA 3.6), rebranding activities will be completed and will impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to ESDK/RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. However, all future fixes will be made only on re-branded releases. After July 2021, non-rebranded revisions will no longer be available or supported for licensing reasons. With the 2.0.0 release, a REBRAND.md file will be published with exact details and sample code to serve as a guide to quickly adapt to changes. For further details on impact and timelines on RTSDK and other APIs, please see the [API Product Change Notification (PCN)](API%20Rebranding%20-%20Product%20Change%20Notification.pdf).
+Starting with release Refinitiv Real-Time SDK version 2.0 (ETA & EMA 3.6), rebranding activities will be completed and will impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to ESDK/RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following: 
 
+- For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md). 
+- For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html).
 
 
 # Refinitiv Real-Time SDK
-This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs: open source Enterprise Message API (EMA) and the open source Enterprise Transport API (ETA).
+This is the Refinitiv Real-Time SDK. This SDK encompasses these open source Real-Time APIs: Enterprise Message API (EMA) and Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
-
 
 
 # Supported Languages, Platforms and Compilers
@@ -39,12 +39,13 @@ GitHub PDF format docs per API:
 
 Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
-- [C++/C](https://developers.refinitiv.com/elektron/elektron-sdk-cc/docs)
-- [Java](https://developers.refinitiv.com/elektron/elektron-sdk-java/docs)
+- [C++/C](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
+- [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
 
-Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal.
+Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal. 
 
-Packages are available for download in Developer Portal. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal, using Internet Explorer, or, modifying security settings with Firefox, etc., to do so. HTML documentation is also available on Developer Portal for [ETAC](https://docs-developers.refinitiv.com/1565642222871/16304/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Documentation_Portal/Transport_C_DocPortal.1.01.html), [ETA Java](https://docs-developers.refinitiv.com/1573085826531/16305/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=TransportAPI_Java_Documentation_Portal/Transport_J_DocPortal.1.01.html), [EMA C++](https://docs-developers.refinitiv.com/1573164882026/4725/Docs/HTML/wwhelp/wwhimpl/js/html/wwhelp.htm#href=Documentation_Portal/EMAC_Doc_Portal.1.1.html) and [EMA Java](https://docs-developers.refinitiv.com/1573165073365/6066/Docs/WebDocs/wwhelp/wwhimpl/js/html/wwhelp.htm#href=Documentation_Portal/EMAJ_Doc_Portal.1.1.html). We highly recommend viewing HTML docs from Developer Portal.
+Packages are available for download in Developer Portal. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal, using Internet Explorer, or, modifying security settings with Firefox, etc., to do so. HTML documentation is also available on Developer Portal for download in documentation sections.
+
 
 # Developing 
 If you discover any issues with this project, please feel free to create an Issue.
@@ -92,4 +93,4 @@ Any source code, header files not specified above (even if included by header fi
 
 # Support SLA
 
-Issues raised via GitHub will be addressed in a best-effort manner. For broad questions regarding RTSDK, please refer to documentation and Q&A forum on Developer Community for [RTSDK C/C++](https://developers.refinitiv.com/elektron/elektron-sdk-cc) and/or [RTSDK Java](https://developers.refinitiv.com/elektron/elektron-sdk-java) which supported by a existing active community of API users. Please contact Premium Support for any issues or questions that require prompt responses.
+Issues raised via GitHub will be addressed in a best-effort manner. For broad questions regarding RTSDK, please refer to documentation (see Documentation section above) and [Q&A forum](https://community.developers.refinitiv.com/index.html) on Developer Community which supported by an active community of API users. Please contact Premium Support for any issues or questions that require prompt responses.
