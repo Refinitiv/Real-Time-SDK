@@ -31,7 +31,7 @@ static RsslBool signal_shutdown = RSSL_FALSE;
 static RsslBool testFailed = RSSL_FALSE;
 static RsslTimeValue rsslProviderRuntime = 0;
 
-static RsslBuffer applicationName = { 14, (char*)"NIProvPerf" };
+static RsslBuffer applicationName = { 10, (char*)"NIProvPerf" };
 
 static Provider provider;
 

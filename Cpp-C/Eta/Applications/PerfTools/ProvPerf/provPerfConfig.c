@@ -18,7 +18,7 @@
 #define snprintf _snprintf
 #endif
 
-static RsslBuffer applicationName = { 12, (char*)"ProvPerf" };
+static RsslBuffer applicationName = { 8, (char*)"ProvPerf" };
 static RsslBuffer applicationId = { 3, (char*)"256" };
 
 static void clearProvPerfConfig()

@@ -46,7 +46,7 @@ static const RsslInt32
 			ENUM_TYPE_DICTIONARY_STREAM_ID = 4,
 			ITEM_STREAM_ID_START = 5;
 
-static RsslBuffer applicationName = { 12, (char*)"ConsPerf" } ;
+static RsslBuffer applicationName = { 8, (char*)"ConsPerf" } ;
 
 RsslPostUserInfo postUserInfo;
 
