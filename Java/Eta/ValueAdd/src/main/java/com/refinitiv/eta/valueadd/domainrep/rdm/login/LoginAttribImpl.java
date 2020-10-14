@@ -31,7 +31,7 @@ class LoginAttribImpl implements LoginAttrib
     static
     {
         defaultApplicationId = "256";
-        defaultApplicationName = "upa";
+        defaultApplicationName = "eta";
     }
     
     LoginAttribImpl()

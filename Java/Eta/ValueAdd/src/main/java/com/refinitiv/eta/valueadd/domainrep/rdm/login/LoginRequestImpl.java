@@ -127,7 +127,7 @@ class LoginRequestImpl extends MsgBaseImpl
         }
         catch (Exception e)
         {
-            defaultUsername = "upa";
+            defaultUsername = "eta";
         }
         userName = CodecFactory.createBuffer();
       

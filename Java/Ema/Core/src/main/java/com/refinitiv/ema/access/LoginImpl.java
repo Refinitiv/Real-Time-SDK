@@ -140,7 +140,7 @@ class LoginReqImpl extends LoginImpl implements LoginReq
         }
         catch (Exception e)
         {
-        	defaultUserName = "upa";
+        	defaultUserName = "eta";
         }
 
 		position(defaultPosition);

@@ -204,9 +204,9 @@ RTR_C_INLINE RsslRet rsslInitDefaultRDMLoginRequest(RsslRDMLoginRequest *pReques
 	if (rsslGetUserName(&pRequest->userName) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	/* Set application name to "upa" */
+	/* Set application name to "eta" */
 	pRequest->flags |= RDM_LG_RQF_HAS_APPLICATION_NAME;
-	pRequest->applicationName.data = (char *)"upa";
+	pRequest->applicationName.data = (char *)"eta";
 	pRequest->applicationName.length = 3;
 
 	/* Specify an application ID */

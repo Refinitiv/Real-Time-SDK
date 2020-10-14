@@ -36,7 +36,7 @@ public class Transport
             Enumeration<URL> urls = cl.findResources("META-INF/MANIFEST.MF");
             while(urls.hasMoreElements()) {
                 URL url = urls.nextElement();
-                if(url.getPath().contains("upa-")){
+                if(url.getPath().contains("eta-")){
                     Manifest manifest = new Manifest(url.openStream());
                     String val = manifest.getMainAttributes().getValue("Build-Date");
                     _libVersionInfo.productDate(val);
