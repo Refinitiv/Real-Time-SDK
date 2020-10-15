@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunnelStrm;
+package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunStrm;
 
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.AckMsg;

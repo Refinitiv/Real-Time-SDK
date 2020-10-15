@@ -6,7 +6,7 @@
 ///*|----------------------------------------------------------------------------------------------------
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
-package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunnelStrm;
+package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunStrm;
 
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.AckMsg;

@@ -132,7 +132,7 @@ public class DictionaryJunit
         
         // verify tags
         assertArrayEquals("ENUMTYPE.001".getBytes(), convertToByteArray(dictionary.infoEnumFilename().data()));
-        assertArrayEquals("IDN Marketstream enumerated tables".getBytes(), convertToByteArray(dictionary.infoEnumDesc().data()));
+        assertArrayEquals("Marketstream enumerated tables".getBytes(), convertToByteArray(dictionary.infoEnumDesc().data()));
         assertArrayEquals("4.10.11".getBytes(), convertToByteArray(dictionary.infoEnumRTVersion().data()));
         assertArrayEquals("13.11".getBytes(), convertToByteArray(dictionary.infoEnumDTVersion().data()));
         assertArrayEquals("26-Jun-2012".getBytes(), convertToByteArray(dictionary.infoEnumDate().data()));
