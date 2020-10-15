@@ -926,7 +926,7 @@ TEST_F(ReactorSessionMgntTest, EmptyAuthTokenServiceURL)
 TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.tokenServiceURL.data = const_cast<char*>("https://invaliddomain.com/token");
+	mOpts.tokenServiceURL.data = const_cast<char*>("https://#######@_@/token");
 	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -972,7 +972,7 @@ TEST_F(ReactorSessionMgntTest, EmptyServiceDiscoveryURL)
 TEST_F(ReactorSessionMgntTest, InvalidServiceDiscoveryURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://invaliddomain.com/streaming/pricing/v1");
+	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://#######@_@/streaming/pricing/v1");
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -1300,7 +1300,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_Unauthori
 TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAuthTokenServiceURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.tokenServiceURL.data = const_cast<char*>("https://invaliddomain.com/token");
+	mOpts.tokenServiceURL.data = const_cast<char*>("https://#######@_@/token");
 	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -1356,7 +1356,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAu
 TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidServiceDiscoveryURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://invaliddomain.com/streaming/pricing/v1");
+	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://#######@_@/streaming/pricing/v1");
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
