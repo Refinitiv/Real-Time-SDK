@@ -1,15 +1,15 @@
 # Refinitiv Real Time SDK Customer Impact Changes
 
-1.   [Overview](#RefinitivRealTimeSDKCustomerImpactChanges-Overview)
-2.   [Namespace changes](#RefinitivRealTimeSDKCustomerImpactChanges-Namespacechanges)
-    1.   [Customer application Impact:  ETA Java Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:ETAJavaEdition)
-    2.   [Customer application Impact:  EMA Java Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:EMAJavaEdition)
-    3.   [Customer application Impact:  EMA C++ Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:EMAC++Edition)
-3.   [Library name changes](#RefinitivRealTimeSDKCustomerImpactChanges-Librarynamechanges)
-4.   [Maven Central location](#RefinitivRealTimeSDKCustomerImpactChanges-MavenCentrallocation)
-5.   [Changes to Build](#RefinitivRealTimeSDKCustomerImpactChanges-ChangestoBuild)
-6.   [Other Non-Impactful Changes](#RefinitivRealTimeSDKCustomerImpactChanges-OtherChanges)
-7.   [Documentation ONLY Changes: Re-branded Product Names](#RefinitivRealTimeSDKCustomerImpactChanges-DocumentationChanges:Re-brandedProductNames)
+*   [Overview](#RefinitivRealTimeSDKCustomerImpactChanges-Overview)
+*   [Namespace changes](#RefinitivRealTimeSDKCustomerImpactChanges-Namespacechanges)
+    *   [Customer application Impact: ETA Java Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:ETAJavaEdition)
+    *   [Customer application Impact: EMA Java Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:EMAJavaEdition)
+    *   [Customer application Impact: EMA C++ Edition](#RefinitivRealTimeSDKCustomerImpactChanges-CustomerapplicationImpact:EMAC++Edition)
+*   [Library name changes](#RefinitivRealTimeSDKCustomerImpactChanges-Librarynamechanges)
+*   [Maven Central location](#RefinitivRealTimeSDKCustomerImpactChanges-MavenCentrallocation)
+*   [Changes to Build](#RefinitivRealTimeSDKCustomerImpactChanges-ChangestoBuild)
+*   [Other Non-Impactful Changes](#RefinitivRealTimeSDKCustomerImpactChanges-OtherChanges)
+*   [Documentation ONLY Changes: Re-branded Product Names](#RefinitivRealTimeSDKCustomerImpactChanges-DocumentationChanges:Re-brandedProductNames)
 
 <a name="RefinitivRealTimeSDKCustomerImpactChanges-Overview"></a>
 ## Overview
