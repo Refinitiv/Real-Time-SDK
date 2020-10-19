@@ -104,7 +104,7 @@ This release has been tested with the following:
 
 # Documentation
   
-Please refer to top level README.md and to Java/Eta/README.MD or Java/Ema/README.MD files to find more information. In this directory, please find the test plan with test results: RTSDK-Java-Edition\_Test\_Plan.xlsx
+Please refer to top level README.md and to Java/Eta/README.md or Java/Ema/README.md files to find more information. In this directory, please find the test plan with test results: RTSDK-Java-Edition\_Test\_Plan.xlsx
 
 # Installation & Build
 

@@ -102,7 +102,7 @@ This release has been tested with the following on supported platform/OS combina
 	Red Hat Enterprise Linux Server 6.10 64-bit 	GCC 7.4.0 	n/a			RHEL6_64_GCC740
 	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
 	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
-	CentOS 8.0 64-bit                		GCC 4.8.2	OL7_64_GCC482		CENTOS8_64_GCC831
+	CentOS 8.0 64-bit                		GCC 8.3.1	RHEL8_64_GCC831 	CENTOS8_64_GCC831
 
 	n/a = This is not a tested combination
 
@@ -141,7 +141,7 @@ This release has been tested with the following:
 
 # Documentation
 
-Please refer to top level README.md and to Cpp-C/Eta/README.MD or Cpp-C/Ema/README.MD files to find more information. Sections Cpp-C/Eta/Docs/ and Cpp-C/Ema/Docs contain PDF/HTML documentation. In current directory, please find the test plan with test results: RTSDK-C-Edition\_Test\_Plan.xlsx
+Please refer to top level README.md and to Cpp-C/Eta/README.md or Cpp-C/Ema/README.md files to find more information. Sections Cpp-C/Eta/Docs/ and Cpp-C/Ema/Docs contain PDF/HTML documentation. In current directory, please find the test plan with test results: RTSDK-C-Edition\_Test\_Plan.xlsx
 
 # Installation and Build
 
