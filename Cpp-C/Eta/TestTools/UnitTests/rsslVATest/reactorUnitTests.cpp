@@ -238,7 +238,7 @@ static RsslRDMService directoryService;
 
 static char enumDictionaryText[] =
 	"!tag Filename    ENUMTYPE.001\n"
-	"!tag Desc        IDN Marketstream enumerated tables\n"
+	"!tag Desc        Marketstream enumerated tables\n"
 	"!tag RT_Version  4.00\n"
 	"!tag DT_Version  12.11\n"
 	"!tag Date        13-Aug-2010\n"
@@ -926,7 +926,7 @@ TEST_F(ReactorSessionMgntTest, EmptyAuthTokenServiceURL)
 TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.tokenServiceURL.data = const_cast<char*>("https://invaliddomain.com/token");
+	mOpts.tokenServiceURL.data = const_cast<char*>("https://#######@_@/token");
 	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -972,7 +972,7 @@ TEST_F(ReactorSessionMgntTest, EmptyServiceDiscoveryURL)
 TEST_F(ReactorSessionMgntTest, InvalidServiceDiscoveryURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://invaliddomain.com/streaming/pricing/v1");
+	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://#######@_@/streaming/pricing/v1");
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -1026,14 +1026,14 @@ TEST_F(ReactorSessionMgntTest, InvalidConnectionType)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts,(RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid connection type(0) for requesting EDP-RT service discovery.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid connection type(0) for requesting RDP service discovery.");
         
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts,(RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid connection type(0) for requesting EDP-RT service discovery.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid connection type(0) for requesting RDP service discovery.");
 }
 
 TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocation)
@@ -1300,7 +1300,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_Unauthori
 TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAuthTokenServiceURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.tokenServiceURL.data = const_cast<char*>("https://invaliddomain.com/token");
+	mOpts.tokenServiceURL.data = const_cast<char*>("https://#######@_@/token");
 	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -1356,7 +1356,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidAu
 TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_InvalidServiceDiscoveryURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
-	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://invaliddomain.com/streaming/pricing/v1");
+	mOpts.serviceDiscoveryURL.data = const_cast<char*>("https://#######@_@/streaming/pricing/v1");
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
 	initReactors(&mOpts, RSSL_TRUE);
 
@@ -3805,7 +3805,7 @@ static void reactorUnitTests_InvalidArguments(RsslConnectionTypes connectionType
 
 void reactorUnitTests_ShortPingInterval(RsslConnectionTypes connectionType)
 {
-	/* Test that connection can stay up with a very small ping interval (reproduces UPAC-632). */
+	/* Test that connection can stay up with a very small ping interval */
 	RsslServer *pRsslServer;
 	RsslReactorChannel *pProvCh, *pConsCh;
 	RsslBindOptions rsslBindOpts;

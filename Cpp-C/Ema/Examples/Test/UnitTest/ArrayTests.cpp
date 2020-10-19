@@ -8,7 +8,7 @@
 
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 TEST(ArrayTests, testArrayAsciiDecode)
@@ -2629,7 +2629,7 @@ void testArrayInt_Encode( bool fixedSize )
 		EXPECT_FALSE( true ) << "Encode OmmArray Int - exception not expected" ;
 	}
 
-	// Now do UPA decoding of OmmArray of Ints
+	// Now do ETA decoding of OmmArray of Ints
 	RsslArray array;
 	RsslBuffer decArrayBuf;
 	RsslInt64 int64;
@@ -2681,7 +2681,7 @@ void testArrayUInt_Encode( bool fixedSize )
 		EXPECT_FALSE( true ) << "Encode OmmArray UInt - exception not expected" ;
 	}
 
-	// Now do UPA decoding of OmmArray of UInts
+	// Now do ETA decoding of OmmArray of UInts
 	RsslArray array;
 	RsslBuffer decArrayBuf;
 	RsslUInt64 uIint64;
@@ -2733,7 +2733,7 @@ void testArrayFloat_Encode( bool fixedSize )
 		EXPECT_FALSE( true ) << "Encode OmmArray Float - exception not expected" ;
 	}
 
-	// Now do UPA decoding of OmmArray of Floats
+	// Now do ETA decoding of OmmArray of Floats
 	RsslArray array;
 	RsslBuffer decArrayBuf;
 	RsslFloat rsslFloat;
@@ -2785,7 +2785,7 @@ void testArrayDouble_Encode( bool fixedSize )
 		EXPECT_FALSE( true ) << "Encode OmmArray Double - exception not expected" ;
 	}
 
-	// Now do UPA decoding of OmmArray of Doubles
+	// Now do ETA decoding of OmmArray of Doubles
 	RsslArray array;
 	RsslBuffer decArrayBuf;
 	RsslDouble rsslDouble;
@@ -2837,7 +2837,7 @@ void testArrayReal_Encode( bool fixedSize )
 		EXPECT_FALSE( true ) << "Encode OmmArray Real - exception not expected" ;
 	}
 
-	// Now do UPA decoding of OmmArray of Reals
+	// Now do ETA decoding of OmmArray of Reals
 	RsslArray array;
 	RsslBuffer decArrayBuf;
 	RsslReal rsslReal;

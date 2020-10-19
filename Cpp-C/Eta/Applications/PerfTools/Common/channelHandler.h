@@ -37,8 +37,8 @@ extern "C" {
 typedef struct {
 	RsslQueueLink		queueLink;				/* Link for ChannelHandler queue. */
 	RsslChannel			*pChannel;				/* The RsslChannel associated with this info. */
-	RsslReactor			*pReactor;				/* Used for when application uses VA Reactor instead of UPA Channel. */
-	RsslReactorChannel	*pReactorChannel;		/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactor			*pReactor;				/* Used for when application uses VA Reactor instead of ETA Channel. */
+	RsslReactorChannel	*pReactorChannel;		/* Used for when application uses VA Reactor instead of ETA Channel. */
 	void				*pUserSpec;				/* Pointer to user-specified data associated with this channel. */
 	RsslBool			needFlush;				/* Whether this channel needs to have data flushed. */
 	RsslBool			receivedMsg;			/* Whether a ping or messages have been received since the last ping check. */

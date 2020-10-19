@@ -1,0 +1,33 @@
+This input file tests the UNKNOWN_INSUFFICIENT state. When we are in
+this state, we don't the length of the "next" message, and there is
+insufficient space in the read buffer to accommodate the rest of the
+RIPC header. It contains a RIPC handshake, and two messages described
+below.
+
+For this unit test, we will override the capacity of the RsslSocketChannel 
+buffer to be 35 bytes. The input file will contain two complete
+messages that, combined, will exceeded the length of the input buffer.
+Specifically, the first message we receive will have a total
+length of 34 bytes. The second message we receive will
+have a total length of 10 bytes. When the RsslSocketChannel (internally)
+performs a network read, the entire first message, plus the first
+byte of the second message will fill the entire read buffer.
+
+After the first message is processed (by the application), the state
+machine will transition from the KNOWN_COMPLETE state to the
+UNKNOWN_INSUFFICENT state. This will require the buffer to be compacted
+before the rest of the second message can be read.
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
+
+
+The hex below combines two messages with lengths of 34, and 10,
+respectively:
+0000: 00 22 02
+0001: 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  ........ ........
+0002: 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E     ........ .......
+0003: 00 0A 02 00 01 02 03 04  05 06                    ........ ..

@@ -1,0 +1,2469 @@
+// This file contains a ConnectAck, a LoginRefresh, a DirectoryRefresh,
+// a MarketPriceRefresh and two MarketPriceUpdates.
+
+//
+// RIPC14 ConneckAck.
+//
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
+//
+// LoginRefresh
+//
+0000: 00 DA 02 00 D5 02 01 00  00 00 01 68 00 09 00 20   ...........h... 
+0001: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login accepted b
+0002: 79 20 68 6F 73 74 20 6C  6F 63 61 6C 68 6F 73 74   y host localhost
+0003: 02 00 00 80 A5 26 10 78  78 78 78 78 78 78 2E 78   .....&.xxxxxxx.x
+0004: 78 78 78 78 78 78 78 01  05 80 8F 08 00 06 0D 41   xxxxxxx........A
+0005: 70 70 6C 69 63 61 74 69  6F 6E 49 64 11 03 32 35   pplicationId..25
+0006: 36 0F 41 70 70 6C 69 63  61 74 69 6F 6E 4E 61 6D   6.ApplicationNam
+0007: 65 11 0C 45 54 41 20 50  72 6F 76 69 64 65 72 08   e..ETA Provider.
+0008: 50 6F 73 69 74 69 6F 6E  11 18 31 30 2E 39 31 2E   Position..10.91.
+0009: 31 36 31 2E 32 34 37 2F  58 58 58 58 58 58 58 58   161.247/XXXXXXXX
+000A: 58 58 0A 53 69 6E 67 6C  65 4F 70 65 6E 04 01 00   XX.SingleOpen...
+000B: 0E 53 75 70 70 6F 72 74  4F 4D 4D 50 6F 73 74 04   .SupportOMMPost.
+000C: 01 01 14 53 75 70 70 6F  72 74 42 61 74 63 68 52   ...SupportBatchR
+000D: 65 71 75 65 73 74 73 04  01 01                     equests...
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REFRESH domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x68 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE)" groupId="0" State: Open/Ok/None - text: "Login accepted by host localhost" dataSize="0">
+    <key flags="0x26 (HAS_NAME|HAS_NAME_TYPE|HAS_ATTRIB)" name="xxxxxxx.xxxxxxxx" nameType="1" attribContainerType="ELEMENT_LIST">
+        <attrib>
+            <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                <elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/>
+                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="ETA Provider"/>
+                <elementEntry name="Position" dataType="ASCII_STRING" data="10.91.161.247/XXXXXXXXXX"/>
+                <elementEntry name="SingleOpen" dataType="UINT" data="0"/>
+                <elementEntry name="SupportOMMPost" dataType="UINT" data="1"/>
+                <elementEntry name="SupportBatchRequests" dataType="UINT" data="1"/>
+            </elementList>
+        </attrib>
+    </key>
+    <dataBody>
+    </dataBody>
+</REFRESH>
+
+//
+// DirectoryRefresh
+//
+0000: 01 9D 02 00 38 02 04 00  00 00 02 81 68 09 09 00   ....8.......h...
+0001: 22 53 6F 75 72 63 65 20  44 69 72 65 63 74 6F 72   "Source Director
+0002: 79 20 52 65 66 72 65 73  68 20 43 6F 6D 70 6C 65   y Refresh Comple
+0003: 74 65 64 02 00 00 80 05  08 00 00 00 07 00 04 07   ted.............
+0004: 00 01 02 01 01 FE 01 55  00 05 02 02 01 FE 01 20   .......U....... 
+0005: 08 00 0B 04 4E 61 6D 65  11 0B 44 49 52 45 43 54   ....Name..DIRECT
+0006: 5F 46 45 45 44 06 56 65  6E 64 6F 72 11 0F 54 68   _FEED.Vendor..Th
+0007: 6F 6D 73 6F 6E 20 52 65  75 74 65 72 73 08 49 73   omson Reuters.Is
+0008: 53 6F 75 72 63 65 04 01  01 0C 43 61 70 61 62 69   Source....Capabi
+0009: 6C 69 74 69 65 73 0F FE  00 0E 04 00 00 05 01 06   lities..........
+000A: 01 07 01 08 01 05 01 0A  14 44 69 63 74 69 6F 6E   .........Diction
+000B: 61 72 69 65 73 50 72 6F  76 69 64 65 64 0F FE 00   ariesProvided...
+000C: 13 11 00 00 02 06 52 57  46 46 6C 64 07 52 57 46   ......RWFFld.RWF
+000D: 45 6E 75 6D 10 44 69 63  74 69 6F 6E 61 72 69 65   Enum.Dictionarie
+000E: 73 55 73 65 64 0F FE 00  13 11 00 00 02 06 52 57   sUsed.........RW
+000F: 46 46 6C 64 07 52 57 46  45 6E 75 6D 03 51 6F 53   FFld.RWFEnum.QoS
+0010: 0F FE 00 06 0C 00 00 01  01 22 10 53 75 70 70 6F   .........".Suppo
+0011: 72 74 73 51 6F 53 52 61  6E 67 65 04 01 00 08 49   rtsQoSRange....I
+0012: 74 65 6D 4C 69 73 74 11  0E 5F 45 54 41 5F 49 54   temList.._ETA_IT
+0013: 45 4D 5F 4C 49 53 54 1A  53 75 70 70 6F 72 74 73   EM_LIST.Supports
+0014: 4F 75 74 4F 66 42 61 6E  64 53 6E 61 70 73 68 6F   OutOfBandSnapsho
+0015: 74 73 04 01 00 17 41 63  63 65 70 74 69 6E 67 43   ts....AcceptingC
+0016: 6F 6E 73 75 6D 65 72 53  74 61 74 75 73 04 01 00   onsumerStatus...
+0017: 02 02 FE 00 28 08 00 02  0C 53 65 72 76 69 63 65   ....(....Service
+0018: 53 74 61 74 65 04 01 01  11 41 63 63 65 70 74 69   State....Accepti
+0019: 6E 67 52 65 71 75 65 73  74 73 04 01 01            ngRequests...
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REFRESH domainType="SOURCE" streamId="2" containerType="MAP" flags="0x168 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: "Source Directory Refresh Completed" dataSize="352">
+    <key flags="0x08 (HAS_FILTER)" filter="7"/>
+    <dataBody>
+        <map flags="0x00" countHint="0" keyPrimitiveType="UINT" containerType="FILTER_LIST" >
+            <mapEntry flags="0x00" action="ADD" key="1" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="DIRECT_FEED"/>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Refinitiv"/>
+                            <elementEntry name="IsSource" dataType="UINT" data="1"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="UINT">
+                                    <arrayEntry data="6"/>
+                                    <arrayEntry data="7"/>
+                                    <arrayEntry data="8"/>
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="10"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="_ETA_ITEM_LIST"/>
+                            <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
+                            <elementEntry name="AcceptingConsumerStatus" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="1"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+        </map>
+    </dataBody>
+</REFRESH>
+
+//
+// Field DictionaryRefresh
+//
+0000: 07 FF 02 00 4B 02 05 00  00 00 03 68 0A 09 00 2E   ....K......h....
+0001: 46 69 65 6C 64 20 44 69  63 74 69 6F 6E 61 72 79   Field Dictionary
+0002: 20 52 65 66 72 65 73 68  20 28 73 74 61 72 74 69    Refresh (starti
+0003: 6E 67 20 66 69 64 20 2D  33 32 37 36 38 29 02 00   ng fid -32768)..
+0004: 00 80 0D 0B 01 06 52 57  46 46 6C 64 00 00 00 07   ......RWFFld....
+0005: 07 05 80 4E 00 01 00 09  04 4E 41 4D 45 11 03 46   ...N.....NAME..F
+0006: 49 44 42 08 52 49 50 50  4C 45 54 4F 42 04 54 59   IDB.RIPPLETOB.TY
+0007: 50 45 40 06 4C 45 4E 47  54 48 43 07 52 57 46 54   PE@.LENGTHC.RWFT
+0008: 59 50 45 41 06 52 57 46  4C 45 4E 43 0A 45 4E 55   YPEA.RWFLENC.ENU
+0009: 4D 4C 45 4E 47 54 48 41  08 4C 4F 4E 47 4E 41 4D   MLENGTHA.LONGNAM
+000A: 45 11 80 2C 08 00 03 04  54 79 70 65 03 01 01 0C   E..,....Type....
+000B: 44 69 63 74 69 6F 6E 61  72 79 49 64 03 01 00 07   DictionaryId....
+000C: 56 65 72 73 69 6F 6E 11  07 34 2E 31 30 2E 31 31   Version..4.10.11
+000D: 39 00 39 21 02 09 50 52  4F 44 5F 50 45 52 4D 00   9.9!..PROD_PERM.
+000E: 01 00 00 01 00 05 04 00  02 00 0A 50 45 52 4D 49   ...........PERMI
+000F: 53 53 49 4F 4E 27 02 0A  52 44 4E 44 49 53 50 4C   SSION'..RDNDISPL
+0010: 41 59 00 02 00 00 01 00  03 04 00 01 00 0F 44 49   AY............DI
+0011: 53 50 4C 41 59 54 45 4D  50 4C 41 54 45 24 02 0A   SPLAYTEMPLATE$..
+0012: 44 53 50 4C 59 5F 4E 41  4D 45 00 03 00 00 05 00   DSPLY_NAME......
+0013: 10 13 00 10 00 0C 44 49  53 50 4C 41 59 20 4E 41   ......DISPLAY NA
+0014: 4D 45 27 02 0A 52 44 4E  5F 45 58 43 48 49 44 00   ME'..RDN_EXCHID.
+0015: 04 00 00 06 00 03 0E 00  01 03 0F 49 44 4E 20 45   ...........IDN E
+0016: 58 43 48 41 4E 47 45 20  49 44 22 02 06 54 49 4D   XCHANGE ID"..TIM
+0017: 41 43 54 00 05 00 00 07  00 05 0A 00 05 00 0E 54   ACT............T
+0018: 49 4D 45 20 4F 46 20 55  50 44 41 54 45 1A 02 08   IME OF UPDATE...
+0019: 54 52 44 50 52 43 5F 31  00 06 00 07 04 00 11 08   TRDPRC_1........
+001A: 00 07 00 04 4C 41 53 54  1C 02 08 54 52 44 50 52   ....LAST...TRDPR
+001B: 43 5F 32 00 07 00 08 04  00 11 08 00 07 00 06 4C   C_2............L
+001C: 41 53 54 20 31 1C 02 08  54 52 44 50 52 43 5F 33   AST 1...TRDPRC_3
+001D: 00 08 00 09 04 00 11 08  00 07 00 06 4C 41 53 54   ............LAST
+001E: 20 32 1C 02 08 54 52 44  50 52 43 5F 34 00 09 00    2...TRDPRC_4...
+001F: 0A 04 00 11 08 00 07 00  06 4C 41 53 54 20 33 1C   .........LAST 3.
+0020: 02 08 54 52 44 50 52 43  5F 35 00 0A 00 00 04 00   ..TRDPRC_5......
+0021: 11 08 00 07 00 06 4C 41  53 54 20 34 21 02 09 4E   ......LAST 4!..N
+0022: 45 54 43 48 4E 47 5F 31  00 0B 00 00 04 00 11 08   ETCHNG_1........
+0023: 00 07 00 0A 4E 45 54 20  43 48 41 4E 47 45 20 02   ....NET CHANGE .
+0024: 06 48 49 47 48 5F 31 00  0C 00 00 04 00 11 08 00   .HIGH_1.........
+0025: 07 00 0C 54 4F 44 41 59  27 53 20 48 49 47 48 1E   ...TODAY'S HIGH.
+0026: 02 05 4C 4F 57 5F 31 00  0D 00 00 04 00 11 08 00   ..LOW_1.........
+0027: 07 00 0B 54 4F 44 41 59  27 53 20 4C 4F 57 22 02   ...TODAY'S LOW".
+0028: 08 50 52 43 54 43 4B 5F  31 00 0E 00 00 06 00 02   .PRCTCK_1.......
+0029: 0E 00 01 01 0C 54 49 43  4B 3A 55 50 2F 44 4F 57   .....TICK:UP/DOW
+002A: 4E 1E 02 08 43 55 52 52  45 4E 43 59 00 0F 00 00   N...CURRENCY....
+002B: 06 00 05 0E 00 02 03 08  43 55 52 52 45 4E 43 59   ........CURRENCY
+002C: 22 02 0A 54 52 41 44 45  5F 44 41 54 45 00 10 00   "..TRADE_DATE...
+002D: 00 03 00 0B 09 00 04 00  0A 54 52 41 44 45 20 44   .........TRADE D
+002E: 41 54 45 23 02 0A 41 43  54 49 56 5F 44 41 54 45   ATE#..ACTIV_DATE
+002F: 00 11 00 00 03 00 0B 09  00 04 00 0B 41 43 54 49   ............ACTI
+0030: 56 45 20 44 41 54 45 20  02 08 54 52 44 54 49 4D   VE DATE ..TRDTIM
+0031: 5F 31 00 12 00 00 07 00  05 0A 00 05 00 0A 54 52   _1............TR
+0032: 41 44 45 20 54 49 4D 45  23 02 08 4F 50 45 4E 5F   ADE TIME#..OPEN_
+0033: 50 52 43 00 13 00 00 04  00 11 08 00 07 00 0D 4F   PRC............O
+0034: 50 45 4E 49 4E 47 20 50  52 49 43 45 25 02 09 48   PENING PRICE%..H
+0035: 53 54 5F 43 4C 4F 53 45  00 15 00 00 04 00 11 08   ST_CLOSE........
+0036: 00 07 00 0E 48 49 53 54  4F 52 49 43 20 43 4C 4F   ....HISTORIC CLO
+0037: 53 45 14 02 03 42 49 44  00 16 00 17 04 00 11 08   SE...BID........
+0038: 00 07 00 03 42 49 44 18  02 05 42 49 44 5F 31 00   ....BID...BID_1.
+0039: 17 00 18 04 00 11 08 00  07 00 05 42 49 44 20 31   ...........BID 1
+003A: 18 02 05 42 49 44 5F 32  00 18 00 00 04 00 11 08   ...BID_2........
+003B: 00 07 00 05 42 49 44 20  32 14 02 03 41 53 4B 00   ....BID 2...ASK.
+003C: 19 00 1A 04 00 11 08 00  07 00 03 41 53 4B 18 02   ...........ASK..
+003D: 05 41 53 4B 5F 31 00 1A  00 1B 04 00 11 08 00 07   .ASK_1..........
+003E: 00 05 41 53 4B 20 31 18  02 05 41 53 4B 5F 32 00   ..ASK 1...ASK_2.
+003F: 1B 00 00 04 00 11 08 00  07 00 05 41 53 4B 20 32   ...........ASK 2
+0040: 16 02 04 4E 45 57 53 00  1C 00 00 05 00 04 13 00   ...NEWS.........
+0041: 04 00 04 4E 45 57 53 20  02 09 4E 45 57 53 5F 54   ...NEWS ..NEWS_T
+0042: 49 4D 45 00 1D 00 00 07  00 05 0A 00 05 00 09 4E   IME............N
+0043: 45 57 53 20 54 49 4D 45  1D 02 07 42 49 44 53 49   EWS TIME...BIDSI
+0044: 5A 45 00 1E 00 00 01 00  0F 08 00 07 00 08 42 49   ZE............BI
+0045: 44 20 53 49 5A 45 1D 02  07 41 53 4B 53 49 5A 45   D SIZE...ASKSIZE
+0046: 00 1F 00 00 01 00 0F 08  00 07 00 08 41 53 4B 20   ............ASK
+0047: 53 49 5A 45 24 02 07 41  43 56 4F 4C 5F 31 00 20   SIZE$..ACVOL_1.
+0048: 00 00 01 00 0F 08 00 07  00 0F 56 4F 4C 20 41 43   ..........VOL AC
+0049: 43 55 4D 55 4C 41 54 45  44 1E 02 08 45 41 52 4E   CUMULATED...EARN
+004A: 49 4E 47 53 00 22 00 00  04 00 11 08 00 07 00 08   INGS."..........
+004B: 45 41 52 4E 49 4E 47 53  18 02 05 59 49 45 4C 44   EARNINGS...YIELD
+004C: 00 23 00 00 04 00 11 08  00 07 00 05 59 49 45 4C   .#..........YIEL
+004D: 44 19 02 07 50 45 52 41  54 49 4F 00 24 00 00 04   D...PERATIO.$...
+004E: 00 11 08 00 07 00 04 50  2E 45 2E 25 02 0A 44 49   .......P.E.%..DI
+004F: 56 49 44 45 4E 44 54 50  00 25 00 00 06 00 03 0E   VIDENDTP.%......
+0050: 00 01 02 0D 44 49 56 49  44 45 4E 44 20 54 59 50   ....DIVIDEND TYP
+0051: 45 25 02 0A 44 49 56 50  41 59 44 41 54 45 00 26   E%..DIVPAYDATE.&
+0052: 00 00 03 00 0B 09 00 04  00 0D 44 49 56 49 44 45   ..........DIVIDE
+0053: 4E 44 20 44 41 54 45 22  02 09 45 58 44 49 56 44   ND DATE"..EXDIVD
+0054: 41 54 45 00 27 00 00 03  00 0B 09 00 04 00 0B 45   ATE.'..........E
+0055: 58 20 44 49 56 20 44 41  54 45 23 02 08 43 54 53   X DIV DATE#..CTS
+0056: 5F 51 55 41 4C 00 28 00  00 06 00 03 0E 00 01 03   _QUAL.(.........
+0057: 0D 43 54 53 20 51 55 41  4C 49 46 49 45 52 26 02   .CTS QUALIFIER&.
+0058: 0A 43 4F 4E 54 52 5F 4D  4E 54 48 00 29 00 00 05   .CONTR_MNTH.)...
+0059: 00 04 13 00 04 00 0E 43  4F 4E 54 52 41 43 54 20   .......CONTRACT
+005A: 4D 4F 4E 54 48 21 02 08  42 4C 4B 43 4F 55 4E 54   MONTH!..BLKCOUNT
+005B: 00 2A 00 00 01 00 0F 08  00 07 00 0B 42 4C 4F 43   .*..........BLOC
+005C: 4B 20 43 4F 55 4E 54 22  02 08 42 4C 4B 56 4F 4C   K COUNT"..BLKVOL
+005D: 55 4D 00 2B 00 00 01 00  0F 08 00 07 00 0C 42 4C   UM.+..........BL
+005E: 4F 43 4B 20 56 4F 4C 55  4D 45 23 02 08 54 52 44   OCK VOLUME#..TRD
+005F: 58 49 44 5F 31 00 2C 00  00 06 00 03 0E 00 01 03   XID_1.,.........
+0060: 0D 54 52 41 44 45 20 45  58 43 48 20 49 44 1D 02   .TRADE EXCH ID..
+0061: 05 4F 50 45 4E 31 00 2F  00 00 04 00 11 08 00 07   .OPEN1./........
+0062: 00 0A 46 49 52 53 54 20  4F 50 45 4E 1E 02 05 4F   ..FIRST OPEN...O
+0063: 50 45 4E 32 00 30 00 00  04 00 11 08 00 07 00 0B   PEN2.0..........
+0064: 53 45 43 4F 4E 44 20 4F  50 45 4E 23 02 08 4F 50   SECOND OPEN#..OP
+0065: 4E 52 4E 47 54 50 00 31  00 00 06 00 02 0E 00 01   NRNGTP.1........
+0066: 02 0D 4F 50 45 4E 20 52  4E 47 20 54 59 50 45 1F   ..OPEN RNG TYPE.
+0067: 02 06 43 4C 4F 53 45 31  00 32 00 00 04 00 11 08   ..CLOSE1.2......
+0068: 00 07 00 0B 46 49 52 53  54 20 43 4C 4F 53 45 20   ....FIRST CLOSE
+0069: 02 06 43 4C 4F 53 45 32  00 33 00 00 04 00 11 08   ..CLOSE2.3......
+006A: 00 07 00 0C 53 45 43 4F  4E 44 20 43 4C 4F 53 45   ....SECOND CLOSE
+006B: 24 02 08 43 4C 53 52 4E  47 54 50 00 34 00 00 06   $..CLSRNGTP.4...
+006C: 00 02 0E 00 01 02 0E 43  4C 4F 53 45 20 52 4E 47   .......CLOSE RNG
+006D: 20 54 59 50 45 24 02 09  54 52 44 5F 55 4E 49 54    TYPE$..TRD_UNIT
+006E: 53 00 35 00 00 06 00 03  0E 00 01 04 0D 54 52 41   S.5..........TRA
+006F: 44 49 4E 47 20 55 4E 49  54 53 26 02 0A 4C 4F 54   DING UNITS&..LOT
+0070: 53 5A 55 4E 49 54 53 00  36 00 00 06 00 03 0E 00   SZUNITS.6.......
+0071: 01 05 0E 4C 4F 54 20 53  49 5A 45 20 55 4E 49 54   ...LOT SIZE UNIT
+0072: 53 1D 02 08 4C 4F 54 5F  53 49 5A 45 00 37 00 00   S...LOT_SIZE.7..
+0073: 01 00 0F 08 00 07 00 07  4C 4F 54 53 49 5A 45 23   ........LOTSIZE#
+0074: 02 07 50 43 54 43 48 4E  47 00 38 00 00 04 00 11   ..PCTCHNG.8.....
+0075: 08 00 07 00 0E 50 45 52  43 45 4E 54 20 43 48 41   .....PERCENT CHA
+0076: 4E 47 45 1E 02 08 4F 50  45 4E 5F 42 49 44 00 39   NGE...OPEN_BID.9
+0077: 00 00 04 00 11 08 00 07  00 08 4F 50 45 4E 20 42   ..........OPEN B
+0078: 49 44 1B 02 06 44 4A 54  49 4D 45 00 3A 00 00 07   ID...DJTIME.:...
+0079: 00 05 0A 00 05 00 07 44  4A 20 54 49 4D 45 1E 02   .......DJ TIME..
+007A: 08 4F 50 45 4E 5F 41 53  4B 00 3B 00 00 04 00 11   .OPEN_ASK.;.....
+007B: 08 00 07 00 08 4F 50 45  4E 20 41 53 4B 20 02 09   .....OPEN ASK ..
+007C: 43 4C 4F 53 45 5F 42 49  44 00 3C 00 00 04 00 11   CLOSE_BID.<.....
+007D: 08 00 07 00 09 43 4C 4F  53 45 20 42 49 44 20 02   .....CLOSE BID .
+007E: 09 43 4C 4F 53 45 5F 41  53 4B 00 3D 00 00 04 00   .CLOSE_ASK.=....
+007F: 11 08 00 07 00 09 43 4C  4F 53 45 20 41 53 4B      ......CLOSE ASK
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REFRESH domainType="DICTIONARY" streamId="3" containerType="SERIES" flags="0x68 (HAS_
+text: "Field Dictionary Refresh (starting fid -32768)" dataSize="1967">
+    <key flags="0x0B (HAS_SERVICE_ID|HAS_NAME|HAS_FILTER)" serviceId="1" name="RWFFld"
+    <dataBody>
+        <series  flags="0x07 (HAS_SET_DEFS|HAS_SUMMARY_DATA|HAS_TOTAL_COUNT_HINT)" cou
+            <elementSetDefs>
+                <elementSetDef setId="0">
+                    <elementSetDefEntry name="NAME" dataType="ASCII_STRING" />
+                    <elementSetDefEntry name="FID" dataType="INT_2" />
+                    <elementSetDefEntry name="RIPPLETO" dataType="INT_2" />
+                    <elementSetDefEntry name="TYPE" dataType="INT_1" />
+                    <elementSetDefEntry name="LENGTH" dataType="UINT_2" />
+                    <elementSetDefEntry name="RWFTYPE" dataType="UINT_1" />
+                    <elementSetDefEntry name="RWFLEN" dataType="UINT_2" />
+                    <elementSetDefEntry name="ENUMLENGTH" dataType="UINT_1" />
+                    <elementSetDefEntry name="LONGNAME" dataType="ASCII_STRING" />
+                </elementSetDef>
+            </elementSetDefs>
+            <summaryData>
+                <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                    <elementEntry name="Type" dataType="INT" data="1"/>
+                    <elementEntry name="DictionaryId" dataType="INT" data="0"/>
+                    <elementEntry name="Version" dataType="ASCII_STRING" data="4.10.11
+                </elementList>
+            </summaryData>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="PROD_PERM"
+                    <elementEntry name="FID" dataType="INT" data="1"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="4"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="2"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="PERMIS
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="RDNDISPLAY
+                    <elementEntry name="FID" dataType="INT" data="2"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="4"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="DISPLA
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="DSPLY_NAME
+                    <elementEntry name="FID" dataType="INT" data="3"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="5"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="16"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="19"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="16"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="DISPLA
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="RDN_EXCHID
+                    <elementEntry name="FID" dataType="INT" data="4"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="IDN EX
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TIMACT"/>
+                    <elementEntry name="FID" dataType="INT" data="5"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="7"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="10"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="5"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TIME O
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDPRC_1"/
+                    <elementEntry name="FID" dataType="INT" data="6"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="7"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LAST"/
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDPRC_2"/
+                    <elementEntry name="FID" dataType="INT" data="7"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="8"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LAST 1
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDPRC_3"/
+                    <elementEntry name="FID" dataType="INT" data="8"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="9"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LAST 2
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDPRC_4"/
+                    <elementEntry name="FID" dataType="INT" data="9"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="10"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LAST 3
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDPRC_5"/
+                    <elementEntry name="FID" dataType="INT" data="10"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LAST 4
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="NETCHNG_1"
+                    <elementEntry name="FID" dataType="INT" data="11"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="NET CH
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="HIGH_1"/>
+                    <elementEntry name="FID" dataType="INT" data="12"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TODAY&
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="LOW_1"/>
+                    <elementEntry name="FID" dataType="INT" data="13"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TODAY&
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="PRCTCK_1"/
+                    <elementEntry name="FID" dataType="INT" data="14"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="1"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TICK:U
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CURRENCY"/
+                    <elementEntry name="FID" dataType="INT" data="15"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="2"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CURREN
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRADE_DATE
+                    <elementEntry name="FID" dataType="INT" data="16"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="3"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="11"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="9"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TRADE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ACTIV_DATE
+                    <elementEntry name="FID" dataType="INT" data="17"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="3"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="11"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="9"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="ACTIVE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDTIM_1"/
+                    <elementEntry name="FID" dataType="INT" data="18"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="7"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="10"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="5"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TRADE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPEN_PRC"/
+                    <elementEntry name="FID" dataType="INT" data="19"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="OPENIN
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="HST_CLOSE"
+                    <elementEntry name="FID" dataType="INT" data="21"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="HISTOR
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BID"/>
+                    <elementEntry name="FID" dataType="INT" data="22"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="23"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BID"/>
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BID_1"/>
+                    <elementEntry name="FID" dataType="INT" data="23"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="24"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BID 1"
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BID_2"/>
+                    <elementEntry name="FID" dataType="INT" data="24"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BID 2"
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ASK"/>
+                    <elementEntry name="FID" dataType="INT" data="25"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="26"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="ASK"/>
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ASK_1"/>
+                    <elementEntry name="FID" dataType="INT" data="26"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="27"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="ASK 1"
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ASK_2"/>
+                    <elementEntry name="FID" dataType="INT" data="27"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="ASK 2"
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="NEWS"/>
+                    <elementEntry name="FID" dataType="INT" data="28"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="5"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="4"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="19"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="NEWS"/
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="NEWS_TIME"
+                    <elementEntry name="FID" dataType="INT" data="29"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="7"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="10"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="5"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="NEWS T
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BIDSIZE"/>
+                    <elementEntry name="FID" dataType="INT" data="30"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BID SI
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ASKSIZE"/>
+                    <elementEntry name="FID" dataType="INT" data="31"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="ASK SI
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="ACVOL_1"/>
+                    <elementEntry name="FID" dataType="INT" data="32"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="VOL AC
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="EARNINGS"/
+                    <elementEntry name="FID" dataType="INT" data="34"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="EARNIN
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="YIELD"/>
+                    <elementEntry name="FID" dataType="INT" data="35"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="YIELD"
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="PERATIO"/>
+                    <elementEntry name="FID" dataType="INT" data="36"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="P.E."/
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="DIVIDENDTP
+                    <elementEntry name="FID" dataType="INT" data="37"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="DIVIDE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="DIVPAYDATE
+                    <elementEntry name="FID" dataType="INT" data="38"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="3"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="11"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="9"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="DIVIDE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="EXDIVDATE"
+                    <elementEntry name="FID" dataType="INT" data="39"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="3"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="11"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="9"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="EX DIV
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CTS_QUAL"/
+                    <elementEntry name="FID" dataType="INT" data="40"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CTS QU
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CONTR_MNTH
+                    <elementEntry name="FID" dataType="INT" data="41"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="5"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="4"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="19"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="4"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CONTRA
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BLKCOUNT"/
+                    <elementEntry name="FID" dataType="INT" data="42"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BLOCK
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="BLKVOLUM"/
+                    <elementEntry name="FID" dataType="INT" data="43"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="BLOCK
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRDXID_1"/
+                    <elementEntry name="FID" dataType="INT" data="44"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TRADE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPEN1"/>
+                    <elementEntry name="FID" dataType="INT" data="47"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="FIRST
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPEN2"/>
+                    <elementEntry name="FID" dataType="INT" data="48"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="SECOND
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPNRNGTP"/
+                    <elementEntry name="FID" dataType="INT" data="49"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="OPEN R
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CLOSE1"/>
+                    <elementEntry name="FID" dataType="INT" data="50"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="FIRST
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CLOSE2"/>
+                    <elementEntry name="FID" dataType="INT" data="51"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="SECOND
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CLSRNGTP"/
+                    <elementEntry name="FID" dataType="INT" data="52"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="2"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CLOSE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="TRD_UNITS"
+                    <elementEntry name="FID" dataType="INT" data="53"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="4"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="TRADIN
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="LOTSZUNITS
+                    <elementEntry name="FID" dataType="INT" data="54"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="6"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="3"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="14"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="1"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LOT SI
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="LOT_SIZE"/
+                    <elementEntry name="FID" dataType="INT" data="55"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="1"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="15"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="LOTSIZ
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="PCTCHNG"/>
+                    <elementEntry name="FID" dataType="INT" data="56"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="PERCEN
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPEN_BID"/
+                    <elementEntry name="FID" dataType="INT" data="57"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="OPEN B
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="DJTIME"/>
+                    <elementEntry name="FID" dataType="INT" data="58"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="7"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="5"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="10"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="5"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="DJ TIM
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="OPEN_ASK"/
+                    <elementEntry name="FID" dataType="INT" data="59"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="OPEN A
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CLOSE_BID"
+                    <elementEntry name="FID" dataType="INT" data="60"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CLOSE
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x02 (HAS_SET_DATA)">
+                    <elementEntry name="NAME" dataType="ASCII_STRING" data="CLOSE_ASK"
+                    <elementEntry name="FID" dataType="INT" data="61"/>
+                    <elementEntry name="RIPPLETO" dataType="INT" data="0"/>
+                    <elementEntry name="TYPE" dataType="INT" data="4"/>
+                    <elementEntry name="LENGTH" dataType="UINT" data="17"/>
+                    <elementEntry name="RWFTYPE" dataType="UINT" data="8"/>
+                    <elementEntry name="RWFLEN" dataType="UINT" data="7"/>
+                    <elementEntry name="ENUMLENGTH" dataType="UINT" data="0"/>
+                    <elementEntry name="LONGNAME" dataType="ASCII_STRING" data="CLOSE
+                </elementList>
+            </seriesEntry>
+        </series>
+    </dataBody>
+</REFRESH>
+
+//
+// EnumType DictionaryRefresh
+//
+0000: 0E 07 02 00 3A 02 05 00  00 00 04 68 0A 09 00 1C   ....:......h....
+0001: 45 6E 75 6D 20 54 79 70  65 20 44 69 63 74 69 6F   Enum Type Dictio
+0002: 6E 61 72 79 20 52 65 66  72 65 73 68 02 00 00 80   nary Refresh....
+0003: 0E 0B 01 07 52 57 46 45  6E 75 6D 00 00 00 07 03   ....RWFEnum.....
+0004: 05 80 1A 00 01 00 03 04  46 49 44 53 0F 05 56 41   ........FIDS..VA
+0005: 4C 55 45 0F 07 44 49 53  50 4C 41 59 0F 80 50 08   LUE..DISPLAY..P.
+0006: 00 05 04 54 79 70 65 03  01 02 0C 44 69 63 74 69   ...Type....Dicti
+0007: 6F 6E 61 72 79 49 64 03  01 00 0A 52 54 5F 56 65   onaryId....RT_Ve
+0008: 72 73 69 6F 6E 11 07 34  2E 31 30 2E 31 31 0A 44   rsion..4.10.11.D
+0009: 54 5F 56 65 72 73 69 6F  6E 11 05 31 33 2E 31 31   T_Version..13.11
+000A: 07 56 65 72 73 69 6F 6E  11 05 31 33 2E 31 31 00   .Version..13.11.
+000B: 03 FE 06 19 06 00 FE 00  06 03 02 00 01 00 04 FE   ................
+000C: 02 04 0E 00 01 00 01 00  01 01 01 02 01 03 01 04   ................
+000D: 01 05 01 06 01 07 01 08  01 09 01 0A 01 0B 01 0C   ................
+000E: 01 0D 01 0E 01 0F 01 10  01 11 01 12 01 13 01 14   ................
+000F: 01 15 01 16 01 17 01 18  01 19 01 1A 01 1B 01 1C   ................
+0010: 01 1D 01 1E 01 1F 01 20  01 21 01 22 01 23 01 24   ....... .!.".#.$
+0011: 01 25 01 26 01 27 01 28  01 29 01 2A 01 2B 01 2C   .%.&.'.(.).*.+.,
+0012: 01 2D 01 2E 01 2F 01 30  01 31 01 32 01 33 01 34   .-.../.0.1.2.3.4
+0013: 01 35 01 36 01 37 01 38  01 39 01 3A 01 3B 01 3C   .5.6.7.8.9.:.;.<
+0014: 01 3D 01 3E 01 3F 01 40  01 41 01 42 01 43 01 44   .=.>.?.@.A.B.C.D
+0015: 01 45 01 46 01 47 01 48  01 49 01 4A 01 4B 01 4C   .E.F.G.H.I.J.K.L
+0016: 01 4D 01 4E 01 4F 01 50  01 51 01 52 01 53 01 54   .M.N.O.P.Q.R.S.T
+0017: 01 55 01 56 01 57 01 58  01 59 01 5A 01 5B 01 5C   .U.V.W.X.Y.Z.[.\
+0018: 01 5D 01 5E 01 5F 01 60  01 61 01 62 01 63 01 64   .].^._.`.a.b.c.d
+0019: 01 65 01 66 01 67 01 68  01 69 01 6A 01 6B 01 6C   .e.f.g.h.i.j.k.l
+001A: 01 6D 01 6E 01 6F 01 70  01 71 01 72 01 73 01 74   .m.n.o.p.q.r.s.t
+001B: 01 75 01 76 01 77 01 78  01 79 01 7A 01 7B 01 7C   .u.v.w.x.y.z.{.|
+001C: 01 7D 01 7E 01 7F 01 80  01 81 01 82 01 83 01 84   .}.~............
+001D: 01 85 01 86 01 87 01 88  01 89 01 8A 01 8B 01 8C   ................
+001E: 01 8D 01 8E 01 8F 01 90  01 91 01 92 01 93 01 94   ................
+001F: 01 95 01 96 01 97 01 98  01 99 01 9A 01 9B 01 9C   ................
+0020: 01 9D 01 9E 01 9F 01 A0  01 A1 01 A2 01 A3 01 A4   ................
+0021: 01 A5 01 A6 01 A7 01 A8  01 A9 01 AA 01 AB 01 AC   ................
+0022: 01 AD 01 AE 01 AF 01 B0  01 B1 01 B2 01 B3 01 B4   ................
+0023: 01 B5 01 B6 01 B7 01 B8  01 B9 01 BA 01 BB 01 BC   ................
+0024: 01 BD 01 BE 01 BF 01 C0  01 C1 01 C2 01 C3 01 C4   ................
+0025: 01 C5 01 C6 01 C7 01 C8  01 C9 01 CA 01 CB 01 CC   ................
+0026: 01 CD 01 CE 01 CF 01 D0  01 D1 01 D2 01 D3 01 D4   ................
+0027: 01 D5 01 D6 01 D7 01 D8  01 D9 01 DA 01 DB 01 DC   ................
+0028: 01 DD 01 DE 01 DF 01 E0  01 E1 01 E2 01 E3 01 E4   ................
+0029: 01 E5 01 E6 01 E7 01 E8  01 E9 01 EA 01 EB 01 EC   ................
+002A: 01 ED 01 EE 01 EF 01 F0  01 F1 01 F2 01 F3 01 F4   ................
+002B: 01 F5 01 F6 01 F7 01 F8  01 F9 01 FA 01 FB 01 FC   ................
+002C: 01 FD 01 FE 01 FF FE 04  04 11 00 01 00 03 20 20   ..............
+002D: 20 03 41 53 45 03 4E 59  53 03 42 4F 53 03 43 49    .ASE.NYS.BOS.CI
+002E: 4E 03 50 53 45 03 58 50  48 03 54 48 4D 03 4D 49   N.PSE.XPH.THM.MI
+002F: 44 03 4E 59 51 03 54 4F  52 03 4D 4F 4E 03 54 53   D.NYQ.TOR.MON.TS
+0030: 58 03 44 45 58 03 41 4F  45 03 4E 59 4F 03 50 48   X.DEX.AOE.NYO.PH
+0031: 4F 03 50 41 4F 03 57 43  42 03 41 53 51 03 43 4D   O.PAO.WCB.ASQ.CM
+0032: 45 03 49 4D 4D 03 49 4F  4D 03 43 42 54 03 49 54   E.IMM.IOM.CBT.IT
+0033: 53 03 57 50 47 03 4D 47  45 03 50 42 54 03 43 4D   S.WPG.MGE.PBT.CM
+0034: 58 03 43 53 43 03 4E 59  43 03 4E 59 4D 03 46 49   X.CSC.NYC.NYM.FI
+0035: 53 03 43 53 4F 03 43 45  4F 03 53 48 43 03 4E 59   S.CSO.CEO.SHC.NY
+0036: 46 03 54 46 45 03 4D 49  4F 03 4E 4D 53 03 44 45   F.TFE.MIO.NMS.DE
+0037: 41 03 4D 4F 45 03 42 54  59 03 4E 41 53 03 4D 44   A.MOE.BTY.NAS.MD
+0038: 4D 03 53 43 45 03 42 53  51 03 43 48 49 03 57 43   M.SCE.BSQ.CHI.WC
+0039: 51 03 54 52 43 03 4B 42  54 03 53 4F 4D 03 41 44   Q.TRC.KBT.SOM.AD
+003A: 53 03 41 44 46 03 4D 49  46 03 4A 53 46 03 54 43   S.ADF.MIF.JSF.TC
+003B: 45 03 54 46 46 03 52 50  53 03 48 4F 4D 03 46 4F   E.TFF.RPS.HOM.FO
+003C: 4D 03 46 49 52 03 41 54  48 03 53 46 46 03 4C 53   M.FIR.ATH.SFF.LS
+003D: 45 03 4A 4E 42 03 4C 49  46 03 54 4C 56 03 43 50   E.JNB.LIF.TLV.CP
+003E: 48 03 4F 53 4C 03 53 54  4F 03 43 4D 41 03 4C 55   H.OSL.STO.CMA.LU
+003F: 58 03 42 52 55 03 50 41  52 03 4D 41 44 03 42 41   X.BRU.PAR.MAD.BA
+0040: 52 03 41 45 58 03 45 4F  45 03 54 57 42 03 56 49   R.AEX.EOE.TWB.VI
+0041: 45 03 44 55 53 03 46 52  41 03 48 41 4D 03 4D 55   E.DUS.FRA.HAM.MU
+0042: 4E 03 5A 52 48 03 47 56  41 03 42 53 4C 03 4D 49   N.ZRH.GVA.BSL.MI
+0043: 4C 03 43 53 4D 03 43 4D  4C 03 4E 5A 43 03 48 4B   L.CSM.CML.NZC.HK
+0044: 47 03 53 49 4D 03 4B 4C  43 03 43 43 48 03 43 58   G.SIM.KLC.CCH.CX
+0045: 45 03 43 41 4D 03 43 42  53 03 4C 4D 45 03 43 4C   E.CAM.CBS.LME.CL
+0046: 42 03 4C 43 45 03 43 50  41 03 43 46 52 03 43 4C   B.LCE.CPA.CFR.CL
+0047: 4F 03 53 46 45 03 54 59  4F 03 4E 47 4F 03 53 41   O.SFE.TYO.NGO.SA
+0048: 50 03 43 48 4A 03 4B 59  4F 03 48 49 52 03 46 4B   P.CHJ.KYO.HIR.FK
+0049: 41 03 4F 53 41 03 48 46  45 03 42 45 52 03 48 41   A.OSA.HFE.BER.HA
+004A: 4E 03 53 54 55 03 42 52  45 03 43 4F 4B 03 42 52   N.STU.BRE.COK.BR
+004B: 4E 03 43 53 53 03 43 48  45 03 43 56 58 03 52 4F   N.CSS.CHE.CVX.RO
+004C: 4D 03 54 52 4E 03 47 4F  41 03 4E 41 50 03 50 41   M.TRN.GOA.NAP.PA
+004D: 4C 03 42 4C 4F 03 56 43  45 03 49 53 46 03 41 51   L.BLO.VCE.ISF.AQ
+004E: 43 03 48 45 58 03 57 53  45 03 4E 58 54 03 4D 58   C.HEX.WSE.NXT.MX
+004F: 32 03 43 41 51 03 46 34  45 03 42 45 54 03 46 34   2.CAQ.F4E.BET.F4
+0050: 4A 03 4A 44 45 03 4C 41  47 03 5A 53 45 03 53 48   J.JDE.LAG.ZSE.SH
+0051: 48 03 42 53 45 03 43 41  4C 03 44 45 53 03 4D 44   H.BSE.CAL.DES.MD
+0052: 53 03 4A 4B 54 03 4B 4C  53 03 4B 41 52 03 4D 41   S.JKT.KLS.KAR.MA
+0053: 4B 03 4D 4E 4C 03 46 54  4D 03 53 45 53 03 4B 53   K.MNL.FTM.SES.KS
+0054: 43 03 4D 41 55 03 53 45  54 03 42 41 48 03 43 41   C.MAU.SET.BAH.CA
+0055: 49 03 41 4D 4D 03 4B 55  57 03 42 55 45 03 52 49   I.AMM.KUW.BUE.RI
+0056: 4F 03 53 41 4F 03 53 47  4F 03 42 4F 47 03 4D 45   O.SAO.SGO.BOG.ME
+0057: 58 03 43 43 53 03 4E 46  45 03 49 4E 44 03 46 49   X.CCS.NFE.IND.FI
+0058: 58 03 4C 4F 54 03 4D 41  54 03 54 41 49 03 49 50   X.LOT.MAT.TAI.IP
+0059: 45 03 43 56 49 03 43 49  52 03 43 4C 55 03 53 4F   E.CVI.CIR.CLU.SO
+005A: 50 03 52 45 55 03 4C 49  53 03 4F 50 4F 03 4E 4F   P.REU.LIS.OPO.NO
+005B: 4D 03 43 4C 54 03 52 54  53 03 41 53 58 03 49 46   M.CLT.RTS.ASX.IF
+005C: 58 03 50 4D 49 03 4D 43  45 03 43 56 41 03 54 47   X.PMI.MCE.CVA.TG
+005D: 45 03 54 53 55 03 4B 52  45 03 4D 52 56 03 4B 46   E.TSU.KRE.MRV.KF
+005E: 49 03 42 46 58 03 42 52  54 03 44 54 42 03 4D 52   I.BFX.BRT.DTB.MR
+005F: 46 03 43 42 41 03 47 45  52 03 4D 54 53 03 49 53   F.CBA.GER.MTS.IS
+0060: 54 03 4D 55 53 03 41 42  4A 03 4E 41 49 03 54 55   T.MUS.ABJ.NAI.TU
+0061: 4E 03 46 53 49 03 4E 49  4E 03 4D 43 50 03 4F 54   N.FSI.NIN.MCP.OT
+0062: 42 03 53 49 43 03 52 43  54 03 49 47 46 03 4D 57   B.SIC.RCT.IGF.MW
+0063: 51 03 50 53 51 03 50 48  51 03 4A 53 44 03 45 43   Q.PSQ.PHQ.JSD.EC
+0064: 4D 03 4F 42 42 03 49 46  4D 03 4D 46 49 03 53 4D   M.OBB.IFM.MFI.SM
+0065: 45 03 53 48 5A 03 52 53  41 03 42 55 44 03 50 48   E.SHZ.RSA.BUD.PH
+0066: 53 03 4D 4C 54 03 43 4F  58 03 53 5A 4D 03 53 5A   S.MLT.COX.SZM.SZ
+0067: 46 03 4A 42 54 03 4D 44  43 03 4E 54 43 03 59 53   F.JBT.MDC.NTC.YS
+0068: 45 03 4F 54 45 03 4E 41  4B 03 43 42 45 03 43 45   E.OTE.NAK.CBE.CE
+0069: 58 03 41 48 4D 03 4B 4C  46 03 43 53 45 03 42 45   X.AHM.KLF.CSE.BE
+006A: 43 03 4D 58 49 03 5A 48  43 03 42 4A 43 03 45 4F   C.MXI.ZHC.BJC.EO
+006B: 44 03 47 55 46 03 42 4D  46 03 48 53 58 03 53 46   D.GUF.BMF.HSX.SF
+006C: 58 03 43 4D 55 03 44 4C  43 03 43 46 53 FE 00 35   X.CMU.DLC.CFS..5
+006D: 06 00 FE 00 12 03 02 00  07 00 0E 06 FF 0C 27 0C   ..............'.
+006E: 28 0C 29 0C 2A 0C 2B FE  00 0C 0E 00 00 04 01 00   (.).*.+.........
+006F: 01 01 01 02 01 03 FE 00  0C 11 00 00 04 01 20 01   .............. .
+0070: DE 01 FE 01 20 FE 06 FF  06 00 FE 00 2A 03 02 00   .... .......*...
+0071: 13 00 0F 04 3C 04 3D 04  3E 04 3F 09 4B 09 4C 09   ....<.=.>.?.K.L.
+0072: 4D 09 4E 09 4F 09 50 09  51 0B B8 0C F0 0F D9 10   M.N.O.P.Q.......
+0073: 5F 14 BF 19 34 23 1A FE  02 CA 0E 00 00 FF 01 00   _...4#..........
+0074: 01 04 01 08 01 0C 01 14  01 18 01 20 01 24 01 25   ........... .$.%
+0075: 01 28 01 2C 01 30 01 32  01 33 01 34 01 38 01 3C   .(.,.0.2.3.4.8.<
+0076: 01 40 01 44 01 46 01 48  01 4C 01 54 01 5A 01 60   .@.D.F.H.L.T.Z.`
+0077: 01 64 01 68 01 6C 01 74  01 7C 01 84 01 88 01 90   .d.h.l.t.|......
+0078: 01 98 01 9C 01 AA 01 AE  01 B4 01 BC 01 BF 01 C0   ................
+0079: 01 C4 01 C8 01 CB 01 D0  01 D6 01 DA 01 DE 01 E2   ................
+007A: 01 E6 01 E8 01 EE 01 F2  01 F6 01 FA 02 01 06 02   ................
+007B: 01 0E 02 01 18 02 01 20  02 01 24 02 01 2C 02 01   ....... ..$..,..
+007C: 40 02 01 44 02 01 48 02  01 4C 02 01 54 02 01 58   @..D..H..L..T..X
+007D: 02 01 59 02 01 5C 02 01  60 02 01 64 02 01 68 02   ..Y..\..`..d..h.
+007E: 01 6C 02 01 70 02 01 74  02 01 75 02 01 78 02 01   .l..p..t..u..x..
+007F: 7C 02 01 84 02 01 88 02  01 8E 02 01 90 02 01 94   |...............
+0080: 02 01 98 02 01 9A 02 01  9E 02 01 A2 02 01 A6 02   ................
+0081: 01 AA 02 01 AC 02 01 AE  02 01 B2 02 01 B8 02 01   ................
+0082: BA 02 01 BE 02 01 C2 02  01 C6 02 01 CA 02 01 CB   ................
+0083: 02 01 CE 02 01 D2 02 01  D6 02 01 DE 02 01 E0 02   ................
+0084: 01 E4 02 01 F0 02 01 F2  02 01 F8 02 01 FC 02 02   ................
+0085: 00 02 02 04 02 02 0C 02  02 10 02 02 14 02 02 15   ................
+0086: 02 02 24 02 02 2A 02 02  2E 02 02 36 02 02 42 02   ..$..*.....6..B.
+0087: 02 4A 02 02 4E 02 02 56  02 02 58 02 02 5C 02 02   .J..N..V..X..\..
+0088: 60 02 02 68 02 02 6C 02  02 70 02 02 72 02 02 7A   `..h..l..p..r..z
+0089: 02 02 82 02 02 86 02 02  8E 02 02 A6 02 02 AA 02   ................
+008A: 02 B2 02 02 B6 02 02 BE  02 02 BF 02 02 C0 02 02   ................
+008B: C1 02 02 C2 02 02 C6 02  02 CC 02 02 D0 02 02 D4   ................
+008C: 02 02 E0 02 02 E4 02 02  EC 02 02 F0 02 02 F4 02   ................
+008D: 02 F8 02 02 FC 02 03 08  02 03 0C 02 03 10 02 03   ................
+008E: 14 02 03 18 02 03 1B 02  03 20 02 03 24 02 03 27   ......... ..$..'
+008F: 02 03 2A 02 03 32 02 03  3A 02 03 3B 02 03 42 02   ..*..2..:..;..B.
+0090: 03 48 02 03 49 02 03 5A  02 03 5E 02 03 72 02 03   .H..I..Z..^..r..
+0091: 76 02 03 7A 02 03 7B 02  03 7E 02 03 84 02 03 85   v..z..{..~......
+0092: 02 03 86 02 03 87 02 03  88 02 03 89 02 03 8A 02   ................
+0093: 03 8B 02 03 A4 02 03 A8  02 03 A9 02 03 AC 02 03   ................
+0094: AD 02 03 AE 02 03 AF 02  03 B0 02 03 B2 02 03 B5   ................
+0095: 02 03 B6 02 03 B7 02 03  B8 02 03 B9 02 03 BA 02   ................
+0096: 03 BB 02 03 BC 02 03 BD  02 03 BE 02 03 BF 02 03   ................
+0097: C0 02 03 C1 02 03 C2 02  03 C3 02 03 C4 02 03 C8   ................
+0098: 02 03 C9 02 03 CB 02 03  CD 02 03 CE 02 03 CF 02   ................
+0099: 03 D0 02 03 D1 02 03 D2  02 03 D3 02 03 D4 02 03   ................
+009A: D5 02 03 D9 02 03 DE 02  03 DF 02 03 E3 02 03 E4   ................
+009B: 02 03 E5 02 03 E6 02 03  E7 02 07 D0 02 07 D1 02   ................
+009C: 07 D2 02 07 D3 02 07 D4  02 07 D5 02 07 D6 02 07   ................
+009D: D7 02 07 D8 02 07 D9 02  07 DA 02 07 DB 02 07 DC   ................
+009E: 02 07 DD 02 07 DE 02 07  DF 02 07 E0 02 07 E1 02   ................
+009F: 07 E2 02 07 E3 02 07 E4  02 07 E5 02 07 E6 02 07   ................
+00A0: E7 02 07 E8 FE 04 00 11  00 00 FF 03 20 20 20 03   ............   .
+00A1: 41 46 41 03 41 4C 4C 03  44 5A 44 03 41 44 50 03   AFA.ALL.DZD.ADP.
+00A2: 41 4F 4E 03 41 52 53 03  41 55 44 03 41 55 63 03   AON.ARS.AUD.AUc.
+00A3: 41 54 53 03 42 53 44 03  42 48 44 03 42 44 54 03   ATS.BSD.BHD.BDT.
+00A4: 41 4D 44 03 42 42 44 03  42 45 46 03 42 4D 44 03   AMD.BBD.BEF.BMD.
+00A5: 42 54 4E 03 42 4F 42 03  42 41 44 03 42 57 50 03   BTN.BOB.BAD.BWP.
+00A6: 42 52 4C 03 42 5A 44 03  53 42 44 03 42 4E 44 03   BRL.BZD.SBD.BND.
+00A7: 42 47 4C 03 4D 4D 4B 03  42 49 46 03 4B 48 52 03   BGL.MMK.BIF.KHR.
+00A8: 43 41 44 03 43 56 45 03  4B 59 44 03 4C 4B 52 03   CAD.CVE.KYD.LKR.
+00A9: 43 4C 50 03 43 4E 59 03  43 4F 50 03 4B 4D 46 03   CLP.CNY.COP.KMF.
+00AA: 5A 52 4E 03 43 52 43 03  48 52 4B 03 43 55 50 03   ZRN.CRC.HRK.CUP.
+00AB: 43 59 50 03 32 30 30 03  43 5A 4B 03 44 4B 4B 03   CYP.200.CZK.DKK.
+00AC: 44 4F 50 03 45 43 53 03  53 56 43 03 45 45 4B 03   DOP.ECS.SVC.EEK.
+00AD: 45 54 42 03 45 52 4E 03  46 4B 50 03 46 4A 44 03   ETB.ERN.FKP.FJD.
+00AE: 46 49 4D 03 46 52 46 03  44 4A 46 03 47 4D 44 03   FIM.FRF.DJF.GMD.
+00AF: 44 45 4D 03 47 48 43 03  47 49 50 03 47 52 44 03   DEM.GHC.GIP.GRD.
+00B0: 47 54 51 03 47 4E 46 03  47 59 44 03 48 54 47 03   GTQ.GNF.GYD.HTG.
+00B1: 48 4E 4C 03 48 4B 44 03  48 4B 63 03 48 55 46 03   HNL.HKD.HKc.HUF.
+00B2: 49 53 4B 03 49 4E 52 03  49 44 52 03 49 52 52 03   ISK.INR.IDR.IRR.
+00B3: 49 51 44 03 49 45 50 03  49 45 70 03 49 4C 53 03   IQD.IEP.IEp.ILS.
+00B4: 49 54 4C 03 4A 4D 44 03  4A 50 59 03 4B 5A 54 03   ITL.JMD.JPY.KZT.
+00B5: 4A 4F 44 03 4B 45 53 03  4B 50 57 03 4B 52 57 03   JOD.KES.KPW.KRW.
+00B6: 4B 57 44 03 4C 41 4B 03  4C 42 50 03 4C 53 4C 03   KWD.LAK.LBP.LSL.
+00B7: 4C 56 4C 03 4C 52 44 03  4C 59 44 03 4C 54 4C 03   LVL.LRD.LYD.LTL.
+00B8: 4C 55 46 03 4D 4F 50 03  34 35 30 03 4D 57 4B 03   LUF.MOP.450.MWK.
+00B9: 4D 59 52 03 4D 59 63 03  4D 56 52 03 4D 4C 46 03   MYR.MYc.MVR.MLF.
+00BA: 4D 54 4C 03 4D 52 4F 03  4D 55 52 03 4D 58 4E 03   MTL.MRO.MUR.MXN.
+00BB: 4D 4E 54 03 4D 44 4C 03  4D 41 44 03 4D 5A 4D 03   MNT.MDL.MAD.MZM.
+00BC: 4F 4D 52 03 4E 41 44 03  4E 50 52 03 4E 4C 47 03   OMR.NAD.NPR.NLG.
+00BD: 41 4E 47 03 41 57 47 03  56 55 56 03 4E 5A 44 03   ANG.AWG.VUV.NZD.
+00BE: 4E 49 4F 03 4E 47 4E 03  4E 4F 4B 03 50 4B 52 03   NIO.NGN.NOK.PKR.
+00BF: 50 41 42 03 50 47 4B 03  50 59 47 03 50 45 4E 03   PAB.PGK.PYG.PEN.
+00C0: 50 48 50 03 50 4C 5A 03  50 54 45 03 47 57 50 03   PHP.PLZ.PTE.GWP.
+00C1: 54 50 45 03 51 41 52 03  52 4F 4C 03 52 57 46 03   TPE.QAR.ROL.RWF.
+00C2: 53 48 50 03 53 54 44 03  53 41 52 03 53 43 52 03   SHP.STD.SAR.SCR.
+00C3: 53 4C 4C 03 53 47 44 03  53 4B 4B 03 56 4E 44 03   SLL.SGD.SKK.VND.
+00C4: 53 49 54 03 53 4F 53 03  5A 41 52 03 5A 57 44 03   SIT.SOS.ZAR.ZWD.
+00C5: 37 32 30 03 45 53 50 03  53 44 44 03 53 52 47 03   720.ESP.SDD.SRG.
+00C6: 53 5A 4C 03 53 45 4B 03  43 48 46 03 53 59 50 03   SZL.SEK.CHF.SYP.
+00C7: 54 48 42 03 54 4F 50 03  54 54 44 03 41 45 44 03   THB.TOP.TTD.AED.
+00C8: 54 4E 44 03 54 52 4C 03  54 4D 4D 03 55 47 58 03   TND.TRL.TMM.UGX.
+00C9: 55 41 4B 03 4D 4B 44 03  52 55 42 03 45 47 50 03   UAK.MKD.RUB.EGP.
+00CA: 47 42 50 03 47 42 70 03  54 5A 53 03 55 53 44 03   GBP.GBp.TZS.USD.
+00CB: 55 53 63 03 55 59 55 03  56 45 42 03 57 53 54 03   USc.UYU.VEB.WST.
+00CC: 59 45 52 03 38 39 30 03  43 53 44 03 5A 4D 4B 03   YER.890.CSD.ZMK.
+00CD: 52 4F 62 03 54 57 44 03  42 48 66 03 4B 57 66 03   ROb.TWD.BHf.KWf.
+00CE: 4F 4D 62 03 53 41 68 03  51 41 64 03 41 45 66 03   OMb.SAh.QAd.AEf.
+00CF: 5A 57 4C 03 47 48 53 03  56 45 46 03 55 59 49 03   ZWL.GHS.VEF.UYI.
+00D0: 52 53 44 03 5A 57 4E 03  4D 5A 4E 03 41 5A 4E 03   RSD.ZWN.MZN.AZN.
+00D1: 52 4F 4E 03 54 52 59 03  58 41 46 03 58 43 44 03   RON.TRY.XAF.XCD.
+00D2: 58 4F 46 03 58 50 46 03  58 45 55 03 58 42 41 03   XOF.XPF.XEU.XBA.
+00D3: 58 42 42 03 58 42 43 03  58 42 44 03 58 41 55 03   XBB.XBC.XBD.XAU.
+00D4: 58 44 52 03 58 41 47 03  58 50 54 03 58 54 53 03   XDR.XAG.XPT.XTS.
+00D5: 58 50 44 03 53 52 44 03  4D 47 41 03 41 46 4E 03   XPD.SRD.MGA.AFN.
+00D6: 41 4F 41 03 42 59 52 03  42 47 4E 03 43 44 46 03   AOA.BYR.BGN.CDF.
+00D7: 42 41 4D 03 45 55 52 03  4D 58 56 03 55 41 48 03   BAM.EUR.MXV.UAH.
+00D8: 47 45 4C 03 50 4C 4E 03  43 4C 46 03 5A 41 4C 03   GEL.PLN.CLF.ZAL.
+00D9: 45 53 42 03 45 53 41 03  55 53 4E 03 55 53 53 03   ESB.ESA.USN.USS.
+00DA: 58 58 58 03 74 73 74 03  41 55 63 03 43 41 63 03   XXX.tst.AUc.CAc.
+00DB: 48 4B 63 03 49 45 70 03  4D 59 63 03 4E 5A 63 03   HKc.IEp.MYc.NZc.
+00DC: 53 47 63 03 47 42 70 03  55 53 63 03 5A 41 63 03   SGc.GBp.USc.ZAc.
+00DD: 5A 57 63 03 45 55 63 03  4E 41 63 03 49 4C 61 03   ZWc.EUc.NAc.ILa.
+00DE: 52 55 42 03 48 52 4C 03  42 57 74 03 5A 5A 5A 03   RUB.HRL.BWt.ZZZ.
+00DF: 54 52 6B 03 43 4F 55 03  4D 57 74 03 42 52 63 03   TRk.COU.MWt.BRc.
+00E0: 43 4E 48 03 55 53 54                               CNH.UST
+-- end read --
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REFRESH domainType="DICTIONARY" streamId="4" containerType="SERIES" flags="0x68 (HAS_
+text: "Enum Type Dictionary Refresh" dataSize="3528">
+    <key flags="0x0B (HAS_SERVICE_ID|HAS_NAME|HAS_FILTER)" serviceId="1" name="RWFEnum
+    <dataBody>
+        <series  flags="0x03 (HAS_SET_DEFS|HAS_SUMMARY_DATA)" countHint="0" containerT
+            <elementSetDefs>
+                <elementSetDef setId="0">
+                    <elementSetDefEntry name="FIDS" dataType="ARRAY" />
+                    <elementSetDefEntry name="VALUE" dataType="ARRAY" />
+                    <elementSetDefEntry name="DISPLAY" dataType="ARRAY" />
+                </elementSetDef>
+            </elementSetDefs>
+            <summaryData>
+                <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                    <elementEntry name="Type" dataType="INT" data="2"/>
+                    <elementEntry name="DictionaryId" dataType="INT" data="0"/>
+                    <elementEntry name="RT_Version" dataType="ASCII_STRING" data="4.10
+                    <elementEntry name="DT_Version" dataType="ASCII_STRING" data="13.1
+                    <elementEntry name="Version" dataType="ASCII_STRING" data="13.11"/
+                </elementList>
+            </summaryData>
+            <seriesEntry>
+                <elementList flags="0x06 (HAS_SET_DATA|HAS_SET_ID)" setId="0">
+                    <elementEntry name="FIDS" dataType="ARRAY">
+                        <array itemLength="2" primitiveType="INT">
+                            <arrayEntry data="4"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="VALUE" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ENUM">
+                            <arrayEntry data="0"/>
+                            <arrayEntry data="1"/>
+                            <arrayEntry data="2"/>
+                            <arrayEntry data="3"/>
+                            <arrayEntry data="4"/>
+                            <arrayEntry data="5"/>
+                            <arrayEntry data="6"/>
+                            <arrayEntry data="7"/>
+                            <arrayEntry data="8"/>
+                            <arrayEntry data="9"/>
+                            <arrayEntry data="10"/>
+                            <arrayEntry data="11"/>
+                            <arrayEntry data="12"/>
+                            <arrayEntry data="13"/>
+                            <arrayEntry data="14"/>
+                            <arrayEntry data="15"/>
+                            <arrayEntry data="16"/>
+                            <arrayEntry data="17"/>
+                            <arrayEntry data="18"/>
+                            <arrayEntry data="19"/>
+                            <arrayEntry data="20"/>
+                            <arrayEntry data="21"/>
+                            <arrayEntry data="22"/>
+                            <arrayEntry data="23"/>
+                            <arrayEntry data="24"/>
+                            <arrayEntry data="25"/>
+                            <arrayEntry data="26"/>
+                            <arrayEntry data="27"/>
+                            <arrayEntry data="28"/>
+                            <arrayEntry data="29"/>
+                            <arrayEntry data="30"/>
+                            <arrayEntry data="31"/>
+                            <arrayEntry data="32"/>
+                            <arrayEntry data="33"/>
+                            <arrayEntry data="34"/>
+                            <arrayEntry data="35"/>
+                            <arrayEntry data="36"/>
+                            <arrayEntry data="37"/>
+                            <arrayEntry data="38"/>
+                            <arrayEntry data="39"/>
+                            <arrayEntry data="40"/>
+                            <arrayEntry data="41"/>
+                            <arrayEntry data="42"/>
+                            <arrayEntry data="43"/>
+                            <arrayEntry data="44"/>
+                            <arrayEntry data="45"/>
+                            <arrayEntry data="46"/>
+                            <arrayEntry data="47"/>
+                            <arrayEntry data="48"/>
+                            <arrayEntry data="49"/>
+                            <arrayEntry data="50"/>
+                            <arrayEntry data="51"/>
+                            <arrayEntry data="52"/>
+                            <arrayEntry data="53"/>
+                            <arrayEntry data="54"/>
+                            <arrayEntry data="55"/>
+                            <arrayEntry data="56"/>
+                            <arrayEntry data="57"/>
+                            <arrayEntry data="58"/>
+                            <arrayEntry data="59"/>
+                            <arrayEntry data="60"/>
+                            <arrayEntry data="61"/>
+                            <arrayEntry data="62"/>
+                            <arrayEntry data="63"/>
+                            <arrayEntry data="64"/>
+                            <arrayEntry data="65"/>
+                            <arrayEntry data="66"/>
+                            <arrayEntry data="67"/>
+                            <arrayEntry data="68"/>
+                            <arrayEntry data="69"/>
+                            <arrayEntry data="70"/>
+                            <arrayEntry data="71"/>
+                            <arrayEntry data="72"/>
+                            <arrayEntry data="73"/>
+                            <arrayEntry data="74"/>
+                            <arrayEntry data="75"/>
+                            <arrayEntry data="76"/>
+                            <arrayEntry data="77"/>
+                            <arrayEntry data="78"/>
+                            <arrayEntry data="79"/>
+                            <arrayEntry data="80"/>
+                            <arrayEntry data="81"/>
+                            <arrayEntry data="82"/>
+                            <arrayEntry data="83"/>
+                            <arrayEntry data="84"/>
+                            <arrayEntry data="85"/>
+                            <arrayEntry data="86"/>
+                            <arrayEntry data="87"/>
+                            <arrayEntry data="88"/>
+                            <arrayEntry data="89"/>
+                            <arrayEntry data="90"/>
+                            <arrayEntry data="91"/>
+                            <arrayEntry data="92"/>
+                            <arrayEntry data="93"/>
+                            <arrayEntry data="94"/>
+                            <arrayEntry data="95"/>
+                            <arrayEntry data="96"/>
+                            <arrayEntry data="97"/>
+                            <arrayEntry data="98"/>
+                            <arrayEntry data="99"/>
+                            <arrayEntry data="100"/>
+                            <arrayEntry data="101"/>
+                            <arrayEntry data="102"/>
+                            <arrayEntry data="103"/>
+                            <arrayEntry data="104"/>
+                            <arrayEntry data="105"/>
+                            <arrayEntry data="106"/>
+                            <arrayEntry data="107"/>
+                            <arrayEntry data="108"/>
+                            <arrayEntry data="109"/>
+                            <arrayEntry data="110"/>
+                            <arrayEntry data="111"/>
+                            <arrayEntry data="112"/>
+                            <arrayEntry data="113"/>
+                            <arrayEntry data="114"/>
+                            <arrayEntry data="115"/>
+                            <arrayEntry data="116"/>
+                            <arrayEntry data="117"/>
+                            <arrayEntry data="118"/>
+                            <arrayEntry data="119"/>
+                            <arrayEntry data="120"/>
+                            <arrayEntry data="121"/>
+                            <arrayEntry data="122"/>
+                            <arrayEntry data="123"/>
+                            <arrayEntry data="124"/>
+                            <arrayEntry data="125"/>
+                            <arrayEntry data="126"/>
+                            <arrayEntry data="127"/>
+                            <arrayEntry data="128"/>
+                            <arrayEntry data="129"/>
+                            <arrayEntry data="130"/>
+                            <arrayEntry data="131"/>
+                            <arrayEntry data="132"/>
+                            <arrayEntry data="133"/>
+                            <arrayEntry data="134"/>
+                            <arrayEntry data="135"/>
+                            <arrayEntry data="136"/>
+                            <arrayEntry data="137"/>
+                            <arrayEntry data="138"/>
+                            <arrayEntry data="139"/>
+                            <arrayEntry data="140"/>
+                            <arrayEntry data="141"/>
+                            <arrayEntry data="142"/>
+                            <arrayEntry data="143"/>
+                            <arrayEntry data="144"/>
+                            <arrayEntry data="145"/>
+                            <arrayEntry data="146"/>
+                            <arrayEntry data="147"/>
+                            <arrayEntry data="148"/>
+                            <arrayEntry data="149"/>
+                            <arrayEntry data="150"/>
+                            <arrayEntry data="151"/>
+                            <arrayEntry data="152"/>
+                            <arrayEntry data="153"/>
+                            <arrayEntry data="154"/>
+                            <arrayEntry data="155"/>
+                            <arrayEntry data="156"/>
+                            <arrayEntry data="157"/>
+                            <arrayEntry data="158"/>
+                            <arrayEntry data="159"/>
+                            <arrayEntry data="160"/>
+                            <arrayEntry data="161"/>
+                            <arrayEntry data="162"/>
+                            <arrayEntry data="163"/>
+                            <arrayEntry data="164"/>
+                            <arrayEntry data="165"/>
+                            <arrayEntry data="166"/>
+                            <arrayEntry data="167"/>
+                            <arrayEntry data="168"/>
+                            <arrayEntry data="169"/>
+                            <arrayEntry data="170"/>
+                            <arrayEntry data="171"/>
+                            <arrayEntry data="172"/>
+                            <arrayEntry data="173"/>
+                            <arrayEntry data="174"/>
+                            <arrayEntry data="175"/>
+                            <arrayEntry data="176"/>
+                            <arrayEntry data="177"/>
+                            <arrayEntry data="178"/>
+                            <arrayEntry data="179"/>
+                            <arrayEntry data="180"/>
+                            <arrayEntry data="181"/>
+                            <arrayEntry data="182"/>
+                            <arrayEntry data="183"/>
+                            <arrayEntry data="184"/>
+                            <arrayEntry data="185"/>
+                            <arrayEntry data="186"/>
+                            <arrayEntry data="187"/>
+                            <arrayEntry data="188"/>
+                            <arrayEntry data="189"/>
+                            <arrayEntry data="190"/>
+                            <arrayEntry data="191"/>
+                            <arrayEntry data="192"/>
+                            <arrayEntry data="193"/>
+                            <arrayEntry data="194"/>
+                            <arrayEntry data="195"/>
+                            <arrayEntry data="196"/>
+                            <arrayEntry data="197"/>
+                            <arrayEntry data="198"/>
+                            <arrayEntry data="199"/>
+                            <arrayEntry data="200"/>
+                            <arrayEntry data="201"/>
+                            <arrayEntry data="202"/>
+                            <arrayEntry data="203"/>
+                            <arrayEntry data="204"/>
+                            <arrayEntry data="205"/>
+                            <arrayEntry data="206"/>
+                            <arrayEntry data="207"/>
+                            <arrayEntry data="208"/>
+                            <arrayEntry data="209"/>
+                            <arrayEntry data="210"/>
+                            <arrayEntry data="211"/>
+                            <arrayEntry data="212"/>
+                            <arrayEntry data="213"/>
+                            <arrayEntry data="214"/>
+                            <arrayEntry data="215"/>
+                            <arrayEntry data="216"/>
+                            <arrayEntry data="217"/>
+                            <arrayEntry data="218"/>
+                            <arrayEntry data="219"/>
+                            <arrayEntry data="220"/>
+                            <arrayEntry data="221"/>
+                            <arrayEntry data="222"/>
+                            <arrayEntry data="223"/>
+                            <arrayEntry data="224"/>
+                            <arrayEntry data="225"/>
+                            <arrayEntry data="226"/>
+                            <arrayEntry data="227"/>
+                            <arrayEntry data="228"/>
+                            <arrayEntry data="229"/>
+                            <arrayEntry data="230"/>
+                            <arrayEntry data="231"/>
+                            <arrayEntry data="232"/>
+                            <arrayEntry data="233"/>
+                            <arrayEntry data="234"/>
+                            <arrayEntry data="235"/>
+                            <arrayEntry data="236"/>
+                            <arrayEntry data="237"/>
+                            <arrayEntry data="238"/>
+                            <arrayEntry data="239"/>
+                            <arrayEntry data="240"/>
+                            <arrayEntry data="241"/>
+                            <arrayEntry data="242"/>
+                            <arrayEntry data="243"/>
+                            <arrayEntry data="244"/>
+                            <arrayEntry data="245"/>
+                            <arrayEntry data="246"/>
+                            <arrayEntry data="247"/>
+                            <arrayEntry data="248"/>
+                            <arrayEntry data="249"/>
+                            <arrayEntry data="250"/>
+                            <arrayEntry data="251"/>
+                            <arrayEntry data="252"/>
+                            <arrayEntry data="253"/>
+                            <arrayEntry data="254"/>
+                            <arrayEntry data="255"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="DISPLAY" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ASCII_STRING">
+                            <arrayEntry data="   "/>
+                            <arrayEntry data="ASE"/>
+                            <arrayEntry data="NYS"/>
+                            <arrayEntry data="BOS"/>
+                            <arrayEntry data="CIN"/>
+                            <arrayEntry data="PSE"/>
+                            <arrayEntry data="XPH"/>
+                            <arrayEntry data="THM"/>
+                            <arrayEntry data="MID"/>
+                            <arrayEntry data="NYQ"/>
+                            <arrayEntry data="TOR"/>
+                            <arrayEntry data="MON"/>
+                            <arrayEntry data="TSX"/>
+                            <arrayEntry data="DEX"/>
+                            <arrayEntry data="AOE"/>
+                            <arrayEntry data="NYO"/>
+                            <arrayEntry data="PHO"/>
+                            <arrayEntry data="PAO"/>
+                            <arrayEntry data="WCB"/>
+                            <arrayEntry data="ASQ"/>
+                            <arrayEntry data="CME"/>
+                            <arrayEntry data="IMM"/>
+                            <arrayEntry data="IOM"/>
+                            <arrayEntry data="CBT"/>
+                            <arrayEntry data="ITS"/>
+                            <arrayEntry data="WPG"/>
+                            <arrayEntry data="MGE"/>
+                            <arrayEntry data="PBT"/>
+                            <arrayEntry data="CMX"/>
+                            <arrayEntry data="CSC"/>
+                            <arrayEntry data="NYC"/>
+                            <arrayEntry data="NYM"/>
+                            <arrayEntry data="FIS"/>
+                            <arrayEntry data="CSO"/>
+                            <arrayEntry data="CEO"/>
+                            <arrayEntry data="SHC"/>
+                            <arrayEntry data="NYF"/>
+                            <arrayEntry data="TFE"/>
+                            <arrayEntry data="MIO"/>
+                            <arrayEntry data="NMS"/>
+                            <arrayEntry data="DEA"/>
+                            <arrayEntry data="MOE"/>
+                            <arrayEntry data="BTY"/>
+                            <arrayEntry data="NAS"/>
+                            <arrayEntry data="MDM"/>
+                            <arrayEntry data="SCE"/>
+                            <arrayEntry data="BSQ"/>
+                            <arrayEntry data="CHI"/>
+                            <arrayEntry data="WCQ"/>
+                            <arrayEntry data="TRC"/>
+                            <arrayEntry data="KBT"/>
+                            <arrayEntry data="SOM"/>
+                            <arrayEntry data="ADS"/>
+                            <arrayEntry data="ADF"/>
+                            <arrayEntry data="MIF"/>
+                            <arrayEntry data="JSF"/>
+                            <arrayEntry data="TCE"/>
+                            <arrayEntry data="TFF"/>
+                            <arrayEntry data="RPS"/>
+                            <arrayEntry data="HOM"/>
+                            <arrayEntry data="FOM"/>
+                            <arrayEntry data="FIR"/>
+                            <arrayEntry data="ATH"/>
+                            <arrayEntry data="SFF"/>
+                            <arrayEntry data="LSE"/>
+                            <arrayEntry data="JNB"/>
+                            <arrayEntry data="LIF"/>
+                            <arrayEntry data="TLV"/>
+                            <arrayEntry data="CPH"/>
+                            <arrayEntry data="OSL"/>
+                            <arrayEntry data="STO"/>
+                            <arrayEntry data="CMA"/>
+                            <arrayEntry data="LUX"/>
+                            <arrayEntry data="BRU"/>
+                            <arrayEntry data="PAR"/>
+                            <arrayEntry data="MAD"/>
+                            <arrayEntry data="BAR"/>
+                            <arrayEntry data="AEX"/>
+                            <arrayEntry data="EOE"/>
+                            <arrayEntry data="TWB"/>
+                            <arrayEntry data="VIE"/>
+                            <arrayEntry data="DUS"/>
+                            <arrayEntry data="FRA"/>
+                            <arrayEntry data="HAM"/>
+                            <arrayEntry data="MUN"/>
+                            <arrayEntry data="ZRH"/>
+                            <arrayEntry data="GVA"/>
+                            <arrayEntry data="BSL"/>
+                            <arrayEntry data="MIL"/>
+                            <arrayEntry data="CSM"/>
+                            <arrayEntry data="CML"/>
+                            <arrayEntry data="NZC"/>
+                            <arrayEntry data="HKG"/>
+                            <arrayEntry data="SIM"/>
+                            <arrayEntry data="KLC"/>
+                            <arrayEntry data="CCH"/>
+                            <arrayEntry data="CXE"/>
+                            <arrayEntry data="CAM"/>
+                            <arrayEntry data="CBS"/>
+                            <arrayEntry data="LME"/>
+                            <arrayEntry data="CLB"/>
+                            <arrayEntry data="LCE"/>
+                            <arrayEntry data="CPA"/>
+                            <arrayEntry data="CFR"/>
+                            <arrayEntry data="CLO"/>
+                            <arrayEntry data="SFE"/>
+                            <arrayEntry data="TYO"/>
+                            <arrayEntry data="NGO"/>
+                            <arrayEntry data="SAP"/>
+                            <arrayEntry data="CHJ"/>
+                            <arrayEntry data="KYO"/>
+                            <arrayEntry data="HIR"/>
+                            <arrayEntry data="FKA"/>
+                            <arrayEntry data="OSA"/>
+                            <arrayEntry data="HFE"/>
+                            <arrayEntry data="BER"/>
+                            <arrayEntry data="HAN"/>
+                            <arrayEntry data="STU"/>
+                            <arrayEntry data="BRE"/>
+                            <arrayEntry data="COK"/>
+                            <arrayEntry data="BRN"/>
+                            <arrayEntry data="CSS"/>
+                            <arrayEntry data="CHE"/>
+                            <arrayEntry data="CVX"/>
+                            <arrayEntry data="ROM"/>
+                            <arrayEntry data="TRN"/>
+                            <arrayEntry data="GOA"/>
+                            <arrayEntry data="NAP"/>
+                            <arrayEntry data="PAL"/>
+                            <arrayEntry data="BLO"/>
+                            <arrayEntry data="VCE"/>
+                            <arrayEntry data="ISF"/>
+                            <arrayEntry data="AQC"/>
+                            <arrayEntry data="HEX"/>
+                            <arrayEntry data="WSE"/>
+                            <arrayEntry data="NXT"/>
+                            <arrayEntry data="MX2"/>
+                            <arrayEntry data="CAQ"/>
+                            <arrayEntry data="F4E"/>
+                            <arrayEntry data="BET"/>
+                            <arrayEntry data="F4J"/>
+                            <arrayEntry data="JDE"/>
+                            <arrayEntry data="LAG"/>
+                            <arrayEntry data="ZSE"/>
+                            <arrayEntry data="SHH"/>
+                            <arrayEntry data="BSE"/>
+                            <arrayEntry data="CAL"/>
+                            <arrayEntry data="DES"/>
+                            <arrayEntry data="MDS"/>
+                            <arrayEntry data="JKT"/>
+                            <arrayEntry data="KLS"/>
+                            <arrayEntry data="KAR"/>
+                            <arrayEntry data="MAK"/>
+                            <arrayEntry data="MNL"/>
+                            <arrayEntry data="FTM"/>
+                            <arrayEntry data="SES"/>
+                            <arrayEntry data="KSC"/>
+                            <arrayEntry data="MAU"/>
+                            <arrayEntry data="SET"/>
+                            <arrayEntry data="BAH"/>
+                            <arrayEntry data="CAI"/>
+                            <arrayEntry data="AMM"/>
+                            <arrayEntry data="KUW"/>
+                            <arrayEntry data="BUE"/>
+                            <arrayEntry data="RIO"/>
+                            <arrayEntry data="SAO"/>
+                            <arrayEntry data="SGO"/>
+                            <arrayEntry data="BOG"/>
+                            <arrayEntry data="MEX"/>
+                            <arrayEntry data="CCS"/>
+                            <arrayEntry data="NFE"/>
+                            <arrayEntry data="IND"/>
+                            <arrayEntry data="FIX"/>
+                            <arrayEntry data="LOT"/>
+                            <arrayEntry data="MAT"/>
+                            <arrayEntry data="TAI"/>
+                            <arrayEntry data="IPE"/>
+                            <arrayEntry data="CVI"/>
+                            <arrayEntry data="CIR"/>
+                            <arrayEntry data="CLU"/>
+                            <arrayEntry data="SOP"/>
+                            <arrayEntry data="REU"/>
+                            <arrayEntry data="LIS"/>
+                            <arrayEntry data="OPO"/>
+                            <arrayEntry data="NOM"/>
+                            <arrayEntry data="CLT"/>
+                            <arrayEntry data="RTS"/>
+                            <arrayEntry data="ASX"/>
+                            <arrayEntry data="IFX"/>
+                            <arrayEntry data="PMI"/>
+                            <arrayEntry data="MCE"/>
+                            <arrayEntry data="CVA"/>
+                            <arrayEntry data="TGE"/>
+                            <arrayEntry data="TSU"/>
+                            <arrayEntry data="KRE"/>
+                            <arrayEntry data="MRV"/>
+                            <arrayEntry data="KFI"/>
+                            <arrayEntry data="BFX"/>
+                            <arrayEntry data="BRT"/>
+                            <arrayEntry data="DTB"/>
+                            <arrayEntry data="MRF"/>
+                            <arrayEntry data="CBA"/>
+                            <arrayEntry data="GER"/>
+                            <arrayEntry data="MTS"/>
+                            <arrayEntry data="IST"/>
+                            <arrayEntry data="MUS"/>
+                            <arrayEntry data="ABJ"/>
+                            <arrayEntry data="NAI"/>
+                            <arrayEntry data="TUN"/>
+                            <arrayEntry data="FSI"/>
+                            <arrayEntry data="NIN"/>
+                            <arrayEntry data="MCP"/>
+                            <arrayEntry data="OTB"/>
+                            <arrayEntry data="SIC"/>
+                            <arrayEntry data="RCT"/>
+                            <arrayEntry data="IGF"/>
+                            <arrayEntry data="MWQ"/>
+                            <arrayEntry data="PSQ"/>
+                            <arrayEntry data="PHQ"/>
+                            <arrayEntry data="JSD"/>
+                            <arrayEntry data="ECM"/>
+                            <arrayEntry data="OBB"/>
+                            <arrayEntry data="IFM"/>
+                            <arrayEntry data="MFI"/>
+                            <arrayEntry data="SME"/>
+                            <arrayEntry data="SHZ"/>
+                            <arrayEntry data="RSA"/>
+                            <arrayEntry data="BUD"/>
+                            <arrayEntry data="PHS"/>
+                            <arrayEntry data="MLT"/>
+                            <arrayEntry data="COX"/>
+                            <arrayEntry data="SZM"/>
+                            <arrayEntry data="SZF"/>
+                            <arrayEntry data="JBT"/>
+                            <arrayEntry data="MDC"/>
+                            <arrayEntry data="NTC"/>
+                            <arrayEntry data="YSE"/>
+                            <arrayEntry data="OTE"/>
+                            <arrayEntry data="NAK"/>
+                            <arrayEntry data="CBE"/>
+                            <arrayEntry data="CEX"/>
+                            <arrayEntry data="AHM"/>
+                            <arrayEntry data="KLF"/>
+                            <arrayEntry data="CSE"/>
+                            <arrayEntry data="BEC"/>
+                            <arrayEntry data="MXI"/>
+                            <arrayEntry data="ZHC"/>
+                            <arrayEntry data="BJC"/>
+                            <arrayEntry data="EOD"/>
+                            <arrayEntry data="GUF"/>
+                            <arrayEntry data="BMF"/>
+                            <arrayEntry data="HSX"/>
+                            <arrayEntry data="SFX"/>
+                            <arrayEntry data="CMU"/>
+                            <arrayEntry data="DLC"/>
+                            <arrayEntry data="CFS"/>
+                        </array>
+                    </elementEntry>
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x06 (HAS_SET_DATA|HAS_SET_ID)" setId="0">
+                    <elementEntry name="FIDS" dataType="ARRAY">
+                        <array itemLength="2" primitiveType="INT">
+                            <arrayEntry data="14"/>
+                            <arrayEntry data="1791"/>
+                            <arrayEntry data="3111"/>
+                            <arrayEntry data="3112"/>
+                            <arrayEntry data="3113"/>
+                            <arrayEntry data="3114"/>
+                            <arrayEntry data="3115"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="VALUE" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ENUM">
+                            <arrayEntry data="0"/>
+                            <arrayEntry data="1"/>
+                            <arrayEntry data="2"/>
+                            <arrayEntry data="3"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="DISPLAY" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ASCII_STRING">
+                            <arrayEntry data=" "/>
+                            <arrayEntry data="(0xDE)"/>
+                            <arrayEntry data="(0xFE)"/>
+                            <arrayEntry data=" "/>
+                        </array>
+                    </elementEntry>
+                </elementList>
+            </seriesEntry>
+            <seriesEntry>
+                <elementList flags="0x06 (HAS_SET_DATA|HAS_SET_ID)" setId="0">
+                    <elementEntry name="FIDS" dataType="ARRAY">
+                        <array itemLength="2" primitiveType="INT">
+                            <arrayEntry data="15"/>
+                            <arrayEntry data="1084"/>
+                            <arrayEntry data="1085"/>
+                            <arrayEntry data="1086"/>
+                            <arrayEntry data="1087"/>
+                            <arrayEntry data="2379"/>
+                            <arrayEntry data="2380"/>
+                            <arrayEntry data="2381"/>
+                            <arrayEntry data="2382"/>
+                            <arrayEntry data="2383"/>
+                            <arrayEntry data="2384"/>
+                            <arrayEntry data="2385"/>
+                            <arrayEntry data="3000"/>
+                            <arrayEntry data="3312"/>
+                            <arrayEntry data="4057"/>
+                            <arrayEntry data="4191"/>
+                            <arrayEntry data="5311"/>
+                            <arrayEntry data="6452"/>
+                            <arrayEntry data="8986"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="VALUE" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ENUM">
+                            <arrayEntry data="0"/>
+                            <arrayEntry data="4"/>
+                            <arrayEntry data="8"/>
+                            <arrayEntry data="12"/>
+                            <arrayEntry data="20"/>
+                            <arrayEntry data="24"/>
+                            <arrayEntry data="32"/>
+                            <arrayEntry data="36"/>
+                            <arrayEntry data="37"/>
+                            <arrayEntry data="40"/>
+                            <arrayEntry data="44"/>
+                            <arrayEntry data="48"/>
+                            <arrayEntry data="50"/>
+                            <arrayEntry data="51"/>
+                            <arrayEntry data="52"/>
+                            <arrayEntry data="56"/>
+                            <arrayEntry data="60"/>
+                            <arrayEntry data="64"/>
+                            <arrayEntry data="68"/>
+                            <arrayEntry data="70"/>
+                            <arrayEntry data="72"/>
+                            <arrayEntry data="76"/>
+                            <arrayEntry data="84"/>
+                            <arrayEntry data="90"/>
+                            <arrayEntry data="96"/>
+                            <arrayEntry data="100"/>
+                            <arrayEntry data="104"/>
+                            <arrayEntry data="108"/>
+                            <arrayEntry data="116"/>
+                            <arrayEntry data="124"/>
+                            <arrayEntry data="132"/>
+                            <arrayEntry data="136"/>
+                            <arrayEntry data="144"/>
+                            <arrayEntry data="152"/>
+                            <arrayEntry data="156"/>
+                            <arrayEntry data="170"/>
+                            <arrayEntry data="174"/>
+                            <arrayEntry data="180"/>
+                            <arrayEntry data="188"/>
+                            <arrayEntry data="191"/>
+                            <arrayEntry data="192"/>
+                            <arrayEntry data="196"/>
+                            <arrayEntry data="200"/>
+                            <arrayEntry data="203"/>
+                            <arrayEntry data="208"/>
+                            <arrayEntry data="214"/>
+                            <arrayEntry data="218"/>
+                            <arrayEntry data="222"/>
+                            <arrayEntry data="226"/>
+                            <arrayEntry data="230"/>
+                            <arrayEntry data="232"/>
+                            <arrayEntry data="238"/>
+                            <arrayEntry data="242"/>
+                            <arrayEntry data="246"/>
+                            <arrayEntry data="250"/>
+                            <arrayEntry data="262"/>
+                            <arrayEntry data="270"/>
+                            <arrayEntry data="280"/>
+                            <arrayEntry data="288"/>
+                            <arrayEntry data="292"/>
+                            <arrayEntry data="300"/>
+                            <arrayEntry data="320"/>
+                            <arrayEntry data="324"/>
+                            <arrayEntry data="328"/>
+                            <arrayEntry data="332"/>
+                            <arrayEntry data="340"/>
+                            <arrayEntry data="344"/>
+                            <arrayEntry data="345"/>
+                            <arrayEntry data="348"/>
+                            <arrayEntry data="352"/>
+                            <arrayEntry data="356"/>
+                            <arrayEntry data="360"/>
+                            <arrayEntry data="364"/>
+                            <arrayEntry data="368"/>
+                            <arrayEntry data="372"/>
+                            <arrayEntry data="373"/>
+                            <arrayEntry data="376"/>
+                            <arrayEntry data="380"/>
+                            <arrayEntry data="388"/>
+                            <arrayEntry data="392"/>
+                            <arrayEntry data="398"/>
+                            <arrayEntry data="400"/>
+                            <arrayEntry data="404"/>
+                            <arrayEntry data="408"/>
+                            <arrayEntry data="410"/>
+                            <arrayEntry data="414"/>
+                            <arrayEntry data="418"/>
+                            <arrayEntry data="422"/>
+                            <arrayEntry data="426"/>
+                            <arrayEntry data="428"/>
+                            <arrayEntry data="430"/>
+                            <arrayEntry data="434"/>
+                            <arrayEntry data="440"/>
+                            <arrayEntry data="442"/>
+                            <arrayEntry data="446"/>
+                            <arrayEntry data="450"/>
+                            <arrayEntry data="454"/>
+                            <arrayEntry data="458"/>
+                            <arrayEntry data="459"/>
+                            <arrayEntry data="462"/>
+                            <arrayEntry data="466"/>
+                            <arrayEntry data="470"/>
+                            <arrayEntry data="478"/>
+                            <arrayEntry data="480"/>
+                            <arrayEntry data="484"/>
+                            <arrayEntry data="496"/>
+                            <arrayEntry data="498"/>
+                            <arrayEntry data="504"/>
+                            <arrayEntry data="508"/>
+                            <arrayEntry data="512"/>
+                            <arrayEntry data="516"/>
+                            <arrayEntry data="524"/>
+                            <arrayEntry data="528"/>
+                            <arrayEntry data="532"/>
+                            <arrayEntry data="533"/>
+                            <arrayEntry data="548"/>
+                            <arrayEntry data="554"/>
+                            <arrayEntry data="558"/>
+                            <arrayEntry data="566"/>
+                            <arrayEntry data="578"/>
+                            <arrayEntry data="586"/>
+                            <arrayEntry data="590"/>
+                            <arrayEntry data="598"/>
+                            <arrayEntry data="600"/>
+                            <arrayEntry data="604"/>
+                            <arrayEntry data="608"/>
+                            <arrayEntry data="616"/>
+                            <arrayEntry data="620"/>
+                            <arrayEntry data="624"/>
+                            <arrayEntry data="626"/>
+                            <arrayEntry data="634"/>
+                            <arrayEntry data="642"/>
+                            <arrayEntry data="646"/>
+                            <arrayEntry data="654"/>
+                            <arrayEntry data="678"/>
+                            <arrayEntry data="682"/>
+                            <arrayEntry data="690"/>
+                            <arrayEntry data="694"/>
+                            <arrayEntry data="702"/>
+                            <arrayEntry data="703"/>
+                            <arrayEntry data="704"/>
+                            <arrayEntry data="705"/>
+                            <arrayEntry data="706"/>
+                            <arrayEntry data="710"/>
+                            <arrayEntry data="716"/>
+                            <arrayEntry data="720"/>
+                            <arrayEntry data="724"/>
+                            <arrayEntry data="736"/>
+                            <arrayEntry data="740"/>
+                            <arrayEntry data="748"/>
+                            <arrayEntry data="752"/>
+                            <arrayEntry data="756"/>
+                            <arrayEntry data="760"/>
+                            <arrayEntry data="764"/>
+                            <arrayEntry data="776"/>
+                            <arrayEntry data="780"/>
+                            <arrayEntry data="784"/>
+                            <arrayEntry data="788"/>
+                            <arrayEntry data="792"/>
+                            <arrayEntry data="795"/>
+                            <arrayEntry data="800"/>
+                            <arrayEntry data="804"/>
+                            <arrayEntry data="807"/>
+                            <arrayEntry data="810"/>
+                            <arrayEntry data="818"/>
+                            <arrayEntry data="826"/>
+                            <arrayEntry data="827"/>
+                            <arrayEntry data="834"/>
+                            <arrayEntry data="840"/>
+                            <arrayEntry data="841"/>
+                            <arrayEntry data="858"/>
+                            <arrayEntry data="862"/>
+                            <arrayEntry data="882"/>
+                            <arrayEntry data="886"/>
+                            <arrayEntry data="890"/>
+                            <arrayEntry data="891"/>
+                            <arrayEntry data="894"/>
+                            <arrayEntry data="900"/>
+                            <arrayEntry data="901"/>
+                            <arrayEntry data="902"/>
+                            <arrayEntry data="903"/>
+                            <arrayEntry data="904"/>
+                            <arrayEntry data="905"/>
+                            <arrayEntry data="906"/>
+                            <arrayEntry data="907"/>
+                            <arrayEntry data="932"/>
+                            <arrayEntry data="936"/>
+                            <arrayEntry data="937"/>
+                            <arrayEntry data="940"/>
+                            <arrayEntry data="941"/>
+                            <arrayEntry data="942"/>
+                            <arrayEntry data="943"/>
+                            <arrayEntry data="944"/>
+                            <arrayEntry data="946"/>
+                            <arrayEntry data="949"/>
+                            <arrayEntry data="950"/>
+                            <arrayEntry data="951"/>
+                            <arrayEntry data="952"/>
+                            <arrayEntry data="953"/>
+                            <arrayEntry data="954"/>
+                            <arrayEntry data="955"/>
+                            <arrayEntry data="956"/>
+                            <arrayEntry data="957"/>
+                            <arrayEntry data="958"/>
+                            <arrayEntry data="959"/>
+                            <arrayEntry data="960"/>
+                            <arrayEntry data="961"/>
+                            <arrayEntry data="962"/>
+                            <arrayEntry data="963"/>
+                            <arrayEntry data="964"/>
+                            <arrayEntry data="968"/>
+                            <arrayEntry data="969"/>
+                            <arrayEntry data="971"/>
+                            <arrayEntry data="973"/>
+                            <arrayEntry data="974"/>
+                            <arrayEntry data="975"/>
+                            <arrayEntry data="976"/>
+                            <arrayEntry data="977"/>
+                            <arrayEntry data="978"/>
+                            <arrayEntry data="979"/>
+                            <arrayEntry data="980"/>
+                            <arrayEntry data="981"/>
+                            <arrayEntry data="985"/>
+                            <arrayEntry data="990"/>
+                            <arrayEntry data="991"/>
+                            <arrayEntry data="995"/>
+                            <arrayEntry data="996"/>
+                            <arrayEntry data="997"/>
+                            <arrayEntry data="998"/>
+                            <arrayEntry data="999"/>
+                            <arrayEntry data="2000"/>
+                            <arrayEntry data="2001"/>
+                            <arrayEntry data="2002"/>
+                            <arrayEntry data="2003"/>
+                            <arrayEntry data="2004"/>
+                            <arrayEntry data="2005"/>
+                            <arrayEntry data="2006"/>
+                            <arrayEntry data="2007"/>
+                            <arrayEntry data="2008"/>
+                            <arrayEntry data="2009"/>
+                            <arrayEntry data="2010"/>
+                            <arrayEntry data="2011"/>
+                            <arrayEntry data="2012"/>
+                            <arrayEntry data="2013"/>
+                            <arrayEntry data="2014"/>
+                            <arrayEntry data="2015"/>
+                            <arrayEntry data="2016"/>
+                            <arrayEntry data="2017"/>
+                            <arrayEntry data="2018"/>
+                            <arrayEntry data="2019"/>
+                            <arrayEntry data="2020"/>
+                            <arrayEntry data="2021"/>
+                            <arrayEntry data="2022"/>
+                            <arrayEntry data="2023"/>
+                            <arrayEntry data="2024"/>
+                        </array>
+                    </elementEntry>
+                    <elementEntry name="DISPLAY" dataType="ARRAY">
+                        <array itemLength="0" primitiveType="ASCII_STRING">
+                            <arrayEntry data="   "/>
+                            <arrayEntry data="AFA"/>
+                            <arrayEntry data="ALL"/>
+                            <arrayEntry data="DZD"/>
+                            <arrayEntry data="ADP"/>
+                            <arrayEntry data="AON"/>
+                            <arrayEntry data="ARS"/>
+                            <arrayEntry data="AUD"/>
+                            <arrayEntry data="AUc"/>
+                            <arrayEntry data="ATS"/>
+                            <arrayEntry data="BSD"/>
+                            <arrayEntry data="BHD"/>
+                            <arrayEntry data="BDT"/>
+                            <arrayEntry data="AMD"/>
+                            <arrayEntry data="BBD"/>
+                            <arrayEntry data="BEF"/>
+                            <arrayEntry data="BMD"/>
+                            <arrayEntry data="BTN"/>
+                            <arrayEntry data="BOB"/>
+                            <arrayEntry data="BAD"/>
+                            <arrayEntry data="BWP"/>
+                            <arrayEntry data="BRL"/>
+                            <arrayEntry data="BZD"/>
+                            <arrayEntry data="SBD"/>
+                            <arrayEntry data="BND"/>
+                            <arrayEntry data="BGL"/>
+                            <arrayEntry data="MMK"/>
+                            <arrayEntry data="BIF"/>
+                            <arrayEntry data="KHR"/>
+                            <arrayEntry data="CAD"/>
+                            <arrayEntry data="CVE"/>
+                            <arrayEntry data="KYD"/>
+                            <arrayEntry data="LKR"/>
+                            <arrayEntry data="CLP"/>
+                            <arrayEntry data="CNY"/>
+                            <arrayEntry data="COP"/>
+                            <arrayEntry data="KMF"/>
+                            <arrayEntry data="ZRN"/>
+                            <arrayEntry data="CRC"/>
+                            <arrayEntry data="HRK"/>
+                            <arrayEntry data="CUP"/>
+                            <arrayEntry data="CYP"/>
+                            <arrayEntry data="200"/>
+                            <arrayEntry data="CZK"/>
+                            <arrayEntry data="DKK"/>
+                            <arrayEntry data="DOP"/>
+                            <arrayEntry data="ECS"/>
+                            <arrayEntry data="SVC"/>
+                            <arrayEntry data="EEK"/>
+                            <arrayEntry data="ETB"/>
+                            <arrayEntry data="ERN"/>
+                            <arrayEntry data="FKP"/>
+                            <arrayEntry data="FJD"/>
+                            <arrayEntry data="FIM"/>
+                            <arrayEntry data="FRF"/>
+                            <arrayEntry data="DJF"/>
+                            <arrayEntry data="GMD"/>
+                            <arrayEntry data="DEM"/>
+                            <arrayEntry data="GHC"/>
+                            <arrayEntry data="GIP"/>
+                            <arrayEntry data="GRD"/>
+                            <arrayEntry data="GTQ"/>
+                            <arrayEntry data="GNF"/>
+                            <arrayEntry data="GYD"/>
+                            <arrayEntry data="HTG"/>
+                            <arrayEntry data="HNL"/>
+                            <arrayEntry data="HKD"/>
+                            <arrayEntry data="HKc"/>
+                            <arrayEntry data="HUF"/>
+                            <arrayEntry data="ISK"/>
+                            <arrayEntry data="INR"/>
+                            <arrayEntry data="IDR"/>
+                            <arrayEntry data="IRR"/>
+                            <arrayEntry data="IQD"/>
+                            <arrayEntry data="IEP"/>
+                            <arrayEntry data="IEp"/>
+                            <arrayEntry data="ILS"/>
+                            <arrayEntry data="ITL"/>
+                            <arrayEntry data="JMD"/>
+                            <arrayEntry data="JPY"/>
+                            <arrayEntry data="KZT"/>
+                            <arrayEntry data="JOD"/>
+                            <arrayEntry data="KES"/>
+                            <arrayEntry data="KPW"/>
+                            <arrayEntry data="KRW"/>
+                            <arrayEntry data="KWD"/>
+                            <arrayEntry data="LAK"/>
+                            <arrayEntry data="LBP"/>
+                            <arrayEntry data="LSL"/>
+                            <arrayEntry data="LVL"/>
+                            <arrayEntry data="LRD"/>
+                            <arrayEntry data="LYD"/>
+                            <arrayEntry data="LTL"/>
+                            <arrayEntry data="LUF"/>
+                            <arrayEntry data="MOP"/>
+                            <arrayEntry data="450"/>
+                            <arrayEntry data="MWK"/>
+                            <arrayEntry data="MYR"/>
+                            <arrayEntry data="MYc"/>
+                            <arrayEntry data="MVR"/>
+                            <arrayEntry data="MLF"/>
+                            <arrayEntry data="MTL"/>
+                            <arrayEntry data="MRO"/>
+                            <arrayEntry data="MUR"/>
+                            <arrayEntry data="MXN"/>
+                            <arrayEntry data="MNT"/>
+                            <arrayEntry data="MDL"/>
+                            <arrayEntry data="MAD"/>
+                            <arrayEntry data="MZM"/>
+                            <arrayEntry data="OMR"/>
+                            <arrayEntry data="NAD"/>
+                            <arrayEntry data="NPR"/>
+                            <arrayEntry data="NLG"/>
+                            <arrayEntry data="ANG"/>
+                            <arrayEntry data="AWG"/>
+                            <arrayEntry data="VUV"/>
+                            <arrayEntry data="NZD"/>
+                            <arrayEntry data="NIO"/>
+                            <arrayEntry data="NGN"/>
+                            <arrayEntry data="NOK"/>
+                            <arrayEntry data="PKR"/>
+                            <arrayEntry data="PAB"/>
+                            <arrayEntry data="PGK"/>
+                            <arrayEntry data="PYG"/>
+                            <arrayEntry data="PEN"/>
+                            <arrayEntry data="PHP"/>
+                            <arrayEntry data="PLZ"/>
+                            <arrayEntry data="PTE"/>
+                            <arrayEntry data="GWP"/>
+                            <arrayEntry data="TPE"/>
+                            <arrayEntry data="QAR"/>
+                            <arrayEntry data="ROL"/>
+                            <arrayEntry data="RWF"/>
+                            <arrayEntry data="SHP"/>
+                            <arrayEntry data="STD"/>
+                            <arrayEntry data="SAR"/>
+                            <arrayEntry data="SCR"/>
+                            <arrayEntry data="SLL"/>
+                            <arrayEntry data="SGD"/>
+                            <arrayEntry data="SKK"/>
+                            <arrayEntry data="VND"/>
+                            <arrayEntry data="SIT"/>
+                            <arrayEntry data="SOS"/>
+                            <arrayEntry data="ZAR"/>
+                            <arrayEntry data="ZWD"/>
+                            <arrayEntry data="720"/>
+                            <arrayEntry data="ESP"/>
+                            <arrayEntry data="SDD"/>
+                            <arrayEntry data="SRG"/>
+                            <arrayEntry data="SZL"/>
+                            <arrayEntry data="SEK"/>
+                            <arrayEntry data="CHF"/>
+                            <arrayEntry data="SYP"/>
+                            <arrayEntry data="THB"/>
+                            <arrayEntry data="TOP"/>
+                            <arrayEntry data="TTD"/>
+                            <arrayEntry data="AED"/>
+                            <arrayEntry data="TND"/>
+                            <arrayEntry data="TRL"/>
+                            <arrayEntry data="TMM"/>
+                            <arrayEntry data="UGX"/>
+                            <arrayEntry data="UAK"/>
+                            <arrayEntry data="MKD"/>
+                            <arrayEntry data="RUB"/>
+                            <arrayEntry data="EGP"/>
+                            <arrayEntry data="GBP"/>
+                            <arrayEntry data="GBp"/>
+                            <arrayEntry data="TZS"/>
+                            <arrayEntry data="USD"/>
+                            <arrayEntry data="USc"/>
+                            <arrayEntry data="UYU"/>
+                            <arrayEntry data="VEB"/>
+                            <arrayEntry data="WST"/>
+                            <arrayEntry data="YER"/>
+                            <arrayEntry data="890"/>
+                            <arrayEntry data="CSD"/>
+                            <arrayEntry data="ZMK"/>
+                            <arrayEntry data="ROb"/>
+                            <arrayEntry data="TWD"/>
+                            <arrayEntry data="BHf"/>
+                            <arrayEntry data="KWf"/>
+                            <arrayEntry data="OMb"/>
+                            <arrayEntry data="SAh"/>
+                            <arrayEntry data="QAd"/>
+                            <arrayEntry data="AEf"/>
+                            <arrayEntry data="ZWL"/>
+                            <arrayEntry data="GHS"/>
+                            <arrayEntry data="VEF"/>
+                            <arrayEntry data="UYI"/>
+                            <arrayEntry data="RSD"/>
+                            <arrayEntry data="ZWN"/>
+                            <arrayEntry data="MZN"/>
+                            <arrayEntry data="AZN"/>
+                            <arrayEntry data="RON"/>
+                            <arrayEntry data="TRY"/>
+                            <arrayEntry data="XAF"/>
+                            <arrayEntry data="XCD"/>
+                            <arrayEntry data="XOF"/>
+                            <arrayEntry data="XPF"/>
+                            <arrayEntry data="XEU"/>
+                            <arrayEntry data="XBA"/>
+                            <arrayEntry data="XBB"/>
+                            <arrayEntry data="XBC"/>
+                            <arrayEntry data="XBD"/>
+                            <arrayEntry data="XAU"/>
+                            <arrayEntry data="XDR"/>
+                            <arrayEntry data="XAG"/>
+                            <arrayEntry data="XPT"/>
+                            <arrayEntry data="XTS"/>
+                            <arrayEntry data="XPD"/>
+                            <arrayEntry data="SRD"/>
+                            <arrayEntry data="MGA"/>
+                            <arrayEntry data="AFN"/>
+                            <arrayEntry data="AOA"/>
+                            <arrayEntry data="BYR"/>
+                            <arrayEntry data="BGN"/>
+                            <arrayEntry data="CDF"/>
+                            <arrayEntry data="BAM"/>
+                            <arrayEntry data="EUR"/>
+                            <arrayEntry data="MXV"/>
+                            <arrayEntry data="UAH"/>
+                            <arrayEntry data="GEL"/>
+                            <arrayEntry data="PLN"/>
+                            <arrayEntry data="CLF"/>
+                            <arrayEntry data="ZAL"/>
+                            <arrayEntry data="ESB"/>
+                            <arrayEntry data="ESA"/>
+                            <arrayEntry data="USN"/>
+                            <arrayEntry data="USS"/>
+                            <arrayEntry data="XXX"/>
+                            <arrayEntry data="tst"/>
+                            <arrayEntry data="AUc"/>
+                            <arrayEntry data="CAc"/>
+                            <arrayEntry data="HKc"/>
+                            <arrayEntry data="IEp"/>
+                            <arrayEntry data="MYc"/>
+                            <arrayEntry data="NZc"/>
+                            <arrayEntry data="SGc"/>
+                            <arrayEntry data="GBp"/>
+                            <arrayEntry data="USc"/>
+                            <arrayEntry data="ZAc"/>
+                            <arrayEntry data="ZWc"/>
+                            <arrayEntry data="EUc"/>
+                            <arrayEntry data="NAc"/>
+                            <arrayEntry data="ILa"/>
+                            <arrayEntry data="RUB"/>
+                            <arrayEntry data="HRL"/>
+                            <arrayEntry data="BWt"/>
+                            <arrayEntry data="ZZZ"/>
+                            <arrayEntry data="TRk"/>
+                            <arrayEntry data="COU"/>
+                            <arrayEntry data="MWt"/>
+                            <arrayEntry data="BRc"/>
+                            <arrayEntry data="CNH"/>
+                            <arrayEntry data="UST"/>
+                        </array>
+                    </elementEntry>
+                </elementList>
+            </seriesEntry>
+        </series>
+    </dataBody>
+</REFRESH>
+
+//
+// MarketPriceRefresh
+//
+0000: 00 6D 02 00 31 02 06 00  00 00 05 81 E8 04 09 00   .m..1...........
+0001: 16 49 74 65 6D 20 52 65  66 72 65 73 68 20 43 6F   .Item Refresh Co
+0002: 6D 70 6C 65 74 65 64 02  00 00 22 80 09 07 01 05   mpleted...".....
+0003: 54 52 49 2E 4E 01 08 00  09 00 02 01 64 00 04 01   TRI.N.......d...
+0004: 9B 00 26 04 16 0A 07 DA  00 06 02 0C 64 00 16 02   ..&.........d...
+0005: 0C 63 00 19 02 0C 67 00  20 05 0C 00 98 96 80 00   .c....g. .......
+0006: 0B 03 0C 00 D7 01 0B 05  0C 1F 01 01 86            .............
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REFRESH domainType="MARKET_PRICE" streamId="5" containerType="FIELD_LIST" flags="0x1E8 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|HAS_QOS|CLEAR_CACHE)" groupId="0" Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0 State: Open/Ok/None - text: "Item Refresh Completed" dataSize="55">
+    <key flags="0x07 (HAS_SERVICE_ID|HAS_NAME|HAS_NAME_TYPE)" serviceId="1" name="TRI.N" nameType="1"/>
+    <dataBody>
+        <fieldList flags="0x08 (HAS_STANDARD_DATA)">
+            <fieldEntry fieldId="2" dataType="UINT" data="100"/>
+            <fieldEntry fieldId="4" dataType="ENUM" data="155"/>
+            <fieldEntry fieldId="38" dataType="DATE" data="22 OCT 2010 "/>
+            <fieldEntry fieldId="6" dataType="REAL" data="1.0"/>
+            <fieldEntry fieldId="22" dataType="REAL" data="0.99"/>
+            <fieldEntry fieldId="25" dataType="REAL" data="1.03"/>
+            <fieldEntry fieldId="32" dataType="REAL" data="100000.0"/>
+            <fieldEntry fieldId="11" dataType="REAL" data="2.15"/>
+            <fieldEntry fieldId="267" dataType="TIME" data="12:31:01:390"/>
+        </fieldList>
+    </dataBody>
+</REFRESH>
+
+//
+// MarketPriceUpdate
+//
+0000: 00 36 02 00 09 04 06 00  00 00 05 00 04 00 08 00   .6..............
+0001: 06 00 06 02 0C 65 00 16  02 0C 64 00 19 02 0C 68   .....e....d....h
+0002: 00 20 05 0C 00 98 96 80  00 0B 03 0C 00 D7 01 0B   . ..............
+0003: 05 0C 1F 02 01 86                                  ......
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<UPDATE domainType="MARKET_PRICE" streamId="5" containerType="FIELD_LIST" flags="0x00" updateType="0" dataSize="40">
+    <dataBody>
+        <fieldList flags="0x08 (HAS_STANDARD_DATA)">
+            <fieldEntry fieldId="6" dataType="REAL" data="1.01"/>
+            <fieldEntry fieldId="22" dataType="REAL" data="1.0"/>
+            <fieldEntry fieldId="25" dataType="REAL" data="1.04"/>
+            <fieldEntry fieldId="32" dataType="REAL" data="100000.0"/>
+            <fieldEntry fieldId="11" dataType="REAL" data="2.15"/>
+            <fieldEntry fieldId="267" dataType="TIME" data="12:31:02:390"/>
+        </fieldList>
+    </dataBody>
+</UPDATE>
+
+//
+// MarketPriceUpdate
+//
+0000: 00 36 02 00 09 04 06 00  00 00 05 00 04 00 08 00   .6..............
+0001: 06 00 06 02 0C 67 00 16  02 0C 66 00 19 02 0C 6A   .....g....f....j
+0002: 00 20 05 0C 00 98 96 80  00 0B 03 0C 00 D7 01 0B   . ..............
+0003: 05 0C 1F 04 01 86                                  ......
+-- end read --
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<UPDATE domainType="MARKET_PRICE" streamId="5" containerType="FIELD_LIST" flags="0x00" updateType="0" dataSize="40">
+    <dataBody>
+        <fieldList flags="0x08 (HAS_STANDARD_DATA)">
+            <fieldEntry fieldId="6" dataType="REAL" data="1.03"/>
+            <fieldEntry fieldId="22" dataType="REAL" data="1.02"/>
+            <fieldEntry fieldId="25" dataType="REAL" data="1.06"/>
+            <fieldEntry fieldId="32" dataType="REAL" data="100000.0"/>
+            <fieldEntry fieldId="11" dataType="REAL" data="2.15"/>
+            <fieldEntry fieldId="267" dataType="TIME" data="12:31:04:390"/>
+        </fieldList>
+    </dataBody>
+</UPDATE>

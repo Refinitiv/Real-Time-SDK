@@ -1,6 +1,6 @@
 This is the change log of the Refinitiv Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and fixes prior to RTSDK-1.5.1.L1, may refer to ESDK or Elektron.
+NOTE About Rebranding: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. Therefore, all versions and fixes prior to RTSDK-1.5.1.L1, may refer to ESDK or Elektron. Fix IDs will continue to refer to ESDK.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number.
 
@@ -9,26 +9,54 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 1.5.1.L1 aka EMA 3.5.1.L1 and ETA 3.5.1.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.0.L1 aka EMA 3.6.0.L1 and ETA 3.6.0.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance. Included in this release are rebranding changes.
+The primary object of this release is to completely rebrand RTSDK: change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customer, REBRAND.md was also added. In addition, there were a few fixes included. This release also introduces qualification on CentOS 8.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 07012810] - [ESDK-2553] - recvWindowSize (from ETA Java ValueAdd TunnelStream ClassOfService) default value doesn't work as described in the document 
-- [Case Number: 08431393] - [ESDK-3835] - EMA ADS connection recovery failure 
-- [Case Number: 08873087] - [ESDK-4083] - Reactor prematurely enters CHANNEL_READY on reconnect
-- [Case Number: 09046247] - [ESDK-4178] - Cloning issue with update message when name is included 
-- [GitHub #57] - [ESDK-1558] - EMAJ: ema.access.DateTimeStringFormatImpl Observation 
-- [GitHub #69, GitHub #126] - [ESDK-1633] - Allow EmaConfig.xml to be loaded from jar's resource 
-- [GitHub #128] - [ESDK-3831] - IndexOutOfBoundsException when trying to access Cloned RefreshMsg EMA Java 1.4 
+- [Case Number: 07508738] - [ESDK-3220] - Using gradlew with example runconsumer113 fails
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.0.L1 (Oct 19, 2020)
+--------------------------------------------
+
+New Features Added
+------------------
+The primary object of this release is to complete rebranding of RTSDK: change namespace to com.refinitiv, change library names and alter documentation to reflect new branding. A new file explaining impact to customer, REBRAND.md was also added. In addition, there were a few fixes included.
+
+EMA Java 3.6.0.L1 Issues Resolved
+---------------------------------
+- [ESDK-473] - Incorrect reference to a doc in the Perf Example ReadMe
+- [ESDK-3825] - EMAJava - Multiple config files shipped with EmaCpp
+- [ESDK-4311] - Application commandline usage/ readme / PDF should NOT make keyfile a mandatory parameter.
+
+ETA Java 3.6.0.L1 Issues Resolved
+---------------------------------
+- [ESDK-58] - Create training guide for ETA Java
+- [ESDK-3220] - Using gradlew with example runconsumer113 fails - [Case Number: 07508738]
+- [ESDK-4245] - Change references to UPA or "Ultra Performance API"
+- [ESDK-4282] - Received is mis-spelled
+
+Both ETA Java and EMA Java 3.6.0.L1 Issues Resolved
+---------------------------------------------------
+- [ESDK-3220] - Using gradlew with example runconsumer113 fails - [Case Number: 07508738]
+- [ESDK-4151] - Change namespace to refinitiv
+- [ESDK-4243] - Documentation: change code snippets to new namespace in all documentation (PDF)
+- [ESDK-4244] - Documentation: change namespace references and references to previous product names
+- [ESDK-4266] - Documentation: change references to prior product names in code comments 
+- [ESDK-4274] - Replace dependent libraries to re-branded for DACS (updated versin of DACS also)
+- [ESDK-4283] - Maven Central: register for new namespace
+- [ESDK-4285] - Change QA tools to adapt to changes to filenames
+- [ESDK-4288] - Create REBRAND.md with customer impacts and add any changes to product names
+- [ESDK-4395] - Rebrand: Differentiate between RTSDK product and ETA/EMA library versions
 
 --------------------------------------------
 RTSDK Java Release 1.5.1.L1 (Sept 4, 2020)
@@ -74,8 +102,8 @@ Both ETA Java and EMA Java 3.5.1.L1 Issues Resolved
 - [ESDK-3867] - ESDKJ Client Side Encryption: Split out encryption and HTTP(S) functionality
 - [ESDK-3991] - Provide the ability to configure the takeExclusiveSignOnControl parameter for the password grant type
 - [ESDK-4070] - Support a configurable debug parameters to show REST interactions (that do not print credentials)
-- [ESDK-4082] - Add tokenScope as a configuration for EDP connectivity
-- [ESDK-4090] - Rebranding: Change code references to "Thomson Reuters" in unit tests, examples, etc.
+- [ESDK-4082] - Add tokenScope as a configuration for RDP connectivity
+- [ESDK-4090] - Rebranding: Change code references to new product and company name in unit tests, examples, etc.
 - [ESDK-4165] - Rebranding: Change references in READMEs, Code Comments,
 
 --------------------------------------------
@@ -93,7 +121,7 @@ EMA Java 3.5.0.G1 Issues Resolved
 - [ESDK-3883] Documentation correction to specify that SysSendBufSize is applied as number of bytes, not KB [GitHub #137]
 - [ESDK-3909] EMA Java indexOutOfBoundsException [Case Number: 08600487]
 - [ESDK-3948] Support Round Trip Latency Monitoring
-- [ESDK-3988] Change EMA EDP example to take RIC as an input
+- [ESDK-3988] Change EMA RDP example to take RIC as an input
 
 ETA Java 3.5.0.G1 Issues Resolved
 ---------------------------------
@@ -176,15 +204,15 @@ EMA Java 3.3.1.G1 Issues Resolved
 
 ETA Java 3.3.1.G1 Issues Resolved
 ---------------------------------
-- [ESDK-3488] WlLoginHandler does not clear the state of login request for EDP connection
+- [ESDK-3488] WlLoginHandler does not clear the state of login request for RDP connection
 - [ESDK-3423] ETAJ fails to renew token when user specifies non-default token service URL
 
 Both ETA Java and EMA Java 3.3.1.G1 Issues Resolved
 ---------------------------------------------------
-- [ESDK-3430] Add error messages when EDP token request/renewal fails  
+- [ESDK-3430] Add error messages when RDP token request/renewal fails  
 - [ESDK-3431] Add TokenReissueRatio, ReissueTokenAttemptLimit and ReissueTokenAttemptLimit into ESDK Java 
 - [ESDK-3433] Support configuring RestRequestTimeOut, ReissueTokenAttemptLimit, ReissueTokenAttemptInterval, TokenReissueRatio 
-- [ESDK-3468] Add EDP Auth proactive token renewal with password grant prior to refresh token expiration
+- [ESDK-3468] Add RDP Auth proactive token renewal with password grant prior to refresh token expiration
 
 --------------------------------------------
 ESDK Java Release 1.3.1.L1 (July 31, 2019)
@@ -205,7 +233,7 @@ ETA Java 3.3.1.L1 Issues Resolved
 - [ESDK-1332] Update Consumer340 to increment postId
 - [ESDK-2625] Remove Mockito compile dependency from ETAJ [GitHub #94]
 - [ESDK-3182] Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
-- [ESDK-3183] ETAJ EDP should not perform service discovery lookup when address and port is set by user
+- [ESDK-3183] ETAJ RDP should not perform service discovery lookup when address and port is set by user
 - [ESDK-3202] ESDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
 - [ESDK-3268] Expose ping stats and rsslReadEx in reactor
 - [ESDK-3338] Require clientId parameter in ETAJ Reactor
@@ -224,7 +252,7 @@ ESDK Java Release 1.3.0.G1 (April 16, 2019)
 
 EMA Java 3.3.0.G1 Issues Resolved
 ---------------------------------
-- [ESDK-3194] Documentation improvements for EDP examples [GitHub #98]
+- [ESDK-3194] Documentation improvements for RDP examples [GitHub #98]
 
 ETA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
@@ -237,7 +265,7 @@ ESDK Java Release 1.3.0.L1 (March 26, 2019)
 
 New Features Added
 ------------------
-This ESDK release provides support for EDP Session management (token renewal) and Service Discovery (discovering host/port information based on Cloud region and type of connection ). 
+This ESDK release provides support for RDP Session management (token renewal) and Service Discovery (discovering host/port information based on Cloud region and type of connection ). 
 
 EMA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
@@ -256,7 +284,7 @@ ETA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
 - [ESDK-627] Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
 - [ESDK-1709] Provides HTTP requests for blocking and non-blocking call for ETAJ
-- [ESDK-1715] Implements EDP service discovery and token management for ETAJ reactor
+- [ESDK-1715] Implements RDP service discovery and token management for ETAJ reactor
 - [ESDK-2609] Support JDK1.9
 - [ESDK-2624] DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
 

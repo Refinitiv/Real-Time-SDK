@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNiProviderImpl_h
-#define __thomsonreuters_ema_access_OmmNiProviderImpl_h
+#ifndef __refinitiv_ema_access_OmmNiProviderImpl_h
+#define __refinitiv_ema_access_OmmNiProviderImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmNiProviderActiveConfig.h"
 #include "OmmProviderImpl.h"
 #include "DirectoryServiceStore.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -209,4 +209,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNiProviderImpl_h
+#endif // __refinitiv_ema_access_OmmNiProviderImpl_h

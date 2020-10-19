@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmDateTime_h
-#define __thomsonreuters_ema_access_OmmDateTime_h
+#ifndef __refinitiv_ema_access_OmmDateTime_h
+#define __refinitiv_ema_access_OmmDateTime_h
 
 /**
-	@class thomsonreuters::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
+	@class refinitiv::ema::access::OmmDateTime OmmDateTime.h "Access/Include/OmmDateTime.h"
 	@brief OmmDateTime represents DateTime info in Omm.
 	
 	OmmDateTime encapsulates year, month, day, hour, minute, second, millisecond,
@@ -52,7 +52,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -161,4 +161,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmDateTime_h
+#endif // __refinitiv_ema_access_OmmDateTime_h

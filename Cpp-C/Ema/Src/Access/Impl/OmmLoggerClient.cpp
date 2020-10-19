@@ -16,7 +16,7 @@
 
 #define LOGFILEEXT	".log"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 Mutex OmmLoggerClient::_printLock;
 struct LoggerClientFiles OmmLoggerClient::clientFiles = { 0, 0, 0 };

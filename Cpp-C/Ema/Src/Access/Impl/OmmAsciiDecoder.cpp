@@ -9,7 +9,7 @@
 #include "OmmAsciiDecoder.h"
 #include "ExceptionTranslator.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmAsciiDecoder::OmmAsciiDecoder() :
  _rsslBuffer(),

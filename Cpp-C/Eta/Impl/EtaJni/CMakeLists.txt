@@ -6,7 +6,7 @@
 # |-----------------------------------------------------------------------------
 #
 project(EtaJNI 
-        VERSION ${rtsdk_INTERNAL_API_VERSION_MAJOR}.${rtsdk_VERSION_MINOR}.${rtsdk_VERSION_PATCH}.${rtsdk_VERSION_TWEAK}
+	VERSION ${rtsdk_INTERNAL_API_VERSION_MAJOR}.${rtsdk_INTERNAL_API_VERSION_MINOR}.${rtsdk_INTERNAL_API_VERSION_PATCH}.${rtsdk_INTERNAL_API_VERSION_TWEAK}
         LANGUAGES C CXX)
 
 DEBUG_PRINT(Eta_VERSION)
@@ -52,7 +52,7 @@ if ( CMAKE_HOST_WIN32 )
 									${RCDEV_TYPE_CHECK_FLAG}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 						)
-  set_target_properties( libEtaJni_shared PROPERTIES OUTPUT_NAME "rsslUpaJNI" )
+  set_target_properties( libEtaJni_shared PROPERTIES OUTPUT_NAME "rsslEtaJNI" )
   
   target_include_directories(libEtaJni_shared
 							PUBLIC
@@ -90,7 +90,7 @@ else()
 							librssl 
 							${SYSTEM_LIBRARIES} 
 						)
-    set_target_properties( libEtaJni_shared PROPERTIES OUTPUT_NAME "rsslUpaJNI" )
+    set_target_properties( libEtaJni_shared PROPERTIES OUTPUT_NAME "rsslEtaJNI" )
 
     target_include_directories(libEtaJni_shared
 							PUBLIC

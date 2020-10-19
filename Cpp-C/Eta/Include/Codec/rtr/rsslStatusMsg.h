@@ -76,7 +76,7 @@ typedef enum {
 	RSSL_STMF_CLEAR_CACHE			= 0x040,		/*!< (0x040) Indicates that all cached header or payload data associated with this item stream should be cleared. */	
 	RSSL_STMF_PRIVATE_STREAM		= 0x080,		/*!< (0x080) Indicates that this RsslStatusMsg is an acknowledgement of a private stream establishment.  Or, if \ref RsslStatusMsg::state::streamState's value is \ref RSSL_STREAM_REDIRECTED, the presence of this flag indicates that the current stream can only be opened as a private stream. */
 	RSSL_STMF_HAS_POST_USER_INFO	= 0x100,		/*!< (0x100) Indicates that this RsslStatusMsg has post user info, contained in RsslStatusMsg::postUserInfo. */
-	RSSL_STMF_HAS_REQ_MSG_KEY		= 0x200,		/*!< (0x200) Indicates that this RsslStatusMsg has the original request's message key, contained in \ref RsslStatusMsg::msgBase::reqMsgKey*/
+	RSSL_STMF_HAS_REQ_MSG_KEY		= 0x200,		/*!< (0x200) Indicates that this RsslStatusMsg has the original request's message key, contained in \ref RsslStatusMsg::reqMsgKey*/
 	RSSL_STMF_QUALIFIED_STREAM		= 0x400			/*!< (0x400) Indicates that this RsslStatusMsg is an acknowledgement of a qualified stream establishment. */
 } RsslStatusFlags;
 

@@ -6,8 +6,8 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_OmmServerBaseImpl_h
-#define __thomsonreuters_ema_access_OmmServerBaseImpl_h
+#ifndef __refinitiv_ema_access_OmmServerBaseImpl_h
+#define __refinitiv_ema_access_OmmServerBaseImpl_h
 
 #ifdef WIN32
 #define USING_SELECT
@@ -37,7 +37,7 @@
 #include "PostMsg.h"
 #include "ChannelInformation.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -299,5 +299,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmServerBaseImpl_h
+#endif // __refinitiv_ema_access_OmmServerBaseImpl_h
 

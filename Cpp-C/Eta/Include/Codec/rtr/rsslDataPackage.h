@@ -49,9 +49,9 @@ extern "C"
  *
  * User can call this function to programmatically extract version information, or <BR>
  * query version information externally (via 'strings' command or something similar<BR>
- * and grep for the following tags:<BR>
- * 'VERSION' - contains internal library version information such as node number (e.g. rssl1.4.F2)<BR>
- * 'PRODUCT' - contains product information such as load/package naming (e.g. upa7.0.0.L1)<BR>
+ * and grep for the following:<BR>
+ * 'VERSION' - contains internal library version information (e.g. eta3.6.0.1)<BR>
+ * 'PACKAGE' - contains product information for load/package naming<BR>
  * @param pVerInfo RsslLibraryVersionInfo structure to populate with library version information
  * @see RsslLibraryVersionInfo
  */

@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_RdmUtilities_h
-#define __thomsonreuters_ema_rdm_RdmUtilities_h
+#ifndef __refinitiv_ema_rdm_RdmUtilities_h
+#define __refinitiv_ema_rdm_RdmUtilities_h
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -19,9 +19,9 @@ namespace thomsonreuters {
 	}
 }
 
-const thomsonreuters::ema::access::EmaString& rdmDomainToString( thomsonreuters::ema::access::UInt16 domain );
-const thomsonreuters::ema::access::EmaString& loginNameTypeToString( thomsonreuters::ema::access::UInt8 nameType );
+const refinitiv::ema::access::EmaString& rdmDomainToString( refinitiv::ema::access::UInt16 domain );
+const refinitiv::ema::access::EmaString& loginNameTypeToString( refinitiv::ema::access::UInt8 nameType );
 
-#endif // __thomsonreuters_ema_rdm_RdmUtilities_h
+#endif // __refinitiv_ema_rdm_RdmUtilities_h
 
 

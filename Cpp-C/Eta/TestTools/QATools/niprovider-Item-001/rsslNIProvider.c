@@ -117,7 +117,7 @@ static const char *defaultCAStore = "";
 
 static RsslBool directorySent = RSSL_FALSE;
 
-/* For TREP authentication login reissue */
+/* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 static RsslBool isLoginReissue;

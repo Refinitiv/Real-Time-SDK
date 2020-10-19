@@ -6,7 +6,7 @@
 */
 
 /* directoryProvider.h
- * The directory handler for the upacProvPerf and upacNIProvPerf.  Configures a single
+ * The directory handler for the ProvPerf and NIProvPerf.  Configures a single
  * service and provides encoding of a directory message to advertise that service. */
 
 #ifndef _DIRECTORY_PROVIDER_H
@@ -50,7 +50,7 @@ void directoryServiceInit();
 /* Decodes a directory request and sends an appropriate response. */
 RsslRet processDirectoryRequest(ChannelHandler *pChannelHandler, ChannelInfo *pChannelInfo, RsslMsg* msg, RsslDecodeIterator* dIter);
 
-/* Decodes a directory request and sends an appropriate response using the UPA VA Reactor. */
+/* Decodes a directory request and sends an appropriate response using the ETA VA Reactor. */
 RsslRet processDirectoryRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsg *pDirectoryMsg);
 
 /* Used by Non-Interactive Provider to send out a directory refresh. */

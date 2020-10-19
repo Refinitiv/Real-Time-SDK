@@ -58,7 +58,7 @@ void _reactorWorkerHandleShutdownRequest(RsslReactorImpl *pReactorImpl, RsslErro
 static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorChannel);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
-RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);
+RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError);
 
 static RsslRet _reactorWorkerRegisterEventForRestClient(RsslReactorWorker* pReactorWorker, RsslReactorImpl *pReactorImpl);
 
@@ -83,11 +83,20 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 static void restResponseErrDump(FILE* outputStream, RsslError* pError);
 
-RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError)
+/* Build the ReactorWorker's thread name by format <processName>-RWT.<numeric> */
+static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_atomic_val reactorIndex, RsslErrorInfo* pError);
+
+
+RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError)
 {
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 	int eventQueueFd;
 	int i;
+
+	if (_reactorWorkerBuildName(pReactorWorker, reactorIndex, pError) != RSSL_RET_SUCCESS)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rsslInitReactorEventQueueGroup(&pReactorImpl->reactorWorker.activeEventQueueGroup) != RSSL_RET_SUCCESS)
 	{
@@ -163,6 +172,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	if (rsslHashTableInit(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt, 10, rsslHashBufferSum,
 		rsslHashBufferCompare, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
 	{
+		RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize RsslHashTable for token management.");
 		return RSSL_RET_FAILURE;
 	}
@@ -377,7 +387,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 	}
 
-	/* For EDP token management and service discovery */
+	/* For RDP token management and service discovery */
 	free(pReactorImpl->accessTokenRespBuffer.data);
 	free(pReactorImpl->tokenInformationBuffer.data);
 	free(pReactorImpl->serviceDiscoveryRespBuffer.data);
@@ -555,6 +565,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 	RsslReactorEventQueue *pEventQueue = &pReactorWorker->workerQueue;
 
+#if !defined(_WIN32)
+	pthread_setname_np(pthread_self(), pReactorWorker->nameReactorWorker);
+#endif
 	pReactorWorker->sleepTimeMs = 3000;
 
 	while (1)
@@ -1588,7 +1601,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
-					{	/* Get host name and port for EDP-RT service discovery */
+					{	/* Get host name and port for RDP service discovery */
 						RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
 						RsslQueueLink *pLink = NULL;
 						RsslError rsslError;
@@ -1610,7 +1623,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							else
 							{
 								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+									"Invalid encrypted protocol type(%d) for requesting RDP service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
 
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
 
@@ -1629,7 +1642,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						default:
 
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-								"Invalid connection type(%d) for requesting EDP-RT service discovery.",
+								"Invalid connection type(%d) for requesting RDP service discovery.",
 								transport);
 
 							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
@@ -2510,7 +2523,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_PARSE_RESP_FAILURE;
 
 					rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-						"Failed to query host name and port from the EDP-RT service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
+						"Failed to query host name and port from the RDP service discovery for the \"%s\" location", pReactorConnectInfoImpl->base.location.data);
 
 					/* Notify error back to the application via the channel event */
 					goto RequestFailed;
@@ -2966,7 +2979,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				{
 					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
-					{	/* Get host name and port for EDP-RT service discovery */
+					{	/* Get host name and port for RDP service discovery */
 						RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
 						RsslQueueLink *pLink = NULL;
 						RsslError rsslError;
@@ -2988,7 +3001,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							else
 							{
 								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-									"Invalid encrypted protocol type(%d) for requesting EDP-RT service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
+									"Invalid encrypted protocol type(%d) for requesting RDP service discovery.", pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
 
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
 
@@ -3007,7 +3020,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						}
 						default:
 							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-								"Invalid connection type(%d) for requesting EDP-RT service discovery.",
+								"Invalid connection type(%d) for requesting RDP service discovery.",
 								transport);
 
 							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
@@ -3672,3 +3685,99 @@ static void restResponseErrDump(FILE* outputStream, RsslError* pErrorOutput)
 		pErrorOutput->rsslErrorId, pErrorOutput->sysError);
 }
 
+/* Build the ReactorWorker's thread name by format <processName>-RWT.<numeric> */
+static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_atomic_val reactorIndex, RsslErrorInfo* pError)
+{
+	void getProgramTitle(char* title, const RsslUInt32 buflen);
+
+	char bufTitle[1024];
+	const RsslUInt32 lenBufTitle = sizeof(bufTitle) / sizeof(bufTitle[0]);
+	size_t lenTitle;
+
+	char rwtBuf[MAX_THREADNAME_STRLEN] = "";
+	size_t lenRwtStr;
+
+
+	getProgramTitle(bufTitle, lenBufTitle);
+	lenTitle = strlen(bufTitle);
+
+	memset(pReactorWorker->nameReactorWorker, 0, MAX_THREADNAME_STRLEN);
+
+	/* build the thread name */
+	/* whose length is restricted to 16 characters, including the terminating null byte('\0'). */
+	snprintf(rwtBuf, MAX_THREADNAME_STRLEN, "RWT.%d", reactorIndex);
+	lenRwtStr = strlen(rwtBuf);
+
+	if (lenTitle > 0)
+	{
+		// length is restricted to 16 characters, including the terminating null byte('\0').
+		if (lenTitle + 1 + lenRwtStr + 1 > MAX_THREADNAME_STRLEN)   // title-RWT.xx
+		{	// truncate the thread name
+			if (lenRwtStr > 8)  // RWT.xxxx
+			{	// truncate numeric
+				size_t diffLen = (lenTitle + 1 + lenRwtStr + 1) - MAX_THREADNAME_STRLEN;
+				if (lenRwtStr - 8 > diffLen)
+					lenRwtStr -= diffLen;
+				else
+					lenRwtStr = 8;
+				rwtBuf[lenRwtStr] = '\0';
+			}
+			if (lenTitle + lenRwtStr + 2 > MAX_THREADNAME_STRLEN)
+			{
+				lenTitle = MAX_THREADNAME_STRLEN - lenRwtStr - 2;
+				bufTitle[lenTitle] = '\0';
+			}
+		}
+		snprintf(pReactorWorker->nameReactorWorker, MAX_THREADNAME_STRLEN, "%s-%s", bufTitle, rwtBuf);
+	}
+	else
+	{
+		snprintf(pReactorWorker->nameReactorWorker, MAX_THREADNAME_STRLEN, "%s", rwtBuf);
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+#if defined(_WIN32)
+void getProgramTitle(char* title, const RsslUInt32 buflen)
+{
+	STARTUPINFO startupInfo;
+	GetStartupInfo(&startupInfo);
+	if (startupInfo.lpTitle != NULL)
+	{
+		char* pTitle = strtok(startupInfo.lpTitle, "\\");
+		char* pFileTitle = NULL;
+		while (pTitle != NULL)
+		{
+			pFileTitle = pTitle;
+			pTitle = strtok(NULL, "\\");
+		}
+
+		if (pFileTitle != NULL)
+		{
+			strncpy(title, pFileTitle, (buflen - 1));
+			title[buflen - 1] = '\0';
+		}
+		else
+		{
+			*title = '\0';
+		}
+	}
+	return;
+}
+#else  // Linux
+void getProgramTitle(char* title, const RsslUInt32 buflen)
+{
+	// uses: extern char *program_invocation_short_name;
+	if (program_invocation_short_name != NULL)
+	{
+		strncpy(title, program_invocation_short_name, (buflen - 1));
+		title[buflen - 1] = '\0';
+	}
+	else
+	{
+		*title = '\0';
+	}
+	return;
+}
+#endif

@@ -1,0 +1,450 @@
+// This file contains a ConnectAck, LoginRefresh, SourceRefresh, ItemRefresh, ItemUpdate and DirectoryClosedStatus
+
+//
+// RIPC14 ConneckAck.
+//
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
+
+// LOGIN REFRESH
+
+0000: 00 D6 02 00 D1 02 01 00  00 00 01 68 00 09 00 20   ...........h... 
+0001: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login accepted b
+0002: 79 20 68 6F 73 74 20 6C  6F 63 61 6C 68 6F 73 74   y host localhost
+0003: 02 00 00 80 A1 26 08 58  58 58 58 58 58 58 58 01   .....&.XXXXXXXX.
+0004: 05 80 93 08 00 06 0D 41  70 70 6C 69 63 61 74 69   .......Applicati
+0005: 6F 6E 49 64 11 03 32 35  36 0F 41 70 70 6C 69 63   onId..256.Applic
+0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 45 54 41 20 50   ationName..ETA P
+0007: 72 6F 76 69 64 65 72 08  50 6F 73 69 74 69 6F 6E   rovider.Position
+0008: 11 1C 31 30 2E 39 31 2E  31 36 31 2E 31 36 38 2F   ..10.91.161.168/
+0009: 58 58 58 58 58 58 58 58  2D 58 58 58 2D 58 0A 53   XXXXXXXX-XXX-X.S
+000A: 69 6E 67 6C 65 4F 70 65  6E 04 01 00 0E 53 75 70   ingleOpen....Sup
+000B: 70 6F 72 74 4F 4D 4D 50  6F 73 74 04 01 01 14 53   portOMMPost....S
+000C: 75 70 70 6F 72 74 42 61  74 63 68 52 65 71 75 65   upportBatchReque
+000D: 73 74 73 04 01 01                                  sts...
+
+<!-- rwfMajorVer="14" rwfMinorVer="1" -->
+<REFRESH domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x68 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE)" groupId="0" State: Open/Ok/None - text: "Login accepted by host localhost" dataSize="0">
+    <key flags="0x26 (HAS_NAME|HAS_NAME_TYPE|HAS_ATTRIB)" name="XXXXXXXX" nameType="1" attribContainerType="ELEMENT_LIST">
+        <attrib>
+            <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                <elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/>
+                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="ETA Provider"/>
+                <elementEntry name="Position" dataType="ASCII_STRING" data="10.91.161.168/XXXXXXXX-XXX-X"/>
+                <elementEntry name="SingleOpen" dataType="UINT" data="0"/>
+                <elementEntry name="SupportOMMPost" dataType="UINT" data="1"/>
+                <elementEntry name="SupportBatchRequests" dataType="UINT" data="1"/>
+            </elementList>
+        </attrib>
+    </key>
+    <dataBody>
+    </dataBody>
+</REFRESH>
+//
+// DirectoryRefresh
+//
+0000: 06 6E 12 06 69 00 16 02  04 00 00 00 02 81 68 09   .n..i.........h.
+0001: 09 00 00 02 00 00 80 05  08 00 00 00 3F 00 04 07   ............?...
+0002: 00 05 02 02 01 CC FE 01  03 00 05 03 02 01 FE 00   ................
+0003: B7 08 00 08 04 4E 61 6D  65 11 07 49 44 4E 5F 52   .....Name..IDN_R
+0004: 44 46 10 53 75 70 70 6F  72 74 73 51 6F 53 52 61   DF.SupportsQoSRa
+0005: 6E 67 65 04 01 00 0C 43  61 70 61 62 69 6C 69 74   nge....Capabilit
+0006: 69 65 73 0F 07 04 01 00  03 05 06 0A 03 51 6F 53   ies..........QoS
+0007: 0F 06 0C 00 00 01 01 22  14 44 69 63 74 69 6F 6E   .......".Diction
+0008: 61 72 69 65 73 50 72 6F  76 69 64 65 64 0F 13 11   ariesProvided...
+0009: 00 00 02 06 52 57 46 46  6C 64 07 52 57 46 45 6E   ....RWFFld.RWFEn
+000A: 75 6D 10 44 69 63 74 69  6F 6E 61 72 69 65 73 55   um.DictionariesU
+000B: 73 65 64 0F 13 11 00 00  02 06 52 57 46 46 6C 64   sed.......RWFFld
+000C: 07 52 57 46 45 6E 75 6D  07 68 61 73 68 49 44 73   .RWFEnum.hashIDs
+000D: 0F 04 04 04 00 00 0E 64  64 6E 48 61 73 68 45 6E   .......ddnHashEn
+000E: 74 72 69 65 73 04 01 00  02 02 FE 00 28 08 00 02   tries.......(...
+000F: 0C 53 65 72 76 69 63 65  53 74 61 74 65 04 01 01   .ServiceState...
+0010: 11 41 63 63 65 70 74 69  6E 67 52 65 71 75 65 73   .AcceptingReques
+0011: 74 73 04 01 01 02 04 FE  00 12 08 00 01 09 4F 70   ts............Op
+0012: 65 6E 4C 69 6D 69 74 04  03 07 A1 20 02 02 1C 17   enLimit.... ....
+0013: FE 01 25 00 05 03 02 01  FE 00 D9 08 00 09 04 4E   ..%............N
+0014: 61 6D 65 11 0B 45 4C 45  4B 54 52 4F 4E 5F 44 44   ame..ELEKTRON_DD
+0015: 10 53 75 70 70 6F 72 74  73 51 6F 53 52 61 6E 67   .SupportsQoSRang
+0016: 65 04 01 00 0C 43 61 70  61 62 69 6C 69 74 69 65   e....Capabilitie
+0017: 73 0F 15 04 01 00 11 05  06 07 08 09 0A 0B 0D 12   s...............
+0018: 13 14 15 17 18 19 1A 1C  03 51 6F 53 0F 06 0C 00   .........QoS....
+0019: 00 01 01 22 14 44 69 63  74 69 6F 6E 61 72 69 65   ...".Dictionarie
+001A: 73 50 72 6F 76 69 64 65  64 0F 13 11 00 00 02 06   sProvided.......
+001B: 52 57 46 46 6C 64 07 52  57 46 45 6E 75 6D 10 44   RWFFld.RWFEnum.D
+001C: 69 63 74 69 6F 6E 61 72  69 65 73 55 73 65 64 0F   ictionariesUsed.
+001D: 13 11 00 00 02 06 52 57  46 46 6C 64 07 52 57 46   ......RWFFld.RWF
+001E: 45 6E 75 6D 06 56 65 6E  64 6F 72 11 07 52 65 75   Enum.Vendor..Reu
+001F: 74 65 72 73 07 68 61 73  68 49 44 73 0F 04 04 04   ters.hashIDs....
+0020: 00 00 0E 64 64 6E 48 61  73 68 45 6E 74 72 69 65   ...ddnHashEntrie
+0021: 73 04 01 00 02 02 FE 00  28 08 00 02 0C 53 65 72   s.......(....Ser
+0022: 76 69 63 65 53 74 61 74  65 04 01 01 11 41 63 63   viceState....Acc
+0023: 65 70 74 69 6E 67 52 65  71 75 65 73 74 73 04 01   eptingRequests..
+0024: 01 02 04 FE 00 12 08 00  01 09 4F 70 65 6E 4C 69   ..........OpenLi
+0025: 6D 69 74 04 03 07 A1 20  02 02 1B 59 FE 01 6B 00   mit.... ...Y..k.
+0026: 05 03 02 01 FE 01 1F 08  00 0D 04 4E 61 6D 65 11   ...........Name.
+0027: 06 51 50 52 4F 56 31 10  53 75 70 70 6F 72 74 73   .QPROV1.Supports
+0028: 51 6F 53 52 61 6E 67 65  04 01 00 0C 43 61 70 61   QoSRange....Capa
+0029: 62 69 6C 69 74 69 65 73  0F 07 04 01 00 03 05 0A   bilities........
+002A: 7F 03 51 6F 53 0F 06 0C  00 00 01 01 22 14 44 69   ..QoS.......".Di
+002B: 63 74 69 6F 6E 61 72 69  65 73 50 72 6F 76 69 64   ctionariesProvid
+002C: 65 64 0F 13 11 00 00 02  06 52 57 46 46 6C 64 07   ed.......RWFFld.
+002D: 52 57 46 45 6E 75 6D 10  44 69 63 74 69 6F 6E 61   RWFEnum.Dictiona
+002E: 72 69 65 73 55 73 65 64  0F 13 11 00 00 02 06 52   riesUsed.......R
+002F: 57 46 46 6C 64 07 52 57  46 45 6E 75 6D 06 56 65   WFFld.RWFEnum.Ve
+0030: 6E 64 6F 72 11 07 52 65  75 74 65 72 73 08 49 73   ndor..Reuters.Is
+0031: 53 6F 75 72 63 65 04 01  01 08 49 74 65 6D 4C 69   Source....ItemLi
+0032: 73 74 11 09 4F 61 6B 62  72 6F 6F 6B 31 1A 53 75   st..Oakbrook1.Su
+0033: 70 70 6F 72 74 73 4F 75  74 4F 66 42 61 6E 64 53   pportsOutOfBandS
+0034: 6E 61 70 73 68 6F 74 73  04 01 00 17 41 63 63 65   napshots....Acce
+0035: 70 74 69 6E 67 43 6F 6E  73 75 6D 65 72 53 74 61   ptingConsumerSta
+0036: 74 75 73 04 01 00 07 68  61 73 68 49 44 73 0F 04   tus....hashIDs..
+0037: 04 04 00 00 0E 64 64 6E  48 61 73 68 45 6E 74 72   .....ddnHashEntr
+0038: 69 65 73 04 01 00 02 02  FE 00 28 08 00 02 0C 53   ies.......(....S
+0039: 65 72 76 69 63 65 53 74  61 74 65 04 01 00 11 41   erviceState....A
+003A: 63 63 65 70 74 69 6E 67  52 65 71 75 65 73 74 73   cceptingRequests
+003B: 04 01 01 02 04 FE 00 12  08 00 01 09 4F 70 65 6E   ............Open
+003C: 4C 69 6D 69 74 04 03 07  A1 20 02 02 1B 5A FE 01   Limit.... ...Z..
+003D: 6B 00 05 03 02 01 FE 01  1F 08 00 0D 04 4E 61 6D   k............Nam
+003E: 65 11 06 51 50 52 4F 56  32 10 53 75 70 70 6F 72   e..QPROV2.Suppor
+003F: 74 73 51 6F 53 52 61 6E  67 65 04 01 00 0C 43 61   tsQoSRange....Ca
+0040: 70 61 62 69 6C 69 74 69  65 73 0F 07 04 01 00 03   pabilities......
+0041: 05 0A 7F 03 51 6F 53 0F  06 0C 00 00 01 01 22 14   ....QoS.......".
+0042: 44 69 63 74 69 6F 6E 61  72 69 65 73 50 72 6F 76   DictionariesProv
+0043: 69 64 65 64 0F 13 11 00  00 02 06 52 57 46 46 6C   ided.......RWFFl
+0044: 64 07 52 57 46 45 6E 75  6D 10 44 69 63 74 69 6F   d.RWFEnum.Dictio
+0045: 6E 61 72 69 65 73 55 73  65 64 0F 13 11 00 00 02   nariesUsed......
+0046: 06 52 57 46 46 6C 64 07  52 57 46 45 6E 75 6D 06   .RWFFld.RWFEnum.
+0047: 56 65 6E 64 6F 72 11 07  52 65 75 74 65 72 73 08   Vendor..Reuters.
+0048: 49 73 53 6F 75 72 63 65  04 01 01 08 49 74 65 6D   IsSource....Item
+0049: 4C 69 73 74 11 09 4F 61  6B 62 72 6F 6F 6B 32 1A   List..Oakbrook2.
+004A: 53 75 70 70 6F 72 74 73  4F 75 74 4F 66 42 61 6E   SupportsOutOfBan
+004B: 64 53 6E 61 70 73 68 6F  74 73 04 01 00 17 41 63   dSnapshots....Ac
+004C: 63 65 70 74 69 6E 67 43  6F 6E 73 75 6D 65 72 53   ceptingConsumerS
+004D: 74 61 74 75 73 04 01 00  07 68 61 73 68 49 44 73   tatus....hashIDs
+004E: 0F 04 04 04 00 00 0E 64  64 6E 48 61 73 68 45 6E   .......ddnHashEn
+004F: 74 72 69 65 73 04 01 00  02 02 FE 00 28 08 00 02   tries.......(...
+0050: 0C 53 65 72 76 69 63 65  53 74 61 74 65 04 01 01   .ServiceState...
+0051: 11 41 63 63 65 70 74 69  6E 67 52 65 71 75 65 73   .AcceptingReques
+0052: 74 73 04 01 01 02 04 FE  00 12 08 00 01 09 4F 70   ts............Op
+0053: 65 6E 4C 69 6D 69 74 04  03 07 A1 20 02 02 92 15   enLimit.... ....
+0054: FE 01 2B 00 05 03 02 01  FE 00 DF 08 00 0A 04 4E   ..+............N
+0055: 61 6D 65 11 06 4E 49 5F  50 55 42 10 53 75 70 70   ame..NI_PUB.Supp
+0056: 6F 72 74 73 51 6F 53 52  61 6E 67 65 04 01 00 0C   ortsQoSRange....
+0057: 43 61 70 61 62 69 6C 69  74 69 65 73 0F 07 04 01   Capabilities....
+0058: 00 03 05 06 0A 03 51 6F  53 0F 06 0C 00 00 01 01   ......QoS.......
+0059: 22 14 44 69 63 74 69 6F  6E 61 72 69 65 73 50 72   ".DictionariesPr
+005A: 6F 76 69 64 65 64 0F 13  11 00 00 02 06 52 57 46   ovided.......RWF
+005B: 46 6C 64 07 52 57 46 45  6E 75 6D 10 44 69 63 74   Fld.RWFEnum.Dict
+005C: 69 6F 6E 61 72 69 65 73  55 73 65 64 0F 13 11 00   ionariesUsed....
+005D: 00 02 06 52 57 46 46 6C  64 07 52 57 46 45 6E 75   ...RWFFld.RWFEnu
+005E: 6D 06 56 65 6E 64 6F 72  11 14 4F 4D 4D 4E 49 50   m.Vendor..OMMNIP
+005F: 72 6F 76 5F 56 45 4E 44  4F 52 4E 41 4D 45 08 49   rov_VENDORNAME.I
+0060: 73 53 6F 75 72 63 65 04  01 01 07 68 61 73 68 49   sSource....hashI
+0061: 44 73 0F 04 04 04 00 00  0E 64 64 6E 48 61 73 68   Ds.......ddnHash
+0062: 45 6E 74 72 69 65 73 04  01 00 02 02 FE 00 28 08   Entries.......(.
+0063: 00 02 0C 53 65 72 76 69  63 65 53 74 61 74 65 04   ...ServiceState.
+0064: 01 00 11 41 63 63 65 70  74 69 6E 67 52 65 71 75   ...AcceptingRequ
+0065: 65 73 74 73 04 01 01 02  04 FE 00 12 08 00 01 09   ests............
+0066: 4F 70 65 6E 4C 69 6D 69  74 04 03 07 A1 20         OpenLimit....
+
+<!-- rwfMajorVer="14" rwfMinorVer="1" -->
+<REFRESH domainType="SOURCE" streamId="2" containerType="MAP" flags="0x168 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: "" dataSize="1617">
+    <key flags="0x08 (HAS_FILTER)" filter="63"/>
+    <dataBody>
+        <map flags="0x00" countHint="0" keyPrimitiveType="UINT" containerType="FILTER_LIST" >
+            <mapEntry flags="0x00" action="ADD" key="460" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="IDN_RDF"/>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="1" primitiveType="UINT">
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="6"/>
+                                    <arrayEntry data="10"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="hashIDs" dataType="ARRAY">
+                                <array itemLength="4" primitiveType="UINT">
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="ddnHashEntries" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="1"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="4" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="OpenLimit" dataType="UINT" data="500000"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+            <mapEntry flags="0x00" action="ADD" key="7191" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="ELEKTRON_DD"/>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="1" primitiveType="UINT">
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="6"/>
+                                    <arrayEntry data="7"/>
+                                    <arrayEntry data="8"/>
+                                    <arrayEntry data="9"/>
+                                    <arrayEntry data="10"/>
+                                    <arrayEntry data="11"/>
+                                    <arrayEntry data="13"/>
+                                    <arrayEntry data="18"/>
+                                    <arrayEntry data="19"/>
+                                    <arrayEntry data="20"/>
+                                    <arrayEntry data="21"/>
+                                    <arrayEntry data="23"/>
+                                    <arrayEntry data="24"/>
+                                    <arrayEntry data="25"/>
+                                    <arrayEntry data="26"/>
+                                    <arrayEntry data="28"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="hashIDs" dataType="ARRAY">
+                                <array itemLength="4" primitiveType="UINT">
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="ddnHashEntries" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="1"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="4" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="OpenLimit" dataType="UINT" data="500000"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+            <mapEntry flags="0x00" action="ADD" key="7001" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="QPROV1"/>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="1" primitiveType="UINT">
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="10"/>
+                                    <arrayEntry data="127"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="IsSource" dataType="UINT" data="1"/>
+                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook1"/>
+                            <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
+                            <elementEntry name="AcceptingConsumerStatus" dataType="UINT" data="0"/>
+                            <elementEntry name="hashIDs" dataType="ARRAY">
+                                <array itemLength="4" primitiveType="UINT">
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="ddnHashEntries" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="0"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="4" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="OpenLimit" dataType="UINT" data="500000"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+            <mapEntry flags="0x00" action="ADD" key="7002" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="QPROV2"/>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="1" primitiveType="UINT">
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="10"/>
+                                    <arrayEntry data="127"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="Reuters"/>
+                            <elementEntry name="IsSource" dataType="UINT" data="1"/>
+                            <elementEntry name="ItemList" dataType="ASCII_STRING" data="Oakbrook2"/>
+                            <elementEntry name="SupportsOutOfBandSnapshots" dataType="UINT" data="0"/>
+                            <elementEntry name="AcceptingConsumerStatus" dataType="UINT" data="0"/>
+                            <elementEntry name="hashIDs" dataType="ARRAY">
+                                <array itemLength="4" primitiveType="UINT">
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="ddnHashEntries" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="1"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="4" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="OpenLimit" dataType="UINT" data="500000"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+            <mapEntry flags="0x00" action="ADD" key="37397" >
+                <filterList containerType="ELEMENT_LIST" countHint="0" flags="0x00">
+                    <filterEntry id="1" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="Name" dataType="ASCII_STRING" data="NI_PUB"/>
+                            <elementEntry name="SupportsQoSRange" dataType="UINT" data="0"/>
+                            <elementEntry name="Capabilities" dataType="ARRAY">
+                                <array itemLength="1" primitiveType="UINT">
+                                    <arrayEntry data="5"/>
+                                    <arrayEntry data="6"/>
+                                    <arrayEntry data="10"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="QoS" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="QOS">
+                                    <arrayEntry Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesProvided" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="DictionariesUsed" dataType="ARRAY">
+                                <array itemLength="0" primitiveType="ASCII_STRING">
+                                    <arrayEntry data="RWFFld"/>
+                                    <arrayEntry data="RWFEnum"/>
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="Vendor" dataType="ASCII_STRING" data="OMMNIProv_VENDORNAME"/>
+                            <elementEntry name="IsSource" dataType="UINT" data="1"/>
+                            <elementEntry name="hashIDs" dataType="ARRAY">
+                                <array itemLength="4" primitiveType="UINT">
+                                </array>
+                            </elementEntry>
+                            <elementEntry name="ddnHashEntries" dataType="UINT" data="0"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="2" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="ServiceState" dataType="UINT" data="0"/>
+                            <elementEntry name="AcceptingRequests" dataType="UINT" data="1"/>
+                        </elementList>
+                    </filterEntry>
+                    <filterEntry id="4" action="SET" flags="0x00" containerType="ELEMENT_LIST">
+                        <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                            <elementEntry name="OpenLimit" dataType="UINT" data="500000"/>
+                        </elementList>
+                    </filterEntry>
+                </filterList>
+            </mapEntry>
+        </map>
+    </dataBody>
+</REFRESH>
+
+0000: 00 27 02 00 22 03 04 00  00 00 02 20 00 22 00 17   .'.."...... ."..
+0001: 44 69 72 65 63 74 6F 72  79 20 73 74 72 65 61 6D   Directory stream
+0002: 20 63 6C 6F 73 65 64                                closed
+-- end read --
+Incoming Reactor message (Wed Oct 14 12:50:05 CDT 2015):
+<!-- rwfMajorVer="14" rwfMinorVer="1" -->
+<STATUS domainType="SOURCE" streamId="2" containerType="NO_DATA" flags="0x20 (HAS_STATE)" State: Closed/Suspect/None - text: "Directory stream closed" dataSize="0">
+    <dataBody>
+    </dataBody>
+</STATUS>
+
+
+

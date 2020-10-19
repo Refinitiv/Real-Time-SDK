@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_MapEntry_h
-#define __thomsonreuters_ema_access_MapEntry_h
+#ifndef __refinitiv_ema_access_MapEntry_h
+#define __refinitiv_ema_access_MapEntry_h
 
 /**
-	@class thomsonreuters::ema::access::MapEntry MapEntry.h "Access/Include/MapEntry.h"
+	@class refinitiv::ema::access::MapEntry MapEntry.h "Access/Include/MapEntry.h"
 	@brief MapEntry represents an entry of Map.
 
 	MapEntry associates entry's key, permission information, action, data and its data type.
@@ -66,7 +66,7 @@
 
 #include "Access/Include/Key.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -279,4 +279,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_MapEntry_h
+#endif // __refinitiv_ema_access_MapEntry_h

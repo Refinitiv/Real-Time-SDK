@@ -18,8 +18,8 @@
 
 #include "OmmIProviderImpl.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString LoginHandler::_clientName("LoginHandler");
 
@@ -254,24 +254,29 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 				RsslMsg *pRsslMsg = pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg;
 				const RsslDataDictionary* rsslDataDictionary = 0;
 
-				if (itemInfo->hasServiceId())
+				if (pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID)
 				{
-					Dictionary* dictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId(itemInfo->getServiceId());
+					const EmaString** serviceNamePtr = ommServerBaseImpl->getDirectoryServiceStore().getServiceNameById(pRsslMsg->msgBase.msgKey.serviceId);
+
+					Dictionary* dictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId(pRsslMsg->msgBase.msgKey.serviceId);
 
 					if (dictionary)
 					{
 						rsslDataDictionary = dictionary->getRsslDictionary();
 					}
-				}
+					else
+					{
+						if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+						{
+							EmaString temp("Data dictionary information is not available for service Id = ");
+							temp.append(pRsslMsg->msgBase.msgKey.serviceId)
+								.append(CR).append("Stream Id ").append(pRsslMsg->msgBase.streamId)
+								.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+								.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
 
-				StaticDecoder::setRsslData(&ommServerBaseImpl->_postMsg, pRsslMsg,
-					pReactorChannel->majorVersion,
-					pReactorChannel->minorVersion,
-					rsslDataDictionary);
-
-				if (pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID)
-				{
-					const EmaString** serviceNamePtr = ommServerBaseImpl->getDirectoryServiceStore().getServiceNameById(pRsslMsg->requestMsg.msgBase.msgKey.serviceId);
+							ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+						}
+					}
 
 					if (serviceNamePtr)
 					{
@@ -281,7 +286,7 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 					{
 						if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
 						{
-							EmaString temp("Request Post message has an invalid service Id = ");
+							EmaString temp("Post message has an invalid service Id = ");
 							temp.append(pRsslMsg->msgBase.msgKey.serviceId)
 								.append(CR).append("Stream Id ").append(pRsslMsg->msgBase.streamId)
 								.append(CR).append("Client handle ").append(clientSession->getClientHandle())
@@ -291,6 +296,11 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 						}
 					}
 				}
+
+				StaticDecoder::setRsslData(&ommServerBaseImpl->_postMsg, pRsslMsg,
+					pReactorChannel->majorVersion,
+					pReactorChannel->minorVersion,
+					rsslDataDictionary);
 
 				ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
 				ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;

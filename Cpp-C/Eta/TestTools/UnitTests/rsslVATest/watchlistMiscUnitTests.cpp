@@ -634,7 +634,7 @@ void watchlistMiscTest_AdminRsslMsgs(RsslConnectionTypes connectionType)
 	opts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
 
-	/* Consumer recieves login response. */
+	/* Consumer receives login response. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);

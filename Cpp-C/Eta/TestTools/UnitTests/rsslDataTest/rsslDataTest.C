@@ -69,7 +69,7 @@ const static char * customDictionaryFileName = "RDMFD_CustomFids.txt";
 const static char * dictionaryDumpFileName = "RDMFieldDictionary.dump";
 const static char * dictionaryDecodeDumpFileName = "RDMFieldDictionary.decode.dump";
 const static char * multipartDictionaryDecodeDumpFileName = "RDMFieldDictionary.decode.multipart.dump";
-static unsigned int c_RDMFieldDictionary_Fids = 13841; /* Current version (4.20.03_TREP-RT_13.71). Update as new versions come out. */
+static unsigned int c_RDMFieldDictionary_Fids = 13841; /* Current version (4.20.03_Dictonary_13.71). Update as new versions come out. */
 static unsigned int c_Custom_Fids = 4;
 
 RsslRmtesWorkingSet baseSet;

@@ -6,14 +6,14 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_DirectoryServiceStore_h
-#define __thomsonreuters_ema_access_DirectoryServiceStore_h
+#ifndef __refinitiv_ema_access_DirectoryServiceStore_h
+#define __refinitiv_ema_access_DirectoryServiceStore_h
 
 #include "ActiveConfig.h"
 #include "EmaList.h"
 #include "OmmProviderConfig.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -386,4 +386,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DirectoryServiceStore_h
+#endif // __refinitiv_ema_access_DirectoryServiceStore_h

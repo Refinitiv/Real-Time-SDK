@@ -824,7 +824,7 @@ int rwfToJsonSimple::processGenericMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMs
 		if (rsslGenericMsgCheckHasMsgKey(&iMsg.genericMsg))
 		{
 			writeBufVar(&JSON_KEY, true);
-			//Key including service id of generic message should not be touch/modified by TREP
+			//Key including service id of generic message should not be touch/modified by Refinitiv Real-Time Distribution
 			if (!processMsgKey(rsslGetMsgKey(&iMsg), iterPtr, iMsg.msgBase.domainType, false))
 				return 0;
 		}

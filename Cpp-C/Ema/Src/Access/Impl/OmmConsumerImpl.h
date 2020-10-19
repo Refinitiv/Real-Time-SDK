@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerImpl_h
-#define __thomsonreuters_ema_access_OmmConsumerImpl_h
+#ifndef __refinitiv_ema_access_OmmConsumerImpl_h
+#define __refinitiv_ema_access_OmmConsumerImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmConsumerActiveConfig.h"
 #include "ChannelInformation.h"
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -97,4 +97,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerImpl_h
+#endif // __refinitiv_ema_access_OmmConsumerImpl_h

@@ -22,7 +22,7 @@ struct XmlItem
 {
 	enum Domain {MARKET_PRICE_DOMAIN = 6, MARKET_BY_ORDER_DOMAIN = 7};
 	Domain										domain;
-	thomsonreuters::ema::access::EmaString		name;
+	refinitiv::ema::access::EmaString		name;
 	bool										post;
 	bool										snapshot;
 	bool										genMsg;
@@ -36,10 +36,10 @@ public:
 	XmlItemParser();
 	~XmlItemParser();
 
-	XmlItemList* create(const char* filename, thomsonreuters::ema::access::UInt32 count);
+	XmlItemList* create(const char* filename, refinitiv::ema::access::UInt32 count);
 	enum ParsingState {INIT_STATE, ITEM_LIST_STATE, ITEM_STATE, COMPLETE_STATE, ERROR_STATE};
 
-	thomsonreuters::ema::access::UInt64				_count;
+	refinitiv::ema::access::UInt64				_count;
 	XmlItemList*									_pXmlItemList;
 	ParsingState									_parsingState;
 };

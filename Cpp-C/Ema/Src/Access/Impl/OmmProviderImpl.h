@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmProviderImpl_h
-#define __thomsonreuters_ema_access_OmmProviderImpl_h
+#ifndef __refinitiv_ema_access_OmmProviderImpl_h
+#define __refinitiv_ema_access_OmmProviderImpl_h
 
 #include "OmmBaseImpl.h"
 #include "OmmProviderClient.h"
 #include "OmmProviderConfig.h"
 #include "ChannelInformation.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -80,4 +80,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmProviderImpl_h
+#endif // __refinitiv_ema_access_OmmProviderImpl_h

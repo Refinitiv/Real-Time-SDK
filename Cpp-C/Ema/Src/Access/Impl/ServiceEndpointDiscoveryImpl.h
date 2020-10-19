@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ServiceEndpointDiscoveryImpl_h
-#define __thomsonreuters_ema_access_ServiceEndpointDiscoveryImpl_h
+#ifndef __refinitiv_ema_access_ServiceEndpointDiscoveryImpl_h
+#define __refinitiv_ema_access_ServiceEndpointDiscoveryImpl_h
 
 #include "Access/Include/EmaString.h"
 #include "Access/Include/ServiceEndpointDiscoveryClient.h"
@@ -18,7 +18,7 @@
 #include "rtr/rsslReactor.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -55,4 +55,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ServiceEndpointDiscoveryImpl_h
+#endif // __refinitiv_ema_access_ServiceEndpointDiscoveryImpl_h

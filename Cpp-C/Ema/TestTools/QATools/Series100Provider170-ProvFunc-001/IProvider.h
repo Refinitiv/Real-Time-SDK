@@ -30,33 +30,33 @@ void sleep( int millisecs )
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
-  void processLoginRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-  void processMarketPriceRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-  void processInvalidItemRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+  void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+  void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+  void processInvalidItemRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 protected:
-  void onReqMsg( const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent& );
-  void onClose(const thomsonreuters::ema::access::ReqMsg& reqMsg,
-			   const thomsonreuters::ema::access::OmmProviderEvent& event);
+  void onReqMsg( const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent& );
+  void onClose(const refinitiv::ema::access::ReqMsg& reqMsg,
+			   const refinitiv::ema::access::OmmProviderEvent& event);
 };
 //API QA
 // application defined error client class for receiving and processing of error notifications
-class AppErrorClient : public thomsonreuters::ema::access::OmmProviderErrorClient
+class AppErrorClient : public refinitiv::ema::access::OmmProviderErrorClient
 {
 public:
 
-	void onInvalidHandle(thomsonreuters::ema::access::UInt64, const thomsonreuters::ema::access::EmaString&);
+	void onInvalidHandle(refinitiv::ema::access::UInt64, const refinitiv::ema::access::EmaString&);
 
-	void onInaccessibleLogFile(const thomsonreuters::ema::access::EmaString&, const thomsonreuters::ema::access::EmaString&);
+	void onInaccessibleLogFile(const refinitiv::ema::access::EmaString&, const refinitiv::ema::access::EmaString&);
 
-	void onSystemError(thomsonreuters::ema::access::Int64, void*, const thomsonreuters::ema::access::EmaString&);
+	void onSystemError(refinitiv::ema::access::Int64, void*, const refinitiv::ema::access::EmaString&);
 
-	void onMemoryExhaustion(const thomsonreuters::ema::access::EmaString&);
+	void onMemoryExhaustion(const refinitiv::ema::access::EmaString&);
 
-	void onInvalidUsage(const thomsonreuters::ema::access::EmaString&, thomsonreuters::ema::access::Int32);
+	void onInvalidUsage(const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32);
 };
 //END API QA
 

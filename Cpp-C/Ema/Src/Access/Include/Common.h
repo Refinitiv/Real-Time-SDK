@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Common_h_
-#define __thomsonreuters_ema_access_Common_h_
+#ifndef __refinitiv_ema_access_Common_h_
+#define __refinitiv_ema_access_Common_h_
 
 /**
 	@file Common.h "Access/Include/Common.h"
 	@brief Common.h file provides definitions of common variable types used in EMA.
 */
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -136,4 +136,4 @@ typedef double  Double;
     Please see EMA Developer Guide for more details.
 */
 
-#endif // __thomsonreuters_ema_access_Common_h_
+#endif // __refinitiv_ema_access_Common_h_

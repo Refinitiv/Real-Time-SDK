@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_thread_h
-#define __thomsonreuters_ema_access_thread_h
+#ifndef __refinitiv_ema_access_thread_h
+#define __refinitiv_ema_access_thread_h
 
 #include "Common.h"
 
@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #endif
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 	
@@ -101,4 +101,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_thread_h
+#endif // __refinitiv_ema_access_thread_h

@@ -282,7 +282,7 @@ else()
 								)
 		target_compile_options(librssl_tmp 
 						PRIVATE
-							"-D REAL_SHA1_INIT")
+							"-DREAL_SHA1_INIT")
 	endif()
 
     target_include_directories(librssl_tmp
@@ -418,7 +418,7 @@ else()
 		
 	target_compile_options(librssl_shared 
 					PRIVATE
-						"-D REAL_SHA1_INIT")
+						"-DREAL_SHA1_INIT")
 
         set_target_properties( librssl_shared 
                                 PROPERTIES 

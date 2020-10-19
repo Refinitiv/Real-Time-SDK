@@ -8,11 +8,11 @@
 
 #include "TestUtilities.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
-//encoding by UPA and decoding by EMA
+//encoding by ETA and decoding by EMA
 TEST(RefreshMsgTests, testRefreshMsgDecode)
 {
 

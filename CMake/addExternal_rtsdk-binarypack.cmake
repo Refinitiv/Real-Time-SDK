@@ -8,15 +8,15 @@
 include(rcdevExternalUtils)
 
 if(NOT rtsdk-binarypack_url)
-	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-1.5.1.L1/RTSDK-BinaryPack-1.5.1.L1.tar.xz")
+	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-2.0.0.L1/RTSDK-BinaryPack-2.0.0.L1.tar.xz")
 endif()
 if(NOT rtsdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(rtsdk-binarypack_hash "MD5=2559718b884c67966bf6b47923ec47c0")
+	set(rtsdk-binarypack_hash "MD5=505ade3381b1f5dbdd7e154203173362")
 endif()
 if(NOT rtsdk-binarypack_version)
-	set(rtsdk-binarypack_version "1.5.1.0")
+	set(rtsdk-binarypack_version "2.0.0.0")
 endif()
 	
 # If the option for using the system installed 

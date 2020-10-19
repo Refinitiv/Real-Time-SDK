@@ -11,7 +11,7 @@
 #include "Decoder.h"
 #include "OmmInvalidUsageException.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 UpdateMsgEncoder::UpdateMsgEncoder() :
  MsgEncoder(),

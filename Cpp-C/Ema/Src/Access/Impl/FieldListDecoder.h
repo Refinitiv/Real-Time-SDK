@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FieldListDecoder_h
-#define __thomsonreuters_ema_access_FieldListDecoder_h
+#ifndef __refinitiv_ema_access_FieldListDecoder_h
+#define __refinitiv_ema_access_FieldListDecoder_h
 
 #include "Decoder.h"
 #include "EmaStringInt.h"
@@ -18,7 +18,7 @@
 
 #include "DataDictionaryImpl.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -82,7 +82,7 @@ public :
 
 	const EmaString& getEnumDisplay(UInt16 enumValue) const;
 
-    const thomsonreuters::ema::rdm::DataDictionary& getDataDictionary();
+    const refinitiv::ema::rdm::DataDictionary& getDataDictionary();
 
 private :
 
@@ -128,7 +128,7 @@ private :
 
 	bool						_atEnd;
 
-	thomsonreuters::ema::rdm::DataDictionary*				_pDataDictionary;
+	refinitiv::ema::rdm::DataDictionary*				_pDataDictionary;
 };
 
 class FieldListDecoderPool : public DecoderPool< FieldListDecoder >
@@ -151,4 +151,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FieldListDecoder_h
+#endif // __refinitiv_ema_access_FieldListDecoder_h

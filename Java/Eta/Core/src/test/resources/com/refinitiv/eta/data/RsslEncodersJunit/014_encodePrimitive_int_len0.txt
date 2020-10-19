@@ -1,0 +1,26 @@
+# Hand generated from RefinitivWireFormat.vsd, Structures tab, rwfArray
+# structure: rwfArray
+# rwfUInt8     dataType
+# rwfUInt16-ob itemLength
+# rwfUInt16    itemCount
+# typearray    array[itemLength]
+#
+# dataType = (0x03) 3=INT
+# itemLength = (0x00) 0
+# itemCount = (0x00 0x0d) 13
+# ArrayEntry[0] = 0 (01 00)
+# ArrayEntry[1] = -1 (01 FF
+# ArrayEntry[2] = 127 (01 7f)
+# ArrayEntry[3] = -128 (01 80)
+# ArrayEntry[4] = 128 (02 00 80)
+# ArrayEntry[5] = 32767 (02 7f ff)
+# ArrayEntry[6] = -32768 (02 80 00)
+# ArrayEntry[7] = 32768 (03 00 80 00)
+# ArrayEntry[8] = 8388607 (03 7f ff ff)
+# ArrayEntry[9] = -8388608 (03 80 00 00)
+# ArrayEntry[10] = 8388608 (04 00 80 00 00)
+# ArrayEntry[11] = 2147483647 (04 7f ff ff ff)
+# ArrayEntry[12] = -2147483648 (04 80 00 00 00)
+03 00 00 0D 01 00 01 FF  01 7F 01 80 02 00 80 02   ................
+7F FF 02 80 00 03 00 80  00 03 7F FF FF 03 80 00   ................
+00 04 00 80 00 00 04 7F  FF FF FF 04 80 00 00 00   ................

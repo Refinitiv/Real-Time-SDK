@@ -6,11 +6,11 @@
 *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_GetTime_h
-#define __thomsonreuters_ema_access_GetTime_h
+#ifndef __refinitiv_ema_access_GetTime_h
+#define __refinitiv_ema_access_GetTime_h
 
 /**
-	@class thomsonreuters::ema::access::GetTime GetTime.h "Access/Include/GetTime.h"
+	@class refinitiv::ema::access::GetTime GetTime.h "Access/Include/GetTime.h"
 	@brief GetTime class encapsulates functionality for efficiently obtaining relative time in various standard units of time.
 
 	Interface for efficiently obtaining relative time in various standard units of time.
@@ -34,7 +34,7 @@
 
 #include "Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -125,5 +125,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_GetTime_h
+#endif // __refinitiv_ema_access_GetTime_h
 

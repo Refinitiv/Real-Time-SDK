@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_MsgEncoder_h
-#define __thomsonreuters_ema_access_MsgEncoder_h
+#ifndef __refinitiv_ema_access_MsgEncoder_h
+#define __refinitiv_ema_access_MsgEncoder_h
 
 #include "Encoder.h"
 #include "EmaPool.h"
 #include "EmaBuffer.h"
 #include "rtr/rsslMsg.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -105,4 +105,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_MsgEncoder_h
+#endif // __refinitiv_ema_access_MsgEncoder_h

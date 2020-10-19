@@ -238,7 +238,7 @@ RsslRet exampleDecodeMap(RsslDecodeIterator *decIter)
 		printf("\tRsslMap Header Decoded: TotalCountHint: %d\n", rsslMap.totalCountHint);
 
 		/* if summary data is present, invoking decoder for that type (instead of DecodeEntry)
-		indicates to UPA that user wants to decode summary data */
+		indicates to ETA that user wants to decode summary data */
 		if (rsslMap.flags & RSSL_MPF_HAS_SUMMARY_DATA)
 		{
 			/* summary data is present.  Its type should be that of rsslMap.containerType */

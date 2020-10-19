@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_VectorEntry_h
-#define __thomsonreuters_ema_access_VectorEntry_h
+#ifndef __refinitiv_ema_access_VectorEntry_h
+#define __refinitiv_ema_access_VectorEntry_h
 
 /**
-	@class thomsonreuters::ema::access::VectorEntry VectorEntry.h "Access/Include/VectorEntry.h"
+	@class refinitiv::ema::access::VectorEntry VectorEntry.h "Access/Include/VectorEntry.h"
 	@brief VectorEntry represents an entry of Vector.
 	
 	VectorEntry associates entry's position, action, permission information, data and its data type.
@@ -57,7 +57,7 @@
  
 #include "Access/Include/OmmError.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -278,4 +278,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_VectorEntry_h
+#endif // __refinitiv_ema_access_VectorEntry_h

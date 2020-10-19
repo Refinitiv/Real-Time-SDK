@@ -554,7 +554,7 @@ void exitWithUsage()
 			"  -threads <thread list>           List of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                     (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
 
-			"  -reactor                         Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
+			"  -reactor                         Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
 			" \n"
 			"  -nanoTime                        Use nanosecond precision for latency information instead of microsecond.\n"
 			"  -preEnc                          Use Pre-Encoded updates\n"

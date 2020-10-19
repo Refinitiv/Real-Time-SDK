@@ -6,14 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmAsciiDecoder_h
-#define __thomsonreuters_ema_access_OmmAsciiDecoder_h
+#ifndef __refinitiv_ema_access_OmmAsciiDecoder_h
+#define __refinitiv_ema_access_OmmAsciiDecoder_h
 
 #include "Decoder.h"
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -64,4 +64,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_OmmAsciiDecoder_h
+#endif //__refinitiv_ema_access_OmmAsciiDecoder_h

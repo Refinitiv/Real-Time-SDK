@@ -1,7 +1,7 @@
 
 set( SOURCE_FILES
   consPerfConfig.c                  consumerThreads.c               marketByOrderDecoder.c
-  marketPriceDecoder.c              upacConsPerf.c
+  marketPriceDecoder.c              ConsPerf.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c
@@ -15,7 +15,7 @@ set( SOURCE_FILES
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/xmlMsgDataParser.c
 
     consPerfConfig.h                  consumerThreads.h               marketByOrderDecoder.h
-  marketPriceDecoder.h              upacConsPerf.h
+  marketPriceDecoder.h              ConsPerf.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h

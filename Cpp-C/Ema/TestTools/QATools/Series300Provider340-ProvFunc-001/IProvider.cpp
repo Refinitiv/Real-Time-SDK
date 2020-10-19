@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 //END APIQA
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 UInt64 itemHandle = 0;
@@ -91,6 +91,7 @@ void AppClient::onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event
 	// if the post is on the login stream, then it's an off-stream post, else it's an on-stream post
 	cout << "Received an " << (event.getHandle() == loginStreamHandle ? "off-stream" : "on-stream" ) <<
 		" item post (item=" << (postMsg.hasName() ? postMsg.getName() : "n/a") << ")" << endl;
+    	cout << postMsg << endl;
 
 	if (postMsg.getSolicitAck())
 	{

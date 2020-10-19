@@ -275,7 +275,7 @@ static RsslRet sendDirectoryRefresh(RsslReactor *pReactor, RsslReactorChannel* p
 		service.info.qosList = qosList;
 		service.info.flags |= RDM_SVC_IFF_HAS_QOS;
 
-		service.info.itemList.data = (char *)"_UPA_ITEM_LIST";
+		service.info.itemList.data = (char *)"_ETA_ITEM_LIST";
 		service.info.itemList.length = 14;
 		service.info.flags |= RDM_SVC_IFF_HAS_ITEM_LIST;
 

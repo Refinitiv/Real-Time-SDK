@@ -1,6 +1,6 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
-import com.thomsonreuters.upa.valueadd.examples.common.CommandLineParser;
+import com.refinitiv.eta.valueadd.examples.common.CommandLineParser;
 
 class ProviderCmdLineParser implements CommandLineParser
 {

@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Pool_h
-#define __thomsonreuters_ema_access_Pool_h
+#ifndef __refinitiv_ema_access_Pool_h
+#define __refinitiv_ema_access_Pool_h
 
 #include "Mutex.h"
 #include "EmaVector.h"
@@ -15,7 +15,7 @@
 
 #include <new>
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -389,4 +389,4 @@ UInt32 Pool< I, T >::count()
 
 }
 
-#endif // __thomsonreuters_ema_access_Pool_h
+#endif // __refinitiv_ema_access_Pool_h

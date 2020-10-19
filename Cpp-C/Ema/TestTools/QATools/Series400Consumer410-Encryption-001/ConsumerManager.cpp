@@ -7,7 +7,7 @@
 
 #include "ConsumerManager.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 ConsumerManager::ConsumerManager( const EmaString& host, const EmaString& username ) :
  running( false )

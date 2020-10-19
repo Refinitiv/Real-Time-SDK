@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_RefreshMsg_h
-#define __thomsonreuters_ema_access_RefreshMsg_h
+#ifndef __refinitiv_ema_access_RefreshMsg_h
+#define __refinitiv_ema_access_RefreshMsg_h
 
 /**
-	@class thomsonreuters::ema::access::RefreshMsg RefreshMsg.h "Access/Include/RefreshMsg.h"
+	@class refinitiv::ema::access::RefreshMsg RefreshMsg.h "Access/Include/RefreshMsg.h"
 	@brief RefreshMsg conveys item image, state, permission and group information.
 
 	RefreshMsg is sent when item data needs to be synchronized. This happens as a response
@@ -69,7 +69,7 @@
 #include "Access/Include/OmmState.h"
 #include "Access/Include/OmmQos.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -413,4 +413,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_RefreshMsg_h
+#endif // __refinitiv_ema_access_RefreshMsg_h

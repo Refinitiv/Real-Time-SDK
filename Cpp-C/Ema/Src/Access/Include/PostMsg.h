@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_PostMsg_h
-#define __thomsonreuters_ema_access_PostMsg_h
+#ifndef __refinitiv_ema_access_PostMsg_h
+#define __refinitiv_ema_access_PostMsg_h
 
 /**
-	@class thomsonreuters::ema::access::PostMsg PostMsg.h "Access/Include/PostMsg.h"
+	@class refinitiv::ema::access::PostMsg PostMsg.h "Access/Include/PostMsg.h"
 	@brief PostMsg allows consumer applications to contribute content.
 
 	PostMsg may be submitted on any market item stream or login stream. Submission on
@@ -52,7 +52,7 @@
 
 #include "Access/Include/Msg.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -360,4 +360,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_PostMsg_h
+#endif // __refinitiv_ema_access_PostMsg_h

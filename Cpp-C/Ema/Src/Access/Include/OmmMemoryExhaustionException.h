@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
-#define __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
+#ifndef __refinitiv_ema_access_OmmMemoryExhaustionException_h
+#define __refinitiv_ema_access_OmmMemoryExhaustionException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
+	@class refinitiv::ema::access::OmmMemoryExhaustionException OmmMemoryExhaustionException.h "Access/Include/OmmMemoryExhaustionException.h"
 	@brief OmmMemoryExhaustionException represents out of memory exceptions.
 
 	OmmMemoryExhaustionException are thrown when malloc() returns a null pointer,
@@ -25,7 +25,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -74,4 +74,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmMemoryExhaustionException_h
+#endif // __refinitiv_ema_access_OmmMemoryExhaustionException_h

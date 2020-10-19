@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_SeriesDecoder_h
-#define __thomsonreuters_ema_access_SeriesDecoder_h
+#ifndef __refinitiv_ema_access_SeriesDecoder_h
+#define __refinitiv_ema_access_SeriesDecoder_h
 
 #include "Decoder.h"
 #include "EmaBufferInt.h"
@@ -15,7 +15,7 @@
 #include "FieldListSetDef.h"
 #include "NoDataImpl.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -118,4 +118,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_SeriesDecoder_h
+#endif // __refinitiv_ema_access_SeriesDecoder_h

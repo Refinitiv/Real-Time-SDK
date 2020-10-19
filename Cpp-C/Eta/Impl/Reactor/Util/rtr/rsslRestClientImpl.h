@@ -187,7 +187,7 @@ RTR_C_INLINE void rsslClearRestRequestArgs(RsslRestRequestArgs *rsslRestRequestA
 }
 
 /**
-* @brief RsslTokenInformation represents an token information from EDP token service.
+* @brief RsslTokenInformation represents an token information from RDP token service.
 */
 typedef struct {
 	RsslBuffer		accessToken;		/*!<represents access token is used to invoke REST data API calls. */
@@ -297,7 +297,7 @@ typedef struct {
 	RsslBuffer      *locationList;   /*!< A list of locations. The list indicates the location of the service. */
 	RsslUInt32      locationCount;   /*!< The number of locations in locationList. */
 	RsslBuffer      port;            /*!< A port number used to establish connection. */
-	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time Optimized provider. */
+	RsslBuffer      provider;        /*!< A public Refinitiv Real-Time - Optimized provider. */
 	RsslBuffer      transport;       /*!< A transport type used to access service. */
 } RsslRestServiceEndpointInfo;
 
@@ -435,7 +435,7 @@ RsslRestHandle* rsslRestClientNonBlockingRequest(RsslRestClient* restClient, Rss
 RsslRet rsslRestCloseHandle(RsslRestHandle* handle, RsslError* pError);
 
 /**
-* @brief Parses an endpoint from EDP-RT service discovery that provides auto failover mechanism.
+* @brief Parses an endpoint from RDP service discovery that provides auto failover mechanism.
 * @param dataBody specifies a HTTP data body of HTTP response from the service
 * @param location specifies a region to get an endpoint
 * @param hostName specifies a buffer for this function to set hostname/ip address of the endpoint
@@ -447,7 +447,7 @@ RsslRet rsslRestCloseHandle(RsslRestHandle* handle, RsslError* pError);
 RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* location, RsslBuffer* hostName, RsslBuffer* port, RsslBuffer* memoryBuffer, RsslError* pError);
 
 /**
-* @brief Parses the entire response from EDP-RT service discovery.
+* @brief Parses the entire response from RDP service discovery.
 * @param dataBody specifies a HTTP data body of HTTP response from the service
 * @param pRestServiceEndpointResp specifies a RsslRestServiceEndpointResp structure to populate the response.
 * @param memorybuffer specifies a memory buffer for storing service discovery response.
@@ -457,7 +457,7 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* location, RsslBu
 RsslRet rsslRestParseServiceDiscoveryResp(RsslBuffer* dataBody, RsslRestServiceEndpointResp* pRestServiceEndpointResp, RsslBuffer* memoryBuffer, RsslError* pError);
 
 /**
-* @brief Parses an token information from EDP token service
+* @brief Parses an token information from RDP token service
 * @param dataBody specifies a HTTP data body of HTTP response from the service
 * @param accessToken specifies a buffer for this function to set the access token
 * @param refreshToken specifies a buffer for this function to set the refresh token

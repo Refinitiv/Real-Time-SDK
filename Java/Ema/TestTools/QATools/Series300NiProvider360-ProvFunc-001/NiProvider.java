@@ -1,32 +1,32 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-package com.thomsonreuters.ema.examples.training.niprovider.series300.example360__MarketPrice__ConnectionRecovery;
+package com.refinitiv.ema.examples.training.niprovider.series300.ex360_MP_ConnectionRecovery;
 
-import com.thomsonreuters.ema.access.ChannelInformation;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmNiProviderConfig;
-import com.thomsonreuters.ema.access.OmmProvider;
-import com.thomsonreuters.ema.access.OmmProviderClient;
-import com.thomsonreuters.ema.access.OmmProviderEvent;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
+import com.refinitiv.ema.access.ChannelInformation;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmNiProviderConfig;
+import com.refinitiv.ema.access.OmmProvider;
+import com.refinitiv.ema.access.OmmProviderClient;
+import com.refinitiv.ema.access.OmmProviderEvent;
+import com.refinitiv.ema.access.OmmReal;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
 //APIQA
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.FilterEntry;
-import com.thomsonreuters.ema.access.FilterList;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.OmmArray;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.FilterEntry;
+import com.refinitiv.ema.access.FilterList;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.OmmArray;
 //END APIQA
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {

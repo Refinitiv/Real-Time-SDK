@@ -8,7 +8,7 @@
 
 #include "OmmProviderImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmProviderImpl::OmmProviderImpl(OmmProvider* ommProvider) :
 	_pOmmProvider(ommProvider)

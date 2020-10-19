@@ -15,7 +15,7 @@
 
 #include "Utilities.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 Msg::Msg() :
  _pDecoder( 0 ),

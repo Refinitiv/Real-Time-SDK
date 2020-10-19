@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmOutOfRangeExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmOutOfRangeExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmOutOfRangeExceptionImpl_h
+#define __refinitiv_ema_access_OmmOutOfRangeExceptionImpl_h
 
 #include "OmmOutOfRangeException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -39,4 +39,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmOutOfRangeExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmOutOfRangeExceptionImpl_h

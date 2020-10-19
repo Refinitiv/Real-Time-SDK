@@ -12,7 +12,7 @@
  *
  * The main provider file provides the callback for channel events and 
  * the default callback for processing RsslMsgs. The main function
- * initializes the UPA Reactor, accepts incoming connections, and
+ * initializes the ETA Reactor, accepts incoming connections, and
  * dispatches for events.
  *
  * This application is intended as a basic usage example.  Some of the design choices

@@ -498,34 +498,34 @@ Series400Consumer421-PConfig-002
 Module:  Series400Consumer430
 -----------------------------
 
-Series400Consumer430-TrepAuth-002
+Series400Consumer430-Auth-002
     Alters consumer to send login reissues with Pause and Resume using specified 
     authentication token.
 
-Series400Consumer430-TrepAuth-003
+Series400Consumer430-Auth-003
     Alters consumer to send login reissues with Pause, token renewal, and Resume using 
     specified authentication token.
 
-Series400Consumer430-TrepAuth-004
+Series400Consumer430-Auth-004
     Alters consumer to support user input of two authentication tokens.  
     This consumer sends login reissue with pause flag and first token (Pauses data). 
     Then it sends a login reissue with second token and without pause flag (Renewal). 
     Then it sends another login reissue with second token and without pause flag (Resume). 
 
-Series400Consumer430-TrepAuth-005
+Series400Consumer430-Auth-005
     Alters consumer to support user input of two authentication tokens.
     This consumer sends login reissue with pause flag and first token (Pauses data). 
     Then it sends a login reissue with second token and without pause flag (Renewal);
      this results in data not resuming.  
 
-Series400Consumer430-TrepAuth-006
+Series400Consumer430-Auth-006
     Alters consumer to support user input of two authentication tokens.  
     This consumer sends login reissue with pause flag and first token (Pauses data). 
     Then it sends another login reissue with first token and without pause flag (Resume). 
     Then it sends a login reissue with second token (Renewal). 
 
-Series400Consumer430-TrepAuth-007
-    Alters consumer which supports trep authentication to do offstream posting.
+Series400Consumer430-Auth-007
+    Alters consumer which supports an authentication to do offstream posting.
 
 
 
@@ -743,13 +743,13 @@ Series400Provider421-PConfig-004:
 
 Module:  Series100NiProvider100
 ---------------------------
-Series100NiProvider100-TrepAuth-001
+Series100NiProvider100-Auth-001
     Alters NiProvider to provide the following command line options: 
     -at ${TOKEN} -aid ${APPID}
     TOKEN is sent as "user" in Login Request
     APPID is sent as "applicationId" in Login Request
 
-Series100NiProvider100-TrepAuth-002
+Series100NiProvider100-Auth-002
     Alters NiProvider to send a market price item refresh after stream state 
     changes from up to down (recovery).
 
@@ -810,11 +810,11 @@ Series400NiProvider421-PConfig-003:
 Module:  Series400NiProvider430
 ---------------------------
 
-Series400NiProvider430-TrepAuth-001
+Series400NiProvider430-Auth-001
     Alters NiProvider to send a market price item refresh after stream state 
     changes from up to down (recovery).
 
-Series400NiProvider430_TrepAuth-002
+Series400NiProvider430_Auth-002
    Alters NiProvider to use programmatic configuration to set host, port 
    and instanceID instead of reading this from XML config file. 
 

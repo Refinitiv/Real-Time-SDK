@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBufferU16Int_h
-#define __thomsonreuters_ema_access_EmaBufferU16Int_h
+#ifndef __refinitiv_ema_access_EmaBufferU16Int_h
+#define __refinitiv_ema_access_EmaBufferU16Int_h
 
 #include "EmaBufferU16.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	
 namespace ema {
 
@@ -38,4 +38,4 @@ public :
 
 }
 
-#endif //__thomsonreuters_ema_access_EmaBufferU16Int_h
+#endif //__refinitiv_ema_access_EmaBufferU16Int_h

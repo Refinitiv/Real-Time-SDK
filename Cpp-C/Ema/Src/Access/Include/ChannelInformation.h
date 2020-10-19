@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelInformation_h
-#define __thomsonreuters_ema_access_ChannelInformation_h
+#ifndef __refinitiv_ema_access_ChannelInformation_h
+#define __refinitiv_ema_access_ChannelInformation_h
 
 /**
-   @class thomsonreuters::ema::access::ChannelInformation ChannelInformation.h "Access/Include/ChannelInformation.h"
+   @class refinitiv::ema::access::ChannelInformation ChannelInformation.h "Access/Include/ChannelInformation.h"
    @brief ChannelInfo provides information on application channel(s).
 
    For IProvider applications, this channel information is about channels used by
@@ -28,7 +28,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -393,5 +393,5 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_ChannelInformation_h
+#endif //__refinitiv_ema_access_ChannelInformation_h
 

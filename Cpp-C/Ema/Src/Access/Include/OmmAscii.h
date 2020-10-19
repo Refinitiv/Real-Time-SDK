@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmAscii_h
-#define __thomsonreuters_ema_access_OmmAscii_h
+#ifndef __refinitiv_ema_access_OmmAscii_h
+#define __refinitiv_ema_access_OmmAscii_h
 
 /**
-	@class thomsonreuters::ema::access::OmmAscii OmmAscii.h "Access/Include/OmmAscii.h"
+	@class refinitiv::ema::access::OmmAscii OmmAscii.h "Access/Include/OmmAscii.h"
 	@brief OmmAscii represents Ascii string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmAscii_h
+#endif // __refinitiv_ema_access_OmmAscii_h

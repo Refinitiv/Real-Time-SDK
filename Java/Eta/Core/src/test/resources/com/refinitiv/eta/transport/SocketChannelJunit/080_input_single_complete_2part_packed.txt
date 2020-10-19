@@ -1,0 +1,58 @@
+This  file contains the RIPC handshake, and a single (complete) packed message,
+where the packed message has two parts. The message format is as follows: 
+
+XXYZZAAAAAAAAAAAANNBBBBBBBBBBBB
+
+In the message above:
+* XX is the two-byte RIPC message length (for the entire message)
+* Y is the one-byte RIPC message flag
+* ZZ is the two-byte length of the first packed message
+* AAAAAAAAAAAA represents the first packed message
+* NN is the two-byte length of the second packed message
+* BBBBBBBBBBBB represents the second packed message
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 45 54 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   ETA Java Edition
+
+
+The packed message:
+
+0000: 00 98 12 00 48 00 09 04  06 00 00 00 06 00 04 00   ....H... ........
+0010: 08 00 0A 00 16 03 0C 0A  96 00 19 04 0A 04 22 FC   ........ ......".
+0020: 00 1E 02 0E 05 00 1F 02  0E 06 01 25 04 20 44 45   ........ ...%. DE
+0030: 58 01 28 04 20 4E 59 53  00 76 01 3C 04 01 03 12   X.(. NYS .v.<....
+0040: 01 29 0C C0 01 3C 0F 0F  04 03 DE 52 35 00 49 00   .)...<.. ...R5.I.
+0050: 09 04 06 00 00 00 06 00  04 00 08 00 0A 00 16 04   ........ ........
+0060: 0A 04 22 98 00 19 04 0A  04 22 FC 00 1E 02 0E 07   .."..... ."......
+0070: 00 1F 02 0E 06 00 76 01  3C 01 25 04 20 4E 59 53   ......v. <.%. NYS
+0080: 01 28 04 20 4E 59 53 04  01 03 12 01 29 0C C0 01   .(. NYS. ....)...
+0090: 3C 0F 0F 04 03 DE 52 35                            <.....R5
+
+TRI
+DOMAIN: RSSL_DMT_MARKET_PRICE
+	BID                 27.1
+	ASK                 27.110000000000003
+	BIDSIZE             5.0
+	ASKSIZE             6.0
+	BID_MMID1            DEX
+	ASK_MMID1            NYS
+	PRC_QL_CD           R(60)
+	QUOTIM              18:01:41:000
+	PRC_QL3             R(60)
+	QUOTIM_MS           64901685
+
+TRI
+DOMAIN: RSSL_DMT_MARKET_PRICE
+	BID                 27.1
+	ASK                 27.110000000000003
+	BIDSIZE             7.0
+	ASKSIZE             6.0
+	PRC_QL_CD           R(60)
+	BID_MMID1            NYS
+	ASK_MMID1            NYS
+	QUOTIM              18:01:41:000
+	PRC_QL3             R(60)
+	QUOTIM_MS           64901685

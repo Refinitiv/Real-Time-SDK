@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmUtf8::OmmUtf8() :
   _pDecoder( new ( _space ) OmmUtf8Decoder() )

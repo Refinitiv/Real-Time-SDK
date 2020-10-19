@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Utilities_h
-#define __thomsonreuters_ema_access_Utilities_h
+#ifndef __refinitiv_ema_access_Utilities_h
+#define __refinitiv_ema_access_Utilities_h
 
 #include <stdlib.h>
 #ifdef WIN32
@@ -24,7 +24,7 @@
 #include "rtr/rsslState.h"
 #include "rtr/rsslErrorInfo.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	namespace ema {
 		namespace access {
 			class EmaString;
@@ -33,25 +33,25 @@ namespace thomsonreuters {
 	}
 }
 
-extern const thomsonreuters::ema::access::DataType::DataTypeEnum msgDataType[];
+extern const refinitiv::ema::access::DataType::DataTypeEnum msgDataType[];
 
-bool getCurrentDir( thomsonreuters::ema::access::EmaString& );
+bool getCurrentDir( refinitiv::ema::access::EmaString& );
 
-void stateToString( RsslState* , thomsonreuters::ema::access::EmaString& );
+void stateToString( RsslState* , refinitiv::ema::access::EmaString& );
 
 void hexToChar( char* out, char in );
 
-void hexToString( thomsonreuters::ema::access::EmaString& output, const thomsonreuters::ema::access::EmaBuffer& in );
+void hexToString( refinitiv::ema::access::EmaString& output, const refinitiv::ema::access::EmaBuffer& in );
 
 const char* ptrToStringAsHex( void* );
 
 const char* timeString();
 
-int emaGetUserName(thomsonreuters::ema::access::EmaString& string);
+int emaGetUserName(refinitiv::ema::access::EmaString& string);
 
-int emaGetPosition(thomsonreuters::ema::access::EmaString& string);
+int emaGetPosition(refinitiv::ema::access::EmaString& string);
 
-thomsonreuters::ema::access::EmaString& addIndent( thomsonreuters::ema::access::EmaString& temp, thomsonreuters::ema::access::UInt64 indent, bool addLine = false );
+refinitiv::ema::access::EmaString& addIndent( refinitiv::ema::access::EmaString& temp, refinitiv::ema::access::UInt64 indent, bool addLine = false );
 
 void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo );
 
@@ -97,4 +97,4 @@ int emaProblemReport( void* pContext, const char* sourceFile, unsigned int line,
 					 const char* message, char* reportBuffer, unsigned int reportBufferLen );
 
 
-#endif // __thomsonreuters_ema_access_Utilities_h
+#endif // __refinitiv_ema_access_Utilities_h

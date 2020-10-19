@@ -11,9 +11,9 @@
 #include "Utilities.h"
 #include <new>
 
-using namespace thomsonreuters::ema::domain::login;
-using namespace thomsonreuters::ema::rdm;
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::domain::login;
+using namespace refinitiv::ema::rdm;
+using namespace refinitiv::ema::access;
 
 LoginReqImpl::LoginReqImpl() :
 	_pElementList(0)

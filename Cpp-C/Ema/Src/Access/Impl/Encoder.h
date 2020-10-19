@@ -6,14 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Encoder_h
-#define __thomsonreuters_ema_access_Encoder_h
+#ifndef __refinitiv_ema_access_Encoder_h
+#define __refinitiv_ema_access_Encoder_h
 
 #include "Data.h"
 #include "rtr/rsslDataTypeEnums.h"
 #include "EncodeIterator.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -50,7 +50,7 @@ public :
 
 protected :
 
-	friend class thomsonreuters::ema::rdm::DataDictionaryImpl;
+	friend class refinitiv::ema::rdm::DataDictionaryImpl;
 
 	Encoder();
 
@@ -75,4 +75,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_Encoder_h
+#endif // __refinitiv_ema_access_Encoder_h

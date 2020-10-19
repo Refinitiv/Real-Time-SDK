@@ -5,24 +5,24 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example100__MarketPrice__Streaming;
+package com.refinitiv.ema.examples.training.consumer.series100.ex100_MP_Streaming;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.OmmArray;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 import java.util.ArrayList;
 import java.util.Arrays;

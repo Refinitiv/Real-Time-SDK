@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ommProviderClient_h
-#define __thomsonreuters_ema_access_ommProviderClient_h
+#ifndef __refinitiv_ema_access_ommProviderClient_h
+#define __refinitiv_ema_access_ommProviderClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProviderClient OmmProviderClient.h "Access/Include/OmmProviderClient.h"
+	@class refinitiv::ema::access::OmmProviderClient OmmProviderClient.h "Access/Include/OmmProviderClient.h"
 	@brief OmmProviderClient class provides callback interfaces to pass received messages.
 
 	Application may need to implement an application client class inheriting from OmmProviderClient.
@@ -58,7 +58,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -160,4 +160,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_ommProviderClient_h
+#endif //__refinitiv_ema_access_ommProviderClient_h

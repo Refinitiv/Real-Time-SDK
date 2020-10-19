@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmRmtes_h
-#define __thomsonreuters_ema_access_OmmRmtes_h
+#ifndef __refinitiv_ema_access_OmmRmtes_h
+#define __refinitiv_ema_access_OmmRmtes_h
 
 /**
-	@class thomsonreuters::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
+	@class refinitiv::ema::access::OmmRmtes OmmRmtes.h "Access/Include/OmmRmtes.h"
 	@brief OmmRmtes represents Rmtes string value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -108,4 +108,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmRmtes_h
+#endif // __refinitiv_ema_access_OmmRmtes_h

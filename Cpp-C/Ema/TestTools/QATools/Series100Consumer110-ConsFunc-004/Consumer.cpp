@@ -9,7 +9,7 @@
 
 #include "Consumer.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_Msg_h
-#define __thomsonreuters_ema_access_Msg_h
+#ifndef __refinitiv_ema_access_Msg_h
+#define __refinitiv_ema_access_Msg_h
 
 /**
-	@class thomsonreuters::ema::access::Msg Msg.h "Access/Include/Msg.h"
+	@class refinitiv::ema::access::Msg Msg.h "Access/Include/Msg.h"
 	@brief Msg class is a parent class for all message representing classes.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -33,7 +33,7 @@
 #include "Access/Include/Payload.h"
 #include "Rdm/Include/EmaRdm.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -198,4 +198,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_Msg_h
+#endif // __refinitiv_ema_access_Msg_h

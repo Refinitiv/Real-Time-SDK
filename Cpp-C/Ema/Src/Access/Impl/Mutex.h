@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_mutex_h
-#define __thomsonreuters_ema_access_mutex_h
+#ifndef __refinitiv_ema_access_mutex_h
+#define __refinitiv_ema_access_mutex_h
 
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #endif
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 	
@@ -82,4 +82,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_mutex_h
+#endif // __refinitiv_ema_access_mutex_h

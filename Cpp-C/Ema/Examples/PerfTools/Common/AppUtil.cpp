@@ -30,7 +30,7 @@
 #endif
 
 using namespace perftool::common;
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 static time_t s_time;
 
@@ -119,7 +119,7 @@ void AppUtil::log(const char* reason, ...)
 	}
 	_logMutex.unlock();
 }
-void AppUtil::logError(const thomsonreuters::ema::access::EmaString text)
+void AppUtil::logError(const refinitiv::ema::access::EmaString text)
 {
 	_logMutex.lock();
 	fprintf(stdout, "%s\n", text.c_str());

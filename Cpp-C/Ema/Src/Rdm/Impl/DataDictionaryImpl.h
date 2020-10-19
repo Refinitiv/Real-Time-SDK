@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_rdm_DataDictionaryImpl_h
-#define __thomsonreuters_ema_rdm_DataDictionaryImpl_h
+#ifndef __refinitiv_ema_rdm_DataDictionaryImpl_h
+#define __refinitiv_ema_rdm_DataDictionaryImpl_h
 
 #include "rtr/rsslDataDictionary.h"
 
@@ -19,7 +19,7 @@
 #include "HashTable.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -35,118 +35,118 @@ public:
 
 	virtual ~DataDictionaryImpl();
 
-	thomsonreuters::ema::access::Int32 getMinFid() const;
+	refinitiv::ema::access::Int32 getMinFid() const;
 
-	thomsonreuters::ema::access::Int32 getMaxFid() const;
+	refinitiv::ema::access::Int32 getMaxFid() const;
 
-	const thomsonreuters::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
+	const refinitiv::ema::access::EmaVector<DictionaryEntry>& getEntries() const;
 
-	thomsonreuters::ema::access::Int32 getInfoDictionaryId() const;
+	refinitiv::ema::access::Int32 getInfoDictionaryId() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldVersion() const;
+	const refinitiv::ema::access::EmaString& getFieldVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumRecordTemplateVersion() const;
+	const refinitiv::ema::access::EmaString& getEnumRecordTemplateVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
+	const refinitiv::ema::access::EmaString& getEnumDisplayTemplateVersion() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldFilename() const;
+	const refinitiv::ema::access::EmaString& getFieldFilename() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldDescription() const;
+	const refinitiv::ema::access::EmaString& getFieldDescription() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldBuild() const;
+	const refinitiv::ema::access::EmaString& getFieldBuild() const;
 
-	const thomsonreuters::ema::access::EmaString& getFieldDate() const;
+	const refinitiv::ema::access::EmaString& getFieldDate() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumFilename() const;
+	const refinitiv::ema::access::EmaString& getEnumFilename() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDescription() const;
+	const refinitiv::ema::access::EmaString& getEnumDescription() const;
 
-	const thomsonreuters::ema::access::EmaString& getEnumDate() const;
+	const refinitiv::ema::access::EmaString& getEnumDate() const;
 
-	bool hasEntry(thomsonreuters::ema::access::Int32 fieldId) const;
+	bool hasEntry(refinitiv::ema::access::Int32 fieldId) const;
 
-	void getEntry(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+	void getEntry(refinitiv::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
 
-	const DictionaryEntry& getEntry(thomsonreuters::ema::access::Int32 fieldId) const;
+	const DictionaryEntry& getEntry(refinitiv::ema::access::Int32 fieldId) const;
 
-	bool hasEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	bool hasEntry(const refinitiv::ema::access::EmaString& fieldName) const;
 
-	void getEntry(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
+	void getEntry(const refinitiv::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
-	const DictionaryEntry& getEntry(const thomsonreuters::ema::access::EmaString& fieldName) const;
+	const DictionaryEntry& getEntry(const refinitiv::ema::access::EmaString& fieldName) const;
 
-	bool hasEnumType(thomsonreuters::ema::access::Int32 fieldId, thomsonreuters::ema::access::Int32 value) const;
+	bool hasEnumType(refinitiv::ema::access::Int32 fieldId, refinitiv::ema::access::Int32 value) const;
 
-	const EnumType& getEnumType(thomsonreuters::ema::access::Int32 fieldId, thomsonreuters::ema::access::Int32 value) const;
+	const EnumType& getEnumType(refinitiv::ema::access::Int32 fieldId, refinitiv::ema::access::Int32 value) const;
 
-	const thomsonreuters::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
+	const refinitiv::ema::access::EmaVector<EnumTypeTable>& getEnumTables() const;
 
 	void clear();
 
-	void loadFieldDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadFieldDictionary(const refinitiv::ema::access::EmaString& filename);
 
-	void loadEnumTypeDictionary(const thomsonreuters::ema::access::EmaString& filename);
+	void loadEnumTypeDictionary(const refinitiv::ema::access::EmaString& filename);
 
-	void encodeFieldDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeFieldDictionary(refinitiv::ema::access::Series& series, refinitiv::ema::access::UInt32 verbosity);
 
-	bool encodeFieldDictionary(thomsonreuters::ema::access::Series& series, 
-		thomsonreuters::ema::access::Int32& currentFid, thomsonreuters::ema::access::UInt32 verbosity, 
-		thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeFieldDictionary(refinitiv::ema::access::Series& series, 
+		refinitiv::ema::access::Int32& currentFid, refinitiv::ema::access::UInt32 verbosity, 
+		refinitiv::ema::access::UInt32 fragmentationSize);
 
-	void decodeFieldDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeFieldDictionary(const refinitiv::ema::access::Series& series, refinitiv::ema::access::UInt32 verbosity);
 
-	void encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void encodeEnumTypeDictionary(refinitiv::ema::access::Series& series, refinitiv::ema::access::UInt32 verbosity);
 
-	bool encodeEnumTypeDictionary(thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::Int32& currenCount,
-		thomsonreuters::ema::access::UInt32 verbosity, thomsonreuters::ema::access::UInt32 fragmentationSize);
+	bool encodeEnumTypeDictionary(refinitiv::ema::access::Series& series, refinitiv::ema::access::Int32& currenCount,
+		refinitiv::ema::access::UInt32 verbosity, refinitiv::ema::access::UInt32 fragmentationSize);
 
-	void decodeEnumTypeDictionary(const thomsonreuters::ema::access::Series& series, thomsonreuters::ema::access::UInt32 verbosity);
+	void decodeEnumTypeDictionary(const refinitiv::ema::access::Series& series, refinitiv::ema::access::UInt32 verbosity);
 
-	thomsonreuters::ema::access::UInt32 extractDictionaryType(const thomsonreuters::ema::access::Series& series);
+	refinitiv::ema::access::UInt32 extractDictionaryType(const refinitiv::ema::access::Series& series);
 
 	void setRsslDataDictionary(const RsslDataDictionary* rsslDataDictionary);
 
-	const thomsonreuters::ema::access::EmaString& toString() const;
+	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
 	
-	typedef thomsonreuters::ema::access::HashTable< thomsonreuters::ema::access::EmaString, thomsonreuters::ema::access::Int16,
-		thomsonreuters::ema::access::Hasher<thomsonreuters::ema::access::EmaString>,
-		thomsonreuters::ema::access::Equal_To<thomsonreuters::ema::access::EmaString> > FieldNameToIdHash;
+	typedef refinitiv::ema::access::HashTable< refinitiv::ema::access::EmaString, refinitiv::ema::access::Int16,
+		refinitiv::ema::access::Hasher<refinitiv::ema::access::EmaString>,
+		refinitiv::ema::access::Equal_To<refinitiv::ema::access::EmaString> > FieldNameToIdHash;
 
 	FieldNameToIdHash* fieldNameToIdMap() const;
 
 	static void throwIueForQueryOnly();
 
-	void getEntryInt(thomsonreuters::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
+	void getEntryInt(refinitiv::ema::access::Int32 fieldId, DictionaryEntry& entry) const;
 
-	void getEntryInt(const thomsonreuters::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
+	void getEntryInt(const refinitiv::ema::access::EmaString& fieldName, DictionaryEntry& entry) const;
 
 	mutable FieldNameToIdHash* _pfieldNameToIdHash;
 
 	mutable RsslDataDictionary* _pRsslDataDictionary;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumRTVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDTVersion;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldFilename;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldDesc;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldBuild;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoFieldDate;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumFilename;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDesc;
-	mutable thomsonreuters::ema::access::EmaStringInt	_stringInfoEnumDate;
-	mutable thomsonreuters::ema::access::EmaString		_stringToString;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoFieldVersion;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoEnumRTVersion;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoEnumDTVersion;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoFieldFilename;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoFieldDesc;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoFieldBuild;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoFieldDate;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoEnumFilename;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoEnumDesc;
+	mutable refinitiv::ema::access::EmaStringInt	_stringInfoEnumDate;
+	mutable refinitiv::ema::access::EmaString		_stringToString;
 
 	mutable DictionaryEntry		_dictionaryEntry;
 	mutable EnumType           _enumType;
-	mutable thomsonreuters::ema::access::EmaVector<DictionaryEntry>*	_pDictionaryEntryList;
-	mutable thomsonreuters::ema::access::EmaVector<EnumTypeTable>*	_pEnumTypeTableList;
+	mutable refinitiv::ema::access::EmaVector<DictionaryEntry>*	_pDictionaryEntryList;
+	mutable refinitiv::ema::access::EmaVector<EnumTypeTable>*	_pEnumTypeTableList;
 	RsslBuffer _errorText;
 	bool _loadedFieldDictionary;
 	bool _loadedEnumTypeDef;
 	bool _ownRsslDataDictionary;
 
-	mutable thomsonreuters::ema::access::Mutex _dataAccessMutex;
+	mutable refinitiv::ema::access::Mutex _dataAccessMutex;
 };
 
 }
@@ -155,4 +155,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_DataDictionaryImpl_h
+#endif // __refinitiv_ema_rdm_DataDictionaryImpl_h

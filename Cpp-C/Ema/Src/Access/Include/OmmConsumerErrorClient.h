@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerErrorClient_h
-#define __thomsonreuters_ema_access_OmmConsumerErrorClient_h
+#ifndef __refinitiv_ema_access_OmmConsumerErrorClient_h
+#define __refinitiv_ema_access_OmmConsumerErrorClient_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
+	@class refinitiv::ema::access::OmmConsumerErrorClient OmmConsumerErrorClient.h "Access/Include/OmmConsumerErrorClient.h"
 	@brief OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.
 
 	By default OmmConsumer class throws exceptions if a usage error occurs. Specifying OmmConsumerErrorClient
@@ -33,7 +33,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -121,4 +121,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerErrorClient_h
+#endif // __refinitiv_ema_access_OmmConsumerErrorClient_h

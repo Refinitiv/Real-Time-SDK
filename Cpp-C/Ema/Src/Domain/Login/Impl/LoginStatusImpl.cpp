@@ -10,9 +10,9 @@
 #include "OmmInvalidUsageException.h"
 #include <new>
 
-using namespace thomsonreuters::ema::domain::login;
-using namespace thomsonreuters::ema::rdm;
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::domain::login;
+using namespace refinitiv::ema::rdm;
+using namespace refinitiv::ema::access;
 
 LoginStatusImpl::LoginStatusImpl() :
 	_pElementList(0),

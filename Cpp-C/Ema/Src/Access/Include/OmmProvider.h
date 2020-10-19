@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmProvider_h
-#define __thomsonreuters_ema_access_OmmProvider_h
+#ifndef __refinitiv_ema_access_OmmProvider_h
+#define __refinitiv_ema_access_OmmProvider_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProvider OmmProvider.h "Access/Include/OmmProvider.h"
+	@class refinitiv::ema::access::OmmProvider OmmProvider.h "Access/Include/OmmProvider.h"
 	@brief OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider application.
 
 	OmmProvider class provides interfaces for interactive and non interactive OmmProvider application use cases.
@@ -138,7 +138,7 @@
 #include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/EmaVector.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -406,4 +406,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmProvider_h
+#endif // __refinitiv_ema_access_OmmProvider_h

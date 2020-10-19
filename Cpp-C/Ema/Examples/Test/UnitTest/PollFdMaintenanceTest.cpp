@@ -10,7 +10,7 @@
 #include "Access/Impl/OmmBaseImplMap.h"
 #include <vector>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 using namespace std;
 
 #ifdef USING_POLL

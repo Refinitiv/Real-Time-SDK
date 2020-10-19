@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_DirectoryCallbackClient_h
-#define __thomsonreuters_ema_access_DirectoryCallbackClient_h
+#ifndef __refinitiv_ema_access_DirectoryCallbackClient_h
+#define __refinitiv_ema_access_DirectoryCallbackClient_h
 
 #include "rtr/rsslReactor.h"
 #include "EmaVector.h"
@@ -16,7 +16,7 @@
 #include "OmmLoggerClient.h"
 #include "ItemCallbackClient.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -313,4 +313,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_DirectoryCallbackClient_h
+#endif // __refinitiv_ema_access_DirectoryCallbackClient_h

@@ -20,9 +20,9 @@ set(sourceFileList )
 set(m1 "n AUTO GENERATED" )
 set(m2 "NOT" )
 
-#   set the REGEX to parse out the path eg Consumer/100_Series/100__MarketPrice__Streaming
+#   set the REGEX to parse out the path eg Consumer/100_Series/100_MP_Streaming
 set(_pathExpression
-        "([a-zA-Z]+)/([0-9]+__[a-zA-Z]+)/([0-9]+)__[a-zA-Z]+.*")
+        "([a-zA-Z]+)/([0-9]+_[a-zA-Z]+)/([0-9]+)_[a-zA-Z]+.*")
 
 # For each example type, create a list of total files, with paths included
 foreach (_item IN LISTS COMP_LIST)
@@ -45,7 +45,7 @@ foreach (_item IN LISTS COMP_LIST)
     # to construct the example binary name: domainPrefixExample#
     foreach(_path IN LISTS ${_item}_LIST)
         string( REGEX MATCH
-                # NiProvider/100_Series/100__MarketPrice__Streaming
+                # NiProvider/100_Series/100_MP_Streaming
                 "([a-zA-Z]+)/([0-9]+[_]+[a-zA-Z]+)/([0-9]+)[^a-zA-Z]+([a-zA-Z]+).+$"
                 _matchOut ${_path}
                 )

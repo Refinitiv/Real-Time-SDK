@@ -34,7 +34,7 @@ void sleep( int millisecs )
 }
 
 // application defined client class for receiving and processing of item messages
-class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
+class AppClient : public refinitiv::ema::access::OmmConsumerClient
 {
 public :
 
@@ -42,26 +42,26 @@ public :
 
 	virtual ~AppClient();
 
-	void setOmmConsumer( thomsonreuters::ema::access::OmmConsumer& );
+	void setOmmConsumer( refinitiv::ema::access::OmmConsumer& );
 
-	void setTunnelStreamHandle( thomsonreuters::ema::access::UInt64 );
+	void setTunnelStreamHandle( refinitiv::ema::access::UInt64 );
     // APIQA: subitem handle
-    thomsonreuters::ema::access::UInt64			_subItemHandle;
+    refinitiv::ema::access::UInt64			_subItemHandle;
     // END APIQA:
 
 protected :
 
-	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onRefreshMsg( const refinitiv::ema::access::RefreshMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onUpdateMsg( const refinitiv::ema::access::UpdateMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 
-	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onStatusMsg( const refinitiv::ema::access::StatusMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 	// APIQA: GenericMsg handler
-	void onGenericMsg( const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onGenericMsg( const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmConsumerEvent& );
 	// END APIQA:
-	thomsonreuters::ema::access::OmmConsumer*	_pOmmConsumer;
+	refinitiv::ema::access::OmmConsumer*	_pOmmConsumer;
 
-	thomsonreuters::ema::access::UInt64			_tunnelStreamHandle;
+	refinitiv::ema::access::UInt64			_tunnelStreamHandle;
 
 	bool										_bSubItemOpen;
 };

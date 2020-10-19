@@ -20,7 +20,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 const int DictionaryHandler::INITIAL_DICTIONARY_STATUS_MSG_SIZE(256);
 
@@ -71,7 +71,8 @@ Dictionary* DictionaryPayload::getDictionary() const
 }
 
 DictionaryHandler::DictionaryHandler(OmmServerBaseImpl* ommServerBaseImpl) :
-	_pOmmServerBaseImpl(ommServerBaseImpl)
+	_pOmmServerBaseImpl(ommServerBaseImpl),
+	_pDefaultDictionaryForUse(NULL)
 {
 	_apiAdminControl = _pOmmServerBaseImpl->getActiveConfig().getDictionaryAdminControl() == OmmIProviderConfig::ApiControlEnum ? true : false;
 
@@ -94,11 +95,18 @@ DictionaryHandler::~DictionaryHandler()
 	{
 		LocalDictionary::destroy(_pDefaultLocalDictionary);
 	}
+
+	_pDefaultDictionaryForUse = NULL;
 }
 
 Dictionary* DictionaryHandler::getDefaultDictionary()
 {
 	return _pDefaultLocalDictionary;
+}
+
+Dictionary* DictionaryHandler::getDefaultDictionaryUse()
+{
+	return _pDefaultDictionaryForUse;
 }
 
 const EmaVector< ItemInfo* >&	DictionaryHandler::getDictionaryItemList()
@@ -539,6 +547,12 @@ void DictionaryHandler::loadDictionaryFromFile()
 				dictionaryPayload = new DictionaryPayload(plocalDictionary, DictionaryPayload::ENUM_TYPE, existingFieldName );
 
 				addDictionary(enumTypeAndServiceId, dictionaryPayload);
+			}
+
+			/* Set the default dictionary for decoding payload */
+			if (_pDefaultDictionaryForUse == NULL)
+			{
+				_pDefaultDictionaryForUse = plocalDictionary;
 			}
 
 			if (_serviceDictionaryByIdHash.find(serviceId) == 0)

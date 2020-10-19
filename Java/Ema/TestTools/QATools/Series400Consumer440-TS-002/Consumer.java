@@ -5,29 +5,29 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example440__System__TunnelStream;
+package com.refinitiv.ema.examples.training.consumer.series400.ex440_System_TunStrm;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.ClassOfService;
-import com.thomsonreuters.ema.access.CosAuthentication;
-import com.thomsonreuters.ema.access.CosDataIntegrity;
-import com.thomsonreuters.ema.access.CosFlowControl;
-import com.thomsonreuters.ema.access.CosGuarantee;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.ClassOfService;
+import com.refinitiv.ema.access.CosAuthentication;
+import com.refinitiv.ema.access.CosDataIntegrity;
+import com.refinitiv.ema.access.CosFlowControl;
+import com.refinitiv.ema.access.CosGuarantee;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
 //APIQA
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.TunnelStreamRequest;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.TunnelStreamRequest;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.OmmState;
+import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmConsumerClient
 {

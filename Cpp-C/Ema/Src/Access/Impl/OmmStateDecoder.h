@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmStateDecoder_h
-#define __thomsonreuters_ema_access_OmmStateDecoder_h
+#ifndef __refinitiv_ema_access_OmmStateDecoder_h
+#define __refinitiv_ema_access_OmmStateDecoder_h
 
 #include "Decoder.h"
 #include "OmmState.h"
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -77,4 +77,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmStateDecoder_h
+#endif // __refinitiv_ema_access_OmmStateDecoder_h

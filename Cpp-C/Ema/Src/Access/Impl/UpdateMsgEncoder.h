@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_UpdateMsgEncoder_h
-#define __thomsonreuters_ema_access_UpdateMsgEncoder_h
+#ifndef __refinitiv_ema_access_UpdateMsgEncoder_h
+#define __refinitiv_ema_access_UpdateMsgEncoder_h
 
 #include "MsgEncoder.h"
 #include "UpdateMsg.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -130,4 +130,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_UpdateMsgEncoder_h
+#endif // __refinitiv_ema_access_UpdateMsgEncoder_h

@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_DictionaryHandler_h
-#define __thomsonreuters_ema_access_DictionaryHandler_h
+#ifndef __refinitiv_ema_access_DictionaryHandler_h
+#define __refinitiv_ema_access_DictionaryHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "DictionaryCallbackClient.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -93,6 +93,9 @@ public:
 	/* This is used only when the application uses the user control for the source directory */
 	Dictionary* getDefaultDictionary();
 
+	/* This is used to get the first loaded dictionary information. */
+	Dictionary* getDefaultDictionaryUse();
+
 private:
 
 	static const EmaString			_clientName;
@@ -146,6 +149,7 @@ private:
 	EmaVector< ItemInfo* >		_itemInfoList;
 
 	LocalDictionary*			_pDefaultLocalDictionary; // This is default LocalDictionary for Provider
+	Dictionary*					_pDefaultDictionaryForUse;
 	
 	DictionaryHandler(OmmServerBaseImpl*);
 	virtual ~DictionaryHandler();
@@ -162,5 +166,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DictionaryHandler_h
+#endif // __refinitiv_ema_access_DictionaryHandler_h
 

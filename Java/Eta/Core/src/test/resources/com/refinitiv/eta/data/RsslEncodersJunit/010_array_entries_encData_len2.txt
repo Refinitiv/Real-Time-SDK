@@ -1,0 +1,16 @@
+# Hand generated from RefinitivWireFormat.vsd, Structures tab, rwfArray
+#
+# structure: rwfArray
+# rwfUInt8     dataType
+# rwfUInt16-ob itemLength
+# rwfUInt16    itemCount
+# typearray    array[itemLength]
+#
+# dataType = (0x10) 16=BUFFER
+# itemLength = (0x05) 5
+# itemCount = (0x00 0x03) 3
+# ArrayEntry[0] = abcde
+# ArrayEntry[1] = 01234
+# ArrayEntry[2] = ABCDE
+10 05 00 03 61 62 63 64  65 30 31 32 33 34 41 42   ....abcde01234AB
+43 44 45                                           CDE

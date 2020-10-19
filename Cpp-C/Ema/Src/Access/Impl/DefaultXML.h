@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_DefaultXML_h
-#define __thomsonreuters_ema_access_DefaultXML_h
+#ifndef __refinitiv_ema_access_DefaultXML_h
+#define __refinitiv_ema_access_DefaultXML_h
 
 #include "EmaString.h"
 
-thomsonreuters::ema::access::EmaString AsciiValues[] = {
+refinitiv::ema::access::EmaString AsciiValues[] = {
 	"CapabilitiesEntry",
 	"Channel",
 	"ChannelSet",
@@ -66,7 +66,7 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"RestLogFileName",
 };
 
-thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
+refinitiv::ema::access::EmaString EnumeratedValues[] = {
 	"ChannelType",
 	"CompressionType",
 	"EncryptedProtocolType",
@@ -79,7 +79,7 @@ thomsonreuters::ema::access::EmaString EnumeratedValues[] = {
 	"StreamState",
 };
 
-thomsonreuters::ema::access::EmaString Int64Values[] = {
+refinitiv::ema::access::EmaString Int64Values[] = {
 	"DictionaryID",
 	"DispatchTimeoutApiThread",
 	"PipePort",
@@ -92,7 +92,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"MaxEventsInPool",
 };
 
-thomsonreuters::ema::access::EmaString UInt64Values[] = {
+refinitiv::ema::access::EmaString UInt64Values[] = {
 	"AcceptDirMessageWithoutMinFilters",
 	"AcceptingConsumerStatus",
 	"AcceptingRequests",
@@ -175,11 +175,11 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"MaxFragmentSize",
 };
 
-thomsonreuters::ema::access::EmaString DoubleValues[] = {
+refinitiv::ema::access::EmaString DoubleValues[] = {
 	"TokenReissueRatio",
 };
 
-thomsonreuters::ema::access::EmaString NodesThatRequireName[] = {
+refinitiv::ema::access::EmaString NodesThatRequireName[] = {
 	"Channel",
 	"Consumer",
 	"Dictionary",
@@ -191,4 +191,4 @@ thomsonreuters::ema::access::EmaString NodesThatRequireName[] = {
 	"Service",
 };
 
-#endif //__thomsonreuters_ema_access_DefaultXML_h
+#endif //__refinitiv_ema_access_DefaultXML_h

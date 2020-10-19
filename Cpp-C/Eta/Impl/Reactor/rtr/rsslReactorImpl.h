@@ -161,10 +161,10 @@ typedef struct
 	RsslReactorConnectInfoImpl *connectionOptList;
 	TunnelManager *pTunnelManager;
 
-	/* Support session management and EDP-RT service discovery. */
+	/* Support session management and RDP service discovery. */
 	RsslBool				supportSessionMgnt;
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
-	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from EDP-RT service discovery */
+	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
 	/* This is original login request information */
 	RsslBuffer				userName;
@@ -463,6 +463,8 @@ RsslRet reactorLockInterface(RsslReactorImpl *pReactorImpl, RsslBool allowedInCa
 /* Unlocks reactor */
 RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl);
 
+#define MAX_THREADNAME_STRLEN 16
+
 /* RsslReactorWorker
  * The reactorWorker handles when to send pings and flushing.
  * Primary responsiblities include:
@@ -497,6 +499,8 @@ typedef struct
 	RsslQueue errorInfoPool; /* Keeps a pool of RsslErrorInfo for notifying users with the token events. */
 	RsslQueue errorInfoInUsedPool; /* Keeps a pool of RsslErrorInfo in used */
 	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
+
+	char nameReactorWorker[MAX_THREADNAME_STRLEN]; /* Name of the reactor worker thread */
 
 } RsslReactorWorker;
 
@@ -555,7 +559,7 @@ struct _RsslReactorImpl
 
 	RsslInt64 ticksPerMsec;
 
-	/* For EDP token management and service discovery */
+	/* For RDP token management and service discovery */
 	RsslBuffer			serviceDiscoveryURL; /* Used the memory location from the serviceDiscoveryURLBuffer */
 	RsslBuffer			serviceDiscoveryURLBuffer;
 	RsslBuffer			tokenServiceURL; /* Used the memory location from the tokenServiceURLBuffer */
@@ -616,7 +620,7 @@ RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pRe
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
-RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);
+RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError);
 
 /* Cleanup all reactor resources(it is assumed that there will be no more use of this reactor so all memory can be cleaned up */
 void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl);

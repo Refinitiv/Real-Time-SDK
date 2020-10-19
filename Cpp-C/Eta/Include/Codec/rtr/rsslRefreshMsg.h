@@ -83,7 +83,7 @@ typedef enum {
 	RSSL_RFMF_PRIVATE_STREAM		= 0x0400,		/*!< (0x0400) Indicates that this RsslRefreshMsg is an acknowledgement of a private stream request. Or, if \ref RsslRefreshMsg::state::streamState's value is \ref RSSL_STREAM_REDIRECTED, the presence of this flag indicates that the current stream can only be opened as a private stream. */
 	RSSL_RFMF_HAS_POST_USER_INFO	= 0x0800,		/*!< (0x0800) The RsslRefreshMsg contains data posted by the user with the identifying information contained in \ref RsslRefreshMsg::postUserInfo */
 	RSSL_RFMF_HAS_PART_NUM			= 0x1000,		/*!< (0x1000) The RsslRefreshMsg has a part number, contained in \ref RsslRefreshMsg::partNum. */
-	RSSL_RFMF_HAS_REQ_MSG_KEY		= 0x2000,		/*!< (0x2000) The RsslRefreshMsg has the original request's message key, contained in \ref RsslRefreshMsg::reqMsgBase::msgKey*/
+	RSSL_RFMF_HAS_REQ_MSG_KEY		= 0x2000,		/*!< (0x2000) The RsslRefreshMsg has the original request's message key, contained in \ref RsslRefreshMsg::reqMsgKey*/
 	RSSL_RFMF_QUALIFIED_STREAM		= 0x4000		/*!< (0x4000) Indicates that this RsslRefreshMsg is an acknowledgement of a qualified stream request. */
 } RsslRefreshFlags;
 

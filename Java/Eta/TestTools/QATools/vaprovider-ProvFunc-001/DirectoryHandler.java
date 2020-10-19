@@ -1,37 +1,37 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.FilterEntryActions;
-import com.thomsonreuters.upa.codec.MapEntryActions;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.shared.DirectoryRejectReason;
-import com.thomsonreuters.upa.shared.DirectoryRequestInfo;
-import com.thomsonreuters.upa.shared.DirectoryRequestInfoList;
-import com.thomsonreuters.upa.rdm.Directory;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryClose;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.FilterEntryActions;
+import com.refinitiv.eta.codec.MapEntryActions;
+import com.refinitiv.eta.codec.Qos;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.shared.DirectoryRejectReason;
+import com.refinitiv.eta.shared.DirectoryRequestInfo;
+import com.refinitiv.eta.shared.DirectoryRequestInfoList;
+import com.refinitiv.eta.rdm.Directory;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 
 /*
- * This is the source directory handler for the UPA Java Provider application.
+ * This is the source directory handler for the ETA Java Provider application.
  * <p>
  * Only one source directory stream per channel is allowed by this simple
  * provider.
@@ -76,7 +76,7 @@ class DirectoryHandler
     private static final String enumTypeDictionaryName = "RWFEnum";
 
     // link name
-    private static final String linkName = "UPA Provider Link";
+    private static final String linkName = "ETA Provider Link";
 
     static final int OPEN_LIMIT = 10;
 
@@ -367,7 +367,7 @@ class DirectoryHandler
             // itemList - Name of SymbolList that includes all of the items that
             // he publisher currently provides.
             _service.info().applyHasItemList();
-            _service.info().itemList().data("_UPA_ITEM_LIST");
+            _service.info().itemList().data("_ETA_ITEM_LIST");
  
             // accepting customer status = no
             _service.info().applyHasAcceptingConsumerStatus();

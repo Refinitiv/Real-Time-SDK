@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
 */
 
-#ifndef __thomsonreuters_ema_access_DirectoryHandler_h
-#define __thomsonreuters_ema_access_DirectoryHandler_h
+#ifndef __refinitiv_ema_access_DirectoryHandler_h
+#define __refinitiv_ema_access_DirectoryHandler_h
 
 #include "rtr/rsslReactor.h"
 #include "EmaVector.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -74,5 +74,5 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_DirectoryHandler_h
+#endif // __refinitiv_ema_access_DirectoryHandler_h
 

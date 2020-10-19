@@ -8,8 +8,8 @@
 
 #include "EmaRdm.h"
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 
 const EmaString LoginDomainString( "Login Domain" );
 const EmaString DirectoryDomainString( "Directory Domain" );

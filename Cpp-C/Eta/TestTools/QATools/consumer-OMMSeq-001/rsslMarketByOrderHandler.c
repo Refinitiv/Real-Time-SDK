@@ -621,7 +621,7 @@ RsslRet sendMarketByOrderItemRequests(RsslChannel* chnl)
 	for (i = 0; i < (MAX_STREAM_ID_RANGE_PER_DOMAIN/2) ; i++)
 	{
 		/* initialize state management array */
-		/* these will be updated as we recieve refresh and status messages */
+		/* these will be updated as we receive refresh and status messages */
 		marketByOrderItemInfoList[i].itemState.dataState = RSSL_DATA_NO_CHANGE;
 		marketByOrderItemInfoList[i].itemState.streamState = RSSL_STREAM_UNSPECIFIED;
 	}

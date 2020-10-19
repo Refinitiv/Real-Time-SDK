@@ -150,16 +150,6 @@ typedef struct {
 	RsslUInt16		subsequentFragHdrLen;
 } RIPC_SESS_VERS;
 
-RIPC_SESS_VERS ripc10Ver;
-RIPC_SESS_VERS ripc11Ver;
-RIPC_SESS_VERS ripc11WinInetVer;
-RIPC_SESS_VERS ripc12Ver;
-RIPC_SESS_VERS ripc12WinInetVer;
-RIPC_SESS_VERS ripc13Ver;
-RIPC_SESS_VERS ripc13WinInetVer;
-RIPC_SESS_VERS ripc14Ver;
-RIPC_SESS_VERS ripc14WinInetVer;
-
 typedef enum {
 	RIPC_PROTO_SSL_NONE = 0,
 	RIPC_PROTO_SSL_TLS_V1 = 0x1,

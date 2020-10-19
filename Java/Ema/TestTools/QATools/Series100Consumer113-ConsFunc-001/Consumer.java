@@ -5,20 +5,20 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.                                   --
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series100.example113__MarketPrice__SessionManagement;
+package com.refinitiv.ema.examples.training.consumer.series100.ex113_MP_SessionMgmt;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
 
 class AppClient implements OmmConsumerClient
 {
@@ -56,9 +56,9 @@ public class Consumer {
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
-	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
-	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
-	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
+	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
+	    		+ "  -keyfile keystore file for encryption.\n"
+	    		+ "  -keypasswd keystore password for encryption.\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -ph Proxy host name (optional).\n"
 	    		+ "  -pp Proxy port number (optional).\n"
@@ -187,7 +187,7 @@ public class Consumer {
 			
 			AppClient appClient = new AppClient();
 			
-			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_3").username(userName).password(password));
+			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_4").username(userName).password(password));
 			
 			consumer.registerClient( EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("BBL.BK"), appClient);
 			

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmAnsiPage_h
-#define __thomsonreuters_ema_access_OmmAnsiPage_h
+#ifndef __refinitiv_ema_access_OmmAnsiPage_h
+#define __refinitiv_ema_access_OmmAnsiPage_h
 
 /**
-	@class thomsonreuters::ema::access::OmmAnsiPage OmmAnsiPage.h "Access/Include/OmmAnsiPage.h"
+	@class refinitiv::ema::access::OmmAnsiPage OmmAnsiPage.h "Access/Include/OmmAnsiPage.h"
 	@brief OmmAnsiPage represents AnsiPage data format in Omm.
 
 	The following code snippet shows setting of AnsiPage data into FieldList;
@@ -60,7 +60,7 @@
 
 #include "Access/Include/ComplexType.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -166,4 +166,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmAnsiPage_h
+#endif // __refinitiv_ema_access_OmmAnsiPage_h

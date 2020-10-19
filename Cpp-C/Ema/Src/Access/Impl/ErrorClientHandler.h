@@ -6,15 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ErrorClientHandler_h
-#define __thomsonreuters_ema_access_ErrorClientHandler_h
+#ifndef __refinitiv_ema_access_ErrorClientHandler_h
+#define __refinitiv_ema_access_ErrorClientHandler_h
 
 #include "OmmConsumerErrorClient.h"
 #include "OmmProviderErrorClient.h"
 #include "OmmProvider.h"
 #include "ClientSession.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -62,4 +62,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ErrorClientHandler_h
+#endif // __refinitiv_ema_access_ErrorClientHandler_h

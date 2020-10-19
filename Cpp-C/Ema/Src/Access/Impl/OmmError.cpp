@@ -11,7 +11,7 @@
 #include "Utilities.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 const EmaString NoErrorString( "NoError" );
 const EmaString NoDictionaryString( "NoDictionary" );

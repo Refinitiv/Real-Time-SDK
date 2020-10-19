@@ -8,27 +8,27 @@
 
 // APIQA new example code based on customer issue
 
-package com.thomsonreuters.ema.examples.training.consumer.series300.example332__Dictionary__Streaming;
+package com.refinitiv.ema.examples.training.consumer.series300.ex332_Dictionary_Streaming;
 
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.rdm.DataDictionary;
-import com.thomsonreuters.ema.rdm.EmaRdm;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
+import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ReqMsg;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.Data;
+import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.rdm.DataDictionary;
+import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.FieldEntry;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
@@ -190,8 +190,6 @@ public class Consumer
 
 			consumer.registerClient(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).name("RWFEnum").
 					filter(EmaRdm.DICTIONARY_NORMAL),appClient);
-
-			//consumer.registerClient(reqMsg.clear().serviceName("API_ELEKTRON_EPD_RSSL").name("IBM.N"), appClient);
 
 			while(appClient.fldDictComplete!=true && appClient.enumTypeComplete!=true) {
 				Thread.sleep(1000); 

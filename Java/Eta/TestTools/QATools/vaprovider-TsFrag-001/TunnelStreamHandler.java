@@ -1,39 +1,39 @@
-package com.thomsonreuters.upa.valueadd.examples.provider;
+package com.refinitiv.eta.valueadd.examples.provider;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DataTypes;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.rdm.ClassesOfService;
-import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.transport.TransportBuffer;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.reactor.ClassOfService;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStream;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamAcceptOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsgEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRejectOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamInfo;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.State;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.ClassesOfService;
+import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.reactor.ClassOfService;
+import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
+import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.TunnelStream;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamAcceptOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsgEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamRejectOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamRequestEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEvent;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
 
 /* Handles TunnelStream connections for the VA Provider. */
 class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback
@@ -63,7 +63,7 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
     private static String applicationId = "256";
 
     // application name
-    private static String applicationName = "UPA TunnelStream Provider";
+    private static String applicationName = "ETA TunnelStream Provider";
 
     void processNewStream(TunnelStreamRequestEvent event)
     {

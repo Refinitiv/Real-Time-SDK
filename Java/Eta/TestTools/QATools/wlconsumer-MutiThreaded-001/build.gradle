@@ -13,15 +13,15 @@ dependencies {
 	compile project(':Eta:Applications:Shared')
 	compile project(':Eta:Applications:PerfTools').sourceSets.main.output
 	compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
-	// Adding dependency on the jdacsUpalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
-	compile fileTree(dir: '../../Libs', include: 'jdacsUpalib.jar')
+	// Adding dependency on the jdacsEtalib.jar
+	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
+	compile fileTree(dir: '../../Libs', include: 'jdacsEtalib.jar')
 }
 
-mainClassName = 'com.thomsonreuters.upa.examples.provider.Provider'
+mainClassName = 'com.refinitiv.eta.examples.provider.Provider'
 
 task createExtraRunApp(type: CreateStartScripts) {
-	mainClassName = 'main.java.com.thomsonreuters.upa.examples.consumer.Consumer'
+	mainClassName = 'main.java.com.refinitiv.eta.examples.consumer.Consumer'
 	classpath = startScripts.classpath
 	outputDir = startScripts.outputDir
 	applicationName = 'myconsumer'
@@ -45,91 +45,91 @@ clean.dependsOn deleteDictionary
 task runProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.provider.Provider'
+	main = 'com.refinitiv.eta.examples.provider.Provider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.consumer.Consumer'
+	main = 'com.refinitiv.eta.examples.consumer.Consumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runNIProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.niprovider.NIProvider'
+	main = 'com.refinitiv.eta.examples.niprovider.NIProvider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVAProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.provider.Provider'
+	main = 'com.refinitiv.eta.valueadd.examples.provider.Provider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVAConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.consumer.Consumer'
+	main = 'com.refinitiv.eta.valueadd.examples.consumer.Consumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVANIProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider'
+	main = 'com.refinitiv.eta.valueadd.examples.niprovider.NIProvider'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runWatchlistConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumer'
+	main = 'com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runGenericProv(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.genericprov.GenericProv'
+	main = 'com.refinitiv.eta.examples.genericprov.GenericProv'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runGenericCons(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.genericcons.GenericCons'
+	main = 'com.refinitiv.eta.examples.genericcons.GenericCons'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runNewsViewer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.newsviewer.NewsViewer'
+	main = 'com.refinitiv.eta.examples.newsviewer.NewsViewer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runAnsiPageExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.ansipage.AnsiPageExample'
+	main = 'com.refinitiv.eta.examples.ansipage.AnsiPageExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runCodecExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.codec.CodecExample'
+	main = 'com.refinitiv.eta.examples.codec.CodecExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runAuthLockExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.thomsonreuters.upa.examples.authlock.AuthLockExample'
+	main = 'com.refinitiv.eta.examples.authlock.AuthLockExample'
 	classpath = sourceSets.main.runtimeClasspath
 }
 

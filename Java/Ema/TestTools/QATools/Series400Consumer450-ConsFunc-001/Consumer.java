@@ -5,31 +5,31 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example450__MarketPrice__QueryServiceDiscovery;
+package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QueryServiceDiscovery;
 
-import com.thomsonreuters.ema.access.Msg;
+import com.refinitiv.ema.access.Msg;
 
 import java.util.List;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscovery;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.EmaFactory;
-import com.thomsonreuters.ema.access.OmmConsumer;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerConfig;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryClient;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryEvent;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryOption;
-import com.thomsonreuters.ema.access.ServiceEndpointDiscoveryResp;
+import com.refinitiv.ema.access.AckMsg;
+import com.refinitiv.ema.access.ElementList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.Map;
+import com.refinitiv.ema.access.MapEntry;
+import com.refinitiv.ema.access.RefreshMsg;
+import com.refinitiv.ema.access.ServiceEndpointDiscovery;
+import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.OmmConsumer;
+import com.refinitiv.ema.access.OmmConsumerClient;
+import com.refinitiv.ema.access.OmmConsumerConfig;
+import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmException;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryClient;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryEvent;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryResp;
 
 class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 {
@@ -110,8 +110,8 @@ public class Consumer
 	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
-	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
-	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
+	    		+ "  -keyfile keystore file for encryption.\n"
+	    		+ "  -keypasswd keystore password for encryption.\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -ph Proxy host name (optional).\n"
 	    		+ "  -pp Proxy port number (optional).\n"
@@ -324,7 +324,7 @@ public class Consumer
 			
 			if ( host == null || port == null )
 			{
-				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time Optimized. Exiting...");
+				System.out.println("Both hostname and port are not avaiable for establishing a connection with Refinitiv Real-Time - Optimized. Exiting...");
 				return;
 			}
 			

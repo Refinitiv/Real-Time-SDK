@@ -124,13 +124,13 @@ ChannelInfo *channelHandlerAddChannel(ChannelHandler *pHandler, RsslChannel *pCh
 
 void channelHandlerCloseChannel(ChannelHandler *pHandler, ChannelInfo *pChannelInfo, RsslError *pError)
 {
-	if (pChannelInfo->pReactorChannel == NULL) // use UPA Channel
+	if (pChannelInfo->pReactorChannel == NULL) // use ETA Channel
 	{
 		pHandler->channelInactiveCallback(pHandler, pChannelInfo, pError);
 		rsslQueueRemoveLink(pChannelInfo->parentQueue, &pChannelInfo->queueLink);
 		rsslCloseChannel(pChannelInfo->pChannel, pError);
 	}
-	else // use UPA VA Reactor
+	else // use ETA VA Reactor
 	{
 		RsslErrorInfo errorInfo;
 

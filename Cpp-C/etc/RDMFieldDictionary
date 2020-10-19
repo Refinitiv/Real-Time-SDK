@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.44_TREP_20.71		08/11/2020
-!	* Modified 08/11/2020 at Oak Brook:
+!   Version	 4.20.44_RealTimeDistributionSystem_20.81		09/16/2020
+!	* Modified 09/16/2020 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.44.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.44_TREP
+!   Version: 4.20.44_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:

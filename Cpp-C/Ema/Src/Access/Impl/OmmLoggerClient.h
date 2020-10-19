@@ -6,14 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmLoggerClient_h
-#define __thomsonreuters_ema_access_OmmLoggerClient_h
+#ifndef __refinitiv_ema_access_OmmLoggerClient_h
+#define __refinitiv_ema_access_OmmLoggerClient_h
 
 #include "EmaString.h"
 #include "Mutex.h"
 #include <stdio.h>
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -97,4 +97,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmLoggerClient_h
+#endif // __refinitiv_ema_access_OmmLoggerClient_h

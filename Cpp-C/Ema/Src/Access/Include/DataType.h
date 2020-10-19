@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_DataType_h
-#define __thomsonreuters_ema_access_DataType_h
+#ifndef __refinitiv_ema_access_DataType_h
+#define __refinitiv_ema_access_DataType_h
 
 /**
-	\class thomsonreuters::ema::access::DataType DataType.h "Access/DataType.h"
+	\class refinitiv::ema::access::DataType DataType.h "Access/DataType.h"
 	\brief DataType class provides enumeration representing Omm data types.
 
 	DataType::DataTypeEnum is a numeric and symbolic representation of Omm data type.
@@ -33,7 +33,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	
 namespace ema {
 
@@ -101,7 +101,7 @@ public :
 		Utf8Enum = 18,			/*!< A UTF-8 encoding of ISO 10646 (specified in section 3.9 of the Unicode
 									4.0 standard and IETF's RFC 3629). */
 		
-		RmtesEnum = 19,			/*!< An encoding with the Refinitiv Multilingual Text Encoding Standard.
+		RmtesEnum = 19,			/*!< An encoding with a multilingual text encoding standard.
 									RMTES uses ISO 2022 escape sequences to select the character sets used. 
 									RMTES provides support for the Refinitiv Basic Character Set, UTF-8, 
 									Japanese Latin and Katakana (JIS C 6220 - 1969), Japanese Kanji (JIS X 
@@ -246,4 +246,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_DataType_h
+#endif // __refinitiv_ema_access_DataType_h

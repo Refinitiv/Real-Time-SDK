@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FieldEntry_h
-#define __thomsonreuters_ema_access_FieldEntry_h
+#ifndef __refinitiv_ema_access_FieldEntry_h
+#define __refinitiv_ema_access_FieldEntry_h
 
 /**
-	@class thomsonreuters::ema::access::FieldEntry FieldEntry.h "Access/Include/FieldEntry.h"
+	@class refinitiv::ema::access::FieldEntry FieldEntry.h "Access/Include/FieldEntry.h"
 	@brief FieldEntry represents an entry of FieldList.
 
 	FieldEntry associates entry's field id, name, data and its data type.
@@ -61,7 +61,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -405,4 +405,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FieldEntry_h
+#endif // __refinitiv_ema_access_FieldEntry_h

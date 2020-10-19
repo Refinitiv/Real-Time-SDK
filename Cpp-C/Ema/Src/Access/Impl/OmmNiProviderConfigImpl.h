@@ -6,13 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmNiProviderConfigImpl_h
-#define __thomsonreuters_ema_access_OmmNiProviderConfigImpl_h
+#ifndef __refinitiv_ema_access_OmmNiProviderConfigImpl_h
+#define __refinitiv_ema_access_OmmNiProviderConfigImpl_h
 
 #include "OmmNiProviderConfig.h"
 #include "EmaConfigImpl.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -56,4 +56,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmNiProviderConfigImpl_h
+#endif // __refinitiv_ema_access_OmmNiProviderConfigImpl_h

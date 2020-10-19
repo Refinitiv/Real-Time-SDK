@@ -12,8 +12,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 using namespace perftool::common;
 

@@ -3,7 +3,7 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.thomsonreuters.upa.ansi"
+group = "com.refinitiv.eta.ansi"
 archivesBaseName = "ansipage"
 version "$SpecificationVersion"
 

@@ -17,7 +17,7 @@
 #include "rtr/rsslIterators.h"
 #include "rtr/rsslPrimitiveDecoders.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 ReqMsgEncoder::ReqMsgEncoder() :
  MsgEncoder(),

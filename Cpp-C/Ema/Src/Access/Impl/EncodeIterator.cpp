@@ -12,7 +12,7 @@
 
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 EncodeIterator::EncodeIterator() :
  _rsslEncIter(),

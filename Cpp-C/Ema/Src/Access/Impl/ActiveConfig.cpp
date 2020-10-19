@@ -9,7 +9,7 @@
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 DictionaryConfig::DictionaryConfig() :
 	dictionaryName(),
@@ -766,7 +766,7 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
 	enableSessionMgnt(RSSL_FALSE),
-	location(DEFAULT_EDP_RT_LOCATION),
+	location(DEFAULT_RDP_RT_LOCATION),
 	wsMaxMsgSize(DEFAULT_WS_MAXMSGSIZE),
 	wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
@@ -787,7 +787,7 @@ void SocketChannelConfig::clear()
 	sslCAStore = DEFAULT_SSL_CA_STORE;
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
-	location = DEFAULT_EDP_RT_LOCATION;
+	location = DEFAULT_RDP_RT_LOCATION;
 	wsMaxMsgSize = DEFAULT_WS_MAXMSGSIZE;
 	wsProtocols = DEFAULT_WS_PROTOCLOS;
 }

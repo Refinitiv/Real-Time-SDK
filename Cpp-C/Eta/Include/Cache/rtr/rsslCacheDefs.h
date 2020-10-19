@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Definitions for the UPA Value Add Cache.
+ * @brief Definitions for the ETA Value Add Cache.
  */
 
 typedef void* RsslPayloadCacheHandle;

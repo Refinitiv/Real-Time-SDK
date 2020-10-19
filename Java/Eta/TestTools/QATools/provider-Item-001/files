@@ -1,7 +1,7 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-MarketPriceItems.java,Applications/Shared/src/main/java/com/thomsonreuters/upa/shared/provider
-ItemRejectReason.java,Applications/Shared/src/main/java/com/thomsonreuters/upa/shared/provider
-ProviderDirectoryHandler.java,Applications/Shared/src/main/java/com/thomsonreuters/upa/shared
-ItemHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/examples/provider
+MarketPriceItems.java,Applications/Shared/src/main/java/com/refinitiv/eta/shared/provider
+ItemRejectReason.java,Applications/Shared/src/main/java/com/refinitiv/eta/shared/provider
+ProviderDirectoryHandler.java,Applications/Shared/src/main/java/com/refinitiv/eta/shared
+ItemHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/examples/provider

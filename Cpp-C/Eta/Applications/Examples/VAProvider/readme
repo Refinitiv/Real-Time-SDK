@@ -29,7 +29,7 @@ opened by a consumer. On-stream and off-stream posts are accepted and sent out t
 consumer that has the item open. Off-stream posts for items that have not already
 been opened by a consumer are rejected (in this example).
 
-Symbol List requests are expected to use a symbol list name of "_UPA_ITEM_LIST". The
+Symbol List requests are expected to use a symbol list name of "_ETA_ITEM_LIST". The
 symbol list name is provided in the source directory response for the consumer to use.
 
 This application can optionally use the Value Add payload cache component. If the cache 
@@ -83,13 +83,13 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported Linux
+It is set up for building on the ETA supported Linux
 platforms using the supported compilers.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using ETA static or
+shared libraries. The default build uses ETA static
+libraries. To use ETA shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

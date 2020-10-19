@@ -10,7 +10,7 @@
 #include "ExceptionTranslator.h"
 #include "RmtesBufferImpl.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmRmtesDecoder::OmmRmtesDecoder() :
  _rmtesBuffer(),

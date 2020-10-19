@@ -22,7 +22,7 @@
 // note that this method MUST be called in the beginning of the thread::run()
 // or main() to make sure that all thread activities are on the "bound" thread
 //
-extern void bindThisThread( const thomsonreuters::ema::access::EmaString& threadName, long cpu, long threadId = 0 );
+extern void bindThisThread( const refinitiv::ema::access::EmaString& threadName, long cpu, long threadId = 0 );
 
 // these methods take snapshots of all the threads running in the calling process
 // at the moment of calling the methods
@@ -40,7 +40,7 @@ extern void bindThisThread( const thomsonreuters::ema::access::EmaString& thread
 // note that those two methods must work together since they both lock / unlock internal resources
 //
 extern void firstThreadSnapshot();
-extern void secondThreadSnapshot( const thomsonreuters::ema::access::EmaString& threadName, long cpu );
+extern void secondThreadSnapshot( const refinitiv::ema::access::EmaString& threadName, long cpu );
 
 // method to print out information about threads that are currently bound
 //

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmUnsupportedDomainTypeException_h
-#define __thomsonreuters_ema_access_OmmUnsupportedDomainTypeException_h
+#ifndef __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h
+#define __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmUnsupportedDomainTypeException OmmUnsupportedDomainTypeException.h "Access/Include/OmmUnsupportedDomainTypeException.h"
+	@class refinitiv::ema::access::OmmUnsupportedDomainTypeException OmmUnsupportedDomainTypeException.h "Access/Include/OmmUnsupportedDomainTypeException.h"
 	@brief OmmUnsupportedDomainTypeException is thrown when a domain type value is greater than 255.
 
 	\remark All methods in this class are \ref SingleThreaded.
@@ -22,7 +22,7 @@
 
 #include "Access/Include/OmmException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -80,4 +80,4 @@ protected :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmUnsupportedDomainTypeException_h
+#endif // __refinitiv_ema_access_OmmUnsupportedDomainTypeException_h

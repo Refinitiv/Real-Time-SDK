@@ -5,8 +5,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_rdm_DictionaryUtility_h
-#define __thomsonreuters_ema_rdm_DictionaryUtility_h
+#ifndef __refinitiv_ema_rdm_DictionaryUtility_h
+#define __refinitiv_ema_rdm_DictionaryUtility_h
 
 #include "Access/Include/Common.h"
 #include "Access/Include/FieldList.h"
@@ -18,7 +18,7 @@
 * @see FieldList
 */
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -40,7 +40,7 @@ public:
 	*
 	* @return the DataDictionary for the field list
 	*/
-	static const DataDictionary& dataDictionary(const thomsonreuters::ema::access::FieldList& fieldList);
+	static const DataDictionary& dataDictionary(const refinitiv::ema::access::FieldList& fieldList);
 
 private:
 
@@ -59,4 +59,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_rdm_DictionaryUtility_h
+#endif // __refinitiv_ema_rdm_DictionaryUtility_h

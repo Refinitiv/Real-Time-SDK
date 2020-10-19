@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
-using namespace thomsonreuters::ema::access;
-using namespace thomsonreuters::ema::rdm;
+using namespace refinitiv::ema::access;
+using namespace refinitiv::ema::rdm;
 using namespace std;
 
 UInt64 itemHandle = 0;

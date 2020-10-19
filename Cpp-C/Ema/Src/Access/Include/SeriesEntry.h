@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_SeriesEntry_h
-#define __thomsonreuters_ema_access_SeriesEntry_h
+#ifndef __refinitiv_ema_access_SeriesEntry_h
+#define __refinitiv_ema_access_SeriesEntry_h
 
 /**
-	@class thomsonreuters::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
+	@class refinitiv::ema::access::SeriesEntry SeriesEntry.h "Access/Include/SeriesEntry.h"
 	@brief SeriesEntry represents an entry of Series.
 
 	SeriesEntry associates entry's data and its data type.
@@ -57,7 +57,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -230,4 +230,4 @@ private :
 
 }
 
-#endif //__thomsonreuters_ema_access_SeriesEntry_h
+#endif //__refinitiv_ema_access_SeriesEntry_h

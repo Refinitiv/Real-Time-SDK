@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_TimeOut_h
-#define __thomsonreuters_ema_access_TimeOut_h
+#ifndef __refinitiv_ema_access_TimeOut_h
+#define __refinitiv_ema_access_TimeOut_h
 
 #ifdef WIN32
 #include <Windows.h>
@@ -18,7 +18,7 @@
 #include "EmaList.h"
 #include "Mutex.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -89,4 +89,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_TimeOut_h
+#endif // __refinitiv_ema_access_TimeOut_h

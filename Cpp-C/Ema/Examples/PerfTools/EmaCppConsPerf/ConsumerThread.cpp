@@ -17,8 +17,8 @@
 //#define POST_CAPACITY 100000
 
 
-using namespace::thomsonreuters::ema::rdm;
-using namespace::thomsonreuters::ema::access;
+using namespace::refinitiv::ema::rdm;
+using namespace::refinitiv::ema::access;
 using namespace::std;
 using namespace::perftool::common;
 ConsumerStats::ConsumerStats() : imageTimeRecorded (false),
@@ -325,7 +325,7 @@ void ConsumerThread::run()
 	}
 	
 	try {
-		desiredServiceHandle = pEmaOmmConsumer->registerClient( ReqMsg().domainType( thomsonreuters::ema::rdm::MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER ), srcClient, ( void * ) pEmaOmmConsumer);
+		desiredServiceHandle = pEmaOmmConsumer->registerClient( ReqMsg().domainType( refinitiv::ema::rdm::MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER ), srcClient, ( void * ) pEmaOmmConsumer);
 	}
 	catch ( const OmmException& excp ) {
 		AppUtil::logError( excp.toString());
@@ -528,7 +528,7 @@ void ConsumerThread::getLatencyTimeRecords(LatencyRecords **pUpdateLatList, Late
 	statsMutex.unlock();
 }
 
-bool MarketPriceClient::decodeMPUpdate(const thomsonreuters::ema::access::FieldList& fldList, UInt16 msgtype )
+bool MarketPriceClient::decodeMPUpdate(const refinitiv::ema::access::FieldList& fldList, UInt16 msgtype )
 {
 	Int64		intType;
 	UInt64		uintType;
@@ -652,7 +652,7 @@ bool MarketPriceClient::decodeMPUpdate(const thomsonreuters::ema::access::FieldL
 }
 
 
-void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg& refresh, const thomsonreuters::ema::access::OmmConsumerEvent&  msgEvent)
+void MarketPriceClient::onRefreshMsg( const refinitiv::ema::access::RefreshMsg& refresh, const refinitiv::ema::access::OmmConsumerEvent&  msgEvent)
 {
 	
 	pConsumerThread->stats.refreshCount.countStatIncr();
@@ -722,7 +722,7 @@ void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::Refresh
 	}
 }
 
-void MarketPriceClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg& update, const thomsonreuters::ema::access::OmmConsumerEvent& msgEvent)
+void MarketPriceClient::onUpdateMsg( const refinitiv::ema::access::UpdateMsg& update, const refinitiv::ema::access::OmmConsumerEvent& msgEvent)
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
@@ -737,7 +737,7 @@ void MarketPriceClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMs
 	}
 }
 
-void MarketPriceClient::onStatusMsg( const thomsonreuters::ema::access::StatusMsg& stMsg, const thomsonreuters::ema::access::OmmConsumerEvent& )
+void MarketPriceClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& stMsg, const refinitiv::ema::access::OmmConsumerEvent& )
 {
 	pConsumerThread->stats.statusCount.countStatIncr();
 	AppUtil::log(" Received Status on Domain %u with message value: %s\n",
@@ -753,7 +753,7 @@ void MarketPriceClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& 
 }
 
 
-bool MarketByOrderClient::decodeMBOUpdate(const thomsonreuters::ema::access::Map& mboMap, UInt16 msgtype  )
+bool MarketByOrderClient::decodeMBOUpdate(const refinitiv::ema::access::Map& mboMap, UInt16 msgtype  )
 {
 	UInt64 timeTracker = 0;
 	UInt64 postTimeTracker = 0;
@@ -920,7 +920,7 @@ bool MarketByOrderClient::decodeFldList( const FieldList& fldList, UInt16 msgtyp
 
 	return true;
 }
-void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg& refresh, const thomsonreuters::ema::access::OmmConsumerEvent&  msgEvent)
+void MarketByOrderClient::onRefreshMsg( const refinitiv::ema::access::RefreshMsg& refresh, const refinitiv::ema::access::OmmConsumerEvent&  msgEvent)
 {
 	pConsumerThread->stats.refreshCount.countStatIncr();
 
@@ -989,7 +989,7 @@ void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::Refre
 	}
 }
 
-void MarketByOrderClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg& update, const thomsonreuters::ema::access::OmmConsumerEvent& msgEvent)
+void MarketByOrderClient::onUpdateMsg( const refinitiv::ema::access::UpdateMsg& update, const refinitiv::ema::access::OmmConsumerEvent& msgEvent)
 {
 	pConsumerThread->stats.imageRetrievalEndTime ? pConsumerThread->stats.steadyStateUpdateCount.countStatIncr() : pConsumerThread->stats.startupUpdateCount.countStatIncr();
 	if(!(pConsumerThread->stats.firstUpdateTime))
@@ -1004,7 +1004,7 @@ void MarketByOrderClient::onUpdateMsg( const thomsonreuters::ema::access::Update
 	}
 }
 
-void MarketByOrderClient::onStatusMsg( const thomsonreuters::ema::access::StatusMsg& stMsg, const thomsonreuters::ema::access::OmmConsumerEvent& )
+void MarketByOrderClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& stMsg, const refinitiv::ema::access::OmmConsumerEvent& )
 {
 	pConsumerThread->stats.statusCount.countStatIncr();
 	AppUtil::log(" Received Status on Domain %u with message value: %s\n",
@@ -1020,7 +1020,7 @@ void MarketByOrderClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent
 }
 
 
-void DirectoryClient::decode( const thomsonreuters::ema::access::Map& srcMap)
+void DirectoryClient::decode( const refinitiv::ema::access::Map& srcMap)
 {	
 	bool	gotDesiredSvc = false;	 
 	while( srcMap.forth() )
@@ -1058,7 +1058,7 @@ void DirectoryClient::decode( const thomsonreuters::ema::access::Map& srcMap)
 }
 
 
-void DirectoryClient::decodeInfo( const thomsonreuters::ema::access::ElementList& elist, bool &gotDesiredSvc)
+void DirectoryClient::decodeInfo( const refinitiv::ema::access::ElementList& elist, bool &gotDesiredSvc)
 {
 	while (elist.forth())
 	{
@@ -1073,7 +1073,7 @@ void DirectoryClient::decodeInfo( const thomsonreuters::ema::access::ElementList
 		}
 	}
 }
-void DirectoryClient::decodeState( const thomsonreuters::ema::access::ElementList& elist)
+void DirectoryClient::decodeState( const refinitiv::ema::access::ElementList& elist)
 {
 	while (elist.forth())
 	{
@@ -1086,7 +1086,7 @@ void DirectoryClient::decodeState( const thomsonreuters::ema::access::ElementLis
 		}
 	}
 }
-void DirectoryClient::onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg& refreshMsg, const thomsonreuters::ema::access::OmmConsumerEvent& ommConsEvent)
+void DirectoryClient::onRefreshMsg( const refinitiv::ema::access::RefreshMsg& refreshMsg, const refinitiv::ema::access::OmmConsumerEvent& ommConsEvent)
 {
 	if(refreshMsg.getState().getStreamState() == OmmState::OpenEnum && 
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
@@ -1099,7 +1099,7 @@ void DirectoryClient::onRefreshMsg( const thomsonreuters::ema::access::RefreshMs
 	}
 }
 
-void DirectoryClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg& updMsg, const thomsonreuters::ema::access::OmmConsumerEvent& ommConsEvent)
+void DirectoryClient::onUpdateMsg( const refinitiv::ema::access::UpdateMsg& updMsg, const refinitiv::ema::access::OmmConsumerEvent& ommConsEvent)
 {
 	if( updMsg.getPayload().getDataType() == DataType::MapEnum)
 	{
@@ -1108,7 +1108,7 @@ void DirectoryClient::onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&
 	}
 }
 
-void DirectoryClient::onStatusMsg( const thomsonreuters::ema::access::StatusMsg& stMsg, const thomsonreuters::ema::access::OmmConsumerEvent& ommConsEvent)
+void DirectoryClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& stMsg, const refinitiv::ema::access::OmmConsumerEvent& ommConsEvent)
 {
 	AppUtil::log("%s%d Received Directory Status %s\n", BASECONSUMER_NAME, pConsThread->consumerThreadIndex, stMsg.toString().c_str());
 }

@@ -12,7 +12,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmDate::OmmDate() :
  _pDecoder( new ( _space ) OmmDateDecoder() )

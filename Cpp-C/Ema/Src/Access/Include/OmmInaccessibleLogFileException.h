@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmInaccessibleLogFileException_h
-#define __thomsonreuters_ema_access_OmmInaccessibleLogFileException_h
+#ifndef __refinitiv_ema_access_OmmInaccessibleLogFileException_h
+#define __refinitiv_ema_access_OmmInaccessibleLogFileException_h
 
 /**
-	@class thomsonreuters::ema::access::OmmInaccessibleLogFileException OmmInaccessibleLogFileException.h "Access/Include/OmmInaccessibleLogFileException.h"
+	@class refinitiv::ema::access::OmmInaccessibleLogFileException OmmInaccessibleLogFileException.h "Access/Include/OmmInaccessibleLogFileException.h"
 	@brief OmmInaccessibleLogFileException is thrown when EMA log file can not be created.
 
 	OmmInaccessibleLogFileException is thrown when user running EAM application has no
@@ -26,7 +26,7 @@
 #include "Access/Include/OmmException.h"
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -82,4 +82,4 @@ protected:
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmInvalidHandleException_h
+#endif // __refinitiv_ema_access_OmmInvalidHandleException_h

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_EmaBuffer_h
-#define __thomsonreuters_ema_access_EmaBuffer_h
+#ifndef __refinitiv_ema_access_EmaBuffer_h
+#define __refinitiv_ema_access_EmaBuffer_h
 
 /**
-	@class thomsonreuters::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
+	@class refinitiv::ema::access::EmaBuffer EmaBuffer.h "Access/Include/EmaBuffer.h"
 	@brief EmaBuffer represents a general use binary buffer.
 
 	EmaBuffer is a buffer of 8 bit long characters where each character is represented by char or byte.
@@ -21,7 +21,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 	
 namespace ema {
 
@@ -185,4 +185,4 @@ EmaBuffer operator+( EmaBuffer buff_1, const EmaBuffer& buff_2 );
 
 }
 
-#endif // __thomsonreuters_ema_access_EmaBuffer_h
+#endif // __refinitiv_ema_access_EmaBuffer_h

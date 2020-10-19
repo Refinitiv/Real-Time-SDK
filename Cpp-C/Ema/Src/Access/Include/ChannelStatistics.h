@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ChannelStatistics_h
-#define __thomsonreuters_ema_access_ChannelStatistics_h
+#ifndef __refinitiv_ema_access_ChannelStatistics_h
+#define __refinitiv_ema_access_ChannelStatistics_h
 
 /**
-   @class thomsonreuters::ema::access::ChannelStatistics ChannelStatistics.h "Access/Include/ChannelStatistics.h"
+   @class refinitiv::ema::access::ChannelStatistics ChannelStatistics.h "Access/Include/ChannelStatistics.h"
    @brief ChannelStats provides statistical information on application channel(s).
 
    For IProvider applications, this channel information is about channels used by
@@ -26,7 +26,7 @@
 
 #include "Access/Include/EmaString.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -100,5 +100,5 @@ private:
 
 }
 
-#endif //__thomsonreuters_ema_access_ChannelStatistics_h
+#endif //__refinitiv_ema_access_ChannelStatistics_h
 

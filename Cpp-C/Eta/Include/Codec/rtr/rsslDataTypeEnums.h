@@ -26,7 +26,7 @@ extern "C" {
 
 typedef enum
 {
-	RSSL_DT_BASE_PRIMITIVE_MIN	= 0,	/*!< Minimum allowed value for primitive types - used for internal UPA range checking <BR>*/
+	RSSL_DT_BASE_PRIMITIVE_MIN	= 0,	/*!< Minimum allowed value for primitive types - used for internal ETA range checking <BR>*/
 
 	RSSL_DT_UNKNOWN				= 0,	/*!< (0) Unknown Data Type.  This is only valid when decoding an RsslFieldEntry type that requires a dictionary look-up.  If content is set defined, actual type enum will be present. <BR> */
 								
@@ -53,11 +53,11 @@ typedef enum
 	RSSL_DT_BUFFER				= 16,	/*!< (16) Buffer type, represents a raw byte buffer type with a char* and an \ref RsslUInt32 length.  See \ref RsslBufferGroup for more information. <BR>*/
 	RSSL_DT_ASCII_STRING		= 17,	/*!< (17) ASCII String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is an ASCII string and should only contain characters that are valid within the ASCII specification.  See \ref RsslBufferGroup for more information. <BR>*/
 	RSSL_DT_UTF8_STRING			= 18,	/*!< (18) UTF8 String, uses the \ref RsslBuffer type for encoding and decoding. This enum indicates that the content is a UTF8 string and should only contain characters that are valid within the UTF8 encoding standard.  See \ref RsslBufferGroup for more information. <BR>*/
-	RSSL_DT_RMTES_STRING		= 19,	/*!< (19) RMTES String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is a Refinitiv Multilingual Text Encoding Standard string and should only contain characters that are valid within the RMTES encoding standard.  See \ref RsslBufferGroup and \ref RsslRmtesGroup for more information. <BR>*/
+	RSSL_DT_RMTES_STRING		= 19,	/*!< (19) RMTES String, uses the \ref RsslBuffer type for encoding and decoding.  This enum indicates that the content is a multilingual text encoding standard string and should only contain characters that are valid within the RMTES encoding standard.  See \ref RsslBufferGroup and \ref RsslRmtesGroup for more information. <BR>*/
 
 
-	RSSL_DT_BASE_PRIMITIVE_MAX	= 63,	/*!< Maximum allowed value for primitive types - used for internal UPA range checking <BR>*/
-	RSSL_DT_SET_PRIMITIVE_MIN	= 64,	/*!< Minimum allowed value for set defined primitive types - used for internal UPA range checking <BR>*/
+	RSSL_DT_BASE_PRIMITIVE_MAX	= 63,	/*!< Maximum allowed value for primitive types - used for internal ETA range checking <BR>*/
+	RSSL_DT_SET_PRIMITIVE_MIN	= 64,	/*!< Minimum allowed value for set defined primitive types - used for internal ETA range checking <BR>*/
 
 	RSSL_DT_INT_1				= 64,	/*!< (64) 1 byte signed integer, represents a value of up to 7 bits along with a one bit sign.   <BR>*/
 	RSSL_DT_UINT_1				= 65,	/*!< (65) 1 byte unsigned integer, represents a value of up to 8 bits.   <BR>*/
@@ -81,8 +81,8 @@ typedef enum
 	RSSL_DT_TIME_7				= 83,	/*!< (83) 7 byte time, includes hours, minutes, seconds, milliseconds, and microseconds. <BR>*/
 	RSSL_DT_TIME_8				= 84,	/*!< (84) 8 byte time, includes hours, minutes, seconds, milliseconds, microseconds, and nanoseconds. <BR>*/
 							
-	RSSL_DT_SET_PRIMITIVE_MAX	= 127,	/*!< Maximum allowed value for set defined primitive types - used for internal UPA range checking <BR>*/
-	RSSL_DT_CONTAINER_TYPE_MIN	= 128,	/*!< Minimum allowed value for container types - used for internal UPA range checking <BR>*/
+	RSSL_DT_SET_PRIMITIVE_MAX	= 127,	/*!< Maximum allowed value for set defined primitive types - used for internal ETA range checking <BR>*/
+	RSSL_DT_CONTAINER_TYPE_MIN	= 128,	/*!< Minimum allowed value for container types - used for internal ETA range checking <BR>*/
 
 	RSSL_DT_NO_DATA				= 128,	/*!< (128) No Data <BR>*/
 										/*!< (129) Reserved <BR>*/
@@ -99,10 +99,10 @@ typedef enum
 	RSSL_DT_MSG					= 141,	/*!< (141) RsslMsg container type.  This can be used to nest a message inside another message (e.g. RsslPostMsg containing an RsslUpdateMsg) or nesting a message inside of another container entry (e.g. RsslMapEntry contains an RsslMsg).   <BR>*/
 	RSSL_DT_JSON				= 142,  /*!< (142) JSON formatted data, use Non-RWF type encoders.  <BR> */
 
-	RSSL_DT_CONTAINER_TYPE_MAX	= 142,	/*!<  Maximum supported container type value for this release - used for internal UPA range checking <BR>*/
+	RSSL_DT_CONTAINER_TYPE_MAX	= 142,	/*!<  Maximum supported container type value for this release - used for internal ETA range checking <BR>*/
 	RSSL_DT_MAX_RESERVED		= 224,	/*!< (224) Maximum Refinitiv reserved value.  Values beyond this can be user defined types <BR>*/
 
-	RSSL_DT_LAST				= 255	/*!< (255) Maximum allowed enumeration value - used for internal UPA range checking. <BR>*/
+	RSSL_DT_LAST				= 255	/*!< (255) Maximum allowed enumeration value - used for internal ETA range checking. <BR>*/
 } RsslDataTypes;
 
 /** 

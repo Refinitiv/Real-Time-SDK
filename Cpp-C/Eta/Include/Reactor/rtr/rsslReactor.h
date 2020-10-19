@@ -149,12 +149,12 @@ typedef struct
 } RsslConsumerWatchlistOptions;
 
 /**
- * @brief Structure representing the OAuth credential for authorization with the EDP token service.
+ * @brief Structure representing the OAuth credential for authorization with the RDP token service.
  * @see RsslReactorOMMConsumerRole
  */
 typedef struct
 {
-	RsslBuffer									userName;						/*!< The user name required to authorize with the EDP token service. Mandatory */
+	RsslBuffer									userName;						/*!< The user name required to authorize with the RDP token service. Mandatory */
 	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory */
 	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Mandatory */
 	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
@@ -185,8 +185,8 @@ typedef struct
 	RsslReactorChannelRoleBase		base;					/*!< The Base Reactor Channel Role structure. */
 	RsslRDMLoginRequest				*pLoginRequest;			/*!< A Login Request to be sent during the setup of a Consumer-Provider session. Optional. */
 	RsslBuffer						clientId;				/*!< @deprecated This is used only for backward compatibility. All OAuth credentials should be specified in RsslReactorOAuthCredential. 
-															 * Specifies an unique ID defined for an application making a request to the EDP token service. */
-	RsslReactorOAuthCredential		*pOAuthCredential;		/*!< A OAuth credential for authentication with the EDP token service. This member has higher precedence for
+															 * Specifies an unique ID defined for an application making a request to the RDP token service. */
+	RsslReactorOAuthCredential		*pOAuthCredential;		/*!< A OAuth credential for authentication with the RDP token service. This member has higher precedence for
 																authorization than the user credential specified in pLoginRequest. Optional. */
 	RsslRDMLoginMsgCallback			*loginMsgCallback;		/*!< A callback function for processing RsslRDMLoginMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
 	RsslRDMDirectoryRequest			*pDirectoryRequest;		/*!< A Directory Request to be sent during the setup of a Consumer-Provider session. Optional. Requires pLoginRequest to be set.*/
@@ -292,10 +292,10 @@ typedef struct {
 	RsslInt32	dispatchDecodeMemoryBufferSize;	/*!< Size of the memory buffer(in bytes) that the RsslReactor will use when decoding RsslRDMMsgs to pass to callback functions. */
     RsslInt32   maxEventsInPool;				/*!< Specifies maximum amount of the events in the RsslReactor pool. The default value -1 the maximum is not specified.>*/
     void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
-	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the EDP-RT service discovery. The service discovery is used when the connection arguments is not specified
+	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the RDP service discovery. The service discovery is used when the connection arguments is not specified
 												 * in the RsslReactorConnectInfo.rsslConnectOptions */
-	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying EDP-RT service
-												 * discovery and subscribing data from EDP-RT. */
+	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying RDP service
+												 * discovery and subscribing data from RDP. */
 	RsslDouble	tokenReissueRatio;				/*!< Specifies a ratio to multiply with access token validity time(seconds) for retrieving and reissuing the access token. 
 												 * The valid range is between 0.05 to 0.95. */
 	RsslInt32	reissueTokenAttemptLimit;		/*!< The maximum number of times the RsllReactor will attempt to reissue the token. If set to -1, there is no limit. */
@@ -338,7 +338,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpts, RsslErrorInfo *pError);
 
 /**
- * @brief Cleans up an RsslReactor.  Stops the UPA Reactor if necessary and sends RsslReactorChannelEvents to all active channels indicating that they are down.
+ * @brief Cleans up an RsslReactor.  Stops the ETA Reactor if necessary and sends RsslReactorChannelEvents to all active channels indicating that they are down.
  * Once this call is made, the RsslReactor is destroyed and no further calls should be made with it.  This function is not thread-safe.
  * @param pReactorOpts Configuration options for creating the RsslReactor.
  * @param pError Error structure to be populated in the event of an error.
@@ -370,7 +370,7 @@ typedef enum
 } RsslReactorDiscoveryDataFormatProtocol;
 
 /**
- * @brief Configuration options for querying EDP-RT service discovery to get service endpoints.
+ * @brief Configuration options for querying RDP service discovery to get service endpoints.
  * The proxy configuration is used only when your organization requires use of a proxy to get to the Internet.
  * @see rsslReactorQueryServiceDiscovery
  */
@@ -413,7 +413,7 @@ RTR_C_INLINE void rsslClearReactorServiceDiscoveryOptions(RsslReactorServiceDisc
 }
 
 /**
- * @brief Queries EDP-RT service discovery to get service endpoint information.
+ * @brief Queries RDP service discovery to get service endpoint information.
  * @param pReactor The reactor that will handle the request.
  * @param pOpts The RsslReactorServiceDiscoveryOptions to configure options and specify the RsslReactorServiceEndpointEventCallback to receive service endpoint information.
  * @param pError Error structure to be populated in the event of failure.
@@ -425,7 +425,7 @@ typedef struct
 	RsslConnectOptions	rsslConnectOptions;		 /*!< Options for creating the connection. */
 	RsslUInt32			initializationTimeout;	 /*!< Time(in seconds) to wait for successful initialization of a channel. 
 												  * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
-	RsslBool            enableSessionManagement; /*!< Indicates RsslReactor to request the authentication token and query an endpoint from EDP-RT service discovery if both host
+	RsslBool            enableSessionManagement; /*!< Indicates RsslReactor to request the authentication token and query an endpoint from RDP service discovery if both host
 												  * and port are not specified by users. The watchlist must be enable for the Reactor to send and reissue the token via the login
 												  * request to keep the connection alive on behalf of users.*/
 	RsslBuffer          location;                /*!< Specifies a location to get a service endpoint to establish a connection with service provider. 

@@ -18,7 +18,7 @@
 #define snprintf _snprintf
 #endif
 
-static RsslBuffer applicationName = { 12, (char*)"upacProvPerf" };
+static RsslBuffer applicationName = { 8, (char*)"ProvPerf" };
 static RsslBuffer applicationId = { 3, (char*)"256" };
 
 static void clearProvPerfConfig()
@@ -472,7 +472,7 @@ void exitWithUsage()
 			"  -sendBufSize <size>                  System Send Buffer Size(configures sysSendBufSize in RsslBindOptions)\n"
 			"  -recvBufSize <size>                  System Receive Buffer Size(configures sysRecvBufSize in RsslBindOptions)\n"
 			"  -tcpDelay                            Turns off tcp_nodelay in RsslBindOptions, enabling Nagle's\n"
-			"  -highWaterMark                       Sets the number of buffered bytes that will cause UPA to automatically flush\n"
+			"  -highWaterMark                       Sets the number of buffered bytes that will cause ETA to automatically flush\n"
 			"  -if <interface name>                 Name of network interface to use\n"
 			"\n"
 			"  -tickRate <ticks per second>         Ticks per second\n"
@@ -504,7 +504,7 @@ void exitWithUsage()
 			"  -nanoTime                            Use nanosecond precision for latency information instead of microsecond.\n"
 			"  -measureEncode                       Measure encoding time of messages.\n"
 			"\n"
-			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
+			"  -reactor                             Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
 			"\n"
 			"  -pl \"<list>\"                         List of supported WS sub-protocols in order of preference(',' | white space delineated)\n"
 			"\n"

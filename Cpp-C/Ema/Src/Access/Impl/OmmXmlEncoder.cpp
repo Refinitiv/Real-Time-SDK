@@ -8,7 +8,7 @@
 
 #include "OmmXmlEncoder.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 OmmXmlEncoder::OmmXmlEncoder()
 {

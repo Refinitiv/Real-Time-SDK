@@ -1,0 +1,60 @@
+!
+!   This file contains information proprietary to
+!   Refinitiv and may not be reproduced, disclosed
+!   or used in whole or in part without the express written
+!   permission of Refinitiv. Refinitiv may
+!   update or remove this document at any time without
+!   notice.
+!
+!   Version	 4.10.11_Dictionary_13.11		04-07-2012
+!	* Modified 04/07/2012 at Bangkok:
+!     - This file is a based on RWF.DAT from RDMD V4.10.11.
+!
+!   RDM Field Dictionary
+!   --------------------
+!
+!   Version: 4.10.11
+!
+!   This file contains a complete list of acronyms used in Field Lists
+!   and, for each acronym, gives:
+!
+!     * DDE Acronym
+!     * associated FID
+!     * ripples to FID (by acronym)
+!     * Marketfeed field type
+!     * Marketfeed maximum field length
+!     * RWF field type (RWF_DT_)
+!     * RWF maximum field length (for caching)
+!
+! Copyright (C) 2019 Refinitiv
+!
+!tag Filename  RWF.DAT
+!tag Desc      RDF-D RWF field set
+!tag Type      1
+!tag Version   4.10.11
+!tag Build     1
+!tag Date      01-Jun-2012
+!
+!ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
+!-------    -----------          ---  ----------  ----------     ------  --------   -------
+!
+PROD_PERM  "PERMISSION"            1  NULL        INTEGER            5  UINT64           2
+!
+! Product permissions information.
+!
+MAX_FID     "MAX_FID"          32767  NULL        ENUMERATED    3 ( 3 )  ENUM            1
+!
+! Test MAX_FID.
+!
+MIN_FID     "MIN_FID"         -32768  NULL        ENUMERATED    3 ( 3 )  ENUM            1
+!
+! Test MIN_FID.
+!
+TRDPRC_1   "LAST"                   6  TRDPRC_2    PRICE              17  REAL64           7
+!
+! Last trade price or value.
+!
+TRDPRC_2   "LAST 1"                 7  TRDPRC_3    PRICE              17  REAL64           7
+TRDPRC_3   "LAST 2"                 8  TRDPRC_4    PRICE              17  REAL64           7
+TRDPRC_4   "LAST 3"                 9  TRDPRC_5    PRICE              17  REAL64           7
+TRDPRC_5   "LAST 4"                10  NULL        PRICE              17  REAL64           7

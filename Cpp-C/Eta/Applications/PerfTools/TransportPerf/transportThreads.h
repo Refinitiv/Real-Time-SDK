@@ -6,7 +6,7 @@
 */
 
 /* transportThreads.h
- * Provides the logic that connections use with upacTransportPerf for sending messages
+ * Provides the logic that connections use with TransportPerf for sending messages
  * over connections. */
 
 #ifndef _TRANSPORT_THREADS_H

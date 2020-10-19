@@ -4,8 +4,8 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-group = "com.thomsonreuters.upa.valueadd"
-archivesBaseName = "upaValueAdd"
+group = "com.refinitiv.eta.valueadd"
+archivesBaseName = "etaValueAdd"
 version "$SpecificationVersion"
 
 uploadArchives {
@@ -35,7 +35,7 @@ uploadArchives {
 
                 developers {
                     developer {
-                        organization 'Thomson Reuters'
+                        organization 'Refinitiv'
                     }
                 }
 
@@ -115,7 +115,7 @@ jar {
 	}
 
         destinationDir = file("../Libs/")
-        baseName = 'upaValueAdd'
+        baseName = 'etaValueAdd'
 }
 
 javadoc {
@@ -126,7 +126,7 @@ javadoc {
         exclude '**/*Impl.java'
         exclude '**/JUnit*.java'
 
-        destinationDir = file('../Docs/refman/upajvalueadd/')
+        destinationDir = file('../Docs/refman/etajvalueadd/')
         title = "ETA ValueAdd JAVA " +  "${SpecificationVersion}"
 
         options.footer ("${javadoc_footer}")

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_ommProviderConfig_h
-#define __thomsonreuters_ema_access_ommProviderConfig_h
+#ifndef __refinitiv_ema_access_ommProviderConfig_h
+#define __refinitiv_ema_access_ommProviderConfig_h
 
 /**
-	@class thomsonreuters::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
+	@class refinitiv::ema::access::OmmProviderConfig OmmProviderConfig.h "Access/Include/OmmProviderConfig.h"
 	@brief OmmProviderConfig is a base class for the OmmNiProviderConfig
 
 	@see OmmProvider,
@@ -19,7 +19,7 @@
 
 #include "Access/Include/Common.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -73,4 +73,4 @@ private:
 
 }
 
-#endif // __thomsonreuters_ema_access_ommProviderConfig_h
+#endif // __refinitiv_ema_access_ommProviderConfig_h

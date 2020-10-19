@@ -10,7 +10,7 @@
 #include "ExceptionTranslator.h"
 #include <new>
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 #define DEFAULT_USER_DISPATCH							OmmNiProviderConfig::ApiDispatchEnum
 #define DEFAULT_REFRESH_FIRST_REQUIRED					true

@@ -25,10 +25,30 @@ static const char *applicationId = "256";
 /* application name */
 static const char *applicationName = "rsslProvider";
 
+static RsslBool supportRTT = RSSL_FALSE;
+/* cookie name */
+static const char *nameCookieAuthToken = "AuthToken";
+/* cookie name */
+static const char *nameCookiePosition = "AuthPosition";
+/* cookie name */
+static const char *nameCookieApplicationId = "applicationId";
+
+/* authentication token retrived from cookies*/
+static char valueCookieAuthToken[AUTH_TOKEN_LENGTH];
+
+/* position retrived from cookies*/
+static char valueCookiePosition[MAX_LOGIN_INFO_STRLEN];
+
+/* applicationId token retrived from cookies*/
+static char valueCookieApplicationId[MAX_LOGIN_INFO_STRLEN];
+
+/* use cookies for login */
+static RsslBool loginWithCookies = RSSL_FALSE;
+
 /*
  * Initializes login information fields.
  */
-void initLoginHandler()
+void initLoginHandler(RsslBool rttSupport)
 {
 	int i;
 
@@ -36,6 +56,8 @@ void initLoginHandler()
 	{
 		clearLoginReqInfo(&loginRequestInfoList[i]);
 	}
+
+	supportRTT = rttSupport;
 }
 
 /*
@@ -121,6 +143,15 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 	switch(msg->msgBase.msgClass)
 	{
 	case RSSL_MC_REQUEST:
+
+		if (loginWithCookies)
+		{
+			if (sendLoginRequestReject(chnl, msg->msgBase.streamId, ALREADY_LOGGED_WITH_COOKIE) != RSSL_RET_SUCCESS)
+				return RSSL_RET_FAILURE;
+			loginWithCookies = RSSL_FALSE;
+			break;
+		}
+
 		/* get key */
 		key = (RsslMsgKey *)rsslGetMsgKey(msg);
 
@@ -149,6 +180,17 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 
 		printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
 
+		/* Check to see if RTT is supported.  If it is not, make sure it's turned off in the response */
+		if (supportRTT == RSSL_FALSE)
+		{
+			loginRequestInfo->RTT = RSSL_FALSE;
+		}
+
+		if (loginRequestInfo->RTT == RSSL_TRUE)
+		{
+			printf("Round Trip Time Latency messages requested by the client\n");
+		}
+
 		/* send login response */
 		// APIQA comment out sendLogin Response so consumer will not receive login response 
 		//if (sendLoginResponse(chnl, loginRequestInfo) != RSSL_RET_SUCCESS)
@@ -162,6 +204,23 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 		/* close login stream */
 		closeLoginStream(msg->msgBase.streamId);
 
+		break;
+	case RSSL_MC_GENERIC:
+		if (supportRTT == RSSL_FALSE)
+		{
+			printf("RTT messages are not supported for this run.  Turn it on with -rtt.\n");
+			return RSSL_RET_SUCCESS;
+		}
+		printf("\nReceived RTT response from client.\n");
+		loginRequestInfo = getLoginReqInfo(chnl, msg);
+
+		if (!loginRequestInfo)
+		{
+			printf("Received an RTT response on a closed login stream\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		decodeLoginRTTForServer(chnl, msg, dIter, &(loginRequestInfo->RTTLatency));
 		break;
 
 	default:
@@ -232,6 +291,48 @@ static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginR
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet sendRTTLoginMsg(RsslChannel* chnl)
+{
+	RsslLoginRequestInfo *info = NULL;
+	RsslError error;
+	RsslBuffer* msgBuf = 0;
+
+	if ((info = findLoginReqInfo(chnl)) == NULL)
+	{
+		printf("Cannot send RTT message on a closed Login stream\n");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (info->RTT == RSSL_FALSE)
+		return RSSL_RET_SUCCESS;
+
+	/* get a buffer for the RTT message */
+	msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
+
+	if (msgBuf != NULL)
+	{
+		/* encode login RTT */
+		if (encodeLoginRTTServer(chnl, msgBuf, info->StreamId, info->RTTLatency) != RSSL_RET_SUCCESS)
+		{
+			rsslReleaseBuffer(msgBuf, &error);
+			printf("\nencodeLoginRTTServer() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		/* send login response */
+		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+
+}
+
 /*
  * Sends the login request reject status message for a channel.
  * chnl - The channel to send request reject status message to
@@ -268,6 +369,55 @@ static RsslRet sendLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, Rss
 
 	return RSSL_RET_SUCCESS;
 }
+/*
+ * Sends the login response based on cookies data
+ * chnl - The channel to send request reject status message to
+ * reason - The reason for the reject
+ */
+RsslRet sendCoockiesLoginResponse(RsslChannel* chnl) 
+{
+	RsslLoginResponseInfo loginRespInfo;
+	RsslError error;
+	RsslBuffer* msgBuf = 0;
+
+	initLoginRespInfo(&loginRespInfo);
+
+	/* get a buffer for the login response */
+	msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
+
+	if (msgBuf != NULL)
+	{
+		loginRespInfo.StreamId = -1;
+		snprintf(loginRespInfo.Username, AUTH_TOKEN_LENGTH, "%s", valueCookieAuthToken);
+		snprintf(loginRespInfo.ApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", valueCookieApplicationId);
+		snprintf(loginRespInfo.Position, MAX_LOGIN_INFO_STRLEN, "%s", valueCookiePosition);
+
+		loginRespInfo.SingleOpen = 0;				/* this provider does not support SingleOpen behavior */
+		loginRespInfo.SupportBatchRequests = RDM_LOGIN_BATCH_SUPPORT_REQUESTS | RDM_LOGIN_BATCH_SUPPORT_CLOSES;		/* this provider supports batch requests and batch close */
+		loginRespInfo.SupportOMMPost = 1;
+		/* keep default values for all others */
+
+		/* encode login response */
+		if (encodeLoginResponse(chnl, &loginRespInfo, msgBuf) != RSSL_RET_SUCCESS)
+		{
+			rsslReleaseBuffer(msgBuf, &error);
+			printf("\nencodeLoginResponse() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		/* send login response */
+		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
+		return RSSL_RET_FAILURE;
+	}
+	
+	return RSSL_RET_SUCCESS;
+}
+
 
 /* 
  * Closes the login stream for a channel. 
@@ -313,4 +463,62 @@ static void closeLoginStream(RsslInt32 streamId)
 			break;
 		}
 	}
+}
+
+static RsslBool copyCookieValue(const char *cookies, char* value)
+{
+	RsslBool endOfLine = RSSL_FALSE;
+	char* ptrCoockieEq = (char*)cookies, *ptrCoockieSc;
+	size_t valueLength = 0;
+
+	ptrCoockieEq = strchr(ptrCoockieEq, '=');
+	if (ptrCoockieEq)
+	{
+		ptrCoockieSc = strchr(ptrCoockieEq, ';');
+		if (ptrCoockieSc)
+		{
+			valueLength = (size_t)ptrCoockieSc - (size_t)ptrCoockieEq - 1; // ptrCoockieEq - 1 skip  in value ';' 
+			strncpy(value, ptrCoockieEq + 1, valueLength); // ptrCoockieEq + 1 to point to the next symbol after '='
+		}
+		else
+		{
+			strcpy(value, ptrCoockieEq + 1); // ptrCoockieEq + 1 to point to the next symbol after '='
+		}
+	}
+	else
+	{
+		printf("Cookies value is not valid: %s \n", cookies);
+		endOfLine = RSSL_TRUE;
+	}
+	return endOfLine;
+}
+
+RsslBool checkLoginCockies(const char* coockies)
+{
+	static RsslUInt32 cookiesCnt = 0;
+	const char* ptrCoockie = coockies;
+
+	cookiesCnt = cookiesCnt > 3 ? 0 : cookiesCnt;
+
+	while (*ptrCoockie)
+	{
+		if (!strncmp(ptrCoockie, nameCookieAuthToken, strlen(nameCookieAuthToken)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookieAuthToken)) break;
+		}
+		if (!strncmp(ptrCoockie, nameCookiePosition, strlen(nameCookiePosition)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookiePosition)) break;
+		}
+		if (!strncmp(ptrCoockie, nameCookieApplicationId, strlen(nameCookieApplicationId)))
+		{
+			cookiesCnt++;
+			if (copyCookieValue(ptrCoockie, valueCookieApplicationId)) break;
+		}
+		ptrCoockie++;
+	}
+
+	return (loginWithCookies = (cookiesCnt >= 3 ? RSSL_TRUE : RSSL_FALSE));
 }

@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmConsumerEvent_h
-#define __thomsonreuters_ema_access_OmmConsumerEvent_h
+#ifndef __refinitiv_ema_access_OmmConsumerEvent_h
+#define __refinitiv_ema_access_OmmConsumerEvent_h
 
 /**
-	@class thomsonreuters::ema::access::OmmConsumerEvent OmmConsumerEvent.h "Access/Include/OmmConsumerEvent.h"
+	@class refinitiv::ema::access::OmmConsumerEvent OmmConsumerEvent.h "Access/Include/OmmConsumerEvent.h"
 	@brief OmmConsumerEvent encapsulates item identifiers.
 
 	OmmConsumerEvent is used to convey item identifiers to application. OmmConsumerEvent is returned
@@ -27,7 +27,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -101,4 +101,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmConsumerEvent_h
+#endif // __refinitiv_ema_access_OmmConsumerEvent_h

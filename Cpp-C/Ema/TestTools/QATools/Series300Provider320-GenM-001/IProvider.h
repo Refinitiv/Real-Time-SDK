@@ -47,25 +47,25 @@ void sleep(int millisecs)
 #endif
 }
 
-class AppClient : public thomsonreuters::ema::access::OmmProviderClient
+class AppClient : public refinitiv::ema::access::OmmProviderClient
 {
 public:
 
-	void processLoginRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processAppDomainRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void processAppDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processAppDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
     //APIQA
-	void processLoginDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-	void processMarketPriceRequest(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
-	void processDirectoryDomainGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void processLoginDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+	void processMarketPriceRequest(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
+	void processDirectoryDomainGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
    //END APIQA
 protected:
 
-	void onReqMsg(const thomsonreuters::ema::access::ReqMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onReqMsg(const refinitiv::ema::access::ReqMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
-	void onGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent&);
+	void onGenericMsg(const refinitiv::ema::access::GenericMsg&, const refinitiv::ema::access::OmmProviderEvent&);
 
 };
 

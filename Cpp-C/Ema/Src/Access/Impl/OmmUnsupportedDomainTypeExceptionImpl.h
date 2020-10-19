@@ -6,12 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h
-#define __thomsonreuters_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h
+#ifndef __refinitiv_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h
+#define __refinitiv_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h
 
 #include "OmmUnsupportedDomainTypeException.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -39,4 +39,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h
+#endif // __refinitiv_ema_access_OmmUnsupportedDomainTypeExceptionImpl_h

@@ -1,29 +1,29 @@
-package com.thomsonreuters.upa.shared.provider;
+package com.refinitiv.eta.shared.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.Enum;
-import com.thomsonreuters.upa.codec.FieldEntry;
-import com.thomsonreuters.upa.codec.FieldList;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.Real;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRefresh;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceUpdate;
-import com.thomsonreuters.upa.transport.Channel;
-import com.thomsonreuters.upa.transport.Error;
-import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DecodeIterator;
+import com.refinitiv.eta.codec.EncodeIterator;
+import com.refinitiv.eta.codec.Enum;
+import com.refinitiv.eta.codec.FieldEntry;
+import com.refinitiv.eta.codec.FieldList;
+import com.refinitiv.eta.codec.QosRates;
+import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.codec.Real;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.UInt;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceItem;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceRefresh;
+import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceUpdate;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.TransportBuffer;
 
 /**
  * This handles storage of all market price items.

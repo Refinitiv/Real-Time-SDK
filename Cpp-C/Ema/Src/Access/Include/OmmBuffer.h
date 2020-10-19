@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_OmmBuffer_h
-#define __thomsonreuters_ema_access_OmmBuffer_h
+#ifndef __refinitiv_ema_access_OmmBuffer_h
+#define __refinitiv_ema_access_OmmBuffer_h
 
 /**
-	@class thomsonreuters::ema::access::OmmBuffer OmmBuffer.h "Access/Include/OmmBuffer.h"
+	@class refinitiv::ema::access::OmmBuffer OmmBuffer.h "Access/Include/OmmBuffer.h"
 	@brief OmmBuffer represents a binary buffer value in Omm.
 
 	\code
@@ -39,7 +39,7 @@
 
 #include "Access/Include/Data.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -107,4 +107,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_OmmBuffer_h
+#endif // __refinitiv_ema_access_OmmBuffer_h

@@ -6,7 +6,7 @@
 */
 
 /* transportPerfConfig.h
- * Configures the upacTransportPerf application. */
+ * Configures the TransportPerf application. */
 
 #ifndef _TRANSPORT_PERF_CONFIG_H
 #define _TRANSPORT_PERF_CONFIG_H
@@ -24,7 +24,7 @@ typedef enum
 	APPTYPE_CLIENT 		= 2
 } ApplicationType;
 
-/* Provides configuration for the upacTransportPerf application. */
+/* Provides configuration for the TransportPerf application. */
 typedef struct 
 {
 	RsslUInt32	runTime;							/* Time application runs befor exiting.  See -runTime */

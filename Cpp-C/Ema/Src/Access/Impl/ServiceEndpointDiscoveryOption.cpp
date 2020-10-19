@@ -8,7 +8,7 @@
 
 #include "ServiceEndpointDiscoveryOption.h"
 
-using namespace thomsonreuters::ema::access;
+using namespace refinitiv::ema::access;
 
 ServiceEndpointDiscoveryOption::ServiceEndpointDiscoveryOption()
 {

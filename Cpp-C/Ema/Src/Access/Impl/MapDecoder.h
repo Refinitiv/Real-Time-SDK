@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_MapDecoder_h
-#define __thomsonreuters_ema_access_MapDecoder_h
+#ifndef __refinitiv_ema_access_MapDecoder_h
+#define __refinitiv_ema_access_MapDecoder_h
 
 #include "Decoder.h"
 #include "MapEntry.h"
@@ -16,7 +16,7 @@
 #include "NoDataImpl.h"
 #include "EmaBufferInt.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -137,4 +137,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_MapDecoder_h
+#endif // __refinitiv_ema_access_MapDecoder_h

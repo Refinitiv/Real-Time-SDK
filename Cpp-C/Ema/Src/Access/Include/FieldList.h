@@ -6,11 +6,11 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __thomsonreuters_ema_access_FieldList_h
-#define __thomsonreuters_ema_access_FieldList_h
+#ifndef __refinitiv_ema_access_FieldList_h
+#define __refinitiv_ema_access_FieldList_h
 
 /**
-	@class thomsonreuters::ema::access::FieldList FieldList.h "Access/Include/FieldList.h"
+	@class refinitiv::ema::access::FieldList FieldList.h "Access/Include/FieldList.h"
 	@brief FieldList is a heterogeneous container of complex and primitive data type entries.
 
 	FieldList entries are identified by Field Id. The meaning of the Field Id is conveyed by
@@ -143,7 +143,7 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/FieldEntry.h"
 
-namespace thomsonreuters {
+namespace refinitiv {
 
 namespace ema {
 
@@ -679,7 +679,7 @@ public :
 
 private :
 
-	friend class thomsonreuters::ema::rdm::DictionaryUtility;
+	friend class refinitiv::ema::rdm::DictionaryUtility;
 
 	void getInfoXmlStr( EmaString& ) const;
 
@@ -706,4 +706,4 @@ private :
 
 }
 
-#endif // __thomsonreuters_ema_access_FieldList_h
+#endif // __refinitiv_ema_access_FieldList_h
