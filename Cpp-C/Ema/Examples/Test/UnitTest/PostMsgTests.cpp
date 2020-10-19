@@ -847,3 +847,210 @@ TEST(PostMsgTests, testPostMsgEditClone)
 
 	rsslDeleteDataDictionary(&dictionary);
 }
+
+TEST(PostMsgTests, testPostMsgCloneMsgKeyPermissionData)
+{
+
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	char permissionData[] = "permission access to important data";
+	const RsslUInt32 permissionDataLen = sizeof(permissionData) / sizeof(char);
+
+	RsslUInt32 seqNum;
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_PSMF_NONE,
+		RSSL_PSMF_HAS_MSG_KEY,
+		RSSL_PSMF_HAS_PERM_DATA,
+		RSSL_PSMF_HAS_SEQ_NUM,
+		RSSL_PSMF_HAS_PART_NUM,
+		RSSL_PSMF_HAS_MSG_KEY | RSSL_PSMF_HAS_PERM_DATA | RSSL_PSMF_HAS_SEQ_NUM | RSSL_PSMF_HAS_PART_NUM,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslPostMsg post;
+			rsslClearPostMsg(&post);
+
+			post.msgBase.domainType = RSSL_DMT_MARKET_BY_PRICE;
+			post.msgBase.streamId = 3;
+			post.flags = flag;
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			if (flag & RSSL_PSMF_HAS_MSG_KEY)
+			{
+				RsslBuffer nameBuffer;
+				nameBuffer.data = const_cast<char*>("TRI.N");
+				nameBuffer.length = 5;
+
+				msgKey.name = nameBuffer;
+				rsslMsgKeyApplyHasName(&msgKey);
+
+				msgKey.nameType = 1;
+				rsslMsgKeyApplyHasNameType(&msgKey);
+
+				msgKey.serviceId = 2;
+				rsslMsgKeyApplyHasServiceId(&msgKey);
+
+				msgKey.identifier = 4;
+				rsslMsgKeyApplyHasIdentifier(&msgKey);
+
+				msgKey.filter = 8;
+				rsslMsgKeyApplyHasFilter(&msgKey);
+
+				rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+				rsslBuf.data = rsslBufferData;
+
+				EmaString inText;
+				encodeFieldList(rsslBuf, inText);
+
+				msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+				msgKey.encAttrib = rsslBuf;
+				rsslMsgKeyApplyHasAttrib(&msgKey);
+
+				post.msgBase.msgKey = msgKey;
+				rsslPostMsgApplyHasMsgKey(&post);
+
+				post.msgBase.encDataBody = rsslBuf;
+				post.msgBase.containerType = RSSL_DT_FIELD_LIST;
+			}
+			else {
+				post.msgBase.encDataBody.data = 0;
+				post.msgBase.encDataBody.length = 0;
+				post.msgBase.containerType = RSSL_DT_NO_DATA;
+			}
+
+			/* Add Permission Info */
+			if (flag & RSSL_PSMF_HAS_PERM_DATA)
+			{
+				post.permData.length = permissionDataLen;
+				post.permData.data = permissionData;
+			}
+
+			/* Add Item Sequence Number */
+			if (flag & RSSL_PSMF_HAS_SEQ_NUM)
+			{
+				seqNum = i;
+				post.seqNum = seqNum;
+			}
+
+			/* Add partNum Info */
+			if (flag & RSSL_PSMF_HAS_PART_NUM)
+			{
+				post.partNum = seqNum + 74;
+			}
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg postDecode;
+			PostMsg respMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&post, decodeIter, (RsslMsg*)&postDecode, respMsg, dictionary);
+
+			PostMsg clonePostMsg(respMsg);
+
+			EXPECT_EQ(clonePostMsg.getDomainType(), respMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(clonePostMsg.getDomainType(), RSSL_DMT_MARKET_BY_PRICE) << "Compare domainType: should be equal to " << RSSL_DMT_MARKET_BY_PRICE;
+
+			EXPECT_EQ(clonePostMsg.getStreamId(), respMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(clonePostMsg.getStreamId(), 3) << "Compare streamId: should be equal to 3";
+
+			EXPECT_EQ(clonePostMsg.hasMsgKey(), respMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(clonePostMsg.hasName(), respMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(clonePostMsg.hasNameType(), respMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(clonePostMsg.hasServiceId(), respMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(clonePostMsg.hasId(), respMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(clonePostMsg.hasFilter(), respMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(clonePostMsg.hasExtendedHeader(), respMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(clonePostMsg.hasSeqNum(), respMsg.hasSeqNum()) << "Compare hasSeqNum";
+			EXPECT_EQ(clonePostMsg.hasPostId(), respMsg.hasPostId()) << "Compare hasPostId";
+			EXPECT_EQ(clonePostMsg.hasPermissionData(), respMsg.hasPermissionData()) << "Compare hasPermissionData";
+			EXPECT_EQ(clonePostMsg.hasPartNum(), respMsg.hasPartNum()) << "Compare hasPartNum";
+			EXPECT_EQ(clonePostMsg.hasPostUserRights(), respMsg.hasPostUserRights()) << "Compare hasPostUserRights";
+			EXPECT_EQ(clonePostMsg.hasServiceName(), respMsg.hasServiceName()) << "Compare hasServiceName";
+
+			EXPECT_STREQ(respMsg.toString(), clonePostMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(clonePostMsg.hasMsgKey(), (flag & RSSL_PSMF_HAS_MSG_KEY) > 0) << "Compare hasMsgKey: " << (flag & RSSL_PSMF_HAS_MSG_KEY);
+			if (clonePostMsg.hasMsgKey() && respMsg.hasMsgKey())
+			{
+				if (clonePostMsg.hasServiceId())
+				{
+					EXPECT_EQ(clonePostMsg.getServiceId(), respMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (clonePostMsg.hasName())
+				{
+					EXPECT_EQ(clonePostMsg.getName(), respMsg.getName()) << "Compare name";
+				}
+				if (clonePostMsg.hasNameType())
+				{
+					EXPECT_EQ(clonePostMsg.getNameType(), respMsg.getNameType()) << "Compare nameType";
+				}
+				if (clonePostMsg.hasId())
+				{
+					EXPECT_EQ(clonePostMsg.getId(), respMsg.getId()) << "Compare id";
+				}
+				if (clonePostMsg.hasFilter())
+				{
+					EXPECT_EQ(clonePostMsg.getFilter(), respMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(clonePostMsg.hasSeqNum(), (flag & RSSL_PSMF_HAS_SEQ_NUM) > 0) << "Compare hasSeqNum: " << (flag & RSSL_PSMF_HAS_SEQ_NUM);
+			if (clonePostMsg.hasSeqNum() && respMsg.hasSeqNum())
+			{
+				EXPECT_EQ(clonePostMsg.getSeqNum(), respMsg.getSeqNum()) << "Compare SeqNum";
+				EXPECT_EQ(seqNum, clonePostMsg.getSeqNum()) << "Compare SeqNum: " << seqNum;
+			}
+
+			EXPECT_EQ(clonePostMsg.hasPermissionData(), (flag & RSSL_PSMF_HAS_PERM_DATA) > 0) << "Compare hasPermissionData: " << (flag & RSSL_PSMF_HAS_PERM_DATA);
+			if (clonePostMsg.hasPermissionData() && respMsg.hasPermissionData())
+			{
+				const EmaBuffer& permDataOrig = clonePostMsg.getPermissionData();
+				const EmaBuffer& permDataCopy = respMsg.getPermissionData();
+				EmaBuffer permData(permissionData, permissionDataLen);
+
+				EXPECT_EQ(permDataOrig.length(), permDataCopy.length()) << "Compare length of EmaBuffer Permission Data";
+				EXPECT_EQ(permDataOrig.length(), permissionDataLen) << "Compare length of EmaBuffer Permission Data: " << permissionDataLen;
+				EXPECT_EQ(permDataOrig, permDataCopy) << "Compare EmaBuffer Permission Data";
+				EXPECT_EQ(permData, permDataCopy) << "Compare EmaBuffer Permission Data: " << permissionData;
+			}
+
+			EXPECT_EQ(clonePostMsg.hasPartNum(), (flag & RSSL_PSMF_HAS_PART_NUM) > 0) << "Compare hasPartNum: " << (flag & RSSL_PSMF_HAS_PART_NUM);
+			if (clonePostMsg.hasPartNum() && respMsg.hasPartNum())
+			{
+				EXPECT_EQ(clonePostMsg.getPartNum(), respMsg.getPartNum()) << "Compare getPartNum";
+				EXPECT_EQ(clonePostMsg.getPartNum(), seqNum + 74) << "Compare getPartNum: " << (seqNum + 74);
+			}
+
+			EXPECT_TRUE(true) << "PostMsg Clone Success";
+		}
+		catch (const OmmException&)
+		{
+			EXPECT_FALSE(true) << "PostMsg Clone - exception not expected";
+		}
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}

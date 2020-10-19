@@ -907,3 +907,175 @@ TEST(AckMsgTests, testAckMsgEditClone)
 
 	rsslDeleteDataDictionary(&dictionary);
 }
+
+TEST(AckMsgTests, testAckMsgCloneMsgKey)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	RsslUInt32 seqNum;
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_AKMF_NONE,
+		RSSL_AKMF_HAS_MSG_KEY,
+		RSSL_AKMF_HAS_SEQ_NUM,
+		RSSL_AKMF_HAS_NAK_CODE,
+		RSSL_AKMF_HAS_MSG_KEY | RSSL_AKMF_HAS_SEQ_NUM | RSSL_AKMF_HAS_NAK_CODE,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslAckMsg rsslAckMsg;
+			rsslClearAckMsg(&rsslAckMsg);
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			rsslAckMsg.msgBase.streamId = 2;
+			rsslAckMsg.msgBase.domainType = RSSL_DMT_TRANSACTION;
+			rsslAckMsg.ackId = i + 123;
+
+			rsslAckMsg.flags = flag;
+
+			if (flag & RSSL_AKMF_HAS_MSG_KEY)
+			{
+				RsslBuffer nameBuffer;
+				nameBuffer.data = const_cast<char*>("ABCDEF");
+				nameBuffer.length = 6;
+
+				msgKey.name = nameBuffer;
+				rsslMsgKeyApplyHasName(&msgKey);
+
+				rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+				rsslBuf.data = rsslBufferData;
+
+				EmaString inText;
+				encodeFieldList(rsslBuf, inText);
+
+				rsslAckMsg.msgBase.encDataBody = rsslBuf;
+				rsslAckMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+
+				msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+				msgKey.encAttrib = rsslBuf;
+				rsslMsgKeyApplyHasAttrib(&msgKey);
+
+				rsslAckMsg.msgBase.msgKey = msgKey;
+				rsslAckMsgApplyHasMsgKey(&rsslAckMsg);
+			}
+			else {
+				rsslAckMsg.msgBase.encDataBody.data = 0;
+				rsslAckMsg.msgBase.encDataBody.length = 0;
+				rsslAckMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+			}
+
+			/* Add Item Sequence Number */
+			if (flag & RSSL_AKMF_HAS_SEQ_NUM)
+			{
+				seqNum = i;
+				rsslAckMsg.seqNum = seqNum;
+			}
+
+			/* Add nakCode */
+			if (flag & RSSL_AKMF_HAS_NAK_CODE)
+			{
+				rsslAckMsg.nakCode = 112;
+			}
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg ackDecode;
+			AckMsg ackMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&rsslAckMsg, decodeIter, (RsslMsg*)&ackDecode, ackMsg, dictionary);
+
+			// Clone message
+
+			AckMsg cloneAckMsg(ackMsg);
+
+			EXPECT_EQ(cloneAckMsg.getDomainType(), ackMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(cloneAckMsg.getDomainType(), RSSL_DMT_TRANSACTION) << "Compare domainType: should be equal to " << RSSL_DMT_TRANSACTION;
+
+			EXPECT_EQ(cloneAckMsg.getStreamId(), ackMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(cloneAckMsg.getStreamId(), 2) << "Compare streamId: should be equal to 2";
+
+			EXPECT_EQ(cloneAckMsg.hasMsgKey(), ackMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(cloneAckMsg.hasName(), ackMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(cloneAckMsg.hasNameType(), ackMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(cloneAckMsg.hasServiceId(), ackMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(cloneAckMsg.hasId(), ackMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(cloneAckMsg.hasFilter(), ackMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(cloneAckMsg.hasExtendedHeader(), ackMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(cloneAckMsg.hasSeqNum(), ackMsg.hasSeqNum()) << "Compare hasSeqNum";
+			EXPECT_EQ(cloneAckMsg.hasNackCode(), ackMsg.hasNackCode()) << "Compare hasNackCode";
+			EXPECT_EQ(cloneAckMsg.hasText(), ackMsg.hasText()) << "Compare hasText";
+			EXPECT_EQ(cloneAckMsg.hasServiceName(), ackMsg.hasServiceName()) << "Compare hasServiceName";
+
+			EXPECT_STREQ(cloneAckMsg.toString(), ackMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(cloneAckMsg.hasMsgKey(), (flag & RSSL_AKMF_HAS_MSG_KEY) > 0) << "Compare hasMsgKey: " << (flag & RSSL_AKMF_HAS_MSG_KEY);
+			if (cloneAckMsg.hasMsgKey() && ackMsg.hasMsgKey())
+			{
+				if (cloneAckMsg.hasServiceId())
+				{
+					EXPECT_EQ(cloneAckMsg.getServiceId(), ackMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (cloneAckMsg.hasName())
+				{
+					EXPECT_EQ(cloneAckMsg.getName(), ackMsg.getName()) << "Compare name";
+				}
+				if (cloneAckMsg.hasNameType())
+				{
+					EXPECT_EQ(cloneAckMsg.getNameType(), ackMsg.getNameType()) << "Compare nameType";
+				}
+				if (cloneAckMsg.hasId())
+				{
+					EXPECT_EQ(cloneAckMsg.getId(), ackMsg.getId()) << "Compare id";
+				}
+				if (cloneAckMsg.hasFilter())
+				{
+					EXPECT_EQ(cloneAckMsg.getFilter(), ackMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(cloneAckMsg.hasSeqNum(), (flag & RSSL_AKMF_HAS_SEQ_NUM) > 0) << "Compare hasSeqNum: " << (flag & RSSL_AKMF_HAS_SEQ_NUM);
+			if (cloneAckMsg.hasSeqNum() && ackMsg.hasSeqNum())
+			{
+				EXPECT_EQ(cloneAckMsg.getSeqNum(), ackMsg.getSeqNum()) << "Compare SeqNum";
+				EXPECT_EQ(seqNum, cloneAckMsg.getSeqNum()) << "Compare SeqNum: " << seqNum;
+			}
+
+			EXPECT_EQ(cloneAckMsg.hasNackCode(), (flag & RSSL_AKMF_HAS_NAK_CODE) > 0) << "Compare hasNackCode: " << (flag & RSSL_AKMF_HAS_NAK_CODE);
+			if (cloneAckMsg.hasNackCode() && ackMsg.hasNackCode())
+			{
+				EXPECT_EQ(cloneAckMsg.getNackCode(), ackMsg.getNackCode()) << "Compare getNackCode";
+				EXPECT_EQ(112, cloneAckMsg.getNackCode()) << "Compare getNackCode: " << 112;
+			}
+
+			EXPECT_TRUE(true) << "AckMsg Clone Success";
+		}
+		catch (const OmmException&)
+		{
+			EXPECT_FALSE(true) << "AckMsg Clone - exception not expected";
+		}
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}

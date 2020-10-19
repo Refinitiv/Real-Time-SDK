@@ -68,4 +68,8 @@ void EmaDecodeMapAll( const thomsonreuters::ema::access::Map& map );
 
 bool comparingData(RsslBuffer& rsslBuffer, const thomsonreuters::ema::access::EmaString& emaString);
 
+void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
+	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, thomsonreuters::ema::access::Msg& respMsg,
+	RsslDataDictionary const& dictionary);
+
 #endif // __TestUtilities_h

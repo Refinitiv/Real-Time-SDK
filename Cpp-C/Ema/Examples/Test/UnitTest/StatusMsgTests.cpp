@@ -1213,3 +1213,220 @@ TEST(StatusMsgTests, testStatusMsgEditClone)
 
 	rsslDeleteDataDictionary(&dictionary);
 }
+
+TEST(StatusMsgTests, testStatusMsgCloneMsgKeyPermissionData)
+{
+
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	char groupId[] = "3";
+	const RsslUInt32 groupIdLen = sizeof(groupId) / sizeof(char);
+
+	char permissionData[] = "permission access to important data";
+	const RsslUInt32 permissionDataLen = sizeof(permissionData) / sizeof(char);
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_STMF_NONE,
+		RSSL_STMF_HAS_MSG_KEY,
+		RSSL_STMF_HAS_PERM_DATA,
+		RSSL_STMF_HAS_GROUP_ID,
+		RSSL_STMF_HAS_POST_USER_INFO,
+		RSSL_STMF_HAS_MSG_KEY | RSSL_STMF_HAS_PERM_DATA | RSSL_STMF_HAS_GROUP_ID | RSSL_STMF_HAS_POST_USER_INFO,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslStatusMsg status;
+			rsslClearStatusMsg(&status);
+
+			status.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+			status.msgBase.streamId = 3;
+
+			status.flags = flag;
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			/* Add msgKey */
+			if (flag & RSSL_STMF_HAS_MSG_KEY)
+			{
+
+				RsslBuffer nameBuffer;
+				nameBuffer.data = const_cast<char*>("TRI.N");
+				nameBuffer.length = 5;
+
+				msgKey.name = nameBuffer;
+				rsslMsgKeyApplyHasName(&msgKey);
+
+				msgKey.nameType = 1;
+				rsslMsgKeyApplyHasNameType(&msgKey);
+
+				msgKey.serviceId = 2;
+				rsslMsgKeyApplyHasServiceId(&msgKey);
+
+				msgKey.identifier = 4;
+				rsslMsgKeyApplyHasIdentifier(&msgKey);
+
+				msgKey.filter = 8;
+				rsslMsgKeyApplyHasFilter(&msgKey);
+
+				rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+				rsslBuf.data = rsslBufferData;
+
+				EmaString inText;
+				encodeFieldList(rsslBuf, inText);
+
+				msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+				msgKey.encAttrib = rsslBuf;
+				rsslMsgKeyApplyHasAttrib(&msgKey);
+
+				status.msgBase.msgKey = msgKey;
+				rsslStatusMsgApplyHasMsgKey(&status);
+
+				status.msgBase.encDataBody = rsslBuf;
+				status.msgBase.containerType = RSSL_DT_FIELD_LIST;
+			}
+			else
+			{
+				status.msgBase.encDataBody.data = 0;
+				status.msgBase.encDataBody.length = 0;
+				status.msgBase.containerType = RSSL_DT_NO_DATA;
+			}
+
+			/* Add Permission Info */
+			if (flag & RSSL_STMF_HAS_PERM_DATA)
+			{
+				status.permData.length = permissionDataLen;
+				status.permData.data = permissionData;
+			}
+
+			/* Add Group ID */
+			if (flag & RSSL_STMF_HAS_GROUP_ID)
+			{
+				status.groupId.data = groupId;
+				status.groupId.length = groupIdLen;
+			}
+
+			if (flag & RSSL_STMF_HAS_POST_USER_INFO)
+			{
+				status.postUserInfo.postUserAddr = 0x7B8A753E;
+				status.postUserInfo.postUserId = 222324;
+			}
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg statusDecode;
+			StatusMsg respMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&status, decodeIter, (RsslMsg*)&statusDecode, respMsg, dictionary);
+
+			// Clone message
+			StatusMsg cloneStatusMsg(respMsg);
+
+			EXPECT_EQ(cloneStatusMsg.getDomainType(), respMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(cloneStatusMsg.getDomainType(), RSSL_DMT_MARKET_PRICE) << "Compare domainType: should be equal to " << RSSL_DMT_MARKET_PRICE;
+
+			EXPECT_EQ(cloneStatusMsg.getStreamId(), respMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(cloneStatusMsg.getStreamId(), 3) << "Compare streamId: should be equal to 3";
+
+			EXPECT_EQ(cloneStatusMsg.hasMsgKey(), respMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(cloneStatusMsg.hasName(), respMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(cloneStatusMsg.hasNameType(), respMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(cloneStatusMsg.hasServiceId(), respMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(cloneStatusMsg.hasId(), respMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(cloneStatusMsg.hasFilter(), respMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(cloneStatusMsg.hasExtendedHeader(), respMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(cloneStatusMsg.hasItemGroup(), respMsg.hasItemGroup()) << "Compare hasItemGroup";
+			EXPECT_EQ(cloneStatusMsg.hasState(), respMsg.hasState()) << "Compare hasState";
+			EXPECT_EQ(cloneStatusMsg.hasPermissionData(), respMsg.hasPermissionData()) << "Compare hasPermissionData";
+			EXPECT_EQ(cloneStatusMsg.hasPublisherId(), respMsg.hasPublisherId()) << "Compare hasPublisherId";
+			EXPECT_EQ(cloneStatusMsg.hasServiceName(), respMsg.hasServiceName()) << "Compare hasServiceName";
+
+			EXPECT_STREQ(respMsg.toString(), cloneStatusMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(cloneStatusMsg.hasMsgKey(), (flag & RSSL_STMF_HAS_MSG_KEY) > 0) << "Compare hasMsgKey: " << (flag & RSSL_STMF_HAS_MSG_KEY);
+			if (cloneStatusMsg.hasMsgKey() && respMsg.hasMsgKey())
+			{
+				if (cloneStatusMsg.hasServiceId())
+				{
+					EXPECT_EQ(cloneStatusMsg.getServiceId(), respMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (cloneStatusMsg.hasName())
+				{
+					EXPECT_EQ(cloneStatusMsg.getName(), respMsg.getName()) << "Compare name";
+				}
+				if (cloneStatusMsg.hasNameType())
+				{
+					EXPECT_EQ(cloneStatusMsg.getNameType(), respMsg.getNameType()) << "Compare nameType";
+				}
+				if (cloneStatusMsg.hasId())
+				{
+					EXPECT_EQ(cloneStatusMsg.getId(), respMsg.getId()) << "Compare id";
+				}
+				if (cloneStatusMsg.hasFilter())
+				{
+					EXPECT_EQ(cloneStatusMsg.getFilter(), respMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(cloneStatusMsg.hasPermissionData(), (flag & RSSL_STMF_HAS_PERM_DATA) > 0) << "Compare hasPermissionData: " << (flag & RSSL_STMF_HAS_PERM_DATA);
+			if (cloneStatusMsg.hasPermissionData() && respMsg.hasPermissionData())
+			{
+				const EmaBuffer& permDataOrig = cloneStatusMsg.getPermissionData();
+				const EmaBuffer& permDataCopy = respMsg.getPermissionData();
+				EmaBuffer permData(permissionData, permissionDataLen);
+
+				EXPECT_EQ(permDataOrig.length(), permDataCopy.length()) << "Compare length of EmaBuffer Permission Data";
+				EXPECT_EQ(permDataOrig.length(), permissionDataLen) << "Compare length of EmaBuffer Permission Data: " << permissionDataLen;
+				EXPECT_EQ(permDataOrig, permDataCopy) << "Compare EmaBuffer Permission Data";
+				EXPECT_EQ(permData, permDataCopy) << "Compare EmaBuffer Permission Data: " << permissionData;
+			}
+
+			EXPECT_EQ(cloneStatusMsg.hasItemGroup(), (flag & RSSL_STMF_HAS_GROUP_ID) > 0) << "Compare hasItemGroup: " << (flag & RSSL_STMF_HAS_GROUP_ID);
+			if (cloneStatusMsg.hasItemGroup() && respMsg.hasItemGroup())
+			{
+				EmaBuffer bufGroupId(groupId, groupIdLen);
+				EXPECT_EQ(cloneStatusMsg.getItemGroup().length(), respMsg.getItemGroup().length()) << "Compare length of ItemGroup";
+				EXPECT_EQ(cloneStatusMsg.getItemGroup().length(), groupIdLen) << "Compare length of ItemGroup: " << groupIdLen;
+				EXPECT_EQ(cloneStatusMsg.getItemGroup(), respMsg.getItemGroup()) << "Compare getItemGroup";
+				EXPECT_EQ(cloneStatusMsg.getItemGroup(), bufGroupId) << "Compare getItemGroup: " << groupId;
+			}
+
+			EXPECT_EQ(cloneStatusMsg.hasPublisherId(), (flag & RSSL_STMF_HAS_POST_USER_INFO) > 0) << "Compare hasPublisherId: " << (flag & RSSL_STMF_HAS_POST_USER_INFO);
+			if (cloneStatusMsg.hasPublisherId() && respMsg.hasPublisherId())
+			{
+				EXPECT_EQ(cloneStatusMsg.getPublisherIdUserAddress(), respMsg.getPublisherIdUserAddress()) << "Compare getPublisherIdUserAddress";
+				EXPECT_EQ(cloneStatusMsg.getPublisherIdUserAddress(), 0x7B8A753E) << "Compare getPublisherIdUserAddress: " << 0x7B8A753E;
+				EXPECT_EQ(cloneStatusMsg.getPublisherIdUserId(), respMsg.getPublisherIdUserId()) << "Compare getPublisherIdUserId";
+				EXPECT_EQ(cloneStatusMsg.getPublisherIdUserId(), 222324) << "Compare getPublisherIdUserId: " << 222324;
+			}
+
+			EXPECT_TRUE(true) << "StatusMsg Clone Success";
+		}
+		catch (const OmmException&)
+		{
+			EXPECT_FALSE(true) << "StatusMsg Clone - exception not expected";
+		}
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}

@@ -1367,3 +1367,33 @@ bool comparingData(RsslBuffer& rsslBuffer, const thomsonreuters::ema::access::Em
 
 	return false;
 }
+
+void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
+	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, Msg& respMsg,
+	RsslDataDictionary const& dictionary
+)
+{
+	RsslRet retval = 0;
+	rsslClearEncodeIterator(&encIter);
+	/* set version information of the connection on the encode iterator so proper versioning can be performed */
+	rsslSetEncodeIteratorRWFVersion(&encIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	retval = rsslSetEncodeIteratorBuffer(&encIter, &msgBuf);
+	ASSERT_EQ(RSSL_RET_SUCCESS, retval) << "rsslSetEncodeIteratorBuffer() failed with return code: " << retval << endl;
+
+	retval = rsslEncodeMsg(&encIter, pRsslMsg);
+	rsslClearDecodeIterator(&decodeIter);
+
+	// Set the RWF version to decode with this iterator 
+	rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+	// Associates the RsslDecodeIterator with the RsslBuffer from which to decode.
+	retval = rsslSetDecodeIteratorBuffer(&decodeIter, &msgBuf);
+	ASSERT_EQ(RSSL_RET_SUCCESS, retval) << "rsslSetDecodeIteratorBuffer() failed with return code: " << retval << endl;
+
+	// decode contents into the RsslMsg structure
+	retval = rsslDecodeMsg(&decodeIter, pRsslMsgDecode);
+	ASSERT_EQ(RSSL_RET_SUCCESS, retval) << "rsslDecodeMsg() failed with return code: " << retval << endl;
+	StaticDecoder::setRsslData(&respMsg, pRsslMsgDecode, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary);
+
+	return;
+}

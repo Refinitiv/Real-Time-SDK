@@ -2118,3 +2118,201 @@ TEST(GenericMsgTests, testGenericMsgEditClone)
 
 	rsslDeleteDataDictionary(&dictionary);
 }
+
+TEST(GenericMsgTests, testGenericMsgCloneMsgKeyPermissionData)
+{
+	RsslDataDictionary dictionary;
+
+	char permissionData[] = "permission access to important data";
+	const RsslUInt32 permissionDataLen = sizeof(permissionData) / sizeof(char);
+
+	RsslUInt32 seqNum;
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_GNMF_NONE,
+		RSSL_GNMF_HAS_MSG_KEY,
+		RSSL_GNMF_HAS_PERM_DATA,
+		RSSL_GNMF_HAS_SEQ_NUM,
+		RSSL_GNMF_HAS_PART_NUM,
+		RSSL_GNMF_HAS_MSG_KEY | RSSL_GNMF_HAS_PERM_DATA | RSSL_GNMF_HAS_SEQ_NUM | RSSL_GNMF_HAS_PART_NUM,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	loadDictionaryFromFile(&dictionary);
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslGenericMsg generic;
+			rsslClearGenericMsg(&generic);
+
+			generic.msgBase.domainType = RSSL_DMT_MARKET_BY_PRICE;
+			generic.msgBase.streamId = 3;
+			generic.flags = flag;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			if (flag & RSSL_GNMF_HAS_MSG_KEY)
+			{
+				RsslBuffer nameBuffer;
+				nameBuffer.data = const_cast<char*> ("ABCDEF");
+				nameBuffer.length = 6;
+
+				msgKey.name = nameBuffer;
+				rsslMsgKeyApplyHasName(&msgKey);
+
+				msgKey.nameType = 1;
+				rsslMsgKeyApplyHasNameType(&msgKey);
+
+				msgKey.serviceId = 2;
+				rsslMsgKeyApplyHasServiceId(&msgKey);
+
+				rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+				rsslBuf.data = rsslBufferData;
+
+				EmaString inText;
+				encodeFieldList(rsslBuf, inText);
+
+				msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+				msgKey.encAttrib = rsslBuf;
+				rsslMsgKeyApplyHasAttrib(&msgKey);
+
+				generic.msgBase.msgKey = msgKey;
+				rsslGenericMsgApplyHasMsgKey(&generic);
+
+				generic.msgBase.encDataBody = rsslBuf;
+				generic.msgBase.containerType = RSSL_DT_FIELD_LIST;
+			}
+			else
+			{
+				generic.msgBase.encDataBody.data = 0;
+				generic.msgBase.encDataBody.length = 0;
+				generic.msgBase.containerType = RSSL_DT_NO_DATA;
+			}
+
+			/* Add Permission Info */
+			if (flag & RSSL_GNMF_HAS_PERM_DATA)
+			{
+				generic.permData.length = permissionDataLen;
+				generic.permData.data = permissionData;
+			}
+
+			/* Add Item Sequence Number */
+			if (flag & RSSL_GNMF_HAS_SEQ_NUM)
+			{
+				seqNum = i;
+				generic.seqNum = seqNum;
+			}
+
+			/* Add partNum Info */
+			if (flag & RSSL_GNMF_HAS_PART_NUM)
+			{
+				generic.partNum = seqNum + 100;
+			}
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg genericDecode;
+			GenericMsg respMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&generic, decodeIter, (RsslMsg*)&genericDecode, respMsg, dictionary);
+
+			// Clone message
+			GenericMsg cloneGenericMsg(respMsg);
+
+			EXPECT_EQ(cloneGenericMsg.getDomainType(), respMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(cloneGenericMsg.getDomainType(), RSSL_DMT_MARKET_BY_PRICE) << "Compare domainType: should be equal to " << RSSL_DMT_MARKET_BY_PRICE;
+
+			EXPECT_EQ(cloneGenericMsg.getStreamId(), respMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(cloneGenericMsg.getStreamId(), 3) << "Compare streamId: should be equal to 3";
+
+			EXPECT_EQ(cloneGenericMsg.hasMsgKey(), respMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(cloneGenericMsg.hasName(), respMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(cloneGenericMsg.hasNameType(), respMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(cloneGenericMsg.hasServiceId(), respMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(cloneGenericMsg.hasId(), respMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(cloneGenericMsg.hasFilter(), respMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(cloneGenericMsg.hasExtendedHeader(), respMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(cloneGenericMsg.hasSeqNum(), respMsg.hasSeqNum()) << "Compare hasSeqNum";
+			EXPECT_EQ(cloneGenericMsg.hasPermissionData(), respMsg.hasPermissionData()) << "Compare hasPermissionData";
+			EXPECT_EQ(cloneGenericMsg.hasSecondarySeqNum(), respMsg.hasSecondarySeqNum()) << "Compare hasSecondarySeqNum";
+			EXPECT_EQ(cloneGenericMsg.hasPartNum(), respMsg.hasPartNum()) << "Compare hasPartNum";
+
+			EXPECT_STREQ(cloneGenericMsg.toString(), respMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(cloneGenericMsg.hasMsgKey(), (flag & RSSL_GNMF_HAS_MSG_KEY) > 0) << "Compare hasMsgKey: " << (flag & RSSL_GNMF_HAS_MSG_KEY);
+			if (cloneGenericMsg.hasMsgKey() && respMsg.hasMsgKey())
+			{
+				if (cloneGenericMsg.hasServiceId())
+				{
+					EXPECT_EQ(cloneGenericMsg.getServiceId(), respMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (cloneGenericMsg.hasName())
+				{
+					EXPECT_EQ(cloneGenericMsg.getName(), respMsg.getName()) << "Compare name";
+				}
+				if (cloneGenericMsg.hasNameType())
+				{
+					EXPECT_EQ(cloneGenericMsg.getNameType(), respMsg.getNameType()) << "Compare nameType";
+				}
+				if (cloneGenericMsg.hasId())
+				{
+					EXPECT_EQ(cloneGenericMsg.getId(), respMsg.getId()) << "Compare id";
+				}
+				if (cloneGenericMsg.hasFilter())
+				{
+					EXPECT_EQ(cloneGenericMsg.getFilter(), respMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(cloneGenericMsg.hasSeqNum(), (flag & RSSL_GNMF_HAS_SEQ_NUM) > 0) << "Compare hasSeqNum: " << (flag & RSSL_GNMF_HAS_SEQ_NUM);
+			if (cloneGenericMsg.hasSeqNum() && respMsg.hasSeqNum())
+			{
+				EXPECT_EQ(cloneGenericMsg.getSeqNum(), respMsg.getSeqNum()) << "Compare SeqNum";
+				EXPECT_EQ(seqNum, cloneGenericMsg.getSeqNum()) << "Compare SeqNum: " << seqNum;
+			}
+
+			EXPECT_EQ(cloneGenericMsg.hasPermissionData(), (flag & RSSL_GNMF_HAS_PERM_DATA) > 0) << "Compare hasPermissionData: " << (flag & RSSL_GNMF_HAS_PERM_DATA);
+			if (cloneGenericMsg.hasPermissionData() && respMsg.hasPermissionData())
+			{
+				const EmaBuffer& permDataOrig = cloneGenericMsg.getPermissionData();
+				const EmaBuffer& permDataCopy = respMsg.getPermissionData();
+				EmaBuffer permData(permissionData, permissionDataLen);
+
+				EXPECT_EQ(permDataOrig.length(), permDataCopy.length()) << "Compare length of EmaBuffer Permission Data";
+				EXPECT_EQ(permDataOrig.length(), permissionDataLen) << "Compare length of EmaBuffer Permission Data: " << permissionDataLen;
+				EXPECT_EQ(permDataOrig, permDataCopy) << "Compare EmaBuffer Permission Data";
+				EXPECT_EQ(permData, permDataCopy) << "Compare EmaBuffer Permission Data: " << permissionData;
+			}
+
+			EXPECT_EQ(cloneGenericMsg.hasPartNum(), (flag & RSSL_GNMF_HAS_PART_NUM) > 0) << "Compare hasPartNum: " << (flag & RSSL_GNMF_HAS_PART_NUM);
+			if (cloneGenericMsg.hasPartNum() && respMsg.hasPartNum())
+			{
+				EXPECT_EQ(cloneGenericMsg.getPartNum(), respMsg.getPartNum()) << "Compare getPartNum";
+				EXPECT_EQ(cloneGenericMsg.getPartNum(), seqNum + 100) << "Compare getPartNum: " << (seqNum + 100);
+			}
+
+			EXPECT_TRUE(true) << "GenericMsg Clone Success";
+		}
+		catch (const OmmException&)
+		{
+			EXPECT_FALSE(true) << "GenericMsg Clone - exception not expected";
+		}
+	}
+	rsslDeleteDataDictionary(&dictionary);
+}

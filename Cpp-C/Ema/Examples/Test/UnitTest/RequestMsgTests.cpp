@@ -509,12 +509,26 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), 5000 ) << "ReqMsg::getQosTimeliness()== 5000" ;
 	EXPECT_EQ( reqMsg.getQosRate(), 6000 ) << "ReqMsg::getQosRate()== 6000 " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg.getQosRate(), reqMsg.getQosRate()) << "Compare copy of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( 65539, 78895 ); // Out of range
 	StaticDecoder::setData( &reqMsg, 0 );
 
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum ) << "ReqMsg::getQosTimeliness() == ReqMsg::BestDelayedTimelinessEnum " ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::JustInTimeConflatedEnum ) << "ReqMsg::getQosRate() == ReqMsg::JustInTimeConflatedEnum" ;
+
+	// Clone message
+	ReqMsg cloneReqMsg1(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg1.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy1 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg1.getQosRate(), reqMsg.getQosRate()) << "Compare copy1 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestTimelinessEnum, ReqMsg::BestRateEnum );
@@ -523,12 +537,26 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::BestTimelinessEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::BestTimelinessEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::BestRateEnum ) << "ReqMsg::getQosRate()== ReqMsg::BestRateEnum " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg2(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg2.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy2 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg2.getQosRate(), reqMsg.getQosRate()) << "Compare copy2 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestTimelinessEnum, ReqMsg::BestConflatedRateEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::BestTimelinessEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::BestTimelinessEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::BestConflatedRateEnum ) << "ReqMsg::getQosRate()== ReqMsg::BestConflatedRateEnum " ;
+
+	// Clone message
+	ReqMsg cloneReqMsg3(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg3.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy3 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg3.getQosRate(), reqMsg.getQosRate()) << "Compare copy3 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestDelayedTimelinessEnum, ReqMsg::BestRateEnum );
@@ -537,12 +565,26 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::BestDelayedTimelinessEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::BestRateEnum ) << "ReqMsg::getQosRate()== ReqMsg::BestRateEnum " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg4(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg4.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy4 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg4.getQosRate(), reqMsg.getQosRate()) << "Compare copy4 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestDelayedTimelinessEnum, ReqMsg::BestConflatedRateEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::BestDelayedTimelinessEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::BestConflatedRateEnum ) << "ReqMsg::getQosRate()== ReqMsg::BestConflatedRateEnum " ;
+
+	// Clone message
+	ReqMsg cloneReqMsg5(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg5.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy5 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg5.getQosRate(), reqMsg.getQosRate()) << "Compare copy5 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::RealTimeEnum, ReqMsg::TickByTickEnum );
@@ -551,12 +593,26 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::RealTimeEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::RealTimeEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::TickByTickEnum ) << "ReqMsg::getQosRate()== ReqMsg::TickByTickEnum " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg6(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg6.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy6 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg6.getQosRate(), reqMsg.getQosRate()) << "Compare copy6 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::RealTimeEnum, ReqMsg::JustInTimeConflatedEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::RealTimeEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::RealTimeEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::JustInTimeConflatedEnum ) << "ReqMsg::getQosRate()== ReqMsg::JustInTimeConflatedEnum " ;
+
+	// Clone message
+	ReqMsg cloneReqMsg7(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg7.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy7 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg7.getQosRate(), reqMsg.getQosRate()) << "Compare copy7 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( 23, ReqMsg::JustInTimeConflatedEnum );
@@ -565,12 +621,26 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), 23 ) << "ReqMsg::getQosTimeliness()== 23" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::JustInTimeConflatedEnum ) << "ReqMsg::getQosRate()== ReqMsg::JustInTimeConflatedEnum " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg8(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg8.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy8 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg8.getQosRate(), reqMsg.getQosRate()) << "Compare copy8 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::RealTimeEnum, 5623 );
 	StaticDecoder::setData( &reqMsg, 0 );
 
 	EXPECT_EQ( reqMsg.getQosTimeliness(), ReqMsg::RealTimeEnum ) << "ReqMsg::getQosTimeliness()== ReqMsg::RealTimeEnum" ;
 	EXPECT_EQ( reqMsg.getQosRate(), 5623 ) << "ReqMsg::getQosRate()== 5623 " ;
+
+	// Clone message
+	ReqMsg cloneReqMsg9(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg9.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy9 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg9.getQosRate(), reqMsg.getQosRate()) << "Compare copy9 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( 9999, ReqMsg::TickByTickEnum );
@@ -579,11 +649,25 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ( reqMsg.getQosTimeliness(), 9999 ) << "ReqMsg::getQosTimeliness()== 9999" ;
 	EXPECT_EQ( reqMsg.getQosRate(), ReqMsg::TickByTickEnum ) << "ReqMsg::getQosRate()== ReqMsg::TickByTickEnum " ;
 
+	// Clone message
+	ReqMsg cloneReqMsg10(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg10.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy10 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg10.getQosRate(), reqMsg.getQosRate()) << "Compare copy10 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestTimelinessEnum, ReqMsg::TickByTickEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::BestTimelinessEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::BestTimelinessEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::TickByTickEnum) << "ReqMsg::getQosRate()== ReqMsg::TickByTickEnum";
+
+	// Clone message
+	ReqMsg cloneReqMsg11(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg11.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy11 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg11.getQosRate(), reqMsg.getQosRate()) << "Compare copy11 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestDelayedTimelinessEnum, ReqMsg::TickByTickEnum );
@@ -591,6 +675,12 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::BestDelayedTimelinessEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::TickByTickEnum) << "ReqMsg::getQosRate()== ReqMsg::TickByTickEnum";
 	
+	// Clone message
+	ReqMsg cloneReqMsg12(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg12.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy12 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg12.getQosRate(), reqMsg.getQosRate()) << "Compare copy12 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestTimelinessEnum, 4455 );
@@ -598,11 +688,25 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::BestTimelinessEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::BestTimelinessEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), 4455) << "ReqMsg::getQosRate()== 4455";
 
+	// Clone message
+	ReqMsg cloneReqMsg13(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg13.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy13 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg13.getQosRate(), reqMsg.getQosRate()) << "Compare copy13 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestDelayedTimelinessEnum, 5555 );
 	StaticDecoder::setData( &reqMsg, 0 );
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::BestDelayedTimelinessEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), 5555) << "ReqMsg::getQosRate()== 5555";
+
+	// Clone message
+	ReqMsg cloneReqMsg14(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg14.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy14 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg14.getQosRate(), reqMsg.getQosRate()) << "Compare copy14 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::RealTimeEnum, ReqMsg::BestRateEnum );
@@ -610,12 +714,25 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::RealTimeEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::RealTimeEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::BestRateEnum) << "ReqMsg::getQosRate()== ReqMsg::BestRateEnum";
 		
+	// Clone message
+	ReqMsg cloneReqMsg15(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg15.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy15 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg15.getQosRate(), reqMsg.getQosRate()) << "Compare copy15 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( 1235, ReqMsg::BestRateEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 	EXPECT_EQ(reqMsg.getQosTimeliness(), 1235) << "ReqMsg::getQosTimeliness()== 1235";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::BestRateEnum) << "ReqMsg::getQosRate()== ReqMsg::BestRateEnum";
 	
+	// Clone message
+	ReqMsg cloneReqMsg16(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg16.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy16 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg16.getQosRate(), reqMsg.getQosRate()) << "Compare copy16 of ReqMsg::getQosRate()";
+	//////////////////////
 
 	reqMsg.clear();
 	reqMsg.qos( 5678, ReqMsg::BestConflatedRateEnum );
@@ -623,11 +740,24 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecodeQos)
 	EXPECT_EQ(reqMsg.getQosTimeliness(), 5678) << "ReqMsg::getQosTimeliness()== 5678";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::BestConflatedRateEnum) << "ReqMsg::getQosRate()== ReqMsg::BestConflatedRateEnum";
 
+	// Clone message
+	ReqMsg cloneReqMsg17(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg17.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy17 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg17.getQosRate(), reqMsg.getQosRate()) << "Compare copy17 of ReqMsg::getQosRate()";
+	//////////////////////
+
 	reqMsg.clear();
 	reqMsg.qos( ReqMsg::BestDelayedTimelinessEnum, ReqMsg::JustInTimeConflatedEnum );
 	StaticDecoder::setData( &reqMsg, 0 );
 	EXPECT_EQ(reqMsg.getQosTimeliness(), ReqMsg::BestDelayedTimelinessEnum) << "ReqMsg::getQosTimeliness()== ReqMsg::BestDelayedTimelinessEnum";
 	EXPECT_EQ(reqMsg.getQosRate(), ReqMsg::JustInTimeConflatedEnum) << "ReqMsg::getQosRate()== ReqMsg::JustInTimeConflatedEnum";
+
+	// Clone message
+	ReqMsg cloneReqMsg18(reqMsg);
+
+	EXPECT_EQ(cloneReqMsg18.getQosTimeliness(), reqMsg.getQosTimeliness()) << "Compare copy18 of ReqMsg::getQosTimeliness()";
+	EXPECT_EQ(cloneReqMsg18.getQosRate(), reqMsg.getQosRate()) << "Compare copy18 of ReqMsg::getQosRate()";
 }
 
 TEST(RequestMsgTests, testRequestMsgClone)
@@ -883,5 +1013,164 @@ TEST(RequestMsgTests, testRequestMsgEditClone)
 		EXPECT_FALSE(true) << "ReqMsg Edit Clone - exception not expected";
 	}
 
+	rsslDeleteDataDictionary(&dictionary);
+}
+
+TEST(RequestMsgTests, testRequestMsgCloneMsg)
+{
+
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_RQMF_NONE,
+		RSSL_RQMF_HAS_PRIORITY,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslRequestMsg request;
+			rsslClearRequestMsg(&request);
+
+			request.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+			request.msgBase.streamId = 1;
+
+			request.flags = flag;
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			RsslBuffer nameBuffer;
+			nameBuffer.data = const_cast<char*>("ABCDEF");
+			nameBuffer.length = 6;
+
+			msgKey.name = nameBuffer;
+			rsslMsgKeyApplyHasName(&msgKey);
+
+			msgKey.nameType = 1;
+			rsslMsgKeyApplyHasNameType(&msgKey);
+
+			msgKey.serviceId = 2;
+			rsslMsgKeyApplyHasServiceId(&msgKey);
+
+			msgKey.identifier = 4;
+			rsslMsgKeyApplyHasIdentifier(&msgKey);
+
+			msgKey.filter = 8;
+			rsslMsgKeyApplyHasFilter(&msgKey);
+
+			rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+			rsslBuf.data = rsslBufferData;
+
+			EmaString inText;
+			encodeFieldList(rsslBuf, inText);
+
+			msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+			msgKey.encAttrib = rsslBuf;
+			rsslMsgKeyApplyHasAttrib(&msgKey);
+
+			request.msgBase.msgKey = msgKey;
+
+			request.msgBase.encDataBody = rsslBuf;
+			request.msgBase.containerType = RSSL_DT_FIELD_LIST;
+
+			/* Add Priority Info */
+			if (flag & RSSL_RQMF_HAS_PRIORITY)
+			{
+				request.priorityClass = 242;
+				request.priorityCount = 3178;
+			}
+
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg requestDecode;
+			ReqMsg respMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&request, decodeIter, (RsslMsg*)&requestDecode, respMsg, dictionary);
+
+			// Clone message
+			ReqMsg cloneReqMsg(respMsg);
+
+			EXPECT_EQ(cloneReqMsg.getDomainType(), respMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(cloneReqMsg.getDomainType(), RSSL_DMT_MARKET_PRICE) << "Compare domainType: should be equal to " << RSSL_DMT_MARKET_PRICE;
+
+			EXPECT_EQ(cloneReqMsg.getStreamId(), respMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(cloneReqMsg.getStreamId(), 1) << "Compare streamId: should be equal to 1";
+
+			EXPECT_EQ(cloneReqMsg.hasMsgKey(), respMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(cloneReqMsg.hasName(), respMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(cloneReqMsg.hasNameType(), respMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(cloneReqMsg.hasServiceId(), respMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(cloneReqMsg.hasId(), respMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(cloneReqMsg.hasFilter(), respMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(cloneReqMsg.hasExtendedHeader(), respMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(cloneReqMsg.hasPriority(), respMsg.hasPriority()) << "Compare hasPriority";
+			EXPECT_EQ(cloneReqMsg.hasQos(), respMsg.hasQos()) << "Compare hasQos";
+			EXPECT_EQ(cloneReqMsg.hasView(), respMsg.hasView()) << "Compare hasView";
+			EXPECT_EQ(cloneReqMsg.hasBatch(), respMsg.hasBatch()) << "Compare hasBatch";
+			EXPECT_EQ(cloneReqMsg.hasServiceName(), respMsg.hasServiceName()) << "Compare hasServiceName";
+
+			EXPECT_STREQ(respMsg.toString(), cloneReqMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(cloneReqMsg.hasMsgKey(), true) << "Compare hasMsgKey: true";
+			if (cloneReqMsg.hasMsgKey() && respMsg.hasMsgKey())
+			{
+				if (cloneReqMsg.hasServiceId())
+				{
+					EXPECT_EQ(cloneReqMsg.getServiceId(), respMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (cloneReqMsg.hasName())
+				{
+					EXPECT_EQ(cloneReqMsg.getName(), respMsg.getName()) << "Compare name";
+				}
+				if (cloneReqMsg.hasNameType())
+				{
+					EXPECT_EQ(cloneReqMsg.getNameType(), respMsg.getNameType()) << "Compare nameType";
+				}
+				if (cloneReqMsg.hasId())
+				{
+					EXPECT_EQ(cloneReqMsg.getId(), respMsg.getId()) << "Compare id";
+				}
+				if (cloneReqMsg.hasFilter())
+				{
+					EXPECT_EQ(cloneReqMsg.getFilter(), respMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(cloneReqMsg.hasPriority(), (flag & RSSL_RQMF_HAS_PRIORITY) > 0) << "Compare hasPriority: " << (flag & RSSL_RQMF_HAS_PRIORITY);
+			if (cloneReqMsg.hasPriority())
+			{
+				EXPECT_EQ(cloneReqMsg.getPriorityClass(), respMsg.getPriorityClass()) << "Compare getPriorityClass";
+				EXPECT_EQ(cloneReqMsg.getPriorityClass(), 242) << "Compare getPriorityClass: " << 242;
+				EXPECT_EQ(cloneReqMsg.getPriorityCount(), respMsg.getPriorityCount()) << "Compare getPriorityCount";
+				EXPECT_EQ(cloneReqMsg.getPriorityCount(), 3178) << "Compare getPriorityCount: " << 3178;
+			}
+
+			EXPECT_TRUE(true) << "ReqMsg Clone Success";
+		}
+		catch (const OmmException&)
+		{
+			EXPECT_FALSE(true) << "ReqMsg Clone - exception not expected";
+		}
+	}
 	rsslDeleteDataDictionary(&dictionary);
 }

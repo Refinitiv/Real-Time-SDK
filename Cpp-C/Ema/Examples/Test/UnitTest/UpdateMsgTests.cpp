@@ -1181,3 +1181,214 @@ TEST(UpdateMsgTests, testUpdateMsgEditClone)
 
 	rsslDeleteDataDictionary(&dictionary);
 }
+
+TEST(UpdateMsgTests, testUpdateMsgCloneMsgKeyPermissionData)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	char permissionData[] = "permission access to important data";
+	const RsslUInt32 permissionDataLen = sizeof(permissionData) / sizeof(char);
+
+	RsslUInt32 seqNum;
+
+	RsslUInt16 flagsTest[] = {
+		RSSL_UPMF_NONE,
+		RSSL_UPMF_HAS_MSG_KEY,
+		RSSL_UPMF_HAS_PERM_DATA,
+		RSSL_UPMF_HAS_SEQ_NUM,
+		RSSL_UPMF_HAS_CONF_INFO,
+		RSSL_UPMF_HAS_MSG_KEY | RSSL_UPMF_HAS_PERM_DATA | RSSL_UPMF_HAS_SEQ_NUM | RSSL_UPMF_HAS_CONF_INFO,
+	};
+	const size_t nFlags = sizeof(flagsTest) / sizeof(RsslUInt16);
+	RsslUInt16 flag;
+
+	char rsslBufferData[1000];
+	char msgBufData[2048];
+
+	RsslEncodeIterator encIter;
+	RsslDecodeIterator decodeIter;
+
+	loadDictionaryFromFile(&dictionary);
+
+	for (RsslUInt32 i = 0; i < nFlags; ++i)
+	{
+		flag = flagsTest[i];
+		try
+		{
+			RsslUpdateMsg update;
+			rsslClearUpdateMsg(&update);
+
+			update.msgBase.domainType = RSSL_DMT_MARKET_BY_PRICE;
+			update.msgBase.streamId = 3;
+
+			update.flags = flag;
+
+			RsslBuffer rsslBuf = RSSL_INIT_BUFFER;
+
+			RsslMsgKey msgKey;
+			rsslClearMsgKey(&msgKey);
+
+			if (flag & RSSL_UPMF_HAS_MSG_KEY)
+			{
+
+				RsslBuffer nameBuffer;
+				nameBuffer.data = const_cast<char*>("TRI.N");
+				nameBuffer.length = 5;
+
+				msgKey.name = nameBuffer;
+				rsslMsgKeyApplyHasName(&msgKey);
+
+				msgKey.nameType = 1;
+				rsslMsgKeyApplyHasNameType(&msgKey);
+
+				msgKey.serviceId = 2;
+				rsslMsgKeyApplyHasServiceId(&msgKey);
+
+				msgKey.identifier = 4;
+				rsslMsgKeyApplyHasIdentifier(&msgKey);
+
+				msgKey.filter = 8;
+				rsslMsgKeyApplyHasFilter(&msgKey);
+
+				rsslBuf.length = sizeof(rsslBufferData) / sizeof(char);
+				rsslBuf.data = rsslBufferData;
+
+				EmaString inText;
+				encodeFieldList(rsslBuf, inText);
+
+				msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+				msgKey.encAttrib = rsslBuf;
+				rsslMsgKeyApplyHasAttrib(&msgKey);
+				update.msgBase.msgKey = msgKey;
+
+				rsslUpdateMsgApplyHasMsgKey(&update);
+
+				update.msgBase.encDataBody = rsslBuf;
+				update.msgBase.containerType = RSSL_DT_FIELD_LIST;
+			}
+			else {
+				update.msgBase.encDataBody.data = 0;
+				update.msgBase.encDataBody.length = 0;
+				update.msgBase.containerType = RSSL_DT_NO_DATA;
+			}
+
+			/* Add Permission Info */
+			if (flag & RSSL_UPMF_HAS_PERM_DATA)
+			{
+				update.permData.length = permissionDataLen;
+				update.permData.data = permissionData;
+			}
+
+			/* Add Item Sequence Number */
+			if (flag & RSSL_UPMF_HAS_SEQ_NUM)
+			{
+				seqNum = i;
+				update.seqNum = seqNum;
+			}
+
+			/* Add Conflation Info */
+			if (flag & RSSL_UPMF_HAS_CONF_INFO)
+			{
+				update.conflationCount = 42;
+				update.conflationTime = 424;
+			}
+
+			RsslBuffer msgBuf;
+			msgBuf.length = sizeof(msgBufData) / sizeof(char);
+			msgBuf.data = msgBufData;
+
+			RsslMsg updateDecode;
+			UpdateMsg respMsg;
+
+			prepareMsgToCopy(encIter, msgBuf, (RsslMsg*)&update, decodeIter, (RsslMsg*)&updateDecode, respMsg, dictionary);
+
+			// Clone message
+			UpdateMsg cloneUpdateMsg(respMsg);
+
+			EXPECT_EQ(cloneUpdateMsg.getDomainType(), respMsg.getDomainType()) << "Compare domainType";
+			EXPECT_EQ(cloneUpdateMsg.getDomainType(), RSSL_DMT_MARKET_BY_PRICE) << "Compare domainType: should be equal to " << RSSL_DMT_MARKET_BY_PRICE;
+
+			EXPECT_EQ(cloneUpdateMsg.getStreamId(), respMsg.getStreamId()) << "Compare streamId";
+			EXPECT_EQ(cloneUpdateMsg.getStreamId(), 3) << "Compare streamId: should be equal to 3";
+
+			EXPECT_EQ(cloneUpdateMsg.hasMsgKey(), respMsg.hasMsgKey()) << "Compare hasMsgKey";
+			EXPECT_EQ(cloneUpdateMsg.hasName(), respMsg.hasName()) << "Compare hasName";
+			EXPECT_EQ(cloneUpdateMsg.hasNameType(), respMsg.hasNameType()) << "Compare hasNameType";
+			EXPECT_EQ(cloneUpdateMsg.hasServiceId(), respMsg.hasServiceId()) << "Compare hasServiceId";
+			EXPECT_EQ(cloneUpdateMsg.hasId(), respMsg.hasId()) << "Compare hasId";
+			EXPECT_EQ(cloneUpdateMsg.hasFilter(), respMsg.hasFilter()) << "Compare hasFilter";
+			EXPECT_EQ(cloneUpdateMsg.hasExtendedHeader(), respMsg.hasExtendedHeader()) << "Compare hasExtendedHeader";
+
+			EXPECT_EQ(cloneUpdateMsg.hasSeqNum(), respMsg.hasSeqNum()) << "Compare hasSeqNum";
+			EXPECT_EQ(cloneUpdateMsg.hasPermissionData(), respMsg.hasPermissionData()) << "Compare hasPermissionData";
+			EXPECT_EQ(cloneUpdateMsg.hasConflated(), respMsg.hasConflated()) << "Compare hasConflated";
+			EXPECT_EQ(cloneUpdateMsg.hasPublisherId(), respMsg.hasPublisherId()) << "Compare hasPublisherId";
+			EXPECT_EQ(cloneUpdateMsg.hasServiceName(), respMsg.hasServiceName()) << "Compare hasServiceName";
+
+			EXPECT_STREQ(cloneUpdateMsg.toString(), respMsg.toString()) << "Check equal toString()";
+
+			EXPECT_EQ(cloneUpdateMsg.hasMsgKey(), (flag & RSSL_UPMF_HAS_MSG_KEY) > 0) << "Compare hasMsgKey: " << (flag & RSSL_UPMF_HAS_MSG_KEY);
+			if (cloneUpdateMsg.hasMsgKey() && respMsg.hasMsgKey())
+			{
+				if (cloneUpdateMsg.hasServiceId())
+				{
+					EXPECT_EQ(cloneUpdateMsg.getServiceId(), respMsg.getServiceId()) << "Compare serviceId";
+				}
+				if (cloneUpdateMsg.hasName())
+				{
+					EXPECT_EQ(cloneUpdateMsg.getName(), respMsg.getName()) << "Compare name";
+				}
+				if (cloneUpdateMsg.hasNameType())
+				{
+					EXPECT_EQ(cloneUpdateMsg.getNameType(), respMsg.getNameType()) << "Compare nameType";
+				}
+				if (cloneUpdateMsg.hasId())
+				{
+					EXPECT_EQ(cloneUpdateMsg.getId(), respMsg.getId()) << "Compare id";
+				}
+				if (cloneUpdateMsg.hasFilter())
+				{
+					EXPECT_EQ(cloneUpdateMsg.getFilter(), respMsg.getFilter()) << "Compare filter";
+				}
+			}
+
+			EXPECT_EQ(cloneUpdateMsg.hasSeqNum(), (flag & RSSL_UPMF_HAS_SEQ_NUM) > 0) << "Compare hasSeqNum: " << (flag & RSSL_UPMF_HAS_SEQ_NUM);
+			if (cloneUpdateMsg.hasSeqNum() && respMsg.hasSeqNum())
+			{
+				EXPECT_EQ(cloneUpdateMsg.getSeqNum(), respMsg.getSeqNum()) << "Compare SeqNum";
+				EXPECT_EQ(seqNum, cloneUpdateMsg.getSeqNum()) << "Compare SeqNum: " << seqNum;
+			}
+
+			EXPECT_EQ(cloneUpdateMsg.hasPermissionData(), (flag & RSSL_UPMF_HAS_PERM_DATA) > 0) << "Compare hasPermissionData: " << (flag & RSSL_UPMF_HAS_PERM_DATA);
+			if (cloneUpdateMsg.hasPermissionData() && respMsg.hasPermissionData())
+			{
+				const EmaBuffer& permDataOrig = cloneUpdateMsg.getPermissionData();
+				const EmaBuffer& permDataCopy = respMsg.getPermissionData();
+				EmaBuffer permData(permissionData, permissionDataLen);
+
+				EXPECT_EQ(permDataOrig.length(), permDataCopy.length()) << "Compare length of EmaBuffer Permission Data";
+				EXPECT_EQ(permDataOrig.length(), permissionDataLen) << "Compare length of EmaBuffer Permission Data: " << permissionDataLen;
+				EXPECT_EQ(permDataOrig, permDataCopy) << "Compare EmaBuffer Permission Data";
+				EXPECT_EQ(permData, permDataCopy) << "Compare EmaBuffer Permission Data: " << permissionData;
+			}
+
+			EXPECT_EQ(cloneUpdateMsg.hasConflated(), (flag & RSSL_UPMF_HAS_CONF_INFO) > 0) << "Compare hasConflated: " << (flag & RSSL_UPMF_HAS_CONF_INFO);
+			if (cloneUpdateMsg.hasConflated() && respMsg.hasConflated())
+			{
+				EXPECT_EQ(cloneUpdateMsg.getConflatedCount(), respMsg.getConflatedCount()) << "Compare getConflatedCount";
+				EXPECT_EQ(cloneUpdateMsg.getConflatedCount(), 42) << "Compare getConflatedCount: " << 42;
+				EXPECT_EQ(cloneUpdateMsg.getConflatedTime(), respMsg.getConflatedTime()) << "Compare getConflatedTime";
+				EXPECT_EQ(cloneUpdateMsg.getConflatedTime(), 424) << "Compare getConflatedTime: " << 424;
+			}
+
+			EXPECT_TRUE(true) << "UpdateMsg Clone Success";
+		}
+		catch (const OmmException& ex)
+		{
+			EXPECT_FALSE(true) << "UpdateMsg Clone - exception not expected. Text: " << ex.getText();
+		}
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}
