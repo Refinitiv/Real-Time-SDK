@@ -197,7 +197,7 @@ The Transport API provides a helpful script that will create soft links for the 
     librsslJsonConverter.so.3.6.0.0    librsslJsonConverter.so.2       eta3.6.0.L1
 
     librsslVACache.so.3.6.0.0          librsslVACache.so.3             eta3.6.0.L1
-    librsslRelMcast.so.3.6.0.0         librsslRelMcast.so.1            eta3.6.0.L1
+    librsslRelMcast.so.3.6.0.0         librsslRelMcast.so.2            eta3.6.0.L1
 
 
 # ETA C-Edition Issues and Workarounds
