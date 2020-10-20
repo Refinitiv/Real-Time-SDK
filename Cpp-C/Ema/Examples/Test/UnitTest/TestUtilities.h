@@ -69,7 +69,7 @@ void EmaDecodeMapAll( const refinitiv::ema::access::Map& map );
 bool comparingData(RsslBuffer& rsslBuffer, const refinitiv::ema::access::EmaString& emaString);
 
 void prepareMsgToCopy(RsslEncodeIterator& encIter, RsslBuffer& msgBuf,
-	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, thomsonreuters::ema::access::Msg& respMsg,
+	RsslMsg* pRsslMsg, RsslDecodeIterator& decodeIter, RsslMsg* pRsslMsgDecode, refinitiv::ema::access::Msg& respMsg,
 	RsslDataDictionary const& dictionary);
 
 #endif // __TestUtilities_h
