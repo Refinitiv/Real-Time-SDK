@@ -940,9 +940,6 @@ RSSL_API RsslBool rsslValidateEncodedMsgBuf(const RsslMsg *pMsg)
 	encMsgBufStart = pMsg->msgBase.encMsgBuffer.data;
 	encMsgBufEnd = pMsg->msgBase.encMsgBuffer.data + pMsg->msgBase.encMsgBuffer.length;
 	
-	if ( pMsg->msgBase.encDataBody.data < encMsgBufStart || pMsg->msgBase.encDataBody.data > encMsgBufEnd )
-		 return RSSL_FALSE;
-
 	switch( pMsg->msgBase.msgClass )
 	{
 		case RSSL_MC_UPDATE: 
