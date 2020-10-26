@@ -124,9 +124,11 @@ rtrShmTransServer *rtrShmTransCreate(rtrShmCreateOpts *createOpts, RsslError *er
 	{
 		_rsslSetError(error, 0, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rtrShmTransCreate unable to create shared memory segment with key %s and size %d (%s).\n", __FILE__, __LINE__, createOpts->shMemKey, (segSize + (bufSize * createOpts->numBuffers)), errBuff);
-		rssl_pipe_close(&trans->_bindPipe);
 		rtrReleaseMutex(trans->controlMutex);
-		free(trans);
+		{
+			RsslError errorDestroy;
+			rtrShmTransDestroy(trans, &errorDestroy);
+		}
 		return NULL;
 	}
 
@@ -288,7 +290,8 @@ int rtrShmTransDestroy( void *trans, RsslError *error )
 		shmTransServerns->userLock = 0;
 	}
 
-	*shmTransServerns->flags |= RSSL_SHM_SERVER_SHUTDOWN;	/* let the consumers know that the server is shutting down */
+	if (shmTransServerns->flags != NULL)						/* flags are available when shmTransServerns was initialized only */
+		*shmTransServerns->flags |= RSSL_SHM_SERVER_SHUTDOWN;	/* let the consumers know that the server is shutting down */
 	rtrShmSegDestroy(&shmTransServerns->shMemSeg);
 
 	rtrReleaseMutex(shmTransServerns->controlMutex);

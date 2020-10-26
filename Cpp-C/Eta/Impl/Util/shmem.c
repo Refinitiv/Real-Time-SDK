@@ -224,7 +224,8 @@ int rtrShmSegCreate( rtrShmSeg *seg, const char * key, size_t size, char *errBuf
 	if (ftruncate(seg->shMemSeg, (off_t)size) == -1 ) 
 	{ 
 		snprintf(errBuff,__ERROR_LEN, "rtrShmSegCreate() ftruncate() Failed (errno = %d, mapName = %s)", errno, memMapName);
-		rtrShmSegDestroy(seg); 
+		rtrShmSegDestroy(seg);
+		shm_unlink(memMapName);
 		return -1;
 	}
 
@@ -233,7 +234,8 @@ int rtrShmSegCreate( rtrShmSeg *seg, const char * key, size_t size, char *errBuf
 	if (seg->base == MAP_FAILED) 
 	{ 
 		snprintf(errBuff,__ERROR_LEN, "rtrShmSegCreate() mmap() Failed (errno = %d, mapName = %s)", errno, memMapName);
-		rtrShmSegDestroy(seg); 
+		rtrShmSegDestroy(seg);
+		shm_unlink(memMapName);
 		return -1; 
 	}
 
@@ -243,7 +245,8 @@ int rtrShmSegCreate( rtrShmSeg *seg, const char * key, size_t size, char *errBuf
 	if (mlock(seg->base, size) != 0) 
 	{ 
 		snprintf(errBuff,__ERROR_LEN, "rtrShmSegCreate() mlock() Failed (errno = %d, mapName = %s, size = %zu)", errno, memMapName, size);
-		rtrShmSegDestroy(seg); 
+		rtrShmSegDestroy(seg);
+		shm_unlink(memMapName);
 		return -1;
 	}
 
@@ -262,6 +265,7 @@ int rtrShmSegCreate( rtrShmSeg *seg, const char * key, size_t size, char *errBuf
 	{ 
 		snprintf(errBuff,__ERROR_LEN, "rtrShmSegCreate() malloc() Failed (mapName = %s, size = %zu)", memMapName, size);
 		rtrShmSegDestroy(seg); 
+		shm_unlink(memMapName);
 		return -1; 
 	}
 	strncpy(seg->hdr->name, memMapName, tempLen);
