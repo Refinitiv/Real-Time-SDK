@@ -22,17 +22,18 @@ typedef struct {
 	RsslBool			blocking;
 	char 				portNo[32];			/* Port number. Service name */
 	RsslConnectionTypes	connType;			/* Connection type for this provider */
-	char				serverCert[256];	/* Server certificate file location */
-	char				serverKey[256];		/* Server private key file location */
-	char				cipherSuite[256];	/* Server cipher suite */
+	char				serverCert[64];		/* Server certificate file location */
+	char				serverKey[64];		/* Server private key file location */
+	char				cipherSuite[64];	/* Server cipher suite */
 } TUServerConfig;
 
 void clearTUConfig(TUServerConfig* serverConfig);
 
 RsslServer* bindRsslServer(TUServerConfig* serverConfig);
 
-extern char pathServerKey[];  // describes the path to Server key for creating a server on an encrypted connection
-extern char pathServerCert[]; // describes the path to Server certificate for creating a server on an encrypted connection
+bool checkCertificateFiles();
 
+const char* getPathServerKey();   // describes the path to Server key for creating a server on an encrypted connection
+const char* getPathServerCert();  // describes the path to Server certificate for creating a server on an encrypted connection
 
 #endif  // _TRANSPORT_UNIT_TEST_H_

@@ -39,6 +39,9 @@
 #include <signal.h>
 #endif
 
+const char* pServerKey = "localhost.key";
+const char* pServerCert = "localhost.crt";
+
 
 class ServerStartStopTests : public ::testing::Test {
 protected:
@@ -182,6 +185,26 @@ TEST_F(ServerStartStopTests, ServerTCPStartStop100Test)
 	}
 }
 
+
+const char* getPathServerKey()
+{
+	return pServerKey;
+}
+
+const char* getPathServerCert()
+{
+	return pServerCert;
+}
+
+bool checkCertificateFiles()
+{
+	struct stat buffer;
+	bool isExistServerKey = (stat(pServerKey, &buffer) == 0);
+	bool isExistServerCert = (stat(pServerCert, &buffer) == 0);
+	return (isExistServerKey && isExistServerCert);
+}
+
+
 /* Run Server on a encrypted socket
  * Test should verify:
  * 1) Server creating stage (rsslBind).
@@ -216,24 +239,13 @@ TEST_F(ServerStartStopTests, ServerSSLStartStopTest)
 	serverConfig.connType = _testConnectionType;
 	strncpy(serverConfig.portNo, "15020", sizeof(serverConfig.portNo));
 
-	if (pathServerKey[0] != '\0')
-	{
-		snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), pathServerKey);
-	}
-	else {
-		snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), "localhost.key");
-	}
-	if (pathServerCert[0] != '\0')
-	{
-		snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), pathServerCert);
-	}
-	else {
-		snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), "localhost.crt");
-	}
+	snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), pServerKey);
+	snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), pServerCert);
 	snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "");
 
 	server = bindRsslServer(&serverConfig);
-	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed! Creation of server on an encrypted connection"
+		<< " requires key-file \"" << pServerKey << "\" and certificate-file \"" << pServerCert << "\".";
 
 	pServerCountersInfo = rsslGetServerCountersInfo(server);
 
@@ -268,24 +280,6 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 
 	rsslServerCountersInfo* pServerCountersInfo;
 
-	const char* pServerKey;
-	const char* pServerCert;
-
-	if (pathServerKey[0] != '\0')
-	{
-		pServerKey = pathServerKey;
-	}
-	else {
-		pServerKey = "localhost.key";
-	}
-	if (pathServerCert[0] != '\0')
-	{
-		pServerCert = pathServerCert;
-	}
-	else {
-		pServerCert = "localhost.crt";
-	}
-
 	// Run Server on a encrypted socket
 	_testConnectionType = RSSL_CONN_TYPE_ENCRYPTED;
 
@@ -308,7 +302,8 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));
-		ASSERT_NE(server[i], (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server[i], (RsslServer*)NULL) << "Server creation failed! Creation of server on an encrypted connection"
+			<< " requires key-file \"" << pServerKey << "\" and certificate-file \"" << pServerCert << "\".";
 
 		pServerCountersInfo = rsslGetServerCountersInfo(server[i]);
 
@@ -335,7 +330,8 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));
-		ASSERT_NE(server[i], (RsslServer*)NULL) << "Server creation failed!";
+		ASSERT_NE(server[i], (RsslServer*)NULL) << "Server creation failed! Creation of server on an encrypted connection"
+			<< " requires key-file \"" << pServerKey << "\" and certificate-file \"" << pServerCert << "\".";
 
 		pServerCountersInfo = rsslGetServerCountersInfo(server[i]);
 

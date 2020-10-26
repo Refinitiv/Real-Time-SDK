@@ -70,9 +70,6 @@ bool testComplete;
 bool failTest;
 bool shutdownTest;
 
-char pathServerKey[256];  // describes the path to Server key for creating a server on an encrypted connection
-char pathServerCert[256]; // describes the path to Server certificate for creating a server on an encrypted connection
-
 #define MAX_MSG_WRITE_COUNT 100000
 #define MAX_THREADS 20
 #define TEST_PROTOCOL_TYPE 10
@@ -3094,72 +3091,10 @@ rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
 	return serverCountersInfo;
 }
 
-void exitMissingArgument(char **argv, int arg)
-{
-	printf("Config error: %s missing argument.\n"
-		"Run '%s -?' to see usage.\n\n", argv[arg], argv[0]);
-	exit(-1);
-}
-
-void exitWithUsage()
-{
-	printf("Options:\n"
-		"  -?                                   Shows this usage\n"
-		"\n"
-		"  -keyfile                             Server private key for OpenSSL encryption.\n"
-		"  -cert                                Server certificate for openSSL encryption.\n"
-		"\n"
-	);
-#ifdef _WIN32
-	printf("\nPress Enter or Return key to exit application:");
-	getchar();
-#endif
-	exit(-1);
-}
-
-void printArgs()
-{
-	printf(
-		"             Server Key : %s\n"
-		"             Server Cert: %s\n"
-		"\n"
-		,
-		pathServerKey,
-		pathServerCert
-	);
-	return;
-}
 
 int main(int argc, char* argv[])
 {
-	RsslUInt8 iargs;
 	int ret;
-
-	pathServerKey[0] = '\0';
-	pathServerCert[0] = '\0';
-
-	for (iargs = 0; iargs < argc; ++iargs)
-	{
-		if (0 == strcmp("-?", argv[iargs]))
-		{
-			exitWithUsage();
-		}
-		else if (0 == strcmp("-keyfile", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(pathServerKey, sizeof(pathServerKey), argv[iargs]);
-		}
-		else if (0 == strcmp("-cert", argv[iargs]))
-		{
-			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(pathServerCert, sizeof(pathServerCert), argv[iargs]);
-		}
-	}
-
-	if (argc > 1)
-	{
-		printArgs();
-	}
 
 	::testing::InitGoogleTest(&argc, argv);
 
@@ -3178,7 +3113,17 @@ int main(int argc, char* argv[])
 	RSSL_THREAD_JOIN(dlThread);
 
 	// Run ServerStartStopTests
-	::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
+	if (checkCertificateFiles())
+	{
+		::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
+	}
+	else
+	{
+		std::cout  << "The tests ServerSSLStartStop*Test will be skip." << std::endl
+			<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
+		::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
+	}
+
 	ret = RUN_ALL_TESTS();
 
 	return ret;
