@@ -673,6 +673,8 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->rwsSession = 0;
 	rsslSocketChannel->rwsLargeMsgBufferList = 0;
 	rsslSocketChannel->httpCallback = 0;
+	rsslSocketChannel->cookies.numberOfCookies = 0;
+	rsslSocketChannel->cookies.cookie = NULL;
 
 #if (defined(_WINDOWS) || defined(_WIN32))
 	rsslSocketChannel->socketRowSet = RSSL_FALSE;

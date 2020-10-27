@@ -9057,24 +9057,24 @@ RsslRet rsslSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
 		_rsslFree(rsslChnlImpl->returnBuffer.data);
 	}
 
-		retVal = ipcShutdownSockectChannel(rsslSocketChannel, error);
+	retVal = ipcShutdownSockectChannel(rsslSocketChannel, error);
 
-		if (retVal < RSSL_RET_SUCCESS)
-		{
-			/* should we return here?? */
-			error->channel = &rsslChnlImpl->Channel;
+	if (retVal < RSSL_RET_SUCCESS)
+	{
+		/* should we return here?? */
+		error->channel = &rsslChnlImpl->Channel;
 
-			return retVal;
-		}
-		else
-		{
-			retVal = ipcSessDropRef(rsslSocketChannel, error);
-		}
-		/* check for dropRef error */
-		if (retVal < RSSL_RET_SUCCESS)
-			error->channel = &rsslChnlImpl->Channel;
-		else
-			retVal = RSSL_RET_SUCCESS;
+		return retVal;
+	}
+	else
+	{
+		retVal = ipcSessDropRef(rsslSocketChannel, error);
+	}
+	/* check for dropRef error */
+	if (retVal < RSSL_RET_SUCCESS)
+		error->channel = &rsslChnlImpl->Channel;
+	else
+		retVal = RSSL_RET_SUCCESS;
 
 	if (rsslChnlImpl->componentInfo)
 	{
@@ -11761,6 +11761,17 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 			rsslServerSocketChannel->dhParams = 0;
 		}
 
+		if (rsslServerSocketChannel->cookies.numberOfCookies && rsslServerSocketChannel->cookies.cookie)
+		{
+			RsslInt32 line = 0;
+
+			for (line = 0; line < rsslServerSocketChannel->cookies.numberOfCookies; line++)
+				_rsslFree(rsslServerSocketChannel->cookies.cookie[line].data);
+
+			_rsslFree(rsslServerSocketChannel->cookies.cookie);
+
+		}
+
 		if (rsslQueueLinkInAList(&(rsslServerSocketChannel->link2)))
 		{
 			rsslQueueRemoveLink(&activeServerSocketChannelList, &(rsslServerSocketChannel->link2));
@@ -11939,6 +11950,16 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 	{
 		/* we created and own memory for this, free it */
 		_rsslFree((void*)rsslSocketChannel->sslCAStore);
+	}
+
+	if (rsslSocketChannel->cookies.numberOfCookies && rsslSocketChannel->cookies.cookie)
+	{
+		RsslInt32 line = 0;
+
+		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+			_rsslFree(rsslSocketChannel->cookies.cookie[line].data);
+
+		_rsslFree(rsslSocketChannel->cookies.cookie);
 	}
 
 	while (rsslSocketChannel->rwsLargeMsgBufferList!= 0)

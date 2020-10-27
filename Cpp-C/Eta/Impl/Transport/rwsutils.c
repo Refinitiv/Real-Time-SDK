@@ -628,6 +628,47 @@ static rwsSubProtocol_t _isValidProtocolName(char *name, RsslBool deprecate)
 	return RWS_SP_NONE;
 }
 
+/* Deep copy of user cookies data */
+
+static RsslRet deepCopyCookies(RsslUserCookies *inCookies, RsslUserCookies* outCookies, RsslError *error)
+{
+	if (inCookies->cookie && inCookies->numberOfCookies)
+	{
+		RsslInt32 line = 0;
+
+		outCookies->numberOfCookies = inCookies->numberOfCookies;
+
+		outCookies->cookie =_rsslMalloc(inCookies->numberOfCookies * sizeof(RsslBuffer));
+		if (outCookies->cookie == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Unable to allocate memory for cookies", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		for(line = 0; line < inCookies->numberOfCookies; line++)
+		{
+			outCookies->cookie[line].data = _rsslMalloc(inCookies->cookie->length + 1);
+			if (outCookies->cookie[line].data == 0)
+			{
+				_rsslFree(outCookies->cookie);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Unable to allocate memory for cookies", __FILE__, __LINE__);
+				return RSSL_RET_FAILURE;
+			}
+
+			strncpy(outCookies->cookie[line].data, inCookies->cookie[line].data, inCookies->cookie[line].length + 1);
+			outCookies->cookie[line].length = inCookies->cookie[line].length;
+		}
+	}
+	else
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Empty cookies data", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+}
+
 
 /* Accepts arguments for the WebSocket Session and the RsslBuffer which
  * represents an http header fields' field-value
@@ -1929,7 +1970,8 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 			httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
 			if (httpHdr == 0)
 			{
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers", __FILE__, __LINE__);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
 				rsslSocketChannel->httpCallback(NULL, error);
 			}
 
@@ -2194,6 +2236,16 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		*/
 		char* pBuf = &buffer[0];
 		RsslInt32 putback = cc - httpHeaderLen;
+		if (!rsslSocketChannel->inputBuffer)
+		{
+			/* Determine what the proper maxMsgSize will be */
+			rsslSocketChannel->maxUserMsgSize = (RsslInt32)wsSess->maxMsgSize;
+			/* Refine this calculation or dont worry about adding the WebSocket header here */
+			rsslSocketChannel->maxMsgSize = (RsslUInt32)(wsSess->maxMsgSize + RWS_MAX_HEADER_SIZE);
+			/* Initialize the input buffer */
+			rsslSocketChannel->inputBuffer = ipcAllocGblMsg((rsslSocketChannel->maxMsgSize * rsslSocketChannel->readSize));
+		}
+
 		MemCopyByInt(rsslSocketChannel->inputBuffer->buffer, (pBuf + httpHeaderLen), putback);
 		rsslSocketChannel->inputBuffer->length += putback;
 	}
@@ -2295,14 +2347,16 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 			}
 		}
 
-		/* Determine what the proper maxMsgSize will be */
-		rsslSocketChannel->maxUserMsgSize = (RsslInt32)wsSess->maxMsgSize;
-		// Refine this calculation or dont worry about adding the
-		//          WebSocket header here
-		rsslSocketChannel->maxMsgSize = (RsslUInt32)(wsSess->maxMsgSize + RWS_MAX_HEADER_SIZE);
-
-		/* Initialize the input buffer */
-		rsslSocketChannel->inputBuffer = ipcAllocGblMsg((rsslSocketChannel->maxMsgSize * rsslSocketChannel->readSize));
+		if (!rsslSocketChannel->inputBuffer)
+		{
+			/* Determine what the proper maxMsgSize will be */
+			rsslSocketChannel->maxUserMsgSize = (RsslInt32)wsSess->maxMsgSize;
+			// Refine this calculation or dont worry about adding the
+			//  WebSocket header here
+			rsslSocketChannel->maxMsgSize = (RsslUInt32)(wsSess->maxMsgSize + RWS_MAX_HEADER_SIZE);
+			/* Initialize the input buffer */
+			rsslSocketChannel->inputBuffer = ipcAllocGblMsg((rsslSocketChannel->maxMsgSize * rsslSocketChannel->readSize));
+		}
 
 		wsSess->reassemblyBuffer = ipcAllocGblMsg(rsslSocketChannel->maxMsgSize * 10);
 
@@ -2480,7 +2534,9 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 		httpHdr = (RsslHttpHdrData*)_rsslMalloc(sizeof(RsslHttpHdrData) * (respHdrs->total - 1)); // need to skeep headline "HTTP/1.1 101 Switching Protocols\r\n"
 		if (httpHdr == 0)
 		{
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers", __FILE__, __LINE__);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
+			rsslSocketChannel->httpCallback(NULL, error);
 		}
 
 		for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
@@ -5522,8 +5578,15 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 	{
 		RsslBool depracateOldProtocols =  RSSL_FALSE;
 
+		/*Assign callback on client*/
 		rsslSocketChannel->httpCallback = wsOpts->httpCallback;
-		rsslSocketChannel->cookies = wsOpts->cookies;
+
+		/*Assign cookies on client*/
+		if (wsOpts->cookies.numberOfCookies)
+		{
+			if (deepCopyCookies(&wsOpts->cookies, &rsslSocketChannel->cookies, error) == RSSL_RET_FAILURE)
+				return RSSL_RET_FAILURE;
+		}
 
 		wsSess->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?
 																wsOpts->protocols :
@@ -5585,7 +5648,12 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 	rsslServerSocketChannel->httpCallback = wsOpts->httpCallback;
 
 	/*Assign cookies on server*/
-	rsslServerSocketChannel->cookies = wsOpts->cookies;
+	if (wsOpts->cookies.numberOfCookies)
+	{
+		if (deepCopyCookies(&wsOpts->cookies, &rsslServerSocketChannel->cookies, error) == RSSL_RET_FAILURE)
+			return RSSL_RET_FAILURE;
+	}
+
 
 	if (rsslServerSocketChannel->compressionSupported)
 	{
