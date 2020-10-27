@@ -77,7 +77,7 @@ public class WlViewHandler
 					int newCount = startingCount;
 					int nextValidPos = 1;
 					for (int i = 1; i < startingCount; ++i) {
-						if (wlView._fieldIdList.get(i) == wlView._fieldIdList.get(nextValidPos - 1)) {
+						if (wlView._fieldIdList.get(i).equals(wlView._fieldIdList.get(nextValidPos - 1))) {
 							--newCount;
 						}
 						else {

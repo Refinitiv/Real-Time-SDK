@@ -328,7 +328,10 @@ Module:  Series300Consumer341
 Series300Consumer341-ConsFunc-001
    Alters the Consumer to send repeatedly offstream post with a delay of 20 seconds in between
 
-
+Module:  Series300Consumer360
+---------------------------
+Series300Consumer360-ViewDuplicates-001
+   Alters the Consumer to view request with duplicate FID
 
 Module:  Series400Consumer410 
 ---------------------------
@@ -715,6 +718,10 @@ Series300Provider320-GenM-002
     Alters Series300Provider320-GenM-001 to clone and decode these messages: RequestMsg and GenericMsg 
 
 
+Module:  Series300provider350
+---------------------------
+Series300Provider350-ViewDuplicates-001
+   Alters Interactive Provider to dump request view content
 
 Module:  Series400Provider421
 -----------------------------
