@@ -1,7 +1,7 @@
 Summary
 =======
 
-The ex320__Consumer__GenericMsg application is provided as an example of
+The ex320_Custom_GenericMsg application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library for accessing
