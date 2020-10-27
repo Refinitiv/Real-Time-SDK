@@ -282,6 +282,13 @@ class ServerImpl extends EtaNode implements Server
         {
             Transport._globalLock.lock();
             socketChannel = _srvrScktChannel.accept();
+            if (socketChannel == null) {
+            	 error.channel(null);
+                 error.errorId(TransportReturnCodes.FAILURE);
+                 error.sysError(0);
+                 error.text("This channel is in non-blocking mode and no connection is available to be accepted");
+                 return null;
+            }
 
             // sysRecvBufSize would have been set in bind(), no need to repeat.
             if (options.sysSendBufSize() > 0)

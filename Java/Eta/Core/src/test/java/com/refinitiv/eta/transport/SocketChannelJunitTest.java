@@ -10308,4 +10308,50 @@ public class SocketChannelJunitTest
         rsslChnl3.write(transBuf34, writeArgs, error);
         rsslChnl3.close(error);
     }
+    
+    /*
+     * Verify that when ServerSocketChannel.accept returns null 
+     * ServerImpl.accept properly populates error data and returns null. 
+     * This test will create server in non blocking mode (via Transport.bind()), 
+     * then invoke accept method then verify that this method returns bull
+     * and populates error object with correct data.
+     */
+    @Test
+    public void ifAcceptReceivesNullItReturnsNullTooTest()
+    {
+        final Error error = TransportFactory.createError();
+
+        BindOptions bindOpts = getDefaultBindOptions();
+        bindOpts.sharedPoolSize(3);
+        bindOpts.serverBlocking(false);
+
+        InitArgs initArgs = TransportFactory.createInitArgs();
+        initArgs.globalLocking(false);
+
+        Server server = null;
+
+        try
+        {
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
+
+            server = Transport.bind(bindOpts, error);
+            assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
+                                  + error.sysError(), server);
+
+            AcceptOptions acceptOp = TransportFactory.createAcceptOptions();
+            
+            assertNull(server.accept(acceptOp, error));  
+            assertNull(error.channel());
+            assertEquals(TransportReturnCodes.FAILURE, error.errorId());
+            assertEquals(0, error.sysError());
+            assertEquals("This channel is in non-blocking mode and no connection is available to be accepted", error.text());
+        }
+        finally
+        {
+            if (server != null)
+                server.close(error);
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+        }
+    }
 }
+
