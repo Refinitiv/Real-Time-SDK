@@ -1169,15 +1169,6 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 
 	ServerChannelHandler::destroy(_pServerChannelHandler);
 
-	if (RSSL_RET_SUCCESS != rsslUninitialize())
-	{
-		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
-		{
-			EmaString temp("rsslUninitialize() failed while unintializing OmmServerBaseImpl.");
-			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
-		}
-	}
-
 #ifdef USING_SELECT
 	if (_pipe.isInitialized())
 	{
@@ -1192,7 +1183,7 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 		_pipe.close();
 	}
 
-	if ( _pRsslServer )
+	if (_pRsslServer)
 	{
 		removeFd(_pRsslServer->socketId);
 	}
@@ -1200,6 +1191,15 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 	_pipeReadEventFdsIdx = -1;
 	_serverReadEventFdsIdx = -1;
 #endif
+
+	if (RSSL_RET_SUCCESS != rsslUninitialize())
+	{
+		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("rsslUninitialize() failed while unintializing OmmServerBaseImpl.");
+			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		}
+	}
 
 	OmmLoggerClient::destroy(_pLoggerClient);
 
