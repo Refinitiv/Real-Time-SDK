@@ -1135,7 +1135,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 	clearRsslErrorInfo( &rsslErrorInfo );
 	retCode = rsslEncodeRDMDirectoryMsg( &eIter, pEvent->pRDMDirectoryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
 
-	while ( rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL )
+	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
 	{
 		free( rsslMsgBuffer.data );
 

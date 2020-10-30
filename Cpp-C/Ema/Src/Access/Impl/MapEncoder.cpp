@@ -208,12 +208,7 @@ void MapEncoder::startEncodingEntry( void* keyValue, MapEntry::MapAction action,
 void MapEncoder::endEncodingEntry() const
 {
 	RsslRet retCode = rsslEncodeMapEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
-	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
-	{
-		_pEncodeIter->reallocate();
-
-		retCode = rsslEncodeMapEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
-	}
+	/* Reallocate does not need here. The data is placed in already allocated memory */
 
 	if ( retCode < RSSL_RET_SUCCESS )
 	{

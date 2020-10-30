@@ -478,6 +478,20 @@ void DirectoryHandler::sendDirectoryReject(RsslReactorChannel* reactorChannel, R
 		_rsslMsgBuffer.length += _rsslMsgBuffer.length;
 		_rsslMsgBuffer.data = (char*)malloc(sizeof(char) * _rsslMsgBuffer.length);
 
+		if (RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer(&_rsslEncodeIter, &_rsslMsgBuffer))
+		{
+			if (_rsslMsgBuffer.data)
+				free(_rsslMsgBuffer.data);
+
+			EmaString temp("Internal error. Failed to set encode iterator buffer in DirectoryHandler::sendDirectoryReject()");
+			temp.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+				.append(CR).append("Instance Name ").append(_pOmmServerBaseImpl->getInstanceName());
+
+			_pOmmServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+			return;
+		}
+
 		if (!_rsslMsgBuffer.data)
 		{
 			if (OmmLoggerClient::ErrorEnum >= _pOmmServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
@@ -669,6 +683,22 @@ void DirectoryHandler::handleDirectoryRequest(RsslReactorChannel* reactorChannel
 
 		_rsslMsgBuffer.length += _rsslMsgBuffer.length;
 		_rsslMsgBuffer.data = (char*)malloc(sizeof(char) * _rsslMsgBuffer.length);
+
+		if (RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer(&_rsslEncodeIter, &_rsslMsgBuffer))
+		{
+			if (_rsslMsgBuffer.data)
+				free(_rsslMsgBuffer.data);
+
+			EmaString temp("Internal error. Failed to set encode iterator buffer in DirectoryHandler::handleDirectoryRequest()");
+			temp.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+				.append(CR).append("Instance Name ").append(_pOmmServerBaseImpl->getInstanceName());
+
+			_pOmmServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+			DirectoryServiceStore::freeMemory(_rsslRdmDirectoryMsg.refresh, 0);
+
+			return;
+		}
 
 		if (!_rsslMsgBuffer.data)
 		{

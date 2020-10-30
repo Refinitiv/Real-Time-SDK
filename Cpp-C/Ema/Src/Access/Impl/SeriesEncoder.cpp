@@ -123,12 +123,7 @@ void SeriesEncoder::startEncodingEntry( const char* methodName )
 void SeriesEncoder::endEncodingEntry() const
 {
 	RsslRet retCode = rsslEncodeSeriesEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
-	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
-	{
-		_pEncodeIter->reallocate();
-
-		retCode = rsslEncodeElementEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
-	}
+	/* Reallocate does not need here. The data is placed in already allocated memory */
 
 	if ( retCode < RSSL_RET_SUCCESS )
 	{

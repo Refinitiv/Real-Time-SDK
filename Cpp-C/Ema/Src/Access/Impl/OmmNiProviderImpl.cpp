@@ -361,6 +361,15 @@ void OmmNiProviderImpl::loadDirectory()
 			rsslMsgBuffer.length += rsslMsgBuffer.length;
 			rsslMsgBuffer.data = (char*) malloc( sizeof( char ) * rsslMsgBuffer.length );
 
+			if (RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer(&eIter, &rsslMsgBuffer))
+			{
+				if (!rsslMsgBuffer.data)
+					DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
+
+				handleMee("Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::loadDirectory()");
+				return;
+			}
+
 			if ( !rsslMsgBuffer.data )
 			{
 				DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
@@ -558,10 +567,21 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 		rsslMsgBuffer.length += rsslMsgBuffer.length;
 		rsslMsgBuffer.data = (char*) malloc( sizeof( char ) * rsslMsgBuffer.length );
 
+		if (RSSL_RET_SUCCESS != rsslSetEncodeIteratorBuffer(&eIter, &rsslMsgBuffer))
+		{
+			if (rsslMsgBuffer.data)
+				free(rsslMsgBuffer.data);
+
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
+			handleMee("Internal error. Failed to set encode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()");
+
+			return;
+		}
+
 		if ( !rsslMsgBuffer.data )
 		{
 			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
-			handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
+			handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
 			return;
 		}
 
