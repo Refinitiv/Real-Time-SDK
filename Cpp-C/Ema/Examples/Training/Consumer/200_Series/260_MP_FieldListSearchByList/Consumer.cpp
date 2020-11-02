@@ -12,8 +12,11 @@ using namespace std;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& )
 {
-	if ( refreshMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << refreshMsg.getServiceName();
+	if ( refreshMsg.hasName() )
+		cout << endl << "Item Name: " << refreshMsg.getName();
+
+	if ( refreshMsg.hasServiceName() )
+		cout << endl << "Service Name: " << refreshMsg.getServiceName();
 
 	cout << endl << "Item State: " << refreshMsg.getState().toString() << endl;
 

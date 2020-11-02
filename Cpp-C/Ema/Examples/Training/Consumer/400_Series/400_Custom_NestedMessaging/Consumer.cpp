@@ -49,8 +49,8 @@ void AppClient::onGenericMsg( const GenericMsg& genMsg, const OmmConsumerEvent& 
 
 void AppClient::decode( const RefreshMsg& refreshMsg )
 {
-	if ( refreshMsg.hasMsgKey() )
-		cout << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << ( refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+	cout << "Item Name: " << ( refreshMsg.hasName() ? refreshMsg.getName() : EmaString( "not set" ) ) << endl;
+	cout << "Service Name: " << ( refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "not set" ) ) << endl;
 	
 	cout << "Item State: " << refreshMsg.getState().toString() << endl;
 
@@ -61,8 +61,8 @@ void AppClient::decode( const RefreshMsg& refreshMsg )
 
 void AppClient::decode( const UpdateMsg& updateMsg )
 {
-	if ( updateMsg.hasMsgKey() )
-		cout << "Item Name: " << updateMsg.getName() << endl << "Service Name: " << ( updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+	cout << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "not set" ) ) << endl;
+	cout << "Service Name: " << ( updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "not set" ) ) << endl;
 
 	decode( updateMsg.getAttrib() );
 
@@ -71,8 +71,8 @@ void AppClient::decode( const UpdateMsg& updateMsg )
 
 void AppClient::decode( const StatusMsg& statusMsg )
 {
-	if ( statusMsg.hasMsgKey() )
-		cout << "Item Name: " << statusMsg.getName() << endl << "Service Name: " << ( statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+	cout << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "not set" ) ) << endl;
+	cout << "Service Name: " << ( statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "not set" ) ) << endl;
 
 	if ( statusMsg.hasState() )
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;

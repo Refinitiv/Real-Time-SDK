@@ -61,9 +61,8 @@ void AppClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& event )
 
 void AppClient::decode( const AckMsg& ackMsg )
 {
-	if ( ackMsg.hasMsgKey() )
-		cout << "Item Name: " << ( ackMsg.hasName() ? ackMsg.getName() : EmaString( "not set" ) )
-		<< endl << "Service Name: " << ( ackMsg.hasServiceName() ? ackMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+	cout << "Item Name: " << ( ackMsg.hasName() ? ackMsg.getName() : EmaString( "not set" ) ) << endl;
+	cout << "Service Name: " << ( ackMsg.hasServiceName() ? ackMsg.getServiceName() : EmaString( "not set" ) ) << endl;
 
 	cout << "Ack Id: " << ackMsg.getAckId() << endl;
 
