@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-package com.refinitiv.ema.examples.training.iprovider.series300.example350__Dictionary__Streaming;
+package com.refinitiv.ema.examples.training.iprovider.series300.ex350_Dictionary_Streaming;
 
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.access.DataType.DataTypes;

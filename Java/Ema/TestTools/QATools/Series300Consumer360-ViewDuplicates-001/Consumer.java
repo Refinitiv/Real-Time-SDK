@@ -5,7 +5,7 @@
 // *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.refinitiv.ema.examples.training.consumer.series300.example360__MarketPrice__View;
+package com.refinitiv.ema.examples.training.consumer.series300.ex360_MP_View;
 
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.AckMsg;
