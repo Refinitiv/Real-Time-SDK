@@ -630,7 +630,7 @@ static rwsSubProtocol_t _isValidProtocolName(char *name, RsslBool deprecate)
 
 /* Deep copy of user cookies data */
 
-static RsslRet deepCopyCookies(RsslUserCookies *inCookies, RsslUserCookies* outCookies, RsslError *error)
+static RsslRet deepCopyCookies(RsslUserCookies* outCookies, RsslUserCookies *inCookies, RsslError *error)
 {
 	if (inCookies->cookie && inCookies->numberOfCookies)
 	{
@@ -660,6 +660,8 @@ static RsslRet deepCopyCookies(RsslUserCookies *inCookies, RsslUserCookies* outC
 			strncpy(outCookies->cookie[line].data, inCookies->cookie[line].data, inCookies->cookie[line].length + 1);
 			outCookies->cookie[line].length = inCookies->cookie[line].length;
 		}
+
+		return RSSL_RET_SUCCESS;
 	}
 	else
 	{
@@ -5584,8 +5586,10 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 		/*Assign cookies on client*/
 		if (wsOpts->cookies.numberOfCookies)
 		{
-			if (deepCopyCookies(&wsOpts->cookies, &rsslSocketChannel->cookies, error) == RSSL_RET_FAILURE)
+			if (deepCopyCookies(&rsslSocketChannel->cookies, &wsOpts->cookies, error) == RSSL_RET_FAILURE)
 				return RSSL_RET_FAILURE;
+			else
+				rsslSocketChannel->isCookiesShallowCopy = RSSL_FALSE;
 		}
 
 		wsSess->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?
@@ -5650,7 +5654,7 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 	/*Assign cookies on server*/
 	if (wsOpts->cookies.numberOfCookies)
 	{
-		if (deepCopyCookies(&wsOpts->cookies, &rsslServerSocketChannel->cookies, error) == RSSL_RET_FAILURE)
+		if (deepCopyCookies(&rsslServerSocketChannel->cookies, &wsOpts->cookies, error) == RSSL_RET_FAILURE)
 			return RSSL_RET_FAILURE;
 	}
 

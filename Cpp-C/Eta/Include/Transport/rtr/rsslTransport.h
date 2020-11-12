@@ -592,7 +592,7 @@ typedef struct {
 	RsslUserCookies		cookies;               /*!<  @brief > Income pointer of user cookes.*/
 } RsslWSocketOpts;
 
-#define RSSL_INIT_COOKIES_OPTS   { NULL, 0 }
+#define RSSL_INIT_COOKIES_OPTS   { NULL, 0}
 #define RSSL_INIT_WEBSOCKET_OPTS { 0, 61440, NULL, RSSL_INIT_COOKIES_OPTS }
 
 

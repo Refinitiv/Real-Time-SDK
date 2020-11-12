@@ -8807,6 +8807,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 
 		/*Add coockes ptr to the socket channel*/
 		rsslSocketChannel->cookies = rsslServerSocketChannel->cookies;
+		rsslSocketChannel->isCookiesShallowCopy = RSSL_TRUE;
 
 		/* map RsslSocketChannel to RsslChannel struct */
 		_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
@@ -11761,7 +11762,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 			rsslServerSocketChannel->dhParams = 0;
 		}
 
-		if (rsslServerSocketChannel->cookies.numberOfCookies && rsslServerSocketChannel->cookies.cookie)
+		if (rsslServerSocketChannel->cookies.cookie)
 		{
 			RsslInt32 line = 0;
 
@@ -11769,7 +11770,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 				_rsslFree(rsslServerSocketChannel->cookies.cookie[line].data);
 
 			_rsslFree(rsslServerSocketChannel->cookies.cookie);
-
 		}
 
 		if (rsslQueueLinkInAList(&(rsslServerSocketChannel->link2)))
@@ -11952,7 +11952,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 		_rsslFree((void*)rsslSocketChannel->sslCAStore);
 	}
 
-	if (rsslSocketChannel->cookies.numberOfCookies && rsslSocketChannel->cookies.cookie)
+	if (rsslSocketChannel->cookies.cookie && !rsslSocketChannel->isCookiesShallowCopy)
 	{
 		RsslInt32 line = 0;
 

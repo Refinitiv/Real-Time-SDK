@@ -4488,7 +4488,7 @@ static void reactorUnitTests_BigDirectoryMsg(RsslConnectionTypes connectionType)
 	rsslClearEncodeIterator(&testEncodeIter);
 	rsslSetEncodeIteratorRWFVersion(&testEncodeIter, pConsCh[0]->majorVersion, pConsCh[0]->minorVersion);
 	rsslSetEncodeIteratorBuffer(&testEncodeIter, &testEncodeBuffer);
-	ASSERT_TRUE(rsslEncodeRDMMsg(&testEncodeIter, (RsslRDMMsg*)&directoryRefresh, &testEncodeBuffer.length, &encodeErrorInfo) == RSSL_RET_FAILURE);
+	ASSERT_TRUE(rsslEncodeRDMMsg(&testEncodeIter, (RsslRDMMsg*)&directoryRefresh, &testEncodeBuffer.length, &encodeErrorInfo) == RSSL_RET_BUFFER_TOO_SMALL);
 	ASSERT_TRUE(encodeErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL);
 
 	/* NiProv: (flush complete) */

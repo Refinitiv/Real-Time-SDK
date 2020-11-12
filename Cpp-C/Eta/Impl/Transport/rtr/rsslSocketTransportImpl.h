@@ -532,6 +532,7 @@ typedef struct
 	RsslUInt16			port;				/* port number that was used to connect to the server (for Consumer, NiProvider). */
 	RsslHttpCallback    *httpCallback;		/* callback to provide http headers*/
 	RsslUserCookies		cookies;			/* income user cookies */
+	RsslBool			isCookiesShallowCopy; /* shallow copy of cookie data */
 #if (defined(_WINDOWS) || defined(_WIN32))
 	RsslBool socketRowSet;
 	MIB_TCPROW socketRow;
@@ -674,7 +675,8 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->rwsLargeMsgBufferList = 0;
 	rsslSocketChannel->httpCallback = 0;
 	rsslSocketChannel->cookies.numberOfCookies = 0;
-	rsslSocketChannel->cookies.cookie = NULL;
+	rsslSocketChannel->cookies.cookie = 0;
+	rsslSocketChannel->isCookiesShallowCopy = 0;
 
 #if (defined(_WINDOWS) || defined(_WIN32))
 	rsslSocketChannel->socketRowSet = RSSL_FALSE;
