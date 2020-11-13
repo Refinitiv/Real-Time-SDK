@@ -1222,7 +1222,7 @@ RsslRet tunnelStreamRead(RsslTunnelStream *pTunnel, RsslMsg *pMsg, RsslErrorInfo
 										== RSSL_RET_SUCCESS)
 										break;
 
-									if (pErrorInfo->rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL)
+									if (ret == RSSL_RET_BUFFER_TOO_SMALL)
 									{
 										if (rsslHeapBufferResize(&pTunnelImpl->_memoryBuffer,
 											pTunnelImpl->_memoryBuffer.length * 2, RSSL_FALSE)
@@ -1613,7 +1613,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 			if ((ret = rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)pTunnelImpl->_pAuthLoginRequest, &pBuffer->length, pErrorInfo))
 					!= RSSL_RET_SUCCESS) 
 			{
-				if (pErrorInfo->rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL)
+				if (ret == RSSL_RET_BUFFER_TOO_SMALL)
 					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret,
 							__FILE__, __LINE__, "Failed to encode login message for authentication -- the ClassOfService.common.maxMsgSize is too small.");
 				else

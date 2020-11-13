@@ -65,13 +65,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			pReqMsg->msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
 
 			/* Begin encoding message */
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE, ret, pError)) return ret;
 
 			/*** Encode login attributes in msgKey.attrib ***/
 
 			rsslClearElementList(&elementList);
 			elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			rsslClearElementEntry(&elementEntry);
 			
@@ -80,14 +80,14 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				/* Authentication token.  This has already been verified to be present with the initial precondition check above */
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_AUTHN_TOKEN;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->userName)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->userName)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			
 				/* Authentication extended Info */
 				if(pLoginRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED && pLoginRequest->authenticationExtended.length != 0)
 				{
 					elementEntry.dataType = RSSL_DT_BUFFER;
 					elementEntry.name = RSSL_ENAME_AUTHN_EXTENDED;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->authenticationExtended)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->authenticationExtended)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 			}
 
@@ -96,7 +96,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPID;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationId)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationId)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ApplicationName */
@@ -104,7 +104,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPNAME;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationName)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationName)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ApplicationAuthorization Token */
@@ -112,7 +112,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPAUTH_TOKEN;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationAuthorizationToken)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->applicationAuthorizationToken)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* Position */
@@ -120,7 +120,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_POSITION;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->position)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->position)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* Password */
@@ -128,7 +128,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_PASSWORD;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->password)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->password)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* InstanceId */
@@ -136,7 +136,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_INST_ID;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->instanceId)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->instanceId)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ProvidePermissionProfile */
@@ -144,7 +144,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_PROV_PERM_PROF;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ProvidePermissionExpressions */
@@ -152,7 +152,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_PROV_PERM_EXP;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SingleOpen */
@@ -160,7 +160,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SINGLE_OPEN;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportProviderDictionaryDownload */
@@ -168,7 +168,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* AllowSuspectData */
@@ -176,7 +176,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_ALLOW_SUSPECT_DATA;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* Role */
@@ -184,7 +184,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_ROLE;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->role)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->role)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* DownloadConnectionConfig */
@@ -192,7 +192,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_DOWNLOAD_CON_CONFIG;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->downloadConnectionConfig)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->downloadConnectionConfig)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			if (pLoginRequest->flags & RDM_LG_RQF_RTT_SUPPORT)
@@ -202,18 +202,18 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				elementEntry.dataType = RSSL_DT_UINT;
 				tmp = RDM_LOGIN_RTT_ELEMENT;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			/* complete encode key */
 			/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
 			   for us to encode our container/msg payload */
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -240,14 +240,14 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 
 			pGenericMsg->msgBase.msgKey.flags = RSSL_MKF_HAS_NAME;
 			pGenericMsg->msgBase.msgKey.name = RSSL_ENAME_CONS_CONN_STATUS;
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return ret;
 
 			rsslClearMap(&map);
 			map.flags = RSSL_MPF_NONE;
 			map.keyPrimitiveType = RSSL_DT_ASCII_STRING;
 			map.containerType = RSSL_DT_ELEMENT_LIST;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapInit(pEncodeIter, &map, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapInit(pEncodeIter, &map, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			if (pConnectionStatus->flags & RDM_LG_CCSF_HAS_WARM_STANDBY_INFO)
 			{
@@ -257,31 +257,31 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 
 				if (mapEntry.action != RSSL_MPEA_DELETE_ENTRY)
 				{
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntryInit(pEncodeIter, &mapEntry, &RSSL_ENAME_WARMSTANDBY_INFO, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntryInit(pEncodeIter, &mapEntry, &RSSL_ENAME_WARMSTANDBY_INFO, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					rsslClearElementList(&elementList);
 					elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					rsslClearElementEntry(&elementEntry);
 					elementEntry.name = RSSL_ENAME_WARMSTANDBY_MODE;
 					elementEntry.dataType = RSSL_DT_UINT;
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConnectionStatus->warmStandbyInfo.warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConnectionStatus->warmStandbyInfo.warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 				else
 				{
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntry(pEncodeIter, &mapEntry, &RSSL_ENAME_WARMSTANDBY_INFO)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntry(pEncodeIter, &mapEntry, &RSSL_ENAME_WARMSTANDBY_INFO)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 			}
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -298,7 +298,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			pCloseMsg->msgBase.containerType = RSSL_DT_NO_DATA;
 			pCloseMsg->flags = RSSL_CLMF_NONE;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, &msg)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, &msg)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -357,13 +357,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			msg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
 
 			/* Begin encoding message */
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, (RsslMsg*)&msg, 0)) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, (RsslMsg*)&msg, 0)) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE, ret, pError)) return ret;
 
 			/*** Encode login attributes in msgKey.attrib ***/
 
 			rsslClearElementList(&elementList);
 			elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			rsslClearElementEntry(&elementEntry);
 
@@ -372,7 +372,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPID;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->applicationId)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->applicationId)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ApplicationName */
@@ -380,7 +380,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPNAME;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->applicationName)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->applicationName)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* Position */
@@ -388,7 +388,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_POSITION;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->position)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->position)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ProvidePermissionProfile */
@@ -396,7 +396,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_PROV_PERM_PROF;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* ProvidePermissionExpressions */
@@ -404,7 +404,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_PROV_PERM_EXP;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SingleOpen */
@@ -412,7 +412,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SINGLE_OPEN;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* AllowSuspectData */
@@ -420,7 +420,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_ALLOW_SUSPECT_DATA;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportOMMPost */
@@ -428,7 +428,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_POST;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportOMMPost)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportOMMPost)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportBatchRequests */
@@ -436,7 +436,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_BATCH;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportBatchRequests)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportBatchRequests)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportProviderDictionaryDownload */
@@ -444,7 +444,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportAdvancedSymbolList */
@@ -452,7 +452,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_ENH_SL;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportEnhancedSymbolList)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportEnhancedSymbolList)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportViewRequests */
@@ -460,7 +460,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_VIEW;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportViewRequests)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportViewRequests)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportStandby */
@@ -468,7 +468,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_STANDBY;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportStandby)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportStandby)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* SupportOptimizedPauseResume */
@@ -476,7 +476,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SUPPORT_OPR;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportOptimizedPauseResume)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportOptimizedPauseResume)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* sequenceRetryInterval */
@@ -484,7 +484,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SEQUENCE_RETRY_INTERVAL;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->sequenceRetryInterval)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->sequenceRetryInterval)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* updateBufferLimit */
@@ -492,7 +492,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_UPDATE_BUFFER_LIMIT;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->updateBufferLimit)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->updateBufferLimit)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			/* sequenceNumberRecovery */
@@ -500,7 +500,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SEQUENCE_NUMBER_RECOVERY;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 			
 			/* Authentication time to reissue */
@@ -508,7 +508,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_AUTHN_TT_REISSUE;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 			
 			/* Authentication extended response buffer */
@@ -516,7 +516,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_BUFFER;
 				elementEntry.name = RSSL_ENAME_AUTHN_EXTENDED_RESP;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationExtendedResp)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationExtendedResp)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 			
 			/* Authentication error code */
@@ -524,7 +524,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_AUTHN_ERROR_CODE;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 			
 			/* Authentication error text buffer */
@@ -532,7 +532,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_AUTHN_ERROR_TEXT;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			if (pLoginRefresh->flags & RDM_LG_RFF_RTT_SUPPORT)
@@ -542,15 +542,15 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				elementEntry.dataType = RSSL_DT_UINT;
 				tmp = RDM_LOGIN_RTT_ELEMENT;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			/* complete encode key */
 			/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
 			   for us to encode our container/msg payload */
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE)) == ((pLoginRefresh->flags & RDM_LG_RFF_HAS_CONN_CONFIG) ? RSSL_RET_ENCODE_CONTAINER : RSSL_RET_SUCCESS), ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE)) == ((pLoginRefresh->flags & RDM_LG_RFF_HAS_CONN_CONFIG) ? RSSL_RET_ENCODE_CONTAINER : RSSL_RET_SUCCESS), ret, pError)) return ret;
 
 			/* Encode server list now, if specified */
 			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_CONN_CONFIG)
@@ -562,35 +562,35 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				/* Encode Element "ConnectionConfig" */
 				rsslClearElementList(&elementList);
 				elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				rsslClearElementEntry(&elementEntry);
 
 				elementEntry.dataType = RSSL_DT_VECTOR;
 				elementEntry.name = RSSL_ENAME_CONNECTION_CONFIG;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntryInit(pEncodeIter, &elementEntry, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntryInit(pEncodeIter, &elementEntry, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* Encode Server Entries */
 				rsslClearVector(&vec);
 				vec.containerType = RSSL_DT_ELEMENT_LIST;
 				vec.flags = RSSL_VTF_HAS_SUMMARY_DATA;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorInit(pEncodeIter, &vec, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorInit(pEncodeIter, &vec, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 
 				/* Encode numStandbyServers in summary data. */
 				rsslClearElementList(&elementList);
 				elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				rsslClearElementEntry(&elementEntry);
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_NUM_STANDBY_SERVERS;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->numStandbyServers)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->numStandbyServers)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorSummaryDataComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorSummaryDataComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				for (i = 0; i < pLoginRefresh->serverCount; ++i)
 				{
@@ -601,51 +601,51 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 					vecEntry.action = RSSL_VTEA_SET_ENTRY;
 
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorEntryInit(pEncodeIter, &vecEntry, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorEntryInit(pEncodeIter, &vecEntry, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					/* Encode Element List describing server */
 					rsslClearElementList(&elementList);
 					elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					rsslClearElementEntry(&elementEntry);
 
 					elementEntry.dataType = RSSL_DT_ASCII_STRING;
 					elementEntry.name = RSSL_ENAME_HOSTNAME;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->hostname)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->hostname)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					elementEntry.dataType = RSSL_DT_UINT;
 					elementEntry.name = RSSL_ENAME_PORT;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					if (pServer->flags & RDM_LG_SIF_HAS_LOAD_FACTOR)
 					{
 						elementEntry.dataType = RSSL_DT_UINT;
 						elementEntry.name = RSSL_ENAME_LOAD_FACT;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 
 					if (pServer->flags & RDM_LG_SIF_HAS_TYPE)
 					{
 						elementEntry.dataType = RSSL_DT_ENUM;
 						elementEntry.name = RSSL_ENAME_SERVER_TYPE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->serverType)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pServer->serverType)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 
 				/* Complete */
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeVectorComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntryComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -695,13 +695,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			{
 				msg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
 				
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, (RsslMsg*)&msg, 0) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE), ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, (RsslMsg*)&msg, 0) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE), ret, pError)) return ret;
 
 				/*** Encode login attributes in msgKey.attrib ***/
 
 				rsslClearElementList(&elementList);
 				elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				rsslClearElementEntry(&elementEntry);
 				
@@ -710,7 +710,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				{
 					elementEntry.dataType = RSSL_DT_UINT;
 					elementEntry.name = RSSL_ENAME_AUTHN_ERROR_CODE;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 				
 				/* Authentication error text buffer */
@@ -718,20 +718,20 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				{
 					elementEntry.dataType = RSSL_DT_ASCII_STRING;
 					elementEntry.name = RSSL_ENAME_AUTHN_ERROR_TEXT;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 				}
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* complete encode key */
 				/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
 				   for us to encode our container/msg payload */
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE) == RSSL_RET_SUCCESS), ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE) == RSSL_RET_SUCCESS), ret, pError)) return ret;
 
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 			else
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, (RsslMsg*)&msg) == RSSL_RET_SUCCESS), ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, (RsslMsg*)&msg) == RSSL_RET_SUCCESS), ret, pError)) return ret;
 			
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -754,23 +754,23 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			pGenericMsg->msgBase.containerType = RSSL_DT_ELEMENT_LIST;
 			pGenericMsg->flags = RSSL_GNMF_PROVIDER_DRIVEN;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, &msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return ret;
 			
 			rsslClearElementList(&elementList);
 			elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			/* Encode ticks */
 			rsslClearElementEntry(&elementEntry);
 			elementEntry.name = RSSL_ENAME_RTT_TICKS;
 			elementEntry.dataType = RSSL_DT_UINT;
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->ticks)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->ticks)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			
 			if (pRTT->flags & RDM_LG_RTT_HAS_TCP_RETRANS)
 			{
 				rsslClearElementEntry(&elementEntry);
 				elementEntry.name = RSSL_ENAME_RTT_TCP_RETRANS;
 				elementEntry.dataType = RSSL_DT_UINT;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->tcpRetrans)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->tcpRetrans)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 			if (pRTT->flags & RDM_LG_RTT_HAS_LATENCY)
@@ -778,13 +778,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				rsslClearElementEntry(&elementEntry);
 				elementEntry.name = RSSL_ENAME_RTT;
 				elementEntry.dataType = RSSL_DT_UINT;
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->lastLatency)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pRTT->lastLatency)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 
@@ -852,15 +852,15 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 				/* decode key attrib data, if present */
 				if (key->flags & RSSL_MKF_HAS_ATTRIB)
 				{
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					/* decode element list */
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					/* decode each element entry in list */
 					while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 					{
-						if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 						/* get login response information */
 						/* AllowSuspectData */
@@ -868,7 +868,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* ApplicationId */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
@@ -896,98 +896,98 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_PROVIDE_PERM_EXPR;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* ProvidePermissionProfile */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_PROVIDE_PERM_PROFILE;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SingleOpen */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SINGLE_OPEN;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportOMMPost */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_POST))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_POST;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportOMMPost)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportOMMPost)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportStandby */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_STANDBY))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_STANDBY;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportStandby)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportStandby)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportBatchRequests */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_BATCH))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_BATCH;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportBatchRequests)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportBatchRequests)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportProviderDictionaryDownload */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportAdvancedSymbolList */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_ENH_SL))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_ENH_SL;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportEnhancedSymbolList)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportEnhancedSymbolList)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportViewRequests */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_VIEW))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_VIEW;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportViewRequests)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportViewRequests)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* SupportOptimizedPauseResume */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_OPR))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportOptimizedPauseResume)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportOptimizedPauseResume)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* sequenceRetryInterval */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SEQUENCE_RETRY_INTERVAL))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->sequenceRetryInterval)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->sequenceRetryInterval)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* updateBufferLimit */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_UPDATE_BUFFER_LIMIT))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->updateBufferLimit)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->updateBufferLimit)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* sequenceNumberRecovery */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SEQUENCE_NUMBER_RECOVERY))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* Authentication TT Reissue */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TT_REISSUE))
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_TT_REISSUE;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* Authentication extended response */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED_RESP))
@@ -1001,7 +1001,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						{
 							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_ERROR_CODE;
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 						/* Authentication Error Text */
 						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
@@ -1024,12 +1024,12 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 			if (pMsg->msgBase.containerType == RSSL_DT_ELEMENT_LIST)
 			{
 				/* Decode payload */
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* decode each element entry in list */
 				while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 				{
-					if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					/* ConnectionConfig */
 					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_CONNECTION_CONFIG))
@@ -1046,7 +1046,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_VECTOR, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeVector(pIter, &vector)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeVector(pIter, &vector)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 						if (!RSSL_ERROR_INFO_CHECK(vector.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -1055,13 +1055,13 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 							rsslClearLocalElementSetDefDb(&setDb);
 							setDb.entries.data = setDefMemory;
 							setDb.entries.length = sizeof(setDefMemory);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &setDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &setDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 
 						/* Decode payload */
 						if (rsslVectorCheckHasSummaryData(&vector))
 						{
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &serverElementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &serverElementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							/* decode each element entry in list */
 							while ((ret = rsslDecodeElementEntry(pIter, &serverElementEntry)) != RSSL_RET_END_OF_CONTAINER)
@@ -1071,7 +1071,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 								if (rsslBufferIsEqual(&serverElementEntry.name, &RSSL_ENAME_NUM_STANDBY_SERVERS))
 								{
 									if (!RSSL_ERROR_INFO_CHECK(serverElementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->numStandbyServers)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->numStandbyServers)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								foundNumStandbyServers = RSSL_TRUE;
 							}
@@ -1098,7 +1098,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 
 								rsslClearRDMServerInfo(pNewServerInfo);
 
-								if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &serverElementList, &setDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+								if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &serverElementList, &setDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 								pNewServerInfo->serverIndex = vectorEntry.index;
 
@@ -1106,7 +1106,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 								while ((ret = rsslDecodeElementEntry(pIter, &serverElementEntry)) != RSSL_RET_END_OF_CONTAINER)
 								{
 
-									if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (rsslBufferIsEqual(&serverElementEntry.name, &RSSL_ENAME_HOSTNAME))
 									{
@@ -1117,19 +1117,19 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 									else if (rsslBufferIsEqual(&serverElementEntry.name, &RSSL_ENAME_PORT))
 									{
 										if (!RSSL_ERROR_INFO_CHECK(serverElementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pNewServerInfo->port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pNewServerInfo->port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 										foundServerPort = RSSL_TRUE;
 									}
 									else if (rsslBufferIsEqual(&serverElementEntry.name, &RSSL_ENAME_LOAD_FACT))
 									{
 										if (!RSSL_ERROR_INFO_CHECK(serverElementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pNewServerInfo->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pNewServerInfo->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 										pNewServerInfo->flags |= RDM_LG_SIF_HAS_LOAD_FACTOR;
 									}
 									else if (rsslBufferIsEqual(&serverElementEntry.name, &RSSL_ENAME_SERVER_TYPE))
 									{
 										if (!RSSL_ERROR_INFO_CHECK(serverElementEntry.dataType == RSSL_DT_ENUM, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeEnum(pIter, &pNewServerInfo->serverType)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeEnum(pIter, &pNewServerInfo->serverType)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 										pNewServerInfo->flags |= RDM_LG_SIF_HAS_TYPE;
 									}
 
@@ -1176,10 +1176,10 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 			
 			if (key && key->flags & RSSL_MKF_HAS_ATTRIB)
 			{
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* decode element list */
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* decode each element entry in list */
 				while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
@@ -1189,7 +1189,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginStatus->flags |= RDM_LG_STF_HAS_AUTHN_ERROR_CODE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* Authentication Error Text */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
@@ -1249,15 +1249,15 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 			/* decode key attrib data, if present */
 			if (key->flags & RSSL_MKF_HAS_ATTRIB)
 			{
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* decode element list */
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				/* decode each element entry in list */
 				while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
 				{
-					if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					/* get login response information */
 					/* AllowSuspectData */
@@ -1265,7 +1265,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->allowSuspectData)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* ApplicationId */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
@@ -1294,7 +1294,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->downloadConnectionConfig)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->downloadConnectionConfig)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* Position */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_POSITION))
@@ -1322,35 +1322,35 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->providePermissionExpressions)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* ProvidePermissionProfile */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_PROV_PERM_PROF))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->providePermissionProfile)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* Role */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ROLE))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_ROLE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->role)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->role)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* SingleOpen */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SINGLE_OPEN))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->singleOpen)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* SupportProviderDictionaryDownload */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 					/* Authentication Token */
 					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
@@ -1386,7 +1386,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 
 				rsslClearRDMLoginRTT(pRTT);
 				
-				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 				while ((ret = rsslDecodeElementEntry(pIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
 				{
@@ -1395,19 +1395,19 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_RTT))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->lastLatency)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->lastLatency)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						pRTT->flags |= RDM_LG_RTT_HAS_LATENCY;
 					}
 					else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_RTT_TCP_RETRANS))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->tcpRetrans)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->tcpRetrans)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						pRTT->flags |= RDM_LG_RTT_HAS_TCP_RETRANS;
 					}
 					else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_RTT_TICKS))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->ticks)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->ticks)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 					}
 				}
 
@@ -1449,7 +1449,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						{
 							RsslBool foundWarmStandbyMode = RSSL_FALSE;
 
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							while((ret = rsslDecodeElementEntry(pIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
 							{
@@ -1458,7 +1458,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 								if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_WARMSTANDBY_MODE))
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pConsumerConnectionStatus->warmStandbyInfo.warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pConsumerConnectionStatus->warmStandbyInfo.warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									foundWarmStandbyMode = RSSL_TRUE;
 								}
 							}

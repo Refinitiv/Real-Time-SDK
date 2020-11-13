@@ -869,13 +869,13 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 		if (mapEntry.action != RSSL_MPEA_DELETE_ENTRY)
 		{
 			rsslClearFilterList(&filterList);
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeFilterList(pIter, &filterList)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeFilterList(pIter, &filterList)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			/* Count up how many group status entries there are so we can figure out how much memory to reserve for them */
 			rsslClearDecodeIterator(&tmpCountIter);
 			rsslSetDecodeIteratorBuffer(&tmpCountIter, &mapEntry.encData);
 			rsslSetDecodeIteratorRWFVersion(&tmpCountIter, pIter->_majorVersion, pIter->_minorVersion);
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeFilterList(&tmpCountIter, &filterList)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeFilterList(&tmpCountIter, &filterList)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			while ((ret = rsslDecodeFilterEntry(&tmpCountIter, &filterEntry)) != RSSL_RET_END_OF_CONTAINER)
 			{
 				if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
@@ -914,7 +914,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 							if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 							rsslClearElementList(&elementList);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 
 
@@ -943,7 +943,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									pService->info.flags |= RDM_SVC_IFF_HAS_IS_SOURCE;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.isSource)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.isSource)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_CAPABILITIES))
 								{
@@ -953,7 +953,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_ARRAY, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (!RSSL_ERROR_INFO_CHECK(array.primitiveType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -968,7 +968,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 											if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
 											if (!RSSL_ERROR_INFO_CHECK(pCapability = (RsslUInt*)rsslReserveBufferMemory(pMemoryBuffer, 1, sizeof(RsslUInt)), RSSL_RET_BUFFER_TOO_SMALL, pError)) return RSSL_RET_BUFFER_TOO_SMALL;
-											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, pCapability)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, pCapability)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 											++pService->info.capabilitiesCount;
 
 											rsslClearBuffer(&arrayEntry);
@@ -987,7 +987,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_ARRAY, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (!RSSL_ERROR_INFO_CHECK(array.primitiveType == RSSL_DT_ASCII_STRING || array.primitiveType == RSSL_DT_BUFFER , RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -1020,7 +1020,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_ARRAY, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (!RSSL_ERROR_INFO_CHECK(array.primitiveType == RSSL_DT_ASCII_STRING || array.primitiveType == RSSL_DT_BUFFER , RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -1053,7 +1053,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_ARRAY, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeArray(pIter, &array)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (!RSSL_ERROR_INFO_CHECK(array.primitiveType == RSSL_DT_QOS, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -1081,7 +1081,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.supportsQosRange)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.supportsQosRange)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_ITEM_LIST))
 								{
@@ -1096,14 +1096,14 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.supportsOutOfBandSnapshots)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.supportsOutOfBandSnapshots)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_ACCEPTING_CONS_STATUS))
 								{
 									pService->info.flags |= RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.acceptingConsumerStatus)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->info.acceptingConsumerStatus)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 
 							}
@@ -1130,7 +1130,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 							if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 							rsslClearElementList(&elementList);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							rsslClearElementEntry(&elementEntry);
 
@@ -1142,7 +1142,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->state.serviceState)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->state.serviceState)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									foundServiceState = RSSL_TRUE;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_ACCEPTING_REQS))
@@ -1150,12 +1150,12 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									pService->state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->state.acceptingRequests)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->state.acceptingRequests)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_STATUS))
 								{
 									pService->state.flags |= RDM_SVC_STF_HAS_STATUS;
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeState(pIter, &pService->state.status)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeState(pIter, &pService->state.status)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 								}
 
@@ -1182,7 +1182,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 								rsslClearElementList(&elementList);
-								if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+								if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 
 								rsslClearElementEntry(&elementEntry);
@@ -1209,7 +1209,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									{
 										if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_STATE, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 										pGroupState->flags |= RDM_SVC_GRF_HAS_STATUS;
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeState(pIter, &pGroupState->status)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeState(pIter, &pGroupState->status)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									}
 
 
@@ -1236,7 +1236,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 							if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 							rsslClearElementList(&elementList);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							rsslClearElementEntry(&elementEntry);
 
@@ -1249,21 +1249,21 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									pLoad->flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->openLimit)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->openLimit)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_OPEN_WINDOW))
 								{
 									pLoad->flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->openWindow)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->openWindow)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_LOAD_FACT))
 								{
 									pLoad->flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoad->loadFactor)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 								}
 
 							}
@@ -1286,7 +1286,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 
 							rsslClearElementList(&elementList);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							rsslClearElementEntry(&elementEntry);
 
@@ -1300,7 +1300,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pData->type)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pData->type)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									foundType = RSSL_TRUE;
 								}
 								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_DATA))
@@ -1337,7 +1337,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 							if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 							rsslClearElementList(&elementList);
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							rsslClearElementEntry(&elementEntry);
 
@@ -1357,7 +1357,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.snapshotServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.snapshotServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									foundSnapshotPort = RSSL_TRUE;
 								}
@@ -1373,7 +1373,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.gapRecoveryServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.gapRecoveryServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									foundGapRecPort = RSSL_TRUE;
 								}
@@ -1389,7 +1389,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.refDataServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pService->seqMCastInfo.refDataServer.port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									foundRefDataPort = RSSL_TRUE;
 								}
@@ -1405,7 +1405,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									if (vector.flags & RSSL_VTF_HAS_SET_DEFS)
 									{
 										rsslClearLocalElementSetDefDb(&elementSetDefDb);
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;			
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									}
 
 									rsslClearVectorEntry(&vectorEntry);
@@ -1424,7 +1424,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 											if (!RSSL_ERROR_INFO_CHECK(channelInfoElem = (RsslRDMMCAddressPortInfo*)rsslReserveBufferMemory(pMemoryBuffer, 1, sizeof(RsslRDMMCAddressPortInfo)), RSSL_RET_BUFFER_TOO_SMALL, pError)) return RSSL_RET_BUFFER_TOO_SMALL;
 
 											rsslClearElementList(&vectorElementList);
-											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &vectorElementList, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &vectorElementList, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 											++pService->seqMCastInfo.StreamingMCastChanServerCount;
 
@@ -1445,7 +1445,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												{
 													if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 													foundPort = RSSL_TRUE;
 												}
@@ -1453,7 +1453,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												{
 													if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->domain)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->domain)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 													foundDomain = RSSL_TRUE;
 												}
@@ -1469,14 +1469,14 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									RsslRDMMCAddressPortInfo *channelInfoElem;
 
 									rsslClearVector(&vector);
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeVector(pIter, &vector)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeVector(pIter, &vector)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 									if (!RSSL_ERROR_INFO_CHECK(vector.containerType == RSSL_DT_ELEMENT_LIST, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 									if (vector.flags & RSSL_VTF_HAS_SET_DEFS)
 									{
 										rsslClearLocalElementSetDefDb(&elementSetDefDb);
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;			
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeLocalElementSetDefDb(pIter, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									}
 
 									rsslClearVectorEntry(&vectorEntry);
@@ -1495,7 +1495,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 											if (!RSSL_ERROR_INFO_CHECK(channelInfoElem = (RsslRDMMCAddressPortInfo*)rsslReserveBufferMemory(pMemoryBuffer, 1, sizeof(RsslRDMMCAddressPortInfo)), RSSL_RET_BUFFER_TOO_SMALL, pError)) return RSSL_RET_BUFFER_TOO_SMALL;
 
 											rsslClearElementList(&vectorElementList);
-											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &vectorElementList, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+											if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &vectorElementList, &elementSetDefDb)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 											++pService->seqMCastInfo.GapMCastChanServerCount;
 
@@ -1516,7 +1516,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												{
 													if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->port)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->port)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 													foundPort = RSSL_TRUE;
 												}
@@ -1524,7 +1524,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												{
 													if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->domain)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &channelInfoElem->domain)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 													foundDomain = RSSL_TRUE;
 												}
@@ -1565,7 +1565,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 							if (!RSSL_ERROR_INFO_CHECK(filterEntry.containerType == RSSL_DT_MAP, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMap(pIter, &map)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMap(pIter, &map)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							if (!RSSL_ERROR_INFO_CHECK(map.containerType == RSSL_DT_ELEMENT_LIST && (map.keyPrimitiveType == RSSL_DT_ASCII_STRING || map.keyPrimitiveType == RSSL_DT_BUFFER), RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
@@ -1591,7 +1591,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 									if (pLink->action != RSSL_MPEA_DELETE_ENTRY)
 									{
 										rsslClearElementList(&elementList);
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+										if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 										rsslClearElementEntry(&elementEntry);
 
@@ -1604,13 +1604,13 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												pLink->flags |= RDM_SVC_LKF_HAS_TYPE;
 												if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->type)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->type)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 											}
 											else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_LINK_STATE))
 											{
 												if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->linkState)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->linkState)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 												foundServiceLinkState = RSSL_TRUE;
 											}
 											else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_LINK_CODE))
@@ -1618,7 +1618,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 												pLink->flags |= RDM_SVC_LKF_HAS_CODE;
 												if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
-												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->linkCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+												if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLink->linkCode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 											}
 											else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_TEXT))
 											{
@@ -1742,7 +1742,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMDirectoryMsg(RsslDecodeIterator *pIter, RsslMsg
 						{
 							RsslBool foundSourceMirroringMode = RSSL_FALSE;
 
-							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 							while((ret = rsslDecodeElementEntry(pIter, &elementEntry)) != RSSL_RET_END_OF_CONTAINER)
 							{
@@ -1751,7 +1751,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMDirectoryMsg(RsslDecodeIterator *pIter, RsslMsg
 								if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_SOURCE_MIRROR_MODE))
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
-									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pServiceStatus->sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pServiceStatus->sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									foundSourceMirroringMode = RSSL_TRUE;
 								}
 							}

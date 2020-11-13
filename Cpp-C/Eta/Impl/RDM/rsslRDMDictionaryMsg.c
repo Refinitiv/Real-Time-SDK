@@ -33,7 +33,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 			msg.msgBase.msgKey.serviceId = pDictionaryRequest->serviceId;
 			msg.msgBase.msgKey.filter = pDictionaryRequest->verbosity;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -50,7 +50,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 			msg.msgBase.containerType = RSSL_DT_NO_DATA;
 			msg.flags = RSSL_CLMF_NONE;
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
@@ -96,7 +96,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 			msg.msgBase.msgKey.serviceId = pDictionaryRefresh->serviceId;
 
 			/* Begin encoding message */
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pIter, (RsslMsg*)&msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pIter, (RsslMsg*)&msg, 0)) == RSSL_RET_ENCODE_CONTAINER, ret, pError)) return ret;
 
 			/* encode dictionary into message */
 			switch(pDictionaryRefresh->type)
@@ -116,7 +116,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 					if (dictEncodeRet == RSSL_RET_SUCCESS)
 						rsslSetRefreshCompleteFlag(pIter);
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
 					*pBytesWritten = rsslGetEncodedBufferLength(pIter);
@@ -137,7 +137,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 					if (dictEncodeRet == RSSL_RET_SUCCESS)
 						rsslSetRefreshCompleteFlag(pIter);
 
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 					pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
 					*pBytesWritten = rsslGetEncodedBufferLength(pIter);
@@ -167,7 +167,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 				msg.flags |= RSSL_STMF_HAS_STATE;
 				msg.state = pDictionaryStatus->state;
 			}
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			*pBytesWritten = rsslGetEncodedBufferLength(pIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
