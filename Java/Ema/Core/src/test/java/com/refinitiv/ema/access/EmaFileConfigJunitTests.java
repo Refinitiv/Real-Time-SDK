@@ -381,7 +381,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		try {
 			// Project environment
 			if (Files.isDirectory(Paths.get("./src/test"))) {
-				Files.copy(Paths.get("./src/test/resources/com/thomsonreuters/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml"),
+				Files.copy(Paths.get("./src/test/resources/com/refinitiv/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml"),
 					Paths.get(choosenEntry + File.separator + "EmaConfig.xml"), StandardCopyOption.REPLACE_EXISTING);
 			}
 		} catch (IOException e) {
