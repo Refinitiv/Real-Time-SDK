@@ -8,6 +8,7 @@
 package com.refinitiv.eta.codec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -17,6 +18,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.CharSet.RmtesWorkingSet;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class RmtesJunit
 {
@@ -123,7 +126,21 @@ public class RmtesJunit
     	  }
 	}
 	
-	public class RmtesTestCase 
+    @Test
+    public void RMTESNegativeTestCases() {
+        Buffer inBuffer = CodecFactory.createBuffer();
+        RmtesDecoder rmtesDecoder = CodecFactory.createRmtesDecoder();
+        RmtesCacheBuffer rmtesCacheBuffer = CodecFactory.createRmtesCacheBuffer(100);
+
+        for (byte[] array : negativeTestCases) {
+            rmtesCacheBuffer.clear();
+            inBuffer.data(ByteBuffer.wrap(array));
+            assertTrue(DatatypeConverter.printHexBinary(array),
+                    rmtesDecoder.RMTESApplyToCache(inBuffer, rmtesCacheBuffer) < CodecReturnCodes.SUCCESS);
+        }
+    }
+
+	public class RmtesTestCase
 	{
 		byte[] _testCase;
 		byte[] _endResult;
@@ -203,6 +220,19 @@ public class RmtesJunit
 			STS23005a, STS23005b, STS23005c, STS23005d, STS23005e, STS23089, STS23090, STS23091, STS23092, ASY1001, ASY1002, ASY1003, ASY1004, ASY1005, ASY1006, 
 			ASY1007, ASY1008, ASY1009, ASY1010, ASY1011, ASY1012, ASY1013, ASY1014, ASY1015, ASY1016, ASY1017, ASY1018);
 	
+	//Negative test cases.
+
+    private static final byte[] MAPPING_FUNCTION_FAILURE_1 = new byte[] {0x1B, 0x25};
+    private static final byte[] MAPPING_FUNCTION_FAILURE_2 = new byte[] {0x1B, 0x25, 0x1B};
+
+    private static final byte[] LBRKT_FAILURE_1 = new byte[] {0x1B, 0x5B};
+    private static final byte[] LBRKT_FAILURE_2 = new byte[] {0x1B, 0x5B, 0x1B};
+    private static final byte[] LBRKT_FAILURE_3 = new byte[] {0x1B, 0x5B, 0x24};
+
+//    private static final byte[] ESC_FUNCTION_FAILURE_1 = new byte[] {0x1B, 0x1B}; TODO delete or add after response in Jira.
+
+    List<byte[]> negativeTestCases = Arrays.asList(MAPPING_FUNCTION_FAILURE_1, MAPPING_FUNCTION_FAILURE_2,
+            LBRKT_FAILURE_1, LBRKT_FAILURE_2, LBRKT_FAILURE_3);
 	/**
 	 * 		------ The following is a list of character sequence possibilities when switching and building character set tables as well as partial updates ------
 	 * 
