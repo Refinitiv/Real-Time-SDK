@@ -1183,6 +1183,9 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 
 	boolean submit( com.refinitiv.eta.codec.PostMsg rsslPostMsg, String serviceName )
 	{
+		if(!validateServiceName(serviceName)){
+			return false;
+		}
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslPostMsg.streamId(_streamId);
@@ -1275,6 +1278,35 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		}
 	    
 		return true;
+	}
+
+	private boolean validateServiceName(String serviceName)
+	{
+		if (serviceName == null || _baseImpl.directoryCallbackClient().directory(serviceName) != null)
+		{
+			return true;
+		}
+		StringBuilder temp = _baseImpl.strBuilder();
+		if (_baseImpl.loggerClient().isErrorEnabled())
+		{
+			temp.append("Internal error: rsslChannel.submit() failed in LoginItem.submit(PostMsg)")
+					.append(OmmLoggerClient.CR)
+					.append("Error Id ").append(ReactorReturnCodes.INVALID_USAGE).append(OmmLoggerClient.CR)
+					.append("Error Location ").append("LoginCallbackClient.rsslSubmit(PostMsg,String)").append(OmmLoggerClient.CR)
+					.append("Error Text ").append("Message submitted with unknown service name ").append(serviceName);
+
+			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			temp.setLength(0);
+		}
+
+		temp.append("Failed to submit PostMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ReactorReturnCodes.INVALID_USAGE))
+				.append(". Error text: ")
+				.append("Message submitted with unknown service name ").append(serviceName);
+
+		_baseImpl.handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		return false;
 	}
 	
 	void loginChannelList(List<ChannelInfo> loginChannelList)
