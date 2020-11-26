@@ -325,6 +325,14 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 							return ret;
 						assert(serviceList.serviceCount <= 1);
 					}
+
+					/* Send empty response when either service name or service ID is not found. */
+					if (serviceList.serviceCount == 0)
+					{
+						wlSendServiceListToRequest(&pWatchlistImpl->base, &pWatchlistImpl->directory,
+							pDirectoryRequest, NULL, 0,
+							pErrorInfo);
+					}
 				}
 				else
 				{
@@ -3445,40 +3453,6 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 							RsslRDMDirectoryRequest *pDirectoryReqMsg = &pRdmMsg->directoryMsg.request;
 							if (pDirectoryRequest)
 							{
-								if (pDirectoryRequest->pRequestedService)
-								{
-									if  (pDirectoryRequest->pRequestedService->flags & WL_RSVC_HAS_ID)
-									{
-										/* Match service ID (or lack of it) */
-										if (!(pDirectoryReqMsg->flags & RDM_DR_RQF_HAS_SERVICE_ID)
-												|| pDirectoryReqMsg->serviceId != 
-												pDirectoryRequest->pRequestedService->serviceId)
-										{
-											rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-													__FILE__, __LINE__, "Service ID does not match existing request.");
-											return RSSL_RET_INVALID_ARGUMENT;
-										}
-									}
-									else
-									{
-										/* Match service name (or lack of it) */
-										if (!pOptions->pServiceName
-												|| !rsslBufferIsEqual(pOptions->pServiceName,
-													&pDirectoryRequest->pRequestedService->serviceName))
-										{
-											rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-													__FILE__, __LINE__, "Service name does not match existing request.");
-											return RSSL_RET_INVALID_ARGUMENT;
-										}	
-									}
-								}
-								else if (pDirectoryReqMsg->flags & RDM_DR_RQF_HAS_SERVICE_ID
-										|| pOptions->pServiceName)
-								{
-									rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-											__FILE__, __LINE__, "Service info does not match existing request.");
-									return RSSL_RET_INVALID_ARGUMENT;
-								}
 
 								// save filter from request
 								pDirectoryRequest->filter = pDirectoryReqMsg->filter;

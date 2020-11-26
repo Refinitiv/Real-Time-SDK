@@ -881,16 +881,18 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	RsslRDMDirectoryRefresh directoryRefresh, *pDirectoryRefresh;
 	RsslRDMDirectoryUpdate directoryUpdate, *pDirectoryUpdate;
 
-	RsslRDMService	services[2];
+	RsslRDMService	services[3];
 	RsslUInt32		serviceCount = 2;
-	RsslBuffer		serviceNames[2] = { { 9, const_cast<char*>("DUCK_FEED") }, { 11, const_cast<char*>("WABBIT_FEED") }};
-	RsslUInt16		serviceIds[2] = { 2 , 3 };
+	RsslBuffer		serviceNames[3] = { { 9, const_cast<char*>("DUCK_FEED") }, { 11, const_cast<char*>("WABBIT_FEED") }, {10, const_cast<char*>("WRONG_NAME")} };
+	RsslUInt16		serviceIds[3] = { 2 , 3 , 100};
 
 	RsslBool		stream2ReceivedMsg = RSSL_FALSE;
 	RsslBool		stream3ReceivedMsg = RSSL_FALSE;
 	RsslBool		stream4ReceivedMsg = RSSL_FALSE;
 	RsslBool		stream5ReceivedMsg = RSSL_FALSE;
 	RsslBool		stream6ReceivedMsg = RSSL_FALSE;
+	RsslBool		stream7ReceivedMsg = RSSL_FALSE;
+	RsslBool		stream8ReceivedMsg = RSSL_FALSE;
 
 	ASSERT_TRUE(wtfStartTest());
 
@@ -965,6 +967,21 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
 
+	/* Consumer requests first service by wrong ID. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 7);
+	directoryRequest.flags |= RDM_DR_RQF_HAS_SERVICE_ID;
+	directoryRequest.serviceId = serviceIds[2]; // wrong servise ID
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer requests first service by wrong name. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 8);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	opts.pServiceName = &serviceNames[2];
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 
 	/* Consumer receives directory refresh. */
@@ -1008,6 +1025,18 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 				stream6ReceivedMsg = RSSL_TRUE;
 				ASSERT_TRUE(serviceList[0].serviceId == serviceIds[1]);
 				break;
+			case 7: /* Third service by wrong ID */
+				ASSERT_TRUE(!stream7ReceivedMsg);
+				ASSERT_TRUE(pDirectoryRefresh->serviceCount == 0);
+				stream7ReceivedMsg = RSSL_TRUE;
+				ASSERT_TRUE(serviceList == NULL);
+				break;
+			case 8: /* Third service by wrong name */
+				ASSERT_TRUE(!stream8ReceivedMsg);
+				ASSERT_TRUE(pDirectoryRefresh->serviceCount == 0);
+				stream8ReceivedMsg = RSSL_TRUE;
+				ASSERT_TRUE(serviceList == NULL);
+				break;
 			default:
 				ASSERT_TRUE(0);
 				break;
@@ -1015,11 +1044,12 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	}
 
 	ASSERT_TRUE(stream2ReceivedMsg && stream3ReceivedMsg && stream4ReceivedMsg
-			&& stream5ReceivedMsg && stream6ReceivedMsg);
+			&& stream5ReceivedMsg && stream6ReceivedMsg && stream7ReceivedMsg & stream8ReceivedMsg);
 
 	/* Provider received no messages. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);
 	ASSERT_TRUE(!wtfGetEvent());
+
 
 	/* Provider sends directory update. */
 	rsslClearRDMDirectoryUpdate(&directoryUpdate);
@@ -1027,7 +1057,15 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	directoryUpdate.filter = wtfGetProviderDirectoryFilter();
 
 	directoryUpdate.serviceList = services;
-	directoryUpdate.serviceCount = serviceCount;
+	directoryUpdate.serviceCount = serviceCount + 1; /*Added last service*/
+
+	wtfSetService1Info(&services[2]);
+
+	/* Add service name. */
+	services[2].info.serviceName = serviceNames[2];
+
+	/* Add service ID. */
+	services[2].serviceId = serviceIds[2];
 
 	services[0].flags = RDM_SVCF_HAS_STATE;
 	rsslClearRDMServiceState(&services[0].state);
@@ -1046,6 +1084,8 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	stream4ReceivedMsg = RSSL_FALSE;
 	stream5ReceivedMsg = RSSL_FALSE;
 	stream6ReceivedMsg = RSSL_FALSE;
+	stream7ReceivedMsg = RSSL_FALSE;
+	stream8ReceivedMsg = RSSL_FALSE;
 
 	/* Consumer receives directory update. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
@@ -1062,7 +1102,7 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 		{
 			case 2: /* Full */
 				ASSERT_TRUE(!stream2ReceivedMsg);
-				ASSERT_TRUE(pDirectoryUpdate->serviceCount == 2);
+				ASSERT_TRUE(pDirectoryUpdate->serviceCount == 3);
 				stream2ReceivedMsg = RSSL_TRUE;
 				break;
 			case 3: /* First service by name */
@@ -1087,6 +1127,18 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 				stream6ReceivedMsg = RSSL_TRUE;
 				ASSERT_TRUE(serviceList[0].serviceId == serviceIds[1]);
 				break;
+			case 7: /* Third service by wrong ID */
+				ASSERT_TRUE(!stream7ReceivedMsg);
+				ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+				ASSERT_TRUE(serviceList[0].serviceId == serviceIds[2]);
+				stream7ReceivedMsg = RSSL_TRUE;
+				break;
+			case 8: /* Third service by wrong name */
+				ASSERT_TRUE(!stream8ReceivedMsg);
+				ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
+				stream8ReceivedMsg = RSSL_TRUE;
+				ASSERT_TRUE(rsslBufferIsEqual(&serviceNames[2], &serviceList[0].info.serviceName));
+				break;
 			default:
 				ASSERT_TRUE(0);
 				break;
@@ -1098,6 +1150,8 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(stream4ReceivedMsg);
 	ASSERT_TRUE(stream5ReceivedMsg);
 	ASSERT_TRUE(stream6ReceivedMsg);
+	ASSERT_TRUE(stream7ReceivedMsg);
+	ASSERT_TRUE(stream8ReceivedMsg);
 
 	wtfFinishTest();
 }

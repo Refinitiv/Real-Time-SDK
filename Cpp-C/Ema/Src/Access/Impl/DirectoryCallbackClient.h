@@ -294,6 +294,7 @@ private :
 
 	const Channel*				_channel;
 	const Directory*			_pDirectory;
+	const EmaString*			_pServiceName;
 
 	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString& );
 

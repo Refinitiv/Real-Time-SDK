@@ -1290,7 +1290,8 @@ const EmaString DirectoryItem::_clientName( "DirectoryCallbackClient" );
 DirectoryItem::DirectoryItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel* channel ) :
 	ConsumerItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_channel( channel ),
-	_pDirectory( 0 )
+	_pDirectory( 0 ), 
+	_pServiceName ( 0 )
 {
 }
 
@@ -1326,6 +1327,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 
 	if ( reqMsgEncoder.hasServiceName() )
 	{
+		_pServiceName = &reqMsgEncoder.getServiceName();
 		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
 
 		if ( !pDirectory && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen )
@@ -1452,8 +1454,6 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-	pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
-
 	if ( !( pRsslRequestMsg->flags & RSSL_RQMF_HAS_QOS ) )
 	{
 		pRsslRequestMsg->qos.timeliness = RSSL_QOS_TIME_REALTIME;
@@ -1473,10 +1473,19 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		serviceNameBuffer.data = ( char* )_pDirectory->getName().c_str();
 		serviceNameBuffer.length = _pDirectory->getName().length();
 		submitMsgOpts.pServiceName = &serviceNameBuffer;
+		pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
 	}
 	else
 	{
-		submitMsgOpts.pServiceName = 0;
+		if ( _pServiceName )
+		{	
+			serviceNameBuffer.data = ( char* )_pServiceName->c_str();
+			serviceNameBuffer.length = _pServiceName->length();
+			submitMsgOpts.pServiceName = &serviceNameBuffer;
+			pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
+		}
+		else
+			submitMsgOpts.pServiceName = 0;
 	}
 
 	submitMsgOpts.majorVersion = _channel->getRsslChannel()->majorVersion;
