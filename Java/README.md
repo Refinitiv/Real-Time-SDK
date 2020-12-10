@@ -215,7 +215,7 @@ Gradle uses the following syntax to specify RTSDK dependencies:
 	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.0.0'
 	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.0.0'
 	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.0.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.0.0'
+	compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.0.0'
 
 # Developing 
 
