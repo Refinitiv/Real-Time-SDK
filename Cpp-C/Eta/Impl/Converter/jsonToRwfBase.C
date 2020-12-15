@@ -356,6 +356,9 @@ RsslBuffer* jsonToRwfBase::errorText()
 		case UNSUPPORTED_MSG_TYPE:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Unsupported Message Type");
 			break;
+		case EMPTY_MSG:
+			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Empty JSON Message");
+			break;
 		case NO_ERROR_CODE:
 		default:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "No error code.");
@@ -523,6 +526,9 @@ int jsonToRwfBase::parseJsonBuffer(const RsslBuffer *bufPtr, int offset)
 			}
 		}
 	}
+
+	error(EMPTY_MSG, __LINE__, __FILE__);
+	_error = true;
 	return -1;
 }
 
@@ -1152,6 +1158,7 @@ const char *jsonToRwfBase::errorFile()
 		case UNEXPECTED_FID:
 		case MISSING_KEY:
 		case TYPE_MISMATCH:
+		case EMPTY_MSG:
 			return _errorFile;
 			break;
 		case NO_MSG_BASE:
@@ -1182,6 +1189,7 @@ int *jsonToRwfBase::errorLineNum()
 		case MISSING_KEY:
 		case UNEXPECTED_FID:
 		case TYPE_MISMATCH:
+		case EMPTY_MSG:
 			return &_errorLineNum;
 			break;
 		case NO_MSG_BASE:

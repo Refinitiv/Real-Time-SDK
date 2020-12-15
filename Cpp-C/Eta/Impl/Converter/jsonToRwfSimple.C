@@ -9208,6 +9208,9 @@ RsslBuffer* jsonToRwfSimple::errorText()
 		case UNSUPPORTED_MSG_TYPE:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Unsupported Message Type");
 			break;
+		case EMPTY_MSG:
+			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Empty JSON Message");
+			break;
 		case RSSL_DICT_NOT_INIT:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "RsslDictionary is not initialized.");
 			break;

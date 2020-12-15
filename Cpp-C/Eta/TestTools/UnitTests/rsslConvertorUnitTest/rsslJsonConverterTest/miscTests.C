@@ -18,6 +18,52 @@ class MiscTests : public MsgConversionTestBase
 };
 
 
+/* Send an ampty message. */
+TEST_F(MiscTests, EmptyMsg)
+{
+	RsslJsonConverterError converterError;
+	RsslParseJsonBufferOptions parseOptions;
+
+	/* General empty buffer case */
+	_jsonBuffer.data = NULL;
+	_jsonBuffer.length = 0;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_LE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#else
+	ASSERT_LE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#endif
+	EXPECT_EQ(0, strncmp(converterError.text, "Empty JSON Message", MAX_CONVERTER_ERROR_TEXT));
+
+	/* Empty buffer inconsistency case: zero length */
+	_jsonBuffer.data = "";
+	_jsonBuffer.length = 0;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_LE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#else
+	ASSERT_LE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#endif
+	EXPECT_EQ(0, strncmp(converterError.text, "Empty JSON Message", MAX_CONVERTER_ERROR_TEXT));
+
+	/* Empty buffer inconsistency case: NULL pointer */
+	_jsonBuffer.data = NULL;
+	_jsonBuffer.length = 42;
+
+	rsslClearParseJsonBufferOptions(&parseOptions);
+	parseOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+#ifdef _RSSLJC_SHARED_LIBRARY
+	ASSERT_LE(rsslJsonConverterFunctions.rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#else
+	ASSERT_LE(rsslParseJsonBuffer(_rsslJsonConverter, &parseOptions, &_jsonBuffer, &converterError), RSSL_RET_FAILURE);
+#endif
+	EXPECT_EQ(0, strncmp(converterError.text, "Empty JSON Message", MAX_CONVERTER_ERROR_TEXT));
+}
+
 /* Send a message with one space. */
 TEST_F(MiscTests, OneSpaceMsg)
 {

@@ -4967,6 +4967,9 @@ RsslBuffer* jsonToRwfConverter::errorText()
 		case UNSUPPORTED_MSG_TYPE:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Unsupported Message Type");
 			break;
+		case EMPTY_MSG:
+			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Empty JSON Message");
+			break;
 		case NO_ERROR_CODE:
 		default:
 			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "No error code.");
