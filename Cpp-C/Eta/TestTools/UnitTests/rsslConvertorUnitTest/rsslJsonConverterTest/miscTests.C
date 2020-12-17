@@ -38,7 +38,7 @@ TEST_F(MiscTests, EmptyMsg)
 	EXPECT_EQ(0, strncmp(converterError.text, "Empty JSON Message", MAX_CONVERTER_ERROR_TEXT));
 
 	/* Empty buffer inconsistency case: zero length */
-	_jsonBuffer.data = "";
+	_jsonBuffer.data = (char*)"";
 	_jsonBuffer.length = 0;
 
 	rsslClearParseJsonBufferOptions(&parseOptions);
