@@ -724,20 +724,52 @@ char * rwfReal64tosOpts(char *str, RsslUInt32 strlen, RsslReal *iVal, rwfTosOpti
 	if (iVal->isBlank)
 		return(psz);
 
-	switch(iVal->hint)
+	switch (iVal->hint)
 	{
+		/* Do noting the value is fine */
+		case RSSL_RH_MIN_EXP: break; /* and RSSL_RH_EXPONENT_14 */
+		case RSSL_RH_EXPONENT_13: break;
+		case RSSL_RH_EXPONENT_12: break;
+		case RSSL_RH_EXPONENT_11: break;
+		case RSSL_RH_EXPONENT_10: break;
+		case RSSL_RH_EXPONENT_9: break;
+		case RSSL_RH_EXPONENT_8: break;
+		case RSSL_RH_EXPONENT_7: break;
+		case RSSL_RH_EXPONENT_6: break;
+		case RSSL_RH_EXPONENT_5: break;
+		case RSSL_RH_EXPONENT_4: break;
+		case RSSL_RH_EXPONENT_3: break;
+		case RSSL_RH_EXPONENT_2: break;
+		case RSSL_RH_EXPONENT_1: break;
+		case RSSL_RH_EXPONENT0: break;
+		case RSSL_RH_EXPONENT1: break;
+		case RSSL_RH_EXPONENT2: break;
+		case RSSL_RH_EXPONENT3: break;
+		case RSSL_RH_EXPONENT4: break;
+		case RSSL_RH_EXPONENT5: break;
+		case RSSL_RH_EXPONENT6: break;
+		case RSSL_RH_EXPONENT7: break; /* and RSSL_RH_MAX_EXP */
+		case RSSL_RH_FRACTION_1: break; /* and RSSL_RH_MIN_DIVISOR*/
+		case RSSL_RH_FRACTION_2: break;
+		case RSSL_RH_FRACTION_4: break;
+		case RSSL_RH_FRACTION_8: break;
+		case RSSL_RH_FRACTION_16: break;
+		case RSSL_RH_FRACTION_32: break;
+		case RSSL_RH_FRACTION_64: break;
+		case RSSL_RH_FRACTION_128: break;
+		case RSSL_RH_FRACTION_256: break; /* and RSSL_RH_MAX_DIVISOR */
 		case RSSL_RH_INFINITY:
-			psz="Inf";			
+			psz = "Inf";
 			return(psz);
-		break;
 		case RSSL_RH_NEG_INFINITY:
-			psz="-Inf";			
+			psz = "-Inf";
 			return(psz);
-		break;
 		case RSSL_RH_NOT_A_NUMBER:
-			psz="NaN";			
+			psz = "NaN";
 			return(psz);
-		break;
+		default:
+			//Invalid data. Error case here.
+			return NULL;
 	}
 
 	/* check if the number is decimal / fraction */

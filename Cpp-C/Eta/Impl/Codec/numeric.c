@@ -172,7 +172,7 @@ RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8
 
 RSSL_API RsslRet rsslRealToString(RsslBuffer * buffer, RsslReal * iReal)
 {
-	char tbuf[64];
+	char tbuf[128];
 	char *ret;
 	RsslUInt32 length;
 

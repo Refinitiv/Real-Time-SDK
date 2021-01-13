@@ -7028,6 +7028,38 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE( rsslNumericStringToReal(&testRealOut, &testDataBuf) == RSSL_RET_SUCCESS );
 	ASSERT_TRUE( rsslRealIsEqual(&testReal, &testRealOut) == RSSL_TRUE );
 
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+
+	testReal.hint = 31; // Wrong value of the hint RsslRealHints
+
+	ASSERT_TRUE(rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_INVALID_DATA);
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	testReal.hint = RSSL_RH_NOT_A_NUMBER;
+
+	ASSERT_TRUE(rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS);
+	ASSERT_STREQ("NaN", testDataBuf.data);
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	testReal.hint = RSSL_RH_INFINITY;
+
+	ASSERT_TRUE(rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS);
+	ASSERT_STREQ("Inf", testDataBuf.data);
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	testReal.hint = RSSL_RH_NEG_INFINITY;
+
+	ASSERT_TRUE(rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS);
+	ASSERT_STREQ("-Inf", testDataBuf.data);
+
 	/* Date conversion test */
 	testDate.month = 2;
 	testDate.day = 5;
