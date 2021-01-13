@@ -2951,7 +2951,7 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 										const ElementEntry& eachFilterEntry = serviceFilterList.getEntry();
 
 										if (eachFilterEntry.getLoadType() == DataType::ElementListEnum &&
-											(eachFilterEntry.getName() == "InfoFilter" || eachFilterEntry.getName() == "StateFilter"))
+											(eachFilterEntry.getName() == "InfoFilter" || eachFilterEntry.getName() == "StateFilter" || eachFilterEntry.getName() == "LoadFilter"))
 										{
 											const ElementList& eachServiceInfo = eachFilterEntry.getElementList();
 											if (!retrieveServiceInfo(*service, eachServiceInfo, directoryCache))
@@ -2970,6 +2970,11 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 												{
 													service->stateFilter.action = RSSL_FTEA_SET_ENTRY;
 													service->flags |= RDM_SVCF_HAS_STATE;
+												}
+												else if (eachFilterEntry.getName() == "LoadFilter")
+												{
+													service->loadFilter.action = RSSL_FTEA_SET_ENTRY;
+													service->flags |= RDM_SVCF_HAS_LOAD;
 												}
 											}
 										}
@@ -3275,7 +3280,60 @@ bool ProgrammaticConfigure::retrieveServiceInfo(Service& service, const ElementL
 				service.infoFilter.flags |= RDM_SVC_IFF_HAS_QOS;
 				addQos = true;
 			}
-
+			else if (entry.getName() == "OpenLimit")
+			{
+				uintValue = entry.getUInt();
+				if (uintValue > MAX_UNSIGNED_INT32)
+				{
+					EmaString text("service [");
+					text.append(service.infoFilter.serviceName)
+						.append("] from the programmatically configure specifies out of range OpenLimit [");
+					text.append(uintValue).append("]. Will drop this service.");
+					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
+					_emaConfigErrList.add(mce);
+				}
+				else
+				{
+					service.loadFilter.openLimit = uintValue;
+					service.loadFilter.flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
+				}
+			}
+			else if (entry.getName() == "OpenWindow")
+			{
+				uintValue = entry.getUInt();
+				if (uintValue > MAX_UNSIGNED_INT32)
+				{
+					EmaString text("service [");
+					text.append(service.infoFilter.serviceName)
+						.append("] from the programmatically configure specifies out of range OpenWindow [");
+					text.append(uintValue).append("]. Will drop this service.");
+					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
+					_emaConfigErrList.add(mce);
+				}
+				else
+				{
+					service.loadFilter.openWindow = uintValue;
+					service.loadFilter.flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
+				}
+			}
+			else if (entry.getName() == "LoadFactor")
+			{
+				uintValue = entry.getUInt();
+				if (uintValue > MAX_UNSIGNED_INT16)
+				{
+					EmaString text("service [");
+					text.append(service.infoFilter.serviceName)
+						.append("] from the programmatically configure specifies out of range LoadFactor [");
+					text.append(uintValue).append("]. Will drop this service.");
+					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
+					_emaConfigErrList.add(mce);
+				}
+				else
+				{
+					service.loadFilter.loadFactor = uintValue;
+					service.loadFilter.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
+				}
+			}
 			break;
 		case DataType::ArrayEnum:
 			if (entry.getName() == "DictionariesProvided")

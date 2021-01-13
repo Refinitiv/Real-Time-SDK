@@ -628,6 +628,16 @@
 						<StatusText value=""/>
 					</Status>
 				</StateFilter>
+				
+				<!-- LoadFilter is optional -->
+				<LoadFilter>
+					<!-- 1 is some value (default : 0)-->
+					<OpenLimit value="1"/>
+					<!-- 1 is some value (default : 1)-->
+					<OpenWindow value="2"/>
+					<!-- 1 is some value (default : 1)-->
+					<LoadFactor value="3"/>
+				</LoadFilter>
 			</Service>
 			
 			<Service>
@@ -726,6 +736,16 @@
 						<StatusText value="connection down"/>
 					</Status>
 				</StateFilter>
+
+				<!-- LoadFilter is optional -->
+				<LoadFilter>
+					<!-- 1 is some value (default : 0)-->
+					<OpenLimit value="4294967295"/>
+					<!-- 1 is some value (default : 1)-->
+					<OpenWindow value="4294967295"/>
+					<!-- 1 is some value (default : 1)-->
+					<LoadFactor value="65535"/>
+				</LoadFilter>
 			</Service>
 			
 		</Directory>

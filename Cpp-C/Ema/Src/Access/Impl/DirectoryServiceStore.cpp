@@ -861,6 +861,66 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					EmaString serviceNodeName(directoryNodeName + "Service." + serviceNames[idx] + "|");
 
 					UInt64 tempUInt64 = 0;
+
+					/*Load filter*/
+					if (pConfigImpl->get< UInt64 >(serviceNodeName + "LoadFilter|OpenLimit", tempUInt64))
+					{
+						if (tempUInt64 > MAX_UNSIGNED_INT32)
+						{
+							EmaString errorMsg("service [");
+							errorMsg.append(serviceNodeName).append("] specifies out of range OpenLimit (value of ").append(tempUInt64).append("). Will drop this service.");
+							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
+						}
+						else
+						{
+							service.loadFilter.openLimit = tempUInt64;
+							service.loadFilter.flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
+						}
+					}
+					else
+					{
+						service.loadFilter.openLimit = 0;
+					}
+
+					if (pConfigImpl->get< UInt64 >(serviceNodeName + "LoadFilter|OpenWindow", tempUInt64))
+					{
+						if (tempUInt64 > MAX_UNSIGNED_INT32)
+						{
+							EmaString errorMsg("service [");
+							errorMsg.append(serviceNodeName).append("] specifies out of range OpenWindow (value of ").append(tempUInt64).append("). Will drop this service.");
+							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
+						}
+						else
+						{
+							service.loadFilter.openWindow = tempUInt64;
+							service.loadFilter.flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
+						}
+					}
+					else
+					{
+						service.loadFilter.openWindow = 1;
+					}
+
+					if (pConfigImpl->get< UInt64 >(serviceNodeName + "LoadFilter|LoadFactor", tempUInt64))
+					{
+						if (tempUInt64 > MAX_UNSIGNED_INT16)
+						{
+							EmaString errorMsg("service [");
+							errorMsg.append(serviceNodeName).append("] specifies out of range LoadFactor (value of ").append(tempUInt64).append("). Will drop this service.");
+							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
+						}
+						else
+						{
+							service.loadFilter.loadFactor = tempUInt64;
+							service.loadFilter.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
+						}
+					}
+					else
+					{
+						service.loadFilter.loadFactor = 1;
+					}
+
+					/*State filter*/
 					if (pConfigImpl->get< UInt64 >(serviceNodeName + "StateFilter|ServiceState", tempUInt64))
 						service.stateFilter.serviceState = tempUInt64 > 0 ? 1 : 0;
 					else
@@ -911,6 +971,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					else
 						rsslClearBuffer(&service.stateFilter.status.text);
 
+					/*Info filter*/
 					if (pConfigImpl->get< UInt64 >(serviceNodeName + "InfoFilter|ServiceId", tempUInt64))
 					{
 						if (tempUInt64 > MAX_UNSIGNED_INT16)
@@ -1425,7 +1486,8 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 
 					service.infoFilter.action = RSSL_FTEA_SET_ENTRY;
 					service.stateFilter.action = RSSL_FTEA_SET_ENTRY;
-					service.flags |= RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE;
+					service.loadFilter.action = RSSL_FTEA_SET_ENTRY;
+					service.flags |= RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_LOAD;
 
 					if (pDirectoryCache)
 					{

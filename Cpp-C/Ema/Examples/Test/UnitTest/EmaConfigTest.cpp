@@ -19,6 +19,9 @@ using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 using namespace std;
 
+#define OVERFLOW_MAX_UNSIGNED_INT16		0x10000 // 0xFFFF + 1
+#define OVERFLOW_MAX_UNSIGNED_INT32		0x100000000 // 0xFFFFFFFF + 1
+
 class EmaConfigTest : public ::testing::Test {
 public:
 	static const char* emaConfigXMLFileNameTest;
@@ -354,6 +357,21 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|ServerSharedSocket", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_12|ServerSharedSocket from EmaConfig.xml";
 
+	/* Check loadFilter in the Directory_1 */
+	uintValue = 0;
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_1|Service.TEST_NI_PUB|LoadFilter|OpenLimit", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 1) << "extracting  LoadFilter|OpenLimit from EmaConfig.xml";
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_1|Service.TEST_NI_PUB|LoadFilter|OpenWindow", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 2) << "extracting  LoadFilter|OpenWindow from EmaConfig.xml";
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_1|Service.TEST_NI_PUB|LoadFilter|LoadFactor", uintValue);
+	EXPECT_TRUE(debugResult == true &&  uintValue == 3) << "extracting  LoadFilter|LoadFactor from EmaConfig.xml";
+
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_2|Service.DIRECT_FEED|LoadFilter|OpenLimit", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 4294967295) << "extracting  LoadFilter|OpenLimit from EmaConfig.xml";
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_2|Service.DIRECT_FEED|LoadFilter|OpenWindow", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 4294967295) << "extracting  LoadFilter|OpenWindow from EmaConfig.xml";
+	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_2|Service.DIRECT_FEED|LoadFilter|LoadFactor", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 65535) << "extracting  LoadFilter|LoadFactor from EmaConfig.xml";
 
 	config.configErrors().printErrors(OmmLoggerClient::WarningEnum);
 }
@@ -2332,6 +2350,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 						.addAscii("StatusText", "dacsDown")
 						.complete())
 					.complete())
+				.addElementList("LoadFilter",
+					ElementList()
+					.addUInt("OpenLimit", 1)
+					.addUInt("OpenWindow", 2)
+					.addUInt("LoadFactor", 3)
+				.complete())
 				.complete());
 
 			//encode service2
@@ -2362,6 +2386,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					ElementList()
 					.addUInt("ServiceState", 1)
 					.addUInt("AcceptingRequests", 1)
+					.complete())
+
+				.addElementList("LoadFilter",
+					ElementList()
+					.addUInt("OpenLimit", 4294967295)
+					.addUInt("OpenWindow", 4294967295)
+					.addUInt("LoadFactor", 65535)
 					.complete())
 				.complete())
 				.complete();
@@ -2540,6 +2571,16 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(pTemp->stateFilter.status.text.length == 8) << "stateFilter.status.test.length , 8";
 
 
+			EXPECT_TRUE(pTemp->loadFilter.openLimit == 1) << "loadFilter.openLimit, 1";
+			EXPECT_TRUE(pTemp->loadFilter.openWindow == 2) << "loadFilter.openWindow, 2";
+			EXPECT_TRUE(pTemp->loadFilter.loadFactor == 3) << "loadFilter.loadFactor, 3";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_LIMIT";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_WINDOW";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) << "loadFilter.flags, RDM_SVC_LDF_HAS_LOAD_FACTOR";
+
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_INFO) << "flags, RDM_SVCF_HAS_INFO";
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_STATE) << "flags, RDM_SVCF_HAS_STATE";
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_LOAD) << "flags, RDM_SVCF_HAS_LOAD";
 			/*********retrieve second service *************/
 			pTemp = pTemp->next();
 			EXPECT_TRUE(pTemp) << "pTemp->next() , true";
@@ -2610,6 +2651,16 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(pTemp->stateFilter.serviceState == 1) << "stateFilter.serviceState , 1";
 			EXPECT_TRUE(pTemp->stateFilter.flags == RDM_SVC_STF_HAS_ACCEPTING_REQS) << "stateFilter.flags , \"RDM_SVC_STF_HAS_ACCEPTING_REQS\"";
 
+			EXPECT_TRUE(pTemp->loadFilter.openLimit == 4294967295) << "loadFilter.openLimit, 4294967295";
+			EXPECT_TRUE(pTemp->loadFilter.openWindow == 4294967295) << "loadFilter.openWindow, 4294967295";
+			EXPECT_TRUE(pTemp->loadFilter.loadFactor == 65535) << "loadFilter.loadFactor, 65535";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_LIMIT";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_WINDOW";
+			EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) << "loadFilter.flags, RDM_SVC_LDF_HAS_LOAD_FACTOR";
+
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_INFO) << "flags, RDM_SVCF_HAS_INFO";
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_STATE) << "flags, RDM_SVCF_HAS_STATE";
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_LOAD) << "flags, RDM_SVCF_HAS_LOAD";
 		}
 		catch (const OmmException& excp)
 		{
@@ -4243,6 +4294,219 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 				EXPECT_NE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 1";
 			}
 		}
+		catch (const OmmException& excp)
+		{
+			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+			EXPECT_TRUE(false) << "Unexpected exception in testServerSharedSocketProgrammaticConfigForIProv()";
+		}
+	}
+}
+
+TEST_F(EmaConfigTest, testLoadFilterValueOverflowProgrammaticConfigForIProv)
+{
+	for (int testCase = 0; testCase < 3; testCase++)
+	{
+
+		std::cout << std::endl << " #####Now it is running test case " << testCase << std::endl;
+		Map outermostMap, innerMap;
+		ElementList elementList;
+
+		try
+		{
+			elementList.addAscii("DefaultIProvider", "Provider_1");
+
+			innerMap.addKeyAscii("Provider_1", MapEntry::AddEnum, ElementList()
+				.addAscii("Server", "Server_1")
+				.addAscii("Logger", "Logger_1")
+				.addAscii("Directory", "Directory_1").complete())
+				.addKeyAscii("Provider_2", MapEntry::AddEnum, ElementList()
+					.addAscii("Server", "Server_2")
+					.addAscii("Directory", "Directory_2")
+					.addAscii("Logger", "Logger_2").complete())
+				.complete();
+
+			elementList.addMap("IProviderList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("IProviderGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+
+			innerMap.addKeyAscii("Server_1", MapEntry::AddEnum, ElementList()
+				.addEnum("ServerType", 0)
+				.addEnum("CompressionType", 1)
+				.addUInt("GuaranteedOutputBuffers", 8000)
+				.addUInt("NumInputBuffers", 7777)
+				.addUInt("SysRecvBufSize", 150000)
+				.addUInt("SysSendBufSize", 200000)
+				.addUInt("CompressionThreshold", 12856)
+				.addUInt("ConnectionPingTimeout", 30000)
+				.addUInt("ConnectionMinPingTimeout", 8000)
+				.addAscii("InterfaceName", "localhost")
+				.addAscii("Port", "14010")
+				.addUInt("TcpNodelay", 0)
+				.addUInt("InitializationTimeout", 66)
+				.complete())
+				.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
+					.addEnum("ServerType", 1)
+					.addAscii("Port", "14011").complete())
+				.complete();
+
+			elementList.addMap("ServerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("ServerGroup", MapEntry::AddEnum, elementList);
+
+			elementList.clear();
+
+			innerMap.addKeyAscii("Logger_2", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("LoggerType", 1)
+				.addAscii("FileName", "logFile")
+				.addEnum("LoggerSeverity", 3).complete())
+				.addKeyAscii("Logger_1", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("LoggerType", 0)
+					.addAscii("FileName", "logFile")
+					.addEnum("LoggerSeverity", 3).complete()).complete();
+
+			elementList.addMap("LoggerList", innerMap);
+
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+			innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+				ElementList()
+				.addEnum("DictionaryType", 1)
+				.addAscii("RdmFieldDictionaryItemName", "RWFFld")
+				.addAscii("EnumTypeDefItemName", "RWFEnum")
+				.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+				.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete())
+				.addKeyAscii("Dictionary_2", MapEntry::AddEnum,
+					ElementList()
+					.addEnum("DictionaryType", 2)
+					.addAscii("RdmFieldDictionaryItemName", "RWFFld_ID4")
+					.addAscii("EnumTypeDefItemName", "RWFEnum_ID4")
+					.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary_ID4")
+					.addAscii("EnumTypeDefFileName", "./enumtype_ID4.def").complete()).complete();
+
+			elementList.addMap("DictionaryList", innerMap);
+			elementList.complete();
+			innerMap.clear();
+
+			outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
+			Map serviceMap;
+			switch (testCase)
+			{
+			case 0:
+				//encode service "OpenLimit" overflow
+				serviceMap.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
+					ElementList()
+					.addElementList("LoadFilter",
+						ElementList()
+						.addUInt("OpenLimit", OVERFLOW_MAX_UNSIGNED_INT32)
+						.addUInt("OpenWindow", 1)
+						.addUInt("LoadFactor", 2)
+						.complete())
+					.complete())
+					.complete();
+				break;
+			case 1:
+				//encode service "OpenWindow" overflow
+				serviceMap.addKeyAscii("DIRECT_FEED2", MapEntry::AddEnum,
+					ElementList()
+					.addElementList("LoadFilter",
+						ElementList()
+						.addUInt("OpenLimit", 3)
+						.addUInt("OpenWindow", OVERFLOW_MAX_UNSIGNED_INT32)
+						.addUInt("LoadFactor", 4)
+						.complete())
+					.complete())
+					.complete();
+				break;
+			case 2:
+				//encode service "LoadFactor" overflow
+				serviceMap.addKeyAscii("DIRECT_FEED3", MapEntry::AddEnum,
+					ElementList()
+					.addElementList("LoadFilter",
+						ElementList()
+						.addUInt("OpenLimit", 5)
+						.addUInt("OpenWindow", 6)
+						.addUInt("LoadFactor", OVERFLOW_MAX_UNSIGNED_INT16)
+						.complete())
+					.complete())
+					.complete();
+				break;
+			}
+
+			innerMap.addKeyAscii("Directory_1", MapEntry::AddEnum, serviceMap).complete();
+
+			serviceMap.clear();
+			elementList.clear();
+			elementList.addAscii("DefaultDirectory", "Directory_1");
+			elementList.addMap("DirectoryList", innerMap).complete();
+			outermostMap.addKeyAscii("DirectoryGroup", MapEntry::AddEnum, elementList).complete();
+
+
+			EmaString localConfigPath;
+			OmmIProviderConfig iprovConfig(localConfigPath);
+			OmmIProviderImpl ommIProviderImpl(iprovConfig.config(outermostMap), appClient);
+			outermostMap.clear();
+
+			//retrieve directory
+			const DirectoryCache& dirCache = ommIProviderImpl.getDirectoryServiceStore().getDirectoryCache();
+			EXPECT_TRUE(dirCache.directoryName == "Directory_1") << "directoryName = \"Directory_1\"";
+			const EmaList< Service* >& services = dirCache.getServiceList();
+			EXPECT_TRUE(services.size() == 1) << "services.size() , 1";
+
+			Service* pTemp = services.front();
+
+			switch (testCase)
+			{
+			case 0:
+				EXPECT_TRUE(pTemp->loadFilter.openLimit == 0);
+				EXPECT_TRUE(pTemp->loadFilter.openWindow == 1);
+				EXPECT_TRUE(pTemp->loadFilter.loadFactor == 2);
+
+				EXPECT_FALSE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_LIMIT";
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_WINDOW";
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) << "loadFilter.flags, RDM_SVC_LDF_HAS_LOAD_FACTOR";
+				break;
+			case 1:
+				EXPECT_TRUE(pTemp->loadFilter.openLimit == 3);
+				EXPECT_TRUE(pTemp->loadFilter.openWindow == 0);
+				EXPECT_TRUE(pTemp->loadFilter.loadFactor == 4);
+
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_LIMIT";
+				EXPECT_FALSE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_WINDOW";
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) << "loadFilter.flags, RDM_SVC_LDF_HAS_LOAD_FACTOR";
+				break;
+			case 2:
+				EXPECT_TRUE(pTemp->loadFilter.openLimit == 5);
+				EXPECT_TRUE(pTemp->loadFilter.openWindow == 6);
+				EXPECT_TRUE(pTemp->loadFilter.loadFactor == 0);
+
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_LIMIT";
+				EXPECT_TRUE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) << "loadFilter.flags, RDM_SVC_LDF_HAS_OPEN_WINDOW";
+				EXPECT_FALSE(pTemp->loadFilter.flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) << "loadFilter.flags, RDM_SVC_LDF_HAS_LOAD_FACTOR";
+				break;
+			}
+
+			EXPECT_FALSE(pTemp->flags & RDM_SVCF_HAS_INFO) << "flags, RDM_SVCF_HAS_INFO";
+			EXPECT_FALSE(pTemp->flags & RDM_SVCF_HAS_STATE) << "flags, RDM_SVCF_HAS_STATE";
+			EXPECT_TRUE(pTemp->flags & RDM_SVCF_HAS_LOAD) << "flags, RDM_SVCF_HAS_LOAD";
+		}
+
 		catch (const OmmException& excp)
 		{
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;

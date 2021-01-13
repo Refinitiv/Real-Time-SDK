@@ -211,6 +211,13 @@ void createProgrammaticConfig( Map& configMap )
 			ElementList().addUInt("ServiceState", 1)
 			.addUInt("AcceptingRequests", 1)
 			.complete())
+
+		.addElementList("LoadFilter",
+			ElementList()
+			.addUInt("OpenLimit", 5)
+			.addUInt("OpenWindow", 5)
+			.addUInt("LoadFactor", 1)
+			.complete())
 		.complete())
 		.complete();
 

@@ -173,6 +173,9 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"userQLimit",
 	"WsMaxMsgSize",
 	"MaxFragmentSize",
+	"OpenLimit",
+	"OpenWindow",
+	"LoadFactor"
 };
 
 refinitiv::ema::access::EmaString DoubleValues[] = {
