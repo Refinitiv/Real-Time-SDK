@@ -22,6 +22,7 @@ import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.BindOptions;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ChannelState;
+import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.Error;
 import com.refinitiv.eta.transport.Server;
 import com.refinitiv.eta.transport.TransportBuffer;
@@ -184,12 +185,18 @@ public class Provider implements ReceivedMsgCallback
             System.err.println(CommandLine.optionHelpString());
             System.exit(CodecReturnCodes.FAILURE);
         }
-
+        System.out.println("connectionType: " + CommandLine.value("c"));
         System.out.println("portNo: " + CommandLine.value("p"));
         System.out.println("interfaceName: " + CommandLine.value("i"));
         System.out.println("serviceName: " + CommandLine.value("s"));
         System.out.println("serviceId: " + CommandLine.value("id"));
         System.out.println("enableRTT: " + CommandLine.value("rtt"));
+        String connectionType = CommandLine.value("c");
+        if(connectionType != null && connectionType.equals("encrypted"))
+        {
+        	 System.out.println("keyfile: " + CommandLine.value("keyfile"));
+        	 System.out.println("keypasswd: " + CommandLine.value("keypasswd"));
+        }
 
         if ( ! _dictionaryHandler.loadDictionary(_error) )
         {
@@ -203,6 +210,12 @@ public class Provider implements ReceivedMsgCallback
         // set the connection parameters on the bind options
         bindOptions.serviceName(CommandLine.value("p"));
         bindOptions.interfaceName(CommandLine.value("i"));
+        if(connectionType != null && connectionType.equals("encrypted"))
+        {
+        	bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
+        	bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
+        	bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
+        }
         
         int ret = _providerSession.init(false, _error);
         if (ret != TransportReturnCodes.SUCCESS)
@@ -228,6 +241,7 @@ public class Provider implements ReceivedMsgCallback
             _directoryHandler.serviceId(CommandLine.intValue("id"));
         	_itemHandler.serviceId(CommandLine.intValue("id"));
         	_runtime = System.currentTimeMillis() + CommandLine.intValue("runtime") * 1000;
+        	
         }
         catch (NumberFormatException ile)
         {
@@ -247,6 +261,9 @@ public class Provider implements ReceivedMsgCallback
         CommandLine.addOption("id", "1", "Service id");
         CommandLine.addOption("x", "Provides XML tracing of messages.");
         CommandLine.addOption("rtt", false, "Provider supports calculation of Round Trip Latency");
+        CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
+        CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
+        CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
     }
 
     /*

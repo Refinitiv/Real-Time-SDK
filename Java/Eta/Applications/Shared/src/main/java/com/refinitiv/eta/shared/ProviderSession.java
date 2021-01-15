@@ -262,9 +262,16 @@ public class ProviderSession
      */
     public int read(Channel channel, Error error, ReceivedMsgCallback callback)
     {   	
+    	int ret;
+        /* It is possible for a consumer connection to be active, and the consumer immediately sends a login.  
+         * So the provider should attempt to read immediately after in case a login has been sent by the consumer.
+         */
         if (channel.selectableChannel() != null && channel.state() == ChannelState.INITIALIZING)
         {
-            return initChannel(channel, error, callback);            
+            ret = initChannel(channel, error, callback);
+
+            if(ret != TransportReturnCodes.SUCCESS || channel.state() == ChannelState.INITIALIZING)
+            	return ret;
         }
 
         if (channel.selectableChannel() != null && channel.state() == ChannelState.ACTIVE)

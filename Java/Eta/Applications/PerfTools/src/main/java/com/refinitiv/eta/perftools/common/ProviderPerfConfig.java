@@ -3,6 +3,7 @@ package com.refinitiv.eta.perftools.common;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.transport.BindOptions;
+import com.refinitiv.eta.transport.ConnectionTypes;
 
 /** Provides configuration that is not specific to any particular handler. */
 public class ProviderPerfConfig
@@ -54,6 +55,10 @@ public class ProviderPerfConfig
     private static boolean             _useReactor;                  // Use the VA Reactor instead of the ETA Channel for sending and receiving.
     private static int                 _tunnelStreamOutputBuffers;   // Tunnel Stream Guaranteed Output Buffers.
     private static boolean             _tunnelStreamBufsUsed;        // Control whether to print tunnel Stream buffers usage.
+    
+    private static int				   _connectionType;				 // Connection Type, either ConnectionTypes.SOCKET or ConnectionTypes.ENCRYPTED
+    private static String			   _keyfile;					 // Keyfile location for encrypted connections
+    private static String			   _keypasswd;					 // Keyfile password for encrypted connections
 
     static
     {
@@ -91,6 +96,10 @@ public class ProviderPerfConfig
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
         CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
         CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
+        
+        CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
+        CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
+        CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
     }
 
     private ProviderPerfConfig()
@@ -129,6 +138,13 @@ public class ProviderPerfConfig
         _tcpNoDelay = !CommandLine.booleanValue("tcpDelay");
         
         _serviceName = CommandLine.value("serviceName");
+        
+        if(CommandLine.value("c") != null && CommandLine.value("c").equals("encrypted"))
+        {
+        	_connectionType = ConnectionTypes.ENCRYPTED;
+        	_keyfile = CommandLine.value("keyfile");
+        	_keypasswd = CommandLine.value("keypasswd");
+        }
         
         // Perf Test configuration
         _msgFilename = CommandLine.value("msgFile");
@@ -255,6 +271,9 @@ public class ProviderPerfConfig
         _configString = "--- TEST INPUTS ---\n\n" +
             "          Steady State Time: " + _runTime + " sec\n" +
             "                       Port: " + _portNo + "\n" +
+            "			 Connection type: " + _connectionType + "\n" +
+            (_connectionType == ConnectionTypes.ENCRYPTED ? "" : 
+            "            		 Keyfile: " + _keyfile + "\n") +
             "               Thread Count: " + _threadCount + "\n" +
             "             Output Buffers: " + _guaranteedOutputBuffers 
                                              + (bindOptions == null ? "" : "(effective = " + bindOptions.guaranteedOutputBuffers() + ")")
@@ -571,6 +590,36 @@ public class ProviderPerfConfig
     public static boolean tcpNoDelay()
     {
         return _tcpNoDelay;
+    }
+    
+    /** 
+     * Connection type
+     * 
+     * @return connection type
+     */
+    public static int connType()
+    {
+    	return _connectionType;
+    }
+    
+    /** 
+     * keyfile
+     * 
+     * @return keyfile
+     */
+    public static String keyfile()
+    {
+    	return _keyfile;
+    }
+    
+    /** 
+     * keypasswd
+     * 
+     * @return keypasswd
+     */
+    public static String keypasswd()
+    {
+    	return _keypasswd;
     }
     
     /**

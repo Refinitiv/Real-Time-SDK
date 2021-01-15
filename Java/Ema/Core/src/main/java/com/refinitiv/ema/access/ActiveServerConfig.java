@@ -35,7 +35,7 @@ abstract class ActiveServerConfig extends BaseConfig
 	boolean                                acceptMessageThatChangesService;
 	boolean                                acceptMessageWithoutQosInRange;
 	boolean                                enforceAckIDValidation;
-
+	
 	private LongObject							         serviceId = new LongObject();
 	private HashMap<LongObject, ServiceDictionaryConfig> serviceDictionaryConfigMap;
 

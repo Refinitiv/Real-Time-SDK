@@ -187,12 +187,18 @@ public class ProvPerf
         _bindOptions.serviceName(ProviderPerfConfig.portNo());
         if (ProviderPerfConfig.interfaceName() != null)
             _bindOptions.interfaceName(ProviderPerfConfig.interfaceName());
+        
+        _bindOptions.connectionType(ProviderPerfConfig.connType());
+        if(_bindOptions.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+        	_bindOptions.encryptionOptions().keystoreFile(ProviderPerfConfig.keyfile());
+        	_bindOptions.encryptionOptions().keystorePasswd(ProviderPerfConfig.keypasswd());
+        }
 
         _bindOptions.majorVersion(Codec.majorVersion());
         _bindOptions.minorVersion(Codec.minorVersion());
         _bindOptions.protocolType(Codec.protocolType());
         _bindOptions.sysRecvBufSize(ProviderPerfConfig.recvBufSize());
-        _bindOptions.connectionType(ConnectionTypes.SOCKET);
         _bindOptions.maxFragmentSize(ProviderPerfConfig.maxFragmentSize());
         _bindOptions.tcpOpts().tcpNoDelay(ProviderPerfConfig.tcpNoDelay());
 	}

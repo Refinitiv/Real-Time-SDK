@@ -68,7 +68,7 @@ public class SocketHelper
     {
         return _socket.finishConnect();
     }
-
+    
     public SocketAddress getRemoteAddress() throws IOException
     {
         return _socket.getRemoteAddress();
@@ -199,5 +199,11 @@ public class SocketHelper
     public void initialize(ConnectOptions options) throws IOException
     {
     	_completedProxy = false;
+    }
+    
+    public void initialize(BindOptions options, EncryptedContextHelper encryptedContext) throws IOException
+    {
+    	// No proxy connections for servers 
+    	_completedProxy = true;
     }
 }

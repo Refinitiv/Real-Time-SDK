@@ -2,7 +2,7 @@ package com.refinitiv.eta.transport;
 
 import java.util.List;
 
-public class ChannelInfoImpl implements ChannelInfo
+class ChannelInfoImpl implements ChannelInfo
 {
     int _maxFragmentSize;
     int _maxOutputBuffers;

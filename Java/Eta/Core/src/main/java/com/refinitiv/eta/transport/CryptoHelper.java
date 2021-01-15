@@ -80,7 +80,6 @@ class CryptoHelper
 
     public static final String[] CLIENT_PROTOCOLS = {"TLSv1.2"};
     
-
     /**
      * "HTTPS" algorithm performs endpoint verification as described in 
      * https://tools.ietf.org/html/rfc2818#section-3
@@ -91,6 +90,7 @@ class CryptoHelper
 
     private final SSLContext cntx;
 
+    /* Initializes the client side */
     CryptoHelper(ConnectOptions options) throws IOException
     {
         assert (options != null) : "options cannot be null";
@@ -106,17 +106,19 @@ class CryptoHelper
         String trustManagerAlgorithm;
         String securityProtocol;
         String keyManagerAlgorithm;
+        
+        EncryptionOptionsImpl encOpts = (EncryptionOptionsImpl)options.encryptionOptions();
 
                 
     	if(options.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
     	{
-    		keystorePassword = options.encryptionOptions().KeystorePasswd();
-    		keystoreFile = options.encryptionOptions().KeystoreFile();
-    		keystoreType = options.encryptionOptions().KeystoreType();
-    		securityProvider = options.encryptionOptions().SecurityProvider();
-    		trustManagerAlgorithm = options.encryptionOptions().TrustManagerAlgorithm();
-    		securityProtocol = options.encryptionOptions().SecurityProtocol();
-    		keyManagerAlgorithm = options.encryptionOptions().KeyManagerAlgorithm();
+    		keystorePassword = encOpts.KeystorePasswd();
+    		keystoreFile = encOpts.KeystoreFile();
+    		keystoreType = encOpts.KeystoreType();
+    		securityProvider = encOpts.SecurityProvider();
+    		trustManagerAlgorithm = encOpts.TrustManagerAlgorithm();
+    		securityProtocol = encOpts.SecurityProtocol();
+    		keyManagerAlgorithm = encOpts.KeyManagerAlgorithm();
     	}
     	else
     	{
@@ -144,12 +146,14 @@ class CryptoHelper
         // create a TrustManagerFactory
         try
         {
-            if (trustManagerAlgorithm.equals(""))
+            if (trustManagerAlgorithm == null || trustManagerAlgorithm.equals(""))
             {
-                // get default trust management algorithm for security provider
-                // (default: PKIX for security provider SunJSSE)
-                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm(),
-                        securityProvider);
+            	if(securityProvider == null || securityProvider.equals(""))
+	                // get default trust management algorithm for security provider
+	                // (default: PKIX for security provider SunJSSE)
+	                clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(encOpts._defaultTrustManagerAlgorithm, encOpts._defaultSecurityProvider);
+            	else
+            		clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(encOpts._defaultTrustManagerAlgorithm, securityProvider);
             }
             else
                 clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(trustManagerAlgorithm,
@@ -173,13 +177,21 @@ class CryptoHelper
         // create a Java SSLContext object
         try
         {
-            cntx = SSLContext.getInstance(securityProtocol);
-            if (keyManagerAlgorithm.equals(""))
+        	if(securityProtocol == null || securityProtocol.equals(""))
+        		cntx = SSLContext.getInstance(encOpts._defaultSecurityProtocol);
+        	else
+        		cntx = SSLContext.getInstance(securityProtocol);
+
+        	
+            if (keyManagerAlgorithm == null || keyManagerAlgorithm.equals(""))
             {
-                // get default key management algorithm for security provider
-                // (default: SunX509 for security provider SunJSSE)
-                clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm(),
-                		securityProvider);
+            	if(securityProvider == null || securityProvider.equals(""))
+	            	// get default key management algorithm for security provider
+	                // (default: SunX509 for security provider SunJSSE)
+            		clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(encOpts._defaultKeyManagerAlgorithm, encOpts._defaultSecurityProvider);
+            	else
+                    clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(encOpts._defaultKeyManagerAlgorithm, securityProvider);
+
             }
             else
             {
@@ -202,7 +214,7 @@ class CryptoHelper
             throw new IOException("KeyManagementException when initializing SSLContext:  " + e.getMessage());
         }
         
-        _connectionKeyManagerAlgorigthm = keyManagerAlgorithm;
+        _connectionKeyManagerAlgorithm = keyManagerAlgorithm;
         _hostName = options.unifiedNetworkInfo().address();
         try
         {
@@ -215,21 +227,47 @@ class CryptoHelper
             _hostPort = GetServiceByName.getServiceByName(options.unifiedNetworkInfo().serviceName());
         }
         
+        _server = false;
+    }
+    
+    /* Initializes the server side */
+    CryptoHelper(BindOptions options, SSLContext context) throws IOException
+    {
+        assert (options != null) : "options cannot be null";
+
+        cntx = context;
+        
+        _connectionKeyManagerAlgorithm = options.encryptionOptions().keyManagerAlgorithm();
+       
+        _server = true;
     }
 
     public void initializeEngine(SocketChannel socketChannel) throws IOException
     {
         _socketChannel = socketChannel;
 
-        // setup Java SSLEngine to be used
-        _engine = cntx.createSSLEngine(_hostName, _hostPort);
-        _engine.setUseClientMode(true);
-
-        SSLParameters sslParameters = new SSLParameters();
-        sslParameters.setProtocols(CLIENT_PROTOCOLS);
-        sslParameters.setEndpointIdentificationAlgorithm(ENDPOINT_IDENTIFICATION_ALGORITHM);
-        sslParameters.setServerNames(Collections.singletonList(new SNIHostName(_hostName)));
-        _engine.setSSLParameters(sslParameters);
+        // setup Java SSLEngine to be used, depending if it's a server or client.
+        if(!_server)
+        {
+	        _engine = cntx.createSSLEngine(_hostName, _hostPort);
+	        _engine.setUseClientMode(true);
+	
+	        SSLParameters sslParameters = new SSLParameters();
+	        sslParameters.setProtocols(CLIENT_PROTOCOLS);
+	        sslParameters.setEndpointIdentificationAlgorithm(ENDPOINT_IDENTIFICATION_ALGORITHM);
+	        sslParameters.setServerNames(Collections.singletonList(new SNIHostName(_hostName)));
+	        sslParameters.setNeedClientAuth(false);
+	        _engine.setSSLParameters(sslParameters);
+        }
+        else
+        {
+        	_engine = cntx.createSSLEngine();
+        	_engine.setUseClientMode(false);
+        	SSLParameters sslParameters = new SSLParameters();
+	        sslParameters.setProtocols(CLIENT_PROTOCOLS);
+	        sslParameters.setNeedClientAuth(false);
+	        _engine.setSSLParameters(sslParameters);
+        }
 
         // get the largest possible buffer size for the application data buffers that are used for Java SSLEngine
         final int appBufferSize = _engine.getSession().getApplicationBufferSize();
@@ -444,8 +482,8 @@ class CryptoHelper
             }
         }
 
-        // check certificate(s) validity (maybe has expired?) after handshake is done
-        if (_connectionKeyManagerAlgorigthm.endsWith("X509"))
+        // check certificate(s) validity (maybe has expired?) after handshake is done(a null value implies "X509" algorithm)
+        if (_server == false && (_connectionKeyManagerAlgorithm == null || _connectionKeyManagerAlgorithm.endsWith("X509")))
         {
             try
             {
@@ -453,8 +491,6 @@ class CryptoHelper
 
                 for (int i = 0; i < cert.length; i++)
                 {
-                    // int k = i+1;
-                    // System.out.println("\n\ncertificate #" + k + " (of total " + cert.length+") from peer:    " + cert[i].toString());
                     try
                     {
                         cert[i].checkValidity();
@@ -471,7 +507,7 @@ class CryptoHelper
             }
             catch (SSLPeerUnverifiedException e)
             {
-                System.out.println("SSLPeerUnverifiedException during SSLSession.getPeerCertificates()");
+            	 throw new IOException("Missing certificate:   " + e.getMessage());
             }
         }
     }
@@ -610,10 +646,11 @@ class CryptoHelper
         }
     }
 
-    private String _connectionKeyManagerAlgorigthm;
+    private String _connectionKeyManagerAlgorithm;
     private SocketChannel _socketChannel;
     private String _hostName;
     private int _hostPort;
+    private boolean _server;
 
     public SSLEngine _engine;
 

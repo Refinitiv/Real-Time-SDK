@@ -157,6 +157,7 @@ class ServerImpl extends EtaNode implements Server
     private int _connType;
     ComponentInfo _componentInfo = new ComponentInfoImpl();
     int _sessionId = 1;
+    private EncryptedContextHelper _context;
 
     ServerImpl(ProtocolInt transport, Pool pool)
     {
@@ -165,6 +166,7 @@ class ServerImpl extends EtaNode implements Server
         _state = ChannelState.INACTIVE;
         _componentInfo.componentVersion().data(Transport._defaultComponentVersionBuffer, 0,
                                                Transport._defaultComponentVersionBuffer.limit());
+        _context = null;
     }
 
     int bind(BindOptions options, Error error)
@@ -177,6 +179,12 @@ class ServerImpl extends EtaNode implements Server
         _connType = _bindOpts.connectionType();
         try
         {
+        	 // first check if it's encrypted.  If so, initialize the encrypted context helper
+        	if(options.connectionType() == ConnectionTypes.ENCRYPTED)
+        	{
+        		_context = new EncryptedContextHelper(options);
+        	}
+        	 
             // if configured, specify the interface name
             InetSocketAddress socketAddress = null;
 
@@ -312,7 +320,7 @@ class ServerImpl extends EtaNode implements Server
             {
                 socketChannel.socket().setTcpNoDelay(true);
             }
-            channel = (RsslSocketChannel)_transport.channel(options, this, socketChannel);
+            channel = (RsslSocketChannel)_transport.channel(options, this, socketChannel, error);
 
             /* Give our Component Info to the Channel.
              * No need for deep copies here since the channel will never re-connect.
@@ -681,5 +689,9 @@ class ServerImpl extends EtaNode implements Server
     {
         return _state;
     }
+    
+    public EncryptedContextHelper context() {
+		return _context;
+	}
 
 }

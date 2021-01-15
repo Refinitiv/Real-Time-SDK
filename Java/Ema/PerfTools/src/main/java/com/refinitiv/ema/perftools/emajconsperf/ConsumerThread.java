@@ -179,6 +179,9 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 				_ommConfig.operationModel(OperationModel.USER_DISPATCH);
 			else
 				_ommConfig.operationModel(OperationModel.API_DISPATCH);
+			
+			_ommConfig.tunnelingKeyStoreFile(_consPerfConfig.keyfile());
+			_ommConfig.tunnelingKeyStorePasswd(_consPerfConfig.keypasswd());
 				
 			_consumer = EmaFactory.createOmmConsumer(_ommConfig);
 		}

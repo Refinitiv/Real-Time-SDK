@@ -46,16 +46,23 @@ class SocketProtocol implements ProtocolInt
     final HashMap<Integer, Pool> _writeBufferChannelPools = new HashMap<Integer, Pool>();
     final ArrayList<RsslSocketChannel> _busyList = new ArrayList<RsslSocketChannel>();
 
-    SocketProtocol()
+    SocketProtocol(BindOptions options)
     {
+        _connectionType = options.connectionType();
+        if(_connectionType == ConnectionTypes.ENCRYPTED)
+        {
+        	/* This is just to make sure everything flows through cleanly. */
+       		_subProtocol = ConnectionTypes.SOCKET;
+        }
+    	
         // The global lock is locked by Transport
 
         // create pools used by this transport
         // 1. add channels to channel pool
         for (int i = 0; i < NUMBER_SOCKET_CHANNELS; i++)
         {
-            RsslSocketChannel channel = new RsslSocketChannel(this, _channelPool);
-            channel.returnToPool();
+        	 RsslSocketChannel channel = createChannel();
+             channel.returnToPool();
         }
 
         // 2. buffers will be added to the pool when connected and size is known from server
@@ -238,7 +245,7 @@ class SocketProtocol implements ProtocolInt
     }
     
     @Override
-    public Channel channel(AcceptOptions options, Server srvr, Object object)
+    public Channel channel(AcceptOptions options, Server srvr, Object object, Error error)
     {
         // The global lock is locked by Transport
         java.nio.channels.SocketChannel socketChannel = (java.nio.channels.SocketChannel)object;
@@ -253,7 +260,7 @@ class SocketProtocol implements ProtocolInt
 
             if (channel == null)
             {
-                channel = new RsslSocketChannel(this, _channelPool);
+                channel = new RsslSocketChannel(this, _channelPool, (srvr.connectionType() == ConnectionTypes.ENCRYPTED));
                 // System.out.println("POOL EXPAND = " + _channelPool._queue._size + " ACTIVESIZE = " + ((TrackingPool)_channelPool)._active.size() + " iCount = " + iCount);
                 break;
             }
@@ -274,9 +281,8 @@ class SocketProtocol implements ProtocolInt
         }
 
         channel._server = server;
-        if (channel.setChannelAccept(options, server.bindOptions(), socketChannel) < TransportReturnCodes.SUCCESS)
+        if (channel.setChannelAccept(options, server.bindOptions(), socketChannel, error) < TransportReturnCodes.SUCCESS)
         {
-            System.out.println("channel set accept failed. ");
             channel.returnToPool();
             return null;
         }

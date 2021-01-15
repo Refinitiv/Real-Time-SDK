@@ -70,21 +70,28 @@ class ProgrammaticConfigure
 	*/
 	class ServerEntryFlag
 	{
-		final static int SERVERTYPE_FLAG =					0X0001;
-		final static int PORT_FLAG =						0X0002;
-		final static int INTERFACENAME_FLAG =				0X0004;
-		final static int GUARANTEED_OUTPUTBUFFERS_FLAG =	0X0008;
-		final static int NUMINPUTBUF_FLAG =					0X0010;
-		final static int SYS_RECV_BUFSIZE_FLAG =			0X0020;
-		final static int SYS_SEND_BUFSIZE_FLAG =			0X0040;
-		final static int HIGH_WATERMARK_FLAG =				0X0080;
-		final static int TCP_NODELAY_FLAG =					0X0100;
-		final static int CONN_MIN_PING_TIMEOUT_FLAG =		0X0200;
-		final static int CONN_PING_TIMEOUT_FLAG =			0X0400;
-		final static int COMPRESSION_THRESHOLD_FLAG =		0X0800;
-		final static int COMPRESSION_TYPE_FLAG =			0x1000;
-		final static int DIRECTWRITE_FLAG =					0x2000;
-		final static int INIT_TIMEOUT_FLAG =				0x4000;
+		final static int SERVERTYPE_FLAG =					0X000001;
+		final static int PORT_FLAG =						0X000002;
+		final static int INTERFACENAME_FLAG =				0X000004;
+		final static int GUARANTEED_OUTPUTBUFFERS_FLAG =	0X000008;
+		final static int NUMINPUTBUF_FLAG =					0X000010;
+		final static int SYS_RECV_BUFSIZE_FLAG =			0X000020;
+		final static int SYS_SEND_BUFSIZE_FLAG =			0X000040;
+		final static int HIGH_WATERMARK_FLAG =				0X000080;
+		final static int TCP_NODELAY_FLAG =					0X000100;
+		final static int CONN_MIN_PING_TIMEOUT_FLAG =		0X000200;
+		final static int CONN_PING_TIMEOUT_FLAG =			0X000400;
+		final static int COMPRESSION_THRESHOLD_FLAG =		0X000800;
+		final static int COMPRESSION_TYPE_FLAG =			0x001000;
+		final static int DIRECTWRITE_FLAG =					0x002000;
+		final static int INIT_TIMEOUT_FLAG =				0x004000;
+		final static int KEYSTORE_FILE_FLAG = 				0x008000;
+		final static int KEYSTORE_PASSWD_FLAG =				0x010000;
+		final static int KEYSTORE_TYPE_FLAG =				0x020000;
+		final static int SECURITY_PROTOCOL_FLAG =			0x040000;
+		final static int SECURITY_PROVIDER_FLAG =			0x080000;
+		final static int KEY_MANAGER_ALGO_FLAG =			0x100000;
+		final static int TRUST_MANAGER_ALGO_FLAG =			0x200000;
 	}
 
 	/** @class TunnelingEntryFlag
@@ -1834,6 +1841,13 @@ class ProgrammaticConfigure
 		long tcpNodelay = 0;
 		long directWrite = 0;
 		long initializationTimeout = 0;
+		String keystoreFile = null;
+		String keystorePasswd = null;
+		String keystoreType = null;
+		String securityProtocol = null;
+		String securityProvider = null;
+		String keyManagerAlgorithm = null;
+		String trustManagerAlgorithm = null;
 		
 		for (ElementEntry serverEntry : mapEntry.elementList())
 		{
@@ -1856,6 +1870,7 @@ class ProgrammaticConfigure
 	
 					switch (serverType)
 					{
+					case ConnectionTypes.ENCRYPTED:
 					case ConnectionTypes.SOCKET:
 						flags |= ServerEntryFlag.SERVERTYPE_FLAG;
 						break;
@@ -1875,7 +1890,7 @@ class ProgrammaticConfigure
 					case CompressionTypes.NONE:
 					case CompressionTypes.ZLIB:
 					case CompressionTypes.LZ4:
-						flags |= ChannelEntryFlag.COMPRESSION_TYPE_FLAG;
+						flags |= ServerEntryFlag.COMPRESSION_TYPE_FLAG;
 						break;
 					default:
 						_emaConfigErrList.append( "Invalid CompressionType [" )
@@ -1884,7 +1899,41 @@ class ProgrammaticConfigure
 						break;
 					}
 				}
-				
+				else if (serverEntry.name().equals("KeystoreFile"))
+				{
+					keystoreFile = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.KEYSTORE_FILE_FLAG;
+				}
+				else if (serverEntry.name().equals("KeystorePasswd"))
+				{
+					keystorePasswd = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.KEYSTORE_PASSWD_FLAG;
+				}
+				else if (serverEntry.name().equals("KeystoreType"))
+				{
+					keystoreType = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.KEYSTORE_TYPE_FLAG;
+				}
+				else if (serverEntry.name().equals("SecurityProtocol"))
+				{
+					securityProtocol = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.SECURITY_PROTOCOL_FLAG;
+				}
+				else if (serverEntry.name().equals("SecurityProvider"))
+				{
+					securityProvider = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.SECURITY_PROVIDER_FLAG;
+				}
+				else if (serverEntry.name().equals("KeyManagerAlgorithm"))
+				{
+					keyManagerAlgorithm = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.KEY_MANAGER_ALGO_FLAG;
+				}
+				else if (serverEntry.name().equals("TrustManagerAlgorithm"))
+				{
+					trustManagerAlgorithm = serverEntry.ascii().ascii();
+					flags |= ServerEntryFlag.TRUST_MANAGER_ALGO_FLAG;
+				}
 				break;
 	
 			case DataTypes.INT:
@@ -1955,6 +2004,8 @@ class ProgrammaticConfigure
 			SocketServerConfig currentServerConfig = (SocketServerConfig)activeServerConfig.serverConfig;
 			currentServerConfig.serviceName = ActiveServerConfig.defaultServiceName;
 			SocketServerConfig fileCfgSocket = (SocketServerConfig)fileCfg;
+			
+			currentServerConfig.rsslConnectionType = serverType;
 
 			if ((flags & ServerEntryFlag.TCP_NODELAY_FLAG) != 0)
 				currentServerConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
@@ -2030,6 +2081,30 @@ class ProgrammaticConfigure
 				currentServerConfig.initializationTimeout = convertToInt(initializationTimeout);
 			else if ( fileCfg != null )
 				currentServerConfig.initializationTimeout = fileCfg.initializationTimeout;
+			
+			if(serverType == ConnectionTypes.ENCRYPTED)
+			{
+				if ((flags & ServerEntryFlag.KEYSTORE_FILE_FLAG) != 0 && keystoreFile != null)
+					currentServerConfig.keystoreFile = keystoreFile;
+				
+				if ((flags & ServerEntryFlag.KEYSTORE_PASSWD_FLAG) != 0 && keystorePasswd != null)
+					currentServerConfig.keystorePasswd = keystorePasswd;
+				
+				if ((flags & ServerEntryFlag.KEYSTORE_TYPE_FLAG) != 0 && keystoreType != null)
+					currentServerConfig.keystoreType = keystoreType;
+				
+				if ((flags & ServerEntryFlag.SECURITY_PROTOCOL_FLAG) != 0 && securityProtocol != null)
+					currentServerConfig.securityProtocol = securityProtocol;
+				
+				if ((flags & ServerEntryFlag.SECURITY_PROVIDER_FLAG) != 0 && securityProvider != null)
+					currentServerConfig.securityProvider = securityProvider;
+				
+				if ((flags & ServerEntryFlag.KEY_MANAGER_ALGO_FLAG) != 0 && keyManagerAlgorithm != null)
+					currentServerConfig.keyManagerAlgorithm = keyManagerAlgorithm;
+				
+				if ((flags & ServerEntryFlag.TRUST_MANAGER_ALGO_FLAG) != 0 && trustManagerAlgorithm != null)
+					currentServerConfig.trustManagerAlgorithm = trustManagerAlgorithm;
+			}
 		}
 	}
 	
@@ -2682,6 +2757,8 @@ class ProgrammaticConfigure
 
 			if(enumValue.equals("RSSL_SOCKET"))
 				serverType = ConnectionTypes.SOCKET;
+			if(enumValue.equals("RSSL_ENCRYPTED"))
+				serverType = ConnectionTypes.ENCRYPTED;
 			else
 			{
 				_emaConfigErrList.append( "no conversion in convertToEnum for enumType [" )

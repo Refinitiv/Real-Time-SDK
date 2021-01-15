@@ -130,7 +130,7 @@ public class JNIServer extends EtaNode implements Server
     @Override
     public Channel accept(AcceptOptions opts, Error error)
     {
-        JNIChannel channel = (JNIChannel)_transport.channel(opts, this, error);
+        JNIChannel channel = (JNIChannel)_transport.channel(opts, this, null, error);
 
         /* Give our Component Info to the Channel.
          * No need for deep copies here since the channel will never re-connect.
@@ -303,4 +303,9 @@ public class JNIServer extends EtaNode implements Server
         error.errorId(retVal);
         error.text(text);
     }
+
+	@Override
+	public int connectionType() {
+		return _bindOpts.connectionType();
+	}
 }

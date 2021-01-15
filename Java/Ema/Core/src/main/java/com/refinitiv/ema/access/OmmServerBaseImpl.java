@@ -308,7 +308,17 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysRecvBufSize);
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysSendBufSize);
 			_bindOptions.compressionType(_activeServerConfig.serverConfig.compressionType);
-			
+			_bindOptions.encryptionOptions().keystoreFile(_activeServerConfig.serverConfig.keystoreFile);
+			_bindOptions.encryptionOptions().keystorePasswd(_activeServerConfig.serverConfig.keystorePasswd);
+			if(_activeServerConfig.serverConfig.keystoreType != null)
+				_bindOptions.encryptionOptions().keystoreType(_activeServerConfig.serverConfig.keystoreType);
+			if(_activeServerConfig.serverConfig.securityProtocol != null)
+				_bindOptions.encryptionOptions().securityProtocol(_activeServerConfig.serverConfig.securityProtocol);
+			if(_activeServerConfig.serverConfig.securityProvider != null)
+				_bindOptions.encryptionOptions().securityProvider(_activeServerConfig.serverConfig.securityProvider);
+			if(_activeServerConfig.serverConfig.trustManagerAlgorithm != null)
+				_bindOptions.encryptionOptions().trustManagerAlgorithm(_activeServerConfig.serverConfig.trustManagerAlgorithm);
+
 			String productVersion = OmmServerBaseImpl.class.getPackage().getImplementationVersion();
 			if ( productVersion == null)
 				productVersion = "EMA Java Edition";
@@ -580,7 +590,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		else
 		{
 			SocketServerConfig socketServerConfig = new SocketServerConfig();
-			if (socketServerConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+			if (socketServerConfig.rsslConnectionType == ConnectionTypes.SOCKET || socketServerConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 			{
 				String tempService = config.getUserSpecifiedPort();
 				if (tempService != null)
@@ -588,6 +598,14 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			}
 			_activeServerConfig.serverConfig = socketServerConfig;
 		}
+		
+		_activeServerConfig.serverConfig.keystoreFile = ((OmmIProviderConfigImpl)config).keystoreFile();
+		_activeServerConfig.serverConfig.keystorePasswd = ((OmmIProviderConfigImpl)config).keystorePasswd();
+		_activeServerConfig.serverConfig.keystoreType = ((OmmIProviderConfigImpl)config).keystoreType();
+		_activeServerConfig.serverConfig.securityProtocol = ((OmmIProviderConfigImpl)config).securityProtocol();
+		_activeServerConfig.serverConfig.securityProvider = ((OmmIProviderConfigImpl)config).securityProvider();
+		_activeServerConfig.serverConfig.keyManagerAlgorithm = ((OmmIProviderConfigImpl)config).keyManagerAlgorithm();
+		_activeServerConfig.serverConfig.trustManagerAlgorithm = ((OmmIProviderConfigImpl)config).trustManagerAlgorithm();
 
 		ConfigAttributes globalConfigAttributes = config.xmlConfig().getGlobalConfig();
 
@@ -675,10 +693,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 		switch (serverType)
 		{
+		case ConnectionTypes.ENCRYPTED:
 		case ConnectionTypes.SOCKET:
 		{
 			SocketServerConfig socketServerConfig = new SocketServerConfig();
 			newServerConfig = socketServerConfig;
+			
+			newServerConfig.rsslConnectionType = serverType;
 
 			String tempService = configImpl.getUserSpecifiedPort();
 			if (tempService == null)

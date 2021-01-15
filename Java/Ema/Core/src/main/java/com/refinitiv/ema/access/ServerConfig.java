@@ -23,6 +23,13 @@ class ServerConfig
 	int 				highWaterMark;
 	int					connectionMinPingTimeout;
 	int					initializationTimeout;
+	String 				keystoreFile;
+	String 				keystorePasswd;
+	String				keystoreType;
+	String 				securityProtocol;
+	String 				securityProvider;
+	String 				keyManagerAlgorithm;
+	String 				trustManagerAlgorithm;
 	
 	ServerConfig()
 	{
@@ -45,6 +52,13 @@ class ServerConfig
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
 		compressionThresholdSet = false;
+		keystoreFile = null;
+		keystorePasswd = null;
+		keystoreType = null;
+		securityProtocol = null;
+		securityProvider = null;
+		keyManagerAlgorithm = null;
+		trustManagerAlgorithm = null;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

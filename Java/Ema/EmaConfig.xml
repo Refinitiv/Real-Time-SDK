@@ -192,6 +192,33 @@
 			<RefreshFirstRequired value="1" />
 
         </IProvider>
+		<IProvider>
+            <!-- Name is mandatory                                                                       -->
+            <Name value="EncryptedProvider"/>
+            <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
+            <Server value="EncryptedServer"/>
+            <!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
+            <!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
+            <!-- was set to ApiControlEnum                                                               -->
+            <!-- this configuration also decides which dictionaries will be loaded at startup            -->
+            <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+            <Directory value="Directory_2"/>
+
+			<ItemCountHint value="10000"/>
+
+			<ServiceCountHint value="10000" />
+
+			<DispatchTimeoutApiThread value="500" />
+
+			<MaxDispatchCountApiThread value="500" />
+
+			<MaxDispatchCountUserThread value="500" />
+
+			<PipePort value="9009" />
+
+			<RefreshFirstRequired value="1" />
+
+        </IProvider>
     </IProviderList>
 </IProviderGroup>
 
@@ -319,6 +346,20 @@
         <Server>
             <Name value="Server_1"/>
             <ServerType value="ServerType::RSSL_SOCKET"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::None"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="30000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14002"/>
+        </Server>
+		<Server>
+            <Name value="EncryptedServer"/>
+            <ServerType value="ServerType::RSSL_ENCRYPTED"/>
             <!-- CompressionType is optional: defaulted to None -->
             <!-- possible values: None, ZLib, LZ4 -->
             <CompressionType value="CompressionType::None"/>

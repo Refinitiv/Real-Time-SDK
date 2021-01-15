@@ -167,10 +167,8 @@ public class JNIProtocol implements ProtocolInt
     native int rsslBind(BindOptionsImpl opts, ErrorImpl error, JNIServer server);
 
     @Override
-    public Channel channel(AcceptOptions opts, Server srvr, Object object)
+    public Channel channel(AcceptOptions opts, Server srvr, Object object, Error error)
     {
-        Error error = (Error)object;
-
         try
         {
             // The global lock is locked by Transport

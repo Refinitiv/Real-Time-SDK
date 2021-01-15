@@ -384,6 +384,14 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         connectOptions.unifiedNetworkInfo().serviceName(_consPerfConfig.portNo());
         connectOptions.unifiedNetworkInfo().interfaceName(_consPerfConfig.interfaceName());
 
+        if(connectOptions.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+        	connectOptions.tunnelingInfo().tunnelingType("None");
+        	connectOptions.encryptionOptions().connectionType(_consPerfConfig.encryptedConnectionType());
+        	connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
+        	connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
+        }
+        
         if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
         {
             // Initialize Transport

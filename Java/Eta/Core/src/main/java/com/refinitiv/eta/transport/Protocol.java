@@ -11,6 +11,6 @@ public interface Protocol
 {
 	Channel channel(ConnectOptions opts, Error error);
 	Server server(BindOptions opts, Error error);
-	Channel channel(AcceptOptions options, Server server, Object object);
+	Channel channel(AcceptOptions options, Server server, Object object, Error error);
 	void uninitialize();
 }

@@ -36,6 +36,7 @@ class BindOptionsImpl implements BindOptions
     private TcpOptsImpl _tcpOpts = new TcpOptsImpl();
     private int _sysRecvBufSize;
     private String _groupAddress;
+    private ServerEncryptionOptionsImpl _encryptionOptions = new ServerEncryptionOptionsImpl();
 
     BindOptionsImpl()
     {
@@ -50,6 +51,7 @@ class BindOptionsImpl implements BindOptions
         _guaranteedOutputBuffers = 50;
         _numInputBuffers = 10;
         _tcpOpts = new TcpOptsImpl();
+        _encryptionOptions = new ServerEncryptionOptionsImpl();
     }
 
     void copyTo(BindOptionsImpl copyTo)
@@ -81,6 +83,7 @@ class BindOptionsImpl implements BindOptions
         copyTo.tcpOpts().tcpNoDelay(_tcpOpts.tcpNoDelay());
         copyTo._sysRecvBufSize = _sysRecvBufSize;
         copyTo._groupAddress = _groupAddress;
+        _encryptionOptions.copy(copyTo._encryptionOptions);
     }
 
     @Override
@@ -112,6 +115,7 @@ class BindOptionsImpl implements BindOptions
         _tcpOpts.tcpNoDelay(false);
         _sysRecvBufSize = 0;
         _groupAddress = null;
+        _encryptionOptions.clear();
     }
 
     @Override
@@ -145,7 +149,8 @@ class BindOptionsImpl implements BindOptions
                "\tprotocolType: " + _protocolType + "\n" + 
                "\tuserSpecObject: " + _userSpecObject + 
                "\tgroupAddress: " + _groupAddress + 
-               "\ttcpOpts: " + _tcpOpts;
+               "\ttcpOpts: " + _tcpOpts +
+               "\t" + _encryptionOptions.toString();
     }
 
     @Override
@@ -535,5 +540,11 @@ class BindOptionsImpl implements BindOptions
     public String groupAddress()
     {
         return _groupAddress;
+    }
+    
+    @Override
+    public ServerEncryptionOptions encryptionOptions()
+    {
+    	return _encryptionOptions;
     }
 }

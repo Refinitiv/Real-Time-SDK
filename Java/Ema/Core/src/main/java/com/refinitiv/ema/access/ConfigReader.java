@@ -448,6 +448,8 @@ class ConfigReader
 
 				if(enumValue.equals("RSSL_SOCKET"))
 					serverType = ConnectionTypes.SOCKET;
+				else if(enumValue.equals("RSSL_ENCRYPTED") )
+					serverType = ConnectionTypes.ENCRYPTED;
 				else
 				{
 					errorTracker().append( "no implementation in convertEnum for enumType [" )
@@ -933,8 +935,6 @@ class ConfigReader
 		{
 			String fileName;	// eventual location of configuration file
 			final String defaultFileName = "EmaConfig.xml";
-			
-			String pathh = System.getProperty("java.class.path");
 
 			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;

@@ -19,6 +19,7 @@ import com.refinitiv.eta.shared.provider.ItemRejectReason;
 import com.refinitiv.eta.rdm.Directory;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.BindOptions;
+import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.Error;
 import com.refinitiv.eta.transport.IoctlCodes;
 import com.refinitiv.eta.transport.Server;
@@ -104,6 +105,9 @@ import com.refinitiv.eta.valueadd.reactor.*;
  * <li>-cache application supports apply/retrieve data to/from cache
  * <li>-runtime application runtime in seconds (default is 1200)
  * <li>-rtt application (provider) supports calculation of Round Trip Latency
+ * <li>-c Provider connection type.  Either "socket" or "encrypted"
+ * <li>-keyfile jks encoded keyfile for Encrypted connections
+ * <li>-keypasswd password for keyfile
  * </ul>
  */
 public class Provider implements ProviderCallback, TunnelStreamListenerCallback
@@ -215,11 +219,18 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
     	runtime = System.currentTimeMillis() + (providerCmdLineParser.runtime() * 1000);
         closeRunTime = System.currentTimeMillis() + (providerCmdLineParser.runtime() + closetime) * 1000;
 
+        System.out.println("ConnectionType:" + (providerCmdLineParser.connectionType() == ConnectionTypes.SOCKET ? "socket" : "encrypted"));
     	System.out.println("portNo: " + portNo);
         System.out.println("interfaceName: " + providerCmdLineParser.interfaceName());
         System.out.println("serviceName: " + serviceName);
         System.out.println("serviceId: " + serviceId);
         System.out.println("enableRTT: " + providerCmdLineParser.enableRtt());
+        
+        if(providerCmdLineParser.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+        	System.out.println("keyfile: " + providerCmdLineParser.keyfile());
+            System.out.println("keypasswd: " + providerCmdLineParser.keypasswd());
+        }
 
         // load dictionary
         if (!dictionaryHandler.loadDictionary(error))
@@ -260,12 +271,20 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 	    }
 	    
 	    // bind server
+	    if(providerCmdLineParser.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+	    	bindOptions.connectionType(providerCmdLineParser.connectionType());
+        	bindOptions.encryptionOptions().keystoreFile(providerCmdLineParser.keyfile());
+        	bindOptions.encryptionOptions().keystorePasswd(providerCmdLineParser.keypasswd());
+        }
         bindOptions.guaranteedOutputBuffers(500);
         bindOptions.majorVersion(Codec.majorVersion());
         bindOptions.minorVersion(Codec.minorVersion());
         bindOptions.protocolType(Codec.protocolType());
 	    bindOptions.serviceName(portNo);
 	    bindOptions.interfaceName(providerCmdLineParser.interfaceName());
+	    
+	    
 	    
         Server server = Transport.bind(bindOptions, error);
         if (server == null)

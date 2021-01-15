@@ -94,7 +94,7 @@ public class SequencedMulticastProtocol implements ProtocolInt
     }
 
     @Override
-    public Channel channel(AcceptOptions options, Server srvr, Object object)
+    public Channel channel(AcceptOptions options, Server srvr, Object object, Error error)
     {
         // The global lock is locked by Transport
         RsslSeqMulticastSocketChannel channel = (RsslSeqMulticastSocketChannel)_channelPool.poll();

@@ -53,6 +53,15 @@ public class EncryptedSocketHelper extends SocketHelper
         super.initialize(options);
         _completedHandshake = false;
     }
+    
+    @Override
+    public void initialize(BindOptions options, EncryptedContextHelper encryptedContext) throws IOException
+    {
+        _crypto = new CryptoHelper(options, encryptedContext.getContext());
+        super.initialize(options, encryptedContext);
+        postProxyInit();
+        _completedHandshake = false;
+    }
 
     @Override
     public void close() throws IOException

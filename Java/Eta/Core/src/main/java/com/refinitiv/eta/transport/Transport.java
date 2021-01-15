@@ -398,9 +398,10 @@ public class Transport
                     {
                         case ConnectionTypes.HTTP:
                         case ConnectionTypes.SOCKET:
-                            if (transport == null) // not initialized yet -/ first connection for this transport
+                        case ConnectionTypes.ENCRYPTED:
+                            if (transport == null) // not initialized yet -/ first connection for this transport. For the server side, ENCRYPTED connections are the same as socket.
                             {
-                                transport = new SocketProtocol();
+                                transport = new SocketProtocol(opts);
                                 _transports[opts.connectionType()] = transport;
                             }
                             server = transport.server(opts, error);

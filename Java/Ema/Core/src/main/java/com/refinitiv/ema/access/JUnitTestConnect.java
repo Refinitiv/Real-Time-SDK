@@ -1403,8 +1403,7 @@ public class JUnitTestConnect
 				return activeConfig.serverConfig.interfaceName;
 			else if (configParam == Port)
 			{
-				if (activeConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET)
-					return ((SocketServerConfig)activeConfig.serverConfig).serviceName;
+				return ((SocketServerConfig)activeConfig.serverConfig).serviceName;
 			}
 		}
 		

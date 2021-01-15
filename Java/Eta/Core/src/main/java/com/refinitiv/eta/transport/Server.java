@@ -179,4 +179,11 @@ public interface Server
      * @see ChannelState
      */
     public int state();
+    
+    /** 
+	 * The current connection type of the server.  This can be either {@link ConnectionTypes.SOCKET} or {@link ConnectionTypes.ENCRYPTED}.
+	 *
+	 * @return the server's connection type
+	 */
+	public int connectionType();
 }

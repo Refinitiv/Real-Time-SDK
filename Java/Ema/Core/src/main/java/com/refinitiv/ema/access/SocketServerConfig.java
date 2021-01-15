@@ -14,6 +14,12 @@ class SocketServerConfig extends ServerConfig
 	String serviceName;
 	boolean tcpNodelay;
 	boolean directWrite;
+	String keystoreFile;
+	String keystorePasswd;
+	String securityProtocol;
+	String securityProvider;
+	String keyManagerAlgorithm;
+	String trustManagerAlgorithm;
 	
 	SocketServerConfig()
 	{
@@ -29,6 +35,13 @@ class SocketServerConfig extends ServerConfig
 		serviceName = ActiveServerConfig.defaultServiceName;
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
+		
+		keystoreFile = null;
+		keystorePasswd = null;
+		securityProtocol = null;
+		securityProvider = null;
+		keyManagerAlgorithm = null;
+		trustManagerAlgorithm = null;
 	}
 	
 }

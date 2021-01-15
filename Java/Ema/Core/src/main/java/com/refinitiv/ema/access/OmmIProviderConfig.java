@@ -126,4 +126,67 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	 */
 	public OmmIProviderConfig addAdminMsg(RefreshMsg refreshMsg);
 	
+	/**
+	 * Specifies the keystore file for an encrypted connection, containing the server private key and certificate.
+	 * This is optional, and the default behavior will load the JVM's default keystore set with javax.net.ssl.keystore.
+	 * 
+	 * @param keystoreFile the file name of the keystore file
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig keystoreFile(String keystoreFile);
+	
+	/**
+	 * Specifies the keystore password for the configured keystore.
+	 * This is optional, and the default behavior will load the JVM's default keystore set with javax.net.ssl.keystorepassword.
+	 * 
+	 * @param keystorePasswd the keystore password
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig keystorePasswd(String keystorePasswd);
+	
+	/**
+	 * Specifies the keystore type for the configured keystore.
+	 * This is optional, and the default behavior be set to "JKS".
+	 * 
+	 * @param keystoreType the keystore type
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig keystoreType(String keystoreType);
+	
+	/**
+	 * Specifies the security Protocol type for the configured server.
+	 * This is optional, and the default behavior be set to "TLS".
+	 * 
+	 * @param securityProtocol the security protocol
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig securityProtocol(String securityProtocol);
+	
+	/**
+	 * Specifies the security provider type for the configured server.
+	 * This is optional, and the default behavior be set to "SunJSSE".
+	 * 
+	 * @param securityProvider the security provider
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig securityProvider(String securityProvider);
+	
+	/**
+	 * Specifies the key manager algorithm for the configured server.
+	 * This is optional, and the default behavior be set to "SunX509".
+	 * 
+	 * @param keyManagerAlgorithm the key manager algorithm
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig keyManagerAlgorithm(String keyManagerAlgorithm);
+	
+	/**
+	 * Specifies the trust manager algorithm for the configured server.
+	 * This is optional, and the default behavior be set to "PKIX".
+	 * 
+	 * @param trustManagerAlgorithm the trust manager algorithm
+	 * @return reference to this object
+	 */
+	public OmmIProviderConfig trustManagerAlgorithm(String trustManagerAlgorithm);
+	
 }

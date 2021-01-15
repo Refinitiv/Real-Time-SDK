@@ -62,6 +62,10 @@ public class ConsPerfConfig
 	private int _tunnelStreamOutputBuffers;	/* Tunnel Stream Guaranteed Output Buffers. */
 	private boolean _tunnelStreamBufsUsed;  /* Control whether to print tunnel Stream buffers usage. */
 	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
+	
+	private int _encryptedConnType = ConnectionTypes.ENCRYPTED; /* Encrypted connection type */
+	private String _keyfile = null;			/* Keyfile for encrypted connection */
+	private String _keypasswd = null;		/* password for encrypted keyfile */
 
     {
         CommandLine.programName("ConsPerf");
@@ -103,6 +107,9 @@ public class ConsPerfConfig
         CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
         CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
         CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
+        CommandLine.addOption("keyfile", "", "Keystore file location and name");
+        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
     }
 	
     /**
@@ -160,9 +167,30 @@ public class ConsPerfConfig
             {
             	_connectionType = ConnectionTypes.SOCKET;
             }
+            else if("encrypted".equals(CommandLine.value("connType")))
+            {
+            	_connectionType = ConnectionTypes.ENCRYPTED;
+            	_keyfile = CommandLine.value("keyfile");
+            	_keypasswd = CommandLine.value("keypasswd");
+            	
+            	if("socket".equals(CommandLine.value("encryptedConnectionType")))
+                {
+                	_encryptedConnType = ConnectionTypes.SOCKET;
+                }
+            	else if("http".equals(CommandLine.value("encryptedConnectionType")))
+                {
+                	_encryptedConnType = ConnectionTypes.HTTP;
+                }
+            	else
+            	{
+            		System.err.println("Config Error: Only socket or http encrypted connection type is supported.\n");
+                	System.out.println(CommandLine.optionHelpString());
+                	System.exit(-1);
+            	}
+            }
             else
             {
-            	System.err.println("Config Error: Only socket connection type is supported.\n");
+            	System.err.println("Config Error: Only socket or encrypted connection type is supported.\n");
             	System.out.println(CommandLine.optionHelpString());
             	System.exit(-1);
             }
@@ -187,7 +215,7 @@ public class ConsPerfConfig
         	System.exit(-1);
         }
         
-        if (_connectionType != ConnectionTypes.SOCKET)
+        if (_connectionType != ConnectionTypes.SOCKET && _connectionType != ConnectionTypes.ENCRYPTED)
         {
 			System.err.println("Config Error: Application only supports SOCKET connection type.\n");
 			System.out.println(CommandLine.optionHelpString());
@@ -320,6 +348,9 @@ public class ConsPerfConfig
 		_configString = "--- TEST INPUTS ---\n\n" +
             "          Steady State Time: " + _steadyStateTime + " sec\n" + 
             "            Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
+            ((_connectionType == ConnectionTypes.ENCRYPTED) ? "" : 
+            " Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnType) + "\n" + 
+            "                   keyfile: " + _keyfile + "\n") +
             "                   Hostname: " + _hostName + "\n" +
             "                       Port: " + _portNo + "\n" +
             "                    Service: " + _serviceName + "\n" +
@@ -518,6 +549,37 @@ public class ConsPerfConfig
 	{
 		return _interfaceName;
 	}
+	
+	/** 
+	 * Encrypted connection type
+	 * 
+	 * @return the encrypted connection type
+	 */
+	public int encryptedConnectionType()
+	{
+		return _encryptedConnType;
+	}
+	
+	/** 
+	 * keyfile
+	 * 
+	 * @return the keyfile
+	 */
+	public String keyfile()
+	{
+		return _keyfile;
+	}
+	
+	/** 
+	 * keyfile password
+	 * 
+	 * @return the keyfile password
+	 */
+	public String keypasswd()
+	{
+		return _keypasswd;
+	}
+	
 	
 	/**
 	 *  Guaranteed Output Buffers.

@@ -1,7 +1,7 @@
 package com.refinitiv.eta.transport;
 
-class EncryptionOptionsImpl implements EncryptionOptions {
-    private int _connectionType;
+class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
+
     private String _KeystoreType;
     private String _KeystoreFile;
     private String _KeystorePasswd;
@@ -12,17 +12,14 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     
     // default values
 
-    public static String _defaultKeystoreType = new String("JKS");
-    public static String _defaultSecurityProtocol = new String("TLS");
-    public static String _defaultSecurityProvider = new String("SunJSSE");
-    public static String _defaultKeyManagerAlgorithm = new String("SunX509");
-    public static String _defaultTrustManagerAlgorithm = new String("PKIX");
+    public String _defaultKeystoreType = new String("JKS");
+    public String _defaultSecurityProtocol = new String("TLS");
+    public String _defaultSecurityProvider = new String("SunJSSE");
+    public String _defaultKeyManagerAlgorithm = new String("SunX509");
+    public String _defaultTrustManagerAlgorithm = new String("PKIX");
 
-    EncryptionOptionsImpl()
+    ServerEncryptionOptionsImpl()
     {
-        // for HTTP Tunneling, tunnelingType has to be set to "http" or "encrypted"
-        _connectionType = ConnectionTypes.SOCKET;
-
         // Sun JDK defaults
         _KeystoreType = _defaultKeystoreType;
         _SecurityProtocol = _defaultSecurityProtocol;
@@ -33,7 +30,6 @@ class EncryptionOptionsImpl implements EncryptionOptions {
 
     void clear()
     {
-    	_connectionType = ConnectionTypes.SOCKET;
         _KeystoreType = _defaultKeystoreType;
         _KeystoreFile = null;
         _KeystorePasswd = null;
@@ -47,12 +43,9 @@ class EncryptionOptionsImpl implements EncryptionOptions {
      * 
      * destTunneling is the destination object.
      */
-    void copy(EncryptionOptionsImpl destEncOpts)
+    void copy(ServerEncryptionOptionsImpl destEncOpts)
     {
-    	destEncOpts._connectionType = _connectionType;
-
-
-        if (_KeystoreType != null)
+    	if (_KeystoreType != null)
         	destEncOpts._KeystoreType = new String(_KeystoreType);
         else
         	destEncOpts._KeystoreType = null;
@@ -91,8 +84,7 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     @Override
     public String toString()
     {
-        return "TunnelingInfo" + "\n" + 
-               "\t\t\tconnectionType: " + _connectionType + "\n" + 
+        return "ServerEncryptionOptions" + "\n" + 
                "\t\t\tKeystoreType: " + _KeystoreType + "\n" + 
                "\t\t\tKeystoreFile: " + _KeystoreFile + "\n" + 
                "\t\t\tKeystorePasswd: " + _KeystorePasswd + "\n" + 
@@ -102,20 +94,9 @@ class EncryptionOptionsImpl implements EncryptionOptions {
                "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n";
     }
     
-    @Override
-    public void connectionType(int connectionType)
-    {
-    	_connectionType = connectionType;
-    }
-    
-    @Override
-    public int connectionType()
-    {
-    	return _connectionType;
-    }
 
     @Override
-    public void KeystoreType(String KeystoreType)
+    public void keystoreType(String KeystoreType)
     {
         assert (KeystoreType != null) : "KeystoreType must be non-null";
 
@@ -123,13 +104,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String KeystoreType()
+    public String keystoreType()
     {
         return _KeystoreType;
     }
 
     @Override
-    public void KeystoreFile(String KeystoreFile)
+    public void keystoreFile(String KeystoreFile)
     {
         assert (KeystoreFile != null) : "KeystoreFile must be non-null";
 
@@ -137,13 +118,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String KeystoreFile()
+    public String keystoreFile()
     {
         return _KeystoreFile;
     }
 
     @Override
-    public void KeystorePasswd(String KeystorePasswd)
+    public void keystorePasswd(String KeystorePasswd)
     {
         assert (KeystorePasswd != null) : "KeystorePasswd must be non-null";
 
@@ -151,13 +132,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String KeystorePasswd()
+    public String keystorePasswd()
     {
         return _KeystorePasswd;
     }
 
     @Override
-    public void SecurityProtocol(String SecurityProtocol)
+    public void securityProtocol(String SecurityProtocol)
     {
         assert (SecurityProtocol != null) : "SecurityProtocol must be non-null";
 
@@ -165,13 +146,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String SecurityProtocol()
+    public String securityProtocol()
     {
         return _SecurityProtocol;
     }
 
     @Override
-    public void SecurityProvider(String SecurityProvider)
+    public void securityProvider(String SecurityProvider)
     {
         assert (SecurityProvider != null) : "SecurityProvider must be non-null";
 
@@ -179,13 +160,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String SecurityProvider()
+    public String securityProvider()
     {
         return _SecurityProvider;
     }
 
     @Override
-    public void KeyManagerAlgorithm(String KeyManagerAlgorithm)
+    public void keyManagerAlgorithm(String KeyManagerAlgorithm)
     {
         assert (KeyManagerAlgorithm != null) : "KeyManagerAlgorithm must be non-null";
 
@@ -193,13 +174,13 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String KeyManagerAlgorithm()
+    public String keyManagerAlgorithm()
     {
         return _KeyManagerAlgorithm;
     }
 
     @Override
-    public void TrustManagerAlgorithm(String TrustManagerAlgorithm)
+    public void trustManagerAlgorithm(String TrustManagerAlgorithm)
     {
         assert (TrustManagerAlgorithm != null) : "TrustManagerAlgorithm must be non-null";
 
@@ -207,7 +188,7 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     }
 
     @Override
-    public String TrustManagerAlgorithm()
+    public String trustManagerAlgorithm()
     {
         return _TrustManagerAlgorithm;
     }

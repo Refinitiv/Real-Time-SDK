@@ -2,7 +2,7 @@ package com.refinitiv.eta.transport;
 
 import com.refinitiv.eta.transport.MCastStats;
 
-public class MCastStatsImpl implements MCastStats
+class MCastStatsImpl implements MCastStats
 {
     private long _mcastSent;
     private long _mcastRcvd;

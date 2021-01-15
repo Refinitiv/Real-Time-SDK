@@ -8,7 +8,7 @@
 package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
-import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;;
+import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 
 class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProviderConfig
 {
@@ -16,6 +16,13 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	private int _operationModel;
 	private int _adminControlDirectory;
 	private int _adminControlDictionary;
+	private String _keystoreFile;
+	private String _keystorePasswd;
+	private String _keystoreType;
+	private String _securityProtocol;
+	private String _securityProvider;
+	private String _keyManagerAlgorithm;
+	private String _trustManagerAlgorithm;
 
 	OmmIProviderConfigImpl()
 	{
@@ -47,6 +54,12 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 		_operationModel = OperationModel.API_DISPATCH;
 		_adminControlDirectory = AdminControl.API_CONTROL;
 		_adminControlDictionary = AdminControl.API_CONTROL;
+		_keystoreFile = null;
+		_keystorePasswd = null;
+		_securityProtocol = null;
+		_securityProvider = null;
+		_keyManagerAlgorithm = null;
+		_trustManagerAlgorithm = null;
 		return this;
 	}
 
@@ -195,5 +208,91 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	{
 		addAdminMsgInt(refreshMsg);
 		return this;
+	}
+	
+	@Override
+	public OmmIProviderConfig keystoreFile(String keystoreFile)
+	{
+		_keystoreFile = keystoreFile;
+		return this;
+	}
+	
+	public String keystoreFile()
+	{
+		return _keystoreFile;
+	}
+	
+	@Override
+	public OmmIProviderConfig keystorePasswd(String keystorePasswd)
+	{
+		_keystorePasswd = keystorePasswd;
+		return this;
+	}
+	
+	public String keystorePasswd()
+	{
+		return _keystorePasswd;
+	}
+	
+	@Override
+	public OmmIProviderConfig keystoreType(String keystoreType)
+	{
+		_keystoreType = keystoreType;
+		return this;
+	}
+	
+	public String keystoreType()
+	{
+		return _keystoreType;
+	}
+	
+	
+	@Override
+	public OmmIProviderConfig securityProtocol(String securityProtocol)
+	{
+		_securityProtocol = securityProtocol;
+		return this;
+	}
+	
+	public String securityProtocol()
+	{
+		return _securityProtocol;
+	}
+	
+	@Override
+	public OmmIProviderConfig securityProvider(String securityProvider)
+	{
+		_securityProvider = securityProvider;
+		return this;
+	}
+	
+	public String securityProvider()
+	{
+		return _securityProvider;
+	}
+	
+	
+	@Override
+	public OmmIProviderConfig keyManagerAlgorithm(String keyManagerAlgorithm)
+	{
+		_keyManagerAlgorithm = keyManagerAlgorithm;
+		return this;
+	}
+	
+	public String keyManagerAlgorithm()
+	{
+		return _keyManagerAlgorithm;
+	}
+	
+	@Override
+	public OmmIProviderConfig trustManagerAlgorithm(String trustManagerAlgorithm)
+	{
+		_trustManagerAlgorithm = trustManagerAlgorithm;
+		return this;
+	}
+	
+	public String trustManagerAlgorithm()
+	{
+		return _trustManagerAlgorithm;
 	}
 }

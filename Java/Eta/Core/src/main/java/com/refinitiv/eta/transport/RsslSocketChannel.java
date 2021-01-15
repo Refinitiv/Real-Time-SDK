@@ -3107,7 +3107,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         _sessionCompLevel = (short)bindOptions.compressionLevel();
     }
 
-    protected int setChannelAccept(AcceptOptions acceptOptions, BindOptions bindOptions, java.nio.channels.SocketChannel socketChannel)
+    protected int setChannelAccept(AcceptOptions acceptOptions, BindOptions bindOptions, java.nio.channels.SocketChannel socketChannel, Error error)
     {
         int ret = TransportReturnCodes.SUCCESS;
         setDataFromOptions(acceptOptions, bindOptions);
@@ -3120,8 +3120,29 @@ class RsslSocketChannel extends EtaNode implements Channel
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
 
-        _initChnlState = InitChnlState.READ_HDR;
+        
         _state = ChannelState.INITIALIZING;
+        
+        if(_encrypted)
+        {
+        	try
+        	{
+        		_scktChannel.initialize(bindOptions, _server.context());
+        	}
+            catch (IOException e)
+            {
+                error.channel(this);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text(e.getLocalizedMessage());
+                return TransportReturnCodes.FAILURE;
+            }
+               
+        }
+        // init will not progress until EncryptedSocketHelper or SocketHelper finishConnect() returns true.
+        // In the encrypted case, this will happen after the encryption dance has been completed.
+       	_initChnlState = InitChnlState.READ_HDR;
+
 
         if (acceptOptions.channelReadLocking())
             _readLock = _realReadLock;
@@ -3136,7 +3157,6 @@ class RsslSocketChannel extends EtaNode implements Channel
         // if blocking accept, call channel.init() and get into ACTIVE state before returning
         if (_scktChannel.isBlocking())
         {
-            Error error = TransportFactory.createError();
             InProgInfo inProg = TransportFactory.createInProgInfo();
             while (_state != ChannelState.ACTIVE)
             {

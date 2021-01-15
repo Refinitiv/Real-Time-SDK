@@ -40,7 +40,7 @@ public class ServerInfoImpl implements ServerInfo
     {
         return _peakBufferUsage;
     }
-
+    
     @Override
     public void clear()
     {

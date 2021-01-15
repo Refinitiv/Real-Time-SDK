@@ -236,8 +236,8 @@ public interface BindOptions
 
     /**
      * An enumerated value that indicates the type of underlying connection
-     * being used. Must be in the range of {@link ConnectionTypes#SOCKET} -
-     * {@link ConnectionTypes#RELIABLE_MCAST}.
+     * being used. Must be either {@link ConnectionTypes#SOCKET} or
+     * {@link ConnectionTypes#ENCRYPTED}.
      * 
      * @param connectionType the connectionType to set
      * 
@@ -604,6 +604,12 @@ public interface BindOptions
      * @return the groupAddress
      */
     public String groupAddress();
+    
+    /** 
+     * Encrypted configuration options.  This is only active if the connection type is set to {@link ConnectionTypes#ENCRYPTED}.
+     * @return
+     */
+    public ServerEncryptionOptions encryptionOptions();
     
     /**
      * Clears Bind Options.

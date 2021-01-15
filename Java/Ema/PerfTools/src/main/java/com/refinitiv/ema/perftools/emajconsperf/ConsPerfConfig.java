@@ -45,6 +45,10 @@ public class ConsPerfConfig
 	private boolean _useUserDispatch;          /* Use the EMA  USER_DISPATCH model instead of the EMA API_DISPATCH  model. */
 	private boolean _downcastDecoding;		/* Turn on the EMA data load downcast feature during decoding response payload. */
 	
+	private String _keyfile;				/* Keyfile for encryption */
+	private String _keypasswd;				/* Keyfile password */
+
+	
     {
         CommandLine.programName("emajConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
@@ -71,6 +75,8 @@ public class ConsPerfConfig
         CommandLine.addOption("primeJVM", false, "At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items");
         CommandLine.addOption("useUserDispatch", false, "Use the EMA USER_DISPATCH model instead of the EMA API_DISPATCH model for sending and receiving");
         CommandLine.addOption("downcastDecoding", false, "Turn on the EMA data load downcast feature during decoding response payload");
+        CommandLine.addOption("keyfile", "", "Keystore file location and name");
+        CommandLine.addOption("keypasswd", "", "Keystore password");        
     }
 	
     /**
@@ -109,6 +115,8 @@ public class ConsPerfConfig
     	_primeJVM = CommandLine.booleanValue("primeJVM");
     	_useUserDispatch = CommandLine.booleanValue("useUserDispatch");
         _downcastDecoding = CommandLine.booleanValue("downcastDecoding");
+        _keyfile = CommandLine.value("keyfile");
+        _keypasswd = CommandLine.value("keypasswd");
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -550,5 +558,23 @@ public class ConsPerfConfig
     public boolean downcastDecoding()
     {
         return _downcastDecoding;
+    }
+    
+    /** 
+     * keyfile
+     * @return keyfile
+     */
+    public String keyfile()
+    {
+    	return _keyfile;
+    }
+    
+    /** 
+     * keyfile password
+     * @return keyfile password
+     */
+    public String keypasswd()
+    {
+    	return _keypasswd;
     }
 }

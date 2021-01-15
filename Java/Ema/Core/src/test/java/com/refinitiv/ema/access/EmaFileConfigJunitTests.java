@@ -3200,6 +3200,205 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 	}
 }
 
+public void testLoadCfgFromProgrammaticConfigForIProvEncrypted()
+{
+	TestUtilities.printTestHead("testLoadCfgFromProgrammaticConfigForIProv","Test loading all IProvider configuration parameters programmatically");
+	
+	//two testcases:
+	//test case 0: NOT loading EmaConfig file from working dir.
+	//test case 1: loading EmaConfigTest file
+	for (int testCase = 0; testCase < 2; testCase++)
+	{
+		System.out.println(" #####Now it is running test case " + testCase);
+
+		Map outermostMap = EmaFactory.createMap();
+		Map innerMap = EmaFactory.createMap();
+		ElementList elementList = EmaFactory.createElementList();
+		ElementList innerElementList = EmaFactory.createElementList();
+		try
+		{
+			
+			elementList.add(EmaFactory.createElementEntry().ascii("DefaultIProvider", "EncryptedProvider"));
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Server", "EncryptedServer"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Directory", "Directory_1"));
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "EncryptedProvider", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			elementList.add(EmaFactory.createElementEntry().map("IProviderList", innerMap));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "IProviderGroup", MapEntry.MapAction.ADD, elementList));
+			elementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_ENCRYPTED"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14010"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("KeystoreFile", "keyfile.jks"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("KeystorePasswd", "dummyPass"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("KeystoreType", "jks"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("SecurityProtocol", "TLSv1.2"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("SecurityProvider", "SunJSSE"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("KeyManagerAlgorithm", "SunX509"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("TrustManagerAlgorithm", "SunX509"));
+
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "EncryptedServer", MapEntry.MapAction.ADD, innerElementList)); 
+			innerElementList.clear();
+
+
+			elementList.add(EmaFactory.createElementEntry().map("ServerList", innerMap));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "ServerGroup", MapEntry.MapAction.ADD, elementList));
+			elementList.clear();
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("DictionaryType", "DictionaryType::FileDictionary"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryItemName", "RWFFld"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefItemName", "RWFEnum"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", "./RDMFieldDictionary"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", "./enumtype.def"));
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Dictionary_3", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().map("DictionaryList", innerMap));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "DictionaryGroup", MapEntry.MapAction.ADD, elementList));
+			elementList.clear();
+
+			/////////////////////////////////////
+			//DirectoryGroup
+			Map serviceMap = EmaFactory.createMap();
+			ElementList infoElementList = EmaFactory.createElementList();
+			ElementList stateElementList = EmaFactory.createElementList();
+			OmmArray infoArray = EmaFactory.createOmmArray();
+			Series qosSeries = EmaFactory.createSeries();
+
+			//encode service1
+			infoElementList.add(EmaFactory.createElementEntry().intValue("ServiceId", 3));
+			infoElementList.add(EmaFactory.createElementEntry().ascii("Vendor", "company name"));
+			infoElementList.add(EmaFactory.createElementEntry().intValue("IsSource", 0));
+			infoElementList.add(EmaFactory.createElementEntry().intValue("AcceptingConsumerStatus", 0));
+			infoElementList.add(EmaFactory.createElementEntry().intValue("SupportsQoSRange", 0));
+			infoElementList.add(EmaFactory.createElementEntry().intValue("SupportsOutOfBandSnapshots", 0));
+			infoElementList.add(EmaFactory.createElementEntry().ascii("ItemList", "#.itemlist"));
+
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("MMT_DICTIONARY"));
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("MMT_MARKET_PRICE"));
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("MMT_MARKET_BY_ORDER"));
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("MMT_MARKET_BY_PRICE"));
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("200"));
+			infoElementList.add(EmaFactory.createElementEntry().array("Capabilities", infoArray));
+			infoArray.clear();
+			
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("Dictionary_3"));
+			infoElementList.add(EmaFactory.createElementEntry().array("DictionariesProvided", infoArray));
+			infoArray.clear();
+			infoArray.add(EmaFactory.createOmmArrayEntry().ascii("Dictionary_4"));
+			infoElementList.add(EmaFactory.createElementEntry().array("DictionariesUsed", infoArray));
+			infoArray.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Timeliness", "Timeliness::RealTime"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Rate", "Rate::TickByTick"));
+			qosSeries.add(EmaFactory.createSeriesEntry().elementList(innerElementList));
+			innerElementList.clear();
+			
+			innerElementList.add(EmaFactory.createElementEntry().intValue("Timeliness", 100));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("Rate", 100));
+			qosSeries.add(EmaFactory.createSeriesEntry().elementList(innerElementList));
+			innerElementList.clear();
+			infoElementList.add(EmaFactory.createElementEntry().series("QoS", qosSeries));
+			qosSeries.clear();
+			
+			stateElementList.add(EmaFactory.createElementEntry().intValue("ServiceState", 1));
+			stateElementList.add(EmaFactory.createElementEntry().intValue("AcceptingRequests", 1));
+			
+			innerElementList.add(EmaFactory.createElementEntry().ascii("StreamState", "StreamState::CloseRecover"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("DataState", "DataState::Suspect"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("StatusCode", "StatusCode::DacsDown"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("StatusText", "dacsDown"));
+			stateElementList.add(EmaFactory.createElementEntry().elementList("Status", innerElementList));
+			innerElementList.clear();
+						
+			innerElementList.add(EmaFactory.createElementEntry().elementList("InfoFilter", infoElementList));
+			infoElementList.clear();
+			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
+			stateElementList.clear();
+			
+			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Directory_1", MapEntry.MapAction.ADD, serviceMap));
+			serviceMap.clear();
+
+			elementList.add(EmaFactory.createElementEntry().ascii("DefaultDirectory", "Directory_1"));
+			elementList.add(EmaFactory.createElementEntry().map("DirectoryList", innerMap));
+			innerMap.clear();
+			
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "DirectoryGroup", MapEntry.MapAction.ADD, elementList));
+			elementList.clear();
+
+			String localConfigPath = null;
+			if (testCase == 1)
+				localConfigPath = "./src/test/resources/com/thomsonreuters/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
+
+			System.out.println("Using Ema Config: " + localConfigPath);
+			
+			OmmIProviderImpl prov = null;
+			if (testCase == 0)
+				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig().config(outermostMap));
+			else if (testCase == 1)
+				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig(localConfigPath).config(outermostMap));
+			
+			String defaultProvName = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderName);
+			TestUtilities.checkResult("DefaultProvider value != null", defaultProvName != null);
+			TestUtilities.checkResult("DefaultProvider value == EncryptedProvider", defaultProvName.contentEquals("EncryptedProvider") );
+			String provServerVal = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.ServerName);
+			TestUtilities.checkResult("Server value != null", provServerVal != null);
+			TestUtilities.checkResult("Server value == EncryptedServer", provServerVal.contentEquals("EncryptedServer") );
+
+			
+			// Check Server configuration:
+			// Check Server_1 configuration.
+			provServerVal = "EncryptedServer";
+			System.out.println("\nRetrieving EncryptedServer configuration values "); 
+			int serverConnType = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerType);
+			TestUtilities.checkResult("serverConnType == ServerType::RSSL_ENCRYPTED", serverConnType == ChannelTypeEncrypted);
+			String chanPort = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.Port);
+			TestUtilities.checkResult("Port == 14010", chanPort.contentEquals("14010"));
+			
+			// Check the remaining encryption values.
+			OmmIProviderImpl iprovImpl = (OmmIProviderImpl) prov;
+			ActiveServerConfig activeConfig = iprovImpl._activeServerConfig;
+			SocketServerConfig serverConfig = ((SocketServerConfig)activeConfig.serverConfig);
+		
+			assertTrue(serverConfig.keystoreFile.equals("keyfile.jks"));
+			assertTrue(serverConfig.keystorePasswd.equals("dummyPass"));
+			assertTrue(serverConfig.keystoreType.equals("jks"));
+			assertTrue(serverConfig.securityProtocol.equals("TLSv1.2"));
+			assertTrue(serverConfig.securityProvider.equals("SunJSSE"));
+			assertTrue(serverConfig.keyManagerAlgorithm.equals("SunX509"));
+			assertTrue(serverConfig.trustManagerAlgorithm.equals("SunX509"));
+			
+			//retrieve directory
+			String strValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DirectoryName);
+			TestUtilities.checkResult("DirectoryName == Directory_1", strValue.contentEquals("Directory_1"));
+			
+			List<Service> services = JUnitTestConnect.activeConfigGetService(prov, true);
+			TestUtilities.checkResult("services.size() == 1", services.size() == 1);
+			prov = null;
+		}
+		catch ( OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult("Receiving exception, test failed.", false );
+		}
+	}
+}
+
+
+
 public void testLoadCfgFromProgrammaticConfigForNiProv()
 {
 	TestUtilities.printTestHead("testLoadCfgFromProgrammaticConfigForNiProv","Test loading all NiProvider configuration parameters programmatically");

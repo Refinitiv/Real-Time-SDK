@@ -1,5 +1,6 @@
 package com.refinitiv.eta.valueadd.examples.provider;
 
+import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.examples.common.CommandLineParser;
 
 class ProviderCmdLineParser implements CommandLineParser
@@ -12,6 +13,9 @@ class ProviderCmdLineParser implements CommandLineParser
 	private boolean enableXmlTracing;
 	private boolean cacheOption;
 	private boolean enableRtt;
+	private String keyfile = null;
+	private String keypasswd = null;
+	private int connType = ConnectionTypes.SOCKET;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -59,7 +63,29 @@ class ProviderCmdLineParser implements CommandLineParser
     			} else if ("-rtt".equals(args[argsCount])) {
     				enableRtt = true;
     				++argsCount;
-				}
+	    		} else if ("-c".equals(args[argsCount])) {
+	    			++argsCount;
+	    			if("socket".equals(args[argsCount]))
+	    			{
+	    				connType = ConnectionTypes.SOCKET;
+	    			}
+	    			else if("encrypted".equals(args[argsCount]))
+	    			{
+	    				connType = ConnectionTypes.ENCRYPTED;
+	    			}
+	    			else
+	    			{
+	    				System.out.println("\nUnrecognized connection type...\n");
+	    				return false;
+	    			}
+					++argsCount;
+	    		} else if ("-keyfile".equals(args[argsCount])) {
+	    			keyfile = args[++argsCount];
+    				++argsCount;
+	    		} else if ("-keypasswd".equals(args[argsCount])) {
+	    			keypasswd = args[++argsCount];
+					++argsCount;
+	    		}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -87,7 +113,10 @@ class ProviderCmdLineParser implements CommandLineParser
 				"\n -x provides an XML trace of messages\n" +
 				"\n -cache turn on the cache feature of the application\n" +
 				"\n -runtime application runtime in seconds (default is 1200)" +
-				"\n -rtt application (provider) supports calculation of Round Trip Latency");
+				"\n -rtt application (provider) supports calculation of Round Trip Latency" +
+				"\n -c Provider connection type.  Either \"socket\" or \"encrypted\"" +
+				"\n -keyfile jks encoded keyfile for Encrypted connections" +
+				"\n -keypasswd password for keyfile");
 	}
 
 	String portNo()
@@ -125,7 +154,23 @@ class ProviderCmdLineParser implements CommandLineParser
 		return cacheOption;
 	}
 
-	boolean enableRtt() {
+	boolean enableRtt() 
+	{
 		return enableRtt;
+	}
+	
+	int connectionType()
+	{
+		return connType;
+	}
+	
+	String keyfile()
+	{
+		return keyfile;
+	}
+	
+	String keypasswd()
+	{
+		return keypasswd;
 	}
 }
