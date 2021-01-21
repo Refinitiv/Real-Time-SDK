@@ -2549,13 +2549,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
 			}
 
-			if (serverType == RSSL_CONN_TYPE_WEBSOCKET || serverType == RSSL_CONN_TYPE_ENCRYPTED)
-			{
-				if (websocketFlags & 0x01)
-					pCurrentServerConfig->wsProtocols = wsProtocols;
-				else if (fileCfgSocket)
-					pCurrentServerConfig->wsProtocols = fileCfgSocket->wsProtocols;
-			}
+			if (websocketFlags & 0x01)
+				pCurrentServerConfig->wsProtocols = wsProtocols;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->wsProtocols = fileCfgSocket->wsProtocols;
 		}
 		catch (std::bad_alloc&)
 		{

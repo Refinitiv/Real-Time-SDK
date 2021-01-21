@@ -473,12 +473,9 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (pConfigServerImpl->get<UInt64>(serverNodeName + "MaxFragmentSize", tempUInt))
 				socketServerConfig->maxFragmentSize = tempUInt;
 
-			if (serverType == RSSL_CONN_TYPE_WEBSOCKET)
-			{
-				EmaString tempProtocols;
-				if (pConfigServerImpl->get<EmaString>(serverNodeName + "WsProtocols", tempProtocols))
-					socketServerConfig->wsProtocols = tempProtocols;
-			}
+			EmaString tempProtocols;
+			if (pConfigServerImpl->get<EmaString>(serverNodeName + "WsProtocols", tempProtocols))
+				socketServerConfig->wsProtocols = tempProtocols;
 
 			break;
 		}
@@ -945,10 +942,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
 			bindOptions.serverSharedSocket = socketServerConfig->serverSharedSocket;
 
-			if (RSSL_CONN_TYPE_WEBSOCKET == _activeServerConfig.pServerConfig->connectionType)
-			{
-				bindOptions.wsOpts.protocols = const_cast<char *>(socketServerConfig->wsProtocols.c_str());
-			}
+			bindOptions.wsOpts.protocols = const_cast<char *>(socketServerConfig->wsProtocols.c_str());
 		}
 		break;
 		default:
