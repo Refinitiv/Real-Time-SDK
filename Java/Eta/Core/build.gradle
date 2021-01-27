@@ -69,7 +69,9 @@ dependencies {
 		compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.3'
 		compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.3'
 
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+    testCompile('org.mockito:mockito-all:1.9.0'){
+        exclude group: 'org.hamcrest'
+    }
 
     // needed for cobertura
     testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'

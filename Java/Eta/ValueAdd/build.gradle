@@ -76,11 +76,15 @@ dependencies {
 	// needs to be executed with the -Pmavencentral
 	if (project.hasProperty("mavencentral"))
 	{
-		testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+        testCompile('org.mockito:mockito-all:1.9.0'){
+            exclude group: 'org.hamcrest'
+        }
 	}
 	else
-	{	
-		compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+	{
+        compile('org.mockito:mockito-all:1.9.0'){
+            exclude group: 'org.hamcrest'
+        }
 	}
 
 	compile project(':Eta:Core')
