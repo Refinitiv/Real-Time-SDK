@@ -15,7 +15,10 @@ import static org.junit.Assume.assumeTrue;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.Objects;
+import java.util.Optional;
 
+import com.refinitiv.eta.transport.ConnectOptions;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -37,6 +40,26 @@ public class ReactorWatchlistRDPJunit
 {
 	final int AUTH_TOKEN_EXPIRATION = 300;
 	ReactorAuthTokenInfo _tokenInfo = null;	
+	private static final Buffer proxyHost = CodecFactory.createBuffer();
+	private static final Buffer proxyPort = CodecFactory.createBuffer();
+	private static final Buffer proxyUser = CodecFactory.createBuffer();
+	private static final Buffer proxyPassword = CodecFactory.createBuffer();
+	private static final Buffer proxyLocalHostname = CodecFactory.createBuffer();
+	private static final Buffer proxyKRBConfigFile = CodecFactory.createBuffer();
+	private static final Buffer proxyDomain = CodecFactory.createBuffer();
+
+	public ReactorWatchlistRDPJunit() {
+		proxyHost.data(System.getProperty("proxyHost"));
+		proxyPort.data(System.getProperty("proxyPort"));
+		proxyUser.data(System.getProperty("proxyUser"));
+		proxyPassword.data(System.getProperty("proxyPassword"));
+		proxyLocalHostname.data(System.getProperty("proxyLocalHostname"));
+		proxyKRBConfigFile.data(System.getProperty("proxyKRBConfigFile"));
+		String proxyDomainStr = Optional
+				.ofNullable(System.getProperty("proxyDomain"))
+				.orElseGet(() -> proxyHost.toString() + ":" + proxyPort.toString());
+		proxyDomain.data(proxyDomainStr);
+	}
 
 	abstract class ReactorServiceEndpointEventCallbackTest implements ReactorServiceEndpointEventCallback
 	{
@@ -333,6 +356,23 @@ public class ReactorWatchlistRDPJunit
 		}
 	}
 
+	static boolean checkProxy() {
+		if (Objects.nonNull(proxyHost.toString()) &&
+				Objects.nonNull(proxyPort.toString())) {
+			return true;
+		}
+		return false;
+	}
+
+	static boolean checkProxyCredentials() {
+		if (Objects.isNull(proxyUser.toString()) ||
+				Objects.isNull(proxyPassword.toString())) {
+			System.out.println("WARNING: Proxy authenticate credentials haven't been passed.");
+			return false;
+		}
+		return true;
+	}
+
 	/* create default consumer connect options */
 	static ReactorConnectOptions createDefaultConsumerConnectOptionsForSessionManagment(TestReactorComponent reactor)
 	{
@@ -355,6 +395,7 @@ public class ReactorWatchlistRDPJunit
 		connectInfo.connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
 		connectInfo.connectOptions().tunnelingInfo().tunnelingType("encrypted");			
 		connectInfo.connectOptions().userSpecObject(reactor);		
+		setupProxyForConnectOptions(connectInfo.connectOptions());
 
 		connectInfo.enableSessionManagement(true);
 		rcOpts.connectionList().add(connectInfo);
@@ -533,6 +574,59 @@ public class ReactorWatchlistRDPJunit
 		return -1;
 	}
 
+	private void setupProxyForReactorRenewalOptions(ReactorOAuthCredentialRenewalOptions renewalOptions) {
+		if (checkProxy()) {
+			renewalOptions.proxyHostName(proxyHost);
+			renewalOptions.proxyPort(proxyPort);
+			if (checkProxyCredentials()) {
+				renewalOptions.proxyUserName(proxyUser);
+				renewalOptions.proxyPassword(proxyPassword);
+				renewalOptions.proxyDomain(proxyDomain);
+				if (Objects.nonNull(proxyLocalHostname.toString())) {
+					renewalOptions.proxyLocalHostName(proxyLocalHostname);
+				} else if (Objects.nonNull(proxyKRBConfigFile.toString())) {
+					renewalOptions.proxyKRB5ConfigFile(proxyKRBConfigFile);
+				}
+			}
+		}
+	}
+
+	private void setupProxyForReactorServiceDiscoveryOptions(ReactorServiceDiscoveryOptions serviceDiscoveryOptions) {
+		if (checkProxy()) {
+			serviceDiscoveryOptions.proxyHostName(proxyHost);
+			serviceDiscoveryOptions.proxyPort(proxyPort);
+			if (checkProxyCredentials()) {
+				serviceDiscoveryOptions.proxyDomain(proxyDomain);
+				serviceDiscoveryOptions.proxyUserName(proxyUser);
+				serviceDiscoveryOptions.proxyPassword(proxyPassword);
+				if (Objects.nonNull(proxyLocalHostname.toString())) {
+					serviceDiscoveryOptions.proxyLocalHostName(proxyLocalHostname);
+				} else if (Objects.nonNull(proxyKRBConfigFile.toString())) {
+					serviceDiscoveryOptions.proxyKRB5ConfigFile(proxyKRBConfigFile);
+				}
+			}
+		}
+	}
+
+	private static void setupProxyForConnectOptions(ConnectOptions connectOptions) {
+		if (checkProxy()) {
+			connectOptions.tunnelingInfo().HTTPproxy(true);
+			connectOptions.tunnelingInfo().HTTPproxyHostName(proxyHost.toString());
+			connectOptions.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort.toString()));
+			if (checkProxyCredentials()) {
+				connectOptions.credentialsInfo().HTTPproxyDomain(proxyDomain.toString());
+				connectOptions.credentialsInfo().HTTPproxyUsername(proxyUser.toString());
+				connectOptions.credentialsInfo().HTTPproxyPasswd(proxyPassword.toString());
+				final String proxyLocalHostname = ReactorWatchlistRDPJunit.proxyLocalHostname.toString();
+				final String proxyKRBConfigFile = ReactorWatchlistRDPJunit.proxyKRBConfigFile.toString();
+				if (Objects.nonNull(proxyLocalHostname)) {
+					connectOptions.credentialsInfo().HTTPproxyLocalHostname(proxyLocalHostname);
+				} else if (Objects.nonNull(proxyKRBConfigFile)) {
+					connectOptions.credentialsInfo().HTTPproxyKRB5configFile(proxyKRBConfigFile);
+				}
+			}
+		}
+	}
 
 	@Test
 	public void RDPConnectErrorInvalidConnectionTypeTest()
@@ -940,6 +1034,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 
@@ -1099,6 +1194,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 
@@ -1238,6 +1334,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 
@@ -1659,6 +1756,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.connectOptions().userSpecObject(consumer);		
 			connectInfo.initTimeout(40);
 			connectInfo.enableSessionManagement(false);		
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 
@@ -2419,6 +2517,7 @@ public class ReactorWatchlistRDPJunit
 				}     				
 			};
 
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
 
 			/* Create reactor. */
@@ -2480,6 +2579,7 @@ public class ReactorWatchlistRDPJunit
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);		    
 
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 			assertTrue(consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.PARAMETER_INVALID);
 
 			// do it second time to test with rest reactor already created
@@ -2517,6 +2617,7 @@ public class ReactorWatchlistRDPJunit
 
 			setupConsumer(consumer, true);
 
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 			assertTrue(consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.PARAMETER_INVALID);
 
 			// do it second time to test with rest reactor already created
@@ -2557,6 +2658,7 @@ public class ReactorWatchlistRDPJunit
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);
 
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 			assertTrue(consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.PARAMETER_INVALID);
 
 			// do it second time to test with rest reactor already created
@@ -2606,6 +2708,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);		
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -2676,6 +2779,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -2758,6 +2862,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -2834,6 +2939,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -2915,6 +3021,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3017,6 +3124,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3112,6 +3220,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3209,6 +3318,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3289,6 +3399,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3362,6 +3473,7 @@ public class ReactorWatchlistRDPJunit
 			Consumer consumer = new Consumer(consumerReactor);
 
 			setupConsumer(consumer, true);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			errorInfo = ReactorFactory.createReactorErrorInfo();   
 
@@ -3439,6 +3551,7 @@ public class ReactorWatchlistRDPJunit
 			};
 
 			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
 
 			/* Create reactor. */
 			consumerReactor = new TestReactor();
@@ -3499,6 +3612,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected PARAMETER_INVALID", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
@@ -3546,6 +3660,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
@@ -3593,6 +3708,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
@@ -3643,6 +3759,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
@@ -3698,6 +3815,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -3761,6 +3879,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			connectInfo.enableSessionManagement(true);
 			rcOpts.connectionList().add(connectInfo);
 
@@ -3821,7 +3940,7 @@ public class ReactorWatchlistRDPJunit
 			*/
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-			
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			connectInfo.enableSessionManagement(true);
 			rcOpts.connectionList().add(connectInfo);
 
@@ -3872,7 +3991,7 @@ public class ReactorWatchlistRDPJunit
 			*/
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-			
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			connectInfo.enableSessionManagement(true);
 			rcOpts.connectionList().add(connectInfo);
 
@@ -3923,6 +4042,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -3972,6 +4092,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -4022,6 +4143,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
+			setupProxyForConnectOptions(connectInfo.connectOptions());
 			rcOpts.connectionList().add(connectInfo);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -4329,7 +4451,8 @@ public class ReactorWatchlistRDPJunit
 			oAuthCredentialRenewal.userName().data(System.getProperty("edpUserName"));
 			oAuthCredentialRenewal.password().data(System.getProperty("edpPassword"));
 			oAuthCredentialRenewal.clientId().data(System.getProperty("edpUserName"));
-			
+			setupProxyForReactorRenewalOptions(renewalOptions);
+
 			int ret = consumerReactor._reactor.submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo);
 			
 			assertTrue("Expected PARAMETER_INVALID", ret == ReactorReturnCodes.PARAMETER_INVALID);
@@ -4366,7 +4489,8 @@ public class ReactorWatchlistRDPJunit
 			
 			renewalOptions.reactorAuthTokenEventCallback(callback);
 			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-			
+			setupProxyForReactorRenewalOptions(renewalOptions);
+
 			oAuthCredentialRenewal.userName().data("Fake");
 			oAuthCredentialRenewal.password().data("Fake");
 			oAuthCredentialRenewal.clientId().data("Fake");
@@ -4398,7 +4522,8 @@ public class ReactorWatchlistRDPJunit
 			
 			ReactorOAuthCredentialRenewalOptions renewalOptions = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
 			ReactorOAuthCredentialRenewal oAuthCredentialRenewal = ReactorFactory.createReactorOAuthCredentialRenewal();
-			
+			setupProxyForReactorRenewalOptions(renewalOptions);
+
 			ReactorAuthTokenEventCallback callback = new ReactorAuthTokenEventCallback()
 			{
 				@Override
@@ -4457,7 +4582,8 @@ public class ReactorWatchlistRDPJunit
 			
 			renewalOptions.reactorAuthTokenEventCallback(callback);
 			renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
-			
+			setupProxyForReactorRenewalOptions(renewalOptions);
+
 			oAuthCredentialRenewal.userName().data(System.getProperty("edpUserName"));
 			oAuthCredentialRenewal.password().data(System.getProperty("edpPassword"));
 			oAuthCredentialRenewal.clientId().data(System.getProperty("edpUserName"));
@@ -4511,7 +4637,8 @@ public class ReactorWatchlistRDPJunit
 					
 					renewalOptions.renewalModes(ReactorOAuthCredentialRenewalOptions.RenewalModes.PASSWORD);
 					oAuthCredentialRenewal.password().data(this._oauthCredentail.password().toString());
-					
+					setupProxyForReactorRenewalOptions(renewalOptions);
+
 					assertTrue("Expected SUCCESS", reactorOAuthCredentialEvent.reactor().submitOAuthCredentialRenewal(renewalOptions, oAuthCredentialRenewal, errorInfo) == ReactorReturnCodes.SUCCESS);
 					
 					return 0;
