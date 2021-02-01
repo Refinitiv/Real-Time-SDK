@@ -2,23 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-#ifndef __RSSLHASHFUNCS_H
-#define __RSSLHASHFUNCS_H
+#include "rtr/rsslHashFuncs.h"
+#include "rtr/rsslHashFuncsInt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-	/* CRC32 table for polynomial 0xF3C5F6A9 */
-#ifdef WIN32
-rtrUInt32 __int_rssl_hash_crc_table[256] = {
-#else
-rtrUInt32 __rssl_hash_crc_table[256] = {
-#endif
+/* CRC32 table for polynomial 0xF3C5F6A9 */
+RsslUInt32 __rssl_hash_crc_table[256] = {
     0x00000000, 0xBC5C9CBF, 0x9F32D42D, 0x236E4892, 0xD9EE4509, 0x65B2D9B6, 
     0x46DC9124, 0xFA800D9B, 0x54576741, 0xE80BFBFE, 0xCB65B36C, 0x77392FD3, 
     0x8DB92248, 0x31E5BEF7, 0x128BF665, 0xAED76ADA, 0xA8AECE82, 0x14F2523D, 
@@ -64,32 +57,40 @@ rtrUInt32 __rssl_hash_crc_table[256] = {
     0xEA2367C9, 0x567FFB76, 0x7511B3E4, 0xC94D2F5B
 };
 
-#ifdef WIN32
-RTR_C_INLINE rtrUInt32* __rsslGetHashCrcTable()
+/* Calculate the hash value for a buffer/len by calculating the crc32
+ * using the polynomial (0xF3C5F6A9). This is what is used in IDN
+ * today and seems to give the best network traffic segmentation hashing
+ */
+RsslUInt32 rsslPolyHash(const char* buf, const RsslUInt32 length)
 {
-	return __int_rssl_hash_crc_table;
-}
-#endif
+	register RsslUInt32 crc = 0;
 
-    /* CRC32 table for polynomial 0xF3C5F6A9 */
-
-RTR_C_INLINE rtrUInt32 rsslPolyHash(const char* buf, const rtrUInt32 length) 
-{
-	register rtrUInt32 crc = 0;
-#ifdef WIN32
-	register rtrUInt32* __rssl_hash_crc_table = __rsslGetHashCrcTable();
-#endif
-
-	register rtrUInt32 len=length;
+	register RsslUInt32 len = length;
 	while (len-- > 0)
 		crc = __rssl_hash_crc_table[(crc ^ *buf++) & 0xFF] ^ (crc >> 8);
 
 	return crc;
 }
 
-#ifdef __cplusplus
+/* Calculate the denominator used in the IDN Hashing entity ID
+ * equation.
+ */
+unsigned long rsslHashDenominator(RsslUInt32 numberOfHashingEntities)
+{
+	const unsigned long long TotalRange = 0x100000000ull;
+
+	unsigned long denominator = (unsigned long)(TotalRange / numberOfHashingEntities);
+	if (TotalRange % numberOfHashingEntities != 0)
+		++denominator;
+
+	return denominator;
 }
-#endif
 
-#endif
+RSSL_API RsslUInt32 rsslHashingEntityId(const char *buf, const RsslUInt32 length, const RsslUInt32 numberOfHashingEntities)
+{
+	RsslUInt32 sum = rsslPolyHash(buf, length) / rsslHashDenominator(numberOfHashingEntities);
 
+	sum += 1;//add 1 to make it 1-based
+
+	return sum;
+}

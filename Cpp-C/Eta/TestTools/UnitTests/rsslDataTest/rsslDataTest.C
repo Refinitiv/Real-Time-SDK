@@ -37,6 +37,9 @@
 #include "rtr/rsslcnvtab.h"
 #include "rtr/rsslRmtes.h"
 
+#include "rtr/rsslHashFuncs.h"
+#include "rtr/rsslHashFuncsInt.h"
+
 #include <math.h>
 
 #ifdef WIN32
@@ -56,6 +59,31 @@
 #endif
 
 #include "dictionaries.h"
+
+/* precalculated hash values */
+static const struct
+{
+	char buf[13 + 1]; RsslUInt32 hash;
+}
+precalculatedHashValues[] = {
+	"1.1:22:33:444", 1,
+	"2.2:33:44:555", 3,
+	"3.3:44:55:666", 3,
+	"4.4:55:66:777", 4,
+	"5.5:66:77:888", 7,
+	"6.6:77:88:999", 2,
+	"7.7:88:99:000", 8,
+	"8.8:99:00:aaa", 5,
+	"9.9:00:aa:bbb", 4,
+	"0.0:aa:bb:ccc", 10,
+	"a.a:bb:cc:ddd", 5,
+	"b.b:cc:dd:eee", 2,
+	"c.c:dd:ee:fff", 2,
+	"d.d:ee:ff:hhh", 8,
+	"e.e:ff:hh:jjj", 5,
+	"f.f:hh:jj:kkk", 4,
+};
+
 
 /* Report Mode */
 
@@ -11604,6 +11632,38 @@ TEST(deleteCharTest, deleteCharTest)
 TEST(overflowTest, overflowTest)
 {
 	overflowTest();
+}
+
+TEST(hashFuncsTest, PolyHashEqual)
+{
+	for (int i = 0; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
+	{
+		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
+		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
+
+		ASSERT_TRUE(hash1 == hash2);
+	}
+}
+
+TEST(hashFuncsTest, PolyHashNotEqual)
+{
+	for (int i = 1; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
+	{
+		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i - 1].buf, sizeof(precalculatedHashValues[i - 1].buf));
+		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
+
+		ASSERT_TRUE(hash1 != hash2);
+	}
+}
+
+TEST(hashFuncsTest, HashingEntityIdsPrecalculated)
+{
+	for (int i = 0; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
+	{
+		RsslUInt32 hash = rsslHashingEntityId(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf), 10);
+
+		ASSERT_TRUE(hash == precalculatedHashValues[i].hash);
+	}
 }
 
 const char

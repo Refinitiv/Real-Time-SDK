@@ -57,7 +57,7 @@ else()
                 rtr/rsslIteratorUtilsInt.h
                 rtr/rsslMessageInt.h
                 rtr/rwfConvert.h
-                rtr/rsslhashfuncs.h
+                rtr/rsslHashFuncsInt.h
 
                 #Transport source files
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripccomp.c
@@ -105,6 +105,7 @@ else()
                 #Utils source files
                 ${Eta_SOURCE_DIR}/Impl/Util/cutildfltcbuffer.c
                 ${Eta_SOURCE_DIR}/Impl/Util/cutilsmplcbuffer.c
+                ${Eta_SOURCE_DIR}/Impl/Util/rsslHashFuncs.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslHashTable.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslMemoryBuffer.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslNotifier.c
@@ -118,6 +119,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/os.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslErrorInfo.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslEventSignal.h
+                ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslHashFuncs.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslHashTable.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslHeapBuffer.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslMemoryBuffer.h
