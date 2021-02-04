@@ -3341,7 +3341,7 @@ public void testLoadCfgFromProgrammaticConfigForIProvEncrypted()
 
 			String localConfigPath = null;
 			if (testCase == 1)
-				localConfigPath = "./src/test/resources/com/thomsonreuters/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
+				localConfigPath = "./src/test/resources/com/refinitiv/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
 
 			System.out.println("Using Ema Config: " + localConfigPath);
 			
