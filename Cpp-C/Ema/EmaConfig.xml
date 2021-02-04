@@ -355,15 +355,16 @@
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>
-			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
-			<Host value="localhost"/>
-			<Port value="14002"/>
 			<WsMaxMsgSize value="61440"/>
-			<WsProtocols value="rssl.json.v2"/>
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
+			<WsProtocols value="tr_json2"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_6"/>
