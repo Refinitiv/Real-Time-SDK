@@ -6876,6 +6876,8 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 	int eLoc = 0;
 	bool foundE = false;
 	bool foundDecimal = false;
+	int posExp = 0;
+	bool negativeValue = false;
 
 	*ptrBufPtr = 0;
 	*ptrVoidPtr = &_realVar;
@@ -6898,13 +6900,18 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 			// See if we have an 'e'
 			for (i = (*tokPtr)->start; i < (*tokPtr)->end; i++)
 			{
+				if (_jsonMsg[i] == '-')
+				{
+					if(!foundE)
+						negativeValue = true;
+				}
 				/* the decimal always be prior to the exponent*/
-				if (_jsonMsg[i] == '.')
+				else if (_jsonMsg[i] == '.')
 				{
 					foundDecimal = true;
 					decimalLoc = i;
 				}
-				if (_jsonMsg[i] == 'e' || _jsonMsg[i] == 'E')
+				else if (_jsonMsg[i] == 'e' || _jsonMsg[i] == 'E')
 				{
 					foundE = true;
 					eLoc = i;
@@ -6916,14 +6923,24 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 				_realVar.value = rtr_atoll_size(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[i]);
 				if (foundDecimal == true)
 				{
-					_realVar.value = _realVar.value*(int)pow(10, (i - decimalLoc - 1));
+					/* find out how many digits are between the . and the E. */
+					posExp = eLoc - decimalLoc - 1;
+					_realVar.value = _realVar.value*(int)pow(10, posExp);
 
-					_realVar.value += rtr_atoll_size(&_jsonMsg[decimalLoc], &_jsonMsg[i]);
+					if (!negativeValue)
+						_realVar.value += rtr_atoll_size(&_jsonMsg[decimalLoc+1], &_jsonMsg[i]);
+					else
+						_realVar.value -= rtr_atoll_size(&_jsonMsg[decimalLoc+1], &_jsonMsg[i]);
 				}
 
-				if (_jsonMsg[i+1] == '-')
+				/* Checks negative exponential */
+				if (_jsonMsg[i + 1] == '-')
 				{
 					expVal = rtr_atoi_size(&_jsonMsg[i+2], &_jsonMsg[(*tokPtr)->end]);
+
+					/* Add additional negative exponential */
+					expVal += posExp;
+
 					if (expVal >= NEG_EXP_MIN && expVal <= NEG_EXP_MAX)
 						_realVar.hint = _negExponentTable[expVal];
 					else
@@ -6937,13 +6954,16 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 					expVal = rtr_atoi_size(&_jsonMsg[i+1], &_jsonMsg[(*tokPtr)->end]);
 					if (foundDecimal)
 					{
-						if ((eLoc - decimalLoc - 1) > expVal)
+						if (posExp > expVal)
 						{
-							/* find out how many digits are between the . and the E. There should be no whitespace in this element */
-							expVal = expVal - (eLoc - decimalLoc - 1);
+							expVal = posExp - expVal;
 
 							if (expVal >= NEG_EXP_MIN && expVal <= NEG_EXP_MAX)
+							{
 								_realVar.hint = _negExponentTable[expVal];
+								(*tokPtr)++;
+								break;
+							}
 							else
 							{
 								unexpectedParameter(*tokPtr, __LINE__, __FILE__);
@@ -6951,6 +6971,9 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 							}
 						}
 					}
+
+					expVal -= posExp;
+
 					if (expVal >= POS_EXP_MIN && expVal <= POS_EXP_MAX)
 					{
 						_realVar.hint = _posExponentTable[expVal];
@@ -6962,7 +6985,6 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 					}
 				}
 			}
-
 			else
 			{
 				RsslBuffer buf;

@@ -85,7 +85,7 @@ RsslRet EnumTableDefinition::addEnumDefinition(RsslEnumTypeTable* pEnumTypeTable
 		_initializedHashTable = true;
 	}
 
-	for (enumValue = 0; enumValue < pEnumTypeTable->maxValue; enumValue++)
+	for (enumValue = 0; enumValue <= pEnumTypeTable->maxValue; enumValue++)
 	{
 		pEnumType = pEnumTypeTable->enumTypes[enumValue];
 

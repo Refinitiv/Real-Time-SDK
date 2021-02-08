@@ -45,7 +45,7 @@
 #endif
 
 
-const int jsonToRwfBase::_posExponentTable[] = {14,15,16,17,18,19,20,21,22,23,23};
+const int jsonToRwfBase::_posExponentTable[] = {14,15,16,17,18,19,20,21};
 const int jsonToRwfBase::_negExponentTable[] = {0,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
 
 //////////////////////////////////////////////////////////////////////
