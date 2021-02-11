@@ -1528,8 +1528,8 @@ class WlItemHandler implements WlHandler
                     // reset service id if necessary
                     if (resetServiceId)
                     {
-                        ((GenericMsg)msg).msgKey().flags(((GenericMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
-                        ((GenericMsg)msg).msgKey().serviceId(0);
+                        msg.msgKey().flags(msg.msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                        msg.msgKey().serviceId(0);
                     }              
                     
                     // return if send message not successful
