@@ -574,14 +574,14 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 	char tmpApiThreadListString[128];
 	char mainThread[128];
 	// Build thread list 
-	snprintf(mainThread, 128, "%d", consPerfConfig.mainThreadCpu);
-	tmpStringPos += snprintf(tmpString, 128, "%d", consPerfConfig.threadBindList[0]);
-	tmpApiThreadListStringPos += snprintf(tmpApiThreadListString, 128, "%d", consPerfConfig.apiThreadBindList[0]);
+	snprintf(mainThread, 128, "%ld", consPerfConfig.mainThreadCpu);
+	tmpStringPos += snprintf(tmpString, 128, "%ld", consPerfConfig.threadBindList[0]);
+	tmpApiThreadListStringPos += snprintf(tmpApiThreadListString, 128, "%ld", consPerfConfig.apiThreadBindList[0]);
 	for(i = 1; i < consPerfConfig.threadCount; ++i)
 	{
-		tmpStringPos += snprintf(tmpString + tmpStringPos, 128 - tmpStringPos, ",%d", consPerfConfig.threadBindList[i]);
+		tmpStringPos += snprintf(tmpString + tmpStringPos, 128 - tmpStringPos, ",%ld", consPerfConfig.threadBindList[i]);
 		if( !consPerfConfig.useUserDispatch )
-			tmpApiThreadListStringPos += snprintf(tmpApiThreadListString + tmpApiThreadListStringPos, 128 - tmpStringPos, ",%d", consPerfConfig.apiThreadBindList[i]);
+			tmpApiThreadListStringPos += snprintf(tmpApiThreadListString + tmpApiThreadListStringPos, 128 - tmpStringPos, ",%ld", consPerfConfig.apiThreadBindList[i]);
 
 	}
 

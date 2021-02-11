@@ -36,7 +36,7 @@ int main( int argc, char* argv[] )
 			if (strcmp(argv[i], "-?") == 0)
 			{
 				printHelp();
-				return false;
+				return 0;
 			}
 			else if (strcmp(argv[i], "-ph") == 0)
 			{

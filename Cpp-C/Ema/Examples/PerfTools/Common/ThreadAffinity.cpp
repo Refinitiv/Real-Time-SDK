@@ -100,7 +100,7 @@ bool bindThread( long& threadId, long& cpuId )
 	long cpuCount = sysconf( _SC_NPROCESSORS_ONLN );
 	if ( cpuId < 0 || cpuId > cpuCount )
 	{
-		if ( cpuId >= 0 ) printf("\nError: Requested CPU %d was not available, binding to all CPUs instead.\n\n", cpuId);
+		if ( cpuId >= 0 ) printf("\nError: Requested CPU %ld was not available, binding to all CPUs instead.\n\n", cpuId);
 
 		// this cpu is not available, assign all available cpus
 		for ( int pos = 0; pos < 32; ++pos )
@@ -121,7 +121,7 @@ bool bindThread( long& threadId, long& cpuId )
 
 	if ( ret != 0 )
 	{
-		printf("\nError: Failed to bind thread with threadId %d to CPU %d. Last error is %d\n\n", threadId, cpuId, errno);
+		printf("\nError: Failed to bind thread with threadId %ld to CPU %ld. Last error is %d\n\n", threadId, cpuId, errno);
 		return false;
 	}
 

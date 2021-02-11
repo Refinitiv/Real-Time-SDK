@@ -7,6 +7,7 @@
 */
 
 #ifndef __RSSL_JSON_CONVERTER_TEST_BASE_H__
+#define __RSSL_JSON_CONVERTER_TEST_BASE_H__
 
 #include "gtest/gtest.h"
 

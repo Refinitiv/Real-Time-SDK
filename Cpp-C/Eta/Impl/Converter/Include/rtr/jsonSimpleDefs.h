@@ -7,7 +7,7 @@
  */
 
 #ifndef __rtr_jsonSimpleDefs
-#define __rtr_jsonfSimpleDefs
+#define __rtr_jsonSimpleDefs
 
 static const RsslBuffer JSON_ID = { 2, (char*)"ID"};
 static const RsslBuffer JSON_TYPE = { 4, (char*)"Type"};

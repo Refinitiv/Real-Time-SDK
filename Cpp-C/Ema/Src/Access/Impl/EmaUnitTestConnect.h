@@ -7,7 +7,7 @@
  */
 
 #ifndef __refinitiv_ema_access_EmaUnitTestConnect_h
-#define __refinitiv_ema_access__EmaUnitTestConnect_h
+#define __refinitiv_ema_access_EmaUnitTestConnect_h
 
 #include "RmtesBufferImpl.h"
 #include "RmtesBuffer.h"

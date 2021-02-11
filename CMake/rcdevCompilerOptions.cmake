@@ -98,11 +98,16 @@ if( UNIX )
 
 	# flags for C
     set( RCDEV_C_FLAGS_INIT "${_compilerBitFlags} -D_DEFAULT_SOURCE=1  -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -pthread -D_iso_stdcpp_ -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE" CACHE STRING "" FORCE )
-	
+
+    # Suppress Clang formatting warnings only
+    if ( CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
+        set ( CMAKE_FLAGS_CLANG "-fno-omit-frame-pointer -Wno-format -Wno-format-security -Wno-parentheses -Wno-empty-body -Wno-unused-value -Wno-comment -Wno-logical-op-parentheses -Wno-dangling-else -Wno-constant-logical-operand -Wno-macro-redefined  -Wno-pointer-sign -Wno-constant-conversion -Wno-switch -Wno-enum-conversion -Wno-sizeof-pointer-memaccess -Wno-null-dereference -Wno-fortify-source -Wno-undefined-bool-conversion" CACHE STRING ""  FORCE )
+    endif()
+
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin" CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3"  CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
 	endif()
 
 	if (RCDEV_C_EXTRA_FLAGS)
@@ -112,9 +117,9 @@ if( UNIX )
 	# flags for C++
     set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++98 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE"  CACHE STRING "" FORCE)
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
-		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin" CACHE STRING ""  FORCE)
+		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING ""  FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -ggdb3"  CACHE STRING "" FORCE)
+		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
 	endif()
 
 	if (RCDEV_CXX_EXTRA_FLAGS)
